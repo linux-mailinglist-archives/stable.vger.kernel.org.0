@@ -2,192 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A75FE840
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 18:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE600E845
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 19:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbfD2Q7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 12:59:19 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:33874 "EHLO
-        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728681AbfD2Q7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 12:59:19 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BD91980D;
-        Mon, 29 Apr 2019 09:59:18 -0700 (PDT)
-Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 7C0F03F5AF;
-        Mon, 29 Apr 2019 09:59:17 -0700 (PDT)
-From:   Will Deacon <will.deacon@arm.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     tglx@linutronix.de, Will Deacon <will.deacon@arm.com>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH] arm64: arch_timer: Ensure counter register reads occur with seqlock held
-Date:   Mon, 29 Apr 2019 17:59:12 +0100
-Message-Id: <20190429165912.9497-1-will.deacon@arm.com>
-X-Mailer: git-send-email 2.11.0
+        id S1728695AbfD2RCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 13:02:23 -0400
+Received: from mail-it1-f194.google.com ([209.85.166.194]:54135 "EHLO
+        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728663AbfD2RCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 13:02:23 -0400
+Received: by mail-it1-f194.google.com with SMTP id z4so142795itc.3
+        for <stable@vger.kernel.org>; Mon, 29 Apr 2019 10:02:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wL3BmO/NnA3NwafXMitsQjGpheHu4M8s6Xt8v0Jomo0=;
+        b=s2AGHwV0MIipVuKm522AGWItowSBGgqT99tWc8KzjL140BVwLf0BNLJtwKT41jWXNL
+         Ukof9nce0Cq6pB0k4RT6l+JJckq6LDo7dqUTee6F4HyesQwlrL6FccvupQpguUqjGpNE
+         1LBkfc1FShajkH5kEmAjl9yf5FfYh/FTohBDK2bup5Dt8ctFaMV91kmiluhGT6lwpsIL
+         XNYRY1uDKflHGrH3ShCan7broKF2mwu9hB3Nri6Yuhib2DH1pqwGFDg425K6uze853HA
+         YqRV8YWIdZh09HQ/zO2TrNYOfMHz1jkmWpxyVCVGrCB7tP4XVQzYSYBc/qRxDOruKlp+
+         OUKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wL3BmO/NnA3NwafXMitsQjGpheHu4M8s6Xt8v0Jomo0=;
+        b=qUOWTy/9Wt30KNf6zQIJIRnUAG719pB9uLoC66UCGa9q4gr3OC/ThS9xqXN7Mxf4d4
+         KIu02XWoZVMetF9rBmtAn7m6upq3Roeql4G0FUFTUyktgphLGoJYL9JnWoCVLkKMXqhF
+         qxAvzuiqH4K9f8OyaTKjeXECWKxIjtEbc9IrzKSDQLKNKXnZJHtFVLoW1fTdJKlIGAJ0
+         iOJvXk5yzf2RRpDERWhkuhZxUyoEJqQHL/15Ifv1P6gR31+Agi1Wz/2tSuAs7bPd4umq
+         qgrfUoqx2X1QjgH8iB2WtqVv7QrVFEtppQ4NqOyGjUmPdJVp4WznAc8FjWHvBHuXIaOW
+         f/nQ==
+X-Gm-Message-State: APjAAAUAgyxH57yODDATNK6qnky7+aadHggha6Mq9qvm+rLAIY+pE+Yn
+        EA/Pd0Z3wgndGFSq59VU0lCs1w==
+X-Google-Smtp-Source: APXvYqyy2Hy85tx6UOgrLCUuzqKRridrK87+eM70gRZqlE4r2DrU+rLIsbBcQp9QFi70TYGENQj11w==
+X-Received: by 2002:a24:3602:: with SMTP id l2mr85415itl.68.1556557342335;
+        Mon, 29 Apr 2019 10:02:22 -0700 (PDT)
+Received: from google.com ([2620:15c:183:200:855f:8919:84a7:4794])
+        by smtp.gmail.com with ESMTPSA id w2sm9289032iot.33.2019.04.29.10.02.21
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 29 Apr 2019 10:02:21 -0700 (PDT)
+Date:   Mon, 29 Apr 2019 11:02:19 -0600
+From:   Ross Zwisler <zwisler@google.com>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     Ross Zwisler <zwisler@chromium.org>, linux-kernel@vger.kernel.org,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jie Yang <yang.jie@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.com>,
+        alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ASoC: Intel: avoid Oops if DMA setup fails
+Message-ID: <20190429170219.GA89435@google.com>
+References: <20190426164740.211139-1-zwisler@google.com>
+ <0b030b85-00c8-2e35-3064-bb764aaff0f6@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0b030b85-00c8-2e35-3064-bb764aaff0f6@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When executing clock_gettime(), either in the vDSO or via a system call,
-we need to ensure that the read of the counter register occurs within
-the seqlock reader critical section. This ensures that updates to the
-clocksource parameters (e.g. the multiplier) are consistent with the
-counter value and therefore avoids the situation where time appears to
-go backwards across multiple reads.
+On Fri, Apr 26, 2019 at 04:03:47PM -0500, Pierre-Louis Bossart wrote:
+> On 4/26/19 11:47 AM, Ross Zwisler wrote:
+> > Currently in sst_dsp_new() if we get an error return from sst_dma_new()
+> > we just print an error message and then still complete the function
+> > successfully.  This means that we are trying to run without sst->dma
+> > properly set up, which will result in NULL pointer dereference when
+> > sst->dma is later used.  This was happening for me in
+> > sst_dsp_dma_get_channel():
+> > 
+> >          struct sst_dma *dma = dsp->dma;
+> > 	...
+> >          dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
+> > 
+> > This resulted in:
+> > 
+> >     BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+> >     IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
+> > 
+> > Fix this by adding proper error handling for the case where we fail to
+> > set up DMA.
+> > 
+> > Signed-off-by: Ross Zwisler <zwisler@google.com>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >   sound/soc/intel/common/sst-firmware.c | 6 +++++-
+> >   1 file changed, 5 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/sound/soc/intel/common/sst-firmware.c b/sound/soc/intel/common/sst-firmware.c
+> > index 1e067504b6043..9be3a793a55e3 100644
+> > --- a/sound/soc/intel/common/sst-firmware.c
+> > +++ b/sound/soc/intel/common/sst-firmware.c
+> > @@ -1251,11 +1251,15 @@ struct sst_dsp *sst_dsp_new(struct device *dev,
+> >   		goto irq_err;
+> >   	err = sst_dma_new(sst);
+> > -	if (err)
+> > +	if (err)  {
+> >   		dev_warn(dev, "sst_dma_new failed %d\n", err);
+> > +		goto dma_err;
+> > +	}
+> 
+> Thanks for the patch.
+> The fix looks correct, but does it make sense to keep a dev_warn() here?
+> Should it be changed to dev_err() instead since as you mentioned it's fatal
+> to keep going.
+> Also you may want to mention in the commit message that this should only
+> impact Broadwell and maybe the legacy Baytrail driver. IIRC we don't use the
+> DMAs in other cases.
 
-Extend the vDSO logic so that the seqlock critical section covers the
-read of the counter register as well as accesses to the data page. Since
-reads of the counter system registers are not ordered by memory barrier
-instructions, introduce dependency ordering from the counter read to a
-subsequent memory access so that the seqlock memory barriers apply to
-the counter access in both the vDSO and the system call paths.
-
-Cc: <stable@vger.kernel.org>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://lore.kernel.org/linux-arm-kernel/alpine.DEB.2.21.1902081950260.1662@nanos.tec.linutronix.de/
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
----
- arch/arm64/include/asm/arch_timer.h   | 33 +++++++++++++++++++++++++++++++--
- arch/arm64/kernel/vdso/gettimeofday.S | 15 +++++++++++----
- 2 files changed, 42 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arm64/include/asm/arch_timer.h b/arch/arm64/include/asm/arch_timer.h
-index f2a234d6516c..93e07512b4b6 100644
---- a/arch/arm64/include/asm/arch_timer.h
-+++ b/arch/arm64/include/asm/arch_timer.h
-@@ -148,18 +148,47 @@ static inline void arch_timer_set_cntkctl(u32 cntkctl)
- 	isb();
- }
- 
-+/*
-+ * Ensure that reads of the counter are treated the same as memory reads
-+ * for the purposes of ordering by subsequent memory barriers.
-+ *
-+ * This insanity brought to you by speculative system register reads,
-+ * out-of-order memory accesses, sequence locks and Thomas Gleixner.
-+ *
-+ * http://lists.infradead.org/pipermail/linux-arm-kernel/2019-February/631195.html
-+ */
-+#define arch_counter_enforce_ordering(val) do {				\
-+	u64 tmp, _val = (val);						\
-+									\
-+	asm volatile(							\
-+	"	eor	%0, %1, %1\n"					\
-+	"	add	%0, sp, %0\n"					\
-+	"	ldr	xzr, [%0]"					\
-+	: "=r" (tmp) : "r" (_val));					\
-+} while (0)
-+
- static inline u64 arch_counter_get_cntpct(void)
- {
-+	u64 cnt;
-+
- 	isb();
--	return arch_timer_reg_read_stable(cntpct_el0);
-+	cnt = arch_timer_reg_read_stable(cntpct_el0);
-+	arch_counter_enforce_ordering(cnt);
-+	return cnt;
- }
- 
- static inline u64 arch_counter_get_cntvct(void)
- {
-+	u64 cnt;
-+
- 	isb();
--	return arch_timer_reg_read_stable(cntvct_el0);
-+	cnt = arch_timer_reg_read_stable(cntvct_el0);
-+	arch_counter_enforce_ordering(cnt);
-+	return cnt;
- }
- 
-+#undef arch_counter_enforce_ordering
-+
- static inline int arch_timer_arch_init(void)
- {
- 	return 0;
-diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
-index 21805e416483..856fee6d3512 100644
---- a/arch/arm64/kernel/vdso/gettimeofday.S
-+++ b/arch/arm64/kernel/vdso/gettimeofday.S
-@@ -73,6 +73,13 @@ x_tmp		.req	x8
- 	movn	x_tmp, #0xff00, lsl #48
- 	and	\res, x_tmp, \res
- 	mul	\res, \res, \mult
-+	/*
-+	 * Fake address dependency from the value computed from the counter
-+	 * register to subsequent data page accesses so that the sequence
-+	 * locking also orders the read of the counter.
-+	 */
-+	and	x_tmp, \res, xzr
-+	add	vdso_data, vdso_data, x_tmp
- 	.endm
- 
- 	/*
-@@ -147,12 +154,12 @@ ENTRY(__kernel_gettimeofday)
- 	/* w11 = cs_mono_mult, w12 = cs_shift */
- 	ldp	w11, w12, [vdso_data, #VDSO_CS_MONO_MULT]
- 	ldp	x13, x14, [vdso_data, #VDSO_XTIME_CLK_SEC]
--	seqcnt_check fail=1b
- 
- 	get_nsec_per_sec res=x9
- 	lsl	x9, x9, x12
- 
- 	get_clock_shifted_nsec res=x15, cycle_last=x10, mult=x11
-+	seqcnt_check fail=1b
- 	get_ts_realtime res_sec=x10, res_nsec=x11, \
- 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
- 
-@@ -211,13 +218,13 @@ realtime:
- 	/* w11 = cs_mono_mult, w12 = cs_shift */
- 	ldp	w11, w12, [vdso_data, #VDSO_CS_MONO_MULT]
- 	ldp	x13, x14, [vdso_data, #VDSO_XTIME_CLK_SEC]
--	seqcnt_check fail=realtime
- 
- 	/* All computations are done with left-shifted nsecs. */
- 	get_nsec_per_sec res=x9
- 	lsl	x9, x9, x12
- 
- 	get_clock_shifted_nsec res=x15, cycle_last=x10, mult=x11
-+	seqcnt_check fail=realtime
- 	get_ts_realtime res_sec=x10, res_nsec=x11, \
- 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
- 	clock_gettime_return, shift=1
-@@ -231,7 +238,6 @@ monotonic:
- 	ldp	w11, w12, [vdso_data, #VDSO_CS_MONO_MULT]
- 	ldp	x13, x14, [vdso_data, #VDSO_XTIME_CLK_SEC]
- 	ldp	x3, x4, [vdso_data, #VDSO_WTM_CLK_SEC]
--	seqcnt_check fail=monotonic
- 
- 	/* All computations are done with left-shifted nsecs. */
- 	lsl	x4, x4, x12
-@@ -239,6 +245,7 @@ monotonic:
- 	lsl	x9, x9, x12
- 
- 	get_clock_shifted_nsec res=x15, cycle_last=x10, mult=x11
-+	seqcnt_check fail=monotonic
- 	get_ts_realtime res_sec=x10, res_nsec=x11, \
- 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
- 
-@@ -253,13 +260,13 @@ monotonic_raw:
- 	/* w11 = cs_raw_mult, w12 = cs_shift */
- 	ldp	w12, w11, [vdso_data, #VDSO_CS_SHIFT]
- 	ldp	x13, x14, [vdso_data, #VDSO_RAW_TIME_SEC]
--	seqcnt_check fail=monotonic_raw
- 
- 	/* All computations are done with left-shifted nsecs. */
- 	get_nsec_per_sec res=x9
- 	lsl	x9, x9, x12
- 
- 	get_clock_shifted_nsec res=x15, cycle_last=x10, mult=x11
-+	seqcnt_check fail=monotonic_raw
- 	get_ts_clock_raw res_sec=x10, res_nsec=x11, \
- 		clock_nsec=x15, nsec_to_sec=x9
- 
--- 
-2.11.0
-
+Sure, I'll address both of these in a v2.  Thank you for the quick review.
