@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0099DF66
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5B7DF68
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727351AbfD2J14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 05:27:56 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:59317 "EHLO
+        id S1727393AbfD2J2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 05:28:04 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36863 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727325AbfD2J14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:27:56 -0400
+        by vger.kernel.org with ESMTP id S1727325AbfD2J2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:28:03 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 940A321FEC;
-        Mon, 29 Apr 2019 05:27:55 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 1320521785;
+        Mon, 29 Apr 2019 05:28:03 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 29 Apr 2019 05:27:55 -0400
+  by compute6.internal (MEProxy); Mon, 29 Apr 2019 05:28:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=U+2qVx
-        iP3mgz6FJBNyx5sXKlIIjWyurM4qIr3Xxc3pA=; b=Tm67NQKybjS2BHCJ3ZlGgE
-        bzMEwVBJdsoNMDvD0cBc7mBhwjRyocC4y5NThUIO3V01crh8Lt4XRAKP6Gjd5KDR
-        +HVebNAjjgzIxQInIzMc1HUE8dGjpMTaowAR98O74Nu2qDACLq7JmSmQUY1daUwH
-        7ub4hbWayaD2XwLLy/PnLz73rakSaOypI6BB3RJKo1KNMxwmMGj4hhJPA4kaLJBL
-        W30a0bUba9roaMj6PQ59z3tTbZD0mY18nI0dyPxJAanypkTJZxJnPpvr5LAe5Ra7
-        DmSO3O3I4hTIsuLsKCAZpnTwsOZc3PkMonkwk/52WF1Jt20Pcca2BpsTktXGGluA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mXnlbX
+        dqNlPYb04QuYLDxoGtvtstj+cm+OkGtGnUZ4s=; b=ARop4z5ge8lHPido/imiwD
+        KloNC7YPwe8ajW31kvuxE2w2fe85d5kpHwvn1Ba7keV/upC3tYUsL3a6SzA4o30T
+        chAcWAgkNjQq+hL6Lj2H+UgLpRLSFKlYS6ohKm+aMoCxEqob6up1uK2vFFJHQF+K
+        XfjPEezeAlE1+ZX+v6omCM2nRAPpoopTnJ4rWNQ9BfqATh/gaJPtV4UD6D57+8de
+        Od0AR7wuEWHayiwg1B37vtp4q1APgzxZTxXijGwBjAKJFqfdrrnCJum0eO++fdJN
+        JMOC9dDXOL/xdS8jRWCXrvRZVJUF4O61b3JDbuTf8BcBjZsZPrvPLXZLyMtpRvVg
         ==
-X-ME-Sender: <xms:m8PGXPxHVBNfqRsPd2gXsdNOHz2Ya3Inkv9PGIeBS_zwL9FxHlSM2A>
+X-ME-Sender: <xms:osPGXARrPwEnCCyCRwkB2Vx3vPKkrL06ntAKfzBiqd0p1vaLvoJTXw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddriedvgdduiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
     drkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:m8PGXA_xa7UdKx7O6BbKl_wyMlU1-OfOEmFKyfEVaYiDJKhGEwhNFg>
-    <xmx:m8PGXIpevnRzepjiWwvIIGZiRCC210q_wxFCP9E645WomnsCkkbwcQ>
-    <xmx:m8PGXBlbN6GQ1_z1iV0C8kGcorS1WcNV3JPgp5vmmM33vEhBgQNEDQ>
-    <xmx:m8PGXOS0JSsYrXwi-UCHzkRm7ulpU76cjI2AteMseq7LtZ_pE2wzbw>
+    tghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:osPGXPK_8APZe1GGKSasKFcgSfbJQGbe3VkO-wMuGPkR5o83Y-2g7Q>
+    <xmx:osPGXHHlw2RDCc-dhOqf1pag-QxW09-IamKfqbGzTVwEw4n3NcG_lA>
+    <xmx:osPGXMTtrm1dVtpi8saZOxGA1-KFh28hBmhNWTBDBJqYsxlJYhpjGA>
+    <xmx:o8PGXFUToYmc-DgxDwJVGn3GAvaCFiYM4LSayw9SzoOMDAhzdwOHwA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AB24E103CC;
-        Mon, 29 Apr 2019 05:27:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "drm/i915/fbdev: Actually configure untiled displays"" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6A0BC103CC;
+        Mon, 29 Apr 2019 05:28:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "drm/i915/fbdev: Actually configure untiled displays"" failed to apply to 4.4-stable tree
 To:     airlied@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Apr 2019 11:27:52 +0200
-Message-ID: <15565300729113@kroah.com>
+Date:   Mon, 29 Apr 2019 11:27:53 +0200
+Message-ID: <1556530073236180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
