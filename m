@@ -2,114 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A105CE1E1
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 14:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B733E20E
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 14:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbfD2MFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 08:05:47 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:35106 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727913AbfD2MFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 08:05:46 -0400
-Received: by mail-wm1-f65.google.com with SMTP id y197so15408715wmd.0;
-        Mon, 29 Apr 2019 05:05:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mail-followup-to
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=20OOFr0oVOG3w2tDZNbxmeNviUJCH2+i2oLY/RHV008=;
-        b=JO93+Zd8tjqmorRYNflToRliUbhCKK5M21vq9vLHkRNDCFRlVVKVTuxlxHqSr/fnuB
-         JL8os2aJKJUI1EVOX/eQnvS0Yv2/kH/CwFI+DhhSOyTMelMH5wPi1mmsPPT1wYpBiO4t
-         M7wR5chm33A5fRGtpXvEGJCAgy19+ts98hEvYL+AuXDGhC/XAsxVoH9Fkq2PIGOAfKmw
-         LQi2S3+EEgmztn6i7l4T1kDO8KVlnWuV0bDHNM20+A2tRcHBmeY/qGt8ePCO1sYZTRwA
-         ol8xp1YnibDI9cSpsiz5id0DklVX4tCDskHZ3loBYI7vrfJRb0epSOInLyIN+1WBYHeq
-         D++Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=20OOFr0oVOG3w2tDZNbxmeNviUJCH2+i2oLY/RHV008=;
-        b=rCXlZ3GBbIwAMeW2DSNVzg2QAhjMxf+pVHkhHfLQdn8pur7v5TcPoz39KNNi3cou3Q
-         n7zw99kzfTqEPGKqGsx4wHVE2l7w4DXCK9GCP91aFnvadMA/9tMVCD+RAc0NO69L6rFg
-         faF4ppX+89KapgBXu5CyNXm+N36B37ewf1RueOmQDFQEgbVrUQL/DAaCLf5oeaC5cN8D
-         Anc+3RWTOEATwEyVC3UL7IC20G1lMr664PU7gbTpLZAgLc1wAcI+3S3/avQXaSU7gUnc
-         mU9Hg1Ni+yq4WF3a7NqgeIFdRFbIlHqTn0QbqXkVDVgetBC1R2NNaOyudrPvrMPPnwbo
-         p5nw==
-X-Gm-Message-State: APjAAAUYBsmjZgeC7I2/5Z69h8BbVr/21zLte7c8nfbQ4uuiYykIjMef
-        Vy8McT93DX+1BKlt+lX74CCdMPRGJHY=
-X-Google-Smtp-Source: APXvYqyCR3xeg68owtki/FaZ1ocnf+R+zsT5L1/6gp47ZgExmjY0bREset3gyISWSH62B/rUJc+wCg==
-X-Received: by 2002:a7b:c218:: with SMTP id x24mr4555674wmi.57.1556539544773;
-        Mon, 29 Apr 2019 05:05:44 -0700 (PDT)
-Received: from lorien (lorien.valinor.li. [2a01:4f8:192:61d5::2])
-        by smtp.gmail.com with ESMTPSA id q4sm35120101wrx.25.2019.04.29.05.05.43
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 29 Apr 2019 05:05:43 -0700 (PDT)
-Date:   Mon, 29 Apr 2019 14:05:42 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        928125@bugs.debian.org, Brad Barnett <debian-bugs2@L8R.net>
-Subject: Re: Revert commit 310ca162d77
-Message-ID: <20190429120542.wybwf5vqwzhv6nkf@lorien.valinor.li>
-Mail-Followup-To: Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Greg KH <gregkh@linuxfoundation.org>, 928125@bugs.debian.org,
-        Brad Barnett <debian-bugs2@L8R.net>
-References: <20190320125806.GD9485@quack2.suse.cz>
+        id S1728034AbfD2MQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 08:16:56 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:34856 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727936AbfD2MQz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 08:16:55 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x3TBxEek174530;
+        Mon, 29 Apr 2019 12:16:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=corp-2018-07-02;
+ bh=B1oht0ZDwvaguBnKrF+K0MYiqzlUfmJHFgAiOGTu+fE=;
+ b=kNC/7V8CSJvghv72xg7/u4Pjtov8WZAw3hyi/AF2fQHwC9zY0iykl2HNknejpheV9a16
+ 7hBiYbvSEhDbPaYUxgj8VKX3nai8FlDZNRPnqn16UevhPig1EJ8ATZwTQhN7k2VZ7QBV
+ 1mK92zQo+U2qrVW/p2BvEVvx/rfn/yZkbTEdmqifTNhhdZ9MyD/Y1Q1rSC67OFK4G129
+ IxQ6Gog2FVq4auU26Fgidqe/nqEFNgiWZMWuiUmbqDjjq3sGL+cy2u759ppXdTxbbnfr
+ j70CGLVBjqSMPE9rlBnHzR8TK7FT3ttrQ2MoAEqxm0fddb0JoTbDtb9EeACU8iLM3bp/ BQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 2s5j5ttmt9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 29 Apr 2019 12:16:50 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x3TCGfxu194795;
+        Mon, 29 Apr 2019 12:16:49 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 2s4ew0mqag-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 29 Apr 2019 12:16:49 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x3TCGll5015216;
+        Mon, 29 Apr 2019 12:16:48 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 29 Apr 2019 05:16:47 -0700
+To:     Pedro Sousa <PedroM.Sousa@synopsys.com>
+Cc:     alim.akhtar@samsung.com, avri.altman@wdc.com,
+        martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] scsi: ufs: Fix RX_TERMINATION_FORCE_ENABLE define value
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+References: <87405e9b14c6eb01b395f01eac4ab085e8020ff7.1555614814.git.sousa@synopsys.com>
+Date:   Mon, 29 Apr 2019 08:16:45 -0400
+In-Reply-To: <87405e9b14c6eb01b395f01eac4ab085e8020ff7.1555614814.git.sousa@synopsys.com>
+        (Pedro Sousa's message of "Thu, 18 Apr 2019 21:13:34 +0200")
+Message-ID: <yq1a7g90zwy.fsf@oracle.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190320125806.GD9485@quack2.suse.cz>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9241 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=516
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1904290088
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9241 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=559 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1904290088
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jan, hi Greg,
 
-On Wed, Mar 20, 2019 at 01:58:06PM +0100, Jan Kara wrote:
-> Hello,
-> 
-> commit 310ca162d77 "block/loop: Use global lock for ioctl() operation." has
-> been pushed to multiple stable trees. This patch is a part of larger series
-> that overhauls the locking inside loopback device upstream and for 4.4,
-> 4.9, and 4.14 stable trees only this patch from the series is applied. Our
-> testing now has shown [1] that the patch alone makes present deadlocks
-> inside loopback driver more likely (the openqa test in our infrastructure
-> didn't hit the deadlock before whereas with the new kernel it hits it
-> reliably every time). So I would suggest we revert 310ca162d77 from 4.4,
-> 4.9, and 4.14 kernels.
+Pedro,
 
-A user in Debian reported [1], providing the following testcase which showed up
-after the recent update to 4.9.168-1 in Debian stretch (based on upstream
-v4.9.168) as follows:
+> Fix RX_TERMINATION_FORCE_ENABLE define value from 0x0089 to 0x00A9
+> according to MIPI Alliance MPHY specification.
 
-	dd if=/dev/zero of=/tmp/ff1.raw bs=1G seek=8 count=0
-	sync
-	sleep 1
-	parted /tmp/ff1.raw mklabel msdos
-	parted -s /tmp/ff1.raw mkpart primary linux-swap 1 100
-	parted -s -- /tmp/ff1.raw mkpart primary ext2 101 -1
-	parted -s -- /tmp/ff1.raw set 2 boot on
-	sleep 5
-	losetup -Pf /tmp/ff1.raw --show
+Applied to 5.2/scsi-queue. Thanks!
 
-I have verified that the same happens with v4.9.171 where the mentioned commit
-was not reverted, and bisecting of the testcase showed it was introduced with
-3ae3d167f5ec2c7bb5fcd12b7772cfadc93b2305 (v4.9.152~9) (which is the backport of
-310ca162d77 for 4.9).
-
-Reverting 3ae3d167f5ec2c7bb5fcd12b7772cfadc93b2305 on top of v4.9.171 worked
-and fixed the respective issue.
-
-Can this commit in meanwhile be reverted or is there further ongoing work in
-integrating the followup fixes as mentioned in
-https://lore.kernel.org/stable/20190321104110.GF29086@quack2.suse.cz/ .
-
-Regards,
-Salvatore
-
- [1] https://bugs.debian.org/928125
+-- 
+Martin K. Petersen	Oracle Linux Engineering
