@@ -2,54 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA7BDFAE
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF12DFE1
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727752AbfD2Jnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 05:43:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55708 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727351AbfD2Jnd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 05:43:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E4A2075E;
-        Mon, 29 Apr 2019 09:43:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556531012;
-        bh=aSHmGzzq/V1JxyY2tqNTpgwP94DZg2qxTfI03dMWZtY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ahGBurIgPWOS3WsQsutYLZ5WEdIWgNAgGce5qJR6KDIJp5dSb24myXD0gOAdJWQIG
-         +BWmrv9xwZQd/j4Tm5eXFQAVnyq/0T9I16m+hpniR1B6mYQCqDSehqAHTlVCM9Ms3a
-         eHQIf9wAQkc8/+em7W3Qy27EqfYPJ2Ne+rQA8YnY=
-Date:   Mon, 29 Apr 2019 11:43:30 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     stable@vger.kernel.org, linuxppc-dev@ozlabs.org,
-        diana.craciun@nxp.com, msuchanek@suse.de, npiggin@gmail.com,
-        christophe.leroy@c-s.fr
-Subject: Re: [PATCH stable v4.4 00/52] powerpc spectre backports for 4.4
-Message-ID: <20190429094330.GA30526@kroah.com>
-References: <20190421142037.21881-1-mpe@ellerman.id.au>
+        id S1727752AbfD2JxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 05:53:25 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34849 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727616AbfD2JxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:53:25 -0400
+Received: by mail-pg1-f194.google.com with SMTP id h1so4914924pgs.2
+        for <stable@vger.kernel.org>; Mon, 29 Apr 2019 02:53:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=c+0MXpZEek4P+VCfEH1xx9Ru4uabXwTDh/y+GUG7DhQ=;
+        b=jtSNtzktrkH7xfB30YOoP4C+YhI+nR0BqlrWf1DAPXsYgcDHgsyx1CBmT5s2AaiyIc
+         yCATqRCaak+MtuRfbNxbXiip4l/aHxh69nizYBndpaW4ggbIA46mGFkhJ83bfa9p2w0I
+         JwQwHr7+RzbVg7ZLAKJ70bfAvNXcyKZYjHqbEw5kmP/anEDdl2X4w57N9o+SfQ7eIQAz
+         xrJkUJH12bI7y+SelMwJ37P4qaTDbA+YZ0X2KX/NwKUtapF+TIWr+VpcZd7gtxrg2HS2
+         x5Bdw76XQrR/5RnQau1jD3YvMCGBYe41L5A+08fur9LN/TQvt4xHCejoOu+98RUVe1/j
+         eyQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=c+0MXpZEek4P+VCfEH1xx9Ru4uabXwTDh/y+GUG7DhQ=;
+        b=e18PDwJkcKpp/7f+bvE4+bTkjB+wT1yyb/XE+yspbowFe0dYwJCjtJ2uRFocpgaHSh
+         cgvN6pmM0dXo2Um8UeizW2srwBJM1ZHeOFBg5b4b54BnImjEidA6Jy0uLhVu1coM5A5H
+         B60PQ0cD3II55rUFNTBx8XSTTubV/J+ldHq1L4q//JDahmXeYzBw1JX+grtyCt3b5bFw
+         cJe+AHlWUR0rTzFCYJ93n8G6avkgFI1jTJG9W9Ylvt/GZkKW3FVQuRJ3Gx6k4iSk5Ptk
+         FPuQy76rv7VkEurnBVi5lQKt0DBRFJ/7nylNOjxezrkgryq7KOlLcFLYNiy+u9WNeqE/
+         J2VQ==
+X-Gm-Message-State: APjAAAURGvD1km/UfYVBszw0mpxN8XWaVv/3jJ3cvq+36Ett31LWqeyu
+        xrsRrn9+IQ6xn0Ww8g9jTYYkFQ==
+X-Google-Smtp-Source: APXvYqxDqNTUAsQbPtgk+kVimoeL8h4ytSY5Oyrs0qJiWDcUQKBAF1tB6BP0WKarza1ht/h+HbJHlA==
+X-Received: by 2002:a63:da51:: with SMTP id l17mr16291377pgj.115.1556531604046;
+        Mon, 29 Apr 2019 02:53:24 -0700 (PDT)
+Received: from localhost ([122.166.139.136])
+        by smtp.gmail.com with ESMTPSA id z127sm8195540pfb.53.2019.04.29.02.53.22
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Apr 2019 02:53:22 -0700 (PDT)
+Date:   Mon, 29 Apr 2019 15:23:21 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+        Christian Neubert <christian.neubert.86@gmail.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@bootlin.com>,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] cpufreq: armada-37xx: fix frequency calculation for
+ opp
+Message-ID: <20190429095321.ah5taomlznghsxu5@vireshk-i7>
+References: <20190308164710.10597-1-gregory.clement@bootlin.com>
+ <20190308164710.10597-3-gregory.clement@bootlin.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190421142037.21881-1-mpe@ellerman.id.au>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190308164710.10597-3-gregory.clement@bootlin.com>
+User-Agent: NeoMutt/20180323-120-3dd1ac
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 22, 2019 at 12:19:45AM +1000, Michael Ellerman wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On 08-03-19, 17:47, Gregory CLEMENT wrote:
+> The frequency calculation was based on the current(max) frequency of the
+> CPU. However for low frequency, the value used was already the parent
+> frequency divided by a factor of 2.
 > 
-> Hi Greg/Sasha,
+> Instead of using this frequency, this fix directly get the frequency from
+> the parent clock.
 > 
-> Please queue up these powerpc patches for 4.4 if you have no objections.
+> Fixes: 92ce45fb875d ("cpufreq: Add DVFS support for Armada 37xx")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Christian Neubert <christian.neubert.86@gmail.com>
+> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+> ---
+>  drivers/cpufreq/armada-37xx-cpufreq.c | 22 +++++++++++++++++++---
+>  1 file changed, 19 insertions(+), 3 deletions(-)
 
-All now queued up, thanks.
+Applied this one.
 
-greg k-h
+-- 
+viresh
