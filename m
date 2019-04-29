@@ -2,192 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED2CECF7
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 00:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268B9ED1B
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 00:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729601AbfD2Wvt convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 29 Apr 2019 18:51:49 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38478 "EHLO mx1.redhat.com"
+        id S1729617AbfD2W7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 18:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729593AbfD2Wvt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 18:51:49 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1729603AbfD2W7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Apr 2019 18:59:20 -0400
+Received: from localhost (unknown [104.132.0.74])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 4708F2D7E5
-        for <stable@vger.kernel.org>; Mon, 29 Apr 2019 22:51:48 +0000 (UTC)
-Received: from [172.54.25.52] (cpt-0009.paas.prod.upshift.rdu2.redhat.com [10.0.18.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EC87157982;
-        Mon, 29 Apr 2019 22:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE9852075E;
+        Mon, 29 Apr 2019 22:59:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556578760;
+        bh=/wNr8VsiG03XlgiYJ3PW0ej3WrLq3I5p2va/dtfT1eQ=;
+        h=In-Reply-To:References:From:Subject:To:Cc:Date:From;
+        b=zvnvOknTP6/WjClt+yysNR0aev+4bazA60BfGQcM0sRt0xjk74yCtqqLWPOGHBtpR
+         Ja/+pbEHNUeKO9gNPv97yG6aoIBPvMh1z7w/WJarvG/ijOh8yWOIjSVW/OA/SyKbNJ
+         UWTWI6aw72jedO4rwzggGY5nqWhq/G1ZV/sXOa9o=
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.0.11-rc1-2b88afa.cki
- (stable)
-Message-ID: <cki.780C36DBC1.UAO6K5Z8PY@redhat.com>
-X-Gitlab-Pipeline-ID: 8883
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/8883
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Mon, 29 Apr 2019 22:51:48 +0000 (UTC)
-Date:   Mon, 29 Apr 2019 18:51:49 -0400
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1556571191.1721.0@crapouillou.net>
+References: <20190417112420.3034-1-paul@crapouillou.net> <155562472561.15276.17918796624287416345@swboyd.mtv.corp.google.com> <1556571191.1721.0@crapouillou.net>
+From:   Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH] clk: ingenic/jz4725b: Fix parent of pixel clock
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Michael Turquette <mturquette@baylibre.com>,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Message-ID: <155657875909.168659.9064792203031956186@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.8
+Date:   Mon, 29 Apr 2019 15:59:19 -0700
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Quoting Paul Cercueil (2019-04-29 13:53:11)
+> Hi Stephen,
+>=20
+> Le jeu. 18 avril 2019 =C3=A0 23:58, Stephen Boyd <sboyd@kernel.org> a=20
+> =C3=A9crit :
+> > Quoting Paul Cercueil (2019-04-17 04:24:20)
+> >>  The pixel clock is directly connected to the output of the PLL, and=20
+> >> not
+> >>  to the /2 divider.
+> >>=20
+> >>  Cc: stable@vger.kernel.org
+> >>  Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
+> >>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> >>  ---
+> >=20
+> > Applied to clk-next
+>=20
+> Could you drop this patch?
+>=20
+> It turns out it is wrong and the pixel clock is really connected to the=20
+> "pll half"
+> clock. The real bug was elsewhere: the "pll half" clock does not report=20
+> the correct
+> rate. I will send a patch for this one later.
+>=20
 
-We ran automated tests on a recent commit from this kernel tree:
+Ok. No problem.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 49e23c831c03 - Linux 5.0.11-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-49e23c831c03213f223c936133ca1baa2f34a9fe.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-49e23c831c03213f223c936133ca1baa2f34a9fe.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-49e23c831c03213f223c936133ca1baa2f34a9fe.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-49e23c831c03213f223c936133ca1baa2f34a9fe.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-49e23c831c03213f223c936133ca1baa2f34a9fe.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-49e23c831c03213f223c936133ca1baa2f34a9fe.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-49e23c831c03213f223c936133ca1baa2f34a9fe.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-49e23c831c03213f223c936133ca1baa2f34a9fe.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-
-  s390x:
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     ✅ Boot test [0]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-     🚧 ✅ kdump: sysrq-c [19]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
