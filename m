@@ -2,162 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE27FDFEE
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54AD3DFF8
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 12:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727537AbfD2J5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 05:57:00 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:46971 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727525AbfD2J47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:56:59 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3F52A22006;
-        Mon, 29 Apr 2019 05:56:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 29 Apr 2019 05:56:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HtPzg6
-        eu8xoU9nffiluhPR62OBZylE1Hq1KSLIarvRA=; b=EBVfv1/XBTXn2iq3hRevyz
-        pGfOEGvUAfQNZpJnpZPtzpuqXly2Y3OXjPF/18+m90PxoRaqkNGBDUaQUmPzgGlh
-        iUX6lShEgXNtlZffKUOJsQ0MT50GEViuZNfyOBAE7fEkFF3PFcTXyPvBMic1JfAV
-        GXTPEorsCgJQKwGfYGxsqyJHI6eRJHYPY1Sb+CQ4UOH7O6XcdSbsjaTbQB+7k4Hx
-        5BzmsN2sx0FLOT8/VFPVZpDSJXHmANBpCiDwGRUBn/VTgRkZsu5NVfya11T9Hx9S
-        hwfH0Nsu7WaE+7dOWq6W0XG0ZCQgrsmAabDOs6oRUh79ktzddgsdRqF/ORkBflaA
-        ==
-X-ME-Sender: <xms:asrGXE4yKJXweApgFOEOJgIzP14QoZMPmxInXo5lMyUqGSGC6wC0KA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddriedvgddvvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:asrGXLKSFFqDC8yOWvIaSLCdLZh6lMDenBcYOyA6v2h1QVdIo6dTMg>
-    <xmx:asrGXGGx8pKcVD7jFGUGmgW-E4ze52yaK6LIdRvPk3pBthpsKXVpDw>
-    <xmx:asrGXI3I5QFhSGXvcEEKPKVt2kklBZ1z9Luvaryqt53-2TzSfKXXxg>
-    <xmx:a8rGXLk4yuoNetL5zv_eRjbY22GH_bMB5yVdfrUaFBERlPbTgxd5Dg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DB14CE4173;
-        Mon, 29 Apr 2019 05:56:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/mm/radix: Make Radix require HUGETLB_PAGE" failed to apply to 4.14-stable tree
-To:     mpe@ellerman.id.au, joel@jms.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Apr 2019 11:53:29 +0200
-Message-ID: <155653160918192@kroah.com>
+        id S1727514AbfD2KAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 06:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727217AbfD2KAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Apr 2019 06:00:33 -0400
+Received: from localhost (unknown [77.138.135.184])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5337220449;
+        Mon, 29 Apr 2019 10:00:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556532033;
+        bh=8+KrS3MN83LrdK/gcPTXlmQoU7AtaGEuBQj0pJa47Og=;
+        h=From:To:Cc:Subject:Date:From;
+        b=X2B+iNL9WYce0XZEHnruNMdxpXFiIkTAgYSsjEYnCLht4mjPrYwZEuBz6dzrNemby
+         EHDo7HUFC/5btVec1nfoFI1zVFmEtUO48UddjRJ8tOb9U1niDm0zqehFQUe/V4T6ph
+         Y/g/d0C515pk3jB9d9Nc8ELE/Bj7JyYrAqUWLG54=
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        RDMA mailing list <linux-rdma@vger.kernel.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] RDMA/uverbs: Fix compilation error on s390 and mips platforms
+Date:   Mon, 29 Apr 2019 13:00:14 +0300
+Message-Id: <20190429100014.5820-1-leon@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Leon Romanovsky <leonro@mellanox.com>
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Most platforms ignore parameter provided to ZERO_PAGE macro,
+hence wrong parameter was used and missed. This caused to compilation
+error like presented below.
 
-thanks,
+drivers/infiniband/core/uverbs_main.c: In function 'rdma_umap_fault':
+drivers/infiniband/core/uverbs_main.c:898:28: error: 'struct vm_fault' has no member named 'vm_start'
+   vmf->page = ZERO_PAGE(vmf->vm_start);
+                            ^~
+Cc: stable@vger.kernel.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Doug Ledford <dledford@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 67f269b37f9b ("RDMA/ucontext: Fix regression with disassociate")
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+---
+ drivers/infiniband/core/uverbs_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+index 7843e89235c3..65fe89b3fa2d 100644
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -895,7 +895,7 @@ static vm_fault_t rdma_umap_fault(struct vm_fault *vmf)
 
------------------- original commit in Linus's tree ------------------
-
-From 8adddf349fda0d3de2f6bb41ddf838cbf36a8ad2 Mon Sep 17 00:00:00 2001
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Tue, 16 Apr 2019 23:59:02 +1000
-Subject: [PATCH] powerpc/mm/radix: Make Radix require HUGETLB_PAGE
-
-Joel reported weird crashes using skiroot_defconfig, in his case we
-jumped into an NX page:
-
-  kernel tried to execute exec-protected page (c000000002bff4f0) - exploit attempt? (uid: 0)
-  BUG: Unable to handle kernel instruction fetch
-  Faulting instruction address: 0xc000000002bff4f0
-
-Looking at the disassembly, we had simply branched to that address:
-
-  c000000000c001bc  49fff335    bl     c000000002bff4f0
-
-But that didn't match the original kernel image:
-
-  c000000000c001bc  4bfff335    bl     c000000000bff4f0 <kobject_get+0x8>
-
-When STRICT_KERNEL_RWX is enabled, and we're using the radix MMU, we
-call radix__change_memory_range() late in boot to change page
-protections. We do that both to mark rodata read only and also to mark
-init text no-execute. That involves walking the kernel page tables,
-and clearing _PAGE_WRITE or _PAGE_EXEC respectively.
-
-With radix we may use hugepages for the linear mapping, so the code in
-radix__change_memory_range() uses eg. pmd_huge() to test if it has
-found a huge mapping, and if so it stops the page table walk and
-changes the PMD permissions.
-
-However if the kernel is built without HUGETLBFS support, pmd_huge()
-is just a #define that always returns 0. That causes the code in
-radix__change_memory_range() to incorrectly interpret the PMD value as
-a pointer to a PTE page rather than as a PTE at the PMD level.
-
-We can see this using `dv` in xmon which also uses pmd_huge():
-
-  0:mon> dv c000000000000000
-  pgd  @ 0xc000000001740000
-  pgdp @ 0xc000000001740000 = 0x80000000ffffb009
-  pudp @ 0xc0000000ffffb000 = 0x80000000ffffa009
-  pmdp @ 0xc0000000ffffa000 = 0xc00000000000018f   <- this is a PTE
-  ptep @ 0xc000000000000100 = 0xa64bb17da64ab07d   <- kernel text
-
-The end result is we treat the value at 0xc000000000000100 as a PTE
-and clear _PAGE_WRITE or _PAGE_EXEC, potentially corrupting the code
-at that address.
-
-In Joel's specific case we cleared the sign bit in the offset of the
-branch, causing a backward branch to turn into a forward branch which
-caused us to branch into a non-executable page. However the exact
-nature of the crash depends on kernel version, compiler version, and
-other factors.
-
-We need to fix radix__change_memory_range() to not use accessors that
-depend on HUGETLBFS, but we also have radix memory hotplug code that
-uses pmd_huge() etc that will also need fixing. So for now just
-disallow the broken combination of Radix with HUGETLBFS disabled.
-
-The only defconfig we have that is affected is skiroot_defconfig, so
-turn on HUGETLBFS there so that it still gets Radix.
-
-Fixes: 566ca99af026 ("powerpc/mm/radix: Add dummy radix_enabled()")
-Cc: stable@vger.kernel.org # v4.7+
-Reported-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-
-diff --git a/arch/powerpc/configs/skiroot_defconfig b/arch/powerpc/configs/skiroot_defconfig
-index 5ba131c30f6b..1bcd468ab422 100644
---- a/arch/powerpc/configs/skiroot_defconfig
-+++ b/arch/powerpc/configs/skiroot_defconfig
-@@ -266,6 +266,7 @@ CONFIG_UDF_FS=m
- CONFIG_MSDOS_FS=m
- CONFIG_VFAT_FS=m
- CONFIG_PROC_KCORE=y
-+CONFIG_HUGETLBFS=y
- # CONFIG_MISC_FILESYSTEMS is not set
- # CONFIG_NETWORK_FILESYSTEMS is not set
- CONFIG_NLS=y
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index 842b2c7e156a..50cd09b4e05d 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -324,7 +324,7 @@ config ARCH_ENABLE_SPLIT_PMD_PTLOCK
- 
- config PPC_RADIX_MMU
- 	bool "Radix MMU Support"
--	depends on PPC_BOOK3S_64
-+	depends on PPC_BOOK3S_64 && HUGETLB_PAGE
- 	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
- 	default y
- 	help
+ 	/* Read only pages can just use the system zero page. */
+ 	if (!(vmf->vma->vm_flags & (VM_WRITE | VM_MAYWRITE))) {
+-		vmf->page = ZERO_PAGE(vmf->vm_start);
++		vmf->page = ZERO_PAGE(vmf->vma->vm_start);
+ 		get_page(vmf->page);
+ 		return 0;
+ 	}
+--
+2.20.1
 
