@@ -2,81 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54AD3DFF8
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 12:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDF0E092
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 12:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727514AbfD2KAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 06:00:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
+        id S1727621AbfD2Kcd convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 29 Apr 2019 06:32:33 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55454 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727217AbfD2KAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 06:00:33 -0400
-Received: from localhost (unknown [77.138.135.184])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727560AbfD2Kcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Apr 2019 06:32:32 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5337220449;
-        Mon, 29 Apr 2019 10:00:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556532033;
-        bh=8+KrS3MN83LrdK/gcPTXlmQoU7AtaGEuBQj0pJa47Og=;
-        h=From:To:Cc:Subject:Date:From;
-        b=X2B+iNL9WYce0XZEHnruNMdxpXFiIkTAgYSsjEYnCLht4mjPrYwZEuBz6dzrNemby
-         EHDo7HUFC/5btVec1nfoFI1zVFmEtUO48UddjRJ8tOb9U1niDm0zqehFQUe/V4T6ph
-         Y/g/d0C515pk3jB9d9Nc8ELE/Bj7JyYrAqUWLG54=
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] RDMA/uverbs: Fix compilation error on s390 and mips platforms
-Date:   Mon, 29 Apr 2019 13:00:14 +0300
-Message-Id: <20190429100014.5820-1-leon@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        by mx1.redhat.com (Postfix) with ESMTPS id 20BC3821D9
+        for <stable@vger.kernel.org>; Mon, 29 Apr 2019 10:32:32 +0000 (UTC)
+Received: from [172.54.57.253] (cpt-0007.paas.prod.upshift.rdu2.redhat.com [10.0.18.64])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BC5CA10013D9;
+        Mon, 29 Apr 2019 10:32:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.0
+Message-ID: <cki.EA3B14DE7F.HBF9A1TDJU@redhat.com>
+X-Gitlab-Pipeline-ID: 8851
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/8851
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Mon, 29 Apr 2019 10:32:32 +0000 (UTC)
+Date:   Mon, 29 Apr 2019 06:32:32 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+Hello,
 
-Most platforms ignore parameter provided to ZERO_PAGE macro,
-hence wrong parameter was used and missed. This caused to compilation
-error like presented below.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-drivers/infiniband/core/uverbs_main.c: In function 'rdma_umap_fault':
-drivers/infiniband/core/uverbs_main.c:898:28: error: 'struct vm_fault' has no member named 'vm_start'
-   vmf->page = ZERO_PAGE(vmf->vm_start);
-                            ^~
-Cc: stable@vger.kernel.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Doug Ledford <dledford@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Fixes: 67f269b37f9b ("RDMA/ucontext: Fix regression with disassociate")
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
----
- drivers/infiniband/core/uverbs_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: d3da1f09fff2 - Linux 5.0.10
 
-diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
-index 7843e89235c3..65fe89b3fa2d 100644
---- a/drivers/infiniband/core/uverbs_main.c
-+++ b/drivers/infiniband/core/uverbs_main.c
-@@ -895,7 +895,7 @@ static vm_fault_t rdma_umap_fault(struct vm_fault *vmf)
+The results of these automated tests are provided below.
 
- 	/* Read only pages can just use the system zero page. */
- 	if (!(vmf->vma->vm_flags & (VM_WRITE | VM_MAYWRITE))) {
--		vmf->page = ZERO_PAGE(vmf->vm_start);
-+		vmf->page = ZERO_PAGE(vmf->vma->vm_start);
- 		get_page(vmf->page);
- 		return 0;
- 	}
---
-2.20.1
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: d3da1f09fff2 - Linux 5.0.10
+
+We then merged the patchset with `git am`:
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-85484a7e05f914687dd4c37399a534bb862cfb4a.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-85484a7e05f914687dd4c37399a534bb862cfb4a.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-85484a7e05f914687dd4c37399a534bb862cfb4a.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-85484a7e05f914687dd4c37399a534bb862cfb4a.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-85484a7e05f914687dd4c37399a534bb862cfb4a.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-85484a7e05f914687dd4c37399a534bb862cfb4a.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-85484a7e05f914687dd4c37399a534bb862cfb4a.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-85484a7e05f914687dd4c37399a534bb862cfb4a.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ lvm thinp sanity [8]
+     🚧 ✅ audit: audit testsuite test [9]
+     🚧 ✅ stress: stress-ng [10]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ lvm thinp sanity [8]
+     🚧 ✅ audit: audit testsuite test [9]
+     🚧 ✅ selinux-policy: serge-testsuite [11]
+     🚧 ✅ stress: stress-ng [10]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ lvm thinp sanity [8]
+     🚧 ✅ audit: audit testsuite test [9]
+     🚧 ✅ stress: stress-ng [10]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ lvm thinp sanity [8]
+     🚧 ✅ audit: audit testsuite test [9]
+     🚧 ✅ selinux-policy: serge-testsuite [11]
+     🚧 ✅ stress: stress-ng [10]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
