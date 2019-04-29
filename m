@@ -2,70 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E584DC8D
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 09:04:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DB7DE8A
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726764AbfD2HEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 03:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbfD2HEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 03:04:00 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CB9E2053B;
-        Mon, 29 Apr 2019 07:03:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556521439;
-        bh=qrDMuZuX1wxLmzGaTUP/jakCb0ach5fUyGbQ7MM+gc4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g2SwCdonv4sBwoaRV9G5h5/VYEIdu1JH66qG29TL/dVWpc5On8fkEVWhVMDI8n9AJ
-         u2rgivwzLW4an0/yc+6apvluiyNAzZ6zisXjLY+2FoloS7rvm39zSwZB1diBIqYDYM
-         9xcUQ+oOKKTWjLTFRxyg4+bBbEaqXRmUyU2C4n1s=
-Date:   Mon, 29 Apr 2019 09:03:57 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     stable@vger.kernel.org, linuxppc-dev@ozlabs.org,
-        diana.craciun@nxp.com, msuchanek@suse.de, npiggin@gmail.com,
-        christophe.leroy@c-s.fr
-Subject: Re: [PATCH stable v4.4 00/52] powerpc spectre backports for 4.4
-Message-ID: <20190429070357.GA3167@kroah.com>
-References: <20190421142037.21881-1-mpe@ellerman.id.au>
- <20190421163421.GA8449@kroah.com>
- <87o94qac1z.fsf@concordia.ellerman.id.au>
- <87a7g99viy.fsf@concordia.ellerman.id.au>
+        id S1727589AbfD2JAY convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 29 Apr 2019 05:00:24 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:50423 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727525AbfD2JAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:00:24 -0400
+X-Originating-IP: 90.88.147.33
+Received: from xps13 (aaubervilliers-681-1-27-33.w90-88.abo.wanadoo.fr [90.88.147.33])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 0C63560012;
+        Mon, 29 Apr 2019 09:00:13 +0000 (UTC)
+Date:   Mon, 29 Apr 2019 11:00:13 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>
+Cc:     Daniel Mack <daniel@zonque.org>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mtd: rawnand: marvell: Clean the controller state
+ before each operation
+Message-ID: <20190429110013.68984b7f@xps13>
+In-Reply-To: <2565820.SR17ECleB1@blindfold>
+References: <20190408083145.13178-1-miquel.raynal@bootlin.com>
+        <20190414105019.5bac65d3@collabora.com>
+        <9a8a3963-1b8a-9f9b-8e54-200945518f99@zonque.org>
+        <2565820.SR17ECleB1@blindfold>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87a7g99viy.fsf@concordia.ellerman.id.au>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 29, 2019 at 04:26:45PM +1000, Michael Ellerman wrote:
-> Michael Ellerman <mpe@ellerman.id.au> writes:
-> > Greg KH <gregkh@linuxfoundation.org> writes:
-> >> On Mon, Apr 22, 2019 at 12:19:45AM +1000, Michael Ellerman wrote:
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>> 
-> >>> Hi Greg/Sasha,
-> >>> 
-> >>> Please queue up these powerpc patches for 4.4 if you have no objections.
-> >>
-> >> why?  Do you, or someone else, really care about spectre issues in 4.4?
-> >> Who is using ppc for 4.4 becides a specific enterprise distro (and they
-> >> don't seem to be pulling in my stable updates anyway...)?
-> >
-> > Someone asked for it, but TBH I can't remember who it was. I can chase
-> > it up if you like.
+Hi Richard,
+
+Richard Weinberger <richard@nod.at> wrote on Sun, 28 Apr 2019 15:07:40
++0200:
+
+> Daniel,
 > 
-> Yeah it was a request from one of the distros. They plan to take it once
-> it lands in 4.4 stable.
+> Am Sonntag, 28. April 2019, 14:20:49 CEST schrieb Daniel Mack:
+> > On 14/4/2019 10:50 AM, Boris Brezillon wrote:  
+> > > On Mon,  8 Apr 2019 10:31:45 +0200
+> > > Miquel Raynal <miquel.raynal@bootlin.com> wrote:
+> > >   
+> > >> Since the migration of the driver to stop using the legacy  
+> > >> ->select_chip() hook, there is nothing deselecting the target anymore,    
+> > >> thus the selection is not forced at the next access. Ensure the ND_RUN
+> > >> bit and the interrupts are always in a clean state.
+> > >>
+> > >> Cc: Daniel Mack <daniel@zonque.org>
+> > >> Cc: stable@vger.kernel.org
+> > >> Fixes: b25251414f6e00 ("mtd: rawnand: marvell: Stop implementing ->select_chip()")
+> > >> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > >> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>  
+> > > 
+> > > Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>  
+> > 
+> > Has this one been queued in any tree yet?  
+> 
+> Isn't it visible in linux-next?
+> I was about to send a final PR to Linus later today.
+> 
 
-Ok, thanks for confirming, I'll work on this this afternoon.
+Indeed the patch is missing in 20190426 -next. 
 
-greg k-h
+
+Thanks,
+Miquèl
