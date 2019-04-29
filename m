@@ -2,142 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC94BDEA9
-	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083B4DF5C
+	for <lists+stable@lfdr.de>; Mon, 29 Apr 2019 11:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbfD2JIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 05:08:13 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:26295 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727072AbfD2JIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Apr 2019 05:08:12 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 44szMn4n1dz9v17r;
-        Mon, 29 Apr 2019 11:08:05 +0200 (CEST)
-Authentication-Results: localhost; dkim=pass
-        reason="1024-bit key; insecure key"
-        header.d=c-s.fr header.i=@c-s.fr header.b=j6+5GTXY; dkim-adsp=pass;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id LqzIKKeKLX-I; Mon, 29 Apr 2019 11:08:05 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 44szMn3kNLz9v16q;
-        Mon, 29 Apr 2019 11:08:05 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1556528885; bh=wPADqUqD8mDw+pQQQH/8169RzAM7f9xUN6V+5LlCT/c=;
-        h=From:Subject:To:Cc:Date:From;
-        b=j6+5GTXYdzVYlCc188ch1qPmnKg0dOewpFavjxZMtB0PIYE6jCLcEZ9S3H4fnyy7I
-         CZKgdb3VZ4lAnPpPuJP5EUiHvyoUjdZ0GQOmEJX06ALEjLzDRHD4a6BWV/RE7tH3nq
-         r9BLTXQpsqeGBDvVKupP1k3NLZvSg5tr8RCGcLDU=
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 32A958B8AA;
-        Mon, 29 Apr 2019 11:08:10 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id JDSUbMBhw-PR; Mon, 29 Apr 2019 11:08:10 +0200 (CEST)
-Received: from po16846vm.idsi0.si.c-s.fr (po15451.idsi0.si.c-s.fr [172.25.231.6])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 0DE4D8B8A8;
-        Mon, 29 Apr 2019 11:08:10 +0200 (CEST)
-Received: by po16846vm.idsi0.si.c-s.fr (Postfix, from userid 0)
-        id A1F7C666FE; Mon, 29 Apr 2019 09:08:09 +0000 (UTC)
-Message-Id: <3a21c6f19637847e6ed080186a834ede619f3849.1556528569.git.christophe.leroy@c-s.fr>
-From:   Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: [PATCH] powerpc/32s: fix BATs setting with CONFIG_STRICT_KERNEL_RWX
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Serge Belyshev <belyshev@depni.sinp.msu.ru>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org
-Date:   Mon, 29 Apr 2019 09:08:09 +0000 (UTC)
+        id S1727368AbfD2JZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 05:25:01 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:38287 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727072AbfD2JZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 05:25:00 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6C0B021C46;
+        Mon, 29 Apr 2019 05:24:57 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 29 Apr 2019 05:24:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PlNYB0
+        eMZSBhkQfTdqrN0+DK/g/9nR/aa7BPJNu2O/I=; b=fBDwxbJ0xPD/IcLKkWJ4gu
+        6cW19g3+RqjSX+eX1krHKRPov6RPaW3XD8VzIaGFFyGJPNfm00GtD5sPYE2ojI7l
+        RrCQ2MzSDMGY+jC+GRINIYV5jPfYAtTk+zdGJq7DZWqjCc6samR3P8XluHT7gAgE
+        IE4DeAJcbodkbgaxKUx1I8MpASyNz25sHlUU1C2oW3XzpsN8bgywUYkDHZRn/BCu
+        Evre5IIMV3OFOJgMbWxsprZ4Vp1PpHV7JmJ+uSxgRLAmDJFbmoD2+LIIB0C1pNbA
+        yciSEhs78xSmGTlTWbgCRhWFcvb6XEnc1dCdNRrneOFVn/MZtf15nx+p0KHgQEgw
+        ==
+X-ME-Sender: <xms:6MLGXPVbNREg_JGKpVuNkv35kn5j6kMhISElBj3rdBu5IVsSxUBcpw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddriedvgdduhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:6MLGXOCAs8WDrMmwfoCZNdURnf1DyGAte9Fq2_Yu3v080Jzt3ThsTA>
+    <xmx:6MLGXEMyUWzRe7QxsGsMq2neONKPfNRufbxWcj7MKn_M7xQgp4pglg>
+    <xmx:6MLGXNN96oXorAeL2hmSW_wkJ6PvU-EB5tbZp_hMILPNuHCRV3KRYA>
+    <xmx:6cLGXGFYBDA-ya1ymIGn3Dpf8-L6vrx8yCUiEpMRotQEwETPhWClVg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0701CE4122;
+        Mon, 29 Apr 2019 05:24:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/mm/radix: Make Radix require HUGETLB_PAGE" failed to apply to 4.9-stable tree
+To:     mpe@ellerman.id.au, joel@jms.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 29 Apr 2019 11:24:54 +0200
+Message-ID: <155652989421647@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Serge reported some crashes with CONFIG_STRICT_KERNEL_RWX enabled
-on a book3s32 machine.
 
-Analysis shows two issues:
-- BATs addresses and sizes are not properly aligned.
-- There is a gap between the last address covered by BATs and the
-first address covered by pages.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Memory mapped with DBATs:
-0: 0xc0000000-0xc07fffff 0x00000000 Kernel RO coherent
-1: 0xc0800000-0xc0bfffff 0x00800000 Kernel RO coherent
-2: 0xc0c00000-0xc13fffff 0x00c00000 Kernel RW coherent
-3: 0xc1400000-0xc23fffff 0x01400000 Kernel RW coherent
-4: 0xc2400000-0xc43fffff 0x02400000 Kernel RW coherent
-5: 0xc4400000-0xc83fffff 0x04400000 Kernel RW coherent
-6: 0xc8400000-0xd03fffff 0x08400000 Kernel RW coherent
-7: 0xd0400000-0xe03fffff 0x10400000 Kernel RW coherent
+thanks,
 
-Memory mapped with pages:
-0xe1000000-0xefffffff  0x21000000       240M        rw       present           dirty  accessed
+greg k-h
 
-This patch fixes both issues. With the patch, we get the following
-which is as expected:
+------------------ original commit in Linus's tree ------------------
 
-Memory mapped with DBATs:
-0: 0xc0000000-0xc07fffff 0x00000000 Kernel RO coherent
-1: 0xc0800000-0xc0bfffff 0x00800000 Kernel RO coherent
-2: 0xc0c00000-0xc0ffffff 0x00c00000 Kernel RW coherent
-3: 0xc1000000-0xc1ffffff 0x01000000 Kernel RW coherent
-4: 0xc2000000-0xc3ffffff 0x02000000 Kernel RW coherent
-5: 0xc4000000-0xc7ffffff 0x04000000 Kernel RW coherent
-6: 0xc8000000-0xcfffffff 0x08000000 Kernel RW coherent
-7: 0xd0000000-0xdfffffff 0x10000000 Kernel RW coherent
+From 8adddf349fda0d3de2f6bb41ddf838cbf36a8ad2 Mon Sep 17 00:00:00 2001
+From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Tue, 16 Apr 2019 23:59:02 +1000
+Subject: [PATCH] powerpc/mm/radix: Make Radix require HUGETLB_PAGE
 
-Memory mapped with pages:
-0xe0000000-0xefffffff  0x20000000       256M        rw       present           dirty  accessed
+Joel reported weird crashes using skiroot_defconfig, in his case we
+jumped into an NX page:
 
-Reported-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
-Fixes: 63b2bc619565 ("powerpc/mm/32s: Use BATs for STRICT_KERNEL_RWX")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
----
- arch/powerpc/mm/ppc_mmu_32.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+  kernel tried to execute exec-protected page (c000000002bff4f0) - exploit attempt? (uid: 0)
+  BUG: Unable to handle kernel instruction fetch
+  Faulting instruction address: 0xc000000002bff4f0
 
-diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
-index bf1de3ca39bc..37cf2af98f6a 100644
---- a/arch/powerpc/mm/ppc_mmu_32.c
-+++ b/arch/powerpc/mm/ppc_mmu_32.c
-@@ -101,7 +101,7 @@ static int find_free_bat(void)
- static unsigned int block_size(unsigned long base, unsigned long top)
- {
- 	unsigned int max_size = (cpu_has_feature(CPU_FTR_601) ? 8 : 256) << 20;
--	unsigned int base_shift = (fls(base) - 1) & 31;
-+	unsigned int base_shift = (ffs(base) - 1) & 31;
- 	unsigned int block_shift = (fls(top - base) - 1) & 31;
+Looking at the disassembly, we had simply branched to that address:
+
+  c000000000c001bc  49fff335    bl     c000000002bff4f0
+
+But that didn't match the original kernel image:
+
+  c000000000c001bc  4bfff335    bl     c000000000bff4f0 <kobject_get+0x8>
+
+When STRICT_KERNEL_RWX is enabled, and we're using the radix MMU, we
+call radix__change_memory_range() late in boot to change page
+protections. We do that both to mark rodata read only and also to mark
+init text no-execute. That involves walking the kernel page tables,
+and clearing _PAGE_WRITE or _PAGE_EXEC respectively.
+
+With radix we may use hugepages for the linear mapping, so the code in
+radix__change_memory_range() uses eg. pmd_huge() to test if it has
+found a huge mapping, and if so it stops the page table walk and
+changes the PMD permissions.
+
+However if the kernel is built without HUGETLBFS support, pmd_huge()
+is just a #define that always returns 0. That causes the code in
+radix__change_memory_range() to incorrectly interpret the PMD value as
+a pointer to a PTE page rather than as a PTE at the PMD level.
+
+We can see this using `dv` in xmon which also uses pmd_huge():
+
+  0:mon> dv c000000000000000
+  pgd  @ 0xc000000001740000
+  pgdp @ 0xc000000001740000 = 0x80000000ffffb009
+  pudp @ 0xc0000000ffffb000 = 0x80000000ffffa009
+  pmdp @ 0xc0000000ffffa000 = 0xc00000000000018f   <- this is a PTE
+  ptep @ 0xc000000000000100 = 0xa64bb17da64ab07d   <- kernel text
+
+The end result is we treat the value at 0xc000000000000100 as a PTE
+and clear _PAGE_WRITE or _PAGE_EXEC, potentially corrupting the code
+at that address.
+
+In Joel's specific case we cleared the sign bit in the offset of the
+branch, causing a backward branch to turn into a forward branch which
+caused us to branch into a non-executable page. However the exact
+nature of the crash depends on kernel version, compiler version, and
+other factors.
+
+We need to fix radix__change_memory_range() to not use accessors that
+depend on HUGETLBFS, but we also have radix memory hotplug code that
+uses pmd_huge() etc that will also need fixing. So for now just
+disallow the broken combination of Radix with HUGETLBFS disabled.
+
+The only defconfig we have that is affected is skiroot_defconfig, so
+turn on HUGETLBFS there so that it still gets Radix.
+
+Fixes: 566ca99af026 ("powerpc/mm/radix: Add dummy radix_enabled()")
+Cc: stable@vger.kernel.org # v4.7+
+Reported-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+
+diff --git a/arch/powerpc/configs/skiroot_defconfig b/arch/powerpc/configs/skiroot_defconfig
+index 5ba131c30f6b..1bcd468ab422 100644
+--- a/arch/powerpc/configs/skiroot_defconfig
++++ b/arch/powerpc/configs/skiroot_defconfig
+@@ -266,6 +266,7 @@ CONFIG_UDF_FS=m
+ CONFIG_MSDOS_FS=m
+ CONFIG_VFAT_FS=m
+ CONFIG_PROC_KCORE=y
++CONFIG_HUGETLBFS=y
+ # CONFIG_MISC_FILESYSTEMS is not set
+ # CONFIG_NETWORK_FILESYSTEMS is not set
+ CONFIG_NLS=y
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index 842b2c7e156a..50cd09b4e05d 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -324,7 +324,7 @@ config ARCH_ENABLE_SPLIT_PMD_PTLOCK
  
- 	return min3(max_size, 1U << base_shift, 1U << block_shift);
-@@ -157,7 +157,7 @@ static unsigned long __init __mmu_mapin_ram(unsigned long base, unsigned long to
- 
- unsigned long __init mmu_mapin_ram(unsigned long base, unsigned long top)
- {
--	int done;
-+	unsigned long done;
- 	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
- 
- 	if (__map_without_bats) {
-@@ -169,10 +169,10 @@ unsigned long __init mmu_mapin_ram(unsigned long base, unsigned long top)
- 		return __mmu_mapin_ram(base, top);
- 
- 	done = __mmu_mapin_ram(base, border);
--	if (done != border - base)
-+	if (done != border)
- 		return done;
- 
--	return done + __mmu_mapin_ram(border, top);
-+	return __mmu_mapin_ram(border, top);
- }
- 
- void mmu_mark_initmem_nx(void)
--- 
-2.13.3
+ config PPC_RADIX_MMU
+ 	bool "Radix MMU Support"
+-	depends on PPC_BOOK3S_64
++	depends on PPC_BOOK3S_64 && HUGETLB_PAGE
+ 	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
+ 	default y
+ 	help
 
