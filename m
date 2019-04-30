@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 591ABF845
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5934F7DE
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727300AbfD3Lkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1728134AbfD3MDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:03:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbfD3Lkk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:40:40 -0400
+        id S1729938AbfD3Lng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D549121670;
-        Tue, 30 Apr 2019 11:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E18921670;
+        Tue, 30 Apr 2019 11:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624439;
-        bh=lFqXr5CILN0lHp0B8rVX7BGpKvw+oXbCxR3gM7v0pj4=;
+        s=default; t=1556624614;
+        bh=gXLdoaAcPWLTUVmzvOUrQ4bL46PcIJ0n9kh5CiHo3PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yoT7bVQBcZRz0ZeF5jlx2D+IO5DdzhcDizCOwajg56qPru45fOYdugzkyYycEyNMy
-         iY9wsnsaxYoAPa8lkLeX+BQaaTKrbqQFZvcSjFRQfxW3h8dmAoC40PJqQ7ob88kwGp
-         p7I/akjpJPOoj9+n8c8h4167IBj9F8aQUst0jpd4=
+        b=aH5UEdkNGRn/RJtVoJQ5nwiL/+dhdloi1FnhlwDP2GaaHLjPIwlkC7oCVKz8zmNhf
+         SZyx4aLI58M2Yfqt5H9D3bH1j3E4rEUAmdDLb2GyVopDYFo472K/iJ979Y4YGNRht4
+         Bk8IckUKamW4N4eCU9DEdEiWNMILQu6Cshud9+cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 36/41] ipv4: set the tcp_min_rtt_wlen range from 0 to one day
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>
+Subject: [PATCH 4.14 40/53] x86, retpolines: Raise limit for generating indirect calls from switch-case
 Date:   Tue, 30 Apr 2019 13:38:47 +0200
-Message-Id: <20190430113533.312468319@linuxfoundation.org>
+Message-Id: <20190430113558.059074259@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +53,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 19fad20d15a6494f47f85d869f00b11343ee5c78 ]
+commit ce02ef06fcf7a399a6276adb83f37373d10cbbe1 upstream.
 
-There is a UBSAN report as below:
-UBSAN: Undefined behaviour in net/ipv4/tcp_input.c:2877:56
-signed integer overflow:
-2147483647 * 1000 cannot be represented in type 'int'
-CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.1.0-rc4-00058-g582549e #1
-Call Trace:
- <IRQ>
- dump_stack+0x8c/0xba
- ubsan_epilogue+0x11/0x60
- handle_overflow+0x12d/0x170
- ? ttwu_do_wakeup+0x21/0x320
- __ubsan_handle_mul_overflow+0x12/0x20
- tcp_ack_update_rtt+0x76c/0x780
- tcp_clean_rtx_queue+0x499/0x14d0
- tcp_ack+0x69e/0x1240
- ? __wake_up_sync_key+0x2c/0x50
- ? update_group_capacity+0x50/0x680
- tcp_rcv_established+0x4e2/0xe10
- tcp_v4_do_rcv+0x22b/0x420
- tcp_v4_rcv+0xfe8/0x1190
- ip_protocol_deliver_rcu+0x36/0x180
- ip_local_deliver+0x15b/0x1a0
- ip_rcv+0xac/0xd0
- __netif_receive_skb_one_core+0x7f/0xb0
- __netif_receive_skb+0x33/0xc0
- netif_receive_skb_internal+0x84/0x1c0
- napi_gro_receive+0x2a0/0x300
- receive_buf+0x3d4/0x2350
- ? detach_buf_split+0x159/0x390
- virtnet_poll+0x198/0x840
- ? reweight_entity+0x243/0x4b0
- net_rx_action+0x25c/0x770
- __do_softirq+0x19b/0x66d
- irq_exit+0x1eb/0x230
- do_IRQ+0x7a/0x150
- common_interrupt+0xf/0xf
- </IRQ>
+>From networking side, there are numerous attempts to get rid of indirect
+calls in fast-path wherever feasible in order to avoid the cost of
+retpolines, for example, just to name a few:
 
-It can be reproduced by:
-  echo 2147483647 > /proc/sys/net/ipv4/tcp_min_rtt_wlen
+  * 283c16a2dfd3 ("indirect call wrappers: helpers to speed-up indirect calls of builtin")
+  * aaa5d90b395a ("net: use indirect call wrappers at GRO network layer")
+  * 028e0a476684 ("net: use indirect call wrappers at GRO transport layer")
+  * 356da6d0cde3 ("dma-mapping: bypass indirect calls for dma-direct")
+  * 09772d92cd5a ("bpf: avoid retpoline for lookup/update/delete calls on maps")
+  * 10870dd89e95 ("netfilter: nf_tables: add direct calls for all builtin expressions")
+  [...]
 
-Fixes: f672258391b42 ("tcp: track min RTT using windowed min-filter")
-Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Recent work on XDP from Björn and Magnus additionally found that manually
+transforming the XDP return code switch statement with more than 5 cases
+into if-else combination would result in a considerable speedup in XDP
+layer due to avoidance of indirect calls in CONFIG_RETPOLINE enabled
+builds. On i40e driver with XDP prog attached, a 20-26% speedup has been
+observed [0]. Aside from XDP, there are many other places later in the
+networking stack's critical path with similar switch-case
+processing. Rather than fixing every XDP-enabled driver and locations in
+stack by hand, it would be good to instead raise the limit where gcc would
+emit expensive indirect calls from the switch under retpolines and stick
+with the default as-is in case of !retpoline configured kernels. This would
+also have the advantage that for archs where this is not necessary, we let
+compiler select the underlying target optimization for these constructs and
+avoid potential slow-downs by if-else hand-rewrite.
+
+In case of gcc, this setting is controlled by case-values-threshold which
+has an architecture global default that selects 4 or 5 (latter if target
+does not have a case insn that compares the bounds) where some arch back
+ends like arm64 or s390 override it with their own target hooks, for
+example, in gcc commit db7a90aa0de5 ("S/390: Disable prediction of indirect
+branches") the threshold pretty much disables jump tables by limit of 20
+under retpoline builds.  Comparing gcc's and clang's default code
+generation on x86-64 under O2 level with retpoline build results in the
+following outcome for 5 switch cases:
+
+* gcc with -mindirect-branch=thunk-inline -mindirect-branch-register:
+
+  # gdb -batch -ex 'disassemble dispatch' ./c-switch
+  Dump of assembler code for function dispatch:
+   0x0000000000400be0 <+0>:     cmp    $0x4,%edi
+   0x0000000000400be3 <+3>:     ja     0x400c35 <dispatch+85>
+   0x0000000000400be5 <+5>:     lea    0x915f8(%rip),%rdx        # 0x4921e4
+   0x0000000000400bec <+12>:    mov    %edi,%edi
+   0x0000000000400bee <+14>:    movslq (%rdx,%rdi,4),%rax
+   0x0000000000400bf2 <+18>:    add    %rdx,%rax
+   0x0000000000400bf5 <+21>:    callq  0x400c01 <dispatch+33>
+   0x0000000000400bfa <+26>:    pause
+   0x0000000000400bfc <+28>:    lfence
+   0x0000000000400bff <+31>:    jmp    0x400bfa <dispatch+26>
+   0x0000000000400c01 <+33>:    mov    %rax,(%rsp)
+   0x0000000000400c05 <+37>:    retq
+   0x0000000000400c06 <+38>:    nopw   %cs:0x0(%rax,%rax,1)
+   0x0000000000400c10 <+48>:    jmpq   0x400c90 <fn_3>
+   0x0000000000400c15 <+53>:    nopl   (%rax)
+   0x0000000000400c18 <+56>:    jmpq   0x400c70 <fn_2>
+   0x0000000000400c1d <+61>:    nopl   (%rax)
+   0x0000000000400c20 <+64>:    jmpq   0x400c50 <fn_1>
+   0x0000000000400c25 <+69>:    nopl   (%rax)
+   0x0000000000400c28 <+72>:    jmpq   0x400c40 <fn_0>
+   0x0000000000400c2d <+77>:    nopl   (%rax)
+   0x0000000000400c30 <+80>:    jmpq   0x400cb0 <fn_4>
+   0x0000000000400c35 <+85>:    push   %rax
+   0x0000000000400c36 <+86>:    callq  0x40dd80 <abort>
+  End of assembler dump.
+
+* clang with -mretpoline emitting search tree:
+
+  # gdb -batch -ex 'disassemble dispatch' ./c-switch
+  Dump of assembler code for function dispatch:
+   0x0000000000400b30 <+0>:     cmp    $0x1,%edi
+   0x0000000000400b33 <+3>:     jle    0x400b44 <dispatch+20>
+   0x0000000000400b35 <+5>:     cmp    $0x2,%edi
+   0x0000000000400b38 <+8>:     je     0x400b4d <dispatch+29>
+   0x0000000000400b3a <+10>:    cmp    $0x3,%edi
+   0x0000000000400b3d <+13>:    jne    0x400b52 <dispatch+34>
+   0x0000000000400b3f <+15>:    jmpq   0x400c50 <fn_3>
+   0x0000000000400b44 <+20>:    test   %edi,%edi
+   0x0000000000400b46 <+22>:    jne    0x400b5c <dispatch+44>
+   0x0000000000400b48 <+24>:    jmpq   0x400c20 <fn_0>
+   0x0000000000400b4d <+29>:    jmpq   0x400c40 <fn_2>
+   0x0000000000400b52 <+34>:    cmp    $0x4,%edi
+   0x0000000000400b55 <+37>:    jne    0x400b66 <dispatch+54>
+   0x0000000000400b57 <+39>:    jmpq   0x400c60 <fn_4>
+   0x0000000000400b5c <+44>:    cmp    $0x1,%edi
+   0x0000000000400b5f <+47>:    jne    0x400b66 <dispatch+54>
+   0x0000000000400b61 <+49>:    jmpq   0x400c30 <fn_1>
+   0x0000000000400b66 <+54>:    push   %rax
+   0x0000000000400b67 <+55>:    callq  0x40dd20 <abort>
+  End of assembler dump.
+
+  For sake of comparison, clang without -mretpoline:
+
+  # gdb -batch -ex 'disassemble dispatch' ./c-switch
+  Dump of assembler code for function dispatch:
+   0x0000000000400b30 <+0>:	cmp    $0x4,%edi
+   0x0000000000400b33 <+3>:	ja     0x400b57 <dispatch+39>
+   0x0000000000400b35 <+5>:	mov    %edi,%eax
+   0x0000000000400b37 <+7>:	jmpq   *0x492148(,%rax,8)
+   0x0000000000400b3e <+14>:	jmpq   0x400bf0 <fn_0>
+   0x0000000000400b43 <+19>:	jmpq   0x400c30 <fn_4>
+   0x0000000000400b48 <+24>:	jmpq   0x400c10 <fn_2>
+   0x0000000000400b4d <+29>:	jmpq   0x400c20 <fn_3>
+   0x0000000000400b52 <+34>:	jmpq   0x400c00 <fn_1>
+   0x0000000000400b57 <+39>:	push   %rax
+   0x0000000000400b58 <+40>:	callq  0x40dcf0 <abort>
+  End of assembler dump.
+
+Raising the cases to a high number (e.g. 100) will still result in similar
+code generation pattern with clang and gcc as above, in other words clang
+generally turns off jump table emission by having an extra expansion pass
+under retpoline build to turn indirectbr instructions from their IR into
+switch instructions as a built-in -mno-jump-table lowering of a switch (in
+this case, even if IR input already contained an indirect branch).
+
+For gcc, adding --param=case-values-threshold=20 as in similar fashion as
+s390 in order to raise the limit for x86 retpoline enabled builds results
+in a small vmlinux size increase of only 0.13% (before=18,027,528
+after=18,051,192). For clang this option is ignored due to i) not being
+needed as mentioned and ii) not having above cmdline
+parameter. Non-retpoline-enabled builds with gcc continue to use the
+default case-values-threshold setting, so nothing changes here.
+
+[0] https://lore.kernel.org/netdev/20190129095754.9390-1-bjorn.topel@gmail.com/
+    and "The Path to DPDK Speeds for AF_XDP", LPC 2018, networking track:
+  - http://vger.kernel.org/lpc_net2018_talks/lpc18_pres_af_xdp_perf-v3.pdf
+  - http://vger.kernel.org/lpc_net2018_talks/lpc18_paper_af_xdp_perf-v2.pdf
+
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: netdev@vger.kernel.org
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Magnus Karlsson <magnus.karlsson@intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Link: https://lkml.kernel.org/r/20190221221941.29358-1-daniel@iogearbox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Documentation/networking/ip-sysctl.txt |    1 +
- net/ipv4/sysctl_net_ipv4.c             |    5 ++++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -405,6 +405,7 @@ tcp_min_rtt_wlen - INTEGER
- 	minimum RTT when it is moved to a longer path (e.g., due to traffic
- 	engineering). A longer window makes the filter more resistant to RTT
- 	inflations such as transient congestion. The unit is seconds.
-+	Possible values: 0 - 86400 (1 day)
- 	Default: 300
+---
+ arch/x86/Makefile |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -242,6 +242,11 @@ KBUILD_CFLAGS += -fno-asynchronous-unwin
+ # Avoid indirect branches in kernel to deal with Spectre
+ ifdef CONFIG_RETPOLINE
+   KBUILD_CFLAGS += $(RETPOLINE_CFLAGS)
++  # Additionally, avoid generating expensive indirect jumps which
++  # are subject to retpolines for small number of switch cases.
++  # clang turns off jump table generation by default when under
++  # retpoline builds, however, gcc does not for x86.
++  KBUILD_CFLAGS += $(call cc-option,--param=case-values-threshold=20)
+ endif
  
- tcp_moderate_rcvbuf - BOOLEAN
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -41,6 +41,7 @@ static int tcp_syn_retries_min = 1;
- static int tcp_syn_retries_max = MAX_TCP_SYNCNT;
- static int ip_ping_group_range_min[] = { 0, 0 };
- static int ip_ping_group_range_max[] = { GID_T_MAX, GID_T_MAX };
-+static int one_day_secs = 24 * 3600;
- 
- /* Update system visible IP port range */
- static void set_local_port_range(struct net *net, int range[2])
-@@ -460,7 +461,9 @@ static struct ctl_table ipv4_table[] = {
- 		.data		= &sysctl_tcp_min_rtt_wlen,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &zero,
-+		.extra2		= &one_day_secs
- 	},
- 	{
- 		.procname	= "tcp_low_latency",
+ archscripts: scripts_basic
 
 
