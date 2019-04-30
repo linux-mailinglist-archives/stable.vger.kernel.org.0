@@ -2,96 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 576B1FECB
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 19:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0F8FF0D
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 19:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726056AbfD3R0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 13:26:21 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:37002 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725950AbfD3R0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 13:26:21 -0400
-Received: by mail-wr1-f65.google.com with SMTP id r6so21980524wrm.4
-        for <stable@vger.kernel.org>; Tue, 30 Apr 2019 10:26:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=vbu+duPQ3Gidqyd1HzI106GHPJ30aNP6V5EEGGBDfZA=;
-        b=sRkWg0FEoMZtA3z1TDPTN9w8e8rq4asE91S+ZvRpBLCKAm7bDaGTf9KthYHxfYs8lV
-         oZb4jwoKfk5s4v5RmdVdZdeGNMOJSMDhUfR72EFGSH6pyASKhj7AK1v4LP5QVo96Go2Y
-         cul99crdIYXIKVdb/lXfK+JeQs6W7xeUyPzAhoAdpVqdU8ZqBDTVDlrHAqvOhaC6GLhB
-         vZsrE1wEXAK23a2MVLI8NGdAaq/NxkmHch7fOOODNKmWM7bLxZBo7Ur3mRVnmclJEbP1
-         ImuaNbRnKY9GvFfth6a+Okgq5vj9IQrA2gsqe/J0+agnjRU88RDlibOwlSkZBnxzV3WE
-         IVsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=vbu+duPQ3Gidqyd1HzI106GHPJ30aNP6V5EEGGBDfZA=;
-        b=T7F99xdCLmG7iW9lPgLFDxIsP6EPiEY/OmSZY9yFeD/qwivQb5sjOv6xVnqcEJ+fZc
-         37FIgLRP1+qd5NeZkf2Kjk7dkFCPz0Ng3mtuGlsmNe0+9Nv9/1ecKAD8e2rLX8d8YQ6T
-         eeurTC8XQRioiPRep3DYXXrZmbAIGQG82IXtA1NRYUTou3JzQsQuocisauyYL6VnBP08
-         apULm4+gXrd+KymReWBDHOEp8MeIEC/YeBBVBBHfGbsswnI68VGCxr3CmjeM661mYE1p
-         2WoHc/5cz9aujkNZebm2f9B318+8PLCOwMQHzjs6r5ph//oivza1eRXz3I4ZYJ5LrFXG
-         1TXQ==
-X-Gm-Message-State: APjAAAUKBdgOKo25FJJkvYU/0iIx8lZ6vi2krCRCvJ6IBidMQYo8F7yO
-        lJf5LHYguI9zM2ShXXuNdMOdjA==
-X-Google-Smtp-Source: APXvYqzYns8ymXYxPGouO0Ah685HRLxyXNAFU3Fc4/5PT7OuADwYfQTJI7TgNFhPSvKTDV14OJasRQ==
-X-Received: by 2002:a5d:45cc:: with SMTP id b12mr6567107wrs.142.1556645179732;
-        Tue, 30 Apr 2019 10:26:19 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r2sm3413137wmh.31.2019.04.30.10.26.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Apr 2019 10:26:19 -0700 (PDT)
-Message-ID: <5cc8853b.1c69fb81.82fcb.2de0@mx.google.com>
-Date:   Tue, 30 Apr 2019 10:26:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726006AbfD3RpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 13:45:05 -0400
+Received: from sonic301-22.consmr.mail.ir2.yahoo.com ([77.238.176.99]:33648
+        "EHLO sonic301-22.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725942AbfD3RpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 13:45:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1556646303; bh=jxj+w1r8rtewziiAD8RnBNU3Smt2xUm2nzPo3uRBBI4=; h=Date:From:Reply-To:Subject:References:From:Subject; b=frMy6q0iddLTusTrSIqgX+CZt6OT2qeqUfuf+vmiVKaTzk3ix9kR67CEzmg9eHr5wyxM2Mnz68kGiuXWWaWE7892I7rg41okGXEA7OQHIOdYbQqCcKI2MVOnJNJnOL8qYw/Hdox51aFFuUIewvSpCCECB82I9JmXy49JMuPouNdotUO7QqwqG7+R6EmWhdIK8OImldGdKjRSGQQR8dGTPcuQa39IfZn4sb1fdT/dq4z68GFxo99dUnP1v75oXR4NUxPDj4ah/hKUUj1mk3jVOjyTd8H7JQhgubJdrxkJAdCqx1JUmQYm7H5wKWLVSzB1K7EyCO5Lza6/6WnKZXek0A==
+X-YMail-OSG: Kp.lgpAVM1mq9J5X9zewTsKRwk3FN72_YOEAeqRv5uzc514A3EFNEaJLt1_niST
+ 4oyLhooTrkdGMtKFDfUhwWwdpQj9NtLDSFb3IoU9AKhJK7IUvG3e.qKq0ZYbgSPQeoOqteylgwjB
+ FjjELsKumZp6bW0_wWigjUDMDweIW0Isk6zim.RDo00KE7UWxFe7fkNzODf4XxJkDHetsqAWxlSI
+ 2yUFk9PA40CB8KVXc7PCOiM6bzeDBsAfvFWMCV3k3npNqkrShVx8.HtcR.iPpwIIBfSa5McpvOQF
+ CDEk_N24AtzQHyzUxPKMD9FaxE2lQF_5X_LYu.IK53XoY.tt8vs9dpPFKdNyE3MAlk5CAWAzLXks
+ 483Np5RGGtLcClOLJrfv2db5Kg_fQyGDrruoP_kU3CTGSNzBSs2OJjvTFLIk2VudYIBw.1E4ipZb
+ 0JUvBIBO7M4T_pUXNW81dJcGmFbCSMccp6M3LzMSTHF7bOCsHXlxPQbJ8nxDdLxKTHxHfc1hSjdb
+ gewpZbgyKQXt7leZ4_ETpXlxXP76MEbVkYD7jjicR4KllvCz_5wwBDAF.vpmhHz.dY_9gNPIYNEK
+ yV6DzKYeAHSr1.Dro9b5VGoAxQMti1lAMfXZxrB_I4d0THn03C8cnPzqn4nVVrkmRGz1hdHZwUTb
+ bXcCWh096NqZm0ofuTfe_NsJJ_Y2I3nZFhFYMtWkhj72FIaKEqtvDbYvXSYhiOU7nlW4atkkwsdQ
+ xXWpngNicqTqdSWgTOUZ5LdWd7MRlT1WxyHEo7Fx5uLJ2NUFrpHzhHZ12aH82tqktYiZEEjy4bW5
+ sHjPXevzllRD7tkxX6Y0mKgITag27JpBKJ1VsGGnZl8lF.Tfp2M1mRmdzJeDhsYQ1THfxSwkavYI
+ n3uzli7w661mJO9Qybg5WvpT5nGV1YLueWz28DuzddLPZlipyrcs6Hn1NeQXizt.j4q9aFrCkmp.
+ TimJ.cDEScROC.l8qpI4rWskqgelA9aEZ04GIsgaVycjzRE8Q4g5Pl0rdXqdRglbErTjvzt7TrUc
+ _ybqaJu1IvG3K8zHv9ixzbshZxXFx9RkCh5fP7xM8gCaEus2RnAAc8qUKX3JDnD4eQ8vR2RMji.7
+ I8wk3ScpUp23PnUmfWmKTxkCQg4wK1jRkJeTGUnMZgh_FqSy5WTJ0E0Cpy1Cb3rRyvWM-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ir2.yahoo.com with HTTP; Tue, 30 Apr 2019 17:45:03 +0000
+Date:   Tue, 30 Apr 2019 17:45:01 +0000 (UTC)
+From:   Aisha Gaddafi <aishagaddafimd@gmail.com>
+Reply-To: Aisha Gaddafi <aishagaddafimd@gmail.com>
+Message-ID: <1766015233.4060839.1556646301477@mail.yahoo.com>
+Subject: Investment offer to you,
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.37-101-gf0b5b3d18a2f
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 000/100] 4.19.38-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+References: <1766015233.4060839.1556646301477.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.13554 YahooMailBasic Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/7.0.185.1002 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 122 boots: 0 failed, 121 passed with 1 offline=
- (v4.19.37-101-gf0b5b3d18a2f)
+Dear Friend,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.37-101-gf0b5b3d18a2f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.37-101-gf0b5b3d18a2f/
+ It=E2=80=99s my pleasure to contact you through this media as i am in need=
+ of your urgent assistance. My names are Mrs. Aisha Gaddafi a single Mother=
+ and a Widow with three Children. I am the only biological Daughter of late=
+ Libyan President (Late Colonel Muammar Gaddafi).
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.37-101-gf0b5b3d18a2f
-Git Commit: f0b5b3d18a2fd4e0a223ff2ef04d4d1f435d19f2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 70 unique boards, 24 SoC families, 14 builds out of 206
+I have an investment funds worth Twenty Eight Million Four Hundred Thousand=
+ United State Dollar ($28.400.000.00) and i need an investment Manager/Part=
+ner and because of the asylum status i will authorize you the ownership of =
+the funds, however, I am interested in you for the investment project assis=
+tance in your country, may be from there, we can build a business relations=
+hip in the near future.
 
-Offline Platforms:
+I am willing to negotiate investment/business profit sharing ratio with you=
+ base on the future investment earning profits. If you are willing to handl=
+e this project kindly reply urgent to enable me provide you more informatio=
+n about the investment funds. Your Urgent Reply Will Be Appreciated.
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-7
-            stih410-b2120: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Best Regards
+Mrs Aisha Gaddafi.
