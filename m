@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C52F657
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2D0F842
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730539AbfD3LqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:46:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59178 "EHLO mail.kernel.org"
+        id S1728731AbfD3LlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:41:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730169AbfD3LqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:20 -0400
+        id S1727730AbfD3LlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:41:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F10D21707;
-        Tue, 30 Apr 2019 11:46:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23D6B21734;
+        Tue, 30 Apr 2019 11:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624779;
-        bh=c88ScI8Uuvx5NjijKog5n0S0P2zYo9cGOcNXG3Coaa4=;
+        s=default; t=1556624460;
+        bh=J0ShUQzD1srjF3bzW26x95MrxhY7MvI01lJ6PQT1qB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02vV3lYxajuSL/ejIxuD8htvAMTeoLEU4ETPmfIkaBulTMrLaDFJX7DqxIN3WRmom
-         g0HmQQLU2nDpie32lU4LoC1H8sTBHubumcsjkhTHJCh8F+tply4DfrVvNM0Mw1YdpS
-         GMwPtUkAzAj2pElqYy86yjXzn11uZDdnebgdszK4=
+        b=LZVXc4ov0lAHZXocFF4vnuyo+6CyRweBmg8ALnuTNJGybeFnibZLLjlSIRQfefKLQ
+         8CSAtZyJU7f0Bz6Iu/6K66oJtbd5IdDRfMUT1j7o/KPopDtCWo3ySm6ShEeHWXm0Wt
+         C0r57OpaUIQPUTkvnDr4corWAgOi5c+OdNdVpNH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 069/100] aio: dont zero entire aio_kiocb aio_get_req()
+        stable@vger.kernel.org,
+        syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 27/41] tipc: check bearer name with right length in tipc_nl_compat_bearer_enable
 Date:   Tue, 30 Apr 2019 13:38:38 +0200
-Message-Id: <20190430113612.026422243@linuxfoundation.org>
+Message-Id: <20190430113531.206287981@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 2bc4ca9bb600cbe36941da2b2a67189fc4302a04 upstream.
+commit 6f07e5f06c8712acc423485f657799fc8e11e56c upstream.
 
-It's 192 bytes, fairly substantial. Most items don't need to be cleared,
-especially not upfront. Clear the ones we do need to clear, and leave
-the other ones for setup when the iocb is prepared and submitted.
+Syzbot reported the following crash:
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:961
+  memchr+0xce/0x110 lib/string.c:961
+  string_is_valid net/tipc/netlink_compat.c:176 [inline]
+  tipc_nl_compat_bearer_enable+0x2c4/0x910 net/tipc/netlink_compat.c:401
+  __tipc_nl_compat_doit net/tipc/netlink_compat.c:321 [inline]
+  tipc_nl_compat_doit+0x3aa/0xaf0 net/tipc/netlink_compat.c:354
+  tipc_nl_compat_handle net/tipc/netlink_compat.c:1162 [inline]
+  tipc_nl_compat_recv+0x1ae7/0x2750 net/tipc/netlink_compat.c:1265
+  genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+  genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+  netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+  genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+  netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+  netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+  netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+Uninit was created at:
+  __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+  alloc_skb include/linux/skbuff.h:1012 [inline]
+  netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+  netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+It was triggered when the bearer name size < TIPC_MAX_BEARER_NAME,
+it would check with a wrong len/TLV_GET_DATA_LEN(msg->req), which
+also includes priority and disc_domain length.
+
+This patch is to fix it by checking it with a right length:
+'TLV_GET_DATA_LEN(msg->req) - offsetof(struct tipc_bearer_config, name)'.
+
+Reported-by: syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/aio.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/tipc/netlink_compat.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1010,14 +1010,15 @@ static inline struct aio_kiocb *aio_get_
- {
- 	struct aio_kiocb *req;
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -394,7 +394,12 @@ static int tipc_nl_compat_bearer_enable(
+ 	if (!bearer)
+ 		return -EMSGSIZE;
  
--	req = kmem_cache_alloc(kiocb_cachep, GFP_KERNEL|__GFP_ZERO);
-+	req = kmem_cache_alloc(kiocb_cachep, GFP_KERNEL);
- 	if (unlikely(!req))
- 		return NULL;
- 
- 	percpu_ref_get(&ctx->reqs);
-+	req->ki_ctx = ctx;
- 	INIT_LIST_HEAD(&req->ki_list);
- 	refcount_set(&req->ki_refcnt, 0);
--	req->ki_ctx = ctx;
-+	req->ki_eventfd = NULL;
- 	return req;
- }
- 
-@@ -1738,6 +1739,10 @@ static ssize_t aio_poll(struct aio_kiocb
- 	if (unlikely(!req->file))
- 		return -EBADF;
- 
-+	req->head = NULL;
-+	req->woken = false;
-+	req->cancelled = false;
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	len -= offsetof(struct tipc_bearer_config, name);
++	if (len <= 0)
++		return -EINVAL;
 +
- 	apt.pt._qproc = aio_poll_queue_proc;
- 	apt.pt._key = req->events;
- 	apt.iocb = aiocb;
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(b->name, len))
+ 		return -EINVAL;
+ 
 
 
