@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4F3F605
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBABF705
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbfD3Ll7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
+        id S1730708AbfD3Ltc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:49:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728339AbfD3Ll7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:59 -0400
+        id S1730709AbfD3Ltb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:49:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C94A2173E;
-        Tue, 30 Apr 2019 11:41:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F84921734;
+        Tue, 30 Apr 2019 11:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624517;
-        bh=4MgvCjtRuPfFLrdr3GFI8lnS+w73hTTvxyrtKECyQss=;
+        s=default; t=1556624970;
+        bh=9wjh8KhDFWxat4RFS8FnsuU4lCY2MRrx7waCkkCQFj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4YQ7SBxJW+n8wi0ifuRTmINOfzomansryhCUg0NqnaWGiisLvaVhTDt77Z9bacUH
-         YTPTDySJsTLwmFRgKye0s0nAfDgqt2er+oxY0hmpbWJ/e9LgFfVCZyy6OnxofYQggz
-         igr3yCpHq8qJMsLELB670/yeXK2ECBuBqx8JEatU=
+        b=ApLgYCaUFnLhuRsBl3zlGbpDChZLk2FFww1ChjRkBjFJiTy9tmiMtEWJ1dm/nfFfz
+         fJ3gFYYRChYK/PSRCKOF9jmbv9eJJcSeItrh+ygEUNqsfon+EUoiz1jGfA9HKFZtpp
+         OPh/8J9OqgV3Ap6Qh3loMKEw1/WD08CAwDQLUHLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.14 23/53] USB: Add new USB LPM helpers
-Date:   Tue, 30 Apr 2019 13:38:30 +0200
-Message-Id: <20190430113555.368929440@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.0 40/89] ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache
+Date:   Tue, 30 Apr 2019 13:38:31 +0200
+Message-Id: <20190430113611.689521185@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,160 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 7529b2574a7aaf902f1f8159fbc2a7caa74be559 upstream.
+commit e17b1af96b2afc38e684aa2f1033387e2ed10029 upstream.
 
-Use new helpers to make LPM enabling/disabling more clear.
+The EFI stub is entered with the caches and MMU enabled by the
+firmware, and once the stub is ready to hand over to the decompressor,
+we clean and disable the caches.
 
-This is a preparation to subsequent patch.
+The cache clean routines use CP15 barrier instructions, which can be
+disabled via SCTLR. Normally, when using the provided cache handling
+routines to enable the caches and MMU, this bit is enabled as well.
+However, but since we entered the stub with the caches already enabled,
+this routine is not executed before we call the cache clean routines,
+resulting in undefined instruction exceptions if the firmware never
+enabled this bit.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org> # after much soaking
+So set the bit explicitly in the EFI entry code, but do so in a way that
+guarantees that the resulting code can still run on v6 cores as well
+(which are guaranteed to have CP15 barriers enabled)
+
+Cc: <stable@vger.kernel.org> # v4.9+
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/driver.c  |   12 +++++++++++-
- drivers/usb/core/hub.c     |   12 ++++++------
- drivers/usb/core/message.c |    2 +-
- drivers/usb/core/sysfs.c   |    5 ++++-
- drivers/usb/core/usb.h     |   10 ++++++++--
- 5 files changed, 30 insertions(+), 11 deletions(-)
+ arch/arm/boot/compressed/head.S |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/driver.c
-+++ b/drivers/usb/core/driver.c
-@@ -1891,7 +1891,7 @@ int usb_runtime_idle(struct device *dev)
- 	return -EBUSY;
- }
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -1438,7 +1438,21 @@ ENTRY(efi_stub_entry)
  
--int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
-+static int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
- {
- 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
- 	int ret = -EPERM;
-@@ -1908,6 +1908,16 @@ int usb_set_usb2_hardware_lpm(struct usb
- 	return ret;
- }
- 
-+int usb_enable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return usb_set_usb2_hardware_lpm(udev, 1);
-+}
+ 		@ Preserve return value of efi_entry() in r4
+ 		mov	r4, r0
+-		bl	cache_clean_flush
 +
-+int usb_disable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return usb_set_usb2_hardware_lpm(udev, 0);
-+}
++		@ our cache maintenance code relies on CP15 barrier instructions
++		@ but since we arrived here with the MMU and caches configured
++		@ by UEFI, we must check that the CP15BEN bit is set in SCTLR.
++		@ Note that this bit is RAO/WI on v6 and earlier, so the ISB in
++		@ the enable path will be executed on v7+ only.
++		mrc	p15, 0, r1, c1, c0, 0	@ read SCTLR
++		tst	r1, #(1 << 5)		@ CP15BEN bit set?
++		bne	0f
++		orr	r1, r1, #(1 << 5)	@ CP15 barrier instructions
++		mcr	p15, 0, r1, c1, c0, 0	@ write SCTLR
++ ARM(		.inst	0xf57ff06f		@ v7+ isb	)
++ THUMB(		isb						)
 +
- #endif /* CONFIG_PM */
++0:		bl	cache_clean_flush
+ 		bl	cache_off
  
- struct bus_type usb_bus_type = {
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3175,7 +3175,7 @@ int usb_port_suspend(struct usb_device *
- 
- 	/* disable USB2 hardware LPM */
- 	if (udev->usb2_hw_lpm_enabled == 1)
--		usb_set_usb2_hardware_lpm(udev, 0);
-+		usb_disable_usb2_hardware_lpm(udev);
- 
- 	if (usb_disable_ltm(udev)) {
- 		dev_err(&udev->dev, "Failed to disable LTM before suspend\n.");
-@@ -3214,7 +3214,7 @@ int usb_port_suspend(struct usb_device *
-  err_ltm:
- 		/* Try to enable USB2 hardware LPM again */
- 		if (udev->usb2_hw_lpm_capable == 1)
--			usb_set_usb2_hardware_lpm(udev, 1);
-+			usb_enable_usb2_hardware_lpm(udev);
- 
- 		if (udev->do_remote_wakeup)
- 			(void) usb_disable_remote_wakeup(udev);
-@@ -3498,7 +3498,7 @@ int usb_port_resume(struct usb_device *u
- 	} else  {
- 		/* Try to enable USB2 hardware LPM */
- 		if (udev->usb2_hw_lpm_capable == 1)
--			usb_set_usb2_hardware_lpm(udev, 1);
-+			usb_enable_usb2_hardware_lpm(udev);
- 
- 		/* Try to enable USB3 LTM */
- 		usb_enable_ltm(udev);
-@@ -4334,7 +4334,7 @@ static void hub_set_initial_usb2_lpm_pol
- 	if ((udev->bos->ext_cap->bmAttributes & cpu_to_le32(USB_BESL_SUPPORT)) ||
- 			connect_type == USB_PORT_CONNECT_TYPE_HARD_WIRED) {
- 		udev->usb2_hw_lpm_allowed = 1;
--		usb_set_usb2_hardware_lpm(udev, 1);
-+		usb_enable_usb2_hardware_lpm(udev);
- 	}
- }
- 
-@@ -5492,7 +5492,7 @@ static int usb_reset_and_verify_device(s
- 	 * It will be re-enabled by the enumeration process.
- 	 */
- 	if (udev->usb2_hw_lpm_enabled == 1)
--		usb_set_usb2_hardware_lpm(udev, 0);
-+		usb_disable_usb2_hardware_lpm(udev);
- 
- 	/* Disable LPM and LTM while we reset the device and reinstall the alt
- 	 * settings.  Device-initiated LPM settings, and system exit latency
-@@ -5602,7 +5602,7 @@ static int usb_reset_and_verify_device(s
- 
- done:
- 	/* Now that the alt settings are re-installed, enable LTM and LPM. */
--	usb_set_usb2_hardware_lpm(udev, 1);
-+	usb_enable_usb2_hardware_lpm(udev);
- 	usb_unlocked_enable_lpm(udev);
- 	usb_enable_ltm(udev);
- 	usb_release_bos_descriptor(udev);
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1183,7 +1183,7 @@ void usb_disable_device(struct usb_devic
- 		}
- 
- 		if (dev->usb2_hw_lpm_enabled == 1)
--			usb_set_usb2_hardware_lpm(dev, 0);
-+			usb_disable_usb2_hardware_lpm(dev);
- 		usb_unlocked_disable_lpm(dev);
- 		usb_disable_ltm(dev);
- 
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -508,7 +508,10 @@ static ssize_t usb2_hardware_lpm_store(s
- 
- 	if (!ret) {
- 		udev->usb2_hw_lpm_allowed = value;
--		ret = usb_set_usb2_hardware_lpm(udev, value);
-+		if (value)
-+			ret = usb_enable_usb2_hardware_lpm(udev);
-+		else
-+			ret = usb_disable_usb2_hardware_lpm(udev);
- 	}
- 
- 	usb_unlock_device(udev);
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -89,7 +89,8 @@ extern int usb_remote_wakeup(struct usb_
- extern int usb_runtime_suspend(struct device *dev);
- extern int usb_runtime_resume(struct device *dev);
- extern int usb_runtime_idle(struct device *dev);
--extern int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable);
-+extern int usb_enable_usb2_hardware_lpm(struct usb_device *udev);
-+extern int usb_disable_usb2_hardware_lpm(struct usb_device *udev);
- 
- #else
- 
-@@ -109,7 +110,12 @@ static inline int usb_autoresume_device(
- 	return 0;
- }
- 
--static inline int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
-+static inline int usb_enable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return 0;
-+}
-+
-+static inline int usb_disable_usb2_hardware_lpm(struct usb_device *udev)
- {
- 	return 0;
- }
+ 		@ Set parameters for booting zImage according to boot protocol
 
 
