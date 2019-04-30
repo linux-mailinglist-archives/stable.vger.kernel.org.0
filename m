@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A34B5F80F
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BB3F787
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbfD3LlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:41:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S1727066AbfD3MAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:00:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728855AbfD3LlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:17 -0400
+        id S1730509AbfD3LqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 610852173E;
-        Tue, 30 Apr 2019 11:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E0C21734;
+        Tue, 30 Apr 2019 11:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624475;
-        bh=fF7jaDtHpmQSQ7ceoavLO0l3edO47I6/USZeAM0gI+4=;
+        s=default; t=1556624769;
+        bh=4aT7aPmrz8QpmHBVDf3yOHh3OlMJCOzD8zKtFRyBRZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LEzmY6e5iyxLAV1sc4Y/t2BvKcQtK35Ydl7xcQ59AzoH2GjWk1fxCKQSWd/Ha53kN
-         QdyzIfhaJzwh5lqbNhXa2B4VUTToC4zlOkaVWAt9Nr72cqeXhcqVqvWwGAOiYPBcUE
-         WVvrWrajqrtqV0IuQmUNAV0meZAdbzUw3iRQ/zQY=
+        b=BE6Z5uolToWBtzzRGLOCxdWbzrQzpjNTiegJM9BDNOiOWQGc8ZXynNVIRKgQXL4NO
+         W6gAh1KIzr1m8NiKkKL/qbsTgSZmnlvtgBN1GR40KYwCFkEDlQzHkMrh8UUrSGSfxT
+         k+U6T6NJykH6bmFbLRcahzxwCSM+K42mTT+vHxgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 23/41] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 065/100] rxrpc: fix race condition in rxrpc_input_packet()
 Date:   Tue, 30 Apr 2019 13:38:34 +0200
-Message-Id: <20190430113530.492945908@linuxfoundation.org>
+Message-Id: <20190430113611.879910212@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
+commit 032be5f19a94de51093851757089133dcc1e92aa upstream.
 
-Syzkaller report this:
+After commit 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook"),
+rxrpc_input_packet() is directly called from lockless UDP receive
+path, under rcu_read_lock() protection.
 
-  sysctl could not get directory: /net//bridge -12
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
-  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
-  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
-  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
-  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
-  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
-  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
-  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
-  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
-  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   erase_entry fs/proc/proc_sysctl.c:178 [inline]
-   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
-   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
-   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
-   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
-   br_netfilter_init+0x68/0x1000 [br_netfilter]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
-   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  ---[ end trace 68741688d5fbfe85 ]---
+It must therefore use RCU rules :
 
-commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
-dereference in put_links") forgot to handle start_unregistering() case,
-while header->parent is NULL, it calls erase_header() and as seen in the
-above syzkaller call trace, accessing &header->parent->root will trigger
-a NULL pointer dereference.
+- udp_sk->sk_user_data can be cleared at any point in this function.
+  rcu_dereference_sk_user_data() is what we need here.
 
-As that commit explained, there is also no need to call
-start_unregistering() if header->parent is NULL.
+- Also, since sk_user_data might have been set in rxrpc_open_socket()
+  we must observe a proper RCU grace period before kfree(local) in
+  rxrpc_lookup_local()
 
-Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
-Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
-Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+v4: @local can be NULL in xrpc_lookup_local() as reported by kbuild test robot <lkp@intel.com>
+        and Julia Lawall <julia.lawall@lip6.fr>, thanks !
+
+v3,v2 : addressed David Howells feedback, thanks !
+
+syzbot reported :
+
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 19236 Comm: syz-executor703 Not tainted 5.1.0-rc6 #79
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__lock_acquire+0xbef/0x3fb0 kernel/locking/lockdep.c:3573
+Code: 00 0f 85 a5 1f 00 00 48 81 c4 10 01 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 b8 00 00 00 00 00 fc ff df 4c 89 ea 48 c1 ea 03 <80> 3c 02 00 0f 85 4a 21 00 00 49 81 7d 00 20 54 9c 89 0f 84 cf f4
+RSP: 0018:ffff88809d7aef58 EFLAGS: 00010002
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000026 RSI: 0000000000000000 RDI: 0000000000000001
+RBP: ffff88809d7af090 R08: 0000000000000001 R09: 0000000000000001
+R10: ffffed1015d05bc7 R11: ffff888089428600 R12: 0000000000000000
+R13: 0000000000000130 R14: 0000000000000001 R15: 0000000000000001
+FS:  00007f059044d700(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000004b6040 CR3: 00000000955ca000 CR4: 00000000001406f0
+Call Trace:
+ lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4211
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+ _raw_spin_lock_irqsave+0x95/0xcd kernel/locking/spinlock.c:152
+ skb_queue_tail+0x26/0x150 net/core/skbuff.c:2972
+ rxrpc_reject_packet net/rxrpc/input.c:1126 [inline]
+ rxrpc_input_packet+0x4a0/0x5536 net/rxrpc/input.c:1414
+ udp_queue_rcv_one_skb+0xaf2/0x1780 net/ipv4/udp.c:2011
+ udp_queue_rcv_skb+0x128/0x730 net/ipv4/udp.c:2085
+ udp_unicast_rcv_skb.isra.0+0xb9/0x360 net/ipv4/udp.c:2245
+ __udp4_lib_rcv+0x701/0x2ca0 net/ipv4/udp.c:2301
+ udp_rcv+0x22/0x30 net/ipv4/udp.c:2482
+ ip_protocol_deliver_rcu+0x60/0x8f0 net/ipv4/ip_input.c:208
+ ip_local_deliver_finish+0x23b/0x390 net/ipv4/ip_input.c:234
+ NF_HOOK include/linux/netfilter.h:289 [inline]
+ NF_HOOK include/linux/netfilter.h:283 [inline]
+ ip_local_deliver+0x1e9/0x520 net/ipv4/ip_input.c:255
+ dst_input include/net/dst.h:450 [inline]
+ ip_rcv_finish+0x1e1/0x300 net/ipv4/ip_input.c:413
+ NF_HOOK include/linux/netfilter.h:289 [inline]
+ NF_HOOK include/linux/netfilter.h:283 [inline]
+ ip_rcv+0xe8/0x3f0 net/ipv4/ip_input.c:523
+ __netif_receive_skb_one_core+0x115/0x1a0 net/core/dev.c:4987
+ __netif_receive_skb+0x2c/0x1c0 net/core/dev.c:5099
+ netif_receive_skb_internal+0x117/0x660 net/core/dev.c:5202
+ napi_frags_finish net/core/dev.c:5769 [inline]
+ napi_gro_frags+0xade/0xd10 net/core/dev.c:5843
+ tun_get_user+0x2f24/0x3fb0 drivers/net/tun.c:1981
+ tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2027
+ call_write_iter include/linux/fs.h:1866 [inline]
+ do_iter_readv_writev+0x5e1/0x8e0 fs/read_write.c:681
+ do_iter_write fs/read_write.c:957 [inline]
+ do_iter_write+0x184/0x610 fs/read_write.c:938
+ vfs_writev+0x1b3/0x2f0 fs/read_write.c:1002
+ do_writev+0x15e/0x370 fs/read_write.c:1037
+ __do_sys_writev fs/read_write.c:1110 [inline]
+ __se_sys_writev fs/read_write.c:1107 [inline]
+ __x64_sys_writev+0x75/0xb0 fs/read_write.c:1107
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/proc_sysctl.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/rxrpc/input.c        |   12 ++++++++----
+ net/rxrpc/local_object.c |    3 ++-
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1604,9 +1604,11 @@ static void drop_sysctl_table(struct ctl
- 	if (--header->nreg)
- 		return;
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -1155,19 +1155,19 @@ int rxrpc_extract_header(struct rxrpc_sk
+  * handle data received on the local endpoint
+  * - may be called in interrupt context
+  *
+- * The socket is locked by the caller and this prevents the socket from being
+- * shut down and the local endpoint from going away, thus sk_user_data will not
+- * be cleared until this function returns.
++ * [!] Note that as this is called from the encap_rcv hook, the socket is not
++ * held locked by the caller and nothing prevents sk_user_data on the UDP from
++ * being cleared in the middle of processing this function.
+  *
+  * Called with the RCU read lock held from the IP layer via UDP.
+  */
+ int rxrpc_input_packet(struct sock *udp_sk, struct sk_buff *skb)
+ {
++	struct rxrpc_local *local = rcu_dereference_sk_user_data(udp_sk);
+ 	struct rxrpc_connection *conn;
+ 	struct rxrpc_channel *chan;
+ 	struct rxrpc_call *call = NULL;
+ 	struct rxrpc_skb_priv *sp;
+-	struct rxrpc_local *local = udp_sk->sk_user_data;
+ 	struct rxrpc_peer *peer = NULL;
+ 	struct rxrpc_sock *rx = NULL;
+ 	unsigned int channel;
+@@ -1175,6 +1175,10 @@ int rxrpc_input_packet(struct sock *udp_
  
--	if (parent)
-+	if (parent) {
- 		put_links(header);
--	start_unregistering(header);
-+		start_unregistering(header);
+ 	_enter("%p", udp_sk);
+ 
++	if (unlikely(!local)) {
++		kfree_skb(skb);
++		return 0;
 +	}
-+
- 	if (!--header->count)
- 		kfree_rcu(header, rcu);
+ 	if (skb->tstamp == 0)
+ 		skb->tstamp = ktime_get_real();
+ 
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -304,7 +304,8 @@ nomem:
+ 	ret = -ENOMEM;
+ sock_error:
+ 	mutex_unlock(&rxnet->local_mutex);
+-	kfree(local);
++	if (local)
++		call_rcu(&local->rcu, rxrpc_local_rcu);
+ 	_leave(" = %d", ret);
+ 	return ERR_PTR(ret);
  
 
 
