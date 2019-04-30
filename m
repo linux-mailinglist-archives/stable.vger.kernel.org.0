@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F02FC73
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82FCFFC78
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726014AbfD3PJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 11:09:06 -0400
-Received: from sender-pp-092.zoho.com ([135.84.80.237]:25419 "EHLO
-        sender-pp-o92.zoho.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725942AbfD3PJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 11:09:06 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1556634240; cv=none; 
+        id S1725942AbfD3PKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 11:10:00 -0400
+Received: from sender4-pp-o95.zoho.com ([136.143.188.95]:25596 "EHLO
+        sender4-pp-o95.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725906AbfD3PKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 11:10:00 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1556634273; cv=none; 
         d=zoho.com; s=zohoarc; 
-        b=Xghw7sO9q2Xyheo0Rl3GjNu4r7FElFKYUG3aLj7NE1qb+J9REVqgLp5b1X1oycGVQTWMf6Dws3XjK5aMyYwN53UEVhsU8JsndurqSrFRychgDwTWJR/ol1cTWIj7zYz1uhy8WndIiV+sbNIHy14SjFzQauptwegenDwmRrsv+FA=
+        b=mfk8MAVDYBh5D+t5N8zXPT0V16NvwKIXypPd7J9iRimMxTcSSW2Ikd9TZ+V+L2hQlqrg+Pt6FcgF45MQyuT0Y/qjWmX+efWN89xMaaCbqbkcGK8zQm3xit8oDHdDmF8RdREAtRVmhZngSjinxrGE6Edlb858ivdJrEd2qiTPqes=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zoho.com; s=zohoarc; 
-        t=1556634240; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To:ARC-Authentication-Results; 
+        t=1556634273; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To:ARC-Authentication-Results; 
         bh=K5BzyEqf24wVQe40Lud47ZVAeu3TYSMvcKqwIoHWhsQ=; 
-        b=j6o4RpIF5oY+AVv64AUy7gT85GaSRX+nAswAWfHQOXS36yBf9+dJ5MGJtMYeffQyNZ9mYFgfVNd+vKBtFlwVt+wcEqxk92mlghvJKTcDO0jGDbfpOiw/VA6F6qUTKf4hgt5dv7b3Ct/vR0X2dQdRv/IW0E5r3WRD0yn1gQHrVk0=
+        b=Ppn4+dJJOcgnoJ2/7Euo8xzz+czKtorAVcqEcHVW1CeND9KZrRqtgYc4NnmFWn42LHeI5GslDN6ijPXp17CdtsPSsGn+Slthn4pCTTPMXg2gYOUQTaWPjftVzeNsyZniTnfXZNkt66ogjZOE3CCiUagHoVg9CwNwMhnzzVxOgsg=
 ARC-Authentication-Results: i=1; mx.zoho.com;
         dkim=pass  header.i=zoho.com;
         spf=pass  smtp.mailfrom=strongbox8@zoho.com;
@@ -25,23 +25,25 @@ ARC-Authentication-Results: i=1; mx.zoho.com;
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; 
   s=zapps768; d=zoho.com; 
   h=from:to:cc:message-id:subject:date:mime-version:content-type; 
-  b=uNgRJxNlPJVGjUs4kxP7VYqyV08Oo9s9qK0kmQUmzz7LlZTnatJF/537hcL0hLCXV0rvtbEol2+J
-    +/DrrRM4jEp7CfpDgth3I6r3pHJuafpig1Hu5HbiUh84Kgg45dmi  
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1556634240;
+  b=g7f/SM0l7YPsKfWf4XXY773vIoWNkXScXKdqUEoq20PKHtZEgX0ZZNaI3qThm4WFY7hOy7MwzEZ6
+    ioMWF0o5TcuzzfIj5P3eIVMKysK20ZrEBjqaN5xiruYhC2vLzSXI  
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1556634273;
         s=default; d=zoho.com; i=strongbox8@zoho.com;
         h=From:To:Cc:Message-ID:Subject:Date:MIME-Version:Content-Transfer-Encoding:Content-Type;
         l=1352; bh=K5BzyEqf24wVQe40Lud47ZVAeu3TYSMvcKqwIoHWhsQ=;
-        b=c1KboL2NZwqHHg5YkxtqQ5OInjg682X3PQ5T4yKcV1yVa92NTtCabq5oEVN08EMf
-        YRfaaiYex0hygj4u7EOI9MmJPv1XTlzUga7saa9BD5Q0tfNZctkNyLvWwFD77tAWPaY
-        o3Iek0C88KY8eEH6X7I/hGCl/9ysIYlOpqpWG5HA=
-Received: from archlinux.localdomain (106.2.239.6 [106.2.239.6]) by mx.zohomail.com
-        with SMTPS id 1556634239308968.9743923236803; Tue, 30 Apr 2019 07:23:59 -0700 (PDT)
+        b=ZeaFanAGGV6ujArpeT3QkTx5zPIBAZyNrJgK2crNDcvIYe+myx6btSG/KfAdeUf2
+        0dML8vYXabECniOM2AreFsu25VySbOuTmfuni6/6H2rDxIf/nVlRXMSr+X6vPFc+V6T
+        lufqWfAwMYNwJcPJUcBBNSLdNC/xu8zjKWFpkIhE=
+Received: from archlinux.localdomain (106.2.239.74 [106.2.239.74]) by mx.zohomail.com
+        with SMTPS id 1556634269644614.490180315079; Tue, 30 Apr 2019 07:24:29 -0700 (PDT)
 From:   Perr Zhang <strongbox8@zoho.com>
-To:     strongbox8@zoho.com
-Cc:     stable@vger.kernel.org
-Message-ID: <20190430142403.3344-1-strongbox8@zoho.com>
+To:     pbonzini@redhat.com
+Cc:     rkrcmar@redhat.com, tglx@linutronix.de, stable@vger.kernel.org,
+        mingo@redhat.com, x86@kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Message-ID: <20190430142423.3393-1-strongbox8@zoho.com>
 Subject: [PATCH] KVM: x86: revert the order of calls in kvm_fast_pio()
-Date:   Tue, 30 Apr 2019 22:24:03 +0800
+Date:   Tue, 30 Apr 2019 22:24:23 +0800
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
