@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CDF8F72C
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1EACF866
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbfD3L4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:56:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S1728284AbfD3LkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730866AbfD3Lsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:41 -0400
+        id S1726294AbfD3LkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7902B20449;
-        Tue, 30 Apr 2019 11:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA13B21670;
+        Tue, 30 Apr 2019 11:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624921;
-        bh=TKqAad3HeCTQ5jzhurH98iRs8WRCsusuiIuMh6eGFjM=;
+        s=default; t=1556624408;
+        bh=UhzJsLWRQqqF97PnXv1nCVLIjpwwH475GlR5l98dpBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQlyzBzsWxcBHwvdqU7LxmzNFreBQDY77LN9+DwGjNj22iA+SeNuSEiNMTSoAqEwZ
-         u1PpzVQlTzO1l+8DjVzFfY94M77RJB9eMTkxUqI0hKq3wGX484w19SDExLTmDD+aGq
-         hJftTl77n15B9jkex9uIq+MhanK7wX0vOiIdEK9w=
+        b=cHxQNvhAtN2JWYxmGLaBJiZ+nlScDmQSmMOVh8hqfv52ruQg5z7DhAK7vX0ND2t0k
+         sHg9aL/TmHED50qfS88fJ+g7wnBceec4qSrgJVD+i2V/fqcZbtN45/llT1cKOPldCU
+         KxLzJuWkBpFH9bns5RYryX+EWu/SZr/t6a86gdwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Haggai Eran <haggaie@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 5.0 23/89] RDMA/mlx5: Do not allow the user to write to the clock page
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 03/41] tracing: Fix a memory leak by early error exit in trace_pid_write()
 Date:   Tue, 30 Apr 2019 13:38:14 +0200
-Message-Id: <20190430113611.124712220@linuxfoundation.org>
+Message-Id: <20190430113525.093145607@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Wenwen Wang <wang6495@umn.edu>
 
-commit c660133c339f9ab684fdf568c0d51b9ae5e86002 upstream.
+commit 91862cc7867bba4ee5c8fcf0ca2f1d30427b6129 upstream.
 
-The intent of this VMA was to be read-only from user space, but the
-VM_MAYWRITE masking was missed, so mprotect could make it writable.
+In trace_pid_write(), the buffer for trace parser is allocated through
+kmalloc() in trace_parser_get_init(). Later on, after the buffer is used,
+it is then freed through kfree() in trace_parser_put(). However, it is
+possible that trace_pid_write() is terminated due to unexpected errors,
+e.g., ENOMEM. In that case, the allocated buffer will not be freed, which
+is a memory leak bug.
 
+To fix this issue, free the allocated buffer when an error is encountered.
+
+Link: http://lkml.kernel.org/r/1555726979-15633-1-git-send-email-wang6495@umn.edu
+
+Fixes: f4d34a87e9c10 ("tracing: Use pid bitmap instead of a pid array for set_event_pid")
 Cc: stable@vger.kernel.org
-Fixes: 5c99eaecb1fc ("IB/mlx5: Mmap the HCA's clock info to user-space")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Reviewed-by: Haggai Eran <haggaie@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -1982,6 +1982,7 @@ static int mlx5_ib_mmap_clock_info_page(
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -500,8 +500,10 @@ int trace_pid_write(struct trace_pid_lis
+ 	 * not modified.
+ 	 */
+ 	pid_list = kmalloc(sizeof(*pid_list), GFP_KERNEL);
+-	if (!pid_list)
++	if (!pid_list) {
++		trace_parser_put(&parser);
+ 		return -ENOMEM;
++	}
  
- 	if (vma->vm_flags & VM_WRITE)
- 		return -EPERM;
-+	vma->vm_flags &= ~VM_MAYWRITE;
+ 	pid_list->pid_max = READ_ONCE(pid_max);
  
- 	if (!dev->mdev->clock_info_page)
- 		return -EOPNOTSUPP;
-@@ -2147,6 +2148,7 @@ static int mlx5_ib_mmap(struct ib_uconte
+@@ -511,6 +513,7 @@ int trace_pid_write(struct trace_pid_lis
  
- 		if (vma->vm_flags & VM_WRITE)
- 			return -EPERM;
-+		vma->vm_flags &= ~VM_MAYWRITE;
- 
- 		/* Don't expose to user-space information it shouldn't have */
- 		if (PAGE_SIZE > 4096)
+ 	pid_list->pids = vzalloc((pid_list->pid_max + 7) >> 3);
+ 	if (!pid_list->pids) {
++		trace_parser_put(&parser);
+ 		kfree(pid_list);
+ 		return -ENOMEM;
+ 	}
 
 
