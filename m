@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C76F7F3
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AAE4F676
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729727AbfD3LnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
+        id S1730226AbfD3LsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728487AbfD3LnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:43:01 -0400
+        id S1729268AbfD3LsB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:48:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1BB20449;
-        Tue, 30 Apr 2019 11:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E0042054F;
+        Tue, 30 Apr 2019 11:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624580;
-        bh=zahjVONL+SoIgGXoI24dcfsL/kyaVCK7bCylvHnBa4A=;
+        s=default; t=1556624881;
+        bh=8kMdkhGzM6gBWfkJXkVSKcf45hEG3yK+vyqGzpXuSVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fp8AoPfaoHUvlINzpuDJLwejRo5GsnyiA9c4fD73Mq16XqQksXGmFe1TRC7uZ7Vtd
-         QWQdHUKJ9anHyta2DB+d4xSnbNaqiUV3pzIX8OLLmuN6TpmEvGNHofW6S1yzYn4suh
-         4tHs2FCoV2525XPMbk65laJlp2DhAnDDTlPS5Tlc=
+        b=xeb4fM0cbO0UJHJmEAxxEVSAs1FgEMTYorTQw/e+8mFEIMYHJAww25oKqFa0NlTQG
+         n1R+NYlY4h4FBVGtHkB1Jzstyr0Ja73iZVp0/V+53CUwdtcSW4PV9G/PINfFw5zKOc
+         8KixwNXkhXL2T6tuzHWjkItZFjmhQP3UsIzY2/6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaofei Shen <xiaofeis@codeaurora.org>,
-        Sneh Shah <snehshah@codeaurora.org>,
-        Vinod Koul <vkoul@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Amit Cohen <amitc@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 48/53] net: stmmac: move stmmac_check_ether_addr() to driver probe
+Subject: [PATCH 4.19 086/100] mlxsw: spectrum: Fix autoneg status in ethtool
 Date:   Tue, 30 Apr 2019 13:38:55 +0200
-Message-Id: <20190430113559.116747710@linuxfoundation.org>
+Message-Id: <20190430113612.841924906@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Amit Cohen <amitc@mellanox.com>
 
-[ Upstream commit b561af36b1841088552464cdc3f6371d92f17710 ]
+[ Upstream commit 151f0dddbbfe4c35c9c5b64873115aafd436af9d ]
 
-stmmac_check_ether_addr() checks the MAC address and assigns one in
-driver open(). In many cases when we create slave netdevice, the dev
-addr is inherited from master but the master dev addr maybe NULL at
-that time, so move this call to driver probe so that address is
-always valid.
+If link is down and autoneg is set to on/off, the status in ethtool does
+not change.
 
-Signed-off-by: Xiaofei Shen <xiaofeis@codeaurora.org>
-Tested-by: Xiaofei Shen <xiaofeis@codeaurora.org>
-Signed-off-by: Sneh Shah <snehshah@codeaurora.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+The reason is when the link is down the function returns with zero
+before changing autoneg value.
+
+Move the checking of link state (up/down) to be performed after setting
+autoneg value, in order to be sure that autoneg will change in any case.
+
+Fixes: 56ade8fe3fe1 ("mlxsw: spectrum: Add initial support for Spectrum ASIC")
+Signed-off-by: Amit Cohen <amitc@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 ++--
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2582,8 +2582,6 @@ static int stmmac_open(struct net_device
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int ret;
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -2504,11 +2504,11 @@ mlxsw_sp_port_set_link_ksettings(struct
+ 	if (err)
+ 		return err;
  
--	stmmac_check_ether_addr(priv);
--
- 	if (priv->hw->pcs != STMMAC_PCS_RGMII &&
- 	    priv->hw->pcs != STMMAC_PCS_TBI &&
- 	    priv->hw->pcs != STMMAC_PCS_RTBI) {
-@@ -4213,6 +4211,8 @@ int stmmac_dvr_probe(struct device *devi
- 	if (ret)
- 		goto error_hw_init;
- 
-+	stmmac_check_ether_addr(priv);
++	mlxsw_sp_port->link.autoneg = autoneg;
 +
- 	/* Configure real RX and TX queues */
- 	netif_set_real_num_rx_queues(ndev, priv->plat->rx_queues_to_use);
- 	netif_set_real_num_tx_queues(ndev, priv->plat->tx_queues_to_use);
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+-	mlxsw_sp_port->link.autoneg = autoneg;
+-
+ 	mlxsw_sp_port_admin_status_set(mlxsw_sp_port, false);
+ 	mlxsw_sp_port_admin_status_set(mlxsw_sp_port, true);
+ 
 
 
