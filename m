@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 955F8F6CD
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1491F7E6
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731313AbfD3LvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
+        id S1729859AbfD3LnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731325AbfD3LvE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:51:04 -0400
+        id S1729830AbfD3LnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:43:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AB9820449;
-        Tue, 30 Apr 2019 11:51:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E456221707;
+        Tue, 30 Apr 2019 11:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625063;
-        bh=Wb9v6+JfhmpyAoywsRFXiLGKnv7wZi6IPZiBNKCeCaA=;
+        s=default; t=1556624598;
+        bh=r2UVRYgI6zFKWaIlg6Ntrk3OKtj+wxjvf66JG/ZofmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1u4PGz9kkHgLlXzpZoih99AlXc/GZYZp1kfP1tf00HakK1RMzy7lk3KsN3ltp/cyp
-         C2Ef1UfW9/Q8V8hzIgp7CgBzARHXVT7sFRVv1M6zIwWl+viMxoQESYGRd1fp0McQVX
-         Yq6mhDqpsqy2d2mDvivw+7weDiMgxrG0yq2ao40s=
+        b=0etMVobYchz5+tnPLtzOxkCMMhsd24P9++6VyKZwMVqXgGdQVhjUG0qfIBBUF4wGO
+         4uLyaK2azAIBS5sIKQrwP5yO3IWRPlP1mrmTnwusGU0r5MH22g7xkHpRKBVfbNNLLc
+         OztDHVgJusOPFsi61UQTFMHTvF/+wKuOcMgphnrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 50/89] tipc: handle the err returned from cmd header function
+        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.14 34/53] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
 Date:   Tue, 30 Apr 2019 13:38:41 +0200
-Message-Id: <20190430113612.040475975@linuxfoundation.org>
+Message-Id: <20190430113557.320151368@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
+commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
 
-Syzbot found a crash:
+syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
+is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
+(which is embedded into user-visible "struct nfs_mount_data" structure)
+despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
+bytes of AF_INET6 address to rpc_sockaddr2uaddr().
 
-  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-  Call Trace:
-    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
-    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
-    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
-    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
-    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
-    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
-    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
-    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
-    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
-    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
-    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
+Since "struct nfs_mount_data" structure is user-visible, we can't change
+"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
+assuming that everybody is using AF_INET family when passing address via
+"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
 
-  Uninit was created at:
-    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
-    alloc_skb include/linux/skbuff.h:1012 [inline]
-    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
-    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
+[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
 
-It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
-in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
-in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
-ahead of tipc_nl_compat_name_table_dump().
-
-However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
-header function. It means even when the check added in that fix fails, it
-won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
-triggered again.
-
-So this patch is to add the process for the err returned from cmd header
-function in tipc_nl_compat_dumpit().
-
-Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/netlink_compat.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/nfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -267,8 +267,14 @@ static int tipc_nl_compat_dumpit(struct
- 	if (msg->rep_type)
- 		tipc_tlv_init(msg->rep, msg->rep_type);
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -2044,7 +2044,8 @@ static int nfs23_validate_mount_data(voi
+ 		memcpy(sap, &data->addr, sizeof(data->addr));
+ 		args->nfs_server.addrlen = sizeof(data->addr);
+ 		args->nfs_server.port = ntohs(data->addr.sin_port);
+-		if (!nfs_verify_server_address(sap))
++		if (sap->sa_family != AF_INET ||
++		    !nfs_verify_server_address(sap))
+ 			goto out_no_address;
  
--	if (cmd->header)
--		(*cmd->header)(msg);
-+	if (cmd->header) {
-+		err = (*cmd->header)(msg);
-+		if (err) {
-+			kfree_skb(msg->rep);
-+			msg->rep = NULL;
-+			return err;
-+		}
-+	}
- 
- 	arg = nlmsg_new(0, GFP_KERNEL);
- 	if (!arg) {
+ 		if (!(data->flags & NFS_MOUNT_TCP))
 
 
