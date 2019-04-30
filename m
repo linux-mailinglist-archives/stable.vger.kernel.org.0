@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0FCF74D
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11A2F6B3
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727806AbfD3L5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:57:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33164 "EHLO mail.kernel.org"
+        id S1730439AbfD3LvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:51:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730734AbfD3Lri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:47:38 -0400
+        id S1731347AbfD3LvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:51:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF85120449;
-        Tue, 30 Apr 2019 11:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B2C320449;
+        Tue, 30 Apr 2019 11:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624857;
-        bh=xkRTa80tLR3PcUsxWpLitr24AxedZYy0UVzAqQLKAZo=;
+        s=default; t=1556625071;
+        bh=Dia8khkyeXuEmFqIkVPKZLv0GPdGtKJpyK5QhaOS6nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+lfJ6EU8XiudHseZ0RPSg6H6wx7mzXVKSzTor/Lhwtr18/Rdfm5smb5Za6OZ/27W
-         Y4oN8fjiatLwTUgDobOIMrCx/vnaqDi1JbC5VfT3cg8IMlr+lKrg5Q6VXpltfojMgI
-         l0PN7FQEo6nivRgaG0fS+Rb0NJajrli25jSXt8ic=
+        b=10LvycvOLEkBDX+VGmw7eNF2j/B99XgwrZnOyLz7H1zcwauNlYF4tkPDdkSWR8YTa
+         JKfkw0qnesfbyCwJ085M9PvXplzb9NINtTluudw8ZkJsIbsPVhwwbfryb50jsysQs4
+         /h5TbGqF4ViFfvKxqnD2DI67+fZnkaFypCzAOtH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        John Hurley <john.hurley@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 100/100] net/tls: dont leak IV and record seq when offload fails
-Date:   Tue, 30 Apr 2019 13:39:09 +0200
-Message-Id: <20190430113613.561524608@linuxfoundation.org>
+Subject: [PATCH 5.0 79/89] net/tls: fix refcount adjustment in fallback
+Date:   Tue, 30 Apr 2019 13:39:10 +0200
+Message-Id: <20190430113613.477214926@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +47,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 12c7686111326148b4b5db189130522a4ad1be4a ]
+[ Upstream commit 9188d5ca454fd665145904267e726e9e8d122f5c ]
 
-When device refuses the offload in tls_set_device_offload_rx()
-it calls tls_sw_free_resources_rx() to clean up software context
-state.
+Unlike atomic_add(), refcount_add() does not deal well
+with a negative argument.  TLS fallback code reallocates
+the skb and is very likely to shrink the truesize, leading to:
 
-Unfortunately, tls_sw_free_resources_rx() does not free all
-the state tls_set_sw_offload() allocated - it leaks IV and
-sequence number buffers.  All other code paths which lead to
-tls_sw_release_resources_rx() (which tls_sw_free_resources_rx()
-calls) free those right before the call.
+[  189.513254] WARNING: CPU: 5 PID: 0 at lib/refcount.c:81 refcount_add_not_zero_checked+0x15c/0x180
+ Call Trace:
+  refcount_add_checked+0x6/0x40
+  tls_enc_skb+0xb93/0x13e0 [tls]
 
-Avoid the leak by moving freeing of iv and rec_seq into
-tls_sw_release_resources_rx().
+Once wmem_allocated count saturates the application can no longer
+send data on the socket.  This is similar to Eric's fixes for GSO,
+TCP:
+commit 7ec318feeed1 ("tcp: gso: avoid refcount_t warning from tcp_gso_segment()")
+and UDP:
+commit 575b65bc5bff ("udp: avoid refcount_t saturation in __udp_gso_segment()").
 
-Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
+Unlike the GSO case, for TLS fallback it's likely that the skb has
+shrunk, so the "likely" annotation is the other way around (likely
+branch being "sub").
+
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Reviewed-by: John Hurley <john.hurley@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_device.c |    2 --
- net/tls/tls_main.c   |    5 +----
- net/tls/tls_sw.c     |    3 +++
- 3 files changed, 4 insertions(+), 6 deletions(-)
+ net/tls/tls_device_fallback.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -911,8 +911,6 @@ void tls_device_offload_cleanup_rx(struc
- 	}
- out:
- 	up_read(&device_offload_lock);
--	kfree(tls_ctx->rx.rec_seq);
--	kfree(tls_ctx->rx.iv);
- 	tls_sw_release_resources_rx(sk);
+--- a/net/tls/tls_device_fallback.c
++++ b/net/tls/tls_device_fallback.c
+@@ -193,6 +193,9 @@ static void update_chksum(struct sk_buff
+ 
+ static void complete_skb(struct sk_buff *nskb, struct sk_buff *skb, int headln)
+ {
++	struct sock *sk = skb->sk;
++	int delta;
++
+ 	skb_copy_header(nskb, skb);
+ 
+ 	skb_put(nskb, skb->len);
+@@ -200,11 +203,15 @@ static void complete_skb(struct sk_buff
+ 	update_chksum(nskb, headln);
+ 
+ 	nskb->destructor = skb->destructor;
+-	nskb->sk = skb->sk;
++	nskb->sk = sk;
+ 	skb->destructor = NULL;
+ 	skb->sk = NULL;
+-	refcount_add(nskb->truesize - skb->truesize,
+-		     &nskb->sk->sk_wmem_alloc);
++
++	delta = nskb->truesize - skb->truesize;
++	if (likely(delta < 0))
++		WARN_ON_ONCE(refcount_sub_and_test(-delta, &sk->sk_wmem_alloc));
++	else if (delta)
++		refcount_add(delta, &sk->sk_wmem_alloc);
  }
  
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -290,11 +290,8 @@ static void tls_sk_proto_close(struct so
- 		tls_sw_free_resources_tx(sk);
- 	}
- 
--	if (ctx->rx_conf == TLS_SW) {
--		kfree(ctx->rx.rec_seq);
--		kfree(ctx->rx.iv);
-+	if (ctx->rx_conf == TLS_SW)
- 		tls_sw_free_resources_rx(sk);
--	}
- 
- #ifdef CONFIG_TLS_DEVICE
- 	if (ctx->rx_conf == TLS_HW)
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1118,6 +1118,9 @@ void tls_sw_release_resources_rx(struct
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct tls_sw_context_rx *ctx = tls_sw_ctx_rx(tls_ctx);
- 
-+	kfree(tls_ctx->rx.rec_seq);
-+	kfree(tls_ctx->rx.iv);
-+
- 	if (ctx->aead_recv) {
- 		kfree_skb(ctx->recv_pkt);
- 		ctx->recv_pkt = NULL;
+ /* This function may be called after the user socket is already
 
 
