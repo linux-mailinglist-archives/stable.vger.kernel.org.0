@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 569CCF5D9
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C50F81E
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727480AbfD3Lja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:39:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44750 "EHLO mail.kernel.org"
+        id S1729289AbfD3Lm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726648AbfD3Lja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:39:30 -0400
+        id S1728270AbfD3LmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A911321670;
-        Tue, 30 Apr 2019 11:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AF0D21670;
+        Tue, 30 Apr 2019 11:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624369;
-        bh=4CLCUF53Z45JpjieCHtCn6m3aYIBDfhyKJr/JTnb8DQ=;
+        s=default; t=1556624544;
+        bh=Alltshhmleeo79lGPima7tw7bD8yYJrwgbk9RpaWPEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPLT/bmA4/4Ptftpe6XhPsT7UfIqdawwgnKhhcdxen+tKakmmgNR9y330J7FsIiXY
-         K7QQcR8pGI7Vgeoj6msV4ZDEFhirPPFSYAXVvZiyMMmYVK99ggRsv1XrG6ZOoOIs2W
-         IHSZ+tbfgk7ISqkYziPLR0LLfLOYYPAagWLUYX7I=
+        b=s4VzjmEky134rRF/NOGImTBlALaxLVOLMHzGgXNAlpstypqZbo3cj8TrsXgPymcvj
+         vgO+aBN8gJbRlm0ncukKKGZx84C67eu3oq8BXvs+UAsuo1gHutvRwQ1frBTTQwvSvB
+         BlBBR2XcnauKVvEoSs52c/KTzT8BUdqes98Wn8C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.9 01/41] kbuild: simplify ld-option implementation
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 05/53] zram: pass down the bvec we need to read into in the work struct
 Date:   Tue, 30 Apr 2019 13:38:12 +0200
-Message-Id: <20190430113524.762604112@linuxfoundation.org>
+Message-Id: <20190430113550.605154212@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,92 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Jérôme Glisse <jglisse@redhat.com>
 
-commit 0294e6f4a0006856e1f36b8cd8fa088d9e499e98 upstream.
+commit e153abc0739ff77bd89c9ba1688cdb963464af97 upstream.
 
-Currently, linker options are tested by the coordination of $(CC) and
-$(LD) because $(LD) needs some object to link.
+When scheduling work item to read page we need to pass down the proper
+bvec struct which points to the page to read into.  Before this patch it
+uses a randomly initialized bvec (only if PAGE_SIZE != 4096) which is
+wrong.
 
-As commit 86a9df597cdd ("kbuild: fix linker feature test macros when
-cross compiling with Clang") addressed, we need to make sure $(CC)
-and $(LD) agree the underlying architecture of the passed object.
+Note that without this patch on arch/kernel where PAGE_SIZE != 4096
+userspace could read random memory through a zram block device (thought
+userspace probably would have no control on the address being read).
 
-This could be a bit complex when we combine tools from different groups.
-For example, we can use clang for $(CC), but we still need to rely on
-GCC toolchain for $(LD).
-
-So, I was searching for a way of standalone testing of linker options.
-A trick I found is to use '-v'; this not only prints the version string,
-but also tests if the given option is recognized.
-
-If a given option is supported,
-
-  $ aarch64-linux-gnu-ld -v --fix-cortex-a53-843419
-  GNU ld (Linaro_Binutils-2017.11) 2.28.2.20170706
-  $ echo $?
-  0
-
-If unsupported,
-
-  $ aarch64-linux-gnu-ld -v --fix-cortex-a53-843419
-  GNU ld (crosstool-NG linaro-1.13.1-4.7-2013.04-20130415 - Linaro GCC 2013.04) 2.23.1
-  aarch64-linux-gnu-ld: unrecognized option '--fix-cortex-a53-843419'
-  aarch64-linux-gnu-ld: use the --help option for usage information
-  $ echo $?
-  1
-
-Gold works likewise.
-
-  $ aarch64-linux-gnu-ld.gold -v --fix-cortex-a53-843419
-  GNU gold (Linaro_Binutils-2017.11 2.28.2.20170706) 1.14
-  masahiro@pug:~/ref/linux$ echo $?
-  0
-  $ aarch64-linux-gnu-ld.gold -v --fix-cortex-a53-999999
-  GNU gold (Linaro_Binutils-2017.11 2.28.2.20170706) 1.14
-  aarch64-linux-gnu-ld.gold: --fix-cortex-a53-999999: unknown option
-  aarch64-linux-gnu-ld.gold: use the --help option for usage information
-  $ echo $?
-  1
-
-LLD too.
-
-  $ ld.lld -v --gc-sections
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  0
-  $ ld.lld -v --fix-cortex-a53-843419
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  0
-  $ ld.lld -v --fix-cortex-a53-999999
-  ld.lld: error: unknown argument: --fix-cortex-a53-999999
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  1
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-[nc: try-run-cached was added later, just use try-run, which is the
-     current mainline state]
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: http://lkml.kernel.org/r/20190408183219.26377-1-jglisse@redhat.com
+Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- scripts/Kbuild.include |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -166,9 +166,7 @@ cc-ldoption = $(call try-run,\
+---
+ drivers/block/zram/zram_drv.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -488,18 +488,18 @@ struct zram_work {
+ 	struct zram *zram;
+ 	unsigned long entry;
+ 	struct bio *bio;
++	struct bio_vec bvec;
+ };
  
- # ld-option
- # Usage: LDFLAGS += $(call ld-option, -X)
--ld-option = $(call try-run,\
--	$(CC) $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -x c /dev/null -c -o "$$TMPO"; \
--	$(LD) $(LDFLAGS) $(1) "$$TMPO" -o "$$TMP",$(1),$(2))
-+ld-option = $(call try-run, $(LD) $(LDFLAGS) $(1) -v,$(1),$(2))
+ #if PAGE_SIZE != 4096
+ static void zram_sync_read(struct work_struct *work)
+ {
+-	struct bio_vec bvec;
+ 	struct zram_work *zw = container_of(work, struct zram_work, work);
+ 	struct zram *zram = zw->zram;
+ 	unsigned long entry = zw->entry;
+ 	struct bio *bio = zw->bio;
  
- # ar-option
- # Usage: KBUILD_ARFLAGS := $(call ar-option,D)
+-	read_from_bdev_async(zram, &bvec, entry, bio);
++	read_from_bdev_async(zram, &zw->bvec, entry, bio);
+ }
+ 
+ /*
+@@ -512,6 +512,7 @@ static int read_from_bdev_sync(struct zr
+ {
+ 	struct zram_work work;
+ 
++	work.bvec = *bvec;
+ 	work.zram = zram;
+ 	work.entry = entry;
+ 	work.bio = bio;
 
 
