@@ -2,38 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D59F60D
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D16DF69C
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbfD3LmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
+        id S1728292AbfD3LuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:50:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727770AbfD3LmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:17 -0400
+        id S1731117AbfD3LuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E16A821734;
-        Tue, 30 Apr 2019 11:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3419221707;
+        Tue, 30 Apr 2019 11:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624536;
-        bh=77D6z18oj1v3jnBnn8XBJEpwVJSyPUUId9lJz6jmG7w=;
+        s=default; t=1556625001;
+        bh=qbLCJNg0D11LxC1eJ3fp26o5Cig2xtZy+vtQ0WHfRbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K560cWkVkcjBI3AJklte0DMLHIhMRnh36Wj6j2rh/IhZ+WunUrpjyCEcJS9fTA/bF
-         3XVSS9HfwQMoQ2mKQt7CcRCofSeDUnX2FT8OuiS79wT7opyLg3c8q3cGVpL015cCfL
-         Xru4Ij18+ydC0NevXcGt4VRO9QOSJ5f9AExvX5r4=
+        b=kFL7VuMIMVOcY2Df4X8qBixtIJmoZGAL7UgkeT7oYjuoaqS0UjKtV2OVX7WbTJd6R
+         h/4eZONrdSjPgUnhF8QgFEdfGrAul4RRaL4v7Mn/FyXvhIoh0UFGBsHfelA3x3JvE1
+         diRmbgv3n1uCzdpmC15qlg4+1Y/C7DIwUlKI3710=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Roman Gushchin <guro@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 03/53] tracing: Fix a memory leak by early error exit in trace_pid_write()
+Subject: [PATCH 5.0 19/89] trace: Fix preempt_enable_no_resched() abuse
 Date:   Tue, 30 Apr 2019 13:38:10 +0200
-Message-Id: <20190430113550.171594651@linuxfoundation.org>
+Message-Id: <20190430113610.964519574@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wang6495@umn.edu>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 91862cc7867bba4ee5c8fcf0ca2f1d30427b6129 upstream.
+commit d6097c9e4454adf1f8f2c9547c2fa6060d55d952 upstream.
 
-In trace_pid_write(), the buffer for trace parser is allocated through
-kmalloc() in trace_parser_get_init(). Later on, after the buffer is used,
-it is then freed through kfree() in trace_parser_put(). However, it is
-possible that trace_pid_write() is terminated due to unexpected errors,
-e.g., ENOMEM. In that case, the allocated buffer will not be freed, which
-is a memory leak bug.
+Unless the very next line is schedule(), or implies it, one must not use
+preempt_enable_no_resched(). It can cause a preemption to go missing and
+thereby cause arbitrary delays, breaking the PREEMPT=y invariant.
 
-To fix this issue, free the allocated buffer when an error is encountered.
+Link: http://lkml.kernel.org/r/20190423200318.GY14281@hirez.programming.kicks-ass.net
 
-Link: http://lkml.kernel.org/r/1555726979-15633-1-git-send-email-wang6495@umn.edu
-
-Fixes: f4d34a87e9c10 ("tracing: Use pid bitmap instead of a pid array for set_event_pid")
+Cc: Waiman Long <longman@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: the arch/x86 maintainers <x86@kernel.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Fixes: 2c2d7329d8af ("tracing/ftrace: use preempt_enable_no_resched_notrace in ring_buffer_time_stamp()")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -494,8 +494,10 @@ int trace_pid_write(struct trace_pid_lis
- 	 * not modified.
- 	 */
- 	pid_list = kmalloc(sizeof(*pid_list), GFP_KERNEL);
--	if (!pid_list)
-+	if (!pid_list) {
-+		trace_parser_put(&parser);
- 		return -ENOMEM;
-+	}
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -776,7 +776,7 @@ u64 ring_buffer_time_stamp(struct ring_b
  
- 	pid_list->pid_max = READ_ONCE(pid_max);
+ 	preempt_disable_notrace();
+ 	time = rb_time_stamp(buffer);
+-	preempt_enable_no_resched_notrace();
++	preempt_enable_notrace();
  
-@@ -505,6 +507,7 @@ int trace_pid_write(struct trace_pid_lis
- 
- 	pid_list->pids = vzalloc((pid_list->pid_max + 7) >> 3);
- 	if (!pid_list->pids) {
-+		trace_parser_put(&parser);
- 		kfree(pid_list);
- 		return -ENOMEM;
- 	}
+ 	return time;
+ }
 
 
