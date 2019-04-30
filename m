@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F16F853
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A955F81A
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728464AbfD3Lka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
+        id S1729230AbfD3LmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728427AbfD3Lk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:40:29 -0400
+        id S1729166AbfD3LmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61ED821707;
-        Tue, 30 Apr 2019 11:40:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49CF221707;
+        Tue, 30 Apr 2019 11:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624428;
-        bh=sspXV42TCOAkUcSZ2kigqA1X5pjGlPYYt7R5u7gn3eg=;
+        s=default; t=1556624533;
+        bh=xdzXT7iuE8BD5Wk4ArbhgsGfo4b+Mi84Qr64q17W6j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hn5gRL32EkGyPv6kvFOIp18mmmxobPbT+WA2tefKZcWiHoRFdhCaCxuObrywglW+k
-         3nxOjUfxXrEY21O3c312AJBwVX6vnbs+tMY0WDznAlakMbPiMH1pjsoIOIZ4VOzIkY
-         93S81hHDeT4Fdlm3VnhwYiAWcL+V/JbzZcmNSREA=
+        b=WRemPcEYGsy/cT2/18Yhy7BoCpG+Zg1g8h1tib8wjxGFLj/V5tyIBDJdGsKUc5/Bm
+         8hDfYgwpsJN2EMwdjaNEeGXiI0FaZ+gPzW2swus9AgDpo567dStdzT8zK5YYLWnUQv
+         LaukapQwYv9DyhyLoZNG4dl/Ujd4VMGC2w/SxeQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 24/41] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
-Date:   Tue, 30 Apr 2019 13:38:35 +0200
-Message-Id: <20190430113530.731893661@linuxfoundation.org>
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.14 29/53] intel_th: gth: Fix an off-by-one in output unassigning
+Date:   Tue, 30 Apr 2019 13:38:36 +0200
+Message-Id: <20190430113556.353779668@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
+commit 91d3f8a629849968dc91d6ce54f2d46abf4feb7f upstream.
 
-syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
-is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
-(which is embedded into user-visible "struct nfs_mount_data" structure)
-despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
-bytes of AF_INET6 address to rpc_sockaddr2uaddr().
+Commit 9ed3f22223c3 ("intel_th: Don't reference unassigned outputs")
+fixes a NULL dereference for all masters except the last one ("256+"),
+which keeps the stale pointer after the output driver had been unassigned.
 
-Since "struct nfs_mount_data" structure is user-visible, we can't change
-"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
-assuming that everybody is using AF_INET family when passing address via
-"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
+Fix the off-by-one.
 
-[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
-
-Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: 9ed3f22223c3 ("intel_th: Don't reference unassigned outputs")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwtracing/intel_th/gth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -2047,7 +2047,8 @@ static int nfs23_validate_mount_data(voi
- 		memcpy(sap, &data->addr, sizeof(data->addr));
- 		args->nfs_server.addrlen = sizeof(data->addr);
- 		args->nfs_server.port = ntohs(data->addr.sin_port);
--		if (!nfs_verify_server_address(sap))
-+		if (sap->sa_family != AF_INET ||
-+		    !nfs_verify_server_address(sap))
- 			goto out_no_address;
- 
- 		if (!(data->flags & NFS_MOUNT_TCP))
+--- a/drivers/hwtracing/intel_th/gth.c
++++ b/drivers/hwtracing/intel_th/gth.c
+@@ -624,7 +624,7 @@ static void intel_th_gth_unassign(struct
+ 	othdev->output.port = -1;
+ 	othdev->output.active = false;
+ 	gth->output[port].output = NULL;
+-	for (master = 0; master < TH_CONFIGURABLE_MASTERS; master++)
++	for (master = 0; master <= TH_CONFIGURABLE_MASTERS; master++)
+ 		if (gth->master[master] == port)
+ 			gth->master[master] = -1;
+ 	spin_unlock(&gth->gth_lock);
 
 
