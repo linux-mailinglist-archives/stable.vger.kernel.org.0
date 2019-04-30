@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB808F70B
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C21FBF81B
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731051AbfD3Ltr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
+        id S1729283AbfD3LmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731048AbfD3Ltr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:47 -0400
+        id S1729260AbfD3LmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09B152173E;
-        Tue, 30 Apr 2019 11:49:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5438F2173E;
+        Tue, 30 Apr 2019 11:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624986;
-        bh=KEhExBwW+bHSSxCUnJm+SSFsXODCLJjrRJKT/oBSk9k=;
+        s=default; t=1556624538;
+        bh=s6FTQz5FWpt0Mnzi3wqMxp+4OA8N3I2ZloG3nsKufTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZoYwNBcROLj7o9Fl14Pk5D4tcdd2YMp94cS1mwVEFZcRvhYkA5+fCDU7qR4B5ani
-         A/9458vRoJ8+t1l3mSz31lL/LpW4pKLqglmncqp/vKStMQW8s3nM+DQ5wy0j/NjbED
-         BXYPH6KjFpZn3BxpQtGV1KrR2D2v71sKyrwV6+RQ=
+        b=nkWNSDsSLAoL9ix/8A1pS3L3hXWF5MC/yYN7LHg/NpEVgWecVcB879sJ6GiUZ9oV1
+         x1b8I48ZUnwOQoOkYQw3irVRpUQelyc4/XRHfUPDCUhH6mYF+wuxIKxaj9ljAcj20Q
+         uveeMYbiXV3J12apuqDWVz+AXlrDHoJeM0AIhRqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 5.0 46/89] USB: Add new USB LPM helpers
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 30/53] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
 Date:   Tue, 30 Apr 2019 13:38:37 +0200
-Message-Id: <20190430113611.891831881@linuxfoundation.org>
+Message-Id: <20190430113556.549121219@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,160 +50,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 7529b2574a7aaf902f1f8159fbc2a7caa74be559 upstream.
+commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
 
-Use new helpers to make LPM enabling/disabling more clear.
+Syzkaller report this:
 
-This is a preparation to subsequent patch.
+  sysctl could not get directory: /net//bridge -12
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP KASAN PTI
+  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
+  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
+  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
+  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
+  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
+  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
+  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
+  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
+  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
+  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
+  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   erase_entry fs/proc/proc_sysctl.c:178 [inline]
+   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
+   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
+   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
+   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
+   br_netfilter_init+0x68/0x1000 [br_netfilter]
+   do_one_initcall+0xbc/0x47d init/main.c:901
+   do_init_module+0x1b5/0x547 kernel/module.c:3456
+   load_module+0x6405/0x8c10 kernel/module.c:3804
+   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
+   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
+  Dumping ftrace buffer:
+     (ftrace buffer empty)
+  ---[ end trace 68741688d5fbfe85 ]---
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org> # after much soaking
+commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
+dereference in put_links") forgot to handle start_unregistering() case,
+while header->parent is NULL, it calls erase_header() and as seen in the
+above syzkaller call trace, accessing &header->parent->root will trigger
+a NULL pointer dereference.
+
+As that commit explained, there is also no need to call
+start_unregistering() if header->parent is NULL.
+
+Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
+Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
+Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/driver.c  |   12 +++++++++++-
- drivers/usb/core/hub.c     |   12 ++++++------
- drivers/usb/core/message.c |    2 +-
- drivers/usb/core/sysfs.c   |    5 ++++-
- drivers/usb/core/usb.h     |   10 ++++++++--
- 5 files changed, 30 insertions(+), 11 deletions(-)
+ fs/proc/proc_sysctl.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/driver.c
-+++ b/drivers/usb/core/driver.c
-@@ -1896,7 +1896,7 @@ int usb_runtime_idle(struct device *dev)
- 	return -EBUSY;
- }
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -1620,9 +1620,11 @@ static void drop_sysctl_table(struct ctl
+ 	if (--header->nreg)
+ 		return;
  
--int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
-+static int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
- {
- 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
- 	int ret = -EPERM;
-@@ -1913,6 +1913,16 @@ int usb_set_usb2_hardware_lpm(struct usb
- 	return ret;
- }
- 
-+int usb_enable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return usb_set_usb2_hardware_lpm(udev, 1);
-+}
+-	if (parent)
++	if (parent) {
+ 		put_links(header);
+-	start_unregistering(header);
++		start_unregistering(header);
++	}
 +
-+int usb_disable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return usb_set_usb2_hardware_lpm(udev, 0);
-+}
-+
- #endif /* CONFIG_PM */
+ 	if (!--header->count)
+ 		kfree_rcu(header, rcu);
  
- struct bus_type usb_bus_type = {
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3221,7 +3221,7 @@ int usb_port_suspend(struct usb_device *
- 
- 	/* disable USB2 hardware LPM */
- 	if (udev->usb2_hw_lpm_enabled == 1)
--		usb_set_usb2_hardware_lpm(udev, 0);
-+		usb_disable_usb2_hardware_lpm(udev);
- 
- 	if (usb_disable_ltm(udev)) {
- 		dev_err(&udev->dev, "Failed to disable LTM before suspend\n");
-@@ -3260,7 +3260,7 @@ int usb_port_suspend(struct usb_device *
-  err_ltm:
- 		/* Try to enable USB2 hardware LPM again */
- 		if (udev->usb2_hw_lpm_capable == 1)
--			usb_set_usb2_hardware_lpm(udev, 1);
-+			usb_enable_usb2_hardware_lpm(udev);
- 
- 		if (udev->do_remote_wakeup)
- 			(void) usb_disable_remote_wakeup(udev);
-@@ -3544,7 +3544,7 @@ int usb_port_resume(struct usb_device *u
- 	} else  {
- 		/* Try to enable USB2 hardware LPM */
- 		if (udev->usb2_hw_lpm_capable == 1)
--			usb_set_usb2_hardware_lpm(udev, 1);
-+			usb_enable_usb2_hardware_lpm(udev);
- 
- 		/* Try to enable USB3 LTM */
- 		usb_enable_ltm(udev);
-@@ -4435,7 +4435,7 @@ static void hub_set_initial_usb2_lpm_pol
- 	if ((udev->bos->ext_cap->bmAttributes & cpu_to_le32(USB_BESL_SUPPORT)) ||
- 			connect_type == USB_PORT_CONNECT_TYPE_HARD_WIRED) {
- 		udev->usb2_hw_lpm_allowed = 1;
--		usb_set_usb2_hardware_lpm(udev, 1);
-+		usb_enable_usb2_hardware_lpm(udev);
- 	}
- }
- 
-@@ -5650,7 +5650,7 @@ static int usb_reset_and_verify_device(s
- 	 * It will be re-enabled by the enumeration process.
- 	 */
- 	if (udev->usb2_hw_lpm_enabled == 1)
--		usb_set_usb2_hardware_lpm(udev, 0);
-+		usb_disable_usb2_hardware_lpm(udev);
- 
- 	/* Disable LPM while we reset the device and reinstall the alt settings.
- 	 * Device-initiated LPM, and system exit latency settings are cleared
-@@ -5753,7 +5753,7 @@ static int usb_reset_and_verify_device(s
- 
- done:
- 	/* Now that the alt settings are re-installed, enable LTM and LPM. */
--	usb_set_usb2_hardware_lpm(udev, 1);
-+	usb_enable_usb2_hardware_lpm(udev);
- 	usb_unlocked_enable_lpm(udev);
- 	usb_enable_ltm(udev);
- 	usb_release_bos_descriptor(udev);
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1244,7 +1244,7 @@ void usb_disable_device(struct usb_devic
- 		}
- 
- 		if (dev->usb2_hw_lpm_enabled == 1)
--			usb_set_usb2_hardware_lpm(dev, 0);
-+			usb_disable_usb2_hardware_lpm(dev);
- 		usb_unlocked_disable_lpm(dev);
- 		usb_disable_ltm(dev);
- 
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -528,7 +528,10 @@ static ssize_t usb2_hardware_lpm_store(s
- 
- 	if (!ret) {
- 		udev->usb2_hw_lpm_allowed = value;
--		ret = usb_set_usb2_hardware_lpm(udev, value);
-+		if (value)
-+			ret = usb_enable_usb2_hardware_lpm(udev);
-+		else
-+			ret = usb_disable_usb2_hardware_lpm(udev);
- 	}
- 
- 	usb_unlock_device(udev);
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -92,7 +92,8 @@ extern int usb_remote_wakeup(struct usb_
- extern int usb_runtime_suspend(struct device *dev);
- extern int usb_runtime_resume(struct device *dev);
- extern int usb_runtime_idle(struct device *dev);
--extern int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable);
-+extern int usb_enable_usb2_hardware_lpm(struct usb_device *udev);
-+extern int usb_disable_usb2_hardware_lpm(struct usb_device *udev);
- 
- #else
- 
-@@ -112,7 +113,12 @@ static inline int usb_autoresume_device(
- 	return 0;
- }
- 
--static inline int usb_set_usb2_hardware_lpm(struct usb_device *udev, int enable)
-+static inline int usb_enable_usb2_hardware_lpm(struct usb_device *udev)
-+{
-+	return 0;
-+}
-+
-+static inline int usb_disable_usb2_hardware_lpm(struct usb_device *udev)
- {
- 	return 0;
- }
 
 
