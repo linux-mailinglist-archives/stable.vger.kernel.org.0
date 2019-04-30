@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F72F812
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07ECDF877
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728941AbfD3Llg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49378 "EHLO mail.kernel.org"
+        id S1727885AbfD3Ljh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:39:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728925AbfD3Llf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:35 -0400
+        id S1727654AbfD3Ljf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:39:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E563D21670;
-        Tue, 30 Apr 2019 11:41:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3F0A21670;
+        Tue, 30 Apr 2019 11:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624494;
+        s=default; t=1556624374;
         bh=xTz0TplUvCuk3TISQVkGrsJzMSmpwDhzVRj928ZBAqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzfATd7Sm6bI/sKyGQwoQ3UjOyG2KU8sbV5PnO9XJ5B6J1BqJ4JbilYsy1ev65xRk
-         xPGNVE5/dBvkHGgQY92lrLCUzpHE6bTwgenF0Rsq72Ob4iseLkYYz9ejx6zyY27klO
-         5TQQhwSCewDyJlx//nkOtTLzf0HHF6T8Sx8YmP64=
+        b=Klsx+bREMJSgIycokV1yjOf19nUH4mvx793t65XUDMLALrAcuyZ5tA+nz7mlfgah1
+         gEUZu+bXYOiEbIT+bnlhtiBJVlZBzi3dFZvliAN+UVQzYzt6QC/pN0brRquti2jj4m
+         RAZpAZdsHGd8xL0YAcwLeBTA26PFaIRBYuwH8Qp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
         "J. Bruce Fields" <bfields@redhat.com>, stable@kernel.org
-Subject: [PATCH 4.14 15/53] sunrpc: dont mark uninitialised items as VALID.
+Subject: [PATCH 4.9 11/41] sunrpc: dont mark uninitialised items as VALID.
 Date:   Tue, 30 Apr 2019 13:38:22 +0200
-Message-Id: <20190430113553.091347032@linuxfoundation.org>
+Message-Id: <20190430113527.693910490@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
