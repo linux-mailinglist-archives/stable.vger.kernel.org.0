@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB0CF718
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0760F757
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730938AbfD3LtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
+        id S1727051AbfD3L6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:58:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730934AbfD3LtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:05 -0400
+        id S1730687AbfD3LrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:47:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE31D20449;
-        Tue, 30 Apr 2019 11:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C850821670;
+        Tue, 30 Apr 2019 11:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624944;
-        bh=pshKlxxplvR1pLAnd9ve0f3N039W3du/cqrQvApkfX0=;
+        s=default; t=1556624836;
+        bh=SrJCoBMwqCwlPKloQA39AOKmQbx9IOxoVdnu2uvxb/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T2PTzaOEDoHO9Iv9Ufa+moWLRGaICiFtZxhsJGcBYYTwVXYcsGRedO04sEaV2i365
-         sQn6J9LRnnIvPK6YWjsBmoQHXLmNgPmeRb0pO+fJZGug34kzM3lh+RfWeRlGkruUxt
-         4+sZrfFCYrNJlxABm5gS8Pq8kPAgCTbdQidx6UIg=
+        b=d1puJMnOg3hcAViHJoT++RD4JG7Z1OrBwrhX6CnkYqvmYRsGYhYAfpi5huON7lUnO
+         ciGOOb/DrTGu+47BPRwDh24tZY2gGflvai5N7bn/P13um4cbPgjpJHzQVKmWzw9uY4
+         w32xluStqjj548CKe1YeEP7vAn0JffX60F0yHnCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Pryczek <slawek1211@gmail.com>,
-        Neil Brown <neilb@suse.com>, Jeff Layton <jlayton@kernel.org>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.0 31/89] nfsd: wake waiters blocked on file_lock before deleting it
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.19 053/100] intel_th: gth: Fix an off-by-one in output unassigning
 Date:   Tue, 30 Apr 2019 13:38:22 +0200
-Message-Id: <20190430113611.383864519@linuxfoundation.org>
+Message-Id: <20190430113611.474614031@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 6aaafc43a4ecc5bc8a3f6a2811d5eddc996a97f3 upstream.
+commit 91d3f8a629849968dc91d6ce54f2d46abf4feb7f upstream.
 
-After a blocked nfsd file_lock request is deleted, knfsd will send a
-callback to the client and then free the request. Commit 16306a61d3b7
-("fs/locks: always delete_block after waiting.") changed it such that
-locks_delete_block is always called on a request after it is awoken,
-but that patch missed fixing up blocked nfsd request handling.
+Commit 9ed3f22223c3 ("intel_th: Don't reference unassigned outputs")
+fixes a NULL dereference for all masters except the last one ("256+"),
+which keeps the stale pointer after the output driver had been unassigned.
 
-Call locks_delete_block on the block to wake up any locks still blocked
-on the nfsd lock request before freeing it. Some of its callers already
-do this however, so just remove those calls.
+Fix the off-by-one.
 
-URL: https://bugzilla.kernel.org/show_bug.cgi?id=203363
-Fixes: 16306a61d3b7 ("fs/locks: always delete_block after waiting.")
-Reported-by: Slawomir Pryczek <slawek1211@gmail.com>
-Cc: Neil Brown <neilb@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: 9ed3f22223c3 ("intel_th: Don't reference unassigned outputs")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs4state.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hwtracing/intel_th/gth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -265,6 +265,7 @@ find_or_allocate_block(struct nfs4_locko
- static void
- free_blocked_lock(struct nfsd4_blocked_lock *nbl)
- {
-+	locks_delete_block(&nbl->nbl_lock);
- 	locks_release_private(&nbl->nbl_lock);
- 	kfree(nbl);
- }
-@@ -293,7 +294,6 @@ remove_blocked_locks(struct nfs4_lockown
- 		nbl = list_first_entry(&reaplist, struct nfsd4_blocked_lock,
- 					nbl_lru);
- 		list_del_init(&nbl->nbl_lru);
--		locks_delete_block(&nbl->nbl_lock);
- 		free_blocked_lock(nbl);
- 	}
- }
-@@ -4863,7 +4863,6 @@ nfs4_laundromat(struct nfsd_net *nn)
- 		nbl = list_first_entry(&reaplist,
- 					struct nfsd4_blocked_lock, nbl_lru);
- 		list_del_init(&nbl->nbl_lru);
--		locks_delete_block(&nbl->nbl_lock);
- 		free_blocked_lock(nbl);
- 	}
- out:
+--- a/drivers/hwtracing/intel_th/gth.c
++++ b/drivers/hwtracing/intel_th/gth.c
+@@ -616,7 +616,7 @@ static void intel_th_gth_unassign(struct
+ 	othdev->output.port = -1;
+ 	othdev->output.active = false;
+ 	gth->output[port].output = NULL;
+-	for (master = 0; master < TH_CONFIGURABLE_MASTERS; master++)
++	for (master = 0; master <= TH_CONFIGURABLE_MASTERS; master++)
+ 		if (gth->master[master] == port)
+ 			gth->master[master] = -1;
+ 	spin_unlock(&gth->gth_lock);
 
 
