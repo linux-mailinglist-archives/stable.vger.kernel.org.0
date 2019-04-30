@@ -2,50 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BB5F638
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5590F702
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbfD3Lol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:44:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
+        id S1731124AbfD3LuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729295AbfD3Lok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:44:40 -0400
+        id S1731122AbfD3LuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD71721670;
-        Tue, 30 Apr 2019 11:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA8F321783;
+        Tue, 30 Apr 2019 11:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624679;
-        bh=vcfxo2TFke0cuyMwibf/eIW/V6zVHCpZXvsgz4Sm4gY=;
+        s=default; t=1556625004;
+        bh=mhXp3yi9SmczJXGFbcmNB5kdXerbdBiyCIswjE75ejQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnizXFoWTI0oZuP9hsB6DJ1iJT0SlfA/RzaAUvCNwtmT+NWroPx8kN7u/H/Sqr1vc
-         PYBuquELVtyvF2v4+Dl/2uf39ppHQ0WdKph9wysgk6vT011Vh84jscxOb2kAxguPuy
-         JMFxN61szIFjEz4+9l8Lv2YQoB9VYRfX0RfAaeKg=
+        b=F9h98rSdhmeQY0BvmWKuk67mxnt7VmaH8bWP7cM+Z2Ue19DR7JGrBp9LPQTqg3COb
+         pUQTHAhH4b/zlsyuZOMkOOKzrL4wVe7LTa05h9IlrlWvFFo0ngFcT7VXQMXzimpNRt
+         nL5U92b81iLhEYtJuwuqBMvKliKV5HXuysmg/HN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Roman Gushchin <guro@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 031/100] trace: Fix preempt_enable_no_resched() abuse
-Date:   Tue, 30 Apr 2019 13:38:00 +0200
-Message-Id: <20190430113610.291111512@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>
+Subject: [PATCH 5.0 10/89] cifs: do not attempt cifs operation on smb2+ rename error
+Date:   Tue, 30 Apr 2019 13:38:01 +0200
+Message-Id: <20190430113610.231633947@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Frank Sorenson <sorenson@redhat.com>
 
-commit d6097c9e4454adf1f8f2c9547c2fa6060d55d952 upstream.
+commit 652727bbe1b17993636346716ae5867627793647 upstream.
 
-Unless the very next line is schedule(), or implies it, one must not use
-preempt_enable_no_resched(). It can cause a preemption to go missing and
-thereby cause arbitrary delays, breaking the PREEMPT=y invariant.
+A path-based rename returning EBUSY will incorrectly try opening
+the file with a cifs (NT Create AndX) operation on an smb2+ mount,
+which causes the server to force a session close.
 
-Link: http://lkml.kernel.org/r/20190423200318.GY14281@hirez.programming.kicks-ass.net
+If the mount is smb2+, skip the fallback.
 
-Cc: Waiman Long <longman@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: the arch/x86 maintainers <x86@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: stable@vger.kernel.org
-Fixes: 2c2d7329d8af ("tracing/ftrace: use preempt_enable_no_resched_notrace in ring_buffer_time_stamp()")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ring_buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -730,7 +730,7 @@ u64 ring_buffer_time_stamp(struct ring_b
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1735,6 +1735,10 @@ cifs_do_rename(const unsigned int xid, s
+ 	if (rc == 0 || rc != -EBUSY)
+ 		goto do_rename_exit;
  
- 	preempt_disable_notrace();
- 	time = rb_time_stamp(buffer);
--	preempt_enable_no_resched_notrace();
-+	preempt_enable_notrace();
- 
- 	return time;
- }
++	/* Don't fall back to using SMB on SMB 2+ mount */
++	if (server->vals->protocol_id != 0)
++		goto do_rename_exit;
++
+ 	/* open-file renames don't work across directories */
+ 	if (to_dentry->d_parent != from_dentry->d_parent)
+ 		goto do_rename_exit;
 
 
