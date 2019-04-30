@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A395F751
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BACF6F0
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730700AbfD3LrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32790 "EHLO mail.kernel.org"
+        id S1730330AbfD3Luf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730698AbfD3LrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:47:25 -0400
+        id S1731206AbfD3Lub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4EF4217D6;
-        Tue, 30 Apr 2019 11:47:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB1FF2054F;
+        Tue, 30 Apr 2019 11:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624844;
-        bh=NnNwuXMGstoVFnibA35YozLZouGKFOpk4TP0ME+z8Ek=;
+        s=default; t=1556625030;
+        bh=62l78q4y2l6657LqOMaKarUovQIFpRJTX+xk06Kx7aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYPjz7oJdfkd6MUtL/x4x/RgmW+Z0GP8GUCNUiCAaxkW6fdt2rCNQ47cQf3EqEq5G
-         1ckL/OHoDi/cGlIdtMIyOdfCCGaScYt8jDb9T2BJciiYizBpFSO8aAfNuVnNcIYKzP
-         L6vjPMOQIMdwDiufczgSSwNAlWK2FFxB+EbxUTAo=
+        b=lVtO0hhCgBu1Pd1x5t50S48CcHZEHXHFa1+podDSthnpYu/Xx1d8y8qEI5lxYIVpl
+         pJY+XOfRA26GlHgC0BFgEYbLI8J93HpOyC6CJBUUQfJx/FZEHy3BHcH0xSwv2QJ0FW
+         mbeyzSIVYFC21sxOUlyok34beELh8/1arkuW8AvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erez Alfasi <ereza@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 087/100] net/mlx5e: ethtool, Remove unsupported SFP EEPROM high pages query
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.0 65/89] aio: fold lookup_kiocb() into its sole caller
 Date:   Tue, 30 Apr 2019 13:38:56 +0200
-Message-Id: <20190430113612.903395620@linuxfoundation.org>
+Message-Id: <20190430113612.765500173@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erez Alfasi <ereza@mellanox.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit ace329f4ab3ba434be2adf618073c752d083b524 ]
+commit 833f4154ed560232120bc475935ee1d6a20e159f upstream.
 
-Querying EEPROM high pages data for SFP module is currently
-not supported by our driver and yet queried, resulting in
-invalid FW queries.
-
-Set the EEPROM ethtool data length to 256 for SFP module will
-limit the reading for page 0 only and prevent invalid FW queries.
-
-Fixes: bb64143eee8c ("net/mlx5e: Add ethtool support for dump module EEPROM")
-Signed-off-by: Erez Alfasi <ereza@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    2 +-
- drivers/net/ethernet/mellanox/mlx5/core/port.c       |    4 ----
- 2 files changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1317,7 +1317,7 @@ static int mlx5e_get_module_info(struct
- 		break;
- 	case MLX5_MODULE_ID_SFP:
- 		modinfo->type       = ETH_MODULE_SFF_8472;
--		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
-+		modinfo->eeprom_len = MLX5_EEPROM_PAGE_LENGTH;
- 		break;
- 	default:
- 		netdev_err(priv->netdev, "%s: cable type not recognized:0x%x\n",
---- a/drivers/net/ethernet/mellanox/mlx5/core/port.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/port.c
-@@ -404,10 +404,6 @@ int mlx5_query_module_eeprom(struct mlx5
- 		size -= offset + size - MLX5_EEPROM_PAGE_LENGTH;
+---
+ fs/aio.c |   29 +++++++----------------------
+ 1 file changed, 7 insertions(+), 22 deletions(-)
+
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -2002,24 +2002,6 @@ COMPAT_SYSCALL_DEFINE3(io_submit, compat
+ }
+ #endif
  
- 	i2c_addr = MLX5_I2C_ADDR_LOW;
--	if (offset >= MLX5_EEPROM_PAGE_LENGTH) {
--		i2c_addr = MLX5_I2C_ADDR_HIGH;
--		offset -= MLX5_EEPROM_PAGE_LENGTH;
+-/* lookup_kiocb
+- *	Finds a given iocb for cancellation.
+- */
+-static struct aio_kiocb *
+-lookup_kiocb(struct kioctx *ctx, struct iocb __user *iocb)
+-{
+-	struct aio_kiocb *kiocb;
+-
+-	assert_spin_locked(&ctx->ctx_lock);
+-
+-	/* TODO: use a hash or array, this sucks. */
+-	list_for_each_entry(kiocb, &ctx->active_reqs, ki_list) {
+-		if (kiocb->ki_user_iocb == iocb)
+-			return kiocb;
 -	}
+-	return NULL;
+-}
+-
+ /* sys_io_cancel:
+  *	Attempts to cancel an iocb previously passed to io_submit.  If
+  *	the operation is successfully cancelled, the resulting event is
+@@ -2048,10 +2030,13 @@ SYSCALL_DEFINE3(io_cancel, aio_context_t
+ 		return -EINVAL;
  
- 	MLX5_SET(mcia_reg, in, l, 0);
- 	MLX5_SET(mcia_reg, in, module, module_num);
+ 	spin_lock_irq(&ctx->ctx_lock);
+-	kiocb = lookup_kiocb(ctx, iocb);
+-	if (kiocb) {
+-		ret = kiocb->ki_cancel(&kiocb->rw);
+-		list_del_init(&kiocb->ki_list);
++	/* TODO: use a hash or array, this sucks. */
++	list_for_each_entry(kiocb, &ctx->active_reqs, ki_list) {
++		if (kiocb->ki_user_iocb == iocb) {
++			ret = kiocb->ki_cancel(&kiocb->rw);
++			list_del_init(&kiocb->ki_list);
++			break;
++		}
+ 	}
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 
 
 
