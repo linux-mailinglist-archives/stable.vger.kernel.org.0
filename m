@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E07F71E
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B788F873
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730990AbfD3LtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S1728098AbfD3Ljy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730985AbfD3LtY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:24 -0400
+        id S1728081AbfD3Ljx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:39:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57A4621734;
-        Tue, 30 Apr 2019 11:49:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E32B21734;
+        Tue, 30 Apr 2019 11:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624962;
-        bh=R4EoRxp5VUPcegQvGoO6HysLF8EDfQpLxNG6/h6hV9k=;
+        s=default; t=1556624392;
+        bh=WjJ9tTxYvOujixuUUVZqjYzrhsSn15y87B5AmXhcMj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5MAQuR11t5gIrjOWoqcIytsuGQYWg3/T/ESSG3ImakS6OMMDwA5+eIrUqODA2O0P
-         +//uxCCWmOd14C1l7LS4wC5CW+LkG5iTjNqjhVz6L5tzP4976z8mQ4NkiZw6hb/u/2
-         tnZ8Vr2u41b3zCDO9JWC3mSshtu1rMjADmR0aFmA=
+        b=k+4jegy+H4LFLvQhfJzTT9PlAWypOYtrQSUVDFtg2x0y2MA+PfiHwHAQqzBtytaQk
+         OwjRnmmw+AtA58Z0bFgJMIQk0BzcYXQhJAbThs5VghdAMtYzxXgaReGWLGH2CFCCde
+         qKPSJLeCypHKCwHrGMMvbl0Uc4td+zkr0IP08frs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>,
-        Dirk Behme <dirk.behme@de.bosch.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.0 38/89] dmaengine: sh: rcar-dmac: Fix glitch in dmaengine_tx_status
+        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 4.9 18/41] USB: Consolidate LPM checks to avoid enabling LPM twice
 Date:   Tue, 30 Apr 2019 13:38:29 +0200
-Message-Id: <20190430113611.612017498@linuxfoundation.org>
+Message-Id: <20190430113529.545648063@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 6e7da74775348d96e2d7efaf3f91410e18c481ef upstream.
+commit d7a6c0ce8d26412903c7981503bad9e1cc7c45d2 upstream.
 
-The tx_status poll in the rcar_dmac driver reads the status register
-which indicates which chunk is busy (DMACHCRB). Afterwards the point
-inside the chunk is read from DMATCRB. It is possible that the chunk
-has changed between the two reads. The result is a non-monotonous
-increase of the residue. Fix this by introducing a 'safe read' logic.
+USB Bluetooth controller QCA ROME (0cf3:e007) sometimes stops working
+after S3:
+[ 165.110742] Bluetooth: hci0: using NVM file: qca/nvm_usb_00000302.bin
+[ 168.432065] Bluetooth: hci0: Failed to send body at 4 of 1953 (-110)
 
-Fixes: 73a47bd0da66 ("dmaengine: rcar-dmac: use TCRB instead of TCR for residue")
-Signed-off-by: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: <stable@vger.kernel.org> # v4.16+
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+After some experiments, I found that disabling LPM can workaround the
+issue.
+
+On some platforms, the USB power is cut during S3, so the driver uses
+reset-resume to resume the device. During port resume, LPM gets enabled
+twice, by usb_reset_and_verify_device() and usb_port_resume().
+
+Consolidate all checks into new LPM helpers to make sure LPM only gets
+enabled once.
+
+Fixes: de68bab4fa96 ("usb: Don't enable USB 2.0 Link PM by default.”)
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: stable <stable@vger.kernel.org> # after much soaking
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/sh/rcar-dmac.c |   26 +++++++++++++++++++++++---
- 1 file changed, 23 insertions(+), 3 deletions(-)
+ drivers/usb/core/driver.c  |   11 ++++++++---
+ drivers/usb/core/hub.c     |   12 ++++--------
+ drivers/usb/core/message.c |    3 +--
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1282,6 +1282,9 @@ static unsigned int rcar_dmac_chan_get_r
- 	enum dma_status status;
- 	unsigned int residue = 0;
- 	unsigned int dptr = 0;
-+	unsigned int chcrb;
-+	unsigned int tcrb;
-+	unsigned int i;
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -1893,9 +1893,6 @@ static int usb_set_usb2_hardware_lpm(str
+ 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
+ 	int ret = -EPERM;
  
- 	if (!desc)
- 		return 0;
-@@ -1330,14 +1333,31 @@ static unsigned int rcar_dmac_chan_get_r
- 	}
+-	if (enable && !udev->usb2_hw_lpm_allowed)
+-		return 0;
+-
+ 	if (hcd->driver->set_usb2_hw_lpm) {
+ 		ret = hcd->driver->set_usb2_hw_lpm(hcd, udev, enable);
+ 		if (!ret)
+@@ -1907,11 +1904,19 @@ static int usb_set_usb2_hardware_lpm(str
  
- 	/*
-+	 * We need to read two registers.
-+	 * Make sure the control register does not skip to next chunk
-+	 * while reading the counter.
-+	 * Trying it 3 times should be enough: Initial read, retry, retry
-+	 * for the paranoid.
-+	 */
-+	for (i = 0; i < 3; i++) {
-+		chcrb = rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
-+					    RCAR_DMACHCRB_DPTR_MASK;
-+		tcrb = rcar_dmac_chan_read(chan, RCAR_DMATCRB);
-+		/* Still the same? */
-+		if (chcrb == (rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
-+			      RCAR_DMACHCRB_DPTR_MASK))
-+			break;
-+	}
-+	WARN_ONCE(i >= 3, "residue might be not continuous!");
+ int usb_enable_usb2_hardware_lpm(struct usb_device *udev)
+ {
++	if (!udev->usb2_hw_lpm_capable ||
++	    !udev->usb2_hw_lpm_allowed ||
++	    udev->usb2_hw_lpm_enabled)
++		return 0;
 +
-+	/*
- 	 * In descriptor mode the descriptor running pointer is not maintained
- 	 * by the interrupt handler, find the running descriptor from the
- 	 * descriptor pointer field in the CHCRB register. In non-descriptor
- 	 * mode just use the running descriptor pointer.
- 	 */
- 	if (desc->hwdescs.use) {
--		dptr = (rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
--			RCAR_DMACHCRB_DPTR_MASK) >> RCAR_DMACHCRB_DPTR_SHIFT;
-+		dptr = chcrb >> RCAR_DMACHCRB_DPTR_SHIFT;
- 		if (dptr == 0)
- 			dptr = desc->nchunks;
- 		dptr--;
-@@ -1355,7 +1375,7 @@ static unsigned int rcar_dmac_chan_get_r
+ 	return usb_set_usb2_hardware_lpm(udev, 1);
+ }
+ 
+ int usb_disable_usb2_hardware_lpm(struct usb_device *udev)
+ {
++	if (!udev->usb2_hw_lpm_enabled)
++		return 0;
++
+ 	return usb_set_usb2_hardware_lpm(udev, 0);
+ }
+ 
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3168,8 +3168,7 @@ int usb_port_suspend(struct usb_device *
  	}
  
- 	/* Add the residue for the current chunk. */
--	residue += rcar_dmac_chan_read(chan, RCAR_DMATCRB) << desc->xfer_shift;
-+	residue += tcrb << desc->xfer_shift;
+ 	/* disable USB2 hardware LPM */
+-	if (udev->usb2_hw_lpm_enabled == 1)
+-		usb_disable_usb2_hardware_lpm(udev);
++	usb_disable_usb2_hardware_lpm(udev);
  
- 	return residue;
- }
+ 	if (usb_disable_ltm(udev)) {
+ 		dev_err(&udev->dev, "Failed to disable LTM before suspend\n.");
+@@ -3215,8 +3214,7 @@ int usb_port_suspend(struct usb_device *
+ 		usb_enable_ltm(udev);
+  err_ltm:
+ 		/* Try to enable USB2 hardware LPM again */
+-		if (udev->usb2_hw_lpm_capable == 1)
+-			usb_enable_usb2_hardware_lpm(udev);
++		usb_enable_usb2_hardware_lpm(udev);
+ 
+ 		if (udev->do_remote_wakeup)
+ 			(void) usb_disable_remote_wakeup(udev);
+@@ -3499,8 +3497,7 @@ int usb_port_resume(struct usb_device *u
+ 		hub_port_logical_disconnect(hub, port1);
+ 	} else  {
+ 		/* Try to enable USB2 hardware LPM */
+-		if (udev->usb2_hw_lpm_capable == 1)
+-			usb_enable_usb2_hardware_lpm(udev);
++		usb_enable_usb2_hardware_lpm(udev);
+ 
+ 		/* Try to enable USB3 LTM and LPM */
+ 		usb_enable_ltm(udev);
+@@ -5481,8 +5478,7 @@ static int usb_reset_and_verify_device(s
+ 	/* Disable USB2 hardware LPM.
+ 	 * It will be re-enabled by the enumeration process.
+ 	 */
+-	if (udev->usb2_hw_lpm_enabled == 1)
+-		usb_disable_usb2_hardware_lpm(udev);
++	usb_disable_usb2_hardware_lpm(udev);
+ 
+ 	/* Disable LPM and LTM while we reset the device and reinstall the alt
+ 	 * settings.  Device-initiated LPM settings, and system exit latency
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1181,8 +1181,7 @@ void usb_disable_device(struct usb_devic
+ 			dev->actconfig->interface[i] = NULL;
+ 		}
+ 
+-		if (dev->usb2_hw_lpm_enabled == 1)
+-			usb_disable_usb2_hardware_lpm(dev);
++		usb_disable_usb2_hardware_lpm(dev);
+ 		usb_unlocked_disable_lpm(dev);
+ 		usb_disable_ltm(dev);
+ 
 
 
