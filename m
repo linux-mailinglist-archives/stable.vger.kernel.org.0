@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFEBF736
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6880EF635
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730112AbfD3LsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S1730214AbfD3Loc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730830AbfD3LsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:18 -0400
+        id S1728710AbfD3Loc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A9420449;
-        Tue, 30 Apr 2019 11:48:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7444221783;
+        Tue, 30 Apr 2019 11:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624897;
-        bh=jNLiAHaFf0m4EbkCo1TGU2o8O6XyifLNpb1/RhokTUs=;
+        s=default; t=1556624672;
+        bh=D7D3c28XvtlbFYGdMlPJRUn+QRGD4GJ2ROKUMmbZv5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBXywKbsUAhcGBLZazAJcy6XMxHbc6IrRnuv1mjEadN5iZ83riqoJ3Y+BdsOlkEaz
-         2CswtcZtfaaTfes0Xa1sQ63r4bF5jIEi7ti/FOBkfOACxLOSdRG1BFuhcRwjRIsfQv
-         F3pqvUSuTIF+hpHFpkMS+NQ759Y5aM+FM28OSC2E=
+        b=JuA9n5k2bnlfAtInz4Ab9oqdKJaTOsAQ9uLIwT63iia6TPHskEw2q8Ht3Qx9KULnk
+         rvbVGTENqTc5f5mPF9UFovkIOxgf3OEKvfv94yM0p80n00xe9fKbSNyMIflnNOGbPN
+         Og2i3fFcX1X51ITa4FeQkXh0NHLh9D2nvIeXKppM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 06/89] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 028/100] zram: pass down the bvec we need to read into in the work struct
 Date:   Tue, 30 Apr 2019 13:37:57 +0200
-Message-Id: <20190430113610.084543897@linuxfoundation.org>
+Message-Id: <20190430113610.177266356@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,99 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 89189557b47b35683a27c80ee78aef18248eefb4 ]
+From: Jérôme Glisse <jglisse@redhat.com>
 
-Syzkaller report this:
+commit e153abc0739ff77bd89c9ba1688cdb963464af97 upstream.
 
-  sysctl could not get directory: /net//bridge -12
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
-  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
-  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
-  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
-  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
-  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
-  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
-  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
-  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
-  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   erase_entry fs/proc/proc_sysctl.c:178 [inline]
-   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
-   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
-   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
-   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
-   br_netfilter_init+0x68/0x1000 [br_netfilter]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
-   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  ---[ end trace 68741688d5fbfe85 ]---
+When scheduling work item to read page we need to pass down the proper
+bvec struct which points to the page to read into.  Before this patch it
+uses a randomly initialized bvec (only if PAGE_SIZE != 4096) which is
+wrong.
 
-commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
-dereference in put_links") forgot to handle start_unregistering() case,
-while header->parent is NULL, it calls erase_header() and as seen in the
-above syzkaller call trace, accessing &header->parent->root will trigger
-a NULL pointer dereference.
+Note that without this patch on arch/kernel where PAGE_SIZE != 4096
+userspace could read random memory through a zram block device (thought
+userspace probably would have no control on the address being read).
 
-As that commit explained, there is also no need to call
-start_unregistering() if header->parent is NULL.
-
-Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
-Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
-Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Link: http://lkml.kernel.org/r/20190408183219.26377-1-jglisse@redhat.com
+Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/proc/proc_sysctl.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/block/zram/zram_drv.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index d65390727541..7325baa8f9d4 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1626,9 +1626,11 @@ static void drop_sysctl_table(struct ctl_table_header *header)
- 	if (--header->nreg)
- 		return;
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -515,18 +515,18 @@ struct zram_work {
+ 	struct zram *zram;
+ 	unsigned long entry;
+ 	struct bio *bio;
++	struct bio_vec bvec;
+ };
  
--	if (parent)
-+	if (parent) {
- 		put_links(header);
--	start_unregistering(header);
-+		start_unregistering(header);
-+	}
-+
- 	if (!--header->count)
- 		kfree_rcu(header, rcu);
+ #if PAGE_SIZE != 4096
+ static void zram_sync_read(struct work_struct *work)
+ {
+-	struct bio_vec bvec;
+ 	struct zram_work *zw = container_of(work, struct zram_work, work);
+ 	struct zram *zram = zw->zram;
+ 	unsigned long entry = zw->entry;
+ 	struct bio *bio = zw->bio;
  
--- 
-2.19.1
-
+-	read_from_bdev_async(zram, &bvec, entry, bio);
++	read_from_bdev_async(zram, &zw->bvec, entry, bio);
+ }
+ 
+ /*
+@@ -539,6 +539,7 @@ static int read_from_bdev_sync(struct zr
+ {
+ 	struct zram_work work;
+ 
++	work.bvec = *bvec;
+ 	work.zram = zram;
+ 	work.entry = entry;
+ 	work.bio = bio;
 
 
