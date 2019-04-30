@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70BACF6F0
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D218F619
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730330AbfD3Luf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37588 "EHLO mail.kernel.org"
+        id S1729737AbfD3LnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731206AbfD3Lub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:50:31 -0400
+        id S1729728AbfD3LnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:43:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1FF2054F;
-        Tue, 30 Apr 2019 11:50:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6922921670;
+        Tue, 30 Apr 2019 11:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625030;
-        bh=62l78q4y2l6657LqOMaKarUovQIFpRJTX+xk06Kx7aI=;
+        s=default; t=1556624582;
+        bh=qmySqOgGAWXl1qA4wBmbdzy9gaa7gjJVIfqEMiXeztg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVtO0hhCgBu1Pd1x5t50S48CcHZEHXHFa1+podDSthnpYu/Xx1d8y8qEI5lxYIVpl
-         pJY+XOfRA26GlHgC0BFgEYbLI8J93HpOyC6CJBUUQfJx/FZEHy3BHcH0xSwv2QJ0FW
-         mbeyzSIVYFC21sxOUlyok34beELh8/1arkuW8AvI=
+        b=iO8rGcVE+SNufRozShs9/ejlcFkVmNHAyw4KZpSyf38vB2n2rU+VjWACbOhxztRg9
+         FlU6KLup4i9xY9tAwNFdlN27D7ivbTdpRsj8nM8J5+BU27fqy4H0K34F+ManQVtLVK
+         6XxBIgwH18ld45iSbLFhG1vvC6kAizriKS7AZdAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.0 65/89] aio: fold lookup_kiocb() into its sole caller
+        stable@vger.kernel.org, Su Bao Cheng <baocheng.su@siemens.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 49/53] stmmac: pci: Adjust IOT2000 matching
 Date:   Tue, 30 Apr 2019 13:38:56 +0200
-Message-Id: <20190430113612.765500173@linuxfoundation.org>
+Message-Id: <20190430113559.236031545@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Su Bao Cheng <baocheng.su@siemens.com>
 
-commit 833f4154ed560232120bc475935ee1d6a20e159f upstream.
+[ Upstream commit e0c1d14a1a3211dccf0540a6703ffbd5d2a75bdb ]
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Since there are more IOT2040 variants with identical hardware but
+different asset tags, the asset tag matching should be adjusted to
+support them.
+
+For the board name "SIMATIC IOT2000", currently there are 2 types of
+hardware, IOT2020 and IOT2040. The IOT2020 is identified by its unique
+asset tag. Match on it first. If we then match on the board name only,
+we will catch all IOT2040 variants. In the future there will be no other
+devices with the "SIMATIC IOT2000" DMI board name but different
+hardware.
+
+Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
+Reviewed-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/aio.c |   29 +++++++----------------------
- 1 file changed, 7 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -2002,24 +2002,6 @@ COMPAT_SYSCALL_DEFINE3(io_submit, compat
- }
- #endif
- 
--/* lookup_kiocb
-- *	Finds a given iocb for cancellation.
-- */
--static struct aio_kiocb *
--lookup_kiocb(struct kioctx *ctx, struct iocb __user *iocb)
--{
--	struct aio_kiocb *kiocb;
--
--	assert_spin_locked(&ctx->ctx_lock);
--
--	/* TODO: use a hash or array, this sucks. */
--	list_for_each_entry(kiocb, &ctx->active_reqs, ki_list) {
--		if (kiocb->ki_user_iocb == iocb)
--			return kiocb;
--	}
--	return NULL;
--}
--
- /* sys_io_cancel:
-  *	Attempts to cancel an iocb previously passed to io_submit.  If
-  *	the operation is successfully cancelled, the resulting event is
-@@ -2048,10 +2030,13 @@ SYSCALL_DEFINE3(io_cancel, aio_context_t
- 		return -EINVAL;
- 
- 	spin_lock_irq(&ctx->ctx_lock);
--	kiocb = lookup_kiocb(ctx, iocb);
--	if (kiocb) {
--		ret = kiocb->ki_cancel(&kiocb->rw);
--		list_del_init(&kiocb->ki_list);
-+	/* TODO: use a hash or array, this sucks. */
-+	list_for_each_entry(kiocb, &ctx->active_reqs, ki_list) {
-+		if (kiocb->ki_user_iocb == iocb) {
-+			ret = kiocb->ki_cancel(&kiocb->rw);
-+			list_del_init(&kiocb->ki_list);
-+			break;
-+		}
- 	}
- 	spin_unlock_irq(&ctx->ctx_lock);
- 
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
+@@ -159,6 +159,12 @@ static const struct dmi_system_id quark_
+ 		},
+ 		.driver_data = (void *)&galileo_stmmac_dmi_data,
+ 	},
++	/*
++	 * There are 2 types of SIMATIC IOT2000: IOT20202 and IOT2040.
++	 * The asset tag "6ES7647-0AA00-0YA2" is only for IOT2020 which
++	 * has only one pci network device while other asset tags are
++	 * for IOT2040 which has two.
++	 */
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "SIMATIC IOT2000"),
+@@ -170,8 +176,6 @@ static const struct dmi_system_id quark_
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "SIMATIC IOT2000"),
+-			DMI_EXACT_MATCH(DMI_BOARD_ASSET_TAG,
+-					"6ES7647-0AA00-1YA2"),
+ 		},
+ 		.driver_data = (void *)&iot2040_stmmac_dmi_data,
+ 	},
 
 
