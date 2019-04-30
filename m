@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB43AF625
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C52F657
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729953AbfD3Lnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:43:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
+        id S1730539AbfD3LqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729985AbfD3Lni (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:43:38 -0400
+        id S1730169AbfD3LqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABDBC20449;
-        Tue, 30 Apr 2019 11:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F10D21707;
+        Tue, 30 Apr 2019 11:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624617;
-        bh=7s0gBaTgPBBpRFjLQzlVGyfJufIZqMhD323/zLd7+S8=;
+        s=default; t=1556624779;
+        bh=c88ScI8Uuvx5NjijKog5n0S0P2zYo9cGOcNXG3Coaa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xy7jnYw6tMaJv030Pm1BdIxM3p2XLnK/hOtHWhIkt9hFt5KoLGrAfJmZ2Gx3I+wVo
-         o8PFc4yF4x0k3iWGo52IvTh1s1PlVxhlCFTfril0gQpj456KcS/TMI6MkCVp52KhlW
-         1Qc3Fvb5zZwZF/KqDv0kjE8gZsh+dDEQn4kOpL44=
+        b=02vV3lYxajuSL/ejIxuD8htvAMTeoLEU4ETPmfIkaBulTMrLaDFJX7DqxIN3WRmom
+         g0HmQQLU2nDpie32lU4LoC1H8sTBHubumcsjkhTHJCh8F+tply4DfrVvNM0Mw1YdpS
+         GMwPtUkAzAj2pElqYy86yjXzn11uZDdnebgdszK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
-        Andrea Claudi <aclaudi@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 31/53] ipvs: fix warning on unused variable
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 069/100] aio: dont zero entire aio_kiocb aio_get_req()
 Date:   Tue, 30 Apr 2019 13:38:38 +0200
-Message-Id: <20190430113556.666157798@linuxfoundation.org>
+Message-Id: <20190430113612.026422243@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Claudi <aclaudi@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit c93a49b9769e435990c82297aa0baa31e1538790 upstream.
+commit 2bc4ca9bb600cbe36941da2b2a67189fc4302a04 upstream.
 
-When CONFIG_IP_VS_IPV6 is not defined, build produced this warning:
+It's 192 bytes, fairly substantial. Most items don't need to be cleared,
+especially not upfront. Clear the ones we do need to clear, and leave
+the other ones for setup when the iocb is prepared and submitted.
 
-net/netfilter/ipvs/ip_vs_ctl.c:899:6: warning: unused variable ‘ret’ [-Wunused-variable]
-  int ret = 0;
-      ^~~
-
-Fix this by moving the declaration of 'ret' in the CONFIG_IP_VS_IPV6
-section in the same function.
-
-While at it, drop its unneeded initialisation.
-
-Fixes: 098e13f5b21d ("ipvs: fix dependency on nf_defrag_ipv6")
-Reported-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/ipvs/ip_vs_ctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/aio.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -889,12 +889,13 @@ ip_vs_new_dest(struct ip_vs_service *svc
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -1010,14 +1010,15 @@ static inline struct aio_kiocb *aio_get_
  {
- 	struct ip_vs_dest *dest;
- 	unsigned int atype, i;
--	int ret = 0;
+ 	struct aio_kiocb *req;
  
- 	EnterFunction(2);
+-	req = kmem_cache_alloc(kiocb_cachep, GFP_KERNEL|__GFP_ZERO);
++	req = kmem_cache_alloc(kiocb_cachep, GFP_KERNEL);
+ 	if (unlikely(!req))
+ 		return NULL;
  
- #ifdef CONFIG_IP_VS_IPV6
- 	if (udest->af == AF_INET6) {
-+		int ret;
+ 	percpu_ref_get(&ctx->reqs);
++	req->ki_ctx = ctx;
+ 	INIT_LIST_HEAD(&req->ki_list);
+ 	refcount_set(&req->ki_refcnt, 0);
+-	req->ki_ctx = ctx;
++	req->ki_eventfd = NULL;
+ 	return req;
+ }
+ 
+@@ -1738,6 +1739,10 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	if (unlikely(!req->file))
+ 		return -EBADF;
+ 
++	req->head = NULL;
++	req->woken = false;
++	req->cancelled = false;
 +
- 		atype = ipv6_addr_type(&udest->addr.in6);
- 		if ((!(atype & IPV6_ADDR_UNICAST) ||
- 			atype & IPV6_ADDR_LINKLOCAL) &&
+ 	apt.pt._qproc = aio_poll_queue_proc;
+ 	apt.pt._key = req->events;
+ 	apt.iocb = aiocb;
 
 
