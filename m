@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF927F761
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9854F76E
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729265AbfD3Lqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
+        id S1727695AbfD3L6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730576AbfD3Lqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:35 -0400
+        id S1730649AbfD3LrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:47:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8D9620449;
-        Tue, 30 Apr 2019 11:46:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D3020449;
+        Tue, 30 Apr 2019 11:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624795;
-        bh=uXdfShyJJUnJCFZqwkhUDHpzoY8BpKlyrwVolj9fTNU=;
+        s=default; t=1556624823;
+        bh=S0SOl4WlJ3Nkb7wjdnQgB3nyI8KIwfRHP3+uxXnFOrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCccw8sI03nsFmlr0t1Equlj/jGHMC/FaZ4iEvFvpmqrU+ZCFwpXitiy6GC6x6jlI
-         61PtjHb2wx0lCaKC+7ApESEWuHj9GWV88KvnEAWAAeTOhwwX1T3miPkEWRVMXbyWuz
-         jOqjRc48fIoTd+gMawzQN3Wz1pA5QK359HnPcCnk=
+        b=wgNr8khph1GC1A27p5IcN1FVLN/KtHU6Uj5ELSrTpbtKbrQioDx0uAbuaLyaBwXYD
+         sZFCVpIgQuGKndKgoyGjDjKvlrQydLLoftz4Iht5NsrHGznAQGH4V031fhc6qMzhwJ
+         Irz27+adxX3Yn4Xjy5MUKfMRc0eh8fTEnePwEYas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 4.19 048/100] Revert "drm/i915/fbdev: Actually configure untiled displays"
-Date:   Tue, 30 Apr 2019 13:38:17 +0200
-Message-Id: <20190430113611.311218385@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        kbuild test robot <lkp@intel.com>,
+        Eric Anholt <eric@anholt.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.19 049/100] drm/vc4: Fix compilation error reported by kbuild test bot
+Date:   Tue, 30 Apr 2019 13:38:18 +0200
+Message-Id: <20190430113611.343971382@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
 References: <20190430113608.616903219@linuxfoundation.org>
@@ -42,72 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
-commit 9fa246256e09dc30820524401cdbeeaadee94025 upstream.
+commit 462ce5d963f18b71c63f6b7730a35a2ee5273540 upstream.
 
-This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
+A pointer to crtc was missing, resulting in the following build error:
+drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse: sparse: incorrect type in argument 1 (different base types)
+drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse:    expected struct drm_crtc *crtc
+drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse:    got struct drm_crtc_state *state
+drivers/gpu/drm/vc4/vc4_crtc.c:1045:39: sparse: sparse: not enough arguments for function vc4_crtc_destroy_state
 
-This commit is documented to break userspace X.org modesetting driver in certain configurations.
-
-The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
-
-This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Eric Anholt <eric@anholt.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/2b6ed5e6-81b0-4276-8860-870b54ca3262@linux.intel.com
+Fixes: d08106796a78 ("drm/vc4: Fix memory leak during gpu reset.")
+Cc: <stable@vger.kernel.org> # v4.6+
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_fbdev.c
-+++ b/drivers/gpu/drm/i915/intel_fbdev.c
-@@ -334,8 +334,8 @@ static bool intel_fb_initial_config(stru
- 				    bool *enabled, int width, int height)
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -998,7 +998,7 @@ static void
+ vc4_crtc_reset(struct drm_crtc *crtc)
  {
- 	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
-+	unsigned long conn_configured, conn_seq, mask;
- 	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
--	unsigned long conn_configured, conn_seq;
- 	int i, j;
- 	bool *save_enabled;
- 	bool fallback = true, ret = true;
-@@ -353,9 +353,10 @@ static bool intel_fb_initial_config(stru
- 		drm_modeset_backoff(&ctx);
+ 	if (crtc->state)
+-		vc4_crtc_destroy_state(crtc->state);
++		vc4_crtc_destroy_state(crtc, crtc->state);
  
- 	memcpy(save_enabled, enabled, count);
--	conn_seq = GENMASK(count - 1, 0);
-+	mask = GENMASK(count - 1, 0);
- 	conn_configured = 0;
- retry:
-+	conn_seq = conn_configured;
- 	for (i = 0; i < count; i++) {
- 		struct drm_fb_helper_connector *fb_conn;
- 		struct drm_connector *connector;
-@@ -368,8 +369,7 @@ retry:
- 		if (conn_configured & BIT(i))
- 			continue;
- 
--		/* First pass, only consider tiled connectors */
--		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
-+		if (conn_seq == 0 && !connector->has_tile)
- 			continue;
- 
- 		if (connector->status == connector_status_connected)
-@@ -473,10 +473,8 @@ retry:
- 		conn_configured |= BIT(i);
- 	}
- 
--	if (conn_configured != conn_seq) { /* repeat until no more are found */
--		conn_seq = conn_configured;
-+	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
- 		goto retry;
--	}
- 
- 	/*
- 	 * If the BIOS didn't enable everything it could, fall back to have the
+ 	crtc->state = kzalloc(sizeof(struct vc4_crtc_state), GFP_KERNEL);
+ 	if (crtc->state)
 
 
