@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E67EF5DB
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF08F725
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfD3Ljd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44838 "EHLO mail.kernel.org"
+        id S1726559AbfD3L4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726648AbfD3Ljc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:39:32 -0400
+        id S1730216AbfD3LtC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:49:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 518EE2173E;
-        Tue, 30 Apr 2019 11:39:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58BDC20449;
+        Tue, 30 Apr 2019 11:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624371;
-        bh=nLCMzDTipK2iPDywH9QjuhrH1j+pd1EQip2pgPgje2M=;
+        s=default; t=1556624941;
+        bh=XZj4mr16NFVkMu39V8QqgpX0TDjBG2kL9Yj3vw4Dj2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuIwSODtewgNNTMnGzQ/qLy6Kj4dHQuVd/O/IZkCaQxz+XgRr061MnUILVX2HN9Dq
-         VON2B2V3qv9gvHR1RLOMaPJaYGwR1ymJJXntXmjOslhFol+gtg8FFhP3ewIFvqEU9S
-         qfcz/qH9i/g3N/7GAliH8V5BjokC4+naUKXouhvE=
+        b=CqiLbPE0HnYkN3iFjpv2ePvNY/kAjFejJQXrAEnhrTlrneiePLIefqjj57+f/N5qO
+         LOPGzXvG6fPD7XaqoUBJp/p+qBjuL48IyUfC6MN7GeF++/1iv39kBOVnLoCn2vrSYE
+         eF/1fE49N0GzbUMkOrPfA41K770ZngBqvl0NUNuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.9 10/41] nfsd: Dont release the callback slot unless it was actually held
+Subject: [PATCH 5.0 30/89] nfsd: Dont release the callback slot unless it was actually held
 Date:   Tue, 30 Apr 2019 13:38:21 +0200
-Message-Id: <20190430113527.552502516@linuxfoundation.org>
+Message-Id: <20190430113611.349597939@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/nfsd/nfs4callback.c
 +++ b/fs/nfsd/nfs4callback.c
-@@ -934,8 +934,9 @@ static void nfsd4_cb_prepare(struct rpc_
+@@ -1023,8 +1023,9 @@ static void nfsd4_cb_prepare(struct rpc_
  	cb->cb_seq_status = 1;
  	cb->cb_status = 0;
  	if (minorversion) {
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  	rpc_call_start(task);
  }
-@@ -962,6 +963,9 @@ static bool nfsd4_cb_sequence_done(struc
+@@ -1051,6 +1052,9 @@ static bool nfsd4_cb_sequence_done(struc
  		return true;
  	}
  
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	switch (cb->cb_seq_status) {
  	case 0:
  		/*
-@@ -999,6 +1003,7 @@ static bool nfsd4_cb_sequence_done(struc
+@@ -1089,6 +1093,7 @@ static bool nfsd4_cb_sequence_done(struc
  			cb->cb_seq_status);
  	}
  
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	clear_bit(0, &clp->cl_cb_slot_busy);
  	rpc_wake_up_next(&clp->cl_cb_waitq);
  	dprintk("%s: freed slot, new seqid=%d\n", __func__,
-@@ -1206,6 +1211,7 @@ void nfsd4_init_cb(struct nfsd4_callback
+@@ -1296,6 +1301,7 @@ void nfsd4_init_cb(struct nfsd4_callback
  	cb->cb_seq_status = 1;
  	cb->cb_status = 0;
  	cb->cb_need_restart = false;
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void nfsd4_run_cb(struct nfsd4_callback *cb)
 --- a/fs/nfsd/state.h
 +++ b/fs/nfsd/state.h
-@@ -69,6 +69,7 @@ struct nfsd4_callback {
+@@ -70,6 +70,7 @@ struct nfsd4_callback {
  	int cb_seq_status;
  	int cb_status;
  	bool cb_need_restart;
