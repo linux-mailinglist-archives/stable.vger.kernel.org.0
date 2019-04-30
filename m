@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B6CF63A
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0539CF7C0
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730252AbfD3Loq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56430 "EHLO mail.kernel.org"
+        id S1730264AbfD3Los (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729295AbfD3Lop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:44:45 -0400
+        id S1730258AbfD3Lor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64BDC217D6;
-        Tue, 30 Apr 2019 11:44:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFD49217D4;
+        Tue, 30 Apr 2019 11:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624684;
-        bh=imL9mDrXO2IU4GhsA/xFI5+efFxUzAHmJGbxiNa3XXE=;
+        s=default; t=1556624687;
+        bh=2rx6RYvoypUmGKFVBsB99WFzaCdfl5OUBVZSEiFnDWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xFEG8oQ9xFcOfQENV6TQtsddmKCOjKOUr3hXHKB/yC2jYTxlVzdcOttWE9ixPV4q
-         RQw16u46m+eFOdvWkAsEkmFIgwvxEpQtv43B+8Gtd22Ze4BERwVVdP+5zOVVhp9loG
-         qXvBavvo0/C4IN6l3TrIrCopn3sq0W6zNsDbQIhs=
+        b=o7jcrNKw0xH3Xb+XDG6yOu2M7ucmR0PKh8TiPX883L5r+nZ4dL469zgJtmAziNJep
+         m+be2FyZGsp16o26CSrOMvq4hFBmMfkJm7s9w35hGKr7qh7I9vBeQ75aIYrKQAY0Bw
+         BMig5tgcmcEgRhh4OX2ibeZ/k9jsLxUJUy7jbiKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Haggai Eran <haggaie@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 4.19 033/100] RDMA/mlx5: Do not allow the user to write to the clock page
-Date:   Tue, 30 Apr 2019 13:38:02 +0200
-Message-Id: <20190430113610.355843314@linuxfoundation.org>
+        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, cj.chengjian@huawei.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 034/100] sched/numa: Fix a possible divide-by-zero
+Date:   Tue, 30 Apr 2019 13:38:03 +0200
+Message-Id: <20190430113610.390325327@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
 References: <20190430113608.616903219@linuxfoundation.org>
@@ -44,41 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-commit c660133c339f9ab684fdf568c0d51b9ae5e86002 upstream.
+commit a860fa7b96e1a1c974556327aa1aee852d434c21 upstream.
 
-The intent of this VMA was to be read-only from user space, but the
-VM_MAYWRITE masking was missed, so mprotect could make it writable.
+sched_clock_cpu() may not be consistent between CPUs. If a task
+migrates to another CPU, then se.exec_start is set to that CPU's
+rq_clock_task() by update_stats_curr_start(). Specifically, the new
+value might be before the old value due to clock skew.
 
-Cc: stable@vger.kernel.org
-Fixes: 5c99eaecb1fc ("IB/mlx5: Mmap the HCA's clock info to user-space")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Reviewed-by: Haggai Eran <haggaie@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+So then if in numa_get_avg_runtime() the expression:
+
+  'now - p->last_task_numa_placement'
+
+ends up as -1, then the divider '*period + 1' in task_numa_placement()
+is 0 and things go bang. Similar to update_curr(), check if time goes
+backwards to avoid this.
+
+[ peterz: Wrote new changelog. ]
+[ mingo: Tweaked the code comment. ]
+
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: cj.chengjian@huawei.com
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20190425080016.GX11158@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/fair.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -2014,6 +2014,7 @@ static int mlx5_ib_mmap_clock_info_page(
- 
- 	if (vma->vm_flags & VM_WRITE)
- 		return -EPERM;
-+	vma->vm_flags &= ~VM_MAYWRITE;
- 
- 	if (!dev->mdev->clock_info_page)
- 		return -EOPNOTSUPP;
-@@ -2197,6 +2198,7 @@ static int mlx5_ib_mmap(struct ib_uconte
- 
- 		if (vma->vm_flags & VM_WRITE)
- 			return -EPERM;
-+		vma->vm_flags &= ~VM_MAYWRITE;
- 
- 		/* Don't expose to user-space information it shouldn't have */
- 		if (PAGE_SIZE > 4096)
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2016,6 +2016,10 @@ static u64 numa_get_avg_runtime(struct t
+ 	if (p->last_task_numa_placement) {
+ 		delta = runtime - p->last_sum_exec_runtime;
+ 		*period = now - p->last_task_numa_placement;
++
++		/* Avoid time going backwards, prevent potential divide error: */
++		if (unlikely((s64)*period < 0))
++			*period = 0;
+ 	} else {
+ 		delta = p->se.avg.load_sum;
+ 		*period = LOAD_AVG_MAX;
 
 
