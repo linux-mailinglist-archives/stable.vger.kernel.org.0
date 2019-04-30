@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 920B2F73B
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE12FF7B8
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730810AbfD3LsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34186 "EHLO mail.kernel.org"
+        id S1728425AbfD3Lo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730808AbfD3LsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:12 -0400
+        id S1729236AbfD3LoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D682054F;
-        Tue, 30 Apr 2019 11:48:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B1FC2173E;
+        Tue, 30 Apr 2019 11:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624891;
-        bh=WClKCRlJDD7W2lTkvYKzQ7G9NElNSD/2db0/8zxai6Y=;
+        s=default; t=1556624664;
+        bh=TsqbLPI9d0YrYZoXI3eaFV8J5vqZeYuaLMLw8AWhRy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLM8efW7Lqm+mtuMHHz23tOJFYPAm3yva2K9EcIkQcr6aUABV1Ysl8OXhy3FoCPRh
-         cx14kzpPOba+S4/xRbEICaAUf99kHTZwxdZ1Bz3L04IFlNr1B3rgFqfxdnWYYwLZmL
-         Zv/f9NTAPl0d+K16qj6KyfLCQFQ1ZdZ3gSgkq/Ts=
+        b=EqVNgi9Ib3KrE9Z45TNzeXbEkxtQ+L/O0gU+j8VO2MZeECKAANPXTJGqxvzeUtUPc
+         vOzYpLyazgjQs0JT8ReUQ94+Si3x8WxGPdDlJckbB7EJ1a3G+Od+O8pNVczWyVrWgc
+         37JU9ojxQBpWez1Nszh7Vbw0QZFcZjEE1hIy8z8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Zigotzky <chzigotzky@xenosoft.de>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 04/89] powerpc/vdso32: fix CLOCK_MONOTONIC on PPC64
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Jann Horn <jannh@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 026/100] tracing: Fix buffer_ref pipe ops
 Date:   Tue, 30 Apr 2019 13:37:55 +0200
-Message-Id: <20190430113610.012559626@linuxfoundation.org>
+Message-Id: <20190430113610.108174724@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +46,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd9a994fc68d196a052b73747e3366c57d14a09e ]
+From: Jann Horn <jannh@google.com>
 
-Commit b5b4453e7912 ("powerpc/vdso64: Fix CLOCK_MONOTONIC
-inconsistencies across Y2038") changed the type of wtom_clock_sec
-to s64 on PPC64. Therefore, VDSO32 needs to read it with a 4 bytes
-shift in order to retrieve the lower part of it.
+commit b987222654f84f7b4ca95b3a55eca784cb30235b upstream.
 
-Fixes: b5b4453e7912 ("powerpc/vdso64: Fix CLOCK_MONOTONIC inconsistencies across Y2038")
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes multiple issues in buffer_pipe_buf_ops:
+
+ - The ->steal() handler must not return zero unless the pipe buffer has
+   the only reference to the page. But generic_pipe_buf_steal() assumes
+   that every reference to the pipe is tracked by the page's refcount,
+   which isn't true for these buffers - buffer_pipe_buf_get(), which
+   duplicates a buffer, doesn't touch the page's refcount.
+   Fix it by using generic_pipe_buf_nosteal(), which refuses every
+   attempted theft. It should be easy to actually support ->steal, but the
+   only current users of pipe_buf_steal() are the virtio console and FUSE,
+   and they also only use it as an optimization. So it's probably not worth
+   the effort.
+ - The ->get() and ->release() handlers can be invoked concurrently on pipe
+   buffers backed by the same struct buffer_ref. Make them safe against
+   concurrency by using refcount_t.
+ - The pointers stored in ->private were only zeroed out when the last
+   reference to the buffer_ref was dropped. As far as I know, this
+   shouldn't be necessary anyway, but if we do it, let's always do it.
+
+Link: http://lkml.kernel.org/r/20190404215925.253531-1-jannh@google.com
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Fixes: 73a757e63114d ("ring-buffer: Return reader page back into existing ring buffer")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/kernel/vdso32/gettimeofday.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/splice.c               |    4 ++--
+ include/linux/pipe_fs_i.h |    1 +
+ kernel/trace/trace.c      |   28 ++++++++++++++--------------
+ 3 files changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index 1e0bc5955a40..afd516b572f8 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -98,7 +98,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
- 	 * can be used, r7 contains NSEC_PER_SEC.
- 	 */
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -333,8 +333,8 @@ const struct pipe_buf_operations default
+ 	.get = generic_pipe_buf_get,
+ };
  
--	lwz	r5,WTOM_CLOCK_SEC(r9)
-+	lwz	r5,(WTOM_CLOCK_SEC+LOPART)(r9)
- 	lwz	r6,WTOM_CLOCK_NSEC(r9)
+-static int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
+-				    struct pipe_buffer *buf)
++int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
++			     struct pipe_buffer *buf)
+ {
+ 	return 1;
+ }
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -181,6 +181,7 @@ void free_pipe_info(struct pipe_inode_in
+ void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
+ int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
+ int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
++int generic_pipe_buf_nosteal(struct pipe_inode_info *, struct pipe_buffer *);
+ void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
+ void pipe_buf_mark_unmergeable(struct pipe_buffer *buf);
  
- 	/* We now have our offset in r5,r6. We create a fake dependency
--- 
-2.19.1
-
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -6803,19 +6803,23 @@ struct buffer_ref {
+ 	struct ring_buffer	*buffer;
+ 	void			*page;
+ 	int			cpu;
+-	int			ref;
++	refcount_t		refcount;
+ };
+ 
++static void buffer_ref_release(struct buffer_ref *ref)
++{
++	if (!refcount_dec_and_test(&ref->refcount))
++		return;
++	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
++	kfree(ref);
++}
++
+ static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
+ 				    struct pipe_buffer *buf)
+ {
+ 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
+ 
+-	if (--ref->ref)
+-		return;
+-
+-	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
+-	kfree(ref);
++	buffer_ref_release(ref);
+ 	buf->private = 0;
+ }
+ 
+@@ -6824,7 +6828,7 @@ static void buffer_pipe_buf_get(struct p
+ {
+ 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
+ 
+-	ref->ref++;
++	refcount_inc(&ref->refcount);
+ }
+ 
+ /* Pipe buffer operations for a buffer. */
+@@ -6832,7 +6836,7 @@ static const struct pipe_buf_operations
+ 	.can_merge		= 0,
+ 	.confirm		= generic_pipe_buf_confirm,
+ 	.release		= buffer_pipe_buf_release,
+-	.steal			= generic_pipe_buf_steal,
++	.steal			= generic_pipe_buf_nosteal,
+ 	.get			= buffer_pipe_buf_get,
+ };
+ 
+@@ -6845,11 +6849,7 @@ static void buffer_spd_release(struct sp
+ 	struct buffer_ref *ref =
+ 		(struct buffer_ref *)spd->partial[i].private;
+ 
+-	if (--ref->ref)
+-		return;
+-
+-	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
+-	kfree(ref);
++	buffer_ref_release(ref);
+ 	spd->partial[i].private = 0;
+ }
+ 
+@@ -6904,7 +6904,7 @@ tracing_buffers_splice_read(struct file
+ 			break;
+ 		}
+ 
+-		ref->ref = 1;
++		refcount_set(&ref->refcount, 1);
+ 		ref->buffer = iter->trace_buffer->buffer;
+ 		ref->page = ring_buffer_alloc_read_page(ref->buffer, iter->cpu_file);
+ 		if (IS_ERR(ref->page)) {
 
 
