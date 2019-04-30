@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EB2F7F0
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8261F838
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727573AbfD3MEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53034 "EHLO mail.kernel.org"
+        id S1728760AbfD3LlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729755AbfD3LnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:43:08 -0400
+        id S1728762AbfD3LlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:41:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A8312173E;
-        Tue, 30 Apr 2019 11:43:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 347E421670;
+        Tue, 30 Apr 2019 11:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624588;
-        bh=4+zyDSwdpa4cX6pZkHP3f8wx9+V065dfKkPmkd2vNzA=;
+        s=default; t=1556624465;
+        bh=GKWtRrBNFdR2JLOIrZ3EWhjheKlKpbUl0/M3jGhzfSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNY1OUMpRG0k1FbuRnC6jDtFKCMZ2mpPfv8ocxV+mS+kHa8Umj+m2EV44PJzOS8PZ
-         oPA8Z87xCdbepvrl5wLU2+Q2PRawKwGE+5ZFimjH0h9sc3mJGUaCLUcbkBcsNvAtVJ
-         tLlDhRwgEoMwFFDBm77J4WB8ASrxVoA39rOmL9bE=
+        b=hRlXCDpGuUdAcmGpCRmMwqsVHB9nCsjxOLvZPQZWXOLj9n11eZCoBQ2HvC0gTyItz
+         BdzD5/K2L+CGHlZAozKzY0zEufgsXI6gA+ji8p6LB2PkTMcCOU4COZAwEko5bW2oK+
+         KHNIdWhbWR6NOoymQLtklQtY3oGlzNelKlYFfVzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, luca abeni <luca.abeni@santannapisa.it>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "chengjian (D)" <cj.chengjian@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.14 33/53] sched/deadline: Correctly handle active 0-lag timers
+        stable@vger.kernel.org, Salvatore Bonaccorso <carnil@debian.org>,
+        Jan Kara <jack@suse.cz>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 29/41] Revert "block/loop: Use global lock for ioctl() operation."
 Date:   Tue, 30 Apr 2019 13:38:40 +0200
-Message-Id: <20190430113557.087736333@linuxfoundation.org>
+Message-Id: <20190430113531.495120419@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,61 +45,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: luca abeni <luca.abeni@santannapisa.it>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 1b02cd6a2d7f3e2a6a5262887d2cb2912083e42f upstream.
+This reverts commit 3ae3d167f5ec2c7bb5fcd12b7772cfadc93b2305 which is
+commit 310ca162d779efee8a2dc3731439680f3e9c1e86 upstream.
 
-syzbot reported the following warning:
+Jan Kara has reported seeing problems with this patch applied, as has
+Salvatore Bonaccorso, so let's drop it for now.
 
-   [ ] WARNING: CPU: 4 PID: 17089 at kernel/sched/deadline.c:255 task_non_contending+0xae0/0x1950
-
-line 255 of deadline.c is:
-
-	WARN_ON(hrtimer_active(&dl_se->inactive_timer));
-
-in task_non_contending().
-
-Unfortunately, in some cases (for example, a deadline task
-continuosly blocking and waking immediately) it can happen that
-a task blocks (and task_non_contending() is called) while the
-0-lag timer is still active.
-
-In this case, the safest thing to do is to immediately decrease
-the running bandwidth of the task, without trying to re-arm the 0-lag timer.
-
-Signed-off-by: luca abeni <luca.abeni@santannapisa.it>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Juri Lelli <juri.lelli@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: chengjian (D) <cj.chengjian@huawei.com>
-Link: https://lkml.kernel.org/r/20190325131530.34706-1-luca.abeni@santannapisa.it
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Reported-by: Jan Kara <jack@suse.cz>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/sched/deadline.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/block/loop.c |   42 +++++++++++++++++++++---------------------
+ drivers/block/loop.h |    1 +
+ 2 files changed, 22 insertions(+), 21 deletions(-)
 
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -217,7 +217,6 @@ static void task_non_contending(struct t
- 	if (dl_se->dl_runtime == 0)
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -82,7 +82,6 @@
+ 
+ static DEFINE_IDR(loop_index_idr);
+ static DEFINE_MUTEX(loop_index_mutex);
+-static DEFINE_MUTEX(loop_ctl_mutex);
+ 
+ static int max_part;
+ static int part_shift;
+@@ -1034,7 +1033,7 @@ static int loop_clr_fd(struct loop_devic
+ 	 */
+ 	if (atomic_read(&lo->lo_refcnt) > 1) {
+ 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		return 0;
+ 	}
+ 
+@@ -1083,12 +1082,12 @@ static int loop_clr_fd(struct loop_devic
+ 	if (!part_shift)
+ 		lo->lo_disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 	loop_unprepare_queue(lo);
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 	/*
+-	 * Need not hold loop_ctl_mutex to fput backing file.
+-	 * Calling fput holding loop_ctl_mutex triggers a circular
++	 * Need not hold lo_ctl_mutex to fput backing file.
++	 * Calling fput holding lo_ctl_mutex triggers a circular
+ 	 * lock dependency possibility warning as fput can take
+-	 * bd_mutex which is usually taken before loop_ctl_mutex.
++	 * bd_mutex which is usually taken before lo_ctl_mutex.
+ 	 */
+ 	fput(filp);
+ 	return 0;
+@@ -1351,7 +1350,7 @@ static int lo_ioctl(struct block_device
+ 	struct loop_device *lo = bdev->bd_disk->private_data;
+ 	int err;
+ 
+-	mutex_lock_nested(&loop_ctl_mutex, 1);
++	mutex_lock_nested(&lo->lo_ctl_mutex, 1);
+ 	switch (cmd) {
+ 	case LOOP_SET_FD:
+ 		err = loop_set_fd(lo, mode, bdev, arg);
+@@ -1360,7 +1359,7 @@ static int lo_ioctl(struct block_device
+ 		err = loop_change_fd(lo, bdev, arg);
+ 		break;
+ 	case LOOP_CLR_FD:
+-		/* loop_clr_fd would have unlocked loop_ctl_mutex on success */
++		/* loop_clr_fd would have unlocked lo_ctl_mutex on success */
+ 		err = loop_clr_fd(lo);
+ 		if (!err)
+ 			goto out_unlocked;
+@@ -1396,7 +1395,7 @@ static int lo_ioctl(struct block_device
+ 	default:
+ 		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
+ 	}
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 
+ out_unlocked:
+ 	return err;
+@@ -1529,16 +1528,16 @@ static int lo_compat_ioctl(struct block_
+ 
+ 	switch(cmd) {
+ 	case LOOP_SET_STATUS:
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		err = loop_set_status_compat(
+ 			lo, (const struct compat_loop_info __user *) arg);
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		break;
+ 	case LOOP_GET_STATUS:
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		err = loop_get_status_compat(
+ 			lo, (struct compat_loop_info __user *) arg);
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		break;
+ 	case LOOP_SET_CAPACITY:
+ 	case LOOP_CLR_FD:
+@@ -1582,7 +1581,7 @@ static void __lo_release(struct loop_dev
+ 	if (atomic_dec_return(&lo->lo_refcnt))
  		return;
  
--	WARN_ON(hrtimer_active(&dl_se->inactive_timer));
- 	WARN_ON(dl_se->dl_non_contending);
+-	mutex_lock(&loop_ctl_mutex);
++	mutex_lock(&lo->lo_ctl_mutex);
+ 	if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
+ 		/*
+ 		 * In autoclear mode, stop the loop thread
+@@ -1599,7 +1598,7 @@ static void __lo_release(struct loop_dev
+ 		loop_flush(lo);
+ 	}
  
- 	zerolag_time = dl_se->deadline -
-@@ -234,7 +233,7 @@ static void task_non_contending(struct t
- 	 * If the "0-lag time" already passed, decrease the active
- 	 * utilization now, instead of starting a timer
- 	 */
--	if (zerolag_time < 0) {
-+	if ((zerolag_time < 0) || hrtimer_active(&dl_se->inactive_timer)) {
- 		if (dl_task(p))
- 			sub_running_bw(dl_se->dl_bw, dl_rq);
- 		if (!dl_task(p) || p->state == TASK_DEAD) {
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ }
+ 
+ static void lo_release(struct gendisk *disk, fmode_t mode)
+@@ -1645,10 +1644,10 @@ static int unregister_transfer_cb(int id
+ 	struct loop_device *lo = ptr;
+ 	struct loop_func_table *xfer = data;
+ 
+-	mutex_lock(&loop_ctl_mutex);
++	mutex_lock(&lo->lo_ctl_mutex);
+ 	if (lo->lo_encryption == xfer)
+ 		loop_release_xfer(lo);
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 	return 0;
+ }
+ 
+@@ -1814,6 +1813,7 @@ static int loop_add(struct loop_device *
+ 	if (!part_shift)
+ 		disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 	disk->flags |= GENHD_FL_EXT_DEVT;
++	mutex_init(&lo->lo_ctl_mutex);
+ 	atomic_set(&lo->lo_refcnt, 0);
+ 	lo->lo_number		= i;
+ 	spin_lock_init(&lo->lo_lock);
+@@ -1926,19 +1926,19 @@ static long loop_control_ioctl(struct fi
+ 		ret = loop_lookup(&lo, parm);
+ 		if (ret < 0)
+ 			break;
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		if (lo->lo_state != Lo_unbound) {
+ 			ret = -EBUSY;
+-			mutex_unlock(&loop_ctl_mutex);
++			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+ 		}
+ 		if (atomic_read(&lo->lo_refcnt) > 0) {
+ 			ret = -EBUSY;
+-			mutex_unlock(&loop_ctl_mutex);
++			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+ 		}
+ 		lo->lo_disk->private_data = NULL;
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		idr_remove(&loop_index_idr, lo->lo_number);
+ 		loop_remove(lo);
+ 		break;
+--- a/drivers/block/loop.h
++++ b/drivers/block/loop.h
+@@ -55,6 +55,7 @@ struct loop_device {
+ 
+ 	spinlock_t		lo_lock;
+ 	int			lo_state;
++	struct mutex		lo_ctl_mutex;
+ 	struct kthread_worker	worker;
+ 	struct task_struct	*worker_task;
+ 	bool			use_dio;
 
 
