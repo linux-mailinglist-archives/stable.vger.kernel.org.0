@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BEF6F5DD
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94052F71A
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727654AbfD3Ljk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:39:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45132 "EHLO mail.kernel.org"
+        id S1730282AbfD3LtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727936AbfD3Ljk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:39:40 -0400
+        id S1730934AbfD3LtK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:49:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 051CD21734;
-        Tue, 30 Apr 2019 11:39:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B2362177B;
+        Tue, 30 Apr 2019 11:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624379;
-        bh=8W/ehXQACVYoYHOEBk7VSWUI8SF3BqYrJa0YNOBXKRo=;
+        s=default; t=1556624949;
+        bh=ZBbxzEzM68irpAlpYV2xErPYncDbMHz9b36z2Ynmjd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z0nfUeD3hluBS/zJtR34SSYeOM3ax5aXXZ9CEv8et7QSXk2gHQdyJlIIdAsG0cLk
-         pmwgGR6xL3/sMgFqPN51TwgU0OW3leUzHSUwef+GeGRlyiTL5fTv0ZvuuSZ7s1TcQi
-         Jdllq9/OdwMV75m3h7x2AwCag+yTYvkIV+ur39v4=
+        b=iQ0liYcHbalUI0cit/ips0burQQy3Qik9lfR3tXWugFdZ4TiaNOlrAVhm5P30PrFo
+         lwvgqhjwOlX2Pj1Y1gApktSMHDyW4zXhpAq9io20G1z3sVnpgyFdQ3edBuvjNoRiRT
+         hYsT3uNs/MPt5hMIAxTZNnejNk7zY1UOjtcq7A9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>,
-        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
-        Yao Lihua <ylhuajnu@outlook.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.9 13/41] dmaengine: sh: rcar-dmac: With cyclic DMA residue 0 is valid
+        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
+        "J. Bruce Fields" <bfields@redhat.com>, stable@kernel.org
+Subject: [PATCH 5.0 33/89] sunrpc: dont mark uninitialised items as VALID.
 Date:   Tue, 30 Apr 2019 13:38:24 +0200
-Message-Id: <20190430113528.091286225@linuxfoundation.org>
+Message-Id: <20190430113611.449275841@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: NeilBrown <neilb@suse.com>
 
-commit 907bd68a2edc491849e2fdcfe52c4596627bca94 upstream.
+commit d58431eacb226222430940134d97bfd72f292fcd upstream.
 
-Having a cyclic DMA, a residue 0 is not an indication of a completed
-DMA. In case of cyclic DMA make sure that dma_set_residue() is called
-and with this a residue of 0 is forwarded correctly to the caller.
+A recent commit added a call to cache_fresh_locked()
+when an expired item was found.
+The call sets the CACHE_VALID flag, so it is important
+that the item actually is valid.
+There are two ways it could be valid:
+1/ If ->update has been called to fill in relevant content
+2/ if CACHE_NEGATIVE is set, to say that content doesn't exist.
 
-Fixes: 3544d2878817 ("dmaengine: rcar-dmac: use result of updated get_residue in tx_status")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
-Signed-off-by: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
-Signed-off-by: Yao Lihua <ylhuajnu@outlook.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+An expired item that is waiting for an update will be neither.
+Setting CACHE_VALID will mean that a subsequent call to cache_put()
+will be likely to dereference uninitialised pointers.
+
+So we must make sure the item is valid, and we already have code to do
+that in try_to_negate_entry().  This takes the hash lock and so cannot
+be used directly, so take out the two lines that we need and use them.
+
+Now cache_fresh_locked() is certain to be called only on
+a valid item.
+
+Cc: stable@kernel.org # 2.6.35
+Fixes: 4ecd55ea0742 ("sunrpc: fix cache_head leak due to queued request")
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/sh/rcar-dmac.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sunrpc/cache.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1311,6 +1311,7 @@ static enum dma_status rcar_dmac_tx_stat
- 	enum dma_status status;
- 	unsigned long flags;
- 	unsigned int residue;
-+	bool cyclic;
+--- a/net/sunrpc/cache.c
++++ b/net/sunrpc/cache.c
+@@ -54,6 +54,7 @@ static void cache_init(struct cache_head
+ 	h->last_refresh = now;
+ }
  
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if (status == DMA_COMPLETE || !txstate)
-@@ -1318,10 +1319,11 @@ static enum dma_status rcar_dmac_tx_stat
- 
- 	spin_lock_irqsave(&rchan->lock, flags);
- 	residue = rcar_dmac_chan_get_residue(rchan, cookie);
-+	cyclic = rchan->desc.running ? rchan->desc.running->cyclic : false;
- 	spin_unlock_irqrestore(&rchan->lock, flags);
- 
- 	/* if there's no residue, the cookie is complete */
--	if (!residue)
-+	if (!residue && !cyclic)
- 		return DMA_COMPLETE;
- 
- 	dma_set_residue(txstate, residue);
++static inline int cache_is_valid(struct cache_head *h);
+ static void cache_fresh_locked(struct cache_head *head, time_t expiry,
+ 				struct cache_detail *detail);
+ static void cache_fresh_unlocked(struct cache_head *head,
+@@ -105,6 +106,8 @@ static struct cache_head *sunrpc_cache_a
+ 			if (cache_is_expired(detail, tmp)) {
+ 				hlist_del_init_rcu(&tmp->cache_list);
+ 				detail->entries --;
++				if (cache_is_valid(tmp) == -EAGAIN)
++					set_bit(CACHE_NEGATIVE, &tmp->flags);
+ 				cache_fresh_locked(tmp, 0, detail);
+ 				freeme = tmp;
+ 				break;
 
 
