@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C21FBF81B
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542C4F779
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729283AbfD3LmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
+        id S1730151AbfD3LqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:46:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729260AbfD3LmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:20 -0400
+        id S1728087AbfD3LqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5438F2173E;
-        Tue, 30 Apr 2019 11:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A13FC21670;
+        Tue, 30 Apr 2019 11:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624538;
-        bh=s6FTQz5FWpt0Mnzi3wqMxp+4OA8N3I2ZloG3nsKufTM=;
+        s=default; t=1556624777;
+        bh=Zg4db8LoDzBXLgSjLE8jo84UGSvGZibJth0gdEseMZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkWNSDsSLAoL9ix/8A1pS3L3hXWF5MC/yYN7LHg/NpEVgWecVcB879sJ6GiUZ9oV1
-         x1b8I48ZUnwOQoOkYQw3irVRpUQelyc4/XRHfUPDCUhH6mYF+wuxIKxaj9ljAcj20Q
-         uveeMYbiXV3J12apuqDWVz+AXlrDHoJeM0AIhRqw=
+        b=TPf5TcX432xEGebMr7orhhxaK/qiA6NjgkRy4PvSXEi36MKMEX+twV6Ef4atKFcXK
+         Fz8YKLAVsTugcUkscck1D/wn5kK9STUv8xzjQ0Bqco7sEpIC8MaGOU393XnTmSp/z9
+         pO5WbSBm0OOakLR7550+BygBhiN3hAJ7aN/2faFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 30/53] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 068/100] aio: separate out ring reservation from req allocation
 Date:   Tue, 30 Apr 2019 13:38:37 +0200
-Message-Id: <20190430113556.549121219@linuxfoundation.org>
+Message-Id: <20190430113611.983878715@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
+commit 432c79978c33ecef91b1b04cea6936c20810da29 upstream.
 
-Syzkaller report this:
+This is in preparation for certain types of IO not needing a ring
+reserveration.
 
-  sysctl could not get directory: /net//bridge -12
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
-  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
-  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
-  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
-  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
-  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
-  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
-  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
-  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
-  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   erase_entry fs/proc/proc_sysctl.c:178 [inline]
-   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
-   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
-   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
-   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
-   br_netfilter_init+0x68/0x1000 [br_netfilter]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
-   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  ---[ end trace 68741688d5fbfe85 ]---
-
-commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
-dereference in put_links") forgot to handle start_unregistering() case,
-while header->parent is NULL, it calls erase_header() and as seen in the
-above syzkaller call trace, accessing &header->parent->root will trigger
-a NULL pointer dereference.
-
-As that commit explained, there is also no need to call
-start_unregistering() if header->parent is NULL.
-
-Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
-Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
-Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/proc_sysctl.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/aio.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1620,9 +1620,11 @@ static void drop_sysctl_table(struct ctl
- 	if (--header->nreg)
- 		return;
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -902,7 +902,7 @@ static void put_reqs_available(struct ki
+ 	local_irq_restore(flags);
+ }
  
--	if (parent)
-+	if (parent) {
- 		put_links(header);
--	start_unregistering(header);
-+		start_unregistering(header);
-+	}
+-static bool get_reqs_available(struct kioctx *ctx)
++static bool __get_reqs_available(struct kioctx *ctx)
+ {
+ 	struct kioctx_cpu *kcpu;
+ 	bool ret = false;
+@@ -994,6 +994,14 @@ static void user_refill_reqs_available(s
+ 	spin_unlock_irq(&ctx->completion_lock);
+ }
+ 
++static bool get_reqs_available(struct kioctx *ctx)
++{
++	if (__get_reqs_available(ctx))
++		return true;
++	user_refill_reqs_available(ctx);
++	return __get_reqs_available(ctx);
++}
 +
- 	if (!--header->count)
- 		kfree_rcu(header, rcu);
+ /* aio_get_req
+  *	Allocate a slot for an aio request.
+  * Returns NULL if no requests are free.
+@@ -1002,24 +1010,15 @@ static inline struct aio_kiocb *aio_get_
+ {
+ 	struct aio_kiocb *req;
+ 
+-	if (!get_reqs_available(ctx)) {
+-		user_refill_reqs_available(ctx);
+-		if (!get_reqs_available(ctx))
+-			return NULL;
+-	}
+-
+ 	req = kmem_cache_alloc(kiocb_cachep, GFP_KERNEL|__GFP_ZERO);
+ 	if (unlikely(!req))
+-		goto out_put;
++		return NULL;
+ 
+ 	percpu_ref_get(&ctx->reqs);
+ 	INIT_LIST_HEAD(&req->ki_list);
+ 	refcount_set(&req->ki_refcnt, 0);
+ 	req->ki_ctx = ctx;
+ 	return req;
+-out_put:
+-	put_reqs_available(ctx, 1);
+-	return NULL;
+ }
+ 
+ static struct kioctx *lookup_ioctx(unsigned long ctx_id)
+@@ -1813,9 +1812,13 @@ static int io_submit_one(struct kioctx *
+ 		return -EINVAL;
+ 	}
+ 
++	if (!get_reqs_available(ctx))
++		return -EAGAIN;
++
++	ret = -EAGAIN;
+ 	req = aio_get_req(ctx);
+ 	if (unlikely(!req))
+-		return -EAGAIN;
++		goto out_put_reqs_available;
+ 
+ 	if (iocb.aio_flags & IOCB_FLAG_RESFD) {
+ 		/*
+@@ -1878,11 +1881,12 @@ static int io_submit_one(struct kioctx *
+ 		goto out_put_req;
+ 	return 0;
+ out_put_req:
+-	put_reqs_available(ctx, 1);
+ 	percpu_ref_put(&ctx->reqs);
+ 	if (req->ki_eventfd)
+ 		eventfd_ctx_put(req->ki_eventfd);
+ 	kmem_cache_free(kiocb_cachep, req);
++out_put_reqs_available:
++	put_reqs_available(ctx, 1);
+ 	return ret;
+ }
  
 
 
