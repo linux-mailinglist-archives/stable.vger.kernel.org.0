@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CAB0F6D3
+	by mail.lfdr.de (Postfix) with ESMTP id EB658F6D5
 	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730986AbfD3LvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:51:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
+        id S1730801AbfD3Lv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:51:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731377AbfD3LvX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:51:23 -0400
+        id S1731389AbfD3LvZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:51:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFD0021670;
-        Tue, 30 Apr 2019 11:51:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 821382054F;
+        Tue, 30 Apr 2019 11:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625082;
-        bh=eKieE7if2lMhvvOxMlLJaaNlL71Am5r/lmbiTzC+8zU=;
+        s=default; t=1556625085;
+        bh=A4XMC9p/3HF6St1IjCxVuL4dvn3duw+BucvGvAO14To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4Rj94x8X0Tk80O3Oai1HjyhAjF65KwKeSuC9NZ9jgeBMXqDasz/5JMbbTjkn993B
-         6XkTfz8eLllrjNGrEueQO3LgEEXr/RK0ad4qdKMOHR16N0kuWbmABNebI8YZVYfehk
-         +9ebfmH1n0685pIGB9bkshx9rE+qY8Tsl//IUGt4=
+        b=m20tBmGciFAYxVVd4KXbm2Ug+sKiBTpS0F4+M0Sk+0xf59RtFsuPQwRcyhEAjgmmP
+         /gfXBaaAPXW+NeSK03cF7q5M6anJltxaasVVIXaAfbqPE3L1ZO+fixiA6aF9kH0mJY
+         WWi2jxTxZjDEZUifzwLhAfXjLcHCUUrgDHrJV2Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Ren <taoren@fb.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 83/89] net/ncsi: handle overflow when incrementing mac address
-Date:   Tue, 30 Apr 2019 13:39:14 +0200
-Message-Id: <20190430113613.686303493@linuxfoundation.org>
+Subject: [PATCH 5.0 84/89] mlxsw: pci: Reincrease PCI reset timeout
+Date:   Tue, 30 Apr 2019 13:39:15 +0200
+Message-Id: <20190430113613.736927302@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
 References: <20190430113609.741196396@linuxfoundation.org>
@@ -45,71 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Ren <taoren@fb.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 1c5c12ee308aacf635c8819cd4baa3bd58f8a8b7 ]
+[ Upstream commit 1ab3030193d25878b3b1409060e1e0a879800c95 ]
 
-Previously BMC's MAC address is calculated by simply adding 1 to the
-last byte of network controller's MAC address, and it produces incorrect
-result when network controller's MAC address ends with 0xFF.
+During driver initialization the driver sends a reset to the device and
+waits for the firmware to signal that it is ready to continue.
 
-The problem can be fixed by calling eth_addr_inc() function to increment
-MAC address; besides, the MAC address is also validated before assigning
-to BMC.
+Commit d2f372ba0914 ("mlxsw: pci: Increase PCI SW reset timeout")
+increased the timeout to 13 seconds due to longer PHY calibration in
+Spectrum-2 compared to Spectrum-1.
 
-Fixes: cb10c7c0dfd9 ("net/ncsi: Add NCSI Broadcom OEM command")
-Signed-off-by: Tao Ren <taoren@fb.com>
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Acked-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
+Recently it became apparent that this timeout is too short and therefore
+this patch increases it again to a safer limit that will be reduced in
+the future.
+
+Fixes: c3ab435466d5 ("mlxsw: spectrum: Extend to support Spectrum-2 ASIC")
+Fixes: d2f372ba0914 ("mlxsw: pci: Increase PCI SW reset timeout")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/etherdevice.h |   12 ++++++++++++
- net/ncsi/ncsi-rsp.c         |    6 +++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/pci_hw.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/etherdevice.h
-+++ b/include/linux/etherdevice.h
-@@ -448,6 +448,18 @@ static inline void eth_addr_dec(u8 *addr
- }
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h
+@@ -27,7 +27,7 @@
  
- /**
-+ * eth_addr_inc() - Increment the given MAC address.
-+ * @addr: Pointer to a six-byte array containing Ethernet address to increment.
-+ */
-+static inline void eth_addr_inc(u8 *addr)
-+{
-+	u64 u = ether_addr_to_u64(addr);
-+
-+	u++;
-+	u64_to_ether_addr(u, addr);
-+}
-+
-+/**
-  * is_etherdev_addr - Tell if given Ethernet address belongs to the device.
-  * @dev: Pointer to a device structure
-  * @addr: Pointer to a six-byte array containing the Ethernet address
---- a/net/ncsi/ncsi-rsp.c
-+++ b/net/ncsi/ncsi-rsp.c
-@@ -11,6 +11,7 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
- #include <linux/skbuff.h>
- 
- #include <net/ncsi.h>
-@@ -667,7 +668,10 @@ static int ncsi_rsp_handler_oem_bcm_gma(
- 	ndev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
- 	memcpy(saddr.sa_data, &rsp->data[BCM_MAC_ADDR_OFFSET], ETH_ALEN);
- 	/* Increase mac address by 1 for BMC's address */
--	saddr.sa_data[ETH_ALEN - 1]++;
-+	eth_addr_inc((u8 *)saddr.sa_data);
-+	if (!is_valid_ether_addr((const u8 *)saddr.sa_data))
-+		return -ENXIO;
-+
- 	ret = ops->ndo_set_mac_address(ndev, &saddr);
- 	if (ret < 0)
- 		netdev_warn(ndev, "NCSI: 'Writing mac address to device failed\n");
+ #define MLXSW_PCI_SW_RESET			0xF0010
+ #define MLXSW_PCI_SW_RESET_RST_BIT		BIT(0)
+-#define MLXSW_PCI_SW_RESET_TIMEOUT_MSECS	13000
++#define MLXSW_PCI_SW_RESET_TIMEOUT_MSECS	20000
+ #define MLXSW_PCI_SW_RESET_WAIT_MSECS		100
+ #define MLXSW_PCI_FW_READY			0xA1844
+ #define MLXSW_PCI_FW_READY_MASK			0xFFFF
 
 
