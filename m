@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34CAFF863
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F68CF78B
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728119AbfD3LkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:40:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45826 "EHLO mail.kernel.org"
+        id S1730474AbfD3LqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728212AbfD3LkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:40:01 -0400
+        id S1730073AbfD3Lp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:45:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06A9E21670;
-        Tue, 30 Apr 2019 11:39:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0312E21670;
+        Tue, 30 Apr 2019 11:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624400;
-        bh=yNF5fBcZBeHofcbFX4RGA8qq7oiAsCqYqoSBSysuYh8=;
+        s=default; t=1556624758;
+        bh=sSz3YWg6ZqSDJ7IxTSRpTLrK3Rw0qZCXM/y7vDBgX5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgJadybxojFFNxuQzjxWGgxiT0D5a+392W6nrvnMdPbEu0LoZTNyAv8Acxx37dgKm
-         rzLQo53wn2BIrJJG38+pJvk/Cn4jCcZ29L3cjnRKZTgQGTmC9Tgbx4LB/N15d7GTFl
-         wIHgIGysCiOoNX4s2uodkYdOx6hkjLr2soqK8zAQ=
+        b=x0rvRv2nZXmrFKwtn4lGlPrnTcRFYd01ZC5jMjP4fnFx1LHCftTjKQcIeFG/LahKK
+         Jfyu/MbM9zW2Gx0NCo4yTySiRkLUVf9Ih18moxwtUcWfMp46Whydvljad5OF41VSeI
+         LqLRXDuTGQ9NbdIYCqT3TyaSQeEmacsk48nKhHCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
+        syzbot+de00a87b8644a582ae79@syzkaller.appspotmail.com,
         Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 20/41] tipc: handle the err returned from cmd header function
+Subject: [PATCH 4.19 062/100] tipc: check link name with right length in tipc_nl_compat_link_set
 Date:   Tue, 30 Apr 2019 13:38:31 +0200
-Message-Id: <20190430113530.005872610@linuxfoundation.org>
+Message-Id: <20190430113611.775567884@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,75 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
+commit 8c63bf9ab4be8b83bd8c34aacfd2f1d2c8901c8a upstream.
 
-Syzbot found a crash:
+A similar issue as fixed by Patch "tipc: check bearer name with right
+length in tipc_nl_compat_bearer_enable" was also found by syzbot in
+tipc_nl_compat_link_set().
 
-  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-  Call Trace:
-    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
-    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
-    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
-    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
-    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
-    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
-    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
-    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
-    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
-    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
-    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
+The length to check with should be 'TLV_GET_DATA_LEN(msg->req) -
+offsetof(struct tipc_link_config, name)'.
 
-  Uninit was created at:
-    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
-    alloc_skb include/linux/skbuff.h:1012 [inline]
-    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
-    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
-
-It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
-in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
-in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
-ahead of tipc_nl_compat_name_table_dump().
-
-However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
-header function. It means even when the check added in that fix fails, it
-won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
-triggered again.
-
-So this patch is to add the process for the err returned from cmd header
-function in tipc_nl_compat_dumpit().
-
-Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
+Reported-by: syzbot+de00a87b8644a582ae79@syzkaller.appspotmail.com
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/netlink_compat.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/tipc/netlink_compat.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 --- a/net/tipc/netlink_compat.c
 +++ b/net/tipc/netlink_compat.c
-@@ -262,8 +262,14 @@ static int tipc_nl_compat_dumpit(struct
- 	if (msg->rep_type)
- 		tipc_tlv_init(msg->rep, msg->rep_type);
+@@ -777,7 +777,12 @@ static int tipc_nl_compat_link_set(struc
  
--	if (cmd->header)
--		(*cmd->header)(msg);
-+	if (cmd->header) {
-+		err = (*cmd->header)(msg);
-+		if (err) {
-+			kfree_skb(msg->rep);
-+			msg->rep = NULL;
-+			return err;
-+		}
-+	}
+ 	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
  
- 	arg = nlmsg_new(0, GFP_KERNEL);
- 	if (!arg) {
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	len -= offsetof(struct tipc_link_config, name);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_LINK_NAME);
+ 	if (!string_is_valid(lc->name, len))
+ 		return -EINVAL;
+ 
 
 
