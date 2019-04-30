@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA26F686
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E34F811
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730370AbfD3Lsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1727669AbfD3Ll1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:41:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730912AbfD3Lsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:53 -0400
+        id S1728862AbfD3LlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:41:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1752821783;
-        Tue, 30 Apr 2019 11:48:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71FEC21707;
+        Tue, 30 Apr 2019 11:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624931;
-        bh=ndFeE7e/Oo9uUfWxQDRLWujpfYRV41A+hK3VDgB0HxI=;
+        s=default; t=1556624484;
+        bh=tDtf1ayVQB1wdPNmWP3THJFSqVpGQG0qs/cVWF9K6Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NZpLnn74EY5f1x0YKyXdBKjjPamzJXLeIpEFmo15+Yl3oy7ZXOO2LTbwMXTSkKy7
-         zwmCgKTMnmYWxteUiB0c77neyCTHYAkiJC+0YLxpad19NSF4M/BxxbSefTGHFqvbGB
-         +eLEhXiv6tnY5pX5B3NCBKj9QyPew4lj5rxG9wC4=
+        b=luF75vtCKJJ2ae1v8L8fDOEmCGOb6/rMhDTeqktcKs1+weiN60+5G52FjRM8y8x3F
+         9Ane9ekZSZB7NGoxb3Dnp8/HCypuVocVeeocKFTASlyMZk6Ck9lwuXYFX8tTUKIVJV
+         jzK6/ytiWgeCl/ZQ6cJC+87CDWSWYDaeW3mt8wlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben England <bengland@redhat.com>,
         Jeff Layton <jlayton@kernel.org>,
         "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.0 27/89] ceph: only use d_name directly when parent is locked
+Subject: [PATCH 4.14 11/53] ceph: only use d_name directly when parent is locked
 Date:   Tue, 30 Apr 2019 13:38:18 +0200
-Message-Id: <20190430113611.254977922@linuxfoundation.org>
+Message-Id: <20190430113552.377906541@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/ceph/mds_client.c
 +++ b/fs/ceph/mds_client.c
-@@ -1958,10 +1958,39 @@ retry:
+@@ -1863,10 +1863,39 @@ retry:
  	return path;
  }
  
@@ -112,7 +112,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	char *path;
  
  	rcu_read_lock();
-@@ -1970,8 +1999,15 @@ static int build_dentry_path(struct dent
+@@ -1875,8 +1904,15 @@ static int build_dentry_path(struct dent
  	if (dir && ceph_snap(dir) == CEPH_NOSNAP) {
  		*pino = ceph_ino(dir);
  		rcu_read_unlock();
@@ -130,7 +130,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		return 0;
  	}
  	rcu_read_unlock();
-@@ -1979,13 +2015,13 @@ static int build_dentry_path(struct dent
+@@ -1884,13 +1920,13 @@ static int build_dentry_path(struct dent
  	if (IS_ERR(path))
  		return PTR_ERR(path);
  	*ppath = path;
@@ -146,7 +146,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct dentry *dentry;
  	char *path;
-@@ -2001,7 +2037,7 @@ static int build_inode_path(struct inode
+@@ -1906,7 +1942,7 @@ static int build_inode_path(struct inode
  	if (IS_ERR(path))
  		return PTR_ERR(path);
  	*ppath = path;
@@ -155,7 +155,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  }
  
-@@ -2012,7 +2048,7 @@ static int build_inode_path(struct inode
+@@ -1917,7 +1953,7 @@ static int build_inode_path(struct inode
  static int set_request_path_attr(struct inode *rinode, struct dentry *rdentry,
  				  struct inode *rdiri, const char *rpath,
  				  u64 rino, const char **ppath, int *pathlen,
@@ -164,7 +164,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	int r = 0;
  
-@@ -2022,7 +2058,7 @@ static int set_request_path_attr(struct
+@@ -1927,7 +1963,7 @@ static int set_request_path_attr(struct
  		     ceph_snap(rinode));
  	} else if (rdentry) {
  		r = build_dentry_path(rdentry, rdiri, ppath, pathlen, ino,
@@ -173,7 +173,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		dout(" dentry %p %llx/%.*s\n", rdentry, *ino, *pathlen,
  		     *ppath);
  	} else if (rpath || rino) {
-@@ -2048,7 +2084,7 @@ static struct ceph_msg *create_request_m
+@@ -1953,7 +1989,7 @@ static struct ceph_msg *create_request_m
  	const char *path2 = NULL;
  	u64 ino1 = 0, ino2 = 0;
  	int pathlen1 = 0, pathlen2 = 0;
@@ -182,7 +182,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int len;
  	u16 releases;
  	void *p, *end;
-@@ -2056,16 +2092,19 @@ static struct ceph_msg *create_request_m
+@@ -1961,16 +1997,19 @@ static struct ceph_msg *create_request_m
  
  	ret = set_request_path_attr(req->r_inode, req->r_dentry,
  			      req->r_parent, req->r_path1, req->r_ino1.ino,
