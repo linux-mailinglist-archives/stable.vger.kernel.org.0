@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17BB3F787
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30ABF70F
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbfD3MAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58850 "EHLO mail.kernel.org"
+        id S1727737AbfD3LzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730509AbfD3LqK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:10 -0400
+        id S1731027AbfD3Ltk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:49:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2E0C21734;
-        Tue, 30 Apr 2019 11:46:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F46020449;
+        Tue, 30 Apr 2019 11:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624769;
-        bh=4aT7aPmrz8QpmHBVDf3yOHh3OlMJCOzD8zKtFRyBRZQ=;
+        s=default; t=1556624978;
+        bh=mtP6FXwC+gbYIeehYgsHw94R8YvjVniVqPG3sgvr41s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BE6Z5uolToWBtzzRGLOCxdWbzrQzpjNTiegJM9BDNOiOWQGc8ZXynNVIRKgQXL4NO
-         W6gAh1KIzr1m8NiKkKL/qbsTgSZmnlvtgBN1GR40KYwCFkEDlQzHkMrh8UUrSGSfxT
-         k+U6T6NJykH6bmFbLRcahzxwCSM+K42mTT+vHxgI=
+        b=mrNhbeu119OMEKharebKJe4l+0DlPoZGXIy1Y8dDV9uTs7sUPYYUWpdtbTpJPboeo
+         VonxRbGA/FjluuwYuP/OZyjEEtc+QB+gnUtelkWqW229R/EoW+wLeTA4fduGKPhzkL
+         2JF43FGx8/f704X4q1BCkmE+8xOk2PGJUyZQfXyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 065/100] rxrpc: fix race condition in rxrpc_input_packet()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.0 43/89] drm/ttm: fix re-init of global structures
 Date:   Tue, 30 Apr 2019 13:38:34 +0200
-Message-Id: <20190430113611.879910212@linuxfoundation.org>
+Message-Id: <20190430113611.784740880@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,147 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christian König <christian.koenig@amd.com>
 
-commit 032be5f19a94de51093851757089133dcc1e92aa upstream.
+commit bd4264112f93045704731850c5e4d85db981cd85 upstream.
 
-After commit 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook"),
-rxrpc_input_packet() is directly called from lockless UDP receive
-path, under rcu_read_lock() protection.
+When a driver unloads without unloading TTM we don't correctly
+clear the global structures leading to errors on re-init.
 
-It must therefore use RCU rules :
+Next step should probably be to remove the global structures and
+kobjs all together, but this is tricky since we need to maintain
+backward compatibility.
 
-- udp_sk->sk_user_data can be cleared at any point in this function.
-  rcu_dereference_sk_user_data() is what we need here.
-
-- Also, since sk_user_data might have been set in rxrpc_open_socket()
-  we must observe a proper RCU grace period before kfree(local) in
-  rxrpc_lookup_local()
-
-v4: @local can be NULL in xrpc_lookup_local() as reported by kbuild test robot <lkp@intel.com>
-        and Julia Lawall <julia.lawall@lip6.fr>, thanks !
-
-v3,v2 : addressed David Howells feedback, thanks !
-
-syzbot reported :
-
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 19236 Comm: syz-executor703 Not tainted 5.1.0-rc6 #79
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__lock_acquire+0xbef/0x3fb0 kernel/locking/lockdep.c:3573
-Code: 00 0f 85 a5 1f 00 00 48 81 c4 10 01 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 b8 00 00 00 00 00 fc ff df 4c 89 ea 48 c1 ea 03 <80> 3c 02 00 0f 85 4a 21 00 00 49 81 7d 00 20 54 9c 89 0f 84 cf f4
-RSP: 0018:ffff88809d7aef58 EFLAGS: 00010002
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000026 RSI: 0000000000000000 RDI: 0000000000000001
-RBP: ffff88809d7af090 R08: 0000000000000001 R09: 0000000000000001
-R10: ffffed1015d05bc7 R11: ffff888089428600 R12: 0000000000000000
-R13: 0000000000000130 R14: 0000000000000001 R15: 0000000000000001
-FS:  00007f059044d700(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000004b6040 CR3: 00000000955ca000 CR4: 00000000001406f0
-Call Trace:
- lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4211
- __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
- _raw_spin_lock_irqsave+0x95/0xcd kernel/locking/spinlock.c:152
- skb_queue_tail+0x26/0x150 net/core/skbuff.c:2972
- rxrpc_reject_packet net/rxrpc/input.c:1126 [inline]
- rxrpc_input_packet+0x4a0/0x5536 net/rxrpc/input.c:1414
- udp_queue_rcv_one_skb+0xaf2/0x1780 net/ipv4/udp.c:2011
- udp_queue_rcv_skb+0x128/0x730 net/ipv4/udp.c:2085
- udp_unicast_rcv_skb.isra.0+0xb9/0x360 net/ipv4/udp.c:2245
- __udp4_lib_rcv+0x701/0x2ca0 net/ipv4/udp.c:2301
- udp_rcv+0x22/0x30 net/ipv4/udp.c:2482
- ip_protocol_deliver_rcu+0x60/0x8f0 net/ipv4/ip_input.c:208
- ip_local_deliver_finish+0x23b/0x390 net/ipv4/ip_input.c:234
- NF_HOOK include/linux/netfilter.h:289 [inline]
- NF_HOOK include/linux/netfilter.h:283 [inline]
- ip_local_deliver+0x1e9/0x520 net/ipv4/ip_input.c:255
- dst_input include/net/dst.h:450 [inline]
- ip_rcv_finish+0x1e1/0x300 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:289 [inline]
- NF_HOOK include/linux/netfilter.h:283 [inline]
- ip_rcv+0xe8/0x3f0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0x115/0x1a0 net/core/dev.c:4987
- __netif_receive_skb+0x2c/0x1c0 net/core/dev.c:5099
- netif_receive_skb_internal+0x117/0x660 net/core/dev.c:5202
- napi_frags_finish net/core/dev.c:5769 [inline]
- napi_gro_frags+0xade/0xd10 net/core/dev.c:5843
- tun_get_user+0x2f24/0x3fb0 drivers/net/tun.c:1981
- tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2027
- call_write_iter include/linux/fs.h:1866 [inline]
- do_iter_readv_writev+0x5e1/0x8e0 fs/read_write.c:681
- do_iter_write fs/read_write.c:957 [inline]
- do_iter_write+0x184/0x610 fs/read_write.c:938
- vfs_writev+0x1b3/0x2f0 fs/read_write.c:1002
- do_writev+0x15e/0x370 fs/read_write.c:1037
- __do_sys_writev fs/read_write.c:1110 [inline]
- __se_sys_writev fs/read_write.c:1107 [inline]
- __x64_sys_writev+0x75/0xb0 fs/read_write.c:1107
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: David Howells <dhowells@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Tested-by: Karol Herbst <kherbst@redhat.com>
+CC: stable@vger.kernel.org # 5.0.x
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/input.c        |   12 ++++++++----
- net/rxrpc/local_object.c |    3 ++-
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c     |   10 +++++-----
+ drivers/gpu/drm/ttm/ttm_memory.c |    5 +++--
+ include/drm/ttm/ttm_bo_driver.h  |    1 -
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -1155,19 +1155,19 @@ int rxrpc_extract_header(struct rxrpc_sk
-  * handle data received on the local endpoint
-  * - may be called in interrupt context
-  *
-- * The socket is locked by the caller and this prevents the socket from being
-- * shut down and the local endpoint from going away, thus sk_user_data will not
-- * be cleared until this function returns.
-+ * [!] Note that as this is called from the encap_rcv hook, the socket is not
-+ * held locked by the caller and nothing prevents sk_user_data on the UDP from
-+ * being cleared in the middle of processing this function.
-  *
-  * Called with the RCU read lock held from the IP layer via UDP.
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -49,9 +49,8 @@ static void ttm_bo_global_kobj_release(s
+  * ttm_global_mutex - protecting the global BO state
   */
- int rxrpc_input_packet(struct sock *udp_sk, struct sk_buff *skb)
+ DEFINE_MUTEX(ttm_global_mutex);
+-struct ttm_bo_global ttm_bo_glob = {
+-	.use_count = 0
+-};
++unsigned ttm_bo_glob_use_count;
++struct ttm_bo_global ttm_bo_glob;
+ 
+ static struct attribute ttm_bo_count = {
+ 	.name = "bo_count",
+@@ -1535,12 +1534,13 @@ static void ttm_bo_global_release(void)
+ 	struct ttm_bo_global *glob = &ttm_bo_glob;
+ 
+ 	mutex_lock(&ttm_global_mutex);
+-	if (--glob->use_count > 0)
++	if (--ttm_bo_glob_use_count > 0)
+ 		goto out;
+ 
+ 	kobject_del(&glob->kobj);
+ 	kobject_put(&glob->kobj);
+ 	ttm_mem_global_release(&ttm_mem_glob);
++	memset(glob, 0, sizeof(*glob));
+ out:
+ 	mutex_unlock(&ttm_global_mutex);
+ }
+@@ -1552,7 +1552,7 @@ static int ttm_bo_global_init(void)
+ 	unsigned i;
+ 
+ 	mutex_lock(&ttm_global_mutex);
+-	if (++glob->use_count > 1)
++	if (++ttm_bo_glob_use_count > 1)
+ 		goto out;
+ 
+ 	ret = ttm_mem_global_init(&ttm_mem_glob);
+--- a/drivers/gpu/drm/ttm/ttm_memory.c
++++ b/drivers/gpu/drm/ttm/ttm_memory.c
+@@ -461,8 +461,8 @@ out_no_zone:
+ 
+ void ttm_mem_global_release(struct ttm_mem_global *glob)
  {
-+	struct rxrpc_local *local = rcu_dereference_sk_user_data(udp_sk);
- 	struct rxrpc_connection *conn;
- 	struct rxrpc_channel *chan;
- 	struct rxrpc_call *call = NULL;
- 	struct rxrpc_skb_priv *sp;
--	struct rxrpc_local *local = udp_sk->sk_user_data;
- 	struct rxrpc_peer *peer = NULL;
- 	struct rxrpc_sock *rx = NULL;
- 	unsigned int channel;
-@@ -1175,6 +1175,10 @@ int rxrpc_input_packet(struct sock *udp_
+-	unsigned int i;
+ 	struct ttm_mem_zone *zone;
++	unsigned int i;
  
- 	_enter("%p", udp_sk);
- 
-+	if (unlikely(!local)) {
-+		kfree_skb(skb);
-+		return 0;
+ 	/* let the page allocator first stop the shrink work. */
+ 	ttm_page_alloc_fini();
+@@ -475,9 +475,10 @@ void ttm_mem_global_release(struct ttm_m
+ 		zone = glob->zones[i];
+ 		kobject_del(&zone->kobj);
+ 		kobject_put(&zone->kobj);
+-			}
 +	}
- 	if (skb->tstamp == 0)
- 		skb->tstamp = ktime_get_real();
+ 	kobject_del(&glob->kobj);
+ 	kobject_put(&glob->kobj);
++	memset(glob, 0, sizeof(*glob));
+ }
  
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -304,7 +304,8 @@ nomem:
- 	ret = -ENOMEM;
- sock_error:
- 	mutex_unlock(&rxnet->local_mutex);
--	kfree(local);
-+	if (local)
-+		call_rcu(&local->rcu, rxrpc_local_rcu);
- 	_leave(" = %d", ret);
- 	return ERR_PTR(ret);
+ static void ttm_check_swapping(struct ttm_mem_global *glob)
+--- a/include/drm/ttm/ttm_bo_driver.h
++++ b/include/drm/ttm/ttm_bo_driver.h
+@@ -411,7 +411,6 @@ extern struct ttm_bo_global {
+ 	/**
+ 	 * Protected by ttm_global_mutex.
+ 	 */
+-	unsigned int use_count;
+ 	struct list_head device_list;
  
+ 	/**
 
 
