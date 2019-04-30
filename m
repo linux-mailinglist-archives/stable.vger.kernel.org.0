@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54290F764
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96840F84B
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729863AbfD3Lqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:46:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
+        id S1728569AbfD3Lkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727873AbfD3Lqq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:46 -0400
+        id S1728553AbfD3Lkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 656DE21707;
-        Tue, 30 Apr 2019 11:46:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AB5E21734;
+        Tue, 30 Apr 2019 11:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624805;
-        bh=7Y1eJJsMscOudnHihgQjekD0aMOHcc1Kjqxix0XwBZQ=;
+        s=default; t=1556624441;
+        bh=l29YY1Rymz3m8x+jhuKgXK4LbsFp8dBLSIzRwVLWfJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vb784qi1Z+P2OIhtv2nQsmZFSSD2ddiVPU+tcjk7n3K7yS/Ms5WAWIRqjQjqZVEWh
-         yp/lDwy1vxoeWMBg0mho4A/VMwuZaN+klui2nt5fVQHfSlR/NSlEQsKf53iQCyTAZ5
-         Noaqv0vO2Jcznc16N+JZmozy1rTQRYExktqwzVMY=
+        b=TAgGokevZ0i1NGCOp7H7+rwJLRjPecTGL3J8WCOOWxs6cgVs7Dvi0IwyjAL5rAYUR
+         2+/7QFOrvCpDE+RyIdv/Dmd2Zw1+96tyDJgaVY5iqeD4qDkUI8EHtPRkacMl+sxcaX
+         xdJE/FsCbULIAEtCchO6/Lp0PtLApvljujMNAW38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 078/100] aio: store event at final iocb_put()
-Date:   Tue, 30 Apr 2019 13:38:47 +0200
-Message-Id: <20190430113612.424843050@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 37/41] ipv6: frags: fix a lockdep false positive
+Date:   Tue, 30 Apr 2019 13:38:48 +0200
+Message-Id: <20190430113533.485703861@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 2bb874c0d873d13bd9b9b9c6d7b7c4edab18c8b4 upstream.
+[ Upstream commit 415787d7799f4fccbe8d49cb0b8e5811be6b0389 ]
 
-Instead of having aio_complete() set ->ki_res.{res,res2}, do that
-explicitly in its callers, drop the reference (as aio_complete()
-used to do) and delay the rest until the final iocb_put().
+lockdep does not know that the locks used by IPv4 defrag
+and IPv6 reassembly units are of different classes.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+It complains because of following chains :
+
+1) sch_direct_xmit()        (lock txq->_xmit_lock)
+    dev_hard_start_xmit()
+     xmit_one()
+      dev_queue_xmit_nit()
+       packet_rcv_fanout()
+        ip_check_defrag()
+         ip_defrag()
+          spin_lock()     (lock frag queue spinlock)
+
+2) ip6_input_finish()
+    ipv6_frag_rcv()       (lock frag queue spinlock)
+     ip6_frag_queue()
+      icmpv6_param_prob() (lock txq->_xmit_lock at some point)
+
+We could add lockdep annotations, but we also can make sure IPv6
+calls icmpv6_param_prob() only after the release of the frag queue spinlock,
+since this naturally makes frag queue spinlock a leaf in lock hierarchy.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/aio.c |   33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ net/ipv6/reassembly.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1071,16 +1071,10 @@ static inline void iocb_destroy(struct a
- 	kmem_cache_free(kiocb_cachep, iocb);
+--- a/net/ipv6/reassembly.c
++++ b/net/ipv6/reassembly.c
+@@ -169,7 +169,8 @@ fq_find(struct net *net, __be32 id, cons
  }
  
--static inline void iocb_put(struct aio_kiocb *iocb)
--{
--	if (refcount_dec_and_test(&iocb->ki_refcnt))
--		iocb_destroy(iocb);
--}
--
- /* aio_complete
-  *	Called when the io request on the given iocb is complete.
-  */
--static void aio_complete(struct aio_kiocb *iocb, long res, long res2)
-+static void aio_complete(struct aio_kiocb *iocb)
+ static int ip6_frag_queue(struct frag_queue *fq, struct sk_buff *skb,
+-			   struct frag_hdr *fhdr, int nhoff)
++			  struct frag_hdr *fhdr, int nhoff,
++			  u32 *prob_offset)
  {
- 	struct kioctx	*ctx = iocb->ki_ctx;
- 	struct aio_ring	*ring;
-@@ -1088,8 +1082,6 @@ static void aio_complete(struct aio_kioc
- 	unsigned tail, pos, head;
- 	unsigned long	flags;
+ 	struct sk_buff *prev, *next;
+ 	struct net_device *dev;
+@@ -185,11 +186,7 @@ static int ip6_frag_queue(struct frag_qu
+ 			((u8 *)(fhdr + 1) - (u8 *)(ipv6_hdr(skb) + 1)));
  
--	iocb->ki_res.res = res;
--	iocb->ki_res.res2 = res2;
- 	/*
- 	 * Add a completion event to the ring buffer. Must be done holding
- 	 * ctx->completion_lock to prevent other code from messing with the tail
-@@ -1155,7 +1147,14 @@ static void aio_complete(struct aio_kioc
- 
- 	if (waitqueue_active(&ctx->wait))
- 		wake_up(&ctx->wait);
--	iocb_put(iocb);
-+}
-+
-+static inline void iocb_put(struct aio_kiocb *iocb)
-+{
-+	if (refcount_dec_and_test(&iocb->ki_refcnt)) {
-+		aio_complete(iocb);
-+		iocb_destroy(iocb);
-+	}
- }
- 
- /* aio_read_events_ring
-@@ -1429,7 +1428,9 @@ static void aio_complete_rw(struct kiocb
- 		file_end_write(kiocb->ki_filp);
+ 	if ((unsigned int)end > IPV6_MAXPLEN) {
+-		__IP6_INC_STATS(net, ip6_dst_idev(skb_dst(skb)),
+-				IPSTATS_MIB_INHDRERRORS);
+-		icmpv6_param_prob(skb, ICMPV6_HDR_FIELD,
+-				  ((u8 *)&fhdr->frag_off -
+-				   skb_network_header(skb)));
++		*prob_offset = (u8 *)&fhdr->frag_off - skb_network_header(skb);
+ 		return -1;
  	}
  
--	aio_complete(iocb, res, res2);
-+	iocb->ki_res.res = res;
-+	iocb->ki_res.res2 = res2;
-+	iocb_put(iocb);
- }
+@@ -220,10 +217,7 @@ static int ip6_frag_queue(struct frag_qu
+ 			/* RFC2460 says always send parameter problem in
+ 			 * this case. -DaveM
+ 			 */
+-			__IP6_INC_STATS(net, ip6_dst_idev(skb_dst(skb)),
+-					IPSTATS_MIB_INHDRERRORS);
+-			icmpv6_param_prob(skb, ICMPV6_HDR_FIELD,
+-					  offsetof(struct ipv6hdr, payload_len));
++			*prob_offset = offsetof(struct ipv6hdr, payload_len);
+ 			return -1;
+ 		}
+ 		if (end > fq->q.len) {
+@@ -524,15 +518,22 @@ static int ipv6_frag_rcv(struct sk_buff
+ 	iif = skb->dev ? skb->dev->ifindex : 0;
+ 	fq = fq_find(net, fhdr->identification, hdr, iif);
+ 	if (fq) {
++		u32 prob_offset = 0;
+ 		int ret;
  
- static int aio_prep_rw(struct kiocb *req, const struct iocb *iocb)
-@@ -1577,11 +1578,10 @@ static ssize_t aio_write(struct kiocb *r
+ 		spin_lock(&fq->q.lock);
  
- static void aio_fsync_work(struct work_struct *work)
- {
--	struct fsync_iocb *req = container_of(work, struct fsync_iocb, work);
--	int ret;
-+	struct aio_kiocb *iocb = container_of(work, struct aio_kiocb, fsync.work);
+ 		fq->iif = iif;
+-		ret = ip6_frag_queue(fq, skb, fhdr, IP6CB(skb)->nhoff);
++		ret = ip6_frag_queue(fq, skb, fhdr, IP6CB(skb)->nhoff,
++				     &prob_offset);
  
--	ret = vfs_fsync(req->file, req->datasync);
--	aio_complete(container_of(req, struct aio_kiocb, fsync), ret, 0);
-+	iocb->ki_res.res = vfs_fsync(iocb->fsync.file, iocb->fsync.datasync);
-+	iocb_put(iocb);
- }
+ 		spin_unlock(&fq->q.lock);
+ 		inet_frag_put(&fq->q);
++		if (prob_offset) {
++			__IP6_INC_STATS(net, ip6_dst_idev(skb_dst(skb)),
++					IPSTATS_MIB_INHDRERRORS);
++			icmpv6_param_prob(skb, ICMPV6_HDR_FIELD, prob_offset);
++		}
+ 		return ret;
+ 	}
  
- static int aio_fsync(struct fsync_iocb *req, const struct iocb *iocb,
-@@ -1602,7 +1602,8 @@ static int aio_fsync(struct fsync_iocb *
- 
- static inline void aio_poll_complete(struct aio_kiocb *iocb, __poll_t mask)
- {
--	aio_complete(iocb, mangle_poll(mask), 0);
-+	iocb->ki_res.res = mangle_poll(mask);
-+	iocb_put(iocb);
- }
- 
- static void aio_poll_complete_work(struct work_struct *work)
 
 
