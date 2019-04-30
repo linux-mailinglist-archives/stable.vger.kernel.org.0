@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49946F7A6
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A8FF801
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728560AbfD3LpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        id S1728535AbfD3Lmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730284AbfD3LpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:45:00 -0400
+        id S1727772AbfD3Lmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E91F721670;
-        Tue, 30 Apr 2019 11:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D8D9217D7;
+        Tue, 30 Apr 2019 11:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624700;
-        bh=/1f/prvhfIyLJ4CXqV7l33F0hU6K9Ft5iwbrXw6u2qI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmFdV+qs7aPZ23RiJJ70BejVEZ8wikFQpAmaLBnJ55t5CsQjn3nx7/LGQIBCnBX28
-         /K/3djNDLzPVcpwhtjG3vU7C5KupBju4j0ROl7E7G3Wt7WEfeYUAI9Djks+F2FfPfs
-         k+PFHytBOQDyHbCqUzcSpDHmrgetoRWaQlldKS2I=
+        s=default; t=1556624557;
+        bh=r2w+PBfnx47CgPVpcg9tD2mystB7cwHRux/mG4kiUZ4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DbHcAST6Fl8Z2roOQD2RFyU2Sw6kGWJKCRW7P4B+ccINGamV4L11qSp61DslIZX2D
+         FvdUHvnkACUc6YYe/OS71Me299+8vI5gG7zFD9C4h/5PEu3TAdsC7sIcdHQCXQmwIG
+         dG6Bkna77bhcspBSDt2//q6uGTgztW9rMbiNOD/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.19 038/100] nfsd: Dont release the callback slot unless it was actually held
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.14 00/53] 4.14.115-stable review
 Date:   Tue, 30 Apr 2019 13:38:07 +0200
-Message-Id: <20190430113610.756745508@linuxfoundation.org>
+Message-Id: <20190430113549.400132183@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.115-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.115-rc1
+X-KernelTest-Deadline: 2019-05-02T11:36+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -44,82 +51,256 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+This is the start of the stable review cycle for the 4.14.115 release.
+There are 53 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit e6abc8caa6deb14be2a206253f7e1c5e37e9515b upstream.
+Responses should be made by Thu 02 May 2019 11:34:49 AM UTC.
+Anything received after that time might be too late.
 
-If there are multiple callbacks queued, waiting for the callback
-slot when the callback gets shut down, then they all currently
-end up acting as if they hold the slot, and call
-nfsd4_cb_sequence_done() resulting in interesting side-effects.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.115-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-In addition, the 'retry_nowait' path in nfsd4_cb_sequence_done()
-causes a loop back to nfsd4_cb_prepare() without first freeing the
-slot, which causes a deadlock when nfsd41_cb_get_slot() gets called
-a second time.
+thanks,
 
-This patch therefore adds a boolean to track whether or not the
-callback did pick up the slot, so that it can do the right thing
-in these 2 cases.
+greg k-h
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-------------
+Pseudo-Shortlog of commits:
 
----
- fs/nfsd/nfs4callback.c |    8 +++++++-
- fs/nfsd/state.h        |    1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.115-rc1
 
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -926,8 +926,9 @@ static void nfsd4_cb_prepare(struct rpc_
- 	cb->cb_seq_status = 1;
- 	cb->cb_status = 0;
- 	if (minorversion) {
--		if (!nfsd41_cb_get_slot(clp, task))
-+		if (!cb->cb_holds_slot && !nfsd41_cb_get_slot(clp, task))
- 			return;
-+		cb->cb_holds_slot = true;
- 	}
- 	rpc_call_start(task);
- }
-@@ -954,6 +955,9 @@ static bool nfsd4_cb_sequence_done(struc
- 		return true;
- 	}
- 
-+	if (!cb->cb_holds_slot)
-+		goto need_restart;
-+
- 	switch (cb->cb_seq_status) {
- 	case 0:
- 		/*
-@@ -992,6 +996,7 @@ static bool nfsd4_cb_sequence_done(struc
- 			cb->cb_seq_status);
- 	}
- 
-+	cb->cb_holds_slot = false;
- 	clear_bit(0, &clp->cl_cb_slot_busy);
- 	rpc_wake_up_next(&clp->cl_cb_waitq);
- 	dprintk("%s: freed slot, new seqid=%d\n", __func__,
-@@ -1199,6 +1204,7 @@ void nfsd4_init_cb(struct nfsd4_callback
- 	cb->cb_seq_status = 1;
- 	cb->cb_status = 0;
- 	cb->cb_need_restart = false;
-+	cb->cb_holds_slot = false;
- }
- 
- void nfsd4_run_cb(struct nfsd4_callback *cb)
---- a/fs/nfsd/state.h
-+++ b/fs/nfsd/state.h
-@@ -70,6 +70,7 @@ struct nfsd4_callback {
- 	int cb_seq_status;
- 	int cb_status;
- 	bool cb_need_restart;
-+	bool cb_holds_slot;
- };
- 
- struct nfsd4_callback_ops {
+ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+    ipv4: set the tcp_min_rtt_wlen range from 0 to one day
+
+Eric Dumazet <edumazet@google.com>
+    net/rose: fix unbound loop in rose_loopback_timer()
+
+Kees Cook <keescook@chromium.org>
+    net/rose: Convert timers to use timer_setup()
+
+Hangbin Liu <liuhangbin@gmail.com>
+    team: fix possible recursive locking when add slaves
+
+Su Bao Cheng <baocheng.su@siemens.com>
+    stmmac: pci: Adjust IOT2000 matching
+
+Vinod Koul <vkoul@kernel.org>
+    net: stmmac: move stmmac_check_ether_addr() to driver probe
+
+Zhu Yanjun <yanjun.zhu@oracle.com>
+    net: rds: exchange of 8K and 1M pool
+
+Erez Alfasi <ereza@mellanox.com>
+    net/mlx5e: ethtool, Remove unsupported SFP EEPROM high pages query
+
+Amit Cohen <amitc@mellanox.com>
+    mlxsw: spectrum: Fix autoneg status in ethtool
+
+Eric Dumazet <edumazet@google.com>
+    ipv4: add sanity checks in ipv4_link_failure()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "block/loop: Use global lock for ioctl() operation."
+
+Jan Kara <jack@suse.cz>
+    mm: Fix warning in insert_pfn()
+
+Daniel Borkmann <daniel@iogearbox.net>
+    x86/retpolines: Disable switch jump tables when retpolines are enabled
+
+Daniel Borkmann <daniel@iogearbox.net>
+    x86, retpolines: Raise limit for generating indirect calls from switch-case
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: change memcmp to strncmp in dm_integrity_ctr
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: check link name with right length in tipc_nl_compat_link_set
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: check bearer name with right length in tipc_nl_compat_bearer_enable
+
+Yue Haibing <yuehaibing@huawei.com>
+    fm10k: Fix a potential NULL pointer dereference
+
+Florian Westphal <fw@strlen.de>
+    netfilter: ebtables: CONFIG_COMPAT: drop a bogus WARN_ON
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
+
+luca abeni <luca.abeni@santannapisa.it>
+    sched/deadline: Correctly handle active 0-lag timers
+
+Todd Kjos <tkjos@android.com>
+    binder: fix handling of misaligned binder object
+
+Andrea Claudi <aclaudi@redhat.com>
+    ipvs: fix warning on unused variable
+
+YueHaibing <yuehaibing@huawei.com>
+    fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
+
+Alexander Shishkin <alexander.shishkin@linux.intel.com>
+    intel_th: gth: Fix an off-by-one in output unassigning
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    slip: make slhc_free() silently accept an error pointer
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: handle the err returned from cmd header function
+
+Adalbert Lazăr <alazar@bitdefender.com>
+    vsock/virtio: fix kernel panic from virtio_transport_reset_no_sock
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ext4: fix some error pointer dereferences
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    USB: Consolidate LPM checks to avoid enabling LPM twice
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    USB: Add new USB LPM helpers
+
+Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+    drm/vc4: Fix compilation error reported by kbuild test bot
+
+Dave Airlie <airlied@redhat.com>
+    Revert "drm/i915/fbdev: Actually configure untiled displays"
+
+Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+    drm/vc4: Fix memory leak during gpu reset.
+
+Ard Biesheuvel <ard.biesheuvel@linaro.org>
+    ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache
+
+Dirk Behme <dirk.behme@de.bosch.com>
+    dmaengine: sh: rcar-dmac: With cyclic DMA residue 0 is valid
+
+Alex Williamson <alex.williamson@redhat.com>
+    vfio/type1: Limit DMA mappings per container
+
+Lucas Stach <l.stach@pengutronix.de>
+    Input: synaptics-rmi4 - write config register values to the right offset
+
+NeilBrown <neilb@suse.com>
+    sunrpc: don't mark uninitialised items as VALID.
+
+Trond Myklebust <trondmy@gmail.com>
+    nfsd: Don't release the callback slot unless it was actually held
+
+Yan, Zheng <zyan@redhat.com>
+    ceph: fix ci->i_head_snapc leak
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: ensure d_name stability in ceph_dentry_hash()
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: only use d_name directly when parent is locked
+
+Xie XiuQi <xiexiuqi@huawei.com>
+    sched/numa: Fix a possible divide-by-zero
+
+Josh Collier <josh.d.collier@intel.com>
+    IB/rdmavt: Fix frwr memory registration
+
+Peter Zijlstra <peterz@infradead.org>
+    trace: Fix preempt_enable_no_resched() abuse
+
+Aurelien Jarno <aurelien@aurel32.net>
+    MIPS: scall64-o32: Fix indirect syscall number load
+
+YueHaibing <yuehaibing@huawei.com>
+    lib/Kconfig.debug: fix build error without CONFIG_BLOCK
+
+Jérôme Glisse <jglisse@redhat.com>
+    zram: pass down the bvec we need to read into in the work struct
+
+Jann Horn <jannh@google.com>
+    tracing: Fix buffer_ref pipe ops
+
+Wenwen Wang <wang6495@umn.edu>
+    tracing: Fix a memory leak by early error exit in trace_pid_write()
+
+Frank Sorenson <sorenson@redhat.com>
+    cifs: do not attempt cifs operation on smb2+ rename error
+
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kbuild: simplify ld-option implementation
+
+
+-------------
+
+Diffstat:
+
+ Documentation/networking/ip-sysctl.txt             |  1 +
+ Makefile                                           |  4 +-
+ arch/arm/boot/compressed/head.S                    | 16 ++++-
+ arch/mips/kernel/scall64-o32.S                     |  2 +-
+ arch/x86/Makefile                                  |  9 +++
+ drivers/android/binder_alloc.c                     | 18 +++---
+ drivers/block/loop.c                               | 58 +++++++++---------
+ drivers/block/loop.h                               |  1 +
+ drivers/block/zram/zram_drv.c                      |  5 +-
+ drivers/dma/sh/rcar-dmac.c                         |  4 +-
+ drivers/gpu/drm/i915/intel_fbdev.c                 | 12 ++--
+ drivers/gpu/drm/vc4/vc4_crtc.c                     |  2 +-
+ drivers/hwtracing/intel_th/gth.c                   |  2 +-
+ drivers/infiniband/sw/rdmavt/mr.c                  | 17 +++---
+ drivers/input/rmi4/rmi_f11.c                       |  2 +-
+ drivers/md/dm-integrity.c                          |  6 +-
+ drivers/net/ethernet/intel/fm10k/fm10k_main.c      |  2 +
+ .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/port.c     |  4 --
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c     |  4 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  4 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c   |  8 ++-
+ drivers/net/slip/slhc.c                            |  2 +-
+ drivers/net/team/team.c                            |  6 ++
+ drivers/usb/core/driver.c                          | 23 +++++--
+ drivers/usb/core/hub.c                             | 16 ++---
+ drivers/usb/core/message.c                         |  3 +-
+ drivers/usb/core/sysfs.c                           |  5 +-
+ drivers/usb/core/usb.h                             | 10 +++-
+ drivers/vfio/vfio_iommu_type1.c                    | 14 +++++
+ fs/ceph/dir.c                                      |  6 +-
+ fs/ceph/mds_client.c                               | 70 ++++++++++++++++++----
+ fs/ceph/snap.c                                     |  7 ++-
+ fs/cifs/inode.c                                    |  4 ++
+ fs/ext4/xattr.c                                    |  3 +
+ fs/nfs/super.c                                     |  3 +-
+ fs/nfsd/nfs4callback.c                             |  8 ++-
+ fs/nfsd/state.h                                    |  1 +
+ fs/proc/proc_sysctl.c                              |  6 +-
+ fs/splice.c                                        |  4 +-
+ include/linux/pipe_fs_i.h                          |  1 +
+ kernel/sched/deadline.c                            |  3 +-
+ kernel/sched/fair.c                                |  4 ++
+ kernel/trace/ring_buffer.c                         |  2 +-
+ kernel/trace/trace.c                               | 33 +++++-----
+ lib/Kconfig.debug                                  |  1 +
+ mm/memory.c                                        |  9 ++-
+ net/bridge/netfilter/ebtables.c                    |  3 +-
+ net/ipv4/route.c                                   | 32 +++++++---
+ net/ipv4/sysctl_net_ipv4.c                         |  5 +-
+ net/netfilter/ipvs/ip_vs_ctl.c                     |  3 +-
+ net/rds/ib_fmr.c                                   | 11 ++++
+ net/rds/ib_rdma.c                                  |  3 -
+ net/rose/af_rose.c                                 | 17 +++---
+ net/rose/rose_link.c                               | 16 +++--
+ net/rose/rose_loopback.c                           | 36 +++++------
+ net/rose/rose_route.c                              |  8 +--
+ net/rose/rose_timer.c                              | 30 ++++------
+ net/sunrpc/cache.c                                 |  3 +
+ net/tipc/netlink_compat.c                          | 24 ++++++--
+ net/vmw_vsock/virtio_transport_common.c            | 22 ++++---
+ scripts/Kbuild.include                             |  4 +-
+ 62 files changed, 424 insertions(+), 220 deletions(-)
 
 
