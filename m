@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9719F6F1
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955F8F6CD
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730823AbfD3Luk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
+        id S1731313AbfD3LvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730873AbfD3Lug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:50:36 -0400
+        id S1731325AbfD3LvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:51:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 343AC21734;
-        Tue, 30 Apr 2019 11:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AB9820449;
+        Tue, 30 Apr 2019 11:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625035;
-        bh=aQ1rL1k9S06B0KOKHQbHGPsnAnrmOYzAs+UycxW6/1U=;
+        s=default; t=1556625063;
+        bh=Wb9v6+JfhmpyAoywsRFXiLGKnv7wZi6IPZiBNKCeCaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aqyk8UcU7448x19Yk5Dc38WX/OnGWdYs9bC+p+TLL1Zv1DGLIUba7BY1N+6/p/Q7W
-         SfU+3LQeQCZNlmSL2ZN2fcoONxQiZOCPCgvMlHTjxvIUwuJRYIEzqq6ri2/uzh/9vi
-         4m4Spg5z8vtrRO4BoHBqOsZlu3z+iYtD1rKvg73o=
+        b=1u4PGz9kkHgLlXzpZoih99AlXc/GZYZp1kfP1tf00HakK1RMzy7lk3KsN3ltp/cyp
+         C2Ef1UfW9/Q8V8hzIgp7CgBzARHXVT7sFRVv1M6zIwWl+viMxoQESYGRd1fp0McQVX
+         Yq6mhDqpsqy2d2mDvivw+7weDiMgxrG0yq2ao40s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.0 49/89] loop: do not print warn message if partition scan is successful
-Date:   Tue, 30 Apr 2019 13:38:40 +0200
-Message-Id: <20190430113611.999291753@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.0 50/89] tipc: handle the err returned from cmd header function
+Date:   Tue, 30 Apr 2019 13:38:41 +0200
+Message-Id: <20190430113612.040475975@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
 References: <20190430113609.741196396@linuxfoundation.org>
@@ -43,35 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 40853d6fc619a6fd3d3177c3973a2eac9b598a80 upstream.
+commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
 
-Do not print warn message when the partition scan returns 0.
+Syzbot found a crash:
 
-Fixes: d57f3374ba48 ("loop: Move special partition reread handling in loop_clr_fd()")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+  Call Trace:
+    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
+    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
+    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
+    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
+    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
+
+  Uninit was created at:
+    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+    alloc_skb include/linux/skbuff.h:1012 [inline]
+    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
+
+It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
+in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
+in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
+ahead of tipc_nl_compat_name_table_dump().
+
+However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
+header function. It means even when the check added in that fix fails, it
+won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
+triggered again.
+
+So this patch is to add the process for the err returned from cmd header
+function in tipc_nl_compat_dumpit().
+
+Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/loop.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/tipc/netlink_compat.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1111,8 +1111,9 @@ out_unlock:
- 			err = __blkdev_reread_part(bdev);
- 		else
- 			err = blkdev_reread_part(bdev);
--		pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
--			__func__, lo_number, err);
-+		if (err)
-+			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
-+				__func__, lo_number, err);
- 		/* Device is gone, no point in returning error */
- 		err = 0;
- 	}
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -267,8 +267,14 @@ static int tipc_nl_compat_dumpit(struct
+ 	if (msg->rep_type)
+ 		tipc_tlv_init(msg->rep, msg->rep_type);
+ 
+-	if (cmd->header)
+-		(*cmd->header)(msg);
++	if (cmd->header) {
++		err = (*cmd->header)(msg);
++		if (err) {
++			kfree_skb(msg->rep);
++			msg->rep = NULL;
++			return err;
++		}
++	}
+ 
+ 	arg = nlmsg_new(0, GFP_KERNEL);
+ 	if (!arg) {
 
 
