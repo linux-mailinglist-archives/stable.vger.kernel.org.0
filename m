@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AD1DF734
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5BB5F638
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728717AbfD3Ls1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34504 "EHLO mail.kernel.org"
+        id S1729312AbfD3Lol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730846AbfD3Ls0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:26 -0400
+        id S1729295AbfD3Lok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB5522054F;
-        Tue, 30 Apr 2019 11:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD71721670;
+        Tue, 30 Apr 2019 11:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624905;
-        bh=0PDFe32l2J+JXZU23rkNgpJGbpdv8x+Mxo14+BuAzpI=;
+        s=default; t=1556624679;
+        bh=vcfxo2TFke0cuyMwibf/eIW/V6zVHCpZXvsgz4Sm4gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTRUF36xfqLa8eX0xyEf1Wdh3i1ZuVAoMNiM8uY9T/JL9CCh+YPrJ/4Yf6DqYfZ0U
-         hgKtV7Sw19CF5ETKM18Kh5RHXr0PGwjS39k+aISoUustHXBZq+yzvYmPazis0QYDmA
-         Um+OnGay/sDQWvYl6HLt5PMYWcdli1IirLrTusnk=
+        b=vnizXFoWTI0oZuP9hsB6DJ1iJT0SlfA/RzaAUvCNwtmT+NWroPx8kN7u/H/Sqr1vc
+         PYBuquELVtyvF2v4+Dl/2uf39ppHQ0WdKph9wysgk6vT011Vh84jscxOb2kAxguPuy
+         JMFxN61szIFjEz4+9l8Lv2YQoB9VYRfX0RfAaeKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Steve French <sfrench@samba.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>
-Subject: [PATCH 5.0 09/89] cifs: fix page reference leak with readv/writev
+        Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Roman Gushchin <guro@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 031/100] trace: Fix preempt_enable_no_resched() abuse
 Date:   Tue, 30 Apr 2019 13:38:00 +0200
-Message-Id: <20190430113610.196430694@linuxfoundation.org>
+Message-Id: <20190430113610.291111512@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,118 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Glisse <jglisse@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 13f5938d8264b5501368523c4513ff26608a33e8 upstream.
+commit d6097c9e4454adf1f8f2c9547c2fa6060d55d952 upstream.
 
-CIFS can leak pages reference gotten through GUP (get_user_pages*()
-through iov_iter_get_pages()). This happen if cifs_send_async_read()
-or cifs_write_from_iter() calls fail from within __cifs_readv() and
-__cifs_writev() respectively. This patch move page unreference to
-cifs_aio_ctx_release() which will happens on all code paths this is
-all simpler to follow for correctness.
+Unless the very next line is schedule(), or implies it, one must not use
+preempt_enable_no_resched(). It can cause a preemption to go missing and
+thereby cause arbitrary delays, breaking the PREEMPT=y invariant.
 
-Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
-Cc: Steve French <sfrench@samba.org>
-Cc: linux-cifs@vger.kernel.org
-Cc: samba-technical@lists.samba.org
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
+Link: http://lkml.kernel.org/r/20190423200318.GY14281@hirez.programming.kicks-ass.net
+
+Cc: Waiman Long <longman@redhat.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: the arch/x86 maintainers <x86@kernel.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: stable@vger.kernel.org
+Fixes: 2c2d7329d8af ("tracing/ftrace: use preempt_enable_no_resched_notrace in ring_buffer_time_stamp()")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |   15 +--------------
- fs/cifs/misc.c |   23 ++++++++++++++++++++++-
- 2 files changed, 23 insertions(+), 15 deletions(-)
+ kernel/trace/ring_buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -2796,7 +2796,6 @@ static void collect_uncached_write_data(
- 	struct cifs_tcon *tcon;
- 	struct cifs_sb_info *cifs_sb;
- 	struct dentry *dentry = ctx->cfile->dentry;
--	unsigned int i;
- 	int rc;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -730,7 +730,7 @@ u64 ring_buffer_time_stamp(struct ring_b
  
- 	tcon = tlink_tcon(ctx->cfile->tlink);
-@@ -2860,10 +2859,6 @@ restart_loop:
- 		kref_put(&wdata->refcount, cifs_uncached_writedata_release);
- 	}
+ 	preempt_disable_notrace();
+ 	time = rb_time_stamp(buffer);
+-	preempt_enable_no_resched_notrace();
++	preempt_enable_notrace();
  
--	if (!ctx->direct_io)
--		for (i = 0; i < ctx->npages; i++)
--			put_page(ctx->bv[i].bv_page);
--
- 	cifs_stats_bytes_written(tcon, ctx->total_len);
- 	set_bit(CIFS_INO_INVALID_MAPPING, &CIFS_I(dentry->d_inode)->flags);
- 
-@@ -3472,7 +3467,6 @@ collect_uncached_read_data(struct cifs_a
- 	struct iov_iter *to = &ctx->iter;
- 	struct cifs_sb_info *cifs_sb;
- 	struct cifs_tcon *tcon;
--	unsigned int i;
- 	int rc;
- 
- 	tcon = tlink_tcon(ctx->cfile->tlink);
-@@ -3556,15 +3550,8 @@ again:
- 		kref_put(&rdata->refcount, cifs_uncached_readdata_release);
- 	}
- 
--	if (!ctx->direct_io) {
--		for (i = 0; i < ctx->npages; i++) {
--			if (ctx->should_dirty)
--				set_page_dirty(ctx->bv[i].bv_page);
--			put_page(ctx->bv[i].bv_page);
--		}
--
-+	if (!ctx->direct_io)
- 		ctx->total_len = ctx->len - iov_iter_count(to);
--	}
- 
- 	cifs_stats_bytes_read(tcon, ctx->total_len);
- 
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -789,6 +789,11 @@ cifs_aio_ctx_alloc(void)
- {
- 	struct cifs_aio_ctx *ctx;
- 
-+	/*
-+	 * Must use kzalloc to initialize ctx->bv to NULL and ctx->direct_io
-+	 * to false so that we know when we have to unreference pages within
-+	 * cifs_aio_ctx_release()
-+	 */
- 	ctx = kzalloc(sizeof(struct cifs_aio_ctx), GFP_KERNEL);
- 	if (!ctx)
- 		return NULL;
-@@ -807,7 +812,23 @@ cifs_aio_ctx_release(struct kref *refcou
- 					struct cifs_aio_ctx, refcount);
- 
- 	cifsFileInfo_put(ctx->cfile);
--	kvfree(ctx->bv);
-+
-+	/*
-+	 * ctx->bv is only set if setup_aio_ctx_iter() was call successfuly
-+	 * which means that iov_iter_get_pages() was a success and thus that
-+	 * we have taken reference on pages.
-+	 */
-+	if (ctx->bv) {
-+		unsigned i;
-+
-+		for (i = 0; i < ctx->npages; i++) {
-+			if (ctx->should_dirty)
-+				set_page_dirty(ctx->bv[i].bv_page);
-+			put_page(ctx->bv[i].bv_page);
-+		}
-+		kvfree(ctx->bv);
-+	}
-+
- 	kfree(ctx);
+ 	return time;
  }
- 
 
 
