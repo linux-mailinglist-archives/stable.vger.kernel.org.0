@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C2CF7A4
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88758F730
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbfD3LpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57272 "EHLO mail.kernel.org"
+        id S1726839AbfD3L4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729494AbfD3LpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:45:14 -0400
+        id S1730875AbfD3Lsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:48:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC90D21707;
-        Tue, 30 Apr 2019 11:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FFC520449;
+        Tue, 30 Apr 2019 11:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624713;
-        bh=Y9VG9bpFil1JKNKM+77M5AY4DhSDUjtMmD2poi2CVWk=;
+        s=default; t=1556624915;
+        bh=ZjSnPPE3GJxDV7BkqDZlz1xwMuO9b69kcF0NnUB0768=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kz4s5RUWQK0fqL5/rFmmRQx+TI/RHwIxICObmB3euUGsOSt4EyZgStYD159yOezho
-         CxGByDFJl0in4EgFdto1OcMFzNyEq1uUjyTaPL+qTiSsRhezjG7TCi3jCpFg14cCOL
-         /VwLZ+5eUlX2/A4QxFPPWQQ6Ykx/FIcwpjoCIbz8=
+        b=aG2XUpM6BO/3Txynx4zXmYTbE0uvEiEDlXpaThnyxPiZ5IL3NIFd8IGyJWF7sCD9v
+         KXQSUSM5Oyfh0Vaj/htIwsDvUcH7tsL3B9wW8hVmzP/vzrITlgTUa23kRKzHT9Fz+T
+         fOZohROoE3KYCy3SmTjlxM1Xm6d5npzyzjyrYcn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>,
-        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
-        Yao Lihua <ylhuajnu@outlook.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 043/100] dmaengine: sh: rcar-dmac: With cyclic DMA residue 0 is valid
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.0 21/89] arm64: mm: Ensure tail of unaligned initrd is reserved
 Date:   Tue, 30 Apr 2019 13:38:12 +0200
-Message-Id: <20190430113611.148869632@linuxfoundation.org>
+Message-Id: <20190430113611.059391513@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 907bd68a2edc491849e2fdcfe52c4596627bca94 upstream.
+commit d4d18e3ec6091843f607e8929a56723e28f393a6 upstream.
 
-Having a cyclic DMA, a residue 0 is not an indication of a completed
-DMA. In case of cyclic DMA make sure that dma_set_residue() is called
-and with this a residue of 0 is forwarded correctly to the caller.
+In the event that the start address of the initrd is not aligned, but
+has an aligned size, the base + size will not cover the entire initrd
+image and there is a chance that the kernel will corrupt the tail of the
+image.
 
-Fixes: 3544d2878817 ("dmaengine: rcar-dmac: use result of updated get_residue in tx_status")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
-Signed-off-by: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
-Signed-off-by: Yao Lihua <ylhuajnu@outlook.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+By aligning the end of the initrd to a page boundary and then
+subtracting the adjusted start address the memblock reservation will
+cover all pages that contains the initrd.
+
+Fixes: c756c592e442 ("arm64: Utilize phys_initrd_start/phys_initrd_size")
+Cc: stable@vger.kernel.org
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/sh/rcar-dmac.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/mm/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1367,6 +1367,7 @@ static enum dma_status rcar_dmac_tx_stat
- 	enum dma_status status;
- 	unsigned long flags;
- 	unsigned int residue;
-+	bool cyclic;
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -406,7 +406,7 @@ void __init arm64_memblock_init(void)
+ 		 * Otherwise, this is a no-op
+ 		 */
+ 		u64 base = phys_initrd_start & PAGE_MASK;
+-		u64 size = PAGE_ALIGN(phys_initrd_size);
++		u64 size = PAGE_ALIGN(phys_initrd_start + phys_initrd_size) - base;
  
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if (status == DMA_COMPLETE || !txstate)
-@@ -1374,10 +1375,11 @@ static enum dma_status rcar_dmac_tx_stat
- 
- 	spin_lock_irqsave(&rchan->lock, flags);
- 	residue = rcar_dmac_chan_get_residue(rchan, cookie);
-+	cyclic = rchan->desc.running ? rchan->desc.running->cyclic : false;
- 	spin_unlock_irqrestore(&rchan->lock, flags);
- 
- 	/* if there's no residue, the cookie is complete */
--	if (!residue)
-+	if (!residue && !cyclic)
- 		return DMA_COMPLETE;
- 
- 	dma_set_residue(txstate, residue);
+ 		/*
+ 		 * We can only add back the initrd memory if we don't end up
 
 
