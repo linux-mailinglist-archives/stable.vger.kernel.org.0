@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 738ACF7BF
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83134F735
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbfD3Loi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:44:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56102 "EHLO mail.kernel.org"
+        id S1730535AbfD3LsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729295AbfD3Loh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:44:37 -0400
+        id S1727695AbfD3LsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:48:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 683E12177B;
-        Tue, 30 Apr 2019 11:44:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF73F2177B;
+        Tue, 30 Apr 2019 11:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624676;
-        bh=VcpKBqHheq+0zxr5mfTmUUIAIN1pPJCWkgC44Ioi6eU=;
+        s=default; t=1556624902;
+        bh=w7s5eTS1iCdsbbninB7O0yI9G606mnVKfHMqy7ngLos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JZkbFmSj5yuViqdqawEYzowTFq6xx0wlsVu4fEIuTUfMqNfGSVHugaH0kR5B8xG/
-         Qk4BpjpMwh1D9g4H87fOfjpJiWloB4aCunYnP95IkFs8t6/prbAczqRKWEEHV1/svC
-         Dp8sftWIP7IzPmL+p5qWZQG48la6cNgPoxzD1Hdc=
+        b=QXl0deApj07plx39upmT1aANr0kuPJYn1MQKrtR1fv7P5qCAc57lDmkcHF0j9jCF6
+         LaoadDfLKnM/JsEuhZHG9LJ6022JNfjF4P5dudFKguYTBYbGm0WJQ7+2bpSuIpEf3G
+         8ap2sa1BuMCIAg9zovHiPvtulDDx3CbuxvaA+Z/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH 4.19 030/100] MIPS: scall64-o32: Fix indirect syscall number load
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 08/89] cifs: fix memory leak in SMB2_read
 Date:   Tue, 30 Apr 2019 13:37:59 +0200
-Message-Id: <20190430113610.252399128@linuxfoundation.org>
+Message-Id: <20190430113610.159285802@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+[ Upstream commit 05fd5c2c61732152a6bddc318aae62d7e436629b ]
 
-commit 79b4a9cf0e2ea8203ce777c8d5cfa86c71eae86e upstream.
+Commit 088aaf17aa79300cab14dbee2569c58cfafd7d6e introduced a leak where
+if SMB2_read() returned an error we would return without freeing the
+request buffer.
 
-Commit 4c21b8fd8f14 (MIPS: seccomp: Handle indirect system calls (o32))
-added indirect syscall detection for O32 processes running on MIPS64,
-but it did not work correctly for big endian kernel/processes. The
-reason is that the syscall number is loaded from ARG1 using the lw
-instruction while this is a 64-bit value, so zero is loaded instead of
-the syscall number.
-
-Fix the code by using the ld instruction instead. When running a 32-bit
-processes on a 64 bit CPU, the values are properly sign-extended, so it
-ensures the value passed to syscall_trace_enter is correct.
-
-Recent systemd versions with seccomp enabled whitelist the getpid
-syscall for their internal  processes (e.g. systemd-journald), but call
-it through syscall(SYS_getpid). This fix therefore allows O32 big endian
-systems with a 64-bit kernel to run recent systemd versions.
-
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Cc: <stable@vger.kernel.org> # v3.15+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/scall64-o32.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/kernel/scall64-o32.S
-+++ b/arch/mips/kernel/scall64-o32.S
-@@ -125,7 +125,7 @@ trace_a_syscall:
- 	subu	t1, v0,  __NR_O32_Linux
- 	move	a1, v0
- 	bnez	t1, 1f /* __NR_syscall at offset 0 */
--	lw	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
-+	ld	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
- 	.set	pop
- 
- 1:	jal	syscall_trace_enter
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 938e75cc3b66..85a3c051e622 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -3402,6 +3402,7 @@ SMB2_read(const unsigned int xid, struct cifs_io_parms *io_parms,
+ 					    rc);
+ 		}
+ 		free_rsp_buf(resp_buftype, rsp_iov.iov_base);
++		cifs_small_buf_release(req);
+ 		return rc == -ENODATA ? 0 : rc;
+ 	} else
+ 		trace_smb3_read_done(xid, req->PersistentFileId,
+-- 
+2.19.1
+
 
 
