@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8261F838
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9719F6F1
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728760AbfD3LlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:41:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48208 "EHLO mail.kernel.org"
+        id S1730823AbfD3Luk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:50:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728762AbfD3LlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:06 -0400
+        id S1730873AbfD3Lug (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 347E421670;
-        Tue, 30 Apr 2019 11:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343AC21734;
+        Tue, 30 Apr 2019 11:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624465;
-        bh=GKWtRrBNFdR2JLOIrZ3EWhjheKlKpbUl0/M3jGhzfSk=;
+        s=default; t=1556625035;
+        bh=aQ1rL1k9S06B0KOKHQbHGPsnAnrmOYzAs+UycxW6/1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRlXCDpGuUdAcmGpCRmMwqsVHB9nCsjxOLvZPQZWXOLj9n11eZCoBQ2HvC0gTyItz
-         BdzD5/K2L+CGHlZAozKzY0zEufgsXI6gA+ji8p6LB2PkTMcCOU4COZAwEko5bW2oK+
-         KHNIdWhbWR6NOoymQLtklQtY3oGlzNelKlYFfVzE=
+        b=Aqyk8UcU7448x19Yk5Dc38WX/OnGWdYs9bC+p+TLL1Zv1DGLIUba7BY1N+6/p/Q7W
+         SfU+3LQeQCZNlmSL2ZN2fcoONxQiZOCPCgvMlHTjxvIUwuJRYIEzqq6ri2/uzh/9vi
+         4m4Spg5z8vtrRO4BoHBqOsZlu3z+iYtD1rKvg73o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Salvatore Bonaccorso <carnil@debian.org>,
-        Jan Kara <jack@suse.cz>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 29/41] Revert "block/loop: Use global lock for ioctl() operation."
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.0 49/89] loop: do not print warn message if partition scan is successful
 Date:   Tue, 30 Apr 2019 13:38:40 +0200
-Message-Id: <20190430113531.495120419@linuxfoundation.org>
+Message-Id: <20190430113611.999291753@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,180 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-This reverts commit 3ae3d167f5ec2c7bb5fcd12b7772cfadc93b2305 which is
-commit 310ca162d779efee8a2dc3731439680f3e9c1e86 upstream.
+commit 40853d6fc619a6fd3d3177c3973a2eac9b598a80 upstream.
 
-Jan Kara has reported seeing problems with this patch applied, as has
-Salvatore Bonaccorso, so let's drop it for now.
+Do not print warn message when the partition scan returns 0.
 
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Reported-by: Jan Kara <jack@suse.cz>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: d57f3374ba48 ("loop: Move special partition reread handling in loop_clr_fd()")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/block/loop.c |   42 +++++++++++++++++++++---------------------
- drivers/block/loop.h |    1 +
- 2 files changed, 22 insertions(+), 21 deletions(-)
+ drivers/block/loop.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
-@@ -82,7 +82,6 @@
- 
- static DEFINE_IDR(loop_index_idr);
- static DEFINE_MUTEX(loop_index_mutex);
--static DEFINE_MUTEX(loop_ctl_mutex);
- 
- static int max_part;
- static int part_shift;
-@@ -1034,7 +1033,7 @@ static int loop_clr_fd(struct loop_devic
- 	 */
- 	if (atomic_read(&lo->lo_refcnt) > 1) {
- 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
--		mutex_unlock(&loop_ctl_mutex);
-+		mutex_unlock(&lo->lo_ctl_mutex);
- 		return 0;
+@@ -1111,8 +1111,9 @@ out_unlock:
+ 			err = __blkdev_reread_part(bdev);
+ 		else
+ 			err = blkdev_reread_part(bdev);
+-		pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
+-			__func__, lo_number, err);
++		if (err)
++			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
++				__func__, lo_number, err);
+ 		/* Device is gone, no point in returning error */
+ 		err = 0;
  	}
- 
-@@ -1083,12 +1082,12 @@ static int loop_clr_fd(struct loop_devic
- 	if (!part_shift)
- 		lo->lo_disk->flags |= GENHD_FL_NO_PART_SCAN;
- 	loop_unprepare_queue(lo);
--	mutex_unlock(&loop_ctl_mutex);
-+	mutex_unlock(&lo->lo_ctl_mutex);
- 	/*
--	 * Need not hold loop_ctl_mutex to fput backing file.
--	 * Calling fput holding loop_ctl_mutex triggers a circular
-+	 * Need not hold lo_ctl_mutex to fput backing file.
-+	 * Calling fput holding lo_ctl_mutex triggers a circular
- 	 * lock dependency possibility warning as fput can take
--	 * bd_mutex which is usually taken before loop_ctl_mutex.
-+	 * bd_mutex which is usually taken before lo_ctl_mutex.
- 	 */
- 	fput(filp);
- 	return 0;
-@@ -1351,7 +1350,7 @@ static int lo_ioctl(struct block_device
- 	struct loop_device *lo = bdev->bd_disk->private_data;
- 	int err;
- 
--	mutex_lock_nested(&loop_ctl_mutex, 1);
-+	mutex_lock_nested(&lo->lo_ctl_mutex, 1);
- 	switch (cmd) {
- 	case LOOP_SET_FD:
- 		err = loop_set_fd(lo, mode, bdev, arg);
-@@ -1360,7 +1359,7 @@ static int lo_ioctl(struct block_device
- 		err = loop_change_fd(lo, bdev, arg);
- 		break;
- 	case LOOP_CLR_FD:
--		/* loop_clr_fd would have unlocked loop_ctl_mutex on success */
-+		/* loop_clr_fd would have unlocked lo_ctl_mutex on success */
- 		err = loop_clr_fd(lo);
- 		if (!err)
- 			goto out_unlocked;
-@@ -1396,7 +1395,7 @@ static int lo_ioctl(struct block_device
- 	default:
- 		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
- 	}
--	mutex_unlock(&loop_ctl_mutex);
-+	mutex_unlock(&lo->lo_ctl_mutex);
- 
- out_unlocked:
- 	return err;
-@@ -1529,16 +1528,16 @@ static int lo_compat_ioctl(struct block_
- 
- 	switch(cmd) {
- 	case LOOP_SET_STATUS:
--		mutex_lock(&loop_ctl_mutex);
-+		mutex_lock(&lo->lo_ctl_mutex);
- 		err = loop_set_status_compat(
- 			lo, (const struct compat_loop_info __user *) arg);
--		mutex_unlock(&loop_ctl_mutex);
-+		mutex_unlock(&lo->lo_ctl_mutex);
- 		break;
- 	case LOOP_GET_STATUS:
--		mutex_lock(&loop_ctl_mutex);
-+		mutex_lock(&lo->lo_ctl_mutex);
- 		err = loop_get_status_compat(
- 			lo, (struct compat_loop_info __user *) arg);
--		mutex_unlock(&loop_ctl_mutex);
-+		mutex_unlock(&lo->lo_ctl_mutex);
- 		break;
- 	case LOOP_SET_CAPACITY:
- 	case LOOP_CLR_FD:
-@@ -1582,7 +1581,7 @@ static void __lo_release(struct loop_dev
- 	if (atomic_dec_return(&lo->lo_refcnt))
- 		return;
- 
--	mutex_lock(&loop_ctl_mutex);
-+	mutex_lock(&lo->lo_ctl_mutex);
- 	if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
- 		/*
- 		 * In autoclear mode, stop the loop thread
-@@ -1599,7 +1598,7 @@ static void __lo_release(struct loop_dev
- 		loop_flush(lo);
- 	}
- 
--	mutex_unlock(&loop_ctl_mutex);
-+	mutex_unlock(&lo->lo_ctl_mutex);
- }
- 
- static void lo_release(struct gendisk *disk, fmode_t mode)
-@@ -1645,10 +1644,10 @@ static int unregister_transfer_cb(int id
- 	struct loop_device *lo = ptr;
- 	struct loop_func_table *xfer = data;
- 
--	mutex_lock(&loop_ctl_mutex);
-+	mutex_lock(&lo->lo_ctl_mutex);
- 	if (lo->lo_encryption == xfer)
- 		loop_release_xfer(lo);
--	mutex_unlock(&loop_ctl_mutex);
-+	mutex_unlock(&lo->lo_ctl_mutex);
- 	return 0;
- }
- 
-@@ -1814,6 +1813,7 @@ static int loop_add(struct loop_device *
- 	if (!part_shift)
- 		disk->flags |= GENHD_FL_NO_PART_SCAN;
- 	disk->flags |= GENHD_FL_EXT_DEVT;
-+	mutex_init(&lo->lo_ctl_mutex);
- 	atomic_set(&lo->lo_refcnt, 0);
- 	lo->lo_number		= i;
- 	spin_lock_init(&lo->lo_lock);
-@@ -1926,19 +1926,19 @@ static long loop_control_ioctl(struct fi
- 		ret = loop_lookup(&lo, parm);
- 		if (ret < 0)
- 			break;
--		mutex_lock(&loop_ctl_mutex);
-+		mutex_lock(&lo->lo_ctl_mutex);
- 		if (lo->lo_state != Lo_unbound) {
- 			ret = -EBUSY;
--			mutex_unlock(&loop_ctl_mutex);
-+			mutex_unlock(&lo->lo_ctl_mutex);
- 			break;
- 		}
- 		if (atomic_read(&lo->lo_refcnt) > 0) {
- 			ret = -EBUSY;
--			mutex_unlock(&loop_ctl_mutex);
-+			mutex_unlock(&lo->lo_ctl_mutex);
- 			break;
- 		}
- 		lo->lo_disk->private_data = NULL;
--		mutex_unlock(&loop_ctl_mutex);
-+		mutex_unlock(&lo->lo_ctl_mutex);
- 		idr_remove(&loop_index_idr, lo->lo_number);
- 		loop_remove(lo);
- 		break;
---- a/drivers/block/loop.h
-+++ b/drivers/block/loop.h
-@@ -55,6 +55,7 @@ struct loop_device {
- 
- 	spinlock_t		lo_lock;
- 	int			lo_state;
-+	struct mutex		lo_ctl_mutex;
- 	struct kthread_worker	worker;
- 	struct task_struct	*worker_task;
- 	bool			use_dio;
 
 
