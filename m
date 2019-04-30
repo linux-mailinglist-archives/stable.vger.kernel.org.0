@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9854F76E
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4A2F859
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727695AbfD3L6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:58:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60422 "EHLO mail.kernel.org"
+        id S1728390AbfD3LkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730649AbfD3LrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:47:04 -0400
+        id S1727243AbfD3LkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D3020449;
-        Tue, 30 Apr 2019 11:47:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 266A6217D4;
+        Tue, 30 Apr 2019 11:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624823;
-        bh=S0SOl4WlJ3Nkb7wjdnQgB3nyI8KIwfRHP3+uxXnFOrw=;
+        s=default; t=1556624418;
+        bh=a5ZeR0MDjNUpU1MX8cFgcVq7fOAd1SREaSmh5eqyE/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgNr8khph1GC1A27p5IcN1FVLN/KtHU6Uj5ELSrTpbtKbrQioDx0uAbuaLyaBwXYD
-         sZFCVpIgQuGKndKgoyGjDjKvlrQydLLoftz4Iht5NsrHGznAQGH4V031fhc6qMzhwJ
-         Irz27+adxX3Yn4Xjy5MUKfMRc0eh8fTEnePwEYas=
+        b=JRIHTn8avpPm0jmikhJIV+R1lPfWFBdlJqA+6+/Ixkn8+T4iOoXKYgrQ/IbWsISjQ
+         Mixmno2+DSTBjBVDXqICuNhxmNgX13FTI5vbzxlQA1tWkUuQEdDvIoUJLe2O7C5NS6
+         4Lrb5hYjPGs2V4ROBOfOJ61PrQbhc2BiKKZupIEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        kbuild test robot <lkp@intel.com>,
-        Eric Anholt <eric@anholt.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.19 049/100] drm/vc4: Fix compilation error reported by kbuild test bot
+        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, cj.chengjian@huawei.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 07/41] sched/numa: Fix a possible divide-by-zero
 Date:   Tue, 30 Apr 2019 13:38:18 +0200
-Message-Id: <20190430113611.343971382@linuxfoundation.org>
+Message-Id: <20190430113526.406683131@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-commit 462ce5d963f18b71c63f6b7730a35a2ee5273540 upstream.
+commit a860fa7b96e1a1c974556327aa1aee852d434c21 upstream.
 
-A pointer to crtc was missing, resulting in the following build error:
-drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse: sparse: incorrect type in argument 1 (different base types)
-drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse:    expected struct drm_crtc *crtc
-drivers/gpu/drm/vc4/vc4_crtc.c:1045:44: sparse:    got struct drm_crtc_state *state
-drivers/gpu/drm/vc4/vc4_crtc.c:1045:39: sparse: sparse: not enough arguments for function vc4_crtc_destroy_state
+sched_clock_cpu() may not be consistent between CPUs. If a task
+migrates to another CPU, then se.exec_start is set to that CPU's
+rq_clock_task() by update_stats_curr_start(). Specifically, the new
+value might be before the old value due to clock skew.
 
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Eric Anholt <eric@anholt.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/2b6ed5e6-81b0-4276-8860-870b54ca3262@linux.intel.com
-Fixes: d08106796a78 ("drm/vc4: Fix memory leak during gpu reset.")
-Cc: <stable@vger.kernel.org> # v4.6+
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+So then if in numa_get_avg_runtime() the expression:
+
+  'now - p->last_task_numa_placement'
+
+ends up as -1, then the divider '*period + 1' in task_numa_placement()
+is 0 and things go bang. Similar to update_curr(), check if time goes
+backwards to avoid this.
+
+[ peterz: Wrote new changelog. ]
+[ mingo: Tweaked the code comment. ]
+
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: cj.chengjian@huawei.com
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20190425080016.GX11158@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -998,7 +998,7 @@ static void
- vc4_crtc_reset(struct drm_crtc *crtc)
- {
- 	if (crtc->state)
--		vc4_crtc_destroy_state(crtc->state);
-+		vc4_crtc_destroy_state(crtc, crtc->state);
- 
- 	crtc->state = kzalloc(sizeof(struct vc4_crtc_state), GFP_KERNEL);
- 	if (crtc->state)
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -1925,6 +1925,10 @@ static u64 numa_get_avg_runtime(struct t
+ 	if (p->last_task_numa_placement) {
+ 		delta = runtime - p->last_sum_exec_runtime;
+ 		*period = now - p->last_task_numa_placement;
++
++		/* Avoid time going backwards, prevent potential divide error: */
++		if (unlikely((s64)*period < 0))
++			*period = 0;
+ 	} else {
+ 		delta = p->se.avg.load_sum / p->se.load.weight;
+ 		*period = LOAD_AVG_MAX;
 
 
