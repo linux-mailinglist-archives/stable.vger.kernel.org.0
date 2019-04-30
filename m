@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2E2F7B1
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A1C3F7B3
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfD3LoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55196 "EHLO mail.kernel.org"
+        id S1730121AbfD3LoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730110AbfD3LoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:44:11 -0400
+        id S1730119AbfD3LoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 845B321734;
-        Tue, 30 Apr 2019 11:44:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 198A92177B;
+        Tue, 30 Apr 2019 11:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624651;
-        bh=mY0sJyJHdhhOT3Ehwup/Tba7f1JcdM1DTG0ELVsBdBM=;
+        s=default; t=1556624653;
+        bh=jHi1+utP488YjCLPjiKpXcpbs0/BNkGiO4dU2uOG6eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihcQFwBgcsVnfocXL2Mm6IK/bf031BYtDvPPjkunMR77EOf701nuM1L2BmjwLHgz9
-         HpkVZESvH1xTewZeJD0UGXseFVJYnWy2on3+XbVuuOBLrcdUmYhoxk+qKvmPjKp4Nd
-         iq6CuR6sNOTZI5OyK9T9WB+AbcMAxxAkuG6Ec/b0=
+        b=IE50iIogviqJZoOZxWCFgM2AnIPZRSEjplSM1+w5YGj8mv0RJMyTFt5VmR9chSRWF
+         5uS1zDuV6XVPGh5cJM8ihovwjx87k3KxDTiUH8hTF6YjeBdfIjVfd9B1566xFH8Qd2
+         j1ko7NQ6fX2S3PW0eUDX+GpgFUL0PTz5425ZDntA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/100] ALSA: hda/ca0132 - Fix build error without CONFIG_PCI
-Date:   Tue, 30 Apr 2019 13:37:50 +0200
-Message-Id: <20190430113609.903057754@linuxfoundation.org>
+        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 022/100] net: dsa: mv88e6xxx: add call to mv88e6xxx_ports_cmode_init to probe for new DSA framework
+Date:   Tue, 30 Apr 2019 13:37:51 +0200
+Message-Id: <20190430113609.945413299@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
 References: <20190430113608.616903219@linuxfoundation.org>
@@ -44,38 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c97617a81a7616d49bc3700959e08c6c6f447093 ]
+[ Upstream commit 3acca1dd17060332cfab15693733cdaf9fba1c90 ]
 
-A call of pci_iounmap() call without CONFIG_PCI leads to a build error
-on some architectures.  We tried to address this and add a check of
-IS_ENABLED(CONFIG_PCI), but this still doesn't seem enough for sh.
-Ideally we should fix it globally, it's really a corner case, so let's
-paper over it with a simpler ifdef.
+In the original patch I missed to add mv88e6xxx_ports_cmode_init()
+to the second probe function, the one for the new DSA framework.
 
-Fixes: 1e73359a24fa ("ALSA: hda/ca0132 - make pci_iounmap() call conditional")
-Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ed8fe20205ac ("net: dsa: mv88e6xxx: prevent interrupt storm caused by mv88e6390x_port_set_cmode")
+Reported-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Suggested-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 80f73810b21b..0436789e7cd8 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -7394,8 +7394,10 @@ static void ca0132_free(struct hda_codec *codec)
- 	ca0132_exit_chip(codec);
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index dabe89968a78..2caa5c0c2bc4 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -4821,6 +4821,7 @@ static int mv88e6xxx_probe(struct mdio_device *mdiodev)
+ 	if (err)
+ 		goto out;
  
- 	snd_hda_power_down(codec);
--	if (IS_ENABLED(CONFIG_PCI) && spec->mem_base)
-+#ifdef CONFIG_PCI
-+	if (spec->mem_base)
- 		pci_iounmap(codec->bus->pci, spec->mem_base);
-+#endif
- 	kfree(spec->spec_init_verbs);
- 	kfree(codec->spec);
- }
++	mv88e6xxx_ports_cmode_init(chip);
+ 	mv88e6xxx_phy_init(chip);
+ 
+ 	if (chip->info->ops->get_eeprom) {
 -- 
 2.19.1
 
