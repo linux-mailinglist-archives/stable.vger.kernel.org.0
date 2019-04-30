@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96578F671
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EA2F6EE
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730210AbfD3Lrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33358 "EHLO mail.kernel.org"
+        id S1726436AbfD3Lxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:53:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbfD3Lro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:47:44 -0400
+        id S1731224AbfD3Lum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D07521670;
-        Tue, 30 Apr 2019 11:47:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EF2921734;
+        Tue, 30 Apr 2019 11:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624862;
-        bh=bMIyDFSNMZbDV9mwlps5UzDDiVznRcO1GZN9HpcM6iQ=;
+        s=default; t=1556625040;
+        bh=t/XRINLIziQzUyJXBkRSYm26YL8Jz58JIeW6fnmQ2fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bf/LjWKnF8kLd2gCk4zrEsWXQ2ArHlyJBAMU98LZBIf65k3FXxD9+xcM0qSYYisvt
-         TPcNCaOnNidsE0HzeytONApyM8c/9eJp+f4En6bPxydaSlCb0equa25ScRzqPnrqek
-         JH4u9uMEJMyKTWiCL+sNNHsD+GLhhN1a2ai2DKaU=
+        b=WDR4fw7AKTwMeuy+Jw02dHJm/JHsf3bHb/jynp4Ev4AtACX7rJN4z9nW7txO66BKg
+         ToTbYE1eGZH3W/J8LATtVDe0HFaHdupqIU+4Q0kUPxPa4GRPaaTwAPCYVrg/nAiNu+
+         nxVK2o8WpWtFQgm1tuPBMYV/vTvzAheo0ewHFl9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 089/100] net/rose: fix unbound loop in rose_loopback_timer()
-Date:   Tue, 30 Apr 2019 13:38:58 +0200
-Message-Id: <20190430113613.012350529@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.0 68/89] Fix aio_poll() races
+Date:   Tue, 30 Apr 2019 13:38:59 +0200
+Message-Id: <20190430113612.925667227@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,161 +43,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 0453c682459583910d611a96de928f4442205493 ]
+commit af5c72b1fc7a00aa484e90b0c4e0eeb582545634 upstream.
 
-This patch adds a limit on the number of skbs that fuzzers can queue
-into loopback_queue. 1000 packets for rose loopback seems more than enough.
+aio_poll() has to cope with several unpleasant problems:
+	* requests that might stay around indefinitely need to
+be made visible for io_cancel(2); that must not be done to
+a request already completed, though.
+	* in cases when ->poll() has placed us on a waitqueue,
+wakeup might have happened (and request completed) before ->poll()
+returns.
+	* worse, in some early wakeup cases request might end
+up re-added into the queue later - we can't treat "woken up and
+currently not in the queue" as "it's not going to stick around
+indefinitely"
+	* ... moreover, ->poll() might have decided not to
+put it on any queues to start with, and that needs to be distinguished
+from the previous case
+	* ->poll() might have tried to put us on more than one queue.
+Only the first will succeed for aio poll, so we might end up missing
+wakeups.  OTOH, we might very well notice that only after the
+wakeup hits and request gets completed (all before ->poll() gets
+around to the second poll_wait()).  In that case it's too late to
+decide that we have an error.
 
-Then, since we now have multiple cpus in most linux hosts,
-we also need to limit the number of skbs rose_loopback_timer()
-can dequeue at each round.
+req->woken was an attempt to deal with that.  Unfortunately, it was
+broken.  What we need to keep track of is not that wakeup has happened -
+the thing might come back after that.  It's that async reference is
+already gone and won't come back, so we can't (and needn't) put the
+request on the list of cancellables.
 
-rose_loopback_queue() can be drop-monitor friendly, calling
-consume_skb() or kfree_skb() appropriately.
+The easiest case is "request hadn't been put on any waitqueues"; we
+can tell by seeing NULL apt.head, and in that case there won't be
+anything async.  We should either complete the request ourselves
+(if vfs_poll() reports anything of interest) or return an error.
 
-Finally, use mod_timer() instead of del_timer() + add_timer()
+In all other cases we get exclusion with wakeups by grabbing the
+queue lock.
 
-syzbot report was :
+If request is currently on queue and we have something interesting
+from vfs_poll(), we can steal it and complete the request ourselves.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    0-...!: (10499 ticks this GP) idle=536/1/0x4000000000000002 softirq=103291/103291 fqs=34
-rcu:     (t=10500 jiffies g=140321 q=323)
-rcu: rcu_preempt kthread starved for 10426 jiffies! g140321 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=1
-rcu: RCU grace-period kthread stack dump:
-rcu_preempt     I29168    10      2 0x80000000
-Call Trace:
- context_switch kernel/sched/core.c:2877 [inline]
- __schedule+0x813/0x1cc0 kernel/sched/core.c:3518
- schedule+0x92/0x180 kernel/sched/core.c:3562
- schedule_timeout+0x4db/0xfd0 kernel/time/timer.c:1803
- rcu_gp_fqs_loop kernel/rcu/tree.c:1971 [inline]
- rcu_gp_kthread+0x962/0x17b0 kernel/rcu/tree.c:2128
- kthread+0x357/0x430 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
-NMI backtrace for cpu 0
-CPU: 0 PID: 7632 Comm: kworker/0:4 Not tainted 5.1.0-rc5+ #172
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events iterate_cleanup_work
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- nmi_cpu_backtrace.cold+0x63/0xa4 lib/nmi_backtrace.c:101
- nmi_trigger_cpumask_backtrace+0x1be/0x236 lib/nmi_backtrace.c:62
- arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
- trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
- rcu_dump_cpu_stacks+0x183/0x1cf kernel/rcu/tree.c:1223
- print_cpu_stall kernel/rcu/tree.c:1360 [inline]
- check_cpu_stall kernel/rcu/tree.c:1434 [inline]
- rcu_pending kernel/rcu/tree.c:3103 [inline]
- rcu_sched_clock_irq.cold+0x500/0xa4a kernel/rcu/tree.c:2544
- update_process_times+0x32/0x80 kernel/time/timer.c:1635
- tick_sched_handle+0xa2/0x190 kernel/time/tick-sched.c:161
- tick_sched_timer+0x47/0x130 kernel/time/tick-sched.c:1271
- __run_hrtimer kernel/time/hrtimer.c:1389 [inline]
- __hrtimer_run_queues+0x33e/0xde0 kernel/time/hrtimer.c:1451
- hrtimer_interrupt+0x314/0x770 kernel/time/hrtimer.c:1509
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1035 [inline]
- smp_apic_timer_interrupt+0x120/0x570 arch/x86/kernel/apic/apic.c:1060
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:807
-RIP: 0010:__sanitizer_cov_trace_pc+0x0/0x50 kernel/kcov.c:95
-Code: 89 25 b4 6e ec 08 41 bc f4 ff ff ff e8 cd 5d ea ff 48 c7 05 9e 6e ec 08 00 00 00 00 e9 a4 e9 ff ff 90 90 90 90 90 90 90 90 90 <55> 48 89 e5 48 8b 75 08 65 48 8b 04 25 00 ee 01 00 65 8b 15 c8 60
-RSP: 0018:ffff8880ae807ce0 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff13
-RAX: ffff88806fd40640 RBX: dffffc0000000000 RCX: ffffffff863fbc56
-RDX: 0000000000000100 RSI: ffffffff863fbc1d RDI: ffff88808cf94228
-RBP: ffff8880ae807d10 R08: ffff88806fd40640 R09: ffffed1015d00f8b
-R10: ffffed1015d00f8a R11: 0000000000000003 R12: ffff88808cf941c0
-R13: 00000000fffff034 R14: ffff8882166cd840 R15: 0000000000000000
- rose_loopback_timer+0x30d/0x3f0 net/rose/rose_loopback.c:91
- call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
- expire_timers kernel/time/timer.c:1362 [inline]
- __run_timers kernel/time/timer.c:1681 [inline]
- __run_timers kernel/time/timer.c:1649 [inline]
- run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
- __do_softirq+0x266/0x95a kernel/softirq.c:293
- do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1027
+If it's on queue and vfs_poll() has not reported anything interesting,
+we either put it on the cancellable list, or, if we know that it
+hadn't been put on all queues ->poll() wanted it on, we steal it and
+return an error.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+If it's _not_ on queue, it's either been already dealt with (in which
+case we do nothing), or there's aio_poll_complete_work() about to be
+executed.  In that case we either put it on the cancellable list,
+or, if we know it hadn't been put on all queues ->poll() wanted it on,
+simulate what cancel would've done.
+
+It's a lot more convoluted than I'd like it to be.  Single-consumer APIs
+suck, and unfortunately aio is not an exception...
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rose/rose_loopback.c |   27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
 
---- a/net/rose/rose_loopback.c
-+++ b/net/rose/rose_loopback.c
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
+---
+ fs/aio.c |   90 ++++++++++++++++++++++++++++-----------------------------------
+ 1 file changed, 40 insertions(+), 50 deletions(-)
+
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -181,7 +181,7 @@ struct poll_iocb {
+ 	struct file		*file;
+ 	struct wait_queue_head	*head;
+ 	__poll_t		events;
+-	bool			woken;
++	bool			done;
+ 	bool			cancelled;
+ 	struct wait_queue_entry	wait;
+ 	struct work_struct	work;
+@@ -1606,12 +1606,6 @@ static int aio_fsync(struct fsync_iocb *
+ 	return 0;
+ }
  
- static struct sk_buff_head loopback_queue;
-+#define ROSE_LOOPBACK_LIMIT 1000
- static struct timer_list loopback_timer;
- 
- static void rose_set_loopback_timer(void);
-@@ -35,29 +36,27 @@ static int rose_loopback_running(void)
- 
- int rose_loopback_queue(struct sk_buff *skb, struct rose_neigh *neigh)
- {
--	struct sk_buff *skbn;
-+	struct sk_buff *skbn = NULL;
- 
--	skbn = skb_clone(skb, GFP_ATOMIC);
-+	if (skb_queue_len(&loopback_queue) < ROSE_LOOPBACK_LIMIT)
-+		skbn = skb_clone(skb, GFP_ATOMIC);
- 
--	kfree_skb(skb);
+-static inline void aio_poll_complete(struct aio_kiocb *iocb, __poll_t mask)
+-{
+-	iocb->ki_res.res = mangle_poll(mask);
+-	iocb_put(iocb);
+-}
 -
--	if (skbn != NULL) {
-+	if (skbn) {
-+		consume_skb(skb);
- 		skb_queue_tail(&loopback_queue, skbn);
- 
- 		if (!rose_loopback_running())
- 			rose_set_loopback_timer();
-+	} else {
-+		kfree_skb(skb);
+ static void aio_poll_complete_work(struct work_struct *work)
+ {
+ 	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
+@@ -1637,9 +1631,11 @@ static void aio_poll_complete_work(struc
+ 		return;
  	}
+ 	list_del_init(&iocb->ki_list);
++	iocb->ki_res.res = mangle_poll(mask);
++	req->done = true;
+ 	spin_unlock_irq(&ctx->ctx_lock);
  
+-	aio_poll_complete(iocb, mask);
++	iocb_put(iocb);
+ }
+ 
+ /* assumes we are called with irqs disabled */
+@@ -1667,31 +1663,27 @@ static int aio_poll_wake(struct wait_que
+ 	__poll_t mask = key_to_poll(key);
+ 	unsigned long flags;
+ 
+-	req->woken = true;
+-
+ 	/* for instances that support it check for an event match first: */
+-	if (mask) {
+-		if (!(mask & req->events))
+-			return 0;
++	if (mask && !(mask & req->events))
++		return 0;
+ 
++	list_del_init(&req->wait.entry);
++
++	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
+ 		/*
+ 		 * Try to complete the iocb inline if we can. Use
+ 		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
+ 		 * call this function with IRQs disabled and because IRQs
+ 		 * have to be disabled before ctx_lock is obtained.
+ 		 */
+-		if (spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
+-			list_del(&iocb->ki_list);
+-			spin_unlock_irqrestore(&iocb->ki_ctx->ctx_lock, flags);
+-
+-			list_del_init(&req->wait.entry);
+-			aio_poll_complete(iocb, mask);
+-			return 1;
+-		}
++		list_del(&iocb->ki_list);
++		iocb->ki_res.res = mangle_poll(mask);
++		req->done = true;
++		spin_unlock_irqrestore(&iocb->ki_ctx->ctx_lock, flags);
++		iocb_put(iocb);
++	} else {
++		schedule_work(&req->work);
+ 	}
+-
+-	list_del_init(&req->wait.entry);
+-	schedule_work(&req->work);
  	return 1;
  }
  
--
- static void rose_set_loopback_timer(void)
- {
--	del_timer(&loopback_timer);
--
--	loopback_timer.expires  = jiffies + 10;
--	add_timer(&loopback_timer);
-+	mod_timer(&loopback_timer, jiffies + 10);
- }
+@@ -1723,6 +1715,7 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	struct kioctx *ctx = aiocb->ki_ctx;
+ 	struct poll_iocb *req = &aiocb->poll;
+ 	struct aio_poll_table apt;
++	bool cancel = false;
+ 	__poll_t mask;
  
- static void rose_loopback_timer(struct timer_list *unused)
-@@ -68,8 +67,12 @@ static void rose_loopback_timer(struct t
- 	struct sock *sk;
- 	unsigned short frametype;
- 	unsigned int lci_i, lci_o;
-+	int count;
+ 	/* reject any unknown events outside the normal event mask. */
+@@ -1736,7 +1729,7 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	req->events = demangle_poll(iocb->aio_buf) | EPOLLERR | EPOLLHUP;
  
--	while ((skb = skb_dequeue(&loopback_queue)) != NULL) {
-+	for (count = 0; count < ROSE_LOOPBACK_LIMIT; count++) {
-+		skb = skb_dequeue(&loopback_queue);
-+		if (!skb)
-+			return;
- 		if (skb->len < ROSE_MIN_LEN) {
- 			kfree_skb(skb);
- 			continue;
-@@ -106,6 +109,8 @@ static void rose_loopback_timer(struct t
- 			kfree_skb(skb);
- 		}
+ 	req->head = NULL;
+-	req->woken = false;
++	req->done = false;
+ 	req->cancelled = false;
+ 
+ 	apt.pt._qproc = aio_poll_queue_proc;
+@@ -1749,36 +1742,33 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	init_waitqueue_func_entry(&req->wait, aio_poll_wake);
+ 
+ 	mask = vfs_poll(req->file, &apt.pt) & req->events;
+-	if (unlikely(!req->head)) {
+-		/* we did not manage to set up a waitqueue, done */
+-		goto out;
+-	}
+-
+ 	spin_lock_irq(&ctx->ctx_lock);
+-	spin_lock(&req->head->lock);
+-	if (req->woken) {
+-		/* wake_up context handles the rest */
+-		mask = 0;
++	if (likely(req->head)) {
++		spin_lock(&req->head->lock);
++		if (unlikely(list_empty(&req->wait.entry))) {
++			if (apt.error)
++				cancel = true;
++			apt.error = 0;
++			mask = 0;
++		}
++		if (mask || apt.error) {
++			list_del_init(&req->wait.entry);
++		} else if (cancel) {
++			WRITE_ONCE(req->cancelled, true);
++		} else if (!req->done) { /* actually waiting for an event */
++			list_add_tail(&aiocb->ki_list, &ctx->active_reqs);
++			aiocb->ki_cancel = aio_poll_cancel;
++		}
++		spin_unlock(&req->head->lock);
++	}
++	if (mask) { /* no async, we'd stolen it */
++		aiocb->ki_res.res = mangle_poll(mask);
+ 		apt.error = 0;
+-	} else if (mask || apt.error) {
+-		/* if we get an error or a mask we are done */
+-		WARN_ON_ONCE(list_empty(&req->wait.entry));
+-		list_del_init(&req->wait.entry);
+-	} else {
+-		/* actually waiting for an event */
+-		list_add_tail(&aiocb->ki_list, &ctx->active_reqs);
+-		aiocb->ki_cancel = aio_poll_cancel;
  	}
-+	if (!skb_queue_empty(&loopback_queue))
-+		mod_timer(&loopback_timer, jiffies + 1);
+-	spin_unlock(&req->head->lock);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+-
+-out:
+-	if (unlikely(apt.error))
+-		return apt.error;
+-
+ 	if (mask)
+-		aio_poll_complete(aiocb, mask);
+-	return 0;
++		iocb_put(aiocb);
++	return apt.error;
  }
  
- void __exit rose_loopback_clear(void)
+ static int __io_submit_one(struct kioctx *ctx, const struct iocb *iocb,
 
 
