@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 469FCF81C
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AD9F681
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727910AbfD3LmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
+        id S1730074AbfD3Lsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727770AbfD3LmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:22 -0400
+        id S1730330AbfD3Lse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:48:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE0E420449;
-        Tue, 30 Apr 2019 11:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5748217D4;
+        Tue, 30 Apr 2019 11:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624541;
-        bh=mYsck2O6L0TSOMoZIJFa6DPyUbyUdCI1J/Nh2xvFWXg=;
+        s=default; t=1556624913;
+        bh=65pmRMBbYo3ufkKxy7b3RcIhY3PhDiYvr8C95TKgmdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8mK4nkSzPlzdLsDoW+2N7g08NxZz+QL20QYpj8yOz5WApBxc3HlRUOa7Pa4x52hH
-         pzbEtbMl3Vze++QF+vZj9RZugB/ojZMMulAGRnzhA88YBb+GzozEB/6xXhTz8O9OzW
-         yHb9d05atGGTMxx19mRNHz/COap1ttQuSgHNLwIM=
+        b=c01D11wBct3nYWbP7oY1ZjQUtcCf9BbCkVzgBKe38njCC6gW3c4Kkvo2WiqzPK3Kb
+         ELHoCfkKTj7sx5wD50hVjgLAToA01SgTbVSQzvx/UcRk3w64FkWBqtX9mfWhoo/vH/
+         LNmpvse/f+fvOJd4PG4YdUCJ95x06QHMBJBZ3d2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Jann Horn <jannh@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 04/53] tracing: Fix buffer_ref pipe ops
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.0 20/89] mm: do not boost watermarks to avoid fragmentation for the DISCONTIG memory model
 Date:   Tue, 30 Apr 2019 13:38:11 +0200
-Message-Id: <20190430113550.386761433@linuxfoundation.org>
+Message-Id: <20190430113611.028764341@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,140 +48,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit b987222654f84f7b4ca95b3a55eca784cb30235b upstream.
+commit 24512228b7a3f412b5a51f189df302616b021c33 upstream.
 
-This fixes multiple issues in buffer_pipe_buf_ops:
+Mikulas Patocka reported that commit 1c30844d2dfe ("mm: reclaim small
+amounts of memory when an external fragmentation event occurs") "broke"
+memory management on parisc.
 
- - The ->steal() handler must not return zero unless the pipe buffer has
-   the only reference to the page. But generic_pipe_buf_steal() assumes
-   that every reference to the pipe is tracked by the page's refcount,
-   which isn't true for these buffers - buffer_pipe_buf_get(), which
-   duplicates a buffer, doesn't touch the page's refcount.
-   Fix it by using generic_pipe_buf_nosteal(), which refuses every
-   attempted theft. It should be easy to actually support ->steal, but the
-   only current users of pipe_buf_steal() are the virtio console and FUSE,
-   and they also only use it as an optimization. So it's probably not worth
-   the effort.
- - The ->get() and ->release() handlers can be invoked concurrently on pipe
-   buffers backed by the same struct buffer_ref. Make them safe against
-   concurrency by using refcount_t.
- - The pointers stored in ->private were only zeroed out when the last
-   reference to the buffer_ref was dropped. As far as I know, this
-   shouldn't be necessary anyway, but if we do it, let's always do it.
+The machine is not NUMA but the DISCONTIG model creates three pgdats
+even though it's a UMA machine for the following ranges
 
-Link: http://lkml.kernel.org/r/20190404215925.253531-1-jannh@google.com
+        0) Start 0x0000000000000000 End 0x000000003fffffff Size   1024 MB
+        1) Start 0x0000000100000000 End 0x00000001bfdfffff Size   3070 MB
+        2) Start 0x0000004040000000 End 0x00000040ffffffff Size   3072 MB
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
-Fixes: 73a757e63114d ("ring-buffer: Return reader page back into existing ring buffer")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Mikulas reported:
+
+	With the patch 1c30844d2, the kernel will incorrectly reclaim the
+	first zone when it fills up, ignoring the fact that there are two
+	completely free zones. Basiscally, it limits cache size to 1GiB.
+
+	For example, if I run:
+	# dd if=/dev/sda of=/dev/null bs=1M count=2048
+
+	- with the proper kernel, there should be "Buffers - 2GiB"
+	when this command finishes. With the patch 1c30844d2, buffers
+	will consume just 1GiB or slightly more, because the kernel was
+	incorrectly reclaiming them.
+
+The page allocator and reclaim makes assumptions that pgdats really
+represent NUMA nodes and zones represent ranges and makes decisions on
+that basis.  Watermark boosting for small pgdats leads to unexpected
+results even though this would have behaved reasonably on SPARSEMEM.
+
+DISCONTIG is essentially deprecated and even parisc plans to move to
+SPARSEMEM so there is no need to be fancy, this patch simply disables
+watermark boosting by default on DISCONTIGMEM.
+
+Link: http://lkml.kernel.org/r/20190419094335.GJ18914@techsingularity.net
+Fixes: 1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Tested-by: Mikulas Patocka <mpatocka@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/splice.c               |    4 ++--
- include/linux/pipe_fs_i.h |    1 +
- kernel/trace/trace.c      |   28 ++++++++++++++--------------
- 3 files changed, 17 insertions(+), 16 deletions(-)
+ Documentation/sysctl/vm.txt |   16 ++++++++--------
+ mm/page_alloc.c             |   13 +++++++++++++
+ 2 files changed, 21 insertions(+), 8 deletions(-)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -332,8 +332,8 @@ const struct pipe_buf_operations default
- 	.get = generic_pipe_buf_get,
- };
+--- a/Documentation/sysctl/vm.txt
++++ b/Documentation/sysctl/vm.txt
+@@ -866,14 +866,14 @@ The intent is that compaction has less w
+ increase the success rate of future high-order allocations such as SLUB
+ allocations, THP and hugetlbfs pages.
  
--static int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
--				    struct pipe_buffer *buf)
-+int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
-+			     struct pipe_buffer *buf)
- {
- 	return 1;
- }
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -182,6 +182,7 @@ void free_pipe_info(struct pipe_inode_in
- void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
-+int generic_pipe_buf_nosteal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
- void pipe_buf_mark_unmergeable(struct pipe_buffer *buf);
+-To make it sensible with respect to the watermark_scale_factor parameter,
+-the unit is in fractions of 10,000. The default value of 15,000 means
+-that up to 150% of the high watermark will be reclaimed in the event of
+-a pageblock being mixed due to fragmentation. The level of reclaim is
+-determined by the number of fragmentation events that occurred in the
+-recent past. If this value is smaller than a pageblock then a pageblocks
+-worth of pages will be reclaimed (e.g.  2MB on 64-bit x86). A boost factor
+-of 0 will disable the feature.
++To make it sensible with respect to the watermark_scale_factor
++parameter, the unit is in fractions of 10,000. The default value of
++15,000 on !DISCONTIGMEM configurations means that up to 150% of the high
++watermark will be reclaimed in the event of a pageblock being mixed due
++to fragmentation. The level of reclaim is determined by the number of
++fragmentation events that occurred in the recent past. If this value is
++smaller than a pageblock then a pageblocks worth of pages will be reclaimed
++(e.g.  2MB on 64-bit x86). A boost factor of 0 will disable the feature.
  
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6719,19 +6719,23 @@ struct buffer_ref {
- 	struct ring_buffer	*buffer;
- 	void			*page;
- 	int			cpu;
--	int			ref;
-+	refcount_t		refcount;
- };
+ =============================================================
  
-+static void buffer_ref_release(struct buffer_ref *ref)
-+{
-+	if (!refcount_dec_and_test(&ref->refcount))
-+		return;
-+	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
-+	kfree(ref);
-+}
-+
- static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
- 				    struct pipe_buffer *buf)
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -266,7 +266,20 @@ compound_page_dtor * const compound_page
  
--	if (--ref->ref)
--		return;
--
--	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
--	kfree(ref);
-+	buffer_ref_release(ref);
- 	buf->private = 0;
- }
+ int min_free_kbytes = 1024;
+ int user_min_free_kbytes = -1;
++#ifdef CONFIG_DISCONTIGMEM
++/*
++ * DiscontigMem defines memory ranges as separate pg_data_t even if the ranges
++ * are not on separate NUMA nodes. Functionally this works but with
++ * watermark_boost_factor, it can reclaim prematurely as the ranges can be
++ * quite small. By default, do not boost watermarks on discontigmem as in
++ * many cases very high-order allocations like THP are likely to be
++ * unsupported and the premature reclaim offsets the advantage of long-term
++ * fragmentation avoidance.
++ */
++int watermark_boost_factor __read_mostly;
++#else
+ int watermark_boost_factor __read_mostly = 15000;
++#endif
+ int watermark_scale_factor = 10;
  
-@@ -6740,7 +6744,7 @@ static void buffer_pipe_buf_get(struct p
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
--	ref->ref++;
-+	refcount_inc(&ref->refcount);
- }
- 
- /* Pipe buffer operations for a buffer. */
-@@ -6748,7 +6752,7 @@ static const struct pipe_buf_operations
- 	.can_merge		= 0,
- 	.confirm		= generic_pipe_buf_confirm,
- 	.release		= buffer_pipe_buf_release,
--	.steal			= generic_pipe_buf_steal,
-+	.steal			= generic_pipe_buf_nosteal,
- 	.get			= buffer_pipe_buf_get,
- };
- 
-@@ -6761,11 +6765,7 @@ static void buffer_spd_release(struct sp
- 	struct buffer_ref *ref =
- 		(struct buffer_ref *)spd->partial[i].private;
- 
--	if (--ref->ref)
--		return;
--
--	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
--	kfree(ref);
-+	buffer_ref_release(ref);
- 	spd->partial[i].private = 0;
- }
- 
-@@ -6820,7 +6820,7 @@ tracing_buffers_splice_read(struct file
- 			break;
- 		}
- 
--		ref->ref = 1;
-+		refcount_set(&ref->refcount, 1);
- 		ref->buffer = iter->trace_buffer->buffer;
- 		ref->page = ring_buffer_alloc_read_page(ref->buffer, iter->cpu_file);
- 		if (IS_ERR(ref->page)) {
+ static unsigned long nr_kernel_pages __initdata;
 
 
