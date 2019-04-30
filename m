@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB46F6C8
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994F5F623
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731033AbfD3Lvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
+        id S1729964AbfD3Lnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:43:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731431AbfD3Lvl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:51:41 -0400
+        id S1729953AbfD3Lnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:43:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20D182054F;
-        Tue, 30 Apr 2019 11:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA8521670;
+        Tue, 30 Apr 2019 11:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625100;
-        bh=IHeIEEDvmtHD80dmJEzDhiS1z4BpgEo5YUhqc93a+AY=;
+        s=default; t=1556624612;
+        bh=9pHvpcKgOX608CuYZV0lk0tPUwVrFtVe9H1Tma0SJGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFDTNw2gaOBgOu3AcCwfnkl553ohoysiTe/60pJHlRLRVmaCXm/g6CVZBe9qwksct
-         af6kFANoLoN6hr3sQzb/EozVa1vBBfpOSQ+4WAKWlAckbt/YJ7r+kWr8gKSpQOMFsd
-         qDziOycDm9tJrSmL1KfniXjeai6a62n4sQwe44JQ=
+        b=vyko1YFOW0OPcx3Hwze3CU3kQ2BQcGjBMDWICgKM9ov5hONiwzeOolGG02GpiYzzm
+         hd6VKDd+OVioHMghCdELGmyKcoT+AR3KIJaELq5KqqbH1eV0nIo72JDSJE2o9bfOGq
+         /g9OhL2l9v9OJu+CgU6TPwkNhi3youLx1F7fv0XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8f91bd563bbff230d0ee@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.0 55/89] mac80211_hwsim: calculate if_combination.max_interfaces
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 39/53] dm integrity: change memcmp to strncmp in dm_integrity_ctr
 Date:   Tue, 30 Apr 2019 13:38:46 +0200
-Message-Id: <20190430113612.254757196@linuxfoundation.org>
+Message-Id: <20190430113557.982220951@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 45fcef8b727b6f171bc5443e8153181a367d7a15 upstream.
+commit 0d74e6a3b6421d98eeafbed26f29156d469bc0b5 upstream.
 
-If we just set this to 2048, and have multiple limits you
-can select from, the total number might run over and cause
-a warning in cfg80211. This doesn't make sense, so we just
-calculate the total max_interfaces now.
+If the string opt_string is small, the function memcmp can access bytes
+that are beyond the terminating nul character. In theory, it could cause
+segfault, if opt_string were located just below some unmapped memory.
 
-Reported-by: syzbot+8f91bd563bbff230d0ee@syzkaller.appspotmail.com
-Fixes: 99e3a44bac37 ("mac80211_hwsim: allow setting iftype support")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Change from memcmp to strncmp so that we don't read bytes beyond the end
+of the string.
+
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mac80211_hwsim.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/md/dm-integrity.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2642,7 +2642,7 @@ static int mac80211_hwsim_new_radio(stru
- 	enum nl80211_band band;
- 	const struct ieee80211_ops *ops = &mac80211_hwsim_ops;
- 	struct net *net;
--	int idx;
-+	int idx, i;
- 	int n_limits = 0;
- 
- 	if (WARN_ON(param->channels > 1 && !param->use_chanctx))
-@@ -2766,12 +2766,23 @@ static int mac80211_hwsim_new_radio(stru
- 		goto failed_hw;
- 	}
- 
-+	data->if_combination.max_interfaces = 0;
-+	for (i = 0; i < n_limits; i++)
-+		data->if_combination.max_interfaces +=
-+			data->if_limits[i].max;
-+
- 	data->if_combination.n_limits = n_limits;
--	data->if_combination.max_interfaces = 2048;
- 	data->if_combination.limits = data->if_limits;
- 
--	hw->wiphy->iface_combinations = &data->if_combination;
--	hw->wiphy->n_iface_combinations = 1;
-+	/*
-+	 * If we actually were asked to support combinations,
-+	 * advertise them - if there's only a single thing like
-+	 * only IBSS then don't advertise it as combinations.
-+	 */
-+	if (data->if_combination.max_interfaces > 1) {
-+		hw->wiphy->iface_combinations = &data->if_combination;
-+		hw->wiphy->n_iface_combinations = 1;
-+	}
- 
- 	if (param->ciphers) {
- 		memcpy(data->ciphers, param->ciphers,
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2917,17 +2917,17 @@ static int dm_integrity_ctr(struct dm_ta
+ 				goto bad;
+ 			}
+ 			ic->sectors_per_block = val >> SECTOR_SHIFT;
+-		} else if (!memcmp(opt_string, "internal_hash:", strlen("internal_hash:"))) {
++		} else if (!strncmp(opt_string, "internal_hash:", strlen("internal_hash:"))) {
+ 			r = get_alg_and_key(opt_string, &ic->internal_hash_alg, &ti->error,
+ 					    "Invalid internal_hash argument");
+ 			if (r)
+ 				goto bad;
+-		} else if (!memcmp(opt_string, "journal_crypt:", strlen("journal_crypt:"))) {
++		} else if (!strncmp(opt_string, "journal_crypt:", strlen("journal_crypt:"))) {
+ 			r = get_alg_and_key(opt_string, &ic->journal_crypt_alg, &ti->error,
+ 					    "Invalid journal_crypt argument");
+ 			if (r)
+ 				goto bad;
+-		} else if (!memcmp(opt_string, "journal_mac:", strlen("journal_mac:"))) {
++		} else if (!strncmp(opt_string, "journal_mac:", strlen("journal_mac:"))) {
+ 			r = get_alg_and_key(opt_string, &ic->journal_mac_alg,  &ti->error,
+ 					    "Invalid journal_mac argument");
+ 			if (r)
 
 
