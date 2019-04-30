@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE12FF7B8
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7921AF7BB
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbfD3Lo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:44:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
+        id S1729266AbfD3Loa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729236AbfD3LoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:44:25 -0400
+        id S1728632AbfD3Lo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B1FC2173E;
-        Tue, 30 Apr 2019 11:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAE962177B;
+        Tue, 30 Apr 2019 11:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624664;
-        bh=TsqbLPI9d0YrYZoXI3eaFV8J5vqZeYuaLMLw8AWhRy8=;
+        s=default; t=1556624669;
+        bh=TsZdpmCy1pcPB5gfC6C686aDfKiW4WLiHwcWOX4x58w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqVNgi9Ib3KrE9Z45TNzeXbEkxtQ+L/O0gU+j8VO2MZeECKAANPXTJGqxvzeUtUPc
-         vOzYpLyazgjQs0JT8ReUQ94+Si3x8WxGPdDlJckbB7EJ1a3G+Od+O8pNVczWyVrWgc
-         37JU9ojxQBpWez1Nszh7Vbw0QZFcZjEE1hIy8z8I=
+        b=LOU+UOJp2HDKLNV0Sx/U5bhyNo4HEugxWPguMk4vTPz/S4Hv+4IXSlwvigs6MIfdo
+         BxL+kqdCUu1nr+/zC9Hd5BHhN9gkx/sz1QMAYD1mckgnDQUMt2s6/LGg18sZuiw3qk
+         30PlA7Q5zp7m/9zVbTonEukynIccN1DJMinc7BJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Jann Horn <jannh@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 026/100] tracing: Fix buffer_ref pipe ops
-Date:   Tue, 30 Apr 2019 13:37:55 +0200
-Message-Id: <20190430113610.108174724@linuxfoundation.org>
+        stable@vger.kernel.org, Baolin Wang <baolin.wang@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 027/100] gpio: eic: sprd: Fix incorrect irq type setting for the sync EIC
+Date:   Tue, 30 Apr 2019 13:37:56 +0200
+Message-Id: <20190430113610.145108698@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
 References: <20190430113608.616903219@linuxfoundation.org>
@@ -46,140 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Baolin Wang <baolin.wang@linaro.org>
 
-commit b987222654f84f7b4ca95b3a55eca784cb30235b upstream.
+commit 102bbe34b31c9159e714432afd64458f6f3876d7 upstream.
 
-This fixes multiple issues in buffer_pipe_buf_ops:
+When setting sync EIC as IRQ_TYPE_EDGE_BOTH type, we missed to set the
+SPRD_EIC_SYNC_INTMODE register to 0, which means detecting edge signals.
 
- - The ->steal() handler must not return zero unless the pipe buffer has
-   the only reference to the page. But generic_pipe_buf_steal() assumes
-   that every reference to the pipe is tracked by the page's refcount,
-   which isn't true for these buffers - buffer_pipe_buf_get(), which
-   duplicates a buffer, doesn't touch the page's refcount.
-   Fix it by using generic_pipe_buf_nosteal(), which refuses every
-   attempted theft. It should be easy to actually support ->steal, but the
-   only current users of pipe_buf_steal() are the virtio console and FUSE,
-   and they also only use it as an optimization. So it's probably not worth
-   the effort.
- - The ->get() and ->release() handlers can be invoked concurrently on pipe
-   buffers backed by the same struct buffer_ref. Make them safe against
-   concurrency by using refcount_t.
- - The pointers stored in ->private were only zeroed out when the last
-   reference to the buffer_ref was dropped. As far as I know, this
-   shouldn't be necessary anyway, but if we do it, let's always do it.
+Thus this patch fixes the issue.
 
-Link: http://lkml.kernel.org/r/20190404215925.253531-1-jannh@google.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
-Fixes: 73a757e63114d ("ring-buffer: Return reader page back into existing ring buffer")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 25518e024e3a ("gpio: Add Spreadtrum EIC driver support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/splice.c               |    4 ++--
- include/linux/pipe_fs_i.h |    1 +
- kernel/trace/trace.c      |   28 ++++++++++++++--------------
- 3 files changed, 17 insertions(+), 16 deletions(-)
+ drivers/gpio/gpio-eic-sprd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -333,8 +333,8 @@ const struct pipe_buf_operations default
- 	.get = generic_pipe_buf_get,
- };
- 
--static int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
--				    struct pipe_buffer *buf)
-+int generic_pipe_buf_nosteal(struct pipe_inode_info *pipe,
-+			     struct pipe_buffer *buf)
- {
- 	return 1;
- }
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -181,6 +181,7 @@ void free_pipe_info(struct pipe_inode_in
- void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
-+int generic_pipe_buf_nosteal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
- void pipe_buf_mark_unmergeable(struct pipe_buffer *buf);
- 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6803,19 +6803,23 @@ struct buffer_ref {
- 	struct ring_buffer	*buffer;
- 	void			*page;
- 	int			cpu;
--	int			ref;
-+	refcount_t		refcount;
- };
- 
-+static void buffer_ref_release(struct buffer_ref *ref)
-+{
-+	if (!refcount_dec_and_test(&ref->refcount))
-+		return;
-+	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
-+	kfree(ref);
-+}
-+
- static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
- 				    struct pipe_buffer *buf)
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
--	if (--ref->ref)
--		return;
--
--	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
--	kfree(ref);
-+	buffer_ref_release(ref);
- 	buf->private = 0;
- }
- 
-@@ -6824,7 +6828,7 @@ static void buffer_pipe_buf_get(struct p
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
--	ref->ref++;
-+	refcount_inc(&ref->refcount);
- }
- 
- /* Pipe buffer operations for a buffer. */
-@@ -6832,7 +6836,7 @@ static const struct pipe_buf_operations
- 	.can_merge		= 0,
- 	.confirm		= generic_pipe_buf_confirm,
- 	.release		= buffer_pipe_buf_release,
--	.steal			= generic_pipe_buf_steal,
-+	.steal			= generic_pipe_buf_nosteal,
- 	.get			= buffer_pipe_buf_get,
- };
- 
-@@ -6845,11 +6849,7 @@ static void buffer_spd_release(struct sp
- 	struct buffer_ref *ref =
- 		(struct buffer_ref *)spd->partial[i].private;
- 
--	if (--ref->ref)
--		return;
--
--	ring_buffer_free_read_page(ref->buffer, ref->cpu, ref->page);
--	kfree(ref);
-+	buffer_ref_release(ref);
- 	spd->partial[i].private = 0;
- }
- 
-@@ -6904,7 +6904,7 @@ tracing_buffers_splice_read(struct file
+--- a/drivers/gpio/gpio-eic-sprd.c
++++ b/drivers/gpio/gpio-eic-sprd.c
+@@ -414,6 +414,7 @@ static int sprd_eic_irq_set_type(struct
+ 			irq_set_handler_locked(data, handle_edge_irq);
  			break;
- 		}
- 
--		ref->ref = 1;
-+		refcount_set(&ref->refcount, 1);
- 		ref->buffer = iter->trace_buffer->buffer;
- 		ref->page = ring_buffer_alloc_read_page(ref->buffer, iter->cpu_file);
- 		if (IS_ERR(ref->page)) {
+ 		case IRQ_TYPE_EDGE_BOTH:
++			sprd_eic_update(chip, offset, SPRD_EIC_SYNC_INTMODE, 0);
+ 			sprd_eic_update(chip, offset, SPRD_EIC_SYNC_INTBOTH, 1);
+ 			irq_set_handler_locked(data, handle_edge_irq);
+ 			break;
 
 
