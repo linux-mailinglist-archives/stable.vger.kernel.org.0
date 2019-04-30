@@ -2,123 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F90EE38
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 03:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41163EE8D
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 03:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729238AbfD3BQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Apr 2019 21:16:15 -0400
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:65012 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728997AbfD3BQP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Apr 2019 21:16:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1556586974; x=1588122974;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=kZJmUUu3KOr0i1JHdMOfq6JZUSh1OG/XY75e7KDiEcU=;
-  b=l5ZBMWVPPrO/GE1ajOWD/sdQr1LemuGhCQcNJhbJTtBIW75IaromR+OR
-   r8LGT0zRwBbvugymruZ7AxFe4qTnt7dsDRMNmY2EF1Nwj5qo6TJc7rrGF
-   upecGBJyOhxp8rJaLTB0gHIdArXyLowCjVS87tBZoF6fWgdkaOc/sGPfj
-   g=;
-X-IronPort-AV: E=Sophos;i="5.60,411,1549929600"; 
-   d="scan'208";a="671782175"
-Received: from sea3-co-svc-lb6-vlan3.sea.amazon.com (HELO email-inbound-relay-2b-3714e498.us-west-2.amazon.com) ([10.47.22.38])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP/TLS/DHE-RSA-AES256-SHA; 30 Apr 2019 01:16:11 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2b-3714e498.us-west-2.amazon.com (8.14.7/8.14.7) with ESMTP id x3U1GBFj113482
-        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL);
-        Tue, 30 Apr 2019 01:16:11 GMT
-Received: from EX13D10UWB002.ant.amazon.com (10.43.161.130) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 30 Apr 2019 01:16:11 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
- EX13D10UWB002.ant.amazon.com (10.43.161.130) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 30 Apr 2019 01:16:10 +0000
-Received: from u480fcf3d32ea57e0427f.ant.amazon.com (10.60.244.90) by
- mail-relay.amazon.com (10.43.161.249) with Microsoft SMTP Server id
- 15.0.1367.3 via Frontend Transport; Tue, 30 Apr 2019 01:16:10 +0000
-From:   Munehisa Kamata <kamatam@amazon.com>
-To:     <josef@toxicpanda.com>, <axboe@kernel.dk>
-CC:     Munehisa Kamata <kamatam@amazon.com>,
-        <linux-block@vger.kernel.org>,
-        "Ratna Manoj Bolla" <manoj.br@gmail.com>, <nbd@other.debian.org>,
-        <stable@vger.kernel.org>, David Woodhouse <dwmw@amazon.com>
-Subject: [PATCH] nbd: replace kill_bdev() with __invalidate_device() again
-Date:   Mon, 29 Apr 2019 18:15:41 -0700
-Message-ID: <1556586941-21818-1-git-send-email-kamatam@amazon.com>
-X-Mailer: git-send-email 2.7.4
-MIME-Version: 1.0
-Content-Type: text/plain
+        id S1729878AbfD3Bwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Apr 2019 21:52:55 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:46808 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729238AbfD3Bwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Apr 2019 21:52:55 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 355CC3007C43;
+        Tue, 30 Apr 2019 01:52:54 +0000 (UTC)
+Received: from localhost (ovpn-8-20.pek2.redhat.com [10.72.8.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4AC8E17C5D;
+        Tue, 30 Apr 2019 01:52:53 +0000 (UTC)
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        James Smart <james.smart@broadcom.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        Bart Van Assche <bart.vanassche@wdc.com>,
+        linux-scsi@vger.kernel.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH V9 3/7] blk-mq: free hw queue's resource in hctx's release handler
+Date:   Tue, 30 Apr 2019 09:52:25 +0800
+Message-Id: <20190430015229.23141-4-ming.lei@redhat.com>
+In-Reply-To: <20190430015229.23141-1-ming.lei@redhat.com>
+References: <20190430015229.23141-1-ming.lei@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 30 Apr 2019 01:52:54 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
-once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
-resurrected kill_bdev() and it has been there since then. So buffer_head
-mappings still get killed on a server disconnection, and we can still
-hit the BUG_ON on a filesystem on the top of the nbd device.
+Once blk_cleanup_queue() returns, tags shouldn't be used any more,
+because blk_mq_free_tag_set() may be called. Commit 45a9c9d909b2
+("blk-mq: Fix a use-after-free") fixes this issue exactly.
 
-  EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
-  block nbd0: Receive control failed (result -32)
-  block nbd0: shutting down sockets
-  print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
-  EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
-  print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
-  EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
-  EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
-  ------------[ cut here ]------------
-  kernel BUG at fs/buffer.c:3057!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
-  Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
-  RIP: 0010:submit_bh_wbc+0x18b/0x190
-  ...
-  Call Trace:
-   jbd2_write_superblock+0xf1/0x230 [jbd2]
-   ? account_entity_enqueue+0xc5/0xf0
-   jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
-   jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
-   ? __switch_to_asm+0x40/0x70
-   ...
-   ? lock_timer_base+0x67/0x80
-   kjournald2+0x121/0x360 [jbd2]
-   ? remove_wait_queue+0x60/0x60
-   kthread+0xf8/0x130
-   ? commit_timeout+0x10/0x10 [jbd2]
-   ? kthread_bind+0x10/0x10
-   ret_from_fork+0x35/0x40
+However, that commit introduces another issue. Before 45a9c9d909b2,
+we are allowed to run queue during cleaning up queue if the queue's
+kobj refcount is held. After that commit, queue can't be run during
+queue cleaning up, otherwise oops can be triggered easily because
+some fields of hctx are freed by blk_mq_free_queue() in blk_cleanup_queue().
 
-With __invalidate_device(), I no longer hit the BUG_ON with sync or
-unmount on the disconnected device.
+We have invented ways for addressing this kind of issue before, such as:
 
-Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
-Cc: linux-block@vger.kernel.org
-Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
-Cc: nbd@other.debian.org
+	8dc765d438f1 ("SCSI: fix queue cleanup race before queue initialization is done")
+	c2856ae2f315 ("blk-mq: quiesce queue before freeing queue")
+
+But still can't cover all cases, recently James reports another such
+kind of issue:
+
+	https://marc.info/?l=linux-scsi&m=155389088124782&w=2
+
+This issue can be quite hard to address by previous way, given
+scsi_run_queue() may run requeues for other LUNs.
+
+Fixes the above issue by freeing hctx's resources in its release handler, and this
+way is safe becasue tags isn't needed for freeing such hctx resource.
+
+This approach follows typical design pattern wrt. kobject's release handler.
+
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: James Smart <james.smart@broadcom.com>
+Cc: Bart Van Assche <bart.vanassche@wdc.com>
+Cc: linux-scsi@vger.kernel.org,
+Cc: Martin K . Petersen <martin.petersen@oracle.com>,
+Cc: Christoph Hellwig <hch@lst.de>,
+Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
+Reported-by: James Smart <james.smart@broadcom.com>
+Fixes: 45a9c9d909b2 ("blk-mq: Fix a use-after-free")
 Cc: stable@vger.kernel.org
-Cc: David Woodhouse <dwmw@amazon.com>
-Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
-
-CR: https://code.amazon.com/reviews/CR-7629288
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-core.c     | 2 +-
+ block/blk-mq-sysfs.c | 6 ++++++
+ block/blk-mq.c       | 8 ++------
+ block/blk-mq.h       | 2 +-
+ 4 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 90ba9f4..6d6eedd 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1217,7 +1217,7 @@ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- 				 struct block_device *bdev)
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 93dc588fabe2..2dd94b3e9ece 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -374,7 +374,7 @@ void blk_cleanup_queue(struct request_queue *q)
+ 	blk_exit_queue(q);
+ 
+ 	if (queue_is_mq(q))
+-		blk_mq_free_queue(q);
++		blk_mq_exit_queue(q);
+ 
+ 	percpu_ref_exit(&q->q_usage_counter);
+ 
+diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+index 3f9c3f4ac44c..4040e62c3737 100644
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -10,6 +10,7 @@
+ #include <linux/smp.h>
+ 
+ #include <linux/blk-mq.h>
++#include "blk.h"
+ #include "blk-mq.h"
+ #include "blk-mq-tag.h"
+ 
+@@ -33,6 +34,11 @@ static void blk_mq_hw_sysfs_release(struct kobject *kobj)
  {
- 	sock_shutdown(nbd);
--	kill_bdev(bdev);
-+	__invalidate_device(bdev, true);
- 	nbd_bdev_reset(bdev);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
+ 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
+ 						  kobj);
++
++	if (hctx->flags & BLK_MQ_F_BLOCKING)
++		cleanup_srcu_struct(hctx->srcu);
++	blk_free_flush_queue(hctx->fq);
++	sbitmap_free(&hctx->ctx_map);
+ 	free_cpumask_var(hctx->cpumask);
+ 	kfree(hctx->ctxs);
+ 	kfree(hctx);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 89781309a108..d98cb9614dfa 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2267,12 +2267,7 @@ static void blk_mq_exit_hctx(struct request_queue *q,
+ 	if (set->ops->exit_hctx)
+ 		set->ops->exit_hctx(hctx, hctx_idx);
+ 
+-	if (hctx->flags & BLK_MQ_F_BLOCKING)
+-		cleanup_srcu_struct(hctx->srcu);
+-
+ 	blk_mq_remove_cpuhp(hctx);
+-	blk_free_flush_queue(hctx->fq);
+-	sbitmap_free(&hctx->ctx_map);
+ }
+ 
+ static void blk_mq_exit_hw_queues(struct request_queue *q,
+@@ -2907,7 +2902,8 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ }
+ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
+ 
+-void blk_mq_free_queue(struct request_queue *q)
++/* tags can _not_ be used after returning from blk_mq_exit_queue */
++void blk_mq_exit_queue(struct request_queue *q)
+ {
+ 	struct blk_mq_tag_set	*set = q->tag_set;
+ 
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 423ea88ab6fb..633a5a77ee8b 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -37,7 +37,7 @@ struct blk_mq_ctx {
+ 	struct kobject		kobj;
+ } ____cacheline_aligned_in_smp;
+ 
+-void blk_mq_free_queue(struct request_queue *q);
++void blk_mq_exit_queue(struct request_queue *q);
+ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr);
+ void blk_mq_wake_waiters(struct request_queue *q);
+ bool blk_mq_dispatch_rq_list(struct request_queue *, struct list_head *, bool);
 -- 
-2.7.4
+2.9.5
 
