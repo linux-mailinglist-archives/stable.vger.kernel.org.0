@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67DD1F708
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F16F853
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730166AbfD3Ltm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36310 "EHLO mail.kernel.org"
+        id S1728464AbfD3Lka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731039AbfD3Ltm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:42 -0400
+        id S1728427AbfD3Lk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D989C20449;
-        Tue, 30 Apr 2019 11:49:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61ED821707;
+        Tue, 30 Apr 2019 11:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624981;
-        bh=7GntyMXcWt4UU0gvioaIi9lga+nZyYFukfanMAnLfzk=;
+        s=default; t=1556624428;
+        bh=sspXV42TCOAkUcSZ2kigqA1X5pjGlPYYt7R5u7gn3eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kC47u7pG+/KX/WAdJv4eb7B1UnmWKBuY2lazb4AhCUrdBUGl/NDwAMZ/A134F1e7U
-         CF6iax2fuGRdfPz2Rf+1XmMFa8EzfevPR2MvYHShufh7g/LaY3OJP1jncvN072f11u
-         cKg+Sq79Gyrfy93wAJhV7yuPfZTNiqC3eB3deXFc=
+        b=Hn5gRL32EkGyPv6kvFOIp18mmmxobPbT+WA2tefKZcWiHoRFdhCaCxuObrywglW+k
+         3nxOjUfxXrEY21O3c312AJBwVX6vnbs+tMY0WDznAlakMbPiMH1pjsoIOIZ4VOzIkY
+         93S81hHDeT4Fdlm3VnhwYiAWcL+V/JbzZcmNSREA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.0 44/89] Revert "drm/i915/fbdev: Actually configure untiled displays"
+        stable@vger.kernel.org,
+        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 24/41] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
 Date:   Tue, 30 Apr 2019 13:38:35 +0200
-Message-Id: <20190430113611.821040876@linuxfoundation.org>
+Message-Id: <20190430113530.731893661@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 9fa246256e09dc30820524401cdbeeaadee94025 upstream.
+commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
 
-This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
+syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
+is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
+(which is embedded into user-visible "struct nfs_mount_data" structure)
+despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
+bytes of AF_INET6 address to rpc_sockaddr2uaddr().
 
-This commit is documented to break userspace X.org modesetting driver in certain configurations.
+Since "struct nfs_mount_data" structure is user-visible, we can't change
+"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
+assuming that everybody is using AF_INET family when passing address via
+"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
 
-The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
+[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
 
-This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Cc: <stable@vger.kernel.org> # v3.19+
+Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ fs/nfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_fbdev.c
-+++ b/drivers/gpu/drm/i915/intel_fbdev.c
-@@ -336,8 +336,8 @@ static bool intel_fb_initial_config(stru
- 				    bool *enabled, int width, int height)
- {
- 	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
-+	unsigned long conn_configured, conn_seq, mask;
- 	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
--	unsigned long conn_configured, conn_seq;
- 	int i, j;
- 	bool *save_enabled;
- 	bool fallback = true, ret = true;
-@@ -355,9 +355,10 @@ static bool intel_fb_initial_config(stru
- 		drm_modeset_backoff(&ctx);
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -2047,7 +2047,8 @@ static int nfs23_validate_mount_data(voi
+ 		memcpy(sap, &data->addr, sizeof(data->addr));
+ 		args->nfs_server.addrlen = sizeof(data->addr);
+ 		args->nfs_server.port = ntohs(data->addr.sin_port);
+-		if (!nfs_verify_server_address(sap))
++		if (sap->sa_family != AF_INET ||
++		    !nfs_verify_server_address(sap))
+ 			goto out_no_address;
  
- 	memcpy(save_enabled, enabled, count);
--	conn_seq = GENMASK(count - 1, 0);
-+	mask = GENMASK(count - 1, 0);
- 	conn_configured = 0;
- retry:
-+	conn_seq = conn_configured;
- 	for (i = 0; i < count; i++) {
- 		struct drm_fb_helper_connector *fb_conn;
- 		struct drm_connector *connector;
-@@ -370,8 +371,7 @@ retry:
- 		if (conn_configured & BIT(i))
- 			continue;
- 
--		/* First pass, only consider tiled connectors */
--		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
-+		if (conn_seq == 0 && !connector->has_tile)
- 			continue;
- 
- 		if (connector->status == connector_status_connected)
-@@ -475,10 +475,8 @@ retry:
- 		conn_configured |= BIT(i);
- 	}
- 
--	if (conn_configured != conn_seq) { /* repeat until no more are found */
--		conn_seq = conn_configured;
-+	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
- 		goto retry;
--	}
- 
- 	/*
- 	 * If the BIOS didn't enable everything it could, fall back to have the
+ 		if (!(data->flags & NFS_MOUNT_TCP))
 
 
