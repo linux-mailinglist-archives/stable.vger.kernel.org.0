@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 397E3F70E
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A466F7C3
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730698AbfD3Ltu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36478 "EHLO mail.kernel.org"
+        id S1730283AbfD3Loz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:44:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731059AbfD3Ltt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:49 -0400
+        id S1730275AbfD3Lox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 972D020449;
-        Tue, 30 Apr 2019 11:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FD2120449;
+        Tue, 30 Apr 2019 11:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624989;
-        bh=JA1cVPFQA7jeyfiTzE+eEd+tw3Y5fVwIqMIbkAFPUu4=;
+        s=default; t=1556624692;
+        bh=dvAnglenaAPPEDdrNg0L+1ChK2siq9KNAMIzym/7tvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggar+msAAGljK0YRtHuCxuwjdZ9HA2itIZ1TPDuPxEkYEypOCcDvzMYa1Bb+u+XCg
-         5WRjDvZQtKrzPPLhIeKblsxfBl+Mi5O/4Hnfbhw3tlrB4n19u9DsW5qPEXvy+4SwDj
-         mSc8pnl7XXThrnF/dVnA5sdhAc1bzfHFkGS6wayE=
+        b=iOnjKpPGVgajtMUk8jUpnIQyJAXKPIMWG/V4xvjnkBfwF7OMrmuD6XLGmNNwy5JTX
+         kqCrBIOdoNAQZ9PSgXX1BWKZ/QHlbyYltvwcOsMpjP52XrLE0LUDU58OqM+8LfU+Uc
+         ZxpvAUqMLh/3duAvM0R1n5w+I+boqGWad5jV57ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH 5.0 14/89] crypto: lrw - Fix atomic sleep when walking skcipher
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.19 036/100] ceph: ensure d_name stability in ceph_dentry_hash()
 Date:   Tue, 30 Apr 2019 13:38:05 +0200
-Message-Id: <20190430113610.371633316@linuxfoundation.org>
+Message-Id: <20190430113610.454821626@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit b257b48cd5830c5b1d0c347eb281f9c28056f881 upstream.
+commit 76a495d666e5043ffc315695f8241f5e94a98849 upstream.
 
-When we perform a walk in the completion function, we need to ensure
-that it is atomic.
+Take the d_lock here to ensure that d_name doesn't change.
 
-Fixes: ac3c8f36c31d ("crypto: lrw - Do not use auxiliary buffer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/lrw.c |    6 +++++-
+ fs/ceph/dir.c |    6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/crypto/lrw.c
-+++ b/crypto/lrw.c
-@@ -212,8 +212,12 @@ static void crypt_done(struct crypto_asy
+--- a/fs/ceph/dir.c
++++ b/fs/ceph/dir.c
+@@ -1470,6 +1470,7 @@ void ceph_dentry_lru_del(struct dentry *
+ unsigned ceph_dentry_hash(struct inode *dir, struct dentry *dn)
  {
- 	struct skcipher_request *req = areq->data;
+ 	struct ceph_inode_info *dci = ceph_inode(dir);
++	unsigned hash;
  
--	if (!err)
-+	if (!err) {
-+		struct rctx *rctx = skcipher_request_ctx(req);
-+
-+		rctx->subreq.base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
- 		err = xor_tweak_post(req);
-+	}
+ 	switch (dci->i_dir_layout.dl_dir_hash) {
+ 	case 0:	/* for backward compat */
+@@ -1477,8 +1478,11 @@ unsigned ceph_dentry_hash(struct inode *
+ 		return dn->d_name.hash;
  
- 	skcipher_request_complete(req, err);
+ 	default:
+-		return ceph_str_hash(dci->i_dir_layout.dl_dir_hash,
++		spin_lock(&dn->d_lock);
++		hash = ceph_str_hash(dci->i_dir_layout.dl_dir_hash,
+ 				     dn->d_name.name, dn->d_name.len);
++		spin_unlock(&dn->d_lock);
++		return hash;
+ 	}
  }
+ 
 
 
