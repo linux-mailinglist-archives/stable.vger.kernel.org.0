@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0C8F6FF
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0D5F7F7
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbfD3LuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:50:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
+        id S1729411AbfD3Lmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731122AbfD3LuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:50:07 -0400
+        id S1729394AbfD3Lmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6958121783;
-        Tue, 30 Apr 2019 11:50:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EB0D217D9;
+        Tue, 30 Apr 2019 11:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625006;
-        bh=xbKEgOhDb/KeV2EQJ1W78kNHva9NY2Y2U0+Mturycfg=;
+        s=default; t=1556624559;
+        bh=zkB8se4ixRqLV7j9UHr1XpeCeaXH7VbOs8OCBmIF66I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNXcJY/Gs0z2Lhg9Zymz0JLTZ9Lc1xdKdckpNwAU9D8lZ3/oNU0sq8icHK6T7UvJV
-         eWjLOztLw+HNSFJEjC/FzZh3q5yU6jhLRl0OiUsAqeVurqEHqe/FukvmPn9Guw5D/R
-         1mrg5pjWTIy0PvZIuV28MJYW6zw4C1rONwpo3q5c=
+        b=r3+AcEz+QfeVejQWGMD/0/OUxrzSFhqGBnHwZykNyPhb4qeICEZjvnMZWEhm9oGrA
+         8OzF0Chr4RpObbSvTqXpdY4T4Qk/iKoEnyTDVqSy7zX6W/z7Di95M94+wbdQc+QPwD
+         Gqo9NrXQ/7tc2MSbijR2NoTY2cSG9E3R9yMiLBXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.0 48/89] ext4: fix some error pointer dereferences
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 32/53] binder: fix handling of misaligned binder object
 Date:   Tue, 30 Apr 2019 13:38:39 +0200
-Message-Id: <20190430113611.965705103@linuxfoundation.org>
+Message-Id: <20190430113556.841929903@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Todd Kjos <tkjos@android.com>
 
-commit 7159a986b4202343f6cca3bb8079ecace5816fd6 upstream.
+commit 26528be6720bb40bc8844e97ee73a37e530e9c5e upstream.
 
-We can't pass error pointers to brelse().
+Fixes crash found by syzbot:
+kernel BUG at drivers/android/binder_alloc.c:LINE! (2)
 
-Fixes: fb265c9cb49e ("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
+Reported-and-tested-by: syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: stable <stable@vger.kernel.org> # 5.0, 4.19, 4.14
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/android/binder_alloc.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -829,6 +829,7 @@ int ext4_get_inode_usage(struct inode *i
- 		bh = ext4_sb_bread(inode->i_sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
- 		if (IS_ERR(bh)) {
- 			ret = PTR_ERR(bh);
-+			bh = NULL;
- 			goto out;
- 		}
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -945,14 +945,13 @@ enum lru_status binder_alloc_free_page(s
  
-@@ -2903,6 +2904,7 @@ int ext4_xattr_delete_inode(handle_t *ha
- 			if (error == -EIO)
- 				EXT4_ERROR_INODE(inode, "block %llu read error",
- 						 EXT4_I(inode)->i_file_acl);
-+			bh = NULL;
- 			goto cleanup;
- 		}
- 		error = ext4_xattr_check_block(inode, bh);
-@@ -3059,6 +3061,7 @@ ext4_xattr_block_cache_find(struct inode
- 		if (IS_ERR(bh)) {
- 			if (PTR_ERR(bh) == -ENOMEM)
- 				return NULL;
-+			bh = NULL;
- 			EXT4_ERROR_INODE(inode, "block %lu read error",
- 					 (unsigned long)ce->e_value);
- 		} else if (ext4_xattr_cmp(header, BHDR(bh)) == 0) {
+ 	index = page - alloc->pages;
+ 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
++
++	mm = alloc->vma_vm_mm;
++	if (!mmget_not_zero(mm))
++		goto err_mmget;
++	if (!down_write_trylock(&mm->mmap_sem))
++		goto err_down_write_mmap_sem_failed;
+ 	vma = binder_alloc_get_vma(alloc);
+-	if (vma) {
+-		if (!mmget_not_zero(alloc->vma_vm_mm))
+-			goto err_mmget;
+-		mm = alloc->vma_vm_mm;
+-		if (!down_write_trylock(&mm->mmap_sem))
+-			goto err_down_write_mmap_sem_failed;
+-	}
+ 
+ 	list_lru_isolate(lru, item);
+ 	spin_unlock(lock);
+@@ -965,10 +964,9 @@ enum lru_status binder_alloc_free_page(s
+ 			       PAGE_SIZE);
+ 
+ 		trace_binder_unmap_user_end(alloc, index);
+-
+-		up_write(&mm->mmap_sem);
+-		mmput(mm);
+ 	}
++	up_write(&mm->mmap_sem);
++	mmput(mm);
+ 
+ 	trace_binder_unmap_kernel_start(alloc, index);
+ 
 
 
