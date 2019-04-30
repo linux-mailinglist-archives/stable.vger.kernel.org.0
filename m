@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77362F5E7
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62667F800
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727571AbfD3LkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:40:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46286 "EHLO mail.kernel.org"
+        id S1727817AbfD3Lmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbfD3LkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:40:14 -0400
+        id S1729391AbfD3Lmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E01ED21743;
-        Tue, 30 Apr 2019 11:40:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 105AD21734;
+        Tue, 30 Apr 2019 11:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624413;
-        bh=PY83nNRfvy6AsMvB6zhM8qpy4kWbxWXj25HJ8FDV6TY=;
+        s=default; t=1556624554;
+        bh=MAfJJ0fkkrHOMc0koxXGYQDilkSV0Igey4Ef/k/QcAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=INsho6eLrOVyVfOTjT4iCxnpTmekPeL3+NvpNS+hlIDu9uzzcKcJvWef5SQgJtKkd
-         jFRbVbFlZXXor4Xs7iSXEDK+YCeVZnGeYYiW3lvBeceKgL8UBJkwdmQek3LfOnRoic
-         oYHQ+HH8yTwY/32LrOBGO0i9kPFZt3jMiNGzSLrw=
+        b=YLKKjGFqQbdtpsU9G2h6Schnj10G92Xb+qOyyzH0/n/QMVrndI7CgcFBamzeOIqo2
+         xk+4WX8LkzRQeGO0VYmGgPzWtB3/MUSxCKjUYI28YaKR9RwlOpdEzsQcsQDUMYgRW1
+         wJS4HPEDO2ASb5oqexMH/BvZnVXIlPclPu0bVg8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Roman Gushchin <guro@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 05/41] trace: Fix preempt_enable_no_resched() abuse
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Josh Collier <josh.d.collier@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 09/53] IB/rdmavt: Fix frwr memory registration
 Date:   Tue, 30 Apr 2019 13:38:16 +0200
-Message-Id: <20190430113525.540918012@linuxfoundation.org>
+Message-Id: <20190430113552.264085668@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +47,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Collier <josh.d.collier@intel.com>
 
-commit d6097c9e4454adf1f8f2c9547c2fa6060d55d952 upstream.
+commit 7c39f7f671d2acc0a1f39ebbbee4303ad499bbfa upstream.
 
-Unless the very next line is schedule(), or implies it, one must not use
-preempt_enable_no_resched(). It can cause a preemption to go missing and
-thereby cause arbitrary delays, breaking the PREEMPT=y invariant.
+Current implementation was not properly handling frwr memory
+registrations. This was uncovered by commit 27f26cec761das ("xprtrdma:
+Plant XID in on-the-wire RDMA offset (FRWR)") in which xprtrdma, which is
+used for NFS over RDMA, started failing as it was the first ULP to modify
+the ib_mr iova resulting in the NFS server getting REMOTE ACCESS ERROR
+when attempting to perform RDMA Writes to the client.
 
-Link: http://lkml.kernel.org/r/20190423200318.GY14281@hirez.programming.kicks-ass.net
+The fix is to properly capture the true iova, offset, and length in the
+call to ib_map_mr_sg, and then update the iova when processing the
+IB_WR_REG_MEM on the send queue.
 
-Cc: Waiman Long <longman@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: the arch/x86 maintainers <x86@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: a41081aa5936 ("IB/rdmavt: Add support for ib_map_mr_sg")
 Cc: stable@vger.kernel.org
-Fixes: 2c2d7329d8af ("tracing/ftrace: use preempt_enable_no_resched_notrace in ring_buffer_time_stamp()")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Josh Collier <josh.d.collier@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ring_buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/mr.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -701,7 +701,7 @@ u64 ring_buffer_time_stamp(struct ring_b
+--- a/drivers/infiniband/sw/rdmavt/mr.c
++++ b/drivers/infiniband/sw/rdmavt/mr.c
+@@ -611,11 +611,6 @@ static int rvt_set_page(struct ib_mr *ib
+ 	if (unlikely(mapped_segs == mr->mr.max_segs))
+ 		return -ENOMEM;
  
- 	preempt_disable_notrace();
- 	time = rb_time_stamp(buffer);
--	preempt_enable_no_resched_notrace();
-+	preempt_enable_notrace();
+-	if (mr->mr.length == 0) {
+-		mr->mr.user_base = addr;
+-		mr->mr.iova = addr;
+-	}
+-
+ 	m = mapped_segs / RVT_SEGSZ;
+ 	n = mapped_segs % RVT_SEGSZ;
+ 	mr->mr.map[m]->segs[n].vaddr = (void *)addr;
+@@ -633,17 +628,24 @@ static int rvt_set_page(struct ib_mr *ib
+  * @sg_nents: number of entries in sg
+  * @sg_offset: offset in bytes into sg
+  *
++ * Overwrite rvt_mr length with mr length calculated by ib_sg_to_pages.
++ *
+  * Return: number of sg elements mapped to the memory region
+  */
+ int rvt_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
+ 		  int sg_nents, unsigned int *sg_offset)
+ {
+ 	struct rvt_mr *mr = to_imr(ibmr);
++	int ret;
  
- 	return time;
+ 	mr->mr.length = 0;
+ 	mr->mr.page_shift = PAGE_SHIFT;
+-	return ib_sg_to_pages(ibmr, sg, sg_nents, sg_offset,
+-			      rvt_set_page);
++	ret = ib_sg_to_pages(ibmr, sg, sg_nents, sg_offset, rvt_set_page);
++	mr->mr.user_base = ibmr->iova;
++	mr->mr.iova = ibmr->iova;
++	mr->mr.offset = ibmr->iova - (u64)mr->mr.map[0]->segs[0].vaddr;
++	mr->mr.length = (size_t)ibmr->length;
++	return ret;
  }
+ 
+ /**
+@@ -674,6 +676,7 @@ int rvt_fast_reg_mr(struct rvt_qp *qp, s
+ 	ibmr->rkey = key;
+ 	mr->mr.lkey = key;
+ 	mr->mr.access_flags = access;
++	mr->mr.iova = ibmr->iova;
+ 	atomic_set(&mr->mr.lkey_invalid, 0);
+ 
+ 	return 0;
 
 
