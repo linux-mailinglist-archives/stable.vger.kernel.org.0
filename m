@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB114F654
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DD1F708
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729412AbfD3LqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:46:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58948 "EHLO mail.kernel.org"
+        id S1730166AbfD3Ltm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730516AbfD3LqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:12 -0400
+        id S1731039AbfD3Ltm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:49:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5397D2173E;
-        Tue, 30 Apr 2019 11:46:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D989C20449;
+        Tue, 30 Apr 2019 11:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624771;
-        bh=Bk1OXFfBQ8nFn9DBuyA7O+lCPWPwyZ/9BBvNMa9vLfc=;
+        s=default; t=1556624981;
+        bh=7GntyMXcWt4UU0gvioaIi9lga+nZyYFukfanMAnLfzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXmm/JGrBftNYLi5SrvO6riXdo26U9H4y7cerdjQoZWzt4yLkDBaEAyD8k2eRhpVc
-         dIc4ZJxp5jEd0j9giY4qY1vL/rUNXmsh0qskwPayX6ZeNjV7fYkaRc8dESeHZ3sSdi
-         1LDkBbshnZvbtCArnfLdprkBnEpDpOFTLpEp2/2E=
+        b=kC47u7pG+/KX/WAdJv4eb7B1UnmWKBuY2lazb4AhCUrdBUGl/NDwAMZ/A134F1e7U
+         CF6iax2fuGRdfPz2Rf+1XmMFa8EzfevPR2MvYHShufh7g/LaY3OJP1jncvN072f11u
+         cKg+Sq79Gyrfy93wAJhV7yuPfZTNiqC3eB3deXFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 066/100] aio: clear IOCB_HIPRI
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 5.0 44/89] Revert "drm/i915/fbdev: Actually configure untiled displays"
 Date:   Tue, 30 Apr 2019 13:38:35 +0200
-Message-Id: <20190430113611.914864134@linuxfoundation.org>
+Message-Id: <20190430113611.821040876@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 154989e45fd8de9bfb52bbd6e5ea763e437e54c5 upstream.
+commit 9fa246256e09dc30820524401cdbeeaadee94025 upstream.
 
-No one is going to poll for aio (yet), so we must clear the HIPRI
-flag, as we would otherwise send it down the poll queues, where no
-one will be polling for completions.
+This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This commit is documented to break userspace X.org modesetting driver in certain configurations.
 
-IOCB_HIPRI, not RWF_HIPRI.
+The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Cc: <stable@vger.kernel.org> # v3.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/aio.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1438,8 +1438,7 @@ static int aio_prep_rw(struct kiocb *req
- 		ret = ioprio_check_cap(iocb->aio_reqprio);
- 		if (ret) {
- 			pr_debug("aio ioprio check cap error: %d\n", ret);
--			fput(req->ki_filp);
--			return ret;
-+			goto out_fput;
- 		}
+--- a/drivers/gpu/drm/i915/intel_fbdev.c
++++ b/drivers/gpu/drm/i915/intel_fbdev.c
+@@ -336,8 +336,8 @@ static bool intel_fb_initial_config(stru
+ 				    bool *enabled, int width, int height)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
++	unsigned long conn_configured, conn_seq, mask;
+ 	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
+-	unsigned long conn_configured, conn_seq;
+ 	int i, j;
+ 	bool *save_enabled;
+ 	bool fallback = true, ret = true;
+@@ -355,9 +355,10 @@ static bool intel_fb_initial_config(stru
+ 		drm_modeset_backoff(&ctx);
  
- 		req->ki_ioprio = iocb->aio_reqprio;
-@@ -1448,7 +1447,13 @@ static int aio_prep_rw(struct kiocb *req
+ 	memcpy(save_enabled, enabled, count);
+-	conn_seq = GENMASK(count - 1, 0);
++	mask = GENMASK(count - 1, 0);
+ 	conn_configured = 0;
+ retry:
++	conn_seq = conn_configured;
+ 	for (i = 0; i < count; i++) {
+ 		struct drm_fb_helper_connector *fb_conn;
+ 		struct drm_connector *connector;
+@@ -370,8 +371,7 @@ retry:
+ 		if (conn_configured & BIT(i))
+ 			continue;
  
- 	ret = kiocb_set_rw_flags(req, iocb->aio_rw_flags);
- 	if (unlikely(ret))
--		fput(req->ki_filp);
-+		goto out_fput;
-+
-+	req->ki_flags &= ~IOCB_HIPRI; /* no one is going to poll for this I/O */
-+	return 0;
-+
-+out_fput:
-+	fput(req->ki_filp);
- 	return ret;
- }
+-		/* First pass, only consider tiled connectors */
+-		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
++		if (conn_seq == 0 && !connector->has_tile)
+ 			continue;
  
+ 		if (connector->status == connector_status_connected)
+@@ -475,10 +475,8 @@ retry:
+ 		conn_configured |= BIT(i);
+ 	}
+ 
+-	if (conn_configured != conn_seq) { /* repeat until no more are found */
+-		conn_seq = conn_configured;
++	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
+ 		goto retry;
+-	}
+ 
+ 	/*
+ 	 * If the BIOS didn't enable everything it could, fall back to have the
 
 
