@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA027F81F
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81277F7A1
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727660AbfD3MEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:04:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51424 "EHLO mail.kernel.org"
+        id S1729664AbfD3LpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:45:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728465AbfD3Lm1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:27 -0400
+        id S1730366AbfD3LpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:45:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B0AA21783;
-        Tue, 30 Apr 2019 11:42:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86A9421670;
+        Tue, 30 Apr 2019 11:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624546;
-        bh=c39czPhDGBrDcp9N/969NV5Tgs97fyFFq7kBXOprBD4=;
+        s=default; t=1556624716;
+        bh=LnAasITKAP8GikVDz7pSmI6wzBOPW/7N4PyDs08spG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e09Sds8epwpsIgVu3DzzDlGa06Ay9b4WXsdJMkoD2Tm4tMcUeFzVeXDOgN0AXp2S0
-         ExYJwBCRPy3yBa6t0MxDUrPDhVHSYmOAwt9xuom+lL4Mm9s6EO2XP7nYF/HnNDMX8S
-         AAR3BhNR6earzxWTqlJ/F7ST/q0gD/rm48/hc5Vk=
+        b=mp5LdIG+nlKvPqaoptQbV0iH23cMYoLHe4Cy8RyA+Fpq6GFaJnszmhqAD20s5K+BK
+         AM3ro9run50iga6dSKRWKWfBkOxAYdgi7d9dr1ctLl6jvPAhm1dQqpY5az1T/TUEOF
+         LYDph5IUymMrbpdxJj205G2Mc0oBkMKRnPv8FbOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 06/53] lib/Kconfig.debug: fix build error without CONFIG_BLOCK
+        stable@vger.kernel.org,
+        Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>,
+        Dirk Behme <dirk.behme@de.bosch.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 044/100] dmaengine: sh: rcar-dmac: Fix glitch in dmaengine_tx_status
 Date:   Tue, 30 Apr 2019 13:38:13 +0200
-Message-Id: <20190430113550.793003439@linuxfoundation.org>
+Message-Id: <20190430113611.180037970@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
 
-commit ae3d6a323347940f0548bbb4b17f0bb2e9164169 upstream.
+commit 6e7da74775348d96e2d7efaf3f91410e18c481ef upstream.
 
-If CONFIG_TEST_KMOD is set to M, while CONFIG_BLOCK is not set, XFS and
-BTRFS can not be compiled successly.
+The tx_status poll in the rcar_dmac driver reads the status register
+which indicates which chunk is busy (DMACHCRB). Afterwards the point
+inside the chunk is read from DMATCRB. It is possible that the chunk
+has changed between the two reads. The result is a non-monotonous
+increase of the residue. Fix this by introducing a 'safe read' logic.
 
-Link: http://lkml.kernel.org/r/20190410075434.35220-1-yuehaibing@huawei.com
-Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 73a47bd0da66 ("dmaengine: rcar-dmac: use TCRB instead of TCR for residue")
+Signed-off-by: Achim Dahlhoff <Achim.Dahlhoff@de.bosch.com>
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: <stable@vger.kernel.org> # v4.16+
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/Kconfig.debug |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/sh/rcar-dmac.c |   26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1884,6 +1884,7 @@ config TEST_KMOD
- 	depends on m
- 	depends on BLOCK && (64BIT || LBDAF)	  # for XFS, BTRFS
- 	depends on NETDEVICES && NET_CORE && INET # for TUN
-+	depends on BLOCK
- 	select TEST_LKM
- 	select XFS_FS
- 	select TUN
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1281,6 +1281,9 @@ static unsigned int rcar_dmac_chan_get_r
+ 	enum dma_status status;
+ 	unsigned int residue = 0;
+ 	unsigned int dptr = 0;
++	unsigned int chcrb;
++	unsigned int tcrb;
++	unsigned int i;
+ 
+ 	if (!desc)
+ 		return 0;
+@@ -1329,14 +1332,31 @@ static unsigned int rcar_dmac_chan_get_r
+ 	}
+ 
+ 	/*
++	 * We need to read two registers.
++	 * Make sure the control register does not skip to next chunk
++	 * while reading the counter.
++	 * Trying it 3 times should be enough: Initial read, retry, retry
++	 * for the paranoid.
++	 */
++	for (i = 0; i < 3; i++) {
++		chcrb = rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
++					    RCAR_DMACHCRB_DPTR_MASK;
++		tcrb = rcar_dmac_chan_read(chan, RCAR_DMATCRB);
++		/* Still the same? */
++		if (chcrb == (rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
++			      RCAR_DMACHCRB_DPTR_MASK))
++			break;
++	}
++	WARN_ONCE(i >= 3, "residue might be not continuous!");
++
++	/*
+ 	 * In descriptor mode the descriptor running pointer is not maintained
+ 	 * by the interrupt handler, find the running descriptor from the
+ 	 * descriptor pointer field in the CHCRB register. In non-descriptor
+ 	 * mode just use the running descriptor pointer.
+ 	 */
+ 	if (desc->hwdescs.use) {
+-		dptr = (rcar_dmac_chan_read(chan, RCAR_DMACHCRB) &
+-			RCAR_DMACHCRB_DPTR_MASK) >> RCAR_DMACHCRB_DPTR_SHIFT;
++		dptr = chcrb >> RCAR_DMACHCRB_DPTR_SHIFT;
+ 		if (dptr == 0)
+ 			dptr = desc->nchunks;
+ 		dptr--;
+@@ -1354,7 +1374,7 @@ static unsigned int rcar_dmac_chan_get_r
+ 	}
+ 
+ 	/* Add the residue for the current chunk. */
+-	residue += rcar_dmac_chan_read(chan, RCAR_DMATCRB) << desc->xfer_shift;
++	residue += tcrb << desc->xfer_shift;
+ 
+ 	return residue;
+ }
 
 
