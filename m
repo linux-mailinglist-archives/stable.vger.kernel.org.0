@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5001EF818
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC77BF864
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbfD3LmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50562 "EHLO mail.kernel.org"
+        id S1728247AbfD3LkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbfD3LmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:03 -0400
+        id S1728239AbfD3LkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A400E21670;
-        Tue, 30 Apr 2019 11:42:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9903721670;
+        Tue, 30 Apr 2019 11:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624523;
-        bh=joxoxeqQmOtVi/Vuyizde6DEu+YDdkY6lmIgWOPmdP0=;
+        s=default; t=1556624403;
+        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CSvfpsQiycz7avBhZtYA/Hat/GhA5DEPgMfycz5MBnfJin+egbpPgGlt9zXg9bh/
-         DxVCPJzezVe8tIWEnOxsIF80rEXQuAvOHfOY8oky0xgtnIaBOQxL1+xC2wGeFkCBZx
-         Wo7ZqxHij9r6auMq+VR4Lk+NiiBGTLN1o3tn2n8I=
+        b=HAGr0c0Fr4iGAAifOB61FRkcIWMtrb5r8DfY44zd3FKuIqwIzXegEajE7PrbMRItH
+         J6tAZerXI9y1CiCfGSjCdSQ+v8qeG2ZvfhFFdaQ5MQtIvnYfFAM5Df8VJ07Hq5+L5K
+         qpw1SqPpA3516oGe93V1i/me1RootfrOKfWOlKsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 25/53] ext4: fix some error pointer dereferences
+        stable@vger.kernel.org,
+        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 21/41] slip: make slhc_free() silently accept an error pointer
 Date:   Tue, 30 Apr 2019 13:38:32 +0200
-Message-Id: <20190430113555.814314334@linuxfoundation.org>
+Message-Id: <20190430113530.104386858@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 7159a986b4202343f6cca3bb8079ecace5816fd6 upstream.
+commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
 
-We can't pass error pointers to brelse().
+This way, slhc_free() accepts what slhc_init() returns, whether that is
+an error or not.
 
-Fixes: fb265c9cb49e ("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
+In particular, the pattern in sl_alloc_bufs() is
+
+        slcomp = slhc_init(16, 16);
+        ...
+        slhc_free(slcomp);
+
+for the error handling path, and rather than complicate that code, just
+make it ok to always free what was returned by the init function.
+
+That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
+Validate VJ compression slot parameters completely") when slhc_init()
+just returned NULL for the error case, with no actual indication of the
+details of the error.
+
+Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
+Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/slip/slhc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -828,6 +828,7 @@ int ext4_get_inode_usage(struct inode *i
- 		bh = ext4_sb_bread(inode->i_sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
- 		if (IS_ERR(bh)) {
- 			ret = PTR_ERR(bh);
-+			bh = NULL;
- 			goto out;
- 		}
+--- a/drivers/net/slip/slhc.c
++++ b/drivers/net/slip/slhc.c
+@@ -153,7 +153,7 @@ out_fail:
+ void
+ slhc_free(struct slcompress *comp)
+ {
+-	if ( comp == NULLSLCOMPR )
++	if ( IS_ERR_OR_NULL(comp) )
+ 		return;
  
-@@ -2905,6 +2906,7 @@ int ext4_xattr_delete_inode(handle_t *ha
- 			if (error == -EIO)
- 				EXT4_ERROR_INODE(inode, "block %llu read error",
- 						 EXT4_I(inode)->i_file_acl);
-+			bh = NULL;
- 			goto cleanup;
- 		}
- 		error = ext4_xattr_check_block(inode, bh);
-@@ -3061,6 +3063,7 @@ ext4_xattr_block_cache_find(struct inode
- 		if (IS_ERR(bh)) {
- 			if (PTR_ERR(bh) == -ENOMEM)
- 				return NULL;
-+			bh = NULL;
- 			EXT4_ERROR_INODE(inode, "block %lu read error",
- 					 (unsigned long)ce->e_value);
- 		} else if (ext4_xattr_cmp(header, BHDR(bh)) == 0) {
+ 	if ( comp->tstate != NULLSLSTATE )
 
 
