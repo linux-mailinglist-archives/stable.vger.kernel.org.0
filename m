@@ -2,39 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88758F730
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA027F81F
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726839AbfD3L4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S1727660AbfD3MEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:04:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730875AbfD3Lsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:48:36 -0400
+        id S1728465AbfD3Lm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FFC520449;
-        Tue, 30 Apr 2019 11:48:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B0AA21783;
+        Tue, 30 Apr 2019 11:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624915;
-        bh=ZjSnPPE3GJxDV7BkqDZlz1xwMuO9b69kcF0NnUB0768=;
+        s=default; t=1556624546;
+        bh=c39czPhDGBrDcp9N/969NV5Tgs97fyFFq7kBXOprBD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aG2XUpM6BO/3Txynx4zXmYTbE0uvEiEDlXpaThnyxPiZ5IL3NIFd8IGyJWF7sCD9v
-         KXQSUSM5Oyfh0Vaj/htIwsDvUcH7tsL3B9wW8hVmzP/vzrITlgTUa23kRKzHT9Fz+T
-         fOZohROoE3KYCy3SmTjlxM1Xm6d5npzyzjyrYcn4=
+        b=e09Sds8epwpsIgVu3DzzDlGa06Ay9b4WXsdJMkoD2Tm4tMcUeFzVeXDOgN0AXp2S0
+         ExYJwBCRPy3yBa6t0MxDUrPDhVHSYmOAwt9xuom+lL4Mm9s6EO2XP7nYF/HnNDMX8S
+         AAR3BhNR6earzxWTqlJ/F7ST/q0gD/rm48/hc5Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.0 21/89] arm64: mm: Ensure tail of unaligned initrd is reserved
-Date:   Tue, 30 Apr 2019 13:38:12 +0200
-Message-Id: <20190430113611.059391513@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 06/53] lib/Kconfig.debug: fix build error without CONFIG_BLOCK
+Date:   Tue, 30 Apr 2019 13:38:13 +0200
+Message-Id: <20190430113550.793003439@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit d4d18e3ec6091843f607e8929a56723e28f393a6 upstream.
+commit ae3d6a323347940f0548bbb4b17f0bb2e9164169 upstream.
 
-In the event that the start address of the initrd is not aligned, but
-has an aligned size, the base + size will not cover the entire initrd
-image and there is a chance that the kernel will corrupt the tail of the
-image.
+If CONFIG_TEST_KMOD is set to M, while CONFIG_BLOCK is not set, XFS and
+BTRFS can not be compiled successly.
 
-By aligning the end of the initrd to a page boundary and then
-subtracting the adjusted start address the memblock reservation will
-cover all pages that contains the initrd.
-
-Fixes: c756c592e442 ("arm64: Utilize phys_initrd_start/phys_initrd_size")
-Cc: stable@vger.kernel.org
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: http://lkml.kernel.org/r/20190410075434.35220-1-yuehaibing@huawei.com
+Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/Kconfig.debug |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -406,7 +406,7 @@ void __init arm64_memblock_init(void)
- 		 * Otherwise, this is a no-op
- 		 */
- 		u64 base = phys_initrd_start & PAGE_MASK;
--		u64 size = PAGE_ALIGN(phys_initrd_size);
-+		u64 size = PAGE_ALIGN(phys_initrd_start + phys_initrd_size) - base;
- 
- 		/*
- 		 * We can only add back the initrd memory if we don't end up
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1884,6 +1884,7 @@ config TEST_KMOD
+ 	depends on m
+ 	depends on BLOCK && (64BIT || LBDAF)	  # for XFS, BTRFS
+ 	depends on NETDEVICES && NET_CORE && INET # for TUN
++	depends on BLOCK
+ 	select TEST_LKM
+ 	select XFS_FS
+ 	select TUN
 
 
