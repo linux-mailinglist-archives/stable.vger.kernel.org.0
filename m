@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 385C4F6CA
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D5AF7E0
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730834AbfD3Lvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:51:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
+        id S1727925AbfD3MDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:03:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730995AbfD3Lvg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:51:36 -0400
+        id S1729905AbfD3Ln1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:43:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02F222054F;
-        Tue, 30 Apr 2019 11:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 480D52173E;
+        Tue, 30 Apr 2019 11:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556625095;
-        bh=QMKhlt3BS7uu0HAFlCN4qcRiUtHGvuEBPQthGHlGW0M=;
+        s=default; t=1556624606;
+        bh=J0ShUQzD1srjF3bzW26x95MrxhY7MvI01lJ6PQT1qB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDjVcFvhxFPTwLc/tr6/aLKmxCDwV2xAes1ooWP0qShVWVIZHSG48wai8Q/rftFjG
-         V13G6rmijzspsPGTMHJ8pxCvy9sXEugsA/QL4qULCjmnnRl5CXwJLRxGwqWYRvGSOC
-         Z2U3zBBqHN9lFJDFoUYbTk9ZTcmXO9JWxO5kmsMo=
+        b=gm1hcH5ez1Y+Y5O4mZepX8U62kO4SLyxPcoq03CEZ3aT8hbZ7eaqI5YJGz5sw0Ig9
+         6iveyCgD5LxOJqzjxlV76e8jgP1J7dV6h7HLXlLST/Md5UoVIRsIDfMO8cdwxfq1YO
+         OPCkTSgddlSQ27EqGbXz6ztZ/9vGEOKfWKCeTP6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
-Subject: [PATCH 5.0 53/89] binder: fix handling of misaligned binder object
+        stable@vger.kernel.org,
+        syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 37/53] tipc: check bearer name with right length in tipc_nl_compat_bearer_enable
 Date:   Tue, 30 Apr 2019 13:38:44 +0200
-Message-Id: <20190430113612.171167211@linuxfoundation.org>
+Message-Id: <20190430113557.721290523@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 26528be6720bb40bc8844e97ee73a37e530e9c5e upstream.
+commit 6f07e5f06c8712acc423485f657799fc8e11e56c upstream.
 
-Fixes crash found by syzbot:
-kernel BUG at drivers/android/binder_alloc.c:LINE! (2)
+Syzbot reported the following crash:
 
-Reported-and-tested-by: syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: stable <stable@vger.kernel.org> # 5.0, 4.19, 4.14
+BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:961
+  memchr+0xce/0x110 lib/string.c:961
+  string_is_valid net/tipc/netlink_compat.c:176 [inline]
+  tipc_nl_compat_bearer_enable+0x2c4/0x910 net/tipc/netlink_compat.c:401
+  __tipc_nl_compat_doit net/tipc/netlink_compat.c:321 [inline]
+  tipc_nl_compat_doit+0x3aa/0xaf0 net/tipc/netlink_compat.c:354
+  tipc_nl_compat_handle net/tipc/netlink_compat.c:1162 [inline]
+  tipc_nl_compat_recv+0x1ae7/0x2750 net/tipc/netlink_compat.c:1265
+  genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+  genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+  netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+  genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+  netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+  netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+  netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+Uninit was created at:
+  __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+  alloc_skb include/linux/skbuff.h:1012 [inline]
+  netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+  netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+It was triggered when the bearer name size < TIPC_MAX_BEARER_NAME,
+it would check with a wrong len/TLV_GET_DATA_LEN(msg->req), which
+also includes priority and disc_domain length.
+
+This patch is to fix it by checking it with a right length:
+'TLV_GET_DATA_LEN(msg->req) - offsetof(struct tipc_bearer_config, name)'.
+
+Reported-by: syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder_alloc.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ net/tipc/netlink_compat.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -959,14 +959,13 @@ enum lru_status binder_alloc_free_page(s
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -394,7 +394,12 @@ static int tipc_nl_compat_bearer_enable(
+ 	if (!bearer)
+ 		return -EMSGSIZE;
  
- 	index = page - alloc->pages;
- 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	len -= offsetof(struct tipc_bearer_config, name);
++	if (len <= 0)
++		return -EINVAL;
 +
-+	mm = alloc->vma_vm_mm;
-+	if (!mmget_not_zero(mm))
-+		goto err_mmget;
-+	if (!down_write_trylock(&mm->mmap_sem))
-+		goto err_down_write_mmap_sem_failed;
- 	vma = binder_alloc_get_vma(alloc);
--	if (vma) {
--		if (!mmget_not_zero(alloc->vma_vm_mm))
--			goto err_mmget;
--		mm = alloc->vma_vm_mm;
--		if (!down_write_trylock(&mm->mmap_sem))
--			goto err_down_write_mmap_sem_failed;
--	}
- 
- 	list_lru_isolate(lru, item);
- 	spin_unlock(lock);
-@@ -979,10 +978,9 @@ enum lru_status binder_alloc_free_page(s
- 			       PAGE_SIZE);
- 
- 		trace_binder_unmap_user_end(alloc, index);
--
--		up_write(&mm->mmap_sem);
--		mmput(mm);
- 	}
-+	up_write(&mm->mmap_sem);
-+	mmput(mm);
- 
- 	trace_binder_unmap_kernel_start(alloc, index);
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(b->name, len))
+ 		return -EINVAL;
  
 
 
