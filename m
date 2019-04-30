@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D6BF826
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB114F654
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727164AbfD3MFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:05:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50842 "EHLO mail.kernel.org"
+        id S1729412AbfD3LqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:46:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729221AbfD3LmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:11 -0400
+        id S1730516AbfD3LqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9170921734;
-        Tue, 30 Apr 2019 11:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5397D2173E;
+        Tue, 30 Apr 2019 11:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624531;
-        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
+        s=default; t=1556624771;
+        bh=Bk1OXFfBQ8nFn9DBuyA7O+lCPWPwyZ/9BBvNMa9vLfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sh0hC6vDJ3rIMvkCZ1IFLzd+hzD4mA6BgmbC4IhcEz0JUGo3hqkBlYm9oKbf7mThX
-         5m72smb937lNGXFuR2QQfKDD2RHZHoNjqBloE3WcT4rGGsRjJDhHWW0UpTOerS+g5o
-         b9t4i30ZEMZxxLshAbgBXjpx8qI6N/nzzJ0FsBAE=
+        b=kXmm/JGrBftNYLi5SrvO6riXdo26U9H4y7cerdjQoZWzt4yLkDBaEAyD8k2eRhpVc
+         dIc4ZJxp5jEd0j9giY4qY1vL/rUNXmsh0qskwPayX6ZeNjV7fYkaRc8dESeHZ3sSdi
+         1LDkBbshnZvbtCArnfLdprkBnEpDpOFTLpEp2/2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Miller <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 28/53] slip: make slhc_free() silently accept an error pointer
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 066/100] aio: clear IOCB_HIPRI
 Date:   Tue, 30 Apr 2019 13:38:35 +0200
-Message-Id: <20190430113556.164100265@linuxfoundation.org>
+Message-Id: <20190430113611.914864134@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Christoph Hellwig <hch@lst.de>
 
-commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
+commit 154989e45fd8de9bfb52bbd6e5ea763e437e54c5 upstream.
 
-This way, slhc_free() accepts what slhc_init() returns, whether that is
-an error or not.
+No one is going to poll for aio (yet), so we must clear the HIPRI
+flag, as we would otherwise send it down the poll queues, where no
+one will be polling for completions.
 
-In particular, the pattern in sl_alloc_bufs() is
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-        slcomp = slhc_init(16, 16);
-        ...
-        slhc_free(slcomp);
+IOCB_HIPRI, not RWF_HIPRI.
 
-for the error handling path, and rather than complicate that code, just
-make it ok to always free what was returned by the init function.
-
-That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
-Validate VJ compression slot parameters completely") when slhc_init()
-just returned NULL for the error case, with no actual indication of the
-details of the error.
-
-Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
-Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
-Acked-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: David Miller <davem@davemloft.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/slip/slhc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/aio.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/slip/slhc.c
-+++ b/drivers/net/slip/slhc.c
-@@ -153,7 +153,7 @@ out_fail:
- void
- slhc_free(struct slcompress *comp)
- {
--	if ( comp == NULLSLCOMPR )
-+	if ( IS_ERR_OR_NULL(comp) )
- 		return;
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -1438,8 +1438,7 @@ static int aio_prep_rw(struct kiocb *req
+ 		ret = ioprio_check_cap(iocb->aio_reqprio);
+ 		if (ret) {
+ 			pr_debug("aio ioprio check cap error: %d\n", ret);
+-			fput(req->ki_filp);
+-			return ret;
++			goto out_fput;
+ 		}
  
- 	if ( comp->tstate != NULLSLSTATE )
+ 		req->ki_ioprio = iocb->aio_reqprio;
+@@ -1448,7 +1447,13 @@ static int aio_prep_rw(struct kiocb *req
+ 
+ 	ret = kiocb_set_rw_flags(req, iocb->aio_rw_flags);
+ 	if (unlikely(ret))
+-		fput(req->ki_filp);
++		goto out_fput;
++
++	req->ki_flags &= ~IOCB_HIPRI; /* no one is going to poll for this I/O */
++	return 0;
++
++out_fput:
++	fput(req->ki_filp);
+ 	return ret;
+ }
+ 
 
 
