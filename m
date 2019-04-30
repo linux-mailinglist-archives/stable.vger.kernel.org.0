@@ -2,118 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6CCDFD1A
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425CBFD39
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726155AbfD3PnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 11:43:05 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:46424 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725906AbfD3PnE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 11:43:04 -0400
-Received: by mail-oi1-f196.google.com with SMTP id d62so5748041oib.13;
-        Tue, 30 Apr 2019 08:43:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AoX+I432QQxxlKFEhrHPIkG45LFW4z5n+eTjo4qg/pg=;
-        b=fuQlWpUcKOwVjnkw1I7fqFtB4+4QWdMXNYNGuJLFLXbUTNC+zKnz8+hyV44Z2miymA
-         wtgdhpC1tFVjb6vFncu/zDK5IwEq2Jo0PafsGW/DNhkx/eyY7FPZVIS/Tch48F3GRVdo
-         xL5NFcS8Wj0xaH14QOtQs154Fc1WtMMiBot7cwzkxNeuvXrX1ddvbMQOmhk0JD2vdPFm
-         /fJMC4/ZrZY/HJAle0yiqckyDqYHbJ9bI64ttw+MDiUVmeRJqvn2ypMsfbYF3kRpGJYm
-         5tLatS7Be9xqaUU3teBmQsPjNV7z784JJ6W3MzVklPt3uLLbZ55ANWdtesKgwj2Hl7Xo
-         G0Og==
-X-Gm-Message-State: APjAAAVgDo9RO76avV6GKC97LkVAIejI7sOrfPOWQXEg07eP+TGvXSit
-        X26Ga+3o6M/ISzmEvy8sUcaGXq4yqTIzxCEQEprJLQ==
-X-Google-Smtp-Source: APXvYqyAYo6r1DdXN/rjG4yyp08YAtg4XguUpxKXTiDi5AD26pkuacjSGcDFehoH3aH3n+s2HRH0dnE9n4mfkzWrbMU=
-X-Received: by 2002:aca:b841:: with SMTP id i62mr3675255oif.103.1556638983470;
- Tue, 30 Apr 2019 08:43:03 -0700 (PDT)
+        id S1725906AbfD3Pv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 11:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725930AbfD3Pv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 11:51:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F07D21734;
+        Tue, 30 Apr 2019 15:51:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556639517;
+        bh=WVZFUYohFiYvreAxf5Tt015tsmqtRmgkCvidNoDR8k0=;
+        h=Subject:To:From:Date:From;
+        b=VVhUqjPXhgdytyDlgIXd35I8JFOquw1JJZ3vYUoB+y9KJ0ic5z7sBp+EQ5QEkXmaF
+         eOnI5gFR5zKLrE015KDQb8HEHCdnMbtz5J/jUES9wlDVCXKNIBORFV8WkqLPpWAW2T
+         RlvPIIn0J3KYCG/Y2xf0Sf7BienQb1g4oYHifNE0=
+Subject: patch "UAS: fix alignment of scatter/gather segments" added to usb-testing
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 30 Apr 2019 17:51:54 +0200
+Message-ID: <155663951455105@kroah.com>
 MIME-Version: 1.0
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 30 Apr 2019 17:42:52 +0200
-Message-ID: <CAJZ5v0gimPdVY8FbzNPZQK=pMGzynpxJqUR_ypSh9OTAsObfrw@mail.gmail.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Keijo Vaara <ferdasyn@rocketmail.com>,
-        linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 4:23 PM Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->
-> Multiple users have reported their Synaptics touchpad has stopped
-> working between v4.20.1 and v4.20.2 when using SMBus interface.
->
-> The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
-> runtime PM without callback functions") that fixed the runtime PM for
-> i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
-> for SMBus communication and testing showed they are able to get back
-> working by preventing the runtime suspend of adapter.
->
-> Normally when i2c-i801 SMBus adapter transmits with the client it resumes
-> before operation and autosuspends after.
->
-> However, if client requires SMBus Host Notify protocol, what those
-> Synaptics touchpads do, then the host adapter must not go to runtime
-> suspend since then it cannot process incoming SMBus Host Notify commands
-> the client may send.
->
-> Fix this by keeping I2C/SMBus adapter active in case client requires
-> Host Notify.
->
-> Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=203297
-> Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functions")
-> Cc: stable@vger.kernel.org # v4.20+
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This is a note to let you know that I've just added the patch titled
 
-Or please let me know if you want me to take this.
+    UAS: fix alignment of scatter/gather segments
 
-> ---
-> Keijo: could you test this does it fix the issue you reported? This is
-> practically the same diff I sent earlier what you probably haven't tested yet.
-> I wanted to send a commitable fix in case it works since I'll be out of
-> office in a few coming days.
-> ---
->  drivers/i2c/i2c-core-base.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 38af18645133..8149c9e32b69 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -327,6 +327,8 @@ static int i2c_device_probe(struct device *dev)
->
->                 if (client->flags & I2C_CLIENT_HOST_NOTIFY) {
->                         dev_dbg(dev, "Using Host Notify IRQ\n");
-> +                       /* Keep adapter active when Host Notify is required */
-> +                       pm_runtime_get_sync(&client->adapter->dev);
->                         irq = i2c_smbus_host_notify_to_irq(client);
->                 } else if (dev->of_node) {
->                         irq = of_irq_get_byname(dev->of_node, "irq");
-> @@ -431,6 +433,8 @@ static int i2c_device_remove(struct device *dev)
->         device_init_wakeup(&client->dev, false);
->
->         client->irq = client->init_irq;
-> +       if (client->flags & I2C_CLIENT_HOST_NOTIFY)
-> +               pm_runtime_put(&client->adapter->dev);
->
->         return status;
->  }
-> --
-> 2.20.1
->
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 3ae62a42090f1ed48e2313ed256a1182a85fb575 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Tue, 30 Apr 2019 12:21:45 +0200
+Subject: UAS: fix alignment of scatter/gather segments
+
+This is the UAS version of
+
+747668dbc061b3e62bc1982767a3a1f9815fcf0e
+usb-storage: Set virt_boundary_mask to avoid SG overflows
+
+We are not as likely to be vulnerable as storage, as it is unlikelier
+that UAS is run over a controller without native support for SG,
+but the issue exists.
+The issue has been existing since the inception of the driver.
+
+Fixes: 115bb1ffa54c ("USB: Add UAS driver")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/storage/uas.c | 35 ++++++++++++++++++++++-------------
+ 1 file changed, 22 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
+index a6d68191c861..047c5922618f 100644
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -789,24 +789,33 @@ static int uas_slave_alloc(struct scsi_device *sdev)
+ {
+ 	struct uas_dev_info *devinfo =
+ 		(struct uas_dev_info *)sdev->host->hostdata;
++	int maxp;
+ 
+ 	sdev->hostdata = devinfo;
+ 
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
++	 * We have two requirements here. We must satisfy the requirements
++	 * of the physical HC and the demands of the protocol, as we
++	 * definitely want no additional memory allocation in this path
++	 * ruling out using bounce buffers.
+ 	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * For a transmission on USB to continue we must never send
++	 * a package that is smaller than maxpacket. Hence the length of each
++         * scatterlist element except the last must be divisible by the
++         * Bulk maxpacket value.
++	 * If the HC does not ensure that through SG,
++	 * the upper layer must do that. We must assume nothing
++	 * about the capabilities off the HC, so we use the most
++	 * pessimistic requirement.
++	 */
++
++	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
++
++	/*
++	 * The protocol has no requirements on alignment in the strict sense.
++	 * Controllers may or may not have alignment restrictions.
++	 * As this is not exported, we use an extremely conservative guess.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
+ 
+-- 
+2.21.0
+
+
