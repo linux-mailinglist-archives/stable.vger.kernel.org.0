@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D47F77F
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3F5F83C
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726264AbfD3L7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:59:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59238 "EHLO mail.kernel.org"
+        id S1727453AbfD3MGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729990AbfD3LqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:46:22 -0400
+        id S1728746AbfD3LlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:41:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5D9C21734;
-        Tue, 30 Apr 2019 11:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A21B421670;
+        Tue, 30 Apr 2019 11:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624782;
-        bh=0IQLCnlNZZsIMt2HNVM24VI5HBS5IPEulCItCd5mVww=;
+        s=default; t=1556624463;
+        bh=o3Nsh5rtn77rJHGEWXlfTk4Uolxx2qRsk48vZef8uTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMWpXfOEqld8uhQIDIuwddPeX4XrQ1t9Ui+D5VGj19F/nUPZxBgWEhjkhUuvCgcKs
-         8wX24bG4326OdrRYCjzTIZ4USDX1OO8Y1GRv1gE9xXOiO6ZICyRxZbUHRfBbbiJsyc
-         ZLrr0uKM4M2kK8g7UnvKys3GzEbp8AEdEQi2SMYU=
+        b=QmfOwAE0gghQIohQGkhijDJ7ENqvXuphaq+oq37A6ROF8H48yHtF9L4WhuqWK8z+W
+         488gsVEmXGyDx8T73O3nhPJEh6s7wAiSDCf6wsMyo3mqScL2unSYzHl0GGCKjFKS2q
+         XB0Hr71f5AG4vrl/6e+fJs3p/k3oYItlrLyebpgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 070/100] aio: use iocb_put() instead of open coding it
+        stable@vger.kernel.org,
+        syzbot+de00a87b8644a582ae79@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 28/41] tipc: check link name with right length in tipc_nl_compat_link_set
 Date:   Tue, 30 Apr 2019 13:38:39 +0200
-Message-Id: <20190430113612.067935546@linuxfoundation.org>
+Message-Id: <20190430113531.365800624@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 71ebc6fef0f53459f37fb39e1466792232fa52ee upstream.
+commit 8c63bf9ab4be8b83bd8c34aacfd2f1d2c8901c8a upstream.
 
-Replace the percpu_ref_put() + kmem_cache_free() with a call to
-iocb_put() instead.
+A similar issue as fixed by Patch "tipc: check bearer name with right
+length in tipc_nl_compat_bearer_enable" was also found by syzbot in
+tipc_nl_compat_link_set().
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+The length to check with should be 'TLV_GET_DATA_LEN(msg->req) -
+offsetof(struct tipc_link_config, name)'.
+
+Reported-by: syzbot+de00a87b8644a582ae79@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/aio.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/tipc/netlink_compat.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1886,10 +1886,9 @@ static int io_submit_one(struct kioctx *
- 		goto out_put_req;
- 	return 0;
- out_put_req:
--	percpu_ref_put(&ctx->reqs);
- 	if (req->ki_eventfd)
- 		eventfd_ctx_put(req->ki_eventfd);
--	kmem_cache_free(kiocb_cachep, req);
-+	iocb_put(req);
- out_put_reqs_available:
- 	put_reqs_available(ctx, 1);
- 	return ret;
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -768,7 +768,12 @@ static int tipc_nl_compat_link_set(struc
+ 
+ 	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
+ 
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	len -= offsetof(struct tipc_link_config, name);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_LINK_NAME);
+ 	if (!string_is_valid(lc->name, len))
+ 		return -EINVAL;
+ 
 
 
