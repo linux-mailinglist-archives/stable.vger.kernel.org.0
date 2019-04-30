@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 986C9F831
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF927F761
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729213AbfD3MGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
+        id S1729265AbfD3Lqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727992AbfD3LlW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:22 -0400
+        id S1730576AbfD3Lqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C14E921670;
-        Tue, 30 Apr 2019 11:41:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8D9620449;
+        Tue, 30 Apr 2019 11:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624481;
-        bh=qRmKrYYbqkg1FwSL1lD95/YIPLn4v7ox5OG63TAr2ZE=;
+        s=default; t=1556624795;
+        bh=uXdfShyJJUnJCFZqwkhUDHpzoY8BpKlyrwVolj9fTNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ig2rSMqPuAGDv0kQchaR05pqMQ0PzekHV/DzUArNf9LRxfVOzbxKYtnQnw2jYutH0
-         k4ETFoSpe3vX3R3HZgkJE3QF9vTv3E6mGenaR7k9zUX0SxHqJdWaejJSBrY/zKr0Pe
-         WF+dzj3qJauwOZoo9QTVq8uxxlkP+b5FKqllpNqg=
+        b=nCccw8sI03nsFmlr0t1Equlj/jGHMC/FaZ4iEvFvpmqrU+ZCFwpXitiy6GC6x6jlI
+         61PtjHb2wx0lCaKC+7ApESEWuHj9GWV88KvnEAWAAeTOhwwX1T3miPkEWRVMXbyWuz
+         jOqjRc48fIoTd+gMawzQN3Wz1pA5QK359HnPcCnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, cj.chengjian@huawei.com,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.14 10/53] sched/numa: Fix a possible divide-by-zero
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 4.19 048/100] Revert "drm/i915/fbdev: Actually configure untiled displays"
 Date:   Tue, 30 Apr 2019 13:38:17 +0200
-Message-Id: <20190430113552.326734493@linuxfoundation.org>
+Message-Id: <20190430113611.311218385@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie XiuQi <xiexiuqi@huawei.com>
+From: Dave Airlie <airlied@redhat.com>
 
-commit a860fa7b96e1a1c974556327aa1aee852d434c21 upstream.
+commit 9fa246256e09dc30820524401cdbeeaadee94025 upstream.
 
-sched_clock_cpu() may not be consistent between CPUs. If a task
-migrates to another CPU, then se.exec_start is set to that CPU's
-rq_clock_task() by update_stats_curr_start(). Specifically, the new
-value might be before the old value due to clock skew.
+This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
 
-So then if in numa_get_avg_runtime() the expression:
+This commit is documented to break userspace X.org modesetting driver in certain configurations.
 
-  'now - p->last_task_numa_placement'
+The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
 
-ends up as -1, then the divider '*period + 1' in task_numa_placement()
-is 0 and things go bang. Similar to update_curr(), check if time goes
-backwards to avoid this.
+This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
 
-[ peterz: Wrote new changelog. ]
-[ mingo: Tweaked the code comment. ]
-
-Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: cj.chengjian@huawei.com
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20190425080016.GX11158@hirez.programming.kicks-ass.net
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Cc: <stable@vger.kernel.org> # v3.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/fair.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/intel_fbdev.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2026,6 +2026,10 @@ static u64 numa_get_avg_runtime(struct t
- 	if (p->last_task_numa_placement) {
- 		delta = runtime - p->last_sum_exec_runtime;
- 		*period = now - p->last_task_numa_placement;
-+
-+		/* Avoid time going backwards, prevent potential divide error: */
-+		if (unlikely((s64)*period < 0))
-+			*period = 0;
- 	} else {
- 		delta = p->se.avg.load_sum / p->se.load.weight;
- 		*period = LOAD_AVG_MAX;
+--- a/drivers/gpu/drm/i915/intel_fbdev.c
++++ b/drivers/gpu/drm/i915/intel_fbdev.c
+@@ -334,8 +334,8 @@ static bool intel_fb_initial_config(stru
+ 				    bool *enabled, int width, int height)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(fb_helper->dev);
++	unsigned long conn_configured, conn_seq, mask;
+ 	unsigned int count = min(fb_helper->connector_count, BITS_PER_LONG);
+-	unsigned long conn_configured, conn_seq;
+ 	int i, j;
+ 	bool *save_enabled;
+ 	bool fallback = true, ret = true;
+@@ -353,9 +353,10 @@ static bool intel_fb_initial_config(stru
+ 		drm_modeset_backoff(&ctx);
+ 
+ 	memcpy(save_enabled, enabled, count);
+-	conn_seq = GENMASK(count - 1, 0);
++	mask = GENMASK(count - 1, 0);
+ 	conn_configured = 0;
+ retry:
++	conn_seq = conn_configured;
+ 	for (i = 0; i < count; i++) {
+ 		struct drm_fb_helper_connector *fb_conn;
+ 		struct drm_connector *connector;
+@@ -368,8 +369,7 @@ retry:
+ 		if (conn_configured & BIT(i))
+ 			continue;
+ 
+-		/* First pass, only consider tiled connectors */
+-		if (conn_seq == GENMASK(count - 1, 0) && !connector->has_tile)
++		if (conn_seq == 0 && !connector->has_tile)
+ 			continue;
+ 
+ 		if (connector->status == connector_status_connected)
+@@ -473,10 +473,8 @@ retry:
+ 		conn_configured |= BIT(i);
+ 	}
+ 
+-	if (conn_configured != conn_seq) { /* repeat until no more are found */
+-		conn_seq = conn_configured;
++	if ((conn_configured & mask) != mask && conn_configured != conn_seq)
+ 		goto retry;
+-	}
+ 
+ 	/*
+ 	 * If the BIOS didn't enable everything it could, fall back to have the
 
 
