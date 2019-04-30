@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5399F79A
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEA9F7CB
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730397AbfD3Lpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57826 "EHLO mail.kernel.org"
+        id S1726689AbfD3MCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 08:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730412AbfD3Lpc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:45:32 -0400
+        id S1728550AbfD3LoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:44:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83CAA21670;
-        Tue, 30 Apr 2019 11:45:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E17921670;
+        Tue, 30 Apr 2019 11:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624732;
-        bh=SAKPEEYub/KbxrzvuSF0mqml4c6b15bwxKqcb4l6Wxg=;
+        s=default; t=1556624640;
+        bh=2hJO33y6xG6dZGi64IAc+Gc6JX8eta9NK0ALhUZtzJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxDq+mM1RYTkgYwIW01XjW0axfTksbam+liS9d/eaOXBPKUGrvUg6OVqPbFj/4vdh
-         wOzOpnqFP94C3+LvG9Spi/IItnxDKgfycqoqwkBkiuA0ITHYQ7er40zWea8ozCnJyq
-         +z5QDhWwAfby/nkrQivCjdh7fnPQ/TFuX/d8LriE=
+        b=pSZVcSWrxcT9NXN7+Qmy7buBHEqjN0LNpc7V553gavJmjee9IyzxUeEclG1h9Inxw
+         +wQ5JSqZ12W1RCf+P5yT4RlR79c5ucdHaNX6od4Ke9RdvfdQhTT4WnusL5+N80F+eJ
+         apMjzpsS7KAXkO+9SWhgwj6QU3Pg1D4yvH4FakgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Damian Kos <dkos@cadence.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 016/100] loop: do not print warn message if partition scan is successful
-Date:   Tue, 30 Apr 2019 13:37:45 +0200
-Message-Id: <20190430113609.361897912@linuxfoundation.org>
+Subject: [PATCH 4.19 017/100] drm/rockchip: fix for mailbox read validation.
+Date:   Tue, 30 Apr 2019 13:37:46 +0200
+Message-Id: <20190430113609.403796517@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
 References: <20190430113608.616903219@linuxfoundation.org>
@@ -44,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 40853d6fc619a6fd3d3177c3973a2eac9b598a80 ]
+[ Upstream commit e4056bbb6719fe713bfc4030ac78e8e97ddf7574 ]
 
-Do not print warn message when the partition scan returns 0.
+This is basically the same fix as in
+commit fa68d4f8476b ("drm/rockchip: fix for mailbox read size")
+but for cdn_dp_mailbox_validate_receive function.
 
-Fixes: d57f3374ba48 ("loop: Move special partition reread handling in loop_clr_fd()")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+See patchwork.kernel.org/patch/10671981/ for details.
+
+Signed-off-by: Damian Kos <dkos@cadence.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1542640463-18332-1-git-send-email-dkos@cadence.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/rockchip/cdn-dp-reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a63da9e07341..f1e63eb7cbca 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1112,8 +1112,9 @@ out_unlock:
- 			err = __blkdev_reread_part(bdev);
- 		else
- 			err = blkdev_reread_part(bdev);
--		pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
--			__func__, lo_number, err);
-+		if (err)
-+			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
-+				__func__, lo_number, err);
- 		/* Device is gone, no point in returning error */
- 		err = 0;
- 	}
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-reg.c b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+index 5a485489a1e2..6c8b14fb1d2f 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-reg.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+@@ -113,7 +113,7 @@ static int cdp_dp_mailbox_write(struct cdn_dp_device *dp, u8 val)
+ 
+ static int cdn_dp_mailbox_validate_receive(struct cdn_dp_device *dp,
+ 					   u8 module_id, u8 opcode,
+-					   u8 req_size)
++					   u16 req_size)
+ {
+ 	u32 mbox_size, i;
+ 	u8 header[4];
 -- 
 2.19.1
 
