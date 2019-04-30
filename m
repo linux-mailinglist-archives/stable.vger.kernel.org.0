@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 406F6F837
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72C5AF6D8
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbfD3MG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:06:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48464 "EHLO mail.kernel.org"
+        id S1731389AbfD3Lvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbfD3LlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:11 -0400
+        id S1730995AbfD3Lvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:51:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7353D21670;
-        Tue, 30 Apr 2019 11:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B94342054F;
+        Tue, 30 Apr 2019 11:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624470;
-        bh=2fVrfKPRJDmpuIYu/AVPqgHqNSEtakCjOlU/kwx6aWs=;
+        s=default; t=1556625090;
+        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xI0S1j8CbQfwUQYWj7V4TPCr5nr1xMsN4+rvN2SuS+wtjxypMwjLAvHUZzjrB1B5K
-         LEeKfeX4WJXw2gPQt+dvlbEU7ktF277GkjWj6f6VlQ5Nwz95wkqYBBTGl+S6ktlOzl
-         soTjsOzrDy1/wmlLuiKQaOJ22i6v4MD77RsaOZgI=
+        b=JfII/KYtYX0UkgdEsZd5Wx4oWGE7QF6nbC3inm4ZH3RdR2HQVsP5C8tSbF5RBIzT7
+         1TriJjRYCMzIEV63EbiZfiqVkU2s2WVADdT8ZkvwuohKZmwmGZCG8bo0vghzUGP6ci
+         5QULi4saBCP2z3gaSZeV08CM1615vNab03ahLhR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Cohen <amitc@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 31/41] mlxsw: spectrum: Fix autoneg status in ethtool
+        stable@vger.kernel.org,
+        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.0 51/89] slip: make slhc_free() silently accept an error pointer
 Date:   Tue, 30 Apr 2019 13:38:42 +0200
-Message-Id: <20190430113531.907091349@linuxfoundation.org>
+Message-Id: <20190430113612.083040126@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Cohen <amitc@mellanox.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 151f0dddbbfe4c35c9c5b64873115aafd436af9d ]
+commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
 
-If link is down and autoneg is set to on/off, the status in ethtool does
-not change.
+This way, slhc_free() accepts what slhc_init() returns, whether that is
+an error or not.
 
-The reason is when the link is down the function returns with zero
-before changing autoneg value.
+In particular, the pattern in sl_alloc_bufs() is
 
-Move the checking of link state (up/down) to be performed after setting
-autoneg value, in order to be sure that autoneg will change in any case.
+        slcomp = slhc_init(16, 16);
+        ...
+        slhc_free(slcomp);
 
-Fixes: 56ade8fe3fe1 ("mlxsw: spectrum: Add initial support for Spectrum ASIC")
-Signed-off-by: Amit Cohen <amitc@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+for the error handling path, and rather than complicate that code, just
+make it ok to always free what was returned by the init function.
+
+That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
+Validate VJ compression slot parameters completely") when slhc_init()
+just returned NULL for the error case, with no actual indication of the
+details of the error.
+
+Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
+Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -2059,11 +2059,11 @@ mlxsw_sp_port_set_link_ksettings(struct
- 	if (err)
- 		return err;
+---
+ drivers/net/slip/slhc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/slip/slhc.c
++++ b/drivers/net/slip/slhc.c
+@@ -153,7 +153,7 @@ out_fail:
+ void
+ slhc_free(struct slcompress *comp)
+ {
+-	if ( comp == NULLSLCOMPR )
++	if ( IS_ERR_OR_NULL(comp) )
+ 		return;
  
-+	mlxsw_sp_port->link.autoneg = autoneg;
-+
- 	if (!netif_running(dev))
- 		return 0;
- 
--	mlxsw_sp_port->link.autoneg = autoneg;
--
- 	mlxsw_sp_port_admin_status_set(mlxsw_sp_port, false);
- 	mlxsw_sp_port_admin_status_set(mlxsw_sp_port, true);
- 
+ 	if ( comp->tstate != NULLSLSTATE )
 
 
