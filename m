@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C906F7AA
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D59F60D
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbfD3LpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57150 "EHLO mail.kernel.org"
+        id S1729252AbfD3LmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730342AbfD3LpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:45:08 -0400
+        id S1727770AbfD3LmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:42:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 976AB21707;
-        Tue, 30 Apr 2019 11:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E16A821734;
+        Tue, 30 Apr 2019 11:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624708;
-        bh=1E80f6C6KKklPmtdQ4vXPcXRkfI+cNj4GBx96Yoj1oI=;
+        s=default; t=1556624536;
+        bh=77D6z18oj1v3jnBnn8XBJEpwVJSyPUUId9lJz6jmG7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxk1fR9TqOAhS2Sp2NpM+bq7jTajS3hj+anlS4QwyN3l4V+z3JdWEnjA9eam7+E9Z
-         FFvNgYxIBKN4t9WHYWZOiJOQYhVxUsVy1uNWZe4N9VZoqSwf1kRQfcLB1sWMKuWRiJ
-         8gJr6vZcgkLUbjb3JzStKMNvMk7UsKLtAivnELs8=
+        b=K560cWkVkcjBI3AJklte0DMLHIhMRnh36Wj6j2rh/IhZ+WunUrpjyCEcJS9fTA/bF
+         3XVSS9HfwQMoQ2mKQt7CcRCofSeDUnX2FT8OuiS79wT7opyLg3c8q3cGVpL015cCfL
+         Xru4Ij18+ydC0NevXcGt4VRO9QOSJ5f9AExvX5r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 041/100] Input: synaptics-rmi4 - write config register values to the right offset
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 03/53] tracing: Fix a memory leak by early error exit in trace_pid_write()
 Date:   Tue, 30 Apr 2019 13:38:10 +0200
-Message-Id: <20190430113611.080959564@linuxfoundation.org>
+Message-Id: <20190430113550.171594651@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
+References: <20190430113549.400132183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Wenwen Wang <wang6495@umn.edu>
 
-commit 3a349763cf11e63534b8f2d302f2d0c790566497 upstream.
+commit 91862cc7867bba4ee5c8fcf0ca2f1d30427b6129 upstream.
 
-Currently any changed config register values don't take effect, as the
-function to write them back is called with the wrong register offset.
+In trace_pid_write(), the buffer for trace parser is allocated through
+kmalloc() in trace_parser_get_init(). Later on, after the buffer is used,
+it is then freed through kfree() in trace_parser_put(). However, it is
+possible that trace_pid_write() is terminated due to unexpected errors,
+e.g., ENOMEM. In that case, the allocated buffer will not be freed, which
+is a memory leak bug.
 
-Fixes: ff8f83708b3e (Input: synaptics-rmi4 - add support for 2D
-                     sensors and F11)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+To fix this issue, free the allocated buffer when an error is encountered.
+
+Link: http://lkml.kernel.org/r/1555726979-15633-1-git-send-email-wang6495@umn.edu
+
+Fixes: f4d34a87e9c10 ("tracing: Use pid bitmap instead of a pid array for set_event_pid")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/rmi4/rmi_f11.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1230,7 +1230,7 @@ static int rmi_f11_initialize(struct rmi
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -494,8 +494,10 @@ int trace_pid_write(struct trace_pid_lis
+ 	 * not modified.
+ 	 */
+ 	pid_list = kmalloc(sizeof(*pid_list), GFP_KERNEL);
+-	if (!pid_list)
++	if (!pid_list) {
++		trace_parser_put(&parser);
+ 		return -ENOMEM;
++	}
+ 
+ 	pid_list->pid_max = READ_ONCE(pid_max);
+ 
+@@ -505,6 +507,7 @@ int trace_pid_write(struct trace_pid_lis
+ 
+ 	pid_list->pids = vzalloc((pid_list->pid_max + 7) >> 3);
+ 	if (!pid_list->pids) {
++		trace_parser_put(&parser);
+ 		kfree(pid_list);
+ 		return -ENOMEM;
  	}
- 
- 	rc = f11_write_control_regs(fn, &f11->sens_query,
--			   &f11->dev_controls, fn->fd.query_base_addr);
-+			   &f11->dev_controls, fn->fd.control_base_addr);
- 	if (rc)
- 		dev_warn(&fn->dev, "Failed to write control registers\n");
- 
 
 
