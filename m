@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4C3F618
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DFDF6F5
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbfD3LnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:43:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52698 "EHLO mail.kernel.org"
+        id S1730015AbfD3Lu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729670AbfD3Lm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:42:58 -0400
+        id S1730312AbfD3Lu2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:50:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F54721670;
-        Tue, 30 Apr 2019 11:42:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DC2D20449;
+        Tue, 30 Apr 2019 11:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624577;
-        bh=n6bEtCH5PYROpFtTrZGNY0HS5nQHHMu9jBCBwtahPa8=;
+        s=default; t=1556625027;
+        bh=u/7bNiFXHlXiSpvKf6zXVsjpXVoJ5NO9TeUy2831uKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scn/JYIRjfh4vpPPXyWkQP4LHMTd1p4loRP6idsdYFrE7TeYQurkjtPccrSZpRI5z
-         vlgbEvSW6oRF0R9v7ehW4eK+vZqnUiM+EgRXtArdDuQ1uTEkC3ZwKjnRHMaNm6UiVK
-         HiAP+m5YwbHebxNhkBgHMALijgRlUmaOB9WHkbf0=
+        b=wcofmEmTrZd8x4RrNX6hp9AooGg05zf7OrKOdUX0gVpk9KP8pMQjRht9yl3oMjEti
+         9JKBgIKdxMq5bUwIPTBJQp8GTq93Zv0ciTaacBNzcSIubnzkUKrcZIR9azV5vBxE8+
+         LpxQGOzCw5PwqokCOUfis3/UJ20GgKzzs/85sGXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 47/53] net: rds: exchange of 8K and 1M pool
-Date:   Tue, 30 Apr 2019 13:38:54 +0200
-Message-Id: <20190430113558.891950771@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.0 64/89] pin iocb through aio.
+Date:   Tue, 30 Apr 2019 13:38:55 +0200
+Message-Id: <20190430113612.718349457@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +45,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 4b9fc7146249a6e0e3175d0acc033fdcd2bfcb17 ]
+commit b53119f13a04879c3bf502828d99d13726639ead upstream.
 
-Before the commit 490ea5967b0d ("RDS: IB: move FMR code to its own file"),
-when the dirty_count is greater than 9/10 of max_items of 8K pool,
-1M pool is used, Vice versa. After the commit 490ea5967b0d ("RDS: IB: move
-FMR code to its own file"), the above is removed. When we make the
-following tests.
+aio_poll() is not the only case that needs file pinned; worse, while
+aio_read()/aio_write() can live without pinning iocb itself, the
+proof is rather brittle and can easily break on later changes.
 
-Server:
-  rds-stress -r 1.1.1.16 -D 1M
-
-Client:
-  rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M
-
-The following will appear.
-"
-connecting to 1.1.1.16:4000
-negotiated options, tasks will start in 2 seconds
-Starting up..header from 1.1.1.166:4001 to id 4001 bogus
-..
-tsks  tx/s  rx/s tx+rx K/s  mbi K/s  mbo K/s tx us/c  rtt us
-cpu %
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-...
-"
-So this exchange between 8K and 1M pool is added back.
-
-Fixes: commit 490ea5967b0d ("RDS: IB: move FMR code to its own file")
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rds/ib_fmr.c  |   11 +++++++++++
- net/rds/ib_rdma.c |    3 ---
- 2 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/net/rds/ib_fmr.c
-+++ b/net/rds/ib_fmr.c
-@@ -44,6 +44,17 @@ struct rds_ib_mr *rds_ib_alloc_fmr(struc
- 	else
- 		pool = rds_ibdev->mr_1m_pool;
+---
+ fs/aio.c |   37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
+
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -1022,6 +1022,9 @@ static bool get_reqs_available(struct ki
+ /* aio_get_req
+  *	Allocate a slot for an aio request.
+  * Returns NULL if no requests are free.
++ *
++ * The refcount is initialized to 2 - one for the async op completion,
++ * one for the synchronous code that does this.
+  */
+ static inline struct aio_kiocb *aio_get_req(struct kioctx *ctx)
+ {
+@@ -1034,7 +1037,7 @@ static inline struct aio_kiocb *aio_get_
+ 	percpu_ref_get(&ctx->reqs);
+ 	req->ki_ctx = ctx;
+ 	INIT_LIST_HEAD(&req->ki_list);
+-	refcount_set(&req->ki_refcnt, 0);
++	refcount_set(&req->ki_refcnt, 2);
+ 	req->ki_eventfd = NULL;
+ 	return req;
+ }
+@@ -1067,15 +1070,18 @@ out:
+ 	return ret;
+ }
  
-+	if (atomic_read(&pool->dirty_count) >= pool->max_items / 10)
-+		queue_delayed_work(rds_ib_mr_wq, &pool->flush_worker, 10);
++static inline void iocb_destroy(struct aio_kiocb *iocb)
++{
++	if (iocb->ki_filp)
++		fput(iocb->ki_filp);
++	percpu_ref_put(&iocb->ki_ctx->reqs);
++	kmem_cache_free(kiocb_cachep, iocb);
++}
 +
-+	/* Switch pools if one of the pool is reaching upper limit */
-+	if (atomic_read(&pool->dirty_count) >=  pool->max_items * 9 / 10) {
-+		if (pool->pool_type == RDS_IB_MR_8K_POOL)
-+			pool = rds_ibdev->mr_1m_pool;
-+		else
-+			pool = rds_ibdev->mr_8k_pool;
-+	}
-+
- 	ibmr = rds_ib_try_reuse_ibmr(pool);
- 	if (ibmr)
- 		return ibmr;
---- a/net/rds/ib_rdma.c
-+++ b/net/rds/ib_rdma.c
-@@ -442,9 +442,6 @@ struct rds_ib_mr *rds_ib_try_reuse_ibmr(
- 	struct rds_ib_mr *ibmr = NULL;
- 	int iter = 0;
+ static inline void iocb_put(struct aio_kiocb *iocb)
+ {
+-	if (refcount_read(&iocb->ki_refcnt) == 0 ||
+-	    refcount_dec_and_test(&iocb->ki_refcnt)) {
+-		if (iocb->ki_filp)
+-			fput(iocb->ki_filp);
+-		percpu_ref_put(&iocb->ki_ctx->reqs);
+-		kmem_cache_free(kiocb_cachep, iocb);
+-	}
++	if (refcount_dec_and_test(&iocb->ki_refcnt))
++		iocb_destroy(iocb);
+ }
  
--	if (atomic_read(&pool->dirty_count) >= pool->max_items_soft / 10)
--		queue_delayed_work(rds_ib_mr_wq, &pool->flush_worker, 10);
+ static void aio_fill_event(struct io_event *ev, struct aio_kiocb *iocb,
+@@ -1749,9 +1755,6 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	INIT_LIST_HEAD(&req->wait.entry);
+ 	init_waitqueue_func_entry(&req->wait, aio_poll_wake);
+ 
+-	/* one for removal from waitqueue, one for this function */
+-	refcount_set(&aiocb->ki_refcnt, 2);
 -
- 	while (1) {
- 		ibmr = rds_ib_reuse_mr(pool);
- 		if (ibmr)
+ 	mask = vfs_poll(req->file, &apt.pt) & req->events;
+ 	if (unlikely(!req->head)) {
+ 		/* we did not manage to set up a waitqueue, done */
+@@ -1782,7 +1785,6 @@ out:
+ 
+ 	if (mask)
+ 		aio_poll_complete(aiocb, mask);
+-	iocb_put(aiocb);
+ 	return 0;
+ }
+ 
+@@ -1873,18 +1875,21 @@ static int __io_submit_one(struct kioctx
+ 		break;
+ 	}
+ 
++	/* Done with the synchronous reference */
++	iocb_put(req);
++
+ 	/*
+ 	 * If ret is 0, we'd either done aio_complete() ourselves or have
+ 	 * arranged for that to be done asynchronously.  Anything non-zero
+ 	 * means that we need to destroy req ourselves.
+ 	 */
+-	if (ret)
+-		goto out_put_req;
+-	return 0;
++	if (!ret)
++		return 0;
++
+ out_put_req:
+ 	if (req->ki_eventfd)
+ 		eventfd_ctx_put(req->ki_eventfd);
+-	iocb_put(req);
++	iocb_destroy(req);
+ out_put_reqs_available:
+ 	put_reqs_available(ctx, 1);
+ 	return ret;
 
 
