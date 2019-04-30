@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA329F7D4
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19422F775
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729874AbfD3LnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:43:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53544 "EHLO mail.kernel.org"
+        id S1726819AbfD3L7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728908AbfD3LnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:43:24 -0400
+        id S1730571AbfD3Lqd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:46:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 694E821707;
-        Tue, 30 Apr 2019 11:43:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549552182B;
+        Tue, 30 Apr 2019 11:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624603;
-        bh=LGZmmeHB8SzFsXOlkPJ5Ap3bq0hhjA0B+TpJ666UMQE=;
+        s=default; t=1556624792;
+        bh=JSJpkAVkNv/JX/+V1ccBGPwdbmTUhawtKjf0TRPSt0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUNYqevHPgghCx180Byb6EBoipMNbJYSiEcRAIR/UbP0a5EdoAaLycXVxDxfo0sqo
-         n4tCUGR4S3duyTcSCpinabMEY2vXuuGnyjWNZHxj646lDmvqhGv+7LdPLOQvyBUtLE
-         MeFsEuPoKWunzST8njwcrHAmH3Wm1+d0ghKOYfrY=
+        b=QxFYFupFUYiJAXcUkLZ6Ub1ypjfpN8Ouo9MLMAHmAOWwvkV2lpfK3O391N5AxhbFU
+         75TNcmM2zKtbHeK47L8hQOajBnz4DNY8h36LC+08hSCQg/p5CGZit23HmP5iJlm5P8
+         O8xTWaTJVNKzlKgseduzvQqJ+/9RGsIQhAI8uu18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yue Haibing <yuehaibing@huawei.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.14 36/53] fm10k: Fix a potential NULL pointer dereference
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        syzbot+503d4cc169fcec1cb18c@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 074/100] aio: simplify - and fix - fget/fput for io_submit()
 Date:   Tue, 30 Apr 2019 13:38:43 +0200
-Message-Id: <20190430113557.603844512@linuxfoundation.org>
+Message-Id: <20190430113612.228279107@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +45,310 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yue Haibing <yuehaibing@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 01ca667133d019edc9f0a1f70a272447c84ec41f upstream.
+commit 84c4e1f89fefe70554da0ab33be72c9be7994379 upstream.
 
-Syzkaller report this:
+Al Viro root-caused a race where the IOCB_CMD_POLL handling of
+fget/fput() could cause us to access the file pointer after it had
+already been freed:
 
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-CPU: 0 PID: 4378 Comm: syz-executor.0 Tainted: G         C        5.0.0+ #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:__lock_acquire+0x95b/0x3200 kernel/locking/lockdep.c:3573
-Code: 00 0f 85 28 1e 00 00 48 81 c4 08 01 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 cc 24 00 00 49 81 7d 00 e0 de 03 a6 41 bc 00 00
-RSP: 0018:ffff8881e3c07a40 EFLAGS: 00010002
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: 0000000000000000 RDI: 0000000000000080
-RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8881e3c07d98 R11: ffff8881c7f21f80 R12: 0000000000000001
-R13: 0000000000000080 R14: 0000000000000000 R15: 0000000000000001
-FS:  00007fce2252e700(0000) GS:ffff8881f2400000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fffc7eb0228 CR3: 00000001e5bea002 CR4: 00000000007606f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- lock_acquire+0xff/0x2c0 kernel/locking/lockdep.c:4211
- __mutex_lock_common kernel/locking/mutex.c:925 [inline]
- __mutex_lock+0xdf/0x1050 kernel/locking/mutex.c:1072
- drain_workqueue+0x24/0x3f0 kernel/workqueue.c:2934
- destroy_workqueue+0x23/0x630 kernel/workqueue.c:4319
- __do_sys_delete_module kernel/module.c:1018 [inline]
- __se_sys_delete_module kernel/module.c:961 [inline]
- __x64_sys_delete_module+0x30c/0x480 kernel/module.c:961
- do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x462e99
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fce2252dc58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000140
-RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fce2252e6bc
-R13: 00000000004bcca9 R14: 00000000006f6b48 R15: 00000000ffffffff
+ "In more details - normally IOCB_CMD_POLL handling looks so:
 
-If alloc_workqueue fails, it should return -ENOMEM, otherwise may
-trigger this NULL pointer dereference while unloading drivers.
+   1) io_submit(2) allocates aio_kiocb instance and passes it to
+      aio_poll()
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 0a38c17a21a0 ("fm10k: Remove create_workqueue")
-Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+   2) aio_poll() resolves the descriptor to struct file by req->file =
+      fget(iocb->aio_fildes)
+
+   3) aio_poll() sets ->woken to false and raises ->ki_refcnt of that
+      aio_kiocb to 2 (bumps by 1, that is).
+
+   4) aio_poll() calls vfs_poll(). After sanity checks (basically,
+      "poll_wait() had been called and only once") it locks the queue.
+      That's what the extra reference to iocb had been for - we know we
+      can safely access it.
+
+   5) With queue locked, we check if ->woken has already been set to
+      true (by aio_poll_wake()) and, if it had been, we unlock the
+      queue, drop a reference to aio_kiocb and bugger off - at that
+      point it's a responsibility to aio_poll_wake() and the stuff
+      called/scheduled by it. That code will drop the reference to file
+      in req->file, along with the other reference to our aio_kiocb.
+
+   6) otherwise, we see whether we need to wait. If we do, we unlock the
+      queue, drop one reference to aio_kiocb and go away - eventual
+      wakeup (or cancel) will deal with the reference to file and with
+      the other reference to aio_kiocb
+
+   7) otherwise we remove ourselves from waitqueue (still under the
+      queue lock), so that wakeup won't get us. No async activity will
+      be happening, so we can safely drop req->file and iocb ourselves.
+
+  If wakeup happens while we are in vfs_poll(), we are fine - aio_kiocb
+  won't get freed under us, so we can do all the checks and locking
+  safely. And we don't touch ->file if we detect that case.
+
+  However, vfs_poll() most certainly *does* touch the file it had been
+  given. So wakeup coming while we are still in ->poll() might end up
+  doing fput() on that file. That case is not too rare, and usually we
+  are saved by the still present reference from descriptor table - that
+  fput() is not the final one.
+
+  But if another thread closes that descriptor right after our fget()
+  and wakeup does happen before ->poll() returns, we are in trouble -
+  final fput() done while we are in the middle of a method:
+
+Al also wrote a patch to take an extra reference to the file descriptor
+to fix this, but I instead suggested we just streamline the whole file
+pointer handling by submit_io() so that the generic aio submission code
+simply keeps the file pointer around until the aio has completed.
+
+Fixes: bfe4037e722e ("aio: implement IOCB_CMD_POLL")
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: syzbot+503d4cc169fcec1cb18c@syzkaller.appspotmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/fm10k/fm10k_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/aio.c           |   72 +++++++++++++++++++++--------------------------------
+ include/linux/fs.h |    8 +++++
+ 2 files changed, 36 insertions(+), 44 deletions(-)
 
---- a/drivers/net/ethernet/intel/fm10k/fm10k_main.c
-+++ b/drivers/net/ethernet/intel/fm10k/fm10k_main.c
-@@ -58,6 +58,8 @@ static int __init fm10k_init_module(void
- 	/* create driver workqueue */
- 	fm10k_workqueue = alloc_workqueue("%s", WQ_MEM_RECLAIM, 0,
- 					  fm10k_driver_name);
-+	if (!fm10k_workqueue)
-+		return -ENOMEM;
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -161,9 +161,13 @@ struct kioctx {
+ 	unsigned		id;
+ };
  
- 	fm10k_dbg_init();
++/*
++ * First field must be the file pointer in all the
++ * iocb unions! See also 'struct kiocb' in <linux/fs.h>
++ */
+ struct fsync_iocb {
+-	struct work_struct	work;
+ 	struct file		*file;
++	struct work_struct	work;
+ 	bool			datasync;
+ };
  
+@@ -177,8 +181,15 @@ struct poll_iocb {
+ 	struct work_struct	work;
+ };
+ 
++/*
++ * NOTE! Each of the iocb union members has the file pointer
++ * as the first entry in their struct definition. So you can
++ * access the file pointer through any of the sub-structs,
++ * or directly as just 'ki_filp' in this struct.
++ */
+ struct aio_kiocb {
+ 	union {
++		struct file		*ki_filp;
+ 		struct kiocb		rw;
+ 		struct fsync_iocb	fsync;
+ 		struct poll_iocb	poll;
+@@ -1054,6 +1065,8 @@ static inline void iocb_put(struct aio_k
+ {
+ 	if (refcount_read(&iocb->ki_refcnt) == 0 ||
+ 	    refcount_dec_and_test(&iocb->ki_refcnt)) {
++		if (iocb->ki_filp)
++			fput(iocb->ki_filp);
+ 		percpu_ref_put(&iocb->ki_ctx->reqs);
+ 		kmem_cache_free(kiocb_cachep, iocb);
+ 	}
+@@ -1418,7 +1431,6 @@ static void aio_complete_rw(struct kiocb
+ 		file_end_write(kiocb->ki_filp);
+ 	}
+ 
+-	fput(kiocb->ki_filp);
+ 	aio_complete(iocb, res, res2);
+ }
+ 
+@@ -1426,9 +1438,6 @@ static int aio_prep_rw(struct kiocb *req
+ {
+ 	int ret;
+ 
+-	req->ki_filp = fget(iocb->aio_fildes);
+-	if (unlikely(!req->ki_filp))
+-		return -EBADF;
+ 	req->ki_complete = aio_complete_rw;
+ 	req->private = NULL;
+ 	req->ki_pos = iocb->aio_offset;
+@@ -1445,7 +1454,7 @@ static int aio_prep_rw(struct kiocb *req
+ 		ret = ioprio_check_cap(iocb->aio_reqprio);
+ 		if (ret) {
+ 			pr_debug("aio ioprio check cap error: %d\n", ret);
+-			goto out_fput;
++			return ret;
+ 		}
+ 
+ 		req->ki_ioprio = iocb->aio_reqprio;
+@@ -1454,14 +1463,10 @@ static int aio_prep_rw(struct kiocb *req
+ 
+ 	ret = kiocb_set_rw_flags(req, iocb->aio_rw_flags);
+ 	if (unlikely(ret))
+-		goto out_fput;
++		return ret;
+ 
+ 	req->ki_flags &= ~IOCB_HIPRI; /* no one is going to poll for this I/O */
+ 	return 0;
+-
+-out_fput:
+-	fput(req->ki_filp);
+-	return ret;
+ }
+ 
+ static int aio_setup_rw(int rw, const struct iocb *iocb, struct iovec **iovec,
+@@ -1515,24 +1520,19 @@ static ssize_t aio_read(struct kiocb *re
+ 	if (ret)
+ 		return ret;
+ 	file = req->ki_filp;
+-
+-	ret = -EBADF;
+ 	if (unlikely(!(file->f_mode & FMODE_READ)))
+-		goto out_fput;
++		return -EBADF;
+ 	ret = -EINVAL;
+ 	if (unlikely(!file->f_op->read_iter))
+-		goto out_fput;
++		return -EINVAL;
+ 
+ 	ret = aio_setup_rw(READ, iocb, &iovec, vectored, compat, &iter);
+ 	if (ret)
+-		goto out_fput;
++		return ret;
+ 	ret = rw_verify_area(READ, file, &req->ki_pos, iov_iter_count(&iter));
+ 	if (!ret)
+ 		aio_rw_done(req, call_read_iter(file, req, &iter));
+ 	kfree(iovec);
+-out_fput:
+-	if (unlikely(ret))
+-		fput(file);
+ 	return ret;
+ }
+ 
+@@ -1549,16 +1549,14 @@ static ssize_t aio_write(struct kiocb *r
+ 		return ret;
+ 	file = req->ki_filp;
+ 
+-	ret = -EBADF;
+ 	if (unlikely(!(file->f_mode & FMODE_WRITE)))
+-		goto out_fput;
+-	ret = -EINVAL;
++		return -EBADF;
+ 	if (unlikely(!file->f_op->write_iter))
+-		goto out_fput;
++		return -EINVAL;
+ 
+ 	ret = aio_setup_rw(WRITE, iocb, &iovec, vectored, compat, &iter);
+ 	if (ret)
+-		goto out_fput;
++		return ret;
+ 	ret = rw_verify_area(WRITE, file, &req->ki_pos, iov_iter_count(&iter));
+ 	if (!ret) {
+ 		/*
+@@ -1576,9 +1574,6 @@ static ssize_t aio_write(struct kiocb *r
+ 		aio_rw_done(req, call_write_iter(file, req, &iter));
+ 	}
+ 	kfree(iovec);
+-out_fput:
+-	if (unlikely(ret))
+-		fput(file);
+ 	return ret;
+ }
+ 
+@@ -1588,7 +1583,6 @@ static void aio_fsync_work(struct work_s
+ 	int ret;
+ 
+ 	ret = vfs_fsync(req->file, req->datasync);
+-	fput(req->file);
+ 	aio_complete(container_of(req, struct aio_kiocb, fsync), ret, 0);
+ }
+ 
+@@ -1599,13 +1593,8 @@ static int aio_fsync(struct fsync_iocb *
+ 			iocb->aio_rw_flags))
+ 		return -EINVAL;
+ 
+-	req->file = fget(iocb->aio_fildes);
+-	if (unlikely(!req->file))
+-		return -EBADF;
+-	if (unlikely(!req->file->f_op->fsync)) {
+-		fput(req->file);
++	if (unlikely(!req->file->f_op->fsync))
+ 		return -EINVAL;
+-	}
+ 
+ 	req->datasync = datasync;
+ 	INIT_WORK(&req->work, aio_fsync_work);
+@@ -1615,10 +1604,7 @@ static int aio_fsync(struct fsync_iocb *
+ 
+ static inline void aio_poll_complete(struct aio_kiocb *iocb, __poll_t mask)
+ {
+-	struct file *file = iocb->poll.file;
+-
+ 	aio_complete(iocb, mangle_poll(mask), 0);
+-	fput(file);
+ }
+ 
+ static void aio_poll_complete_work(struct work_struct *work)
+@@ -1743,9 +1729,6 @@ static ssize_t aio_poll(struct aio_kiocb
+ 
+ 	INIT_WORK(&req->work, aio_poll_complete_work);
+ 	req->events = demangle_poll(iocb->aio_buf) | EPOLLERR | EPOLLHUP;
+-	req->file = fget(iocb->aio_fildes);
+-	if (unlikely(!req->file))
+-		return -EBADF;
+ 
+ 	req->head = NULL;
+ 	req->woken = false;
+@@ -1788,10 +1771,8 @@ static ssize_t aio_poll(struct aio_kiocb
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 
+ out:
+-	if (unlikely(apt.error)) {
+-		fput(req->file);
++	if (unlikely(apt.error))
+ 		return apt.error;
+-	}
+ 
+ 	if (mask)
+ 		aio_poll_complete(aiocb, mask);
+@@ -1829,6 +1810,11 @@ static int __io_submit_one(struct kioctx
+ 	if (unlikely(!req))
+ 		goto out_put_reqs_available;
+ 
++	req->ki_filp = fget(iocb->aio_fildes);
++	ret = -EBADF;
++	if (unlikely(!req->ki_filp))
++		goto out_put_req;
++
+ 	if (iocb->aio_flags & IOCB_FLAG_RESFD) {
+ 		/*
+ 		 * If the IOCB_FLAG_RESFD flag of aio_flags is set, get an
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -304,13 +304,19 @@ enum rw_hint {
+ 
+ struct kiocb {
+ 	struct file		*ki_filp;
++
++	/* The 'ki_filp' pointer is shared in a union for aio */
++	randomized_struct_fields_start
++
+ 	loff_t			ki_pos;
+ 	void (*ki_complete)(struct kiocb *iocb, long ret, long ret2);
+ 	void			*private;
+ 	int			ki_flags;
+ 	u16			ki_hint;
+ 	u16			ki_ioprio; /* See linux/ioprio.h */
+-} __randomize_layout;
++
++	randomized_struct_fields_end
++};
+ 
+ static inline bool is_sync_kiocb(struct kiocb *kiocb)
+ {
 
 
