@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A6C6F84F
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385C4F6CA
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728489AbfD3Lkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:40:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
+        id S1730834AbfD3Lvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:51:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728479AbfD3Lkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:40:32 -0400
+        id S1730995AbfD3Lvg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:51:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0890321707;
-        Tue, 30 Apr 2019 11:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02F222054F;
+        Tue, 30 Apr 2019 11:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624431;
-        bh=n6bEtCH5PYROpFtTrZGNY0HS5nQHHMu9jBCBwtahPa8=;
+        s=default; t=1556625095;
+        bh=QMKhlt3BS7uu0HAFlCN4qcRiUtHGvuEBPQthGHlGW0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+h2mPgad/s6umELcBchmKQ2lt7C6VoQBQUM1Y6FFdim70QPY7U6B2uMK/uKzVD0e
-         CjO5tWk8WIYcsIzax+mWj2pCxVlhhfMfW8SDkWzkOlhs5QHSA7icsgzRTf1I3e5kqq
-         DsrnE8chJ/RCelRrdb93yuGGSiAXD4VObXAbIy08=
+        b=rDjVcFvhxFPTwLc/tr6/aLKmxCDwV2xAes1ooWP0qShVWVIZHSG48wai8Q/rftFjG
+         V13G6rmijzspsPGTMHJ8pxCvy9sXEugsA/QL4qULCjmnnRl5CXwJLRxGwqWYRvGSOC
+         Z2U3zBBqHN9lFJDFoUYbTk9ZTcmXO9JWxO5kmsMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 33/41] net: rds: exchange of 8K and 1M pool
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
+Subject: [PATCH 5.0 53/89] binder: fix handling of misaligned binder object
 Date:   Tue, 30 Apr 2019 13:38:44 +0200
-Message-Id: <20190430113532.335973595@linuxfoundation.org>
+Message-Id: <20190430113612.171167211@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
-References: <20190430113524.451237916@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Todd Kjos <tkjos@android.com>
 
-[ Upstream commit 4b9fc7146249a6e0e3175d0acc033fdcd2bfcb17 ]
+commit 26528be6720bb40bc8844e97ee73a37e530e9c5e upstream.
 
-Before the commit 490ea5967b0d ("RDS: IB: move FMR code to its own file"),
-when the dirty_count is greater than 9/10 of max_items of 8K pool,
-1M pool is used, Vice versa. After the commit 490ea5967b0d ("RDS: IB: move
-FMR code to its own file"), the above is removed. When we make the
-following tests.
+Fixes crash found by syzbot:
+kernel BUG at drivers/android/binder_alloc.c:LINE! (2)
 
-Server:
-  rds-stress -r 1.1.1.16 -D 1M
-
-Client:
-  rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M
-
-The following will appear.
-"
-connecting to 1.1.1.16:4000
-negotiated options, tasks will start in 2 seconds
-Starting up..header from 1.1.1.166:4001 to id 4001 bogus
-..
-tsks  tx/s  rx/s tx+rx K/s  mbi K/s  mbo K/s tx us/c  rtt us
-cpu %
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-   1    0    0     0.00     0.00     0.00    0.00 0.00 -1.00
-...
-"
-So this exchange between 8K and 1M pool is added back.
-
-Fixes: commit 490ea5967b0d ("RDS: IB: move FMR code to its own file")
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-and-tested-by: syzbot+55de1eb4975dec156d8f@syzkaller.appspotmail.com
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: stable <stable@vger.kernel.org> # 5.0, 4.19, 4.14
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rds/ib_fmr.c  |   11 +++++++++++
- net/rds/ib_rdma.c |    3 ---
- 2 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/net/rds/ib_fmr.c
-+++ b/net/rds/ib_fmr.c
-@@ -44,6 +44,17 @@ struct rds_ib_mr *rds_ib_alloc_fmr(struc
- 	else
- 		pool = rds_ibdev->mr_1m_pool;
+---
+ drivers/android/binder_alloc.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
+
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -959,14 +959,13 @@ enum lru_status binder_alloc_free_page(s
  
-+	if (atomic_read(&pool->dirty_count) >= pool->max_items / 10)
-+		queue_delayed_work(rds_ib_mr_wq, &pool->flush_worker, 10);
+ 	index = page - alloc->pages;
+ 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
 +
-+	/* Switch pools if one of the pool is reaching upper limit */
-+	if (atomic_read(&pool->dirty_count) >=  pool->max_items * 9 / 10) {
-+		if (pool->pool_type == RDS_IB_MR_8K_POOL)
-+			pool = rds_ibdev->mr_1m_pool;
-+		else
-+			pool = rds_ibdev->mr_8k_pool;
-+	}
-+
- 	ibmr = rds_ib_try_reuse_ibmr(pool);
- 	if (ibmr)
- 		return ibmr;
---- a/net/rds/ib_rdma.c
-+++ b/net/rds/ib_rdma.c
-@@ -442,9 +442,6 @@ struct rds_ib_mr *rds_ib_try_reuse_ibmr(
- 	struct rds_ib_mr *ibmr = NULL;
- 	int iter = 0;
++	mm = alloc->vma_vm_mm;
++	if (!mmget_not_zero(mm))
++		goto err_mmget;
++	if (!down_write_trylock(&mm->mmap_sem))
++		goto err_down_write_mmap_sem_failed;
+ 	vma = binder_alloc_get_vma(alloc);
+-	if (vma) {
+-		if (!mmget_not_zero(alloc->vma_vm_mm))
+-			goto err_mmget;
+-		mm = alloc->vma_vm_mm;
+-		if (!down_write_trylock(&mm->mmap_sem))
+-			goto err_down_write_mmap_sem_failed;
+-	}
  
--	if (atomic_read(&pool->dirty_count) >= pool->max_items_soft / 10)
--		queue_delayed_work(rds_ib_mr_wq, &pool->flush_worker, 10);
+ 	list_lru_isolate(lru, item);
+ 	spin_unlock(lock);
+@@ -979,10 +978,9 @@ enum lru_status binder_alloc_free_page(s
+ 			       PAGE_SIZE);
+ 
+ 		trace_binder_unmap_user_end(alloc, index);
 -
- 	while (1) {
- 		ibmr = rds_ib_reuse_mr(pool);
- 		if (ibmr)
+-		up_write(&mm->mmap_sem);
+-		mmput(mm);
+ 	}
++	up_write(&mm->mmap_sem);
++	mmput(mm);
+ 
+ 	trace_binder_unmap_kernel_start(alloc, index);
+ 
 
 
