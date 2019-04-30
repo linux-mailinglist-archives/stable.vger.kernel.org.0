@@ -2,67 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA0F8FF0D
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 19:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1CAFF1D
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 19:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726006AbfD3RpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 13:45:05 -0400
-Received: from sonic301-22.consmr.mail.ir2.yahoo.com ([77.238.176.99]:33648
-        "EHLO sonic301-22.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725942AbfD3RpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 13:45:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1556646303; bh=jxj+w1r8rtewziiAD8RnBNU3Smt2xUm2nzPo3uRBBI4=; h=Date:From:Reply-To:Subject:References:From:Subject; b=frMy6q0iddLTusTrSIqgX+CZt6OT2qeqUfuf+vmiVKaTzk3ix9kR67CEzmg9eHr5wyxM2Mnz68kGiuXWWaWE7892I7rg41okGXEA7OQHIOdYbQqCcKI2MVOnJNJnOL8qYw/Hdox51aFFuUIewvSpCCECB82I9JmXy49JMuPouNdotUO7QqwqG7+R6EmWhdIK8OImldGdKjRSGQQR8dGTPcuQa39IfZn4sb1fdT/dq4z68GFxo99dUnP1v75oXR4NUxPDj4ah/hKUUj1mk3jVOjyTd8H7JQhgubJdrxkJAdCqx1JUmQYm7H5wKWLVSzB1K7EyCO5Lza6/6WnKZXek0A==
-X-YMail-OSG: Kp.lgpAVM1mq9J5X9zewTsKRwk3FN72_YOEAeqRv5uzc514A3EFNEaJLt1_niST
- 4oyLhooTrkdGMtKFDfUhwWwdpQj9NtLDSFb3IoU9AKhJK7IUvG3e.qKq0ZYbgSPQeoOqteylgwjB
- FjjELsKumZp6bW0_wWigjUDMDweIW0Isk6zim.RDo00KE7UWxFe7fkNzODf4XxJkDHetsqAWxlSI
- 2yUFk9PA40CB8KVXc7PCOiM6bzeDBsAfvFWMCV3k3npNqkrShVx8.HtcR.iPpwIIBfSa5McpvOQF
- CDEk_N24AtzQHyzUxPKMD9FaxE2lQF_5X_LYu.IK53XoY.tt8vs9dpPFKdNyE3MAlk5CAWAzLXks
- 483Np5RGGtLcClOLJrfv2db5Kg_fQyGDrruoP_kU3CTGSNzBSs2OJjvTFLIk2VudYIBw.1E4ipZb
- 0JUvBIBO7M4T_pUXNW81dJcGmFbCSMccp6M3LzMSTHF7bOCsHXlxPQbJ8nxDdLxKTHxHfc1hSjdb
- gewpZbgyKQXt7leZ4_ETpXlxXP76MEbVkYD7jjicR4KllvCz_5wwBDAF.vpmhHz.dY_9gNPIYNEK
- yV6DzKYeAHSr1.Dro9b5VGoAxQMti1lAMfXZxrB_I4d0THn03C8cnPzqn4nVVrkmRGz1hdHZwUTb
- bXcCWh096NqZm0ofuTfe_NsJJ_Y2I3nZFhFYMtWkhj72FIaKEqtvDbYvXSYhiOU7nlW4atkkwsdQ
- xXWpngNicqTqdSWgTOUZ5LdWd7MRlT1WxyHEo7Fx5uLJ2NUFrpHzhHZ12aH82tqktYiZEEjy4bW5
- sHjPXevzllRD7tkxX6Y0mKgITag27JpBKJ1VsGGnZl8lF.Tfp2M1mRmdzJeDhsYQ1THfxSwkavYI
- n3uzli7w661mJO9Qybg5WvpT5nGV1YLueWz28DuzddLPZlipyrcs6Hn1NeQXizt.j4q9aFrCkmp.
- TimJ.cDEScROC.l8qpI4rWskqgelA9aEZ04GIsgaVycjzRE8Q4g5Pl0rdXqdRglbErTjvzt7TrUc
- _ybqaJu1IvG3K8zHv9ixzbshZxXFx9RkCh5fP7xM8gCaEus2RnAAc8qUKX3JDnD4eQ8vR2RMji.7
- I8wk3ScpUp23PnUmfWmKTxkCQg4wK1jRkJeTGUnMZgh_FqSy5WTJ0E0Cpy1Cb3rRyvWM-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ir2.yahoo.com with HTTP; Tue, 30 Apr 2019 17:45:03 +0000
-Date:   Tue, 30 Apr 2019 17:45:01 +0000 (UTC)
-From:   Aisha Gaddafi <aishagaddafimd@gmail.com>
-Reply-To: Aisha Gaddafi <aishagaddafimd@gmail.com>
-Message-ID: <1766015233.4060839.1556646301477@mail.yahoo.com>
-Subject: Investment offer to you,
+        id S1725930AbfD3Ru7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 13:50:59 -0400
+Received: from mga18.intel.com ([134.134.136.126]:48239 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726155AbfD3Ru7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 13:50:59 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Apr 2019 10:50:58 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.60,414,1549958400"; 
+   d="scan'208";a="153641049"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by FMSMGA003.fm.intel.com with SMTP; 30 Apr 2019 10:50:55 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Tue, 30 Apr 2019 20:50:54 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org,
+        Anusha Srivatsa <anusha.srivatsa@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.0-stable] drm/i915: Do not enable FEC without DSC
+Date:   Tue, 30 Apr 2019 20:50:54 +0300
+Message-Id: <20190430175054.21797-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <155652995323242@kroah.com>
+References: <155652995323242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1766015233.4060839.1556646301477.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.13554 YahooMailBasic Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/7.0.185.1002 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
- It=E2=80=99s my pleasure to contact you through this media as i am in need=
- of your urgent assistance. My names are Mrs. Aisha Gaddafi a single Mother=
- and a Widow with three Children. I am the only biological Daughter of late=
- Libyan President (Late Colonel Muammar Gaddafi).
+commit 5aae7832d1b4ec614996ea0f4fafc4d9855ec0b0 upstream.
 
-I have an investment funds worth Twenty Eight Million Four Hundred Thousand=
- United State Dollar ($28.400.000.00) and i need an investment Manager/Part=
-ner and because of the asylum status i will authorize you the ownership of =
-the funds, however, I am interested in you for the investment project assis=
-tance in your country, may be from there, we can build a business relations=
-hip in the near future.
+Currently we enable FEC even when DSC is no used. While that is
+theoretically valid supposedly there isn't much of a benefit from
+this. But more importantly we do not account for the FEC link
+bandwidth overhead (2.4%) in the non-DSC link bandwidth computations.
+So the code may think we have enough bandwidth when we in fact
+do not.
 
-I am willing to negotiate investment/business profit sharing ratio with you=
- base on the future investment earning profits. If you are willing to handl=
-e this project kindly reply urgent to enable me provide you more informatio=
-n about the investment funds. Your Urgent Reply Will Be Appreciated.
+Cc: stable@vger.kernel.org
+Cc: Anusha Srivatsa <anusha.srivatsa@intel.com>
+Cc: Manasi Navare <manasi.d.navare@intel.com>
+Fixes: 240999cf339f ("i915/dp/fec: Add fec_enable to the crtc state.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190326144903.6617-1-ville.syrjala@linux.intel.com
+Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
+(cherry picked from commit 6fd3134ae3551d4802a04669c0f39f2f5c56f77d)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+---
+ drivers/gpu/drm/i915/intel_dp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Best Regards
-Mrs Aisha Gaddafi.
+diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
+index dcd1df5322e8..21c6016ccba5 100644
+--- a/drivers/gpu/drm/i915/intel_dp.c
++++ b/drivers/gpu/drm/i915/intel_dp.c
+@@ -1871,6 +1871,9 @@ static bool intel_dp_dsc_compute_config(struct intel_dp *intel_dp,
+ 	u8 dsc_max_bpc;
+ 	int pipe_bpp;
+ 
++	pipe_config->fec_enable = !intel_dp_is_edp(intel_dp) &&
++		intel_dp_supports_fec(intel_dp, pipe_config);
++
+ 	if (!intel_dp_supports_dsc(intel_dp, pipe_config))
+ 		return false;
+ 
+@@ -2097,9 +2100,6 @@ intel_dp_compute_config(struct intel_encoder *encoder,
+ 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLCLK)
+ 		return false;
+ 
+-	pipe_config->fec_enable = !intel_dp_is_edp(intel_dp) &&
+-				  intel_dp_supports_fec(intel_dp, pipe_config);
+-
+ 	if (!intel_dp_compute_link_config(encoder, pipe_config, conn_state))
+ 		return false;
+ 
+-- 
+2.21.0
+
