@@ -2,117 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B646AF3AB
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 12:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBDEF452
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 12:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726882AbfD3KEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 06:04:14 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:61467 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726262AbfD3KEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 06:04:13 -0400
-X-UUID: 0734807c873c4bb391afb6ba665d9690-20190430
-X-UUID: 0734807c873c4bb391afb6ba665d9690-20190430
-Received: from mtkmrs01.mediatek.inc [(172.21.131.159)] by mailgw01.mediatek.com
-        (envelope-from <xiaolei.li@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 1887702244; Tue, 30 Apr 2019 18:04:01 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs03n1.mediatek.inc (172.21.101.181) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Tue, 30 Apr 2019 18:04:00 +0800
-Received: from mtkslt306.mediatek.inc (10.21.14.136) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Tue, 30 Apr 2019 18:04:00 +0800
-From:   Xiaolei Li <xiaolei.li@mediatek.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>
-CC:     <linux-mtd@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <xiaolei.li@mediatek.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2 1/5] mtd: rawnand: mtk: Correct low level time calculation of r/w cycle
-Date:   Tue, 30 Apr 2019 18:02:46 +0800
-Message-ID: <20190430100250.28083-2-xiaolei.li@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20190430100250.28083-1-xiaolei.li@mediatek.com>
-References: <20190430100250.28083-1-xiaolei.li@mediatek.com>
+        id S1726646AbfD3Khx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 06:37:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46642 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726262AbfD3Khx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 06:37:53 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88E2B2075E;
+        Tue, 30 Apr 2019 10:37:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556620673;
+        bh=Adu11RItFO9r3zbk9rSrJJtqi4RFZUGpULMOz/Q7ZYY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oKUhQ4MogALpSxrHfUf7rFOuqBWh+34klKvQZtG0PgimMow5iy/0M0BS8lX1pujPb
+         GybpKK51XER9LDcQB5X4bJkRZVMRt7qPLLmHEux7yGRLeqmV4tY5hshC/6/s789phS
+         rRwqpC7yUjdDDRUEUHdBKOZAkSkZanMzysY0w5xg=
+Date:   Tue, 30 Apr 2019 12:37:50 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Diana Craciun <diana.craciun@nxp.com>
+Cc:     stable@vger.kernel.org, linuxppc-dev@ozlabs.org, mpe@ellerman.id.au
+Subject: Re: [PATCH stable v4.4 7/8] powerpc/fsl: Add FSL_PPC_BOOK3E as
+ supported arch for nospectre_v2 boot arg
+Message-ID: <20190430103750.GA10539@kroah.com>
+References: <1556552948-24957-1-git-send-email-diana.craciun@nxp.com>
+ <1556552948-24957-8-git-send-email-diana.craciun@nxp.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1556552948-24957-8-git-send-email-diana.craciun@nxp.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-At present, the flow of calculating AC timing of read/write cycle in SDR
-mode is that:
-At first, calculate high hold time which is valid for both read and write
-cycle using the max value between tREH_min and tWH_min.
-Secondly, calculate WE# pulse width using tWP_min.
-Thridly, calculate RE# pulse width using the bigger one between tREA_max
-and tRP_min.
+On Mon, Apr 29, 2019 at 06:49:07PM +0300, Diana Craciun wrote:
+> commit f633a8ad636efb5d4bba1a047d4a0f1ef719aa06 upstream.
 
-But NAND SPEC shows that Controller should also meet write/read cycle time.
-That is write cycle time should be more than tWC_min and read cycle should
-be more than tRC_min. Obviously, we do not achieve that now.
+No, the patch below is not that git commit :(
 
-This patch corrects the low level time calculation to meet minimum
-read/write cycle time required. After getting the high hold time, WE# low
-level time will be promised to meet tWP_min and tWC_min requirement,
-and RE# low level time will be promised to meet tREA_max, tRP_min and
-tRC_min requirement.
+I'll stop here in applying these patches.
 
-Fixes: edfee3619c49 ("mtd: nand: mtk: add ->setup_data_interface() hook")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaolei Li <xiaolei.li@mediatek.com>
----
- drivers/mtd/nand/raw/mtk_nand.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+thanks,
 
-diff --git a/drivers/mtd/nand/raw/mtk_nand.c b/drivers/mtd/nand/raw/mtk_nand.c
-index b6b4602f5132..4fbb0c6ecae3 100644
---- a/drivers/mtd/nand/raw/mtk_nand.c
-+++ b/drivers/mtd/nand/raw/mtk_nand.c
-@@ -508,7 +508,8 @@ static int mtk_nfc_setup_data_interface(struct nand_chip *chip, int csline,
- {
- 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
- 	const struct nand_sdr_timings *timings;
--	u32 rate, tpoecs, tprecs, tc2r, tw2r, twh, twst, trlt;
-+	u32 rate, tpoecs, tprecs, tc2r, tw2r, twh, twst = 0, trlt = 0;
-+	u32 thold;
- 
- 	timings = nand_get_sdr_timings(conf);
- 	if (IS_ERR(timings))
-@@ -544,11 +545,28 @@ static int mtk_nfc_setup_data_interface(struct nand_chip *chip, int csline,
- 	twh = DIV_ROUND_UP(twh * rate, 1000000) - 1;
- 	twh &= 0xf;
- 
--	twst = timings->tWP_min / 1000;
-+	/* Calculate real WE#/RE# hold time in nanosecond */
-+	thold = (twh + 1) * 1000000 / rate;
-+	/* nanosecond to picosecond */
-+	thold *= 1000;
-+
-+	/**
-+	 * WE# low level time should be expaned to meet WE# pulse time
-+	 * and WE# cycle time at the same time.
-+	 */
-+	if (thold < timings->tWC_min)
-+		twst = timings->tWC_min - thold;
-+	twst = max(timings->tWP_min, twst) / 1000;
- 	twst = DIV_ROUND_UP(twst * rate, 1000000) - 1;
- 	twst &= 0xf;
- 
--	trlt = max(timings->tREA_max, timings->tRP_min) / 1000;
-+	/**
-+	 * RE# low level time should be expaned to meet RE# pulse time,
-+	 * RE# access time and RE# cycle time at the same time.
-+	 */
-+	if (thold < timings->tRC_min)
-+		trlt = timings->tRC_min - thold;
-+	trlt = max3(trlt, timings->tREA_max, timings->tRP_min) / 1000;
- 	trlt = DIV_ROUND_UP(trlt * rate, 1000000) - 1;
- 	trlt &= 0xf;
- 
--- 
-2.18.0
-
+greg k-h
