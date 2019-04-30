@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FC3F82E
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67517F756
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727430AbfD3MGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 08:06:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
+        id S1730683AbfD3LrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728929AbfD3Llc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:41:32 -0400
+        id S1730678AbfD3LrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:47:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6879821707;
-        Tue, 30 Apr 2019 11:41:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D3FF20449;
+        Tue, 30 Apr 2019 11:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624491;
-        bh=Jkia0DhnlgV+tnqkEGrP8yfiK0rLeNFUaEhwZ9zKfNI=;
+        s=default; t=1556624833;
+        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNf2kA0DKKpwPMV/dxs3EZqrSWdODS/zq5SZgjayivLUyfUv3USLEl6WTO0R/BRU6
-         mtbb/WRIZfokYPEjW21LbIB6R6w80EjA9FjwT/FlgQFHFXEB6nDbBUdVrhKgwHD1Kd
-         JuAU6DqcR7t07XimvSlhIaxA3S7oMB/0ZjpyySUA=
+        b=zhgYwhV38+RTtnqYWVbovOpsswTOM8hAFNrplVAlhiq8egr+5zSZu4/jFWvdYl0oZ
+         4L/vvYMNP8ck7cNbXx7E6YGazhjW3ZAVueXckXTI/1Q4z5+6d6WDr8q9E6jUMWbt5z
+         u1LRlDJ3KJr0fe4E4/lZmVlBQyBIRQcSasmW9MHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.14 14/53] nfsd: Dont release the callback slot unless it was actually held
+        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 052/100] slip: make slhc_free() silently accept an error pointer
 Date:   Tue, 30 Apr 2019 13:38:21 +0200
-Message-Id: <20190430113552.971683338@linuxfoundation.org>
+Message-Id: <20190430113611.444954713@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113549.400132183@linuxfoundation.org>
-References: <20190430113549.400132183@linuxfoundation.org>
+In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
+References: <20190430113608.616903219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit e6abc8caa6deb14be2a206253f7e1c5e37e9515b upstream.
+commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
 
-If there are multiple callbacks queued, waiting for the callback
-slot when the callback gets shut down, then they all currently
-end up acting as if they hold the slot, and call
-nfsd4_cb_sequence_done() resulting in interesting side-effects.
+This way, slhc_free() accepts what slhc_init() returns, whether that is
+an error or not.
 
-In addition, the 'retry_nowait' path in nfsd4_cb_sequence_done()
-causes a loop back to nfsd4_cb_prepare() without first freeing the
-slot, which causes a deadlock when nfsd41_cb_get_slot() gets called
-a second time.
+In particular, the pattern in sl_alloc_bufs() is
 
-This patch therefore adds a boolean to track whether or not the
-callback did pick up the slot, so that it can do the right thing
-in these 2 cases.
+        slcomp = slhc_init(16, 16);
+        ...
+        slhc_free(slcomp);
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+for the error handling path, and rather than complicate that code, just
+make it ok to always free what was returned by the init function.
+
+That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
+Validate VJ compression slot parameters completely") when slhc_init()
+just returned NULL for the error case, with no actual indication of the
+details of the error.
+
+Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
+Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs4callback.c |    8 +++++++-
- fs/nfsd/state.h        |    1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/slip/slhc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -939,8 +939,9 @@ static void nfsd4_cb_prepare(struct rpc_
- 	cb->cb_seq_status = 1;
- 	cb->cb_status = 0;
- 	if (minorversion) {
--		if (!nfsd41_cb_get_slot(clp, task))
-+		if (!cb->cb_holds_slot && !nfsd41_cb_get_slot(clp, task))
- 			return;
-+		cb->cb_holds_slot = true;
- 	}
- 	rpc_call_start(task);
- }
-@@ -967,6 +968,9 @@ static bool nfsd4_cb_sequence_done(struc
- 		return true;
- 	}
+--- a/drivers/net/slip/slhc.c
++++ b/drivers/net/slip/slhc.c
+@@ -153,7 +153,7 @@ out_fail:
+ void
+ slhc_free(struct slcompress *comp)
+ {
+-	if ( comp == NULLSLCOMPR )
++	if ( IS_ERR_OR_NULL(comp) )
+ 		return;
  
-+	if (!cb->cb_holds_slot)
-+		goto need_restart;
-+
- 	switch (cb->cb_seq_status) {
- 	case 0:
- 		/*
-@@ -1004,6 +1008,7 @@ static bool nfsd4_cb_sequence_done(struc
- 			cb->cb_seq_status);
- 	}
- 
-+	cb->cb_holds_slot = false;
- 	clear_bit(0, &clp->cl_cb_slot_busy);
- 	rpc_wake_up_next(&clp->cl_cb_waitq);
- 	dprintk("%s: freed slot, new seqid=%d\n", __func__,
-@@ -1211,6 +1216,7 @@ void nfsd4_init_cb(struct nfsd4_callback
- 	cb->cb_seq_status = 1;
- 	cb->cb_status = 0;
- 	cb->cb_need_restart = false;
-+	cb->cb_holds_slot = false;
- }
- 
- void nfsd4_run_cb(struct nfsd4_callback *cb)
---- a/fs/nfsd/state.h
-+++ b/fs/nfsd/state.h
-@@ -69,6 +69,7 @@ struct nfsd4_callback {
- 	int cb_seq_status;
- 	int cb_status;
- 	bool cb_need_restart;
-+	bool cb_holds_slot;
- };
- 
- struct nfsd4_callback_ops {
+ 	if ( comp->tstate != NULLSLSTATE )
 
 
