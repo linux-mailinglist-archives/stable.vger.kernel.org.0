@@ -2,59 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EBF8FC21
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E3DFC95
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 17:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726014AbfD3PFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 11:05:49 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:38328 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725906AbfD3PFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 11:05:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=0xdy8/6cVPDCTA4KqHYwmMG/mADuOV15e+WMpCce+eQ=; b=sWAEJBmmETqq2/gocj40ak1yU
-        ZpviYJxIK/oPpIjAJwsgyrAs3pEUdTXq1ACOcROYeaS8R/6T6AiR2BN15WFOzgH8CVNVOfOIaSTmd
-        VeESS/wORMxI/dQ6j9U8WA/BF0OKM/keKw1E/qX3oY0W5zE1LBXoDqKiZHgNSljxosL+9zuV0GWJU
-        X/nzjE/5Z37n8Qquzi/sJKTHOD7mqqewb2lZbJuyzemuKl3/tQSG9Waey7oIGHMP9f23UKXOHzqO+
-        14PBU0YwXva41P5/c6kwhwfue7pLWP27TsJ1ErmAM399UoyxE6u+N7/5ZoOvuT9Ek4v92QY9uWzQG
-        GVCL5qXZw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hLUKE-0001n4-5K; Tue, 30 Apr 2019 15:05:42 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id DEADA29B2FDBB; Tue, 30 Apr 2019 17:05:35 +0200 (CEST)
-Date:   Tue, 30 Apr 2019 17:05:35 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Perr Zhang <strongbox8@zoho.com>, pbonzini@redhat.com,
-        rkrcmar@redhat.com, tglx@linutronix.de, stable@vger.kernel.org,
-        mingo@redhat.com, x86@kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KVM: x86: revert the order of calls in kvm_fast_pio()
-Message-ID: <20190430150535.GK2589@hirez.programming.kicks-ass.net>
-References: <20190430142423.3393-1-strongbox8@zoho.com>
- <20190430143201.GH2589@hirez.programming.kicks-ass.net>
- <20190430145724.GA32170@linux.intel.com>
+        id S1726014AbfD3PRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 11:17:20 -0400
+Received: from mail-yw1-f48.google.com ([209.85.161.48]:44350 "EHLO
+        mail-yw1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725995AbfD3PRU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 11:17:20 -0400
+Received: by mail-yw1-f48.google.com with SMTP id j4so6146763ywk.11
+        for <stable@vger.kernel.org>; Tue, 30 Apr 2019 08:17:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=E7Oh0lIX5/5BeaHDNH9o5RLlhW7iGS70DxHmfskxaVk=;
+        b=onY7nO/oEcgvxtW24m+IloKXCpnC5Ds/LZV65n4R3q04zU4fKm2tIPzPB9VUyVsILd
+         rvd8mLKzJWADyWFmoROr6ByzCn8P4Wnijha5SRO1Na9XwiJxSpU6kpKDcd/DvEXz0FYC
+         5GxFUFrY8RqrfXxdV0E2mboGUVx1FCRNWGRnBPC0gUviIF+2vNT7LluKv6KrAZXHL8hD
+         GLrTt3NSGyd4WBPquH6YuXWngTmdYCFffHXmRTo+cODWbsA3QfNm+Lh2CUf9fsq72TI+
+         g927ruN192poBbt/QNCJpmWJgNiER5crhsiY8Rdy1toO/+ZVlK2RVYimWiLxHjfFgVbr
+         DjAQ==
+X-Gm-Message-State: APjAAAU1uIvaASUD/hYuxF+Nl49bNSX+tCoGYQiGcDnBlNTCuc4W4DK/
+        seH08bV4DjnXeCntkUXeAFMzFnpkfxM=
+X-Google-Smtp-Source: APXvYqxDpm4+pK0xaB3F9CcxDNt8bBt21r7nz6TrkrHMj8tuWH7D0Ppnmd3Xuyi3nNFqSsjs+8s95g==
+X-Received: by 2002:a81:5f83:: with SMTP id t125mr53795903ywb.32.1556637438862;
+        Tue, 30 Apr 2019 08:17:18 -0700 (PDT)
+Received: from [192.168.10.164] (cpe-24-243-36-151.satx.res.rr.com. [24.243.36.151])
+        by smtp.gmail.com with ESMTPSA id z123sm2744289ywz.82.2019.04.30.08.17.17
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 30 Apr 2019 08:17:17 -0700 (PDT)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8e_FAIL=3a_Stable_queue=3a_queue-5=2e0?=
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+References: <cki.6C208109D9.WGQF5P41NS@redhat.com>
+ <efa70f6a-8854-7494-81a6-f729aeca5351@redhat.com>
+ <20190430130331.GA6937@sasha-vm> <20190430132700.GA12407@kroah.com>
+ <20190430134159.GB6937@sasha-vm> <20190430140125.GA18765@kroah.com>
+From:   Major Hayden <major@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=major@redhat.com; prefer-encrypt=mutual; keydata=
+ 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 UNdR
+Message-ID: <641778a3-be33-d07a-1120-4a49a5010c89@redhat.com>
+Date:   Tue, 30 Apr 2019 10:17:17 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190430145724.GA32170@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190430140125.GA18765@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 07:57:24AM -0700, Sean Christopherson wrote:
-> There's a more precise fix submitted for this bug[1].  In theory v2
-> already went out, but I still don't see it posted to the KVM list.
-> Either the KVM list or my mail client is being weird.
+On 4/30/19 9:01 AM, Greg KH wrote:
+> On Tue, Apr 30, 2019 at 09:41:59AM -0400, Sasha Levin wrote:
+>> On Tue, Apr 30, 2019 at 03:27:00PM +0200, Greg KH wrote:
+>>> On Tue, Apr 30, 2019 at 09:03:31AM -0400, Sasha Levin wrote:
+>>>> Hello CKI folks,
+>>>>
+>>>> A minor nit: the icon added before the subject text gets filtered out on
+>>>> the textual email clients most of us use, and ends up appearing (at
+>>>> least for me) as 3 spaces that cause much annoyance since it gets
+>>>> confused with mail threading.
+>>>
+>>> Really?  It's just a "normal" emoji character, perhaps you need a better
+>>> email client or terminal window?  :)
+>>>
+>>> What are you using that you can't see this in a terminal?
+>> Um, mutt on xterm...
+> Use a "modern" terminal program please, that's the problem here.  I just
+> tried 4 different ones (gnome-terminal, terminology, tilix, and kitty),
+> and they all worked just fine.
 > 
-> [1] https://patchwork.kernel.org/patch/10919849/
+> With mutt :)
 
-Thanks!
+We can change the email format very easily. If removing the emoji in the subject line would be better, that's a really quick change for us.
+
+Our hope was that it would make it easier to identify automated CI results and make it easier to know the feedback when you're looking at a lot of email threads.
+
+--
+Major Hayden
