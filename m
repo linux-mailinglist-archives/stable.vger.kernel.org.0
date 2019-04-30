@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B0BF66B
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDF8F72C
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729088AbfD3LrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60930 "EHLO mail.kernel.org"
+        id S1726388AbfD3L4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728862AbfD3LrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:47:22 -0400
+        id S1730866AbfD3Lsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:48:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAA562054F;
-        Tue, 30 Apr 2019 11:47:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7902B20449;
+        Tue, 30 Apr 2019 11:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624841;
-        bh=oKlPAoQ9ZBkCJzVeAwx87mKWHmnicgEOjcEmv6Oj014=;
+        s=default; t=1556624921;
+        bh=TKqAad3HeCTQ5jzhurH98iRs8WRCsusuiIuMh6eGFjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXA/CBYXWu+Hkp6OmedE0dStkoUQlSTcRO38JPyUi14NwhXeM0jSHpovIfpdBvaSS
-         xq2caHEbTiGibhfm0mnLcsZMeuo3M8BOoGB4pFzHpfxFX2dxctI9vQnfIm2haoCOIK
-         AhkS02qN0bZh8MNqyypZE8siw1kL5QgSV6JkYf9E=
+        b=lQlyzBzsWxcBHwvdqU7LxmzNFreBQDY77LN9+DwGjNj22iA+SeNuSEiNMTSoAqEwZ
+         u1PpzVQlTzO1l+8DjVzFfY94M77RJB9eMTkxUqI0hKq3wGX484w19SDExLTmDD+aGq
+         hJftTl77n15B9jkex9uIq+MhanK7wX0vOiIdEK9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.19 045/100] ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Haggai Eran <haggaie@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 5.0 23/89] RDMA/mlx5: Do not allow the user to write to the clock page
 Date:   Tue, 30 Apr 2019 13:38:14 +0200
-Message-Id: <20190430113611.214119965@linuxfoundation.org>
+Message-Id: <20190430113611.124712220@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113608.616903219@linuxfoundation.org>
-References: <20190430113608.616903219@linuxfoundation.org>
+In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
+References: <20190430113609.741196396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit e17b1af96b2afc38e684aa2f1033387e2ed10029 upstream.
+commit c660133c339f9ab684fdf568c0d51b9ae5e86002 upstream.
 
-The EFI stub is entered with the caches and MMU enabled by the
-firmware, and once the stub is ready to hand over to the decompressor,
-we clean and disable the caches.
+The intent of this VMA was to be read-only from user space, but the
+VM_MAYWRITE masking was missed, so mprotect could make it writable.
 
-The cache clean routines use CP15 barrier instructions, which can be
-disabled via SCTLR. Normally, when using the provided cache handling
-routines to enable the caches and MMU, this bit is enabled as well.
-However, but since we entered the stub with the caches already enabled,
-this routine is not executed before we call the cache clean routines,
-resulting in undefined instruction exceptions if the firmware never
-enabled this bit.
-
-So set the bit explicitly in the EFI entry code, but do so in a way that
-guarantees that the resulting code can still run on v6 cores as well
-(which are guaranteed to have CP15 barriers enabled)
-
-Cc: <stable@vger.kernel.org> # v4.9+
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+Fixes: 5c99eaecb1fc ("IB/mlx5: Mmap the HCA's clock info to user-space")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Haggai Eran <haggaie@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/compressed/head.S |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm/boot/compressed/head.S
-+++ b/arch/arm/boot/compressed/head.S
-@@ -1395,7 +1395,21 @@ ENTRY(efi_stub_entry)
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1982,6 +1982,7 @@ static int mlx5_ib_mmap_clock_info_page(
  
- 		@ Preserve return value of efi_entry() in r4
- 		mov	r4, r0
--		bl	cache_clean_flush
-+
-+		@ our cache maintenance code relies on CP15 barrier instructions
-+		@ but since we arrived here with the MMU and caches configured
-+		@ by UEFI, we must check that the CP15BEN bit is set in SCTLR.
-+		@ Note that this bit is RAO/WI on v6 and earlier, so the ISB in
-+		@ the enable path will be executed on v7+ only.
-+		mrc	p15, 0, r1, c1, c0, 0	@ read SCTLR
-+		tst	r1, #(1 << 5)		@ CP15BEN bit set?
-+		bne	0f
-+		orr	r1, r1, #(1 << 5)	@ CP15 barrier instructions
-+		mcr	p15, 0, r1, c1, c0, 0	@ write SCTLR
-+ ARM(		.inst	0xf57ff06f		@ v7+ isb	)
-+ THUMB(		isb						)
-+
-+0:		bl	cache_clean_flush
- 		bl	cache_off
+ 	if (vma->vm_flags & VM_WRITE)
+ 		return -EPERM;
++	vma->vm_flags &= ~VM_MAYWRITE;
  
- 		@ Set parameters for booting zImage according to boot protocol
+ 	if (!dev->mdev->clock_info_page)
+ 		return -EOPNOTSUPP;
+@@ -2147,6 +2148,7 @@ static int mlx5_ib_mmap(struct ib_uconte
+ 
+ 		if (vma->vm_flags & VM_WRITE)
+ 			return -EPERM;
++		vma->vm_flags &= ~VM_MAYWRITE;
+ 
+ 		/* Don't expose to user-space information it shouldn't have */
+ 		if (PAGE_SIZE > 4096)
 
 
