@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBABF705
-	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 13:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CAFF863
+	for <lists+stable@lfdr.de>; Tue, 30 Apr 2019 14:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730708AbfD3Ltc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 07:49:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36080 "EHLO mail.kernel.org"
+        id S1728119AbfD3LkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 07:40:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730709AbfD3Ltb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Apr 2019 07:49:31 -0400
+        id S1728212AbfD3LkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:40:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F84921734;
-        Tue, 30 Apr 2019 11:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06A9E21670;
+        Tue, 30 Apr 2019 11:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556624970;
-        bh=9wjh8KhDFWxat4RFS8FnsuU4lCY2MRrx7waCkkCQFj8=;
+        s=default; t=1556624400;
+        bh=yNF5fBcZBeHofcbFX4RGA8qq7oiAsCqYqoSBSysuYh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApLgYCaUFnLhuRsBl3zlGbpDChZLk2FFww1ChjRkBjFJiTy9tmiMtEWJ1dm/nfFfz
-         fJ3gFYYRChYK/PSRCKOF9jmbv9eJJcSeItrh+ygEUNqsfon+EUoiz1jGfA9HKFZtpp
-         OPh/8J9OqgV3Ap6Qh3loMKEw1/WD08CAwDQLUHLg=
+        b=PgJadybxojFFNxuQzjxWGgxiT0D5a+392W6nrvnMdPbEu0LoZTNyAv8Acxx37dgKm
+         rzLQo53wn2BIrJJG38+pJvk/Cn4jCcZ29L3cjnRKZTgQGTmC9Tgbx4LB/N15d7GTFl
+         wIHgIGysCiOoNX4s2uodkYdOx6hkjLr2soqK8zAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.0 40/89] ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache
+        stable@vger.kernel.org,
+        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 20/41] tipc: handle the err returned from cmd header function
 Date:   Tue, 30 Apr 2019 13:38:31 +0200
-Message-Id: <20190430113611.689521185@linuxfoundation.org>
+Message-Id: <20190430113530.005872610@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190430113609.741196396@linuxfoundation.org>
-References: <20190430113609.741196396@linuxfoundation.org>
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+References: <20190430113524.451237916@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit e17b1af96b2afc38e684aa2f1033387e2ed10029 upstream.
+commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
 
-The EFI stub is entered with the caches and MMU enabled by the
-firmware, and once the stub is ready to hand over to the decompressor,
-we clean and disable the caches.
+Syzbot found a crash:
 
-The cache clean routines use CP15 barrier instructions, which can be
-disabled via SCTLR. Normally, when using the provided cache handling
-routines to enable the caches and MMU, this bit is enabled as well.
-However, but since we entered the stub with the caches already enabled,
-this routine is not executed before we call the cache clean routines,
-resulting in undefined instruction exceptions if the firmware never
-enabled this bit.
+  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+  Call Trace:
+    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
+    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
+    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
+    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
+    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
 
-So set the bit explicitly in the EFI entry code, but do so in a way that
-guarantees that the resulting code can still run on v6 cores as well
-(which are guaranteed to have CP15 barriers enabled)
+  Uninit was created at:
+    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+    alloc_skb include/linux/skbuff.h:1012 [inline]
+    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
 
-Cc: <stable@vger.kernel.org> # v4.9+
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
+in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
+in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
+ahead of tipc_nl_compat_name_table_dump().
+
+However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
+header function. It means even when the check added in that fix fails, it
+won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
+triggered again.
+
+So this patch is to add the process for the err returned from cmd header
+function in tipc_nl_compat_dumpit().
+
+Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/compressed/head.S |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ net/tipc/netlink_compat.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/compressed/head.S
-+++ b/arch/arm/boot/compressed/head.S
-@@ -1438,7 +1438,21 @@ ENTRY(efi_stub_entry)
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -262,8 +262,14 @@ static int tipc_nl_compat_dumpit(struct
+ 	if (msg->rep_type)
+ 		tipc_tlv_init(msg->rep, msg->rep_type);
  
- 		@ Preserve return value of efi_entry() in r4
- 		mov	r4, r0
--		bl	cache_clean_flush
-+
-+		@ our cache maintenance code relies on CP15 barrier instructions
-+		@ but since we arrived here with the MMU and caches configured
-+		@ by UEFI, we must check that the CP15BEN bit is set in SCTLR.
-+		@ Note that this bit is RAO/WI on v6 and earlier, so the ISB in
-+		@ the enable path will be executed on v7+ only.
-+		mrc	p15, 0, r1, c1, c0, 0	@ read SCTLR
-+		tst	r1, #(1 << 5)		@ CP15BEN bit set?
-+		bne	0f
-+		orr	r1, r1, #(1 << 5)	@ CP15 barrier instructions
-+		mcr	p15, 0, r1, c1, c0, 0	@ write SCTLR
-+ ARM(		.inst	0xf57ff06f		@ v7+ isb	)
-+ THUMB(		isb						)
-+
-+0:		bl	cache_clean_flush
- 		bl	cache_off
+-	if (cmd->header)
+-		(*cmd->header)(msg);
++	if (cmd->header) {
++		err = (*cmd->header)(msg);
++		if (err) {
++			kfree_skb(msg->rep);
++			msg->rep = NULL;
++			return err;
++		}
++	}
  
- 		@ Set parameters for booting zImage according to boot protocol
+ 	arg = nlmsg_new(0, GFP_KERNEL);
+ 	if (!arg) {
 
 
