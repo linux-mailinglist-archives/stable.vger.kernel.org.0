@@ -2,72 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D0A31081E
-	for <lists+stable@lfdr.de>; Wed,  1 May 2019 15:08:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BE410B7E
+	for <lists+stable@lfdr.de>; Wed,  1 May 2019 18:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbfEANIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 May 2019 09:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36048 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725993AbfEANIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 May 2019 09:08:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C3FC2085A;
-        Wed,  1 May 2019 13:08:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556716083;
-        bh=8/mdyWTopgYXMGmoCnxG3YsNyNXWiGF01vuAp/fhSSQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bWwSO7jnRiU+mtI0evjo+3t2JenQ72Kcn50zQLZYeoiwjkQ9+e3sRgOtdN8nh7ZqA
-         M3X26E+fP9hW8l9o7V1UF9jCoTdBI1s1Sf1oAFT/5SMoB8xwb4ZokywxspSIN37EM5
-         LbfhlxfkwIvNPKssW8LSG2ns0NyLk1IjuUs/DMfM=
-Date:   Wed, 1 May 2019 15:08:00 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dave Airlie <airlied@redhat.com>
-Subject: Re: [PATCH 5.0 44/89] Revert "drm/i915/fbdev: Actually configure
- untiled displays"
-Message-ID: <20190501130800.GA28264@kroah.com>
-References: <20190430113609.741196396@linuxfoundation.org>
- <20190430113611.821040876@linuxfoundation.org>
- <20190501130208.GA3929@sasha-vm>
+        id S1726415AbfEAQnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 May 2019 12:43:47 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:35960 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726224AbfEAQnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 May 2019 12:43:47 -0400
+Received: by mail-pg1-f195.google.com with SMTP id 85so8534073pgc.3;
+        Wed, 01 May 2019 09:43:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=hCSVytESz3Q+D4Rhyjxyxt2cp+x2VgroJNnJusXnblY=;
+        b=Bvrw7tAXHLL2ASfME96js8WKxak0Rnee0TveON6p4bNle7a/tVRL4PVj8icZN1jcfh
+         Gt9qWHdrYFaykYq2RXIkmulxRH/oCFlXFHsqJRYkRZTW5YfM6/kB+z8kJfpV9S1oTr49
+         nudAnKm6yoDaFZ1dJWiOZmqrw3XfXriiZX85pgw3IBQSH7fUBrkWX1V2ZSRfOoBEaqrO
+         ZeGwaFKyly80mZEfzuN1xovlxDvRnfY7Ln3NTje1IciAjRkL8YGO8uvhyzq0mTukfhug
+         CVByzYshsRDVaoHGnTVpCy/gqZfznrj/KXuoY4nrkk2g0m8kAnDaSlbLjlb9b+wbw1OQ
+         SJiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=hCSVytESz3Q+D4Rhyjxyxt2cp+x2VgroJNnJusXnblY=;
+        b=tWZnzXdd418ZyvX89Gw2oVAYIupbrAdYC1W+6TioK4APZb8XxI6r4CKRtvnsgi3Xc9
+         nKAA6t2+/fyTM1UhhGYs4uRi0jSDzDjD+VvVwRrGdilZ4YKK3BPbMzOhcG+FNa2Cm+3b
+         cbx8FZZXNIEOxMgVAD2/+6B1gaADaxR+qO4QEE28no0Uu7GwNom+kpgK0UlUJmM0qiAH
+         CXusLcX+xCPStQcCSg/t/kakOqkzVDnxe62G2LK8R1nK/UsUJIYgSX0Z7y++o0qePrX3
+         isWOoRRwA4wFQFrO7qAqBLoIS0hS7gan5KWLELtEs8lSNvyPoH8no8SCQAuhX/IpznED
+         sHAQ==
+X-Gm-Message-State: APjAAAVW7Hamp03HaWBS41/4txmvEhcXjpe8BIvqOu4nIKPoYGk/xCro
+        2140EfElhBzWnAR4oC9rcmM=
+X-Google-Smtp-Source: APXvYqw9HVqjfxFo+D/1M1OGoWppewKKdbwh5N/pyeUxzz5GqAMgqXItwO4iNwDknosGOuFsoOZrWA==
+X-Received: by 2002:a65:64c9:: with SMTP id t9mr73975884pgv.221.1556729026592;
+        Wed, 01 May 2019 09:43:46 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b14sm49875493pfi.92.2019.05.01.09.43.44
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 01 May 2019 09:43:45 -0700 (PDT)
+Date:   Wed, 1 May 2019 09:43:44 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 00/41] 4.9.172-stable review
+Message-ID: <20190501164344.GA16175@roeck-us.net>
+References: <20190430113524.451237916@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190501130208.GA3929@sasha-vm>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190430113524.451237916@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 01, 2019 at 09:02:08AM -0400, Sasha Levin wrote:
-> On Tue, Apr 30, 2019 at 01:38:35PM +0200, Greg Kroah-Hartman wrote:
-> > From: Dave Airlie <airlied@redhat.com>
-> > 
-> > commit 9fa246256e09dc30820524401cdbeeaadee94025 upstream.
-> > 
-> > This reverts commit d179b88deb3bf6fed4991a31fd6f0f2cad21fab5.
-> > 
-> > This commit is documented to break userspace X.org modesetting driver in certain configurations.
-> > 
-> > The X.org modesetting userspace driver is broken. No fixes are available yet. In order for this patch to be applied it either needs a config option or a workaround developed.
-> > 
-> > This has been reported a few times, saying it's a userspace problem is clearly against the regression rules.
-> > 
-> > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109806
-> > Signed-off-by: Dave Airlie <airlied@redhat.com>
-> > Cc: <stable@vger.kernel.org> # v3.19+
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Tue, Apr 30, 2019 at 01:38:11PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.172 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This commit has a follow-up fix as abbc0697d5fbf ("drm/fb: revert the
-> i915 Actually configure untiled displays from master").
+> Responses should be made by Thu 02 May 2019 11:34:41 AM UTC.
+> Anything received after that time might be too late.
+> 
 
-I don't see that commit in Linus's tree, where did you find it?
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 320 pass: 320 fail: 0
 
-confused,
-
-greg k-h
+Guenter
