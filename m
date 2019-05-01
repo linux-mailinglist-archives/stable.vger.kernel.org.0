@@ -2,112 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D4C10378
-	for <lists+stable@lfdr.de>; Wed,  1 May 2019 02:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C574B10380
+	for <lists+stable@lfdr.de>; Wed,  1 May 2019 02:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726166AbfEAAZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Apr 2019 20:25:05 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44966 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbfEAAZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 20:25:05 -0400
-Received: by mail-pg1-f194.google.com with SMTP id z16so7605449pgv.11
-        for <stable@vger.kernel.org>; Tue, 30 Apr 2019 17:25:05 -0700 (PDT)
+        id S1727116AbfEAAaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Apr 2019 20:30:05 -0400
+Received: from mail-vk1-f201.google.com ([209.85.221.201]:36918 "EHLO
+        mail-vk1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726115AbfEAAaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Apr 2019 20:30:05 -0400
+Received: by mail-vk1-f201.google.com with SMTP id y19so7107039vky.4
+        for <stable@vger.kernel.org>; Tue, 30 Apr 2019 17:30:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wBeD3b909RdFy58d+At4l9FRNp3CkcTVG43WCw6PgfM=;
-        b=UUni8NCNKRgcDZzt09yN4ZkOr5ERYa3/18JrLfu+88GoJq2NgUzSWFDuNo3aIITt5B
-         7KFuK+CMHO34y/h5iL2aMmZtXpCYA0mD+NfxYTyILksuHQX6Ykv2lAwzVR7AZqTYqWWp
-         jI0aMrTW8MlK+JseDslpMnsuiWE06HVnLD4SCPqLey3xPhGIo6o5CKF5CwyX8z029DGm
-         hSa5klySuszuKwEvbbWmOfM2cuNb+dvbwKKjQ5dTdfPbfkFMJnJnGyj3pdn6sSaofMHd
-         gDVyaVUfegBgzNhjFnAtt9hI9PQyc8tEo6xjLWeLXLeqKpzSIbFL4rzL58F3axMmnOFk
-         UWQA==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=rvnnbDmsOgJ3xr/PffPc0gbHg8YSZc9QHWS8F5/zrz0=;
+        b=ouhDZAWcHKtKyngvM68oiibCChzMbcqbVGPz4YuQdwYUPFM4ynjce1cPHtBKp+HrJh
+         SHEg0bopCTTpmijYzKAlX8Hcvt4WTS9mmBRQwZ7OrOC4nW18Hc8PgqA88LbKdWg67BtN
+         22pvwxMyiNDPQkTaWYwf3FnpZXnWVlDML2Inls7H2lUgAccqN5vm2Ya7DA8PVn9h21Ui
+         zEvGZzs13JPe3YwreavZZvdN4kH5gkrMGNsTmYTqYOKpf1gFMDSlKxTfZvtf/bwAXEBG
+         lGz9Vp/KNDxebfL8M2UvekoKUhgIq86pq8LiZF629VUUGzYosazpZdvAB0/NWRarQ9aI
+         QFgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=wBeD3b909RdFy58d+At4l9FRNp3CkcTVG43WCw6PgfM=;
-        b=TybFLpNYGT/YLeELSq81AYonmAehagbSR8HPE2AAfkMml7oLc45p26Xzc032+DTcRd
-         U5r0dLKgdhj8GEjQCO2NQiXXHXPuAXnZn1l3I5XMGJCOvD0944ABPFdWK8vZkvjZOT/x
-         /9oNTXLA5lpvksToCypWTohDx6l/hSGwh675GPSR+R9oZngjXldVFZpTAwIh2B3cp7F6
-         U+aJfwaInxvLzmVkFP8H9Ml1sX+ofiWQdFyesw1iBzaUWV3dqWwlRunS9lFECXp5EmpV
-         UJH7d2t/Fs1MfBYxfQphU68x6bbEk/N5YqWOhr64kGP2/taFZ3DgmuLMqD9XDEwdgYpy
-         li4g==
-X-Gm-Message-State: APjAAAWlMrTWWDczvaGoBW7CQvB1KIfCG1YCxOINvjT6+Z/ys6cPGTF0
-        anPh3pKVJTEKFoq77w5d2fENsw==
-X-Google-Smtp-Source: APXvYqyrq84qFMlrdBzc+89KzXCioB8oGv3uwDjU+AogH+K1vFy/FQY/zljc4Y4fjJgLjtya4EJv8Q==
-X-Received: by 2002:aa7:8719:: with SMTP id b25mr35960225pfo.90.1556670304608;
-        Tue, 30 Apr 2019 17:25:04 -0700 (PDT)
-Received: from localhost ([12.206.222.5])
-        by smtp.gmail.com with ESMTPSA id x128sm63049012pfx.103.2019.04.30.17.25.02
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 30 Apr 2019 17:25:03 -0700 (PDT)
-Date:   Tue, 30 Apr 2019 17:25:03 -0700 (PDT)
-X-Google-Original-Date: Tue, 30 Apr 2019 17:24:03 PDT (-0700)
-Subject:     Re: [PATCH] tty: Don't force RISCV SBI console as preferred console
-In-Reply-To: <20190425133435.56065-1-anup.patel@wdc.com>
-CC:     Greg KH <gregkh@linuxfoundation.org>, jslaby@suse.com,
-        aou@eecs.berkeley.edu, Atish Patra <Atish.Patra@wdc.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Anup Patel <Anup.Patel@wdc.com>, stable@vger.kernel.org
-From:   Palmer Dabbelt <palmer@sifive.com>
-To:     Anup Patel <Anup.Patel@wdc.com>
-Message-ID: <mhng-955c86e5-6dfb-4554-a435-49cfefad6185@palmer-si-x1e>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=rvnnbDmsOgJ3xr/PffPc0gbHg8YSZc9QHWS8F5/zrz0=;
+        b=oatQxSlOB5k/216XyZfOncNubyZWLNTDvf19+xpL7aJWCZo65cTaCYvP5GlBr9Xi5J
+         FKxKRNeHvQZUUDwXdjtWlX0dMAIfr4K8CL7dziE/gbixpBr9o9YXYmWlpYlzjYahyA5A
+         kAftayFHYkhw0mnrYevTSNxIPEP2cY/iYxAwNDSxZh+Rvdqmz769Xi+MXM3mqwRoE1WD
+         l3yZpYdY9kETTt2d5wVdStfWBUZ7VNZr1HHlqmLjwEZ/KKzo9pCGUeQgnwlSL1WUiUx7
+         O0LwEIXQH+8wFkp0kRFMsHUoEJEd8fLadeQkgmYQwTRkCSHBcDpV3UHRymOXdkv166cn
+         pRJQ==
+X-Gm-Message-State: APjAAAWL5cBeLnb2q5Z1Yu1Pg+kgk7bKju8rKA+2H+iGemH7FBm/wZqQ
+        tjOaoDGYfJiUxToBNLLTLjmpxoYGDQPvjjE=
+X-Google-Smtp-Source: APXvYqxS/RD69FJkWFky/f1r4LGDC/KcN/ZgqbnWKDp6CV3L9ulYeepm2htYaXuH9V02y1lY6qy0VpnQ+LgxkHE=
+X-Received: by 2002:a67:f695:: with SMTP id n21mr2835367vso.19.1556670604001;
+ Tue, 30 Apr 2019 17:30:04 -0700 (PDT)
+Date:   Tue, 30 Apr 2019 17:30:01 -0700
+Message-Id: <20190501003001.186239-1-jemoreira@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.21.0.593.g511ec345e18-goog
+Subject: [PATCH] vsock/virtio: Initialize core virtio vsock before registering
+ the driver
+From:   "Jorge E. Moreira" <jemoreira@google.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 25 Apr 2019 06:35:06 PDT (-0700), Anup Patel wrote:
-> The Linux kernel will auto-disables all boot consoles whenever it
-> gets a preferred real console.
-> 
-> Currently on RISC-V systems, if we have a real console which is not
-> RISCV SBI console then boot consoles (such as earlycon=sbi) are not
-> auto-disabled when a real console (ttyS0 or ttySIF0) is available.
-> This results in duplicate prints at boot-time after kernel starts
-> using real console (i.e. ttyS0 or ttySIF0) if "earlycon=" kernel
-> parameter was passed by bootloader.
-> 
-> The reason for above issue is that RISCV SBI console always adds
-> itself as preferred console which is causing other real consoles
-> to be not used as preferred console.
-> 
-> Ideally "console=" kernel parameter passed by bootloaders should
-> be the one selecting a preferred real console.
-> 
-> This patch fixes above issue by not forcing RISCV SBI console as
-> preferred console.
-> 
-> Fixes: afa6b1ccfad5 ("tty: New RISC-V SBI console driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anup Patel <anup.patel@wdc.com>
-> ---
->  drivers/tty/hvc/hvc_riscv_sbi.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/tty/hvc/hvc_riscv_sbi.c b/drivers/tty/hvc/hvc_riscv_sbi.c
-> index 75155bde2b88..31f53fa77e4a 100644
-> --- a/drivers/tty/hvc/hvc_riscv_sbi.c
-> +++ b/drivers/tty/hvc/hvc_riscv_sbi.c
-> @@ -53,7 +53,6 @@ device_initcall(hvc_sbi_init);
->  static int __init hvc_sbi_console_init(void)
->  {
->  	hvc_instantiate(0, 0, &hvc_sbi_ops);
-> -	add_preferred_console("hvc", 0, NULL);
->  
->  	return 0;
->  }
-> -- 
-> 2.17.1
-> 
+Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+accessed (while handling interrupts) before they are initialized.
 
-I merged this.  Also, it looks like Exchange is doing something to your patches
-that makes them a bit difficult to merge.  If you don't have a way of fixing
-that, can you include a pointer to a git tree with a signed commit/tag?
+[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
+[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+[    4.211379] Modules linked in:
+[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
+[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
+[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
+[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
+[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
+[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
+[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
+[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
+[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    4.211379] Call Trace:
+[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+[    4.211379]  ? detach_buf+0x1b5/0x210
+[    4.211379]  virtio_transport_rx_work+0xb7/0x140
+[    4.211379]  process_one_work+0x1ef/0x480
+[    4.211379]  worker_thread+0x312/0x460
+[    4.211379]  kthread+0x132/0x140
+[    4.211379]  ? process_one_work+0x480/0x480
+[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+[    4.211379]  ret_from_fork+0x35/0x40
+[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+[    4.211379] CR2: ffffffffffffffe8
+[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[    4.211379] Rebooting in 5 seconds..
+
+Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Cc: kernel-team@android.com
+Cc: stable@vger.kernel.org [4.9+]
+Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+---
+ net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 15eb5d3d4750..96ab344f17bb 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+ 	if (!virtio_vsock_workqueue)
+ 		return -ENOMEM;
+ 
+-	ret = register_virtio_driver(&virtio_vsock_driver);
++	ret = vsock_core_init(&virtio_transport.transport);
+ 	if (ret)
+ 		goto out_wq;
+ 
+-	ret = vsock_core_init(&virtio_transport.transport);
++	ret = register_virtio_driver(&virtio_vsock_driver);
+ 	if (ret)
+-		goto out_vdr;
++		goto out_vci;
+ 
+ 	return 0;
+ 
+-out_vdr:
+-	unregister_virtio_driver(&virtio_vsock_driver);
++out_vci:
++	vsock_core_exit();
+ out_wq:
+ 	destroy_workqueue(virtio_vsock_workqueue);
+ 	return ret;
+-
+ }
+ 
+ static void __exit virtio_vsock_exit(void)
+ {
+-	vsock_core_exit();
+ 	unregister_virtio_driver(&virtio_vsock_driver);
++	vsock_core_exit();
+ 	destroy_workqueue(virtio_vsock_workqueue);
+ }
+ 
+-- 
+2.21.0.593.g511ec345e18-goog
+
