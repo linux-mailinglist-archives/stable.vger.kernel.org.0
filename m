@@ -2,125 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5873E1057F
-	for <lists+stable@lfdr.de>; Wed,  1 May 2019 08:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578C7105B3
+	for <lists+stable@lfdr.de>; Wed,  1 May 2019 09:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbfEAGlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 May 2019 02:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
+        id S1726040AbfEAHIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 May 2019 03:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725776AbfEAGlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 May 2019 02:41:08 -0400
+        id S1726005AbfEAHIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 May 2019 03:08:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41C021743;
-        Wed,  1 May 2019 06:41:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B96EE21670;
+        Wed,  1 May 2019 07:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556692867;
-        bh=0rRmRrDW8+WCJ0igGV9Z0524E1SbyXBOzg7WPdtj/SM=;
-        h=Subject:To:From:Date:From;
-        b=eOt2AXwEPjNhypwSOC1oukuUTtExLg+4TWZk2OpbuKHjeQBr5kDAVHKxMFR+aAwkS
-         LZw3lJ92UseQyrfggHDXZOgUkd/2ep20twElAlj0vdzGgCwanxrsnMaMjFkBZFftHI
-         3n6LNJ42yFakJsLY2NDrGPe6MHOjIvgU0AwBK0xs=
-Subject: patch "soc: sunxi: Fix missing dependency on REGMAP_MMIO" added to usb-next
-To:     samuel@sholland.org, b-liu@ti.com, gregkh@linuxfoundation.org,
-        maxime.ripard@bootlin.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 01 May 2019 08:40:33 +0200
-Message-ID: <155669283375209@kroah.com>
+        s=default; t=1556694509;
+        bh=LjaSbFGdJMYyqMP/LYmqkc3M0s9It00Wl9zPbdMYG6U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nlhArq9im/zZcwzudlJveYGevf1GGzHzxPR2GgvVC7nhIPeLvq0Jsb4r+3VHBuERH
+         e4JlXB7RM/3Ql5qqv4Tq+59M+dpZ9+XXn6pgSHVA3XBfHI2xWXak8pr1p3KB0DB07y
+         oS2NbFBXfY74u64yE3SsGxJmN5s/1DKJOFei0R2I=
+Date:   Wed, 1 May 2019 09:08:27 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Vaibhav Rustagi <vaibhavrustagi@google.com>
+Cc:     stable@vger.kernel.org, hannes@cmpxchg.org, tj@kernel.org,
+        mhocko@suse.com, vdavydov.dev@gmail.com, guro@fb.com,
+        riel@surriel.com, sfr@canb.auug.org.au, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, Aditya Kali <adityakali@google.com>
+Subject: Re: [For Stable] mm: memcontrol: fix excessive complexity in
+ memory.stat reporting
+Message-ID: <20190501070827.GB30616@kroah.com>
+References: <CAMVonLhjzv-DWgKV82gDMCACML14UmE3zCqsffuiMKOSGfajhQ@mail.gmail.com>
+ <20190424165009.GE21916@kroah.com>
+ <CAMVonLhmPhcTVSAbZzCbmYQxRECWK+6bychxFzg232dtAXeqEA@mail.gmail.com>
+ <20190424183419.GB10495@kroah.com>
+ <CAMVonLiXfX8r=1-fwQCk275wrkBmxjXuyWJSAmW=7hjvy7YPyg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMVonLiXfX8r=1-fwQCk275wrkBmxjXuyWJSAmW=7hjvy7YPyg@mail.gmail.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Apr 30, 2019 at 01:41:16PM -0700, Vaibhav Rustagi wrote:
+> On Wed, Apr 24, 2019 at 11:53 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> >
+> > A: Because it messes up the order in which people normally read text.
+> > Q: Why is top-posting such a bad thing?
+> > A: Top-posting.
+> > Q: What is the most annoying thing in e-mail?
+> >
+> > A: No.
+> > Q: Should I include quotations after my reply?
+> >
+> > http://daringfireball.net/2007/07/on_top
+> >
+> > On Wed, Apr 24, 2019 at 10:35:51AM -0700, Vaibhav Rustagi wrote:
+> > > Apologies for sending a non-plain text e-mail previously.
+> > >
+> > > This issue is encountered in the actual production environment by our
+> > > customers where they are constantly creating containers
+> > > and tearing them down (using kubernetes for the workload).  Kubernetes
+> > > constantly reads the memory.stat file for accounting memory
+> > > information and over time (around a week) the memcg's got accumulated
+> > > and the response time for reading memory.stat increases and
+> > > customer applications get affected.
+> >
+> > Please define "affected".  Their apps still run properly, so all should
+> > be fine, it would be kubernetes that sees the slowdowns, not the
+> > application.  How exactly does this show up to an end-user?
+> >
+> 
+> Over time as the zombie cgroups get accumulated, kubelet (process
+> doing frequent memory.stat) becomes more cpu resource intensive and
+> all other user containers running on the same machine will starve for
+> cpu. It affects the user containers in at-least 2 ways that we know
+> of: (1) User experience liveness probe failures where there
+> applications are not completed in expected amount of time.
 
-This is a note to let you know that I've just added the patch titled
+"expected amount of time" is interesting to claim in a shared
+environment :)
 
-    soc: sunxi: Fix missing dependency on REGMAP_MMIO
+> (2) new user jobs cannot be schedule,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+Really?  This slows down starting new processes?  Or is this just
+slowing down your system overall?
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+> There certainly is a possibilty of reducing the adverse affect at
+> Kubernetes level as well, and we are investigating that as well. But,
+> the kernel patches requested helps in not exacerbating the problem.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+I understand this is a kernel issue, but if you see this happen, just
+updating to a modern kernel should be fine.
 
-If you have any questions about this process, please let me know.
+> > > The repro steps mentioned previously was just used for testing the
+> > > patches locally.
+> > >
+> > > Yes, we are moving to 4.19 but are also supporting 4.14 till Jan 2020
+> > > (so production environment will still contain 4.14 kernel)
+> >
+> > If you are already moving to 4.19, this seems like a good as reason as
+> > any (hint, I can give you more) to move off of 4.14 at this point in
+> > time.  There's no real need to keep 4.14 around, given that you don't
+> > have any out-of-tree code in your kernels, so all should be simple to
+> > just update the next reboot, right?
+> >
+> 
+> Based on the past experiences, major kernel upgrade sometime
+> introduces new regressions as well. So while we are working to roll
+> out kernel 4.19, it may not be a practical solution for all the users.
 
+If you are not doing the same exact testing senario for a new 4.14.y
+kernel release as you are doing for a move to 4.19.y, then your "roll
+out" process is broken.
 
-From a84014e1db35d8e7af09878d0b4bf30804fb17d5 Mon Sep 17 00:00:00 2001
-From: Samuel Holland <samuel@sholland.org>
-Date: Tue, 30 Apr 2019 09:59:37 -0500
-Subject: soc: sunxi: Fix missing dependency on REGMAP_MMIO
+Given that 4.19.y is now 6 months old, I would have expected any "new
+regressions" to have already been reported.  Please just use a new
+kernel, and if you have regressions, we will work to address them.
 
-When enabling ARCH_SUNXI from allnoconfig, SUNXI_SRAM is enabled, but
-not REGMAP_MMIO, so the kernel fails to link with an undefined reference
-to __devm_regmap_init_mmio_clk. Select REGMAP_MMIO, as suggested in
-drivers/base/regmap/Kconfig.
+thanks,
 
-This creates the following dependency loop:
-
-  drivers/of/Kconfig:68:                symbol OF_IRQ depends on IRQ_DOMAIN
-  kernel/irq/Kconfig:63:                symbol IRQ_DOMAIN is selected by REGMAP
-  drivers/base/regmap/Kconfig:7:        symbol REGMAP default is visible depending on REGMAP_MMIO
-  drivers/base/regmap/Kconfig:39:       symbol REGMAP_MMIO is selected by SUNXI_SRAM
-  drivers/soc/sunxi/Kconfig:4:          symbol SUNXI_SRAM is selected by USB_MUSB_SUNXI
-  drivers/usb/musb/Kconfig:63:          symbol USB_MUSB_SUNXI depends on GENERIC_PHY
-  drivers/phy/Kconfig:7:                symbol GENERIC_PHY is selected by PHY_BCM_NS_USB3
-  drivers/phy/broadcom/Kconfig:29:      symbol PHY_BCM_NS_USB3 depends on MDIO_BUS
-  drivers/net/phy/Kconfig:12:           symbol MDIO_BUS default is visible depending on PHYLIB
-  drivers/net/phy/Kconfig:181:          symbol PHYLIB is selected by ARC_EMAC_CORE
-  drivers/net/ethernet/arc/Kconfig:18:  symbol ARC_EMAC_CORE is selected by ARC_EMAC
-  drivers/net/ethernet/arc/Kconfig:24:  symbol ARC_EMAC depends on OF_IRQ
-
-To fix the circular dependency, make USB_MUSB_SUNXI select GENERIC_PHY
-instead of depending on it. This matches the use of GENERIC_PHY by all
-but two other drivers.
-
-Cc: <stable@vger.kernel.org> # 4.19
-Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/soc/sunxi/Kconfig | 1 +
- drivers/usb/musb/Kconfig  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/soc/sunxi/Kconfig b/drivers/soc/sunxi/Kconfig
-index 353b07e40176..e84eb4e59f58 100644
---- a/drivers/soc/sunxi/Kconfig
-+++ b/drivers/soc/sunxi/Kconfig
-@@ -4,6 +4,7 @@
- config SUNXI_SRAM
- 	bool
- 	default ARCH_SUNXI
-+	select REGMAP_MMIO
- 	help
- 	  Say y here to enable the SRAM controller support. This
- 	  device is responsible on mapping the SRAM in the sunXi SoCs
-diff --git a/drivers/usb/musb/Kconfig b/drivers/usb/musb/Kconfig
-index f742fddc5e2c..52f8e2b57ad5 100644
---- a/drivers/usb/musb/Kconfig
-+++ b/drivers/usb/musb/Kconfig
-@@ -67,7 +67,7 @@ config USB_MUSB_SUNXI
- 	depends on NOP_USB_XCEIV
- 	depends on PHY_SUN4I_USB
- 	depends on EXTCON
--	depends on GENERIC_PHY
-+	select GENERIC_PHY
- 	select SUNXI_SRAM
- 
- config USB_MUSB_DAVINCI
--- 
-2.21.0
-
-
+greg k-h
