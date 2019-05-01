@@ -2,108 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A7710F0E
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 00:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9F410F75
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 00:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726282AbfEAWiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 May 2019 18:38:50 -0400
-Received: from mail104.syd.optusnet.com.au ([211.29.132.246]:60114 "EHLO
-        mail104.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726144AbfEAWiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 May 2019 18:38:50 -0400
-X-Greylist: delayed 1659 seconds by postgrey-1.27 at vger.kernel.org; Wed, 01 May 2019 18:38:48 EDT
-Received: from dread.disaster.area (pa49-181-171-240.pa.nsw.optusnet.com.au [49.181.171.240])
-        by mail104.syd.optusnet.com.au (Postfix) with ESMTPS id 8A5FC439C33;
-        Thu,  2 May 2019 08:11:07 +1000 (AEST)
-Received: from dave by dread.disaster.area with local (Exim 4.92)
-        (envelope-from <david@fromorbit.com>)
-        id 1hLxRT-0004tM-3S; Thu, 02 May 2019 08:11:07 +1000
-Date:   Thu, 2 May 2019 08:11:07 +1000
-From:   Dave Chinner <david@fromorbit.com>
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     Andre Noll <maan@tuebingen.mpg.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: xfs: Assertion failed in xfs_ag_resv_init()
-Message-ID: <20190501221107.GI29573@dread.disaster.area>
-References: <20190430162506.GZ2780@tuebingen.mpg.de>
- <20190430174042.GH5207@magnolia>
- <20190430190525.GB2780@tuebingen.mpg.de>
- <20190430191825.GF5217@magnolia>
- <20190430210724.GD2780@tuebingen.mpg.de>
- <20190501153643.GL5207@magnolia>
- <20190501165933.GF2780@tuebingen.mpg.de>
- <20190501171529.GB28949@kroah.com>
- <20190501175129.GH2780@tuebingen.mpg.de>
- <20190501192822.GM5207@magnolia>
+        id S1726297AbfEAW5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 May 2019 18:57:42 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:37532 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726291AbfEAW5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 May 2019 18:57:41 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id C35C0261212
+Received: by earth.universe (Postfix, from userid 1000)
+        id B9AF23C0D1B; Thu,  2 May 2019 00:57:36 +0200 (CEST)
+Date:   Thu, 2 May 2019 00:57:36 +0200
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Chen-Yu Tsai <wens@csie.org>, linux-pm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] power: supply: axp288_fuel_gauge: Add ACEPC T8 and T11
+ mini PCs to the blacklist
+Message-ID: <20190501225736.jhbyklotrtndux5v@earth.universe>
+References: <20190422204301.6233-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="4pxoyuqearsvopnh"
 Content-Disposition: inline
-In-Reply-To: <20190501192822.GM5207@magnolia>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Optus-CM-Score: 0
-X-Optus-CM-Analysis: v=2.2 cv=UJetJGXy c=1 sm=1 tr=0 cx=a_idp_d
-        a=LhzQONXuMOhFZtk4TmSJIw==:117 a=LhzQONXuMOhFZtk4TmSJIw==:17
-        a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=kj9zAlcOel0A:10 a=E5NmQfObTbMA:10
-        a=7-415B0cAAAA:8 a=BAPyJwD9Ct5AMgICnHAA:9 a=CjuIK1q_8ugA:10
-        a=biEYGPWJfzWAr4FL6Ov7:22
+In-Reply-To: <20190422204301.6233-1-hdegoede@redhat.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 01, 2019 at 12:28:22PM -0700, Darrick J. Wong wrote:
-> On Wed, May 01, 2019 at 07:51:29PM +0200, Andre Noll wrote:
-> > On Wed, May 01, 19:15, Greg Kroah-Hartman wrote
-> > > On Wed, May 01, 2019 at 06:59:33PM +0200, Andre Noll wrote:
-> > > > On Wed, May 01, 08:36, Darrick J. Wong wrote
-> > > > > > > You could send this patch to the stable list, but my guess is that
-> > > > > > > they'd prefer a straight backport of all three commits...
-> > > > > > 
-> > > > > > Hm, cherry-picking the first commit onto 4.9,171 already gives
-> > > > > > four conflicting files. The conflicts are trivial to resolve (git
-> > > > > > cherry-pick -xX theirs 21ec54168b36 does it), but that doesn't
-> > > > > > compile because xfs_btree_query_all() is missing.  So e9a2599a249ed
-> > > > > > (xfs: create a function to query all records in a btree) is needed as
-> > > > > > well. But then, applying 86210fbebae (xfs: move various type verifiers
-> > > > > > to common file) on top of that gives non-trivial conflicts.
-> > > > > 
-> > > > > Ah, I suspected that might happen.  Backports are hard. :(
-> > > > > 
-> > > > > I suppose one saving grace of the patch you sent is that it'll likely
-> > > > > break the build if anyone ever /does/ attempt a backport of those first
-> > > > > two commits.  Perhaps that is the most practical way forward.
-> > > > > 
-> > > > > > So, for automatic backporting we would need to cherry-pick even more,
-> > > > > > and each backported commit should be tested of course. Given this, do
-> > > > > > you still think Greg prefers a rather large set of straight backports
-> > > > > > over the simple commit that just pulls in the missing function?
-> > > > > 
-> > > > > I think you'd have to ask him that, if you decide not to send
-> > > > > yesterday's patch.
-> > > > 
-> > > > Let's try. I've added a sentence to the commit message which explains
-> > > > why a straight backport is not practical, and how to proceed if anyone
-> > > > wants to backport the earlier commits.
-> > > > 
-> > > > Greg: Under the given circumstances, would you be willing to accept
-> > > > the patch below for 4.9?
-> > > 
-> > > If the xfs maintainers say this is ok, it is fine with me.
-> > 
-> > Darrick said, he's in favor of the patch, so I guess I can add his
-> > Acked-by. Would you also like to see the ack from Dave (the author
-> > of the original commit)?
-> 
-> FWIW it seems fine to me, though Dave [cc'd] might have stronger opinions...
 
-Only thing I care about is whether it is QA'd properly. Greg, Sasha,
-is the 4.9 stable kernel having fstests run on it as part of the
-release gating?
+--4pxoyuqearsvopnh
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
+Hi,
 
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+On Mon, Apr 22, 2019 at 10:43:01PM +0200, Hans de Goede wrote:
+> The ACEPC T8 and T11 Cherry Trail Z8350 mini PCs use an AXP288 and as PCs,
+> rather then portables, they does not have a battery. Still for some
+> reason the AXP288 not only thinks there is a battery, it actually
+> thinks it is discharging while the PC is running, slowly going to
+> 0% full, causing userspace to shutdown the system due to the battery
+> being critically low after a while.
+>
+> This commit adds the ACEPC T8 and T11 to the axp288 fuel-gauge driver
+> blacklist, so that we stop reporting bogus battery readings on this devic=
+e.
+>=20
+> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1690852
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+
+Thanks, you made my day =F0=9F=98=82. Queued to power-supply's for-next bra=
+nch.
+
+-- Sebastian
+
+>  drivers/power/supply/axp288_fuel_gauge.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>=20
+> diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/sup=
+ply/axp288_fuel_gauge.c
+> index 9ff2461820d8..368281bc0d2b 100644
+> --- a/drivers/power/supply/axp288_fuel_gauge.c
+> +++ b/drivers/power/supply/axp288_fuel_gauge.c
+> @@ -685,6 +685,26 @@ static void fuel_gauge_init_irq(struct axp288_fg_inf=
+o *info)
+>   * detection reports one despite it not being there.
+>   */
+>  static const struct dmi_system_id axp288_fuel_gauge_blacklist[] =3D {
+> +	{
+> +		/* ACEPC T8 Cherry Trail Z8350 mini PC */
+> +		.matches =3D {
+> +			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
+> +			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+> +			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T8"),
+> +			/* also match on somewhat unique bios-version */
+> +			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
+> +		},
+> +	},
+> +	{
+> +		/* ACEPC T11 Cherry Trail Z8350 mini PC */
+> +		.matches =3D {
+> +			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
+> +			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+> +			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T11"),
+> +			/* also match on somewhat unique bios-version */
+> +			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
+> +		},
+> +	},
+>  	{
+>  		/* Intel Cherry Trail Compute Stick, Windows version */
+>  		.matches =3D {
+> --=20
+> 2.21.0
+>=20
+
+--4pxoyuqearsvopnh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlzKJF0ACgkQ2O7X88g7
++pqOAA/+OYV/kWE96sNXL8NC8HBO1UDZCTL5+6c0WPit1ocVRYXw8Zl2bBD9UeGG
++qWPTgzJrlxv4WIv420x99yjJNYoCJTyZsLjpLAGxuIJ37vRMOYOgd6eh/qsiown
+T45XYWVTtdznhpeciJxW+FkqxfKGriZgD7aaV4tzAoXjb/nGvYwy4MSTnL+fpwzi
+yVkEJvBbIGyp2S+gHNotPXvZ6g7mKd9uEO8kBUi4OlPjD44ZtE8cVx1t2lNAqJQv
+8yRHFaQSJM99aRVdtQ6DoEYft3A35FkSuWAW741h8K/GSH93yFfNEw4GE1lBOPoW
+Y4Yn4XoISo5RIwWjUJafpOuEnEQF+SKaFuDP62wwUpJOpLN8gF/BJS/WhmZSaizx
+dE9764X7AfylMlj2v//tAS0jfPrsMeafZdGfnwZuAOyy8y2IJ3j7pPOqIZLLD9LR
+T1iNAADQU0An0HX60tewCxzEUMrnf+2miret0l5g25s3uWCOlBcNImUuG3sgfZRA
+PTQJdsIdsqVpqBGm1MbbKIcuJ222MqtWt7d9BW45xtLoecGKHHLtvjZBdo5gDxqY
+W5vtZr7ZAwT9bqPqHCqouurW+AADa7d1SZiGo/blIklO3K0uJ+27lKWNXEtCHwm+
+yyerIOhx4wiq9uFtaHrAjOosfe0gZ8VIfgaJfYgvU97efGypTgk=
+=91c6
+-----END PGP SIGNATURE-----
+
+--4pxoyuqearsvopnh--
