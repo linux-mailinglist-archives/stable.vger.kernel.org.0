@@ -2,88 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B6D411EDE
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C8A11FB6
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 18:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbfEBPlh convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 2 May 2019 11:41:37 -0400
-Received: from Galois.linutronix.de ([146.0.238.70]:54788 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727608AbfEBPlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 11:41:36 -0400
-Received: from bigeasy by Galois.linutronix.de with local (Exim 4.80)
-        (envelope-from <bigeasy@linutronix.de>)
-        id 1hMDpD-0003Af-Oh; Thu, 02 May 2019 17:40:44 +0200
-Date:   Thu, 2 May 2019 17:40:43 +0200
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
- export
-Message-ID: <20190502154043.gfv4iplcvzjz3mc6@linutronix.de>
-References: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org>
+        id S1726359AbfEBQJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 12:09:24 -0400
+Received: from mail-wm1-f48.google.com ([209.85.128.48]:39982 "EHLO
+        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726300AbfEBQJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 12:09:24 -0400
+Received: by mail-wm1-f48.google.com with SMTP id h11so3331072wmb.5
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 09:09:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OIzI7FLCdvJafcJyPHMGbrzdsD5WofQBsvfTttRfsbA=;
+        b=DccZyumzpHuJ0SS/QD//UEum9uA6TNHlqk8h+MqaNQ9G1yqa3VzJJsmw9REPteX9hO
+         OiLd+O6gDkCVLPGo/IXNsETx57+sni+qf+qk8wxFlFOzQlM637GXuHp1xXZYr/QHORcw
+         j9G7ztK3dIq2pJg8STC7wZ9IHki3QHep8R78JP4LgRw9jgMwKFWaZDtgcsWWT3uyWtHf
+         sOISAkZJy17myR4ToiENXnmf0sB3QpTl545JUyw0AfuRu0dmx7NUYWmpDjmIeyp9zVhR
+         kgEnvR826rz4kA5iW/M6EGDG+UAd2Z4iAKiMdAPoQDb8ER7fX39G25BhUdMisyBmBVYd
+         58pw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OIzI7FLCdvJafcJyPHMGbrzdsD5WofQBsvfTttRfsbA=;
+        b=Vr93H1qmCkY7xwGne11jd4f5ztk5qr5RaPUAXN/t1Uterw6sJRaHFAVuH7EK3MkuGX
+         1AOC9c6VbGCr9zWgoRV3oNYq9b3fQQzHgpdq2KQxVdrY5HgJQe9AhiplOgi5r0bpGqlu
+         dXA4VehS8mX49gH6rfhdOrVHHOkx++zvU+kZxwCPGeou4AJ4n/b1ex622TudESj7g9Pa
+         3PonpokSKhAV1IpOu+dJ9qtm0ytbJMVEmusLi+2u9kf9Sn3FxkiQTNSTyWVSs4wEaJIo
+         vES7uRffMx1hSBnEDRi/SYS3hVXTo34JSvH17bMPwrgIMVFMGItNAMWixmEb7GMHzFGX
+         fTzA==
+X-Gm-Message-State: APjAAAWvCSDJQetq+ic5RJ3pvz+kqQG7jk/FIfPYnsb9ndckp8qozcnr
+        yndxGNrY8yMXVtw/33qLromvSKfSvP41QQ==
+X-Google-Smtp-Source: APXvYqxZbRlmBqaY5NZqpkk8zM60v8yLbsneP6Vl41iTBcMO3lzDwHnyo46MjCen6lMdsD155uw/Yg==
+X-Received: by 2002:a1c:3b0a:: with SMTP id i10mr2938575wma.111.1556813362670;
+        Thu, 02 May 2019 09:09:22 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q24sm8772420wmc.18.2019.05.02.09.09.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 02 May 2019 09:09:22 -0700 (PDT)
+Message-ID: <5ccb1632.1c69fb81.16e2f.0585@mx.google.com>
+Date:   Thu, 02 May 2019 09:09:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org>
-User-Agent: NeoMutt/20180716
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.0.11
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.0.y boot: 129 boots: 3 failed,
+ 122 passed with 3 offline, 1 untried/unknown (v5.0.11)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-05-02 07:42:14 [-0700], Andy Lutomirski wrote:
-> The FPU is not a super-Linuxy internal detail, so remove the _GPL
-> from its export.  Without something like this patch, it's impossible
-> for even highly license-respecting non-GPL modules to use the FPU,
-> which seems silly to me.  After all, the FPU is a CPU feature, not
-> really a kernel feature at all.
-> 
-> Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> Cc:: Borislav Petkov <bp@suse.de>
-> Cc: Rik van Riel <riel@surriel.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Nicolai Stange <nstange@suse.de>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Radim Krčmář <rkrcmar@redhat.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: x86@kernel.org
-> Cc: stable@vger.kernel.org
-> Fixes: 12209993e98c ("x86/fpu: Don't export __kernel_fpu_{begin,end}()")
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> ---
-> 
-> This fixes a genuine annoyance for ZFS on Linux.  Regardless of what
-> one may think about the people who distribute ZFS on Linux
-> *binaries*, as far as I know, the source and the users who build it
-> themselves are entirely respectful of everyone's license.  I have no
-> problem with EXPORT_SYMBOL_GPL() in general, but let's please avoid
-> using it for things that aren't fundamentally Linux internals.
+stable-rc/linux-5.0.y boot: 129 boots: 3 failed, 122 passed with 3 offline,=
+ 1 untried/unknown (v5.0.11)
 
-Please don't start this. We have everything _GPL that is used for FPU
-related code and only a few functions are exported because KVM needs it.
-Also with the recent FPU rework it is much easier to get this wrong so I
-would not want for any OOT code to mess with it.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.0.y/kernel/v5.0.11/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
+/kernel/v5.0.11/
 
-And again: It does not change whether or not ZFS can be used on Linux
-(excluding the license issue). They simply can't use crc32 with their
-SSE assembly and this is it.
+Tree: stable-rc
+Branch: linux-5.0.y
+Git Describe: v5.0.11
+Git Commit: d5a2675b207d3b3629edb3e1588ccc4f8dfb5040
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 24 SoC families, 14 builds out of 208
 
-Sebastian
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-7:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+            bcm72521-bcm97252sffe: 1 failed lab
+            bcm7445-bcm97445c: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-7
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
