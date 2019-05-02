@@ -2,82 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0079E11AFF
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 16:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C968011B38
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 16:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbfEBONv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 10:13:51 -0400
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:36121 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726278AbfEBONv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 10:13:51 -0400
-Received: by mail-wm1-f48.google.com with SMTP id p16so2851641wma.1
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 07:13:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X5ngUGVGuROL+wRlgml9yHvLlUYWbOWLF1K29rtzwp4=;
-        b=EhiuiAE8+0Am6ThSvLYwwlYFNWkzbYFMlRshybN6Xlor/UcHL/sqtkS0t4V8eYdtU/
-         r8IRmpreLwqv1mhXW/Mqhw7IZSU5HRjQWXiqKaAF4zgFuuWUW1p5Mq3MIHQwKYywUzHR
-         qspupR6F/aJ+lwNu/A3vev4T/POOtMZs6qMJ3gFXVhGuvKobHyRYZgisH4dzYWLnEDjS
-         gHVOOhlTTr4VgpLggFMUDSC+HgyBwV3X1LV+YvJ6cixk14VJcGRkjoYFk/240E8h4McD
-         +PP8W7GsAKrRgmri9GdBHQLmJOVL/TRrl5yosr95iBn6qxVTbshGlihtmckYJkV5UW/J
-         LDLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X5ngUGVGuROL+wRlgml9yHvLlUYWbOWLF1K29rtzwp4=;
-        b=f6F0MazWDh7EN4mX+KRH3cf+8/k2GED9W8mZTc52nJXCUgf8/S/JDEGyVw4aJh0X9c
-         zEc3ap8OyL/eVsMPYHShtzdQen+Pi4BcbJ1HdDCauy+Osxob+yMlyBamFJm6b0YBHLBI
-         5Y/Un19oXgtV888xReBXJRKKf/kjRpVC47HdNBFACyW+pWWZKXX+ctXQY2Q9tc4jN1d7
-         9c/cK7jTNTuUwQtP/e6JgXYtDudF8yav7ktXJdggimRPAgbWKURwtPQLAd6kJRYVJYVN
-         vMfz3zSHqrIsr4CaBj8g4jR6ZRrN9U+slFb8FFz1unvTXxREeJtmIvCsstAvW7Ovscw1
-         2psQ==
-X-Gm-Message-State: APjAAAVINrmnc7a05BkqQq2g2tSXeVCQao65wYckV7mlJtqiudDFCYhX
-        BX42j2iy/puWZk6y18NBOW6bRw/fexJTHg==
-X-Google-Smtp-Source: APXvYqyXGEghBG78FfPbTq9OqT9Vpz8dQFJUZHsr8RlS9Ix6YhugxJJK64J6WiV2svf7plljypW+Jg==
-X-Received: by 2002:a1c:9cd1:: with SMTP id f200mr2451531wme.91.1556806428446;
-        Thu, 02 May 2019 07:13:48 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u11sm1906541wmu.15.2019.05.02.07.13.47
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2019 07:13:47 -0700 (PDT)
-Message-ID: <5ccafb1b.1c69fb81.19ffd.bad6@mx.google.com>
-Date:   Thu, 02 May 2019 07:13:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726303AbfEBOTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 10:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47458 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726268AbfEBOTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 10:19:24 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05EEE206DF;
+        Thu,  2 May 2019 14:19:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556806763;
+        bh=1JdhKEewSGbSUeLnPzy0xs36pOSOL2T8EUnudgHi9d8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=n80eU9c0PewIJLLVBGzdOshV+E06yLNLv2B+EUGzJNxF4OPaFYkWjG+5eCyNwGKGf
+         0Mj71d9iQJ63EflZG785OpG8FA6mMXTJegel7XhcNBFxQoGkpSwnExbnGx9RqbdFwn
+         yj9giOI0kYx7IMpk7fhyo0SQEKIzGvVJSx2x6kpc=
+Date:   Thu, 2 May 2019 16:19:21 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH v4.4,v4.9] vfio/type1: Limit DMA mappings per container
+Message-ID: <20190502141921.GA17577@kroah.com>
+References: <1556804003-2561-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.0.11
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.0.y boot: 60 boots: 0 failed,
- 58 passed with 2 untried/unknown (v5.0.11)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1556804003-2561-1-git-send-email-linux@roeck-us.net>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.0.y boot: 60 boots: 0 failed, 58 passed with 2 untried/unkno=
-wn (v5.0.11)
+On Thu, May 02, 2019 at 06:33:23AM -0700, Guenter Roeck wrote:
+> From: Alex Williamson <alex.williamson@redhat.com>
+> 
+> commit 492855939bdb59c6f947b0b5b44af9ad82b7e38c upstream.
+> 
+> Memory backed DMA mappings are accounted against a user's locked
+> memory limit, including multiple mappings of the same memory.  This
+> accounting bounds the number of such mappings that a user can create.
+> However, DMA mappings that are not backed by memory, such as DMA
+> mappings of device MMIO via mmaps, do not make use of page pinning
+> and therefore do not count against the user's locked memory limit.
+> These mappings still consume memory, but the memory is not well
+> associated to the process for the purpose of oom killing a task.
+> 
+> To add bounding on this use case, we introduce a limit to the total
+> number of concurrent DMA mappings that a user is allowed to create.
+> This limit is exposed as a tunable module option where the default
+> value of 64K is expected to be well in excess of any reasonable use
+> case (a large virtual machine configuration would typically only make
+> use of tens of concurrent mappings).
+> 
+> This fixes CVE-2019-3882.
+> 
+> Reviewed-by: Eric Auger <eric.auger@redhat.com>
+> Tested-by: Eric Auger <eric.auger@redhat.com>
+> Reviewed-by: Peter Xu <peterx@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> [groeck: Adjust for missing upstream commit]
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/vfio/vfio_iommu_type1.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-0.y/kernel/v5.0.11/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
-rnel/v5.0.11/
+Nice, thanks for the backport, now queued up!
 
-Tree: stable
-Branch: linux-5.0.y
-Git Describe: v5.0.11
-Git Commit: d5a2675b207d3b3629edb3e1588ccc4f8dfb5040
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 34 unique boards, 15 SoC families, 10 builds out of 208
-
----
-For more info write to <info@kernelci.org>
+greg k-h
