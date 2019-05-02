@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3438211F6D
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E19911F4A
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726724AbfEBPYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:24:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40588 "EHLO mail.kernel.org"
+        id S1726873AbfEBPWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:22:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726769AbfEBPYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:38 -0400
+        id S1726852AbfEBPWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:22:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADA382085A;
-        Thu,  2 May 2019 15:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70006217F5;
+        Thu,  2 May 2019 15:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810678;
-        bh=rfnD1DDuit9QawVxPT4jQHRi6d0WphtiqeoarjV9JJo=;
+        s=default; t=1556810572;
+        bh=UxxP16QCIPhoLx3KhYdXtv4AQlgH/cih9ULv5+o93Hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqwydqLrzkdPNZdrJlecWERtxIKEj6GohGLbS7W3MawTX+Y0+qExzSZM7NkrnVHzz
-         /+FcO7/7mSG3PQyubklBbuSsBYbf1lSFfkNykfd/qqVzyzxVQ2X9VEp7HyUmLusS3B
-         zlHQAoKMPgrIXZXPPF9NUt++laCGkw7U0l5OqSeg=
+        b=pKRpRxO+nVbnYNSievM5ytlwk3J2KRiS1dhUZwHHZk2O292ZwCVNwU7UTlXHO+u+t
+         RL9GtPVhIwqatY6L7gdUoDOKSZaNBAM7NzrRYbsi6zmmiNAx4MZoXvthCx5DzaG95S
+         Qj3SBhgflrhKNSeM1X2qfjqYzHQ0+5x98rfDNY0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 38/49] drm/meson: Uninstall IRQ handler
-Date:   Thu,  2 May 2019 17:21:15 +0200
-Message-Id: <20190502143328.724426473@linuxfoundation.org>
+Subject: [PATCH 4.9 30/32] kconfig/[mn]conf: handle backspace (^H) key
+Date:   Thu,  2 May 2019 17:21:16 +0200
+Message-Id: <20190502143323.212877920@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2d8f92897ad816f5dda54b2ed2fd9f2d7cb1abde ]
+[ Upstream commit 9c38f1f044080392603c497ecca4d7d09876ff99 ]
 
-meson_drv_unbind() doesn't unregister the IRQ handler, which can lead to
-use-after-free if the IRQ fires after unbind:
+Backspace is not working on some terminal emulators which do not send the
+key code defined by terminfo. Terminals either send '^H' (8) or '^?' (127).
+But currently only '^?' is handled. Let's also handle '^H' for those
+terminals.
 
-[   64.656876] Unable to handle kernel paging request at virtual address ffff000011706dbc
-...
-[   64.662001] pc : meson_irq+0x18/0x30 [meson_drm]
-
-I'm assuming that a similar problem could happen on the error path of
-bind(), so uninstall the IRQ handler there as well.
-
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190322152657.13752-2-jean-philippe.brucker@arm.com
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ scripts/kconfig/lxdialog/inputbox.c | 3 ++-
+ scripts/kconfig/nconf.c             | 2 +-
+ scripts/kconfig/nconf.gui.c         | 3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 1a1b0b9cf1fa..0608243c3387 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -277,10 +277,12 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
- 
- 	ret = drm_dev_register(drm, 0);
- 	if (ret)
--		goto free_drm;
-+		goto uninstall_irq;
- 
- 	return 0;
- 
-+uninstall_irq:
-+	drm_irq_uninstall(drm);
- free_drm:
- 	drm_dev_unref(drm);
- 
-@@ -298,6 +300,7 @@ static void meson_drv_unbind(struct device *dev)
- 	struct drm_device *drm = priv->drm;
- 
- 	drm_dev_unregister(drm);
-+	drm_irq_uninstall(drm);
- 	drm_kms_helper_poll_fini(drm);
- 	drm_fbdev_cma_fini(priv->fbdev);
- 	drm_mode_config_cleanup(drm);
+diff --git a/scripts/kconfig/lxdialog/inputbox.c b/scripts/kconfig/lxdialog/inputbox.c
+index d58de1dc5360..510049a7bd1d 100644
+--- a/scripts/kconfig/lxdialog/inputbox.c
++++ b/scripts/kconfig/lxdialog/inputbox.c
+@@ -126,7 +126,8 @@ int dialog_inputbox(const char *title, const char *prompt, int height, int width
+ 			case KEY_DOWN:
+ 				break;
+ 			case KEY_BACKSPACE:
+-			case 127:
++			case 8:   /* ^H */
++			case 127: /* ^? */
+ 				if (pos) {
+ 					wattrset(dialog, dlg.inputbox.atr);
+ 					if (input_x == 0) {
+diff --git a/scripts/kconfig/nconf.c b/scripts/kconfig/nconf.c
+index d42d534a66cd..f7049e288e93 100644
+--- a/scripts/kconfig/nconf.c
++++ b/scripts/kconfig/nconf.c
+@@ -1046,7 +1046,7 @@ static int do_match(int key, struct match_state *state, int *ans)
+ 		state->match_direction = FIND_NEXT_MATCH_UP;
+ 		*ans = get_mext_match(state->pattern,
+ 				state->match_direction);
+-	} else if (key == KEY_BACKSPACE || key == 127) {
++	} else if (key == KEY_BACKSPACE || key == 8 || key == 127) {
+ 		state->pattern[strlen(state->pattern)-1] = '\0';
+ 		adj_match_dir(&state->match_direction);
+ 	} else
+diff --git a/scripts/kconfig/nconf.gui.c b/scripts/kconfig/nconf.gui.c
+index 4b2f44c20caf..9a65035cf787 100644
+--- a/scripts/kconfig/nconf.gui.c
++++ b/scripts/kconfig/nconf.gui.c
+@@ -439,7 +439,8 @@ int dialog_inputbox(WINDOW *main_window,
+ 		case KEY_F(F_EXIT):
+ 		case KEY_F(F_BACK):
+ 			break;
+-		case 127:
++		case 8:   /* ^H */
++		case 127: /* ^? */
+ 		case KEY_BACKSPACE:
+ 			if (cursor_position > 0) {
+ 				memmove(&result[cursor_position-1],
 -- 
 2.19.1
 
