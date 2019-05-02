@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6058511DAD
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C57A11EE5
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbfEBPc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        id S1727884AbfEBPmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbfEBPcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:25 -0400
+        id S1728173AbfEBP2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ED1120675;
-        Thu,  2 May 2019 15:32:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8CF2216FD;
+        Thu,  2 May 2019 15:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811144;
-        bh=BZ7m/WjVfm5vLO2WjcqXbMk+q18pxu9+ZouJHyseVis=;
+        s=default; t=1556810898;
+        bh=UQbqGMDCgBNAjQjZMA67nwKs/q9PTTAcMDrta56byeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADNanTN9OTpgrOK8QzMhz3CyGExlg+U+I8HwzVgwFtSUxot4ptXIjWZSpTIMrDnuO
-         PMf0vnCt8pLibNC141dASYmo26RoPc4FxGI4ptI0q8BtnutzUPFPKq5v0+FcPOci5X
-         mU2oWCq3Xy4RqEUff7wSRMZ0yCI42MIiAH4tWGh8=
+        b=l4j/5XbO7ukMI2fu8jzJMFIRFs4++zLSusscyAOk4w8lAEkC2mW/CDiY+BIWyDhiM
+         kOvbT3Qz70WueF4K1yqzgkvIv3AXTD7MBqgzB1ockhfpCCg2luFJNg6RDvWDbpPIcj
+         pLOS0bPAh1IinyXrfEI7WWXYjK1pGVIWRTusTsy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin George <marting@netapp.com>,
-        Gargi Srinivas <sring@netapp.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 091/101] nvme-multipath: relax ANA state check
+Subject: [PATCH 4.19 71/72] leds: pca9532: fix a potential NULL pointer dereference
 Date:   Thu,  2 May 2019 17:21:33 +0200
-Message-Id: <20190502143345.957245446@linuxfoundation.org>
+Message-Id: <20190502143338.881186186@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cc2278c413c3a06a93c23ee8722e4dd3d621de12 ]
+[ Upstream commit 0aab8e4df4702b31314a27ec4b0631dfad0fae0a ]
 
-When undergoing state transitions I/O might be requeued, hence
-we should always call nvme_mpath_set_live() to schedule requeue_work
-whenever the nvme device is live, independent on whether the
-old state was live or not.
+In case of_match_device cannot find a match, return -EINVAL to avoid
+NULL pointer dereference.
 
-Signed-off-by: Martin George <marting@netapp.com>
-Signed-off-by: Gargi Srinivas <sring@netapp.com>
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: fa4191a609f2 ("leds: pca9532: Add device tree support")
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/leds/leds-pca9532.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index b9fff3b8ed1b..23da7beadd62 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -366,15 +366,12 @@ static inline bool nvme_state_is_live(enum nvme_ana_state state)
- static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
- 		struct nvme_ns *ns)
+diff --git a/drivers/leds/leds-pca9532.c b/drivers/leds/leds-pca9532.c
+index 7fea18b0c15d..7cb4d685a1f1 100644
+--- a/drivers/leds/leds-pca9532.c
++++ b/drivers/leds/leds-pca9532.c
+@@ -513,6 +513,7 @@ static int pca9532_probe(struct i2c_client *client,
+ 	const struct i2c_device_id *id)
  {
--	enum nvme_ana_state old;
--
- 	mutex_lock(&ns->head->lock);
--	old = ns->ana_state;
- 	ns->ana_grpid = le32_to_cpu(desc->grpid);
- 	ns->ana_state = desc->state;
- 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
- 
--	if (nvme_state_is_live(ns->ana_state) && !nvme_state_is_live(old))
-+	if (nvme_state_is_live(ns->ana_state))
- 		nvme_mpath_set_live(ns);
- 	mutex_unlock(&ns->head->lock);
- }
+ 	int devid;
++	const struct of_device_id *of_id;
+ 	struct pca9532_data *data = i2c_get_clientdata(client);
+ 	struct pca9532_platform_data *pca9532_pdata =
+ 			dev_get_platdata(&client->dev);
+@@ -528,8 +529,11 @@ static int pca9532_probe(struct i2c_client *client,
+ 			dev_err(&client->dev, "no platform data\n");
+ 			return -EINVAL;
+ 		}
+-		devid = (int)(uintptr_t)of_match_device(
+-			of_pca9532_leds_match, &client->dev)->data;
++		of_id = of_match_device(of_pca9532_leds_match,
++				&client->dev);
++		if (unlikely(!of_id))
++			return -EINVAL;
++		devid = (int)(uintptr_t) of_id->data;
+ 	} else {
+ 		devid = id->driver_data;
+ 	}
 -- 
 2.19.1
 
