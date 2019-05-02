@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6708311E49
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805F411D98
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728045AbfEBP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
+        id S1728527AbfEBPbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:31:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728053AbfEBP1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:27:45 -0400
+        id S1729068AbfEBPby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:31:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99FDA21783;
-        Thu,  2 May 2019 15:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6600A20C01;
+        Thu,  2 May 2019 15:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810865;
-        bh=ScKkV3RlCgegUjZxC97f52fjXHPn9Qxp5wXrr3irFr8=;
+        s=default; t=1556811113;
+        bh=HbsuwdOIgem/E0Mlci7TCiK8L+RXj1IGzfey9vqEvCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHl99IsLxGEO5ZSOsNG83m/OZOx/lG5hxAdDvwNfs+hs4SjsQgpbcR1qoVQagv3uD
-         IvzHuG9uHfI/v57c3p5fdPrHSC3vcFuq4jnC9XtlvSNo9FW2/lC2DgoI5wOe2ZyzQP
-         G8iSoZUWZP1LhwExZO9AZ4+QeN6e/Wb1hxdvE6dU=
+        b=ItgcUYSBqnY+6Xvgh2QsxxieaUgwaDFaEa1fR+hNc002Nzl0ZKtxSePmXj8m/RnRY
+         S3Gg7tySvqECIvfi0uQyTdesxXxUOUnjVKEmS3wQMKBW7V/AvzWwD7pirFXt4yEpnU
+         e7zylUW0MaNSUyHyNqjVip4HyrsWtRLLi79TvvqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Chris Healy <cphealy@gmail.com>, linux-gpio@vger.kernel.org,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 59/72] x86/realmode: Dont leak the trampoline kernel address
-Date:   Thu,  2 May 2019 17:21:21 +0200
-Message-Id: <20190502143338.064447209@linuxfoundation.org>
+Subject: [PATCH 5.0 080/101] gpio: of: Check propname before applying "cs-gpios" quirks
+Date:   Thu,  2 May 2019 17:21:22 +0200
+Message-Id: <20190502143345.235274686@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b929a500d68479163c48739d809cbf4c1335db6f ]
+[ Upstream commit e5545c94e43b8f6599ffc01df8d1aedf18ee912a ]
 
-Since commit
+SPI GPIO device has more than just "cs-gpio" property in its node and
+would request those GPIOs as a part of its initialization. To avoid
+applying CS-specific quirk to all of them add a check to make sure
+that propname is "cs-gpios".
 
-  ad67b74d2469 ("printk: hash addresses printed with %p")
-
-at boot "____ptrval____" is printed instead of the trampoline addresses:
-
-  Base memory trampoline at [(____ptrval____)] 99000 size 24576
-
-Remove the print as we don't want to leak kernel addresses and this
-statement is not needed anymore.
-
-Fixes: ad67b74d2469d9b8 ("printk: hash addresses printed with %p")
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190326203046.20787-1-mcroce@redhat.com
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/x86/realmode/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpio/gpiolib-of.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index d10105825d57..47d097946872 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -20,8 +20,6 @@ void __init set_real_mode_mem(phys_addr_t mem, size_t size)
- 	void *base = __va(mem);
- 
- 	real_mode_header = (struct real_mode_header *) base;
--	printk(KERN_DEBUG "Base memory trampoline at [%p] %llx size %zu\n",
--	       base, (unsigned long long)mem, size);
- }
- 
- void __init reserve_real_mode(void)
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index a1dd2f1c0d02..9470563f2506 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -119,7 +119,8 @@ static void of_gpio_flags_quirks(struct device_node *np,
+ 	 * to determine if the flags should have inverted semantics.
+ 	 */
+ 	if (IS_ENABLED(CONFIG_SPI_MASTER) &&
+-	    of_property_read_bool(np, "cs-gpios")) {
++	    of_property_read_bool(np, "cs-gpios") &&
++	    !strcmp(propname, "cs-gpios")) {
+ 		struct device_node *child;
+ 		u32 cs;
+ 		int ret;
 -- 
 2.19.1
 
