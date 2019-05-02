@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE4E11F6F
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF25711E55
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727359AbfEBPYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:24:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
+        id S1727401AbfEBP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727375AbfEBPYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:43 -0400
+        id S1728210AbfEBP2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC7472085A;
-        Thu,  2 May 2019 15:24:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C527320B7C;
+        Thu,  2 May 2019 15:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810683;
-        bh=8YJT1FpzLUsFmD5n9vM9UGGa9NVdyiXY65SPaX5MK94=;
+        s=default; t=1556810911;
+        bh=PhrG9eSpq1B9PvMa8gXlmh5VE6MDDYtt1Eb7YksLNiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ze3wKbPme+ezvGvaUcG0Gow6C82m/zaxTQ3FO9qZZN9ZaED7JW76+z1UoxOOkOtXH
-         UEVyGFDf5Dvd8nmYQQVYCNpkRRBd8uOikScCO55PpLAZHGniSNVeznGOktBNOyj1T4
-         KTrC3euCZFPuQ4DMRN4IKfq+nqRzSmuASA9fflX4=
+        b=H8x4TUnIcjdl8WEM8xDrfDhP+6Fxe77ygydTIvKNPHMJBcaJ0lRDqW8ZMcw1Fahxs
+         B1b8/uFjPGJGaSG2ujc4ExfEt/FymXseVDBU8iMt98YOM+rowhinjb0uup/dhNbxrG
+         f6wXGKuqya1zJq5n6udP4vkFu5S38+ll/eL9TFYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Richard Leitner <richard.leitner@skidata.com>,
+        stable@vger.kernel.org, Dave Carroll <david.carroll@microsemi.com>,
+        Sagar Biradar <sagar.biradar@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 40/49] usb: usb251xb: fix to avoid potential NULL pointer dereference
+Subject: [PATCH 4.19 55/72] scsi: aacraid: Insure we dont access PCIe space during AER/EEH
 Date:   Thu,  2 May 2019 17:21:17 +0200
-Message-Id: <20190502143329.061339727@linuxfoundation.org>
+Message-Id: <20190502143337.739899457@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 41f00e6e9e55546390031996b773e7f3c1d95928 ]
+[ Upstream commit b6554cfe09e1f610aed7d57164ab7760be57acd9 ]
 
-of_match_device in usb251xb_probe can fail and returns a NULL pointer.
-The patch avoids a potential NULL pointer dereference in this scenario.
+There are a few windows during AER/EEH when we can access PCIe I/O mapped
+registers. This will harden the access to insure we do not allow PCIe
+access during errors
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Richard Leitner <richard.leitner@skidata.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dave Carroll <david.carroll@microsemi.com>
+Reviewed-by: Sagar Biradar <sagar.biradar@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/usb/misc/usb251xb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/aacraid/aacraid.h | 7 ++++++-
+ drivers/scsi/aacraid/commsup.c | 4 ++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
-index 135c91c434bf..ba8fcdb377e8 100644
---- a/drivers/usb/misc/usb251xb.c
-+++ b/drivers/usb/misc/usb251xb.c
-@@ -530,7 +530,7 @@ static int usb251xb_probe(struct usb251xb *hub)
- 							   dev);
- 	int err;
+diff --git a/drivers/scsi/aacraid/aacraid.h b/drivers/scsi/aacraid/aacraid.h
+index 39eb415987fc..074760f21014 100644
+--- a/drivers/scsi/aacraid/aacraid.h
++++ b/drivers/scsi/aacraid/aacraid.h
+@@ -2639,9 +2639,14 @@ static inline unsigned int cap_to_cyls(sector_t capacity, unsigned divisor)
+ 	return capacity;
+ }
  
--	if (np) {
-+	if (np && of_id) {
- 		err = usb251xb_get_ofdata(hub,
- 					  (struct usb251xb_data *)of_id->data);
- 		if (err) {
++static inline int aac_pci_offline(struct aac_dev *dev)
++{
++	return pci_channel_offline(dev->pdev) || dev->handle_pci_error;
++}
++
+ static inline int aac_adapter_check_health(struct aac_dev *dev)
+ {
+-	if (unlikely(pci_channel_offline(dev->pdev)))
++	if (unlikely(aac_pci_offline(dev)))
+ 		return -1;
+ 
+ 	return (dev)->a_ops.adapter_check_health(dev);
+diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
+index 3236240a4edd..b7588de4484e 100644
+--- a/drivers/scsi/aacraid/commsup.c
++++ b/drivers/scsi/aacraid/commsup.c
+@@ -673,7 +673,7 @@ int aac_fib_send(u16 command, struct fib *fibptr, unsigned long size,
+ 					return -ETIMEDOUT;
+ 				}
+ 
+-				if (unlikely(pci_channel_offline(dev->pdev)))
++				if (unlikely(aac_pci_offline(dev)))
+ 					return -EFAULT;
+ 
+ 				if ((blink = aac_adapter_check_health(dev)) > 0) {
+@@ -773,7 +773,7 @@ int aac_hba_send(u8 command, struct fib *fibptr, fib_callback callback,
+ 
+ 		spin_unlock_irqrestore(&fibptr->event_lock, flags);
+ 
+-		if (unlikely(pci_channel_offline(dev->pdev)))
++		if (unlikely(aac_pci_offline(dev)))
+ 			return -EFAULT;
+ 
+ 		fibptr->flags |= FIB_CONTEXT_FLAG_WAIT;
 -- 
 2.19.1
 
