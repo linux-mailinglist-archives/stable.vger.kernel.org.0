@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FF211D91
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E12211F41
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728259AbfEBPbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
+        id S1726721AbfEBPWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729034AbfEBPbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:31:44 -0400
+        id S1726711AbfEBPWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:22:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3D7C20C01;
-        Thu,  2 May 2019 15:31:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8638214DA;
+        Thu,  2 May 2019 15:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811103;
-        bh=zn5jH/OC4aWEgOArc6P+D5g7YekNHyRe53EHLABXjwg=;
+        s=default; t=1556810553;
+        bh=aK1j+ztpyv7vMhEEePNUn/E/rZXm/tqeKprs5SZhO24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONTTpZqyK7UUzlzcu9oEqV0r8aaDqrS9tAHhbrdrv+uGhEaYuNw8TpsM6rmoGih/w
-         +bVnU+oH3iB2IL1zDh0hBYzgySzupHbwr8HLUbb36M5Vg/Ip2jFzXO8i7E1BpUJb5w
-         zHOIxRVv9qC3GtBjqD/AF1aYLy2AJZUja+8aI5ps=
+        b=e3AX4piTPTLLHB2YSUcnO6QPCcz7EoEldpqNM2J7KOiFAOY22iDQvq7/kCWStgKRz
+         ++YIXbW/E0O3uQHvB8A8YwSmFk40NqBYW5eYzu9Q9RPP75MtTlyfjxC8wKT2Lqg1w/
+         DJqExesx7wMn9AOHVzuGCnsADkSOy2OOeF6sE8OI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mukesh Ojha <mojha@codeaurora.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 068/101] scsi: qla4xxx: fix a potential NULL pointer dereference
+Subject: [PATCH 4.9 24/32] scsi: qla4xxx: fix a potential NULL pointer dereference
 Date:   Thu,  2 May 2019 17:21:10 +0200
-Message-Id: <20190502143344.371305501@linuxfoundation.org>
+Message-Id: <20190502143321.601253652@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index a77bfb224248..80289c885c07 100644
+index f9f899ec9427..c158967b59d7 100644
 --- a/drivers/scsi/qla4xxx/ql4_os.c
 +++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -3203,6 +3203,8 @@ static int qla4xxx_conn_bind(struct iscsi_cls_session *cls_session,
+@@ -3207,6 +3207,8 @@ static int qla4xxx_conn_bind(struct iscsi_cls_session *cls_session,
  	if (iscsi_conn_bind(cls_session, cls_conn, is_leading))
  		return -EINVAL;
  	ep = iscsi_lookup_endpoint(transport_fd);
