@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D26FC11EF1
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A0D11D87
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbfEBPod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43162 "EHLO mail.kernel.org"
+        id S1727890AbfEBPb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726976AbfEBP03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:29 -0400
+        id S1728121AbfEBPb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:31:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5630120449;
-        Thu,  2 May 2019 15:26:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9B7A20C01;
+        Thu,  2 May 2019 15:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810788;
-        bh=WJN5iWIvcgKpaO/zBux1NJbNQ6G/V7nfw02+h+bfIvI=;
+        s=default; t=1556811085;
+        bh=ENEOq8ymi8u9HzFnaKNC83uaP7dAPwUmnYmnsnS2nFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcPq7Z0bAgky1CfcofTyjiHiCc37UAB6Lf3/zZXpXKANDCiM+D1fMuhVEyD+ey1Uo
-         VKVBrRT+Do9zh1I9f+TvRkESNMq80+SLHz+xZ1Y0G0ziaD4+fTSrV0euZeGsO1O1SH
-         VXNHEkz7Hcevl/aaz+WUAWGNByknepSpeRLop4lc=
+        b=TVbn7jOyvTmVD2w/6gJLHf5OlS/Nu0s3TISoHp8Uovio0UxgaH5vr0mgBaCdq6YzQ
+         aLPuY5XDw4A9nW8+gZBxF2nMGldVVScNrd7EK3DcV7ZBScPA+jzuArxULUq/jKFCdd
+         nk4h86bPAPh+TiXm4eeZwqg5Jdcprav7CxD8LIUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nianyao Tang <tangnianyao@huawei.com>,
+        Shameerali Kolothum Thodi 
+        <shameerali.kolothum.thodi@huawei.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 12/72] qlcnic: Avoid potential NULL pointer dereference
+Subject: [PATCH 5.0 032/101] arm64: KVM: Always set ICH_HCR_EL2.EN if GICv4 is enabled
 Date:   Thu,  2 May 2019 17:20:34 +0200
-Message-Id: <20190502143334.402515249@linuxfoundation.org>
+Message-Id: <20190502143341.783223402@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5bf7295fe34a5251b1d241b9736af4697b590670 ]
+[ Upstream commit ca71228b42a96908eca7658861eafacd227856c9 ]
 
-netdev_alloc_skb can fail and return a NULL pointer which is
-dereferenced without a check. The patch avoids such a scenario.
+The normal interrupt flow is not to enable the vgic when no virtual
+interrupt is to be injected (i.e. the LRs are empty). But when a guest
+is likely to use GICv4 for LPIs, we absolutely need to switch it on
+at all times. Otherwise, VLPIs only get delivered when there is something
+in the LRs, which doesn't happen very often.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Nianyao Tang <tangnianyao@huawei.com>
+Tested-by: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c | 2 ++
- 1 file changed, 2 insertions(+)
+ virt/kvm/arm/hyp/vgic-v3-sr.c |  4 ++--
+ virt/kvm/arm/vgic/vgic.c      | 14 ++++++++++----
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-index 3b0adda7cc9c..a4cd6f2cfb86 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1048,6 +1048,8 @@ int qlcnic_do_lb_test(struct qlcnic_adapter *adapter, u8 mode)
+diff --git a/virt/kvm/arm/hyp/vgic-v3-sr.c b/virt/kvm/arm/hyp/vgic-v3-sr.c
+index 9652c453480f..3c3f7cda95c7 100644
+--- a/virt/kvm/arm/hyp/vgic-v3-sr.c
++++ b/virt/kvm/arm/hyp/vgic-v3-sr.c
+@@ -222,7 +222,7 @@ void __hyp_text __vgic_v3_save_state(struct kvm_vcpu *vcpu)
+ 		}
+ 	}
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
-+		if (!skb)
-+			break;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
+-	if (used_lrs) {
++	if (used_lrs || cpu_if->its_vpe.its_vm) {
+ 		int i;
+ 		u32 elrsr;
+ 
+@@ -247,7 +247,7 @@ void __hyp_text __vgic_v3_restore_state(struct kvm_vcpu *vcpu)
+ 	u64 used_lrs = vcpu->arch.vgic_cpu.used_lrs;
+ 	int i;
+ 
+-	if (used_lrs) {
++	if (used_lrs || cpu_if->its_vpe.its_vm) {
+ 		write_gicreg(cpu_if->vgic_hcr, ICH_HCR_EL2);
+ 
+ 		for (i = 0; i < used_lrs; i++)
+diff --git a/virt/kvm/arm/vgic/vgic.c b/virt/kvm/arm/vgic/vgic.c
+index abd9c7352677..3af69f2a3866 100644
+--- a/virt/kvm/arm/vgic/vgic.c
++++ b/virt/kvm/arm/vgic/vgic.c
+@@ -867,15 +867,21 @@ void kvm_vgic_flush_hwstate(struct kvm_vcpu *vcpu)
+ 	 * either observe the new interrupt before or after doing this check,
+ 	 * and introducing additional synchronization mechanism doesn't change
+ 	 * this.
++	 *
++	 * Note that we still need to go through the whole thing if anything
++	 * can be directly injected (GICv4).
+ 	 */
+-	if (list_empty(&vcpu->arch.vgic_cpu.ap_list_head))
++	if (list_empty(&vcpu->arch.vgic_cpu.ap_list_head) &&
++	    !vgic_supports_direct_msis(vcpu->kvm))
+ 		return;
+ 
+ 	DEBUG_SPINLOCK_BUG_ON(!irqs_disabled());
+ 
+-	raw_spin_lock(&vcpu->arch.vgic_cpu.ap_list_lock);
+-	vgic_flush_lr_state(vcpu);
+-	raw_spin_unlock(&vcpu->arch.vgic_cpu.ap_list_lock);
++	if (!list_empty(&vcpu->arch.vgic_cpu.ap_list_head)) {
++		raw_spin_lock(&vcpu->arch.vgic_cpu.ap_list_lock);
++		vgic_flush_lr_state(vcpu);
++		raw_spin_unlock(&vcpu->arch.vgic_cpu.ap_list_lock);
++	}
+ 
+ 	if (can_access_vgic_from_kernel())
+ 		vgic_restore_state(vcpu);
 -- 
 2.19.1
 
