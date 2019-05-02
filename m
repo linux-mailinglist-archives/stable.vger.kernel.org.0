@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6B7112240
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 21:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE2512267
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 21:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726114AbfEBTBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 15:01:43 -0400
-Received: from mail-wr1-f51.google.com ([209.85.221.51]:33172 "EHLO
-        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbfEBTBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 15:01:43 -0400
-Received: by mail-wr1-f51.google.com with SMTP id e28so4891605wra.0
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 12:01:39 -0700 (PDT)
+        id S1726120AbfEBTLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 15:11:39 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54624 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725962AbfEBTLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 15:11:39 -0400
+Received: by mail-wm1-f68.google.com with SMTP id b10so4363980wmj.4
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 12:11:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=O/rB+QMmXBKFYu1QytAP48O3aIa5tOz0U/8Ur3jFMhw=;
-        b=jARUqFQShDWSBjmhV/uk7CzWRo2ZqpN5DQNmrvPbn3oAY9o84yspSqpJXjhdBJcv6V
-         XQEJ/eYuTw7oSaRuiPrGGFfx8VxvLZAy4800KSSLbRBFD8ukjkWpFKiGnq12WXC0h3Xh
-         mF5HD1EOH6yOdsei23ntmqFmaTeyCz3j6XRE4E6GMXYOBYqKoAvm2XWjKRbKZvcKySsh
-         Asq4hE1PflnGUo+gsUGdUvJJmf0kutsyOx0No94qDoZNqAQRXfwqfna38gYJUPkUZK4O
-         AgxfAq75AJQk3GzlC2KhJ6EiFJCrASLjYjOwhmWleJeLeOosoIuhCkkjFk95G843eft3
-         qJ0w==
+        bh=bzlqLAxO9MDY0cDcyDuwrRZbUP4QzQxY5clE9JbxnNk=;
+        b=hB7Ub5Vw0k7c8HVQoKaCUPgJ7+xNvZGOhHRdDE3Qj5joQajDzCn5y0Zmrm4qDoVy0u
+         mPiAKeHfGsDuKP/oJPH1wQAc9Ak6WhHVIVIbHrmZWSOGdsYuaWR6N/BubmoYGoihZ45I
+         oMN6/2wjEwvbVPLA1PuUij7MHMrj5RIx+M4fuimQYXkMn7vRJdDjRFdlDUXxyTXd+NiQ
+         Hf/o6eF5YNngEsDyqrrUQZdypt9+r1H0uaZwHgUZsAfvzecErS9D7eEWLokqs6NDm8t2
+         HM/McB3w7cQp35jzdtg4s5IEECKVxPYP8MaDJR+YMfXQOpzQPXG52MBxepW9XeIVc0B8
+         iJyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=O/rB+QMmXBKFYu1QytAP48O3aIa5tOz0U/8Ur3jFMhw=;
-        b=d+e0bnAMyjNhtdgreWCwwGWj0qgGzEOOQTbiZqdEBjNCPfH6HVDZlfzPQWWsN7VROb
-         Wdqd3xa4Su6kp2zXaFZkTwGucMpdlG+ycHU7nxzrX+xoUWLOkhEGqJ/lkt2Q6PDGP6W+
-         4jo5QXwKK4L1AapPzzZNjSK9U8gqHsAA1Hed7QAQKvnQvTgTzx38beyFdVGbbKodW6kt
-         ibWueARcUcQ9CIBKaV9Q3srI9lYObYaGHPNHFzXaVKsSqBQksZwxeftRhz5zH7nFMBNC
-         4NSvems+q7EQQU25zg1/BtFZdCnrop0s5th2Uw02V2R+rAr6sC8ptZ8Q0Dx5GFQGOORJ
-         PrKw==
-X-Gm-Message-State: APjAAAURu9FJQYKt79TF7xhhUft2HMKvLTklOFyuam8acQ4ooOAp+Ij+
-        a4SzCbIgyVrD95hP16QaCpPAybO9/zoY1Q==
-X-Google-Smtp-Source: APXvYqzJ8UxvhmAZdfyfksc8Ego3GJD+Ddi0RxXaKkhLXzuPSGap+XjLffjGwDMHqoAp0LUEj9R7lA==
-X-Received: by 2002:adf:eec8:: with SMTP id a8mr1991669wrp.64.1556823697944;
-        Thu, 02 May 2019 12:01:37 -0700 (PDT)
+        bh=bzlqLAxO9MDY0cDcyDuwrRZbUP4QzQxY5clE9JbxnNk=;
+        b=WfGwdIlnVAhcd2aSJjdABYpA7L10PjDIa+o+EAlLbglfWs8ke716/XhM2K8tY+Q6P/
+         Purh4j5w9ltqyoJ0Vwt0P2ie+T+TDt65oZZQQcSEXguAD/4KJXTGMGfs/Xwfdf8MulrI
+         +wLpz2qYGgA/DDTT5vF54EDF34cMyAaePM085oNtkAWCCFpFkgl2SMCGu8dKqkgg0jnZ
+         f3oGT8Kms5IwjG0DKDzr3187ETtfkaetGF4D49MIDles7SNOzseNmF2Toex4pDJRVTbP
+         o2POJv5DeyYDu18x9wcpAlsO5Vnf3fYTd5RpFZCLKUWvbekHMCFRquWS9Q+KdUUPTnqo
+         PRfQ==
+X-Gm-Message-State: APjAAAUHd1cokVPm5RkVZKBuXZMZrRrxs6PO111/OKFrn76X86qyq7vK
+        slPawDhGZs8I8GZfddf1JL/PCETkAbVyuQ==
+X-Google-Smtp-Source: APXvYqxrIiFukTP0fiv6hQImJcv9/9rP6mIcZ7jnQb6KhWpSmdVSQrQFoJKDP0EVdz8waGyXEqIEyw==
+X-Received: by 2002:a1c:cc10:: with SMTP id h16mr3603968wmb.39.1556824289456;
+        Thu, 02 May 2019 12:11:29 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b124sm41500wmg.21.2019.05.02.12.01.37
+        by smtp.gmail.com with ESMTPSA id u9sm96821wmd.14.2019.05.02.12.11.28
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2019 12:01:37 -0700 (PDT)
-Message-ID: <5ccb3e91.1c69fb81.ef8e2.0413@mx.google.com>
-Date:   Thu, 02 May 2019 12:01:37 -0700 (PDT)
+        Thu, 02 May 2019 12:11:28 -0700 (PDT)
+Message-ID: <5ccb40e0.1c69fb81.24d63.096f@mx.google.com>
+Date:   Thu, 02 May 2019 12:11:28 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.38-73-gdb2d00a74567
+X-Kernelci-Kernel: v3.18.139-28-g66b56c184318
 X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Branch: linux-3.18.y
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 44 warnings (v4.19.38-73-gdb2d00a74567)
+Subject: stable-rc/linux-3.18.y build: 189 builds: 7 failed, 182 passed,
+ 42 errors, 2856 warnings (v3.18.139-28-g66b56c184318)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,64 +63,301 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 44 warnings=
- (v4.19.38-73-gdb2d00a74567)
+stable-rc/linux-3.18.y build: 189 builds: 7 failed, 182 passed, 42 errors, =
+2856 warnings (v3.18.139-28-g66b56c184318)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.38-73-gdb2d00a74567/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.18.=
+y/kernel/v3.18.139-28-g66b56c184318/
 
 Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.38-73-gdb2d00a74567
-Git Commit: db2d00a74567be6e93472fcc4bfa8ada96cc6397
+Branch: linux-3.18.y
+Git Describe: v3.18.139-28-g66b56c184318
+Git Commit: 66b56c1843185c1c766fe92fd61423d6919ddd64
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
-Warnings Detected:
+Build Failures Detected:
 
 arc:    arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2017.09) 7.1.1 2017=
 0710
 
-    axs103_defconfig: 4 warnings
-    axs103_smp_defconfig: 4 warnings
-    haps_hs_defconfig: 2 warnings
-    haps_hs_smp_defconfig: 2 warnings
-    hsdk_defconfig: 4 warnings
-    nsim_hs_defconfig: 2 warnings
-    nsim_hs_smp_defconfig: 2 warnings
-    nsimosci_hs_defconfig: 4 warnings
-    nsimosci_hs_smp_defconfig: 4 warnings
-    vdk_hs38_defconfig: 5 warnings
-    vdk_hs38_smp_defconfig: 5 warnings
+    allnoconfig: FAIL
+    fpga_defconfig: FAIL
+    fpga_noramfs_defconfig: FAIL
+    tinyconfig: FAIL
 
 mips:    mips-linux-gnu-gcc (Debian 7.3.0-28) 7.3.0
 
-    lemote2f_defconfig: 1 warning
-    loongson3_defconfig: 2 warnings
-    malta_qemu_32r6_defconfig: 1 warning
-    nlm_xlp_defconfig: 1 warning
+    bigsur_defconfig: FAIL
+    sb1250_swarm_defconfig: FAIL
+    sead3micro_defconfig: FAIL
+
+Errors and Warnings Detected:
+
+arc:    arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2017.09) 7.1.1 2017=
+0710
+
+    allnoconfig: 2 errors, 664 warnings
+    fpga_defconfig: 2 errors, 24 warnings
+    fpga_noramfs_defconfig: 2 errors, 24 warnings
+    tinyconfig: 2 errors, 662 warnings
+
+i386:    gcc (Debian 7.4.0-2) 7.4.0
+
+    allnoconfig: 3 warnings
+    i386_defconfig: 3 warnings
+    tinyconfig: 3 warnings
+
+mips:    mips-linux-gnu-gcc (Debian 7.3.0-28) 7.3.0
+
+    allnoconfig: 27 warnings
+    ar7_defconfig: 27 warnings
+    ath79_defconfig: 27 warnings
+    bcm47xx_defconfig: 27 warnings
+    bcm63xx_defconfig: 27 warnings
+    bigsur_defconfig: 16 errors, 32 warnings
+    capcella_defconfig: 27 warnings
+    cavium_octeon_defconfig: 27 warnings
+    cobalt_defconfig: 27 warnings
+    db1xxx_defconfig: 27 warnings
+    decstation_defconfig: 27 warnings
+    e55_defconfig: 27 warnings
+    fuloong2e_defconfig: 27 warnings
+    gpr_defconfig: 27 warnings
+    ip22_defconfig: 27 warnings
+    ip27_defconfig: 27 warnings
+    ip28_defconfig: 27 warnings
+    ip32_defconfig: 27 warnings
+    jazz_defconfig: 27 warnings
+    jmr3927_defconfig: 27 warnings
+    lasat_defconfig: 27 warnings
+    lemote2f_defconfig: 27 warnings
+    loongson3_defconfig: 27 warnings
+    ls1b_defconfig: 27 warnings
+    malta_defconfig: 27 warnings
+    malta_kvm_defconfig: 27 warnings
+    malta_kvm_guest_defconfig: 27 warnings
+    maltaaprp_defconfig: 27 warnings
+    maltasmvp_defconfig: 27 warnings
+    maltasmvp_eva_defconfig: 27 warnings
+    maltaup_defconfig: 27 warnings
+    markeins_defconfig: 27 warnings
+    mips_paravirt_defconfig: 27 warnings
+    mpc30x_defconfig: 27 warnings
+    msp71xx_defconfig: 27 warnings
+    mtx1_defconfig: 27 warnings
+    nlm_xlp_defconfig: 27 warnings
+    nlm_xlr_defconfig: 27 warnings
+    pnx8335_stb225_defconfig: 27 warnings
+    qi_lb60_defconfig: 27 warnings
+    rb532_defconfig: 27 warnings
+    rbtx49xx_defconfig: 27 warnings
+    rm200_defconfig: 27 warnings
+    rt305x_defconfig: 27 warnings
+    sb1250_swarm_defconfig: 16 errors, 32 warnings
+    sead3_defconfig: 27 warnings
+    sead3micro_defconfig: 2 errors, 27 warnings
+    tb0219_defconfig: 27 warnings
+    tb0226_defconfig: 27 warnings
+    tb0287_defconfig: 27 warnings
+    tinyconfig: 27 warnings
+    workpad_defconfig: 27 warnings
+    xway_defconfig: 27 warnings
 
 x86_64:    gcc (Debian 7.4.0-2) 7.4.0
 
+    allnoconfig: 1 warning
     tinyconfig: 1 warning
+    x86_64_defconfig: 30 warnings
 
+Errors summary:
+
+    4    arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+    4    arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
+    2    include/linux/swiotlb.h:96:21: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:92:26: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:87:27: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:83:13: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:79:9: error: 'enum dma_data_direction' dec=
+lared inside parameter list will not be visible outside of this definition =
+or declaration [-Werror]
+    2    include/linux/swiotlb.h:75:14: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:70:29: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:67:13: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:65:63: error: 'struct page' declared insid=
+e parameter list will not be visible outside of this definition or declarat=
+ion [-Werror]
+    2    include/linux/swiotlb.h:53:27: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:49:28: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:45:13: error: 'enum dma_data_direction' de=
+clared inside parameter list will not be visible outside of this definition=
+ or declaration [-Werror]
+    2    include/linux/swiotlb.h:113:20: error: expected '=3D', ',', ';', '=
+asm' or '__attribute__' before 'swiotlb_free'
+    2    include/linux/swiotlb.h:104:24: error: 'enum dma_data_direction' d=
+eclared inside parameter list will not be visible outside of this definitio=
+n or declaration [-Werror]
+    2    include/linux/swiotlb.h:100:29: error: 'enum dma_data_direction' d=
+eclared inside parameter list will not be visible outside of this definitio=
+n or declaration [-Werror]
+    2    arch/mips/sibyte/common/dma.c:11:13: error: expected '=3D', ',', '=
+;', 'asm' or '__attribute__' before 'plat_swiotlb_setup'
+    1    arch/mips/kernel/genex.S:234: Error: branch to a symbol in another=
+ ISA mode
+    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
+ ISA mode
 
 Warnings summary:
 
-    25   arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is n=
-ot used [-Wunused-value]
-    11   net/ipv4/tcp_input.c:4319:49: warning: array subscript is above ar=
-ray bounds [-Warray-bounds]
-    3    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    2    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined =
-but not used [-Wunused-function]
-    1    {standard input}:131: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1006:warning: override: UNWINDER_GUESS changes choice state
+    1113  arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean exp=
+ression [-Wbool-operation]
+    669  arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    654  cc1: warning: '-mno-mpy' is deprecated
+    318  arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expr=
+ession [-Wbool-operation]
+    8    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOT=
+LB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (C=
+AVIUM_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_=
+XLR_BOARD)
+    4    net/xfrm/xfrm_policy.c:1572:7: warning: 'dst_ops' may be used unin=
+itialized in this function [-Wmaybe-uninitialized]
+    4    mm/memory.c:581:7: warning: assignment makes integer from pointer =
+without a cast [-Wint-conversion]
+    4    kernel/sched/core.c:2766:1: warning: control reaches end of non-vo=
+id function [-Wreturn-type]
+    4    include/linux/kernel.h:707:17: warning: comparison of distinct poi=
+nter types lacks a cast
+    3    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in=
+ this function [-Wmaybe-uninitialized]
+    3    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in t=
+his function [-Wmaybe-uninitialized]
+    3    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this=
+ function [-Wmaybe-uninitialized]
+    3    lib/string_helpers.c:64:33: warning: '%03lld' directive output may=
+ be truncated writing between 3 and 13 bytes into a region of size 7 [-Wfor=
+mat-truncation=3D]
+    3    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    3    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    3    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    2    net/sunrpc/svcsock.c:754:6: warning: 'optname' may be used uniniti=
+alized in this function [-Wmaybe-uninitialized]
+    2    net/sunrpc/svcsock.c:754:6: warning: 'level' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    2    net/sunrpc/svcauth_unix.c:685:9: warning: 'sin6' may be used unini=
+tialized in this function [-Wmaybe-uninitialized]
+    2    net/packet/af_packet.c:1885:33: warning: 'hdrlen' may be used unin=
+itialized in this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:559:37: warning: 'code' may be used uninitialized =
+in this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:532:3: warning: 'type' may be used uninitialized i=
+n this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:513:35: warning: 'icmph' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:477:29: warning: 'type' may be used uninitialized =
+in this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:476:63: warning: 'family' may be used uninitialize=
+d in this function [-Wmaybe-uninitialized]
+    2    net/ipv4/ping.c:476:63: warning: 'code' may be used uninitialized =
+in this function [-Wmaybe-uninitialized]
+    2    net/core/neighbour.c:3119:2: warning: 'p_name' may be used uniniti=
+alized in this function [-Wmaybe-uninitialized]
+    2    net/core/ethtool.c:236:1: warning: control reaches end of non-void=
+ function [-Wreturn-type]
+    2    include/linux/sunrpc/svc_xprt.h:174:1: warning: control reaches en=
+d of non-void function [-Wreturn-type]
+    2    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_=
+address' with a nonzero argument is unsafe [-Wframe-address]
+    2    cc1: all warnings being treated as errors
+    1    net/sunrpc/clnt.c:527:46: warning: '%s' directive output may be tr=
+uncated writing up to 107 bytes into a region of size 48 [-Wformat-truncati=
+on=3D]
+    1    kernel/relay.c:423:35: warning: 'snprintf' output may be truncated=
+ before the last format character [-Wformat-truncation=3D]
+    1    fs/nfs/client.c:1380:23: warning: '%u' directive output may be tru=
+ncated writing between 1 and 7 bytes into a region of size between 3 and 6 =
+[-Wformat-truncation=3D]
+    1    drivers/video/fbdev/core/../edid.h:74:72: warning: '*' in boolean =
+context, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/usb/core/usb.c:471:9: warning: '%d' directive output may b=
+e truncated writing between 1 and 11 bytes into a region of size between 0 =
+and 15 [-Wformat-truncation=3D]
+    1    drivers/usb/core/hcd.c:450:34: warning: '%s' directive output may =
+be truncated writing up to 64 bytes into a region of size between 35 and 99=
+ [-Wformat-truncation=3D]
+    1    drivers/net/ethernet/broadcom/tg3.c:11184:10: warning: '%d' direct=
+ive output may be truncated writing between 1 and 11 bytes into a region of=
+ size between 0 and 15 [-Wformat-truncation=3D]
+    1    drivers/net/ethernet/broadcom/tg3.c:11181:9: warning: '-rx-' direc=
+tive output may be truncated writing 4 bytes into a region of size between =
+1 and 16 [-Wformat-truncation=3D]
+    1    drivers/net/ethernet/broadcom/tg3.c:11178:9: warning: '-tx-' direc=
+tive output may be truncated writing 4 bytes into a region of size between =
+1 and 16 [-Wformat-truncation=3D]
+    1    drivers/net/ethernet/broadcom/tg3.c:11175:9: warning: '-txrx-' dir=
+ective output may be truncated writing 6 bytes into a region of size betwee=
+n 1 and 16 [-Wformat-truncation=3D]
+    1    drivers/input/mouse/psmouse-base.c:1466:52: warning: '/input0' dir=
+ective output may be truncated writing 7 bytes into a region of size betwee=
+n 1 and 32 [-Wformat-truncation=3D]
+    1    drivers/input/mouse/lifebook.c:287:7: warning: '/input1' directive=
+ output may be truncated writing 7 bytes into a region of size between 1 an=
+d 32 [-Wformat-truncation=3D]
+    1    drivers/input/mouse/alps.c:2418:46: warning: '/input1' directive o=
+utput may be truncated writing 7 bytes into a region of size between 1 and =
+32 [-Wformat-truncation=3D]
+    1    drivers/input/keyboard/atkbd.c:1069:7: warning: '/input0' directiv=
+e output may be truncated writing 7 bytes into a region of size between 1 a=
+nd 32 [-Wformat-truncation=3D]
+    1    drivers/ata/libata-core.c:2970:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2969:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2968:35: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2967:32: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2966:31: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2965:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2964:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2963:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2962:30: warning: '*' in boolean context=
+, suggest '&&' instead [-Wint-in-bool-context]
+    1    drivers/ata/libata-core.c:2141:42: warning: '%d' directive output =
+may be truncated writing between 1 and 2 bytes into a region of size betwee=
+n 1 and 11 [-Wformat-truncation=3D]
+    1    block/partition-generic.c:41:37: warning: 'snprintf' output may be=
+ truncated before the last format character [-Wformat-truncation=3D]
+    1    block/partition-generic.c:39:36: warning: '%d' directive output ma=
+y be truncated writing between 1 and 11 bytes into a region of size between=
+ 0 and 31 [-Wformat-truncation=3D]
+    1    block/elevator.c:841:14: warning: 'snprintf' output may be truncat=
+ed before the last format character [-Wformat-truncation=3D]
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -128,11 +365,6 @@ tiple instructions
 =3D=3D=3D=3D=3D
 
 Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -146,23 +378,702 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (arc, gcc-7) =E2=80=94 FAIL, 2 errors, 664 warnings, 0 section =
+mismatches
+
+Errors:
+    arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
+    arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+
+Warnings:
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    mm/memory.c:581:7: warning: assignment makes integer from pointer witho=
+ut a cast [-Wint-conversion]
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in this f=
+unction [-Wmaybe-uninitialized]
+    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in this=
+ function [-Wmaybe-uninitialized]
+    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this func=
+tion [-Wmaybe-uninitialized]
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
+types lacks a cast
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    kernel/sched/core.c:2766:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+allnoconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
 ismatches
 
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+Warnings:
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in section =
+`.bss..page_aligned'
 
 ---------------------------------------------------------------------------=
 -----
@@ -171,13 +1082,74 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
+runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
+runcation=3D]
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -186,18 +1158,74 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ar7_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+ape6evm_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g4_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+ar7_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g5_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+armadillo800eva_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -211,48 +1239,104 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath25_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+at91rm9200_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath79_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+at91sam9260_9g20_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91sam9261_9g10_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91sam9263_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91sam9g45_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91sam9rl_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91x40_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
 axm55xx_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
@@ -266,48 +1350,388 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm47xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+bcm47xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
 ction mismatches
 
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
 ---------------------------------------------------------------------------=
 -----
-bmips_stb_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+bcm63xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bcm_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-7) =E2=80=94 FAIL, 16 errors, 32 warnings, 0 se=
+ction mismatches
+
+Errors:
+    include/linux/swiotlb.h:45:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:49:28: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:53:27: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:67:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:65:63: error: 'struct page' declared inside par=
+ameter list will not be visible outside of this definition or declaration [=
+-Werror]
+    include/linux/swiotlb.h:70:29: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:75:14: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:79:9: error: 'enum dma_data_direction' declared=
+ inside parameter list will not be visible outside of this definition or de=
+claration [-Werror]
+    include/linux/swiotlb.h:83:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:87:27: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:92:26: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:96:21: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:100:29: error: 'enum dma_data_direction' declar=
+ed inside parameter list will not be visible outside of this definition or =
+declaration [-Werror]
+    include/linux/swiotlb.h:104:24: error: 'enum dma_data_direction' declar=
+ed inside parameter list will not be visible outside of this definition or =
+declaration [-Werror]
+    include/linux/swiotlb.h:113:20: error: expected '=3D', ',', ';', 'asm' =
+or '__attribute__' before 'swiotlb_free'
+    arch/mips/sibyte/common/dma.c:11:13: error: expected '=3D', ',', ';', '=
+asm' or '__attribute__' before 'plat_swiotlb_setup'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    cc1: all warnings being treated as errors
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bockw_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 s=
 ection mismatches
 
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+cavium_octeon_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings=
+, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
 cerfcube_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -331,8 +1755,64 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cobalt_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+cobalt_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -361,18 +1841,125 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+db1xxx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+decstation_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0=
+ section mismatches
 
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -386,8 +1973,64 @@ dove_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-e55_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+e55_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -431,23 +2074,237 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+fpga_defconfig (arc, gcc-7) =E2=80=94 FAIL, 2 errors, 24 warnings, 0 sectio=
 n mismatches
 
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+Errors:
+    arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
+    arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+
+Warnings:
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    mm/memory.c:581:7: warning: assignment makes integer from pointer witho=
+ut a cast [-Wint-conversion]
+    kernel/sched/core.c:2766:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in this f=
+unction [-Wmaybe-uninitialized]
+    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in this=
+ function [-Wmaybe-uninitialized]
+    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this func=
+tion [-Wmaybe-uninitialized]
+    include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
+types lacks a cast
+    net/core/ethtool.c:236:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    net/core/neighbour.c:3119:2: warning: 'p_name' may be used uninitialize=
+d in this function [-Wmaybe-uninitialized]
+    net/packet/af_packet.c:1885:33: warning: 'hdrlen' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    net/xfrm/xfrm_policy.c:1572:7: warning: 'dst_ops' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    net/xfrm/xfrm_policy.c:1572:7: warning: 'dst_ops' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:513:35: warning: 'icmph' may be used uninitialized in t=
+his function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:476:63: warning: 'family' may be used uninitialized in =
+this function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:559:37: warning: 'code' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:532:3: warning: 'type' may be used uninitialized in thi=
+s function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:477:29: warning: 'type' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:476:63: warning: 'code' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    include/linux/sunrpc/svc_xprt.h:174:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+    net/sunrpc/svcsock.c:754:6: warning: 'optname' may be used uninitialize=
+d in this function [-Wmaybe-uninitialized]
+    net/sunrpc/svcsock.c:754:6: warning: 'level' may be used uninitialized =
+in this function [-Wmaybe-uninitialized]
+    net/sunrpc/svcauth_unix.c:685:9: warning: 'sin6' may be used uninitiali=
+zed in this function [-Wmaybe-uninitialized]
 
 ---------------------------------------------------------------------------=
 -----
-gpr_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+fpga_noramfs_defconfig (arc, gcc-7) =E2=80=94 FAIL, 2 errors, 24 warnings, =
+0 section mismatches
+
+Errors:
+    arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
+    arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+
+Warnings:
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    mm/memory.c:581:7: warning: assignment makes integer from pointer witho=
+ut a cast [-Wint-conversion]
+    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in this f=
+unction [-Wmaybe-uninitialized]
+    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in this=
+ function [-Wmaybe-uninitialized]
+    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this func=
+tion [-Wmaybe-uninitialized]
+    kernel/sched/core.c:2766:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
+types lacks a cast
+    net/core/ethtool.c:236:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    net/core/neighbour.c:3119:2: warning: 'p_name' may be used uninitialize=
+d in this function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:513:35: warning: 'icmph' may be used uninitialized in t=
+his function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:476:63: warning: 'family' may be used uninitialized in =
+this function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:559:37: warning: 'code' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:532:3: warning: 'type' may be used uninitialized in thi=
+s function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:477:29: warning: 'type' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    net/ipv4/ping.c:476:63: warning: 'code' may be used uninitialized in th=
+is function [-Wmaybe-uninitialized]
+    net/packet/af_packet.c:1885:33: warning: 'hdrlen' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    net/xfrm/xfrm_policy.c:1572:7: warning: 'dst_ops' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    net/xfrm/xfrm_policy.c:1572:7: warning: 'dst_ops' may be used uninitial=
+ized in this function [-Wmaybe-uninitialized]
+    include/linux/sunrpc/svc_xprt.h:174:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+    net/sunrpc/svcsock.c:754:6: warning: 'optname' may be used uninitialize=
+d in this function [-Wmaybe-uninitialized]
+    net/sunrpc/svcsock.c:754:6: warning: 'level' may be used uninitialized =
+in this function [-Wmaybe-uninitialized]
+    net/sunrpc/svcauth_unix.c:685:9: warning: 'sin6' may be used uninitiali=
+zed in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -466,50 +2323,21 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
-section mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-
----------------------------------------------------------------------------=
------
 hisi_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
+i386_defconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
+n mismatches
 
 Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in section =
+`.bss..page_aligned'
 
 ---------------------------------------------------------------------------=
 -----
@@ -548,23 +2376,247 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+ip22_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-ip27_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+ip27_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+ip28_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+ip32_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -573,13 +2625,125 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jazz_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+jazz_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-jmr3927_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+jmr3927_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -593,8 +2757,23 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+koelsch_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 ks8695_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+---------------------------------------------------------------------------=
+-----
+kzm9g_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lager_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -603,43 +2782,186 @@ lart_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+lasat_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
 
 Warnings:
-    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-loongson1b_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+lemote2f_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-lpc18xx_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+loongson3_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -653,8 +2975,74 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+ls1b_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
 lubbock_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mackerel_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -668,57 +3056,496 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+malta_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+malta_kvm_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+malta_kvm_guest_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnin=
+gs, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning=
+maltaaprp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings=
 , 0 section mismatches
 
 Warnings:
-    {standard input}:131: Warning: macro instruction expanded into multiple=
- instructions
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+maltaup_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+marzen_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -727,8 +3554,64 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+mips_paravirt_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings=
+, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -742,28 +3625,191 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mpc30x_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+mpc30x_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
 tion mismatches
 
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-multi_v4t_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+msm_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -817,69 +3863,125 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
+nlm_xlp_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
 
 Warnings:
-    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlr_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
+nlm_xlr_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
 
 Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
-section mismatches
-
-Warnings:
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings, 0 =
-section mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings=
-, 0 section mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -908,18 +4010,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omega2p_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 orion5x_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -933,23 +4025,69 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pic32mzda_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
 pleb_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pnx8335_stb225_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+pnx8335_stb225_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warning=
+s, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -978,18 +4116,69 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 qcom_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-qi_lb60_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+qi_lb60_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -998,13 +4187,130 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+rb532_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-rbtx49xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+rbtx49xx_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+realview-smp_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1013,8 +4319,64 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+rm200_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1023,8 +4385,64 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rt305x_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+rt305x_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1048,8 +4466,257 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
+sb1250_swarm_defconfig (mips, gcc-7) =E2=80=94 FAIL, 16 errors, 32 warnings=
+, 0 section mismatches
+
+Errors:
+    include/linux/swiotlb.h:45:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:49:28: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:53:27: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:67:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:65:63: error: 'struct page' declared inside par=
+ameter list will not be visible outside of this definition or declaration [=
+-Werror]
+    include/linux/swiotlb.h:70:29: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:75:14: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:79:9: error: 'enum dma_data_direction' declared=
+ inside parameter list will not be visible outside of this definition or de=
+claration [-Werror]
+    include/linux/swiotlb.h:83:13: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:87:27: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:92:26: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:96:21: error: 'enum dma_data_direction' declare=
+d inside parameter list will not be visible outside of this definition or d=
+eclaration [-Werror]
+    include/linux/swiotlb.h:100:29: error: 'enum dma_data_direction' declar=
+ed inside parameter list will not be visible outside of this definition or =
+declaration [-Werror]
+    include/linux/swiotlb.h:104:24: error: 'enum dma_data_direction' declar=
+ed inside parameter list will not be visible outside of this definition or =
+declaration [-Werror]
+    include/linux/swiotlb.h:113:20: error: expected '=3D', ',', ';', 'asm' =
+or '__attribute__' before 'swiotlb_free'
+    arch/mips/sibyte/common/dma.c:11:13: error: expected '=3D', ',', ';', '=
+asm' or '__attribute__' before 'plat_swiotlb_setup'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR_B=
+OARD)
+    cc1: all warnings being treated as errors
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+sead3_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+sead3micro_defconfig (mips, gcc-7) =E2=80=94 FAIL, 2 errors, 27 warnings, 0=
+ section mismatches
+
+Errors:
+    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another ISA =
+mode
+    arch/mips/kernel/genex.S:234: Error: branch to a symbol in another ISA =
+mode
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1093,33 +4760,191 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-stm32_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 sunxi_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tango4_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+tb0219_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-tb0219_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+tb0226_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-tb0226_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+tb0287_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 sec=
+tion mismatches
 
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1133,13 +4958,740 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
+tinyconfig (arc, gcc-7) =E2=80=94 FAIL, 2 errors, 662 warnings, 0 section m=
+ismatches
+
+Errors:
+    arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
+    arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+
+Warnings:
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    mm/memory.c:581:7: warning: assignment makes integer from pointer witho=
+ut a cast [-Wint-conversion]
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    kernel/sched/core.c:2766:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
+types lacks a cast
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
 
 ---------------------------------------------------------------------------=
 -----
@@ -1147,7 +5699,9 @@ tinyconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1006:warning: override: UNWINDER_GUESS changes choice state
+    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
+runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
+runcation=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1156,18 +5710,21 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+smatches
+
+Warnings:
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in section =
+`.bss..page_aligned'
 
 ---------------------------------------------------------------------------=
 -----
 tinyconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1186,40 +5743,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
-ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 5 warnings, 0=
- section mismatches
-
-Warnings:
-    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
-ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    net/ipv4/tcp_input.c:4319:49: warning: array subscript is above array b=
-ounds [-Warray-bounds]
-
----------------------------------------------------------------------------=
------
 versatile_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -1230,18 +5753,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vf610m4_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 viper_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1250,13 +5763,145 @@ vt8500_v6_v7_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+workpad_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+x86_64_defconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 30 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
+ss' with a nonzero argument is unsafe [-Wframe-address]
+    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
+ss' with a nonzero argument is unsafe [-Wframe-address]
+    kernel/relay.c:423:35: warning: 'snprintf' output may be truncated befo=
+re the last format character [-Wformat-truncation=3D]
+    block/elevator.c:841:14: warning: 'snprintf' output may be truncated be=
+fore the last format character [-Wformat-truncation=3D]
+    fs/nfs/client.c:1380:23: warning: '%u' directive output may be truncate=
+d writing between 1 and 7 bytes into a region of size between 3 and 6 [-Wfo=
+rmat-truncation=3D]
+    block/partition-generic.c:39:36: warning: '%d' directive output may be =
+truncated writing between 1 and 11 bytes into a region of size between 0 an=
+d 31 [-Wformat-truncation=3D]
+    block/partition-generic.c:41:37: warning: 'snprintf' output may be trun=
+cated before the last format character [-Wformat-truncation=3D]
+    drivers/ata/libata-core.c:2962:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2963:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2964:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2965:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2966:31: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2967:32: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2968:35: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2969:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2970:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2141:42: warning: '%d' directive output may b=
+e truncated writing between 1 and 2 bytes into a region of size between 1 a=
+nd 11 [-Wformat-truncation=3D]
+    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
+runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
+runcation=3D]
+    net/sunrpc/clnt.c:527:46: warning: '%s' directive output may be truncat=
+ed writing up to 107 bytes into a region of size 48 [-Wformat-truncation=3D]
+    drivers/input/keyboard/atkbd.c:1069:7: warning: '/input0' directive out=
+put may be truncated writing 7 bytes into a region of size between 1 and 32=
+ [-Wformat-truncation=3D]
+    drivers/input/mouse/psmouse-base.c:1466:52: warning: '/input0' directiv=
+e output may be truncated writing 7 bytes into a region of size between 1 a=
+nd 32 [-Wformat-truncation=3D]
+    drivers/input/mouse/alps.c:2418:46: warning: '/input1' directive output=
+ may be truncated writing 7 bytes into a region of size between 1 and 32 [-=
+Wformat-truncation=3D]
+    drivers/input/mouse/lifebook.c:287:7: warning: '/input1' directive outp=
+ut may be truncated writing 7 bytes into a region of size between 1 and 32 =
+[-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11175:9: warning: '-txrx-' directiv=
+e output may be truncated writing 6 bytes into a region of size between 1 a=
+nd 16 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11178:9: warning: '-tx-' directive =
+output may be truncated writing 4 bytes into a region of size between 1 and=
+ 16 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11181:9: warning: '-rx-' directive =
+output may be truncated writing 4 bytes into a region of size between 1 and=
+ 16 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11184:10: warning: '%d' directive o=
+utput may be truncated writing between 1 and 11 bytes into a region of size=
+ between 0 and 15 [-Wformat-truncation=3D]
+    drivers/usb/core/usb.c:471:9: warning: '%d' directive output may be tru=
+ncated writing between 1 and 11 bytes into a region of size between 0 and 1=
+5 [-Wformat-truncation=3D]
+    drivers/usb/core/hcd.c:450:34: warning: '%s' directive output may be tr=
+uncated writing up to 64 bytes into a region of size between 35 and 99 [-Wf=
+ormat-truncation=3D]
+    drivers/video/fbdev/core/../edid.h:74:72: warning: '*' in boolean conte=
+xt, suggest '&&' instead [-Wint-in-bool-context]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1265,18 +5910,69 @@ xcep_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-xway_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+xway_defconfig (mips, gcc-7) =E2=80=94 PASS, 0 errors, 27 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
 zeus_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---
 For more info write to <info@kernelci.org>
