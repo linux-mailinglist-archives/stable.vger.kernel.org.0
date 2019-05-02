@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F7211F46
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F4711E50
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726806AbfEBPWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
+        id S1727070AbfEBP2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726797AbfEBPWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:44 -0400
+        id S1727366AbfEBP2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70CD6216FD;
-        Thu,  2 May 2019 15:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05FB8216FD;
+        Thu,  2 May 2019 15:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810563;
-        bh=CfDOrmqhvB71SpN/Uis/7pUbTsJcuGsoD1/3ZjtSGlc=;
+        s=default; t=1556810903;
+        bh=Q984PhZJaqWQhoxwI2oOnGJKlVH9apJtEXUjudJ3Zlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0QGNcsvdgUvURc13tgg5e46oj61wt4cYxCua16uy8goxmLIjBfmgrjmbF4bzw/lO
-         vLE5TS9ZdyINKaXPE3G11N9SjH3Vh8a0RWzGt2+koNzEoiLaYY/oBQZt6xfKTZg3zY
-         JPZJZefXuBLOG263TCW7ZTCUT/ZhU+fw2SPkMPuQ=
+        b=QusinD/Por2o7JKochmdAwRsS4yUJHXy5zP0Pe8hAxm/oTRhWlILkrZe07M9FeVYE
+         vtG42CVn+bnYJh0xi0/QnpvsiJXew2G1I3ecXWoAIHVDXPhHsqME6cwXvByxmdG5XA
+         gfjWvfr/4tHURBq3aysUn3WY9cn0KYR6ZKb21QGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, raymond pang <raymondpangxd@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 28/32] libata: fix using DMA buffers on stack
+Subject: [PATCH 4.19 52/72] drm/meson: Uninstall IRQ handler
 Date:   Thu,  2 May 2019 17:21:14 +0200
-Message-Id: <20190502143322.591277926@linuxfoundation.org>
+Message-Id: <20190502143337.548443721@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd08a8d9a66de4b54575c294a92630299f7e0fe7 ]
+[ Upstream commit 2d8f92897ad816f5dda54b2ed2fd9f2d7cb1abde ]
 
-When CONFIG_VMAP_STACK=y, __pa() returns incorrect physical address for
-a stack virtual address. Stack DMA buffers must be avoided.
+meson_drv_unbind() doesn't unregister the IRQ handler, which can lead to
+use-after-free if the IRQ fires after unbind:
 
-Signed-off-by: raymond pang <raymondpangxd@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[   64.656876] Unable to handle kernel paging request at virtual address ffff000011706dbc
+...
+[   64.662001] pc : meson_irq+0x18/0x30 [meson_drm]
+
+I'm assuming that a similar problem could happen on the error path of
+bind(), so uninstall the IRQ handler there as well.
+
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190322152657.13752-2-jean-philippe.brucker@arm.com
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/ata/libata-zpodd.c | 34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libata-zpodd.c b/drivers/ata/libata-zpodd.c
-index 0ad96c647541..7017a81d53cf 100644
---- a/drivers/ata/libata-zpodd.c
-+++ b/drivers/ata/libata-zpodd.c
-@@ -51,38 +51,52 @@ static int eject_tray(struct ata_device *dev)
- /* Per the spec, only slot type and drawer type ODD can be supported */
- static enum odd_mech_type zpodd_get_mech_type(struct ata_device *dev)
- {
--	char buf[16];
-+	char *buf;
- 	unsigned int ret;
--	struct rm_feature_desc *desc = (void *)(buf + 8);
-+	struct rm_feature_desc *desc;
- 	struct ata_taskfile tf;
- 	static const char cdb[] = {  GPCMD_GET_CONFIGURATION,
- 			2,      /* only 1 feature descriptor requested */
- 			0, 3,   /* 3, removable medium feature */
- 			0, 0, 0,/* reserved */
--			0, sizeof(buf),
-+			0, 16,
- 			0, 0, 0,
- 	};
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 4a72fa53a1d5..588b3b0c8315 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -300,10 +300,12 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
  
-+	buf = kzalloc(16, GFP_KERNEL);
-+	if (!buf)
-+		return ODD_MECH_TYPE_UNSUPPORTED;
-+	desc = (void *)(buf + 8);
-+
- 	ata_tf_init(dev, &tf);
- 	tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
- 	tf.command = ATA_CMD_PACKET;
- 	tf.protocol = ATAPI_PROT_PIO;
--	tf.lbam = sizeof(buf);
-+	tf.lbam = 16;
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+-		goto free_drm;
++		goto uninstall_irq;
  
- 	ret = ata_exec_internal(dev, &tf, cdb, DMA_FROM_DEVICE,
--				buf, sizeof(buf), 0);
--	if (ret)
-+				buf, 16, 0);
-+	if (ret) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
+ 	return 0;
  
--	if (be16_to_cpu(desc->feature_code) != 3)
-+	if (be16_to_cpu(desc->feature_code) != 3) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
++uninstall_irq:
++	drm_irq_uninstall(drm);
+ free_drm:
+ 	drm_dev_put(drm);
  
--	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1)
-+	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_SLOT;
--	else if (desc->mech_type == 1 && desc->load == 0 && desc->eject == 1)
-+	} else if (desc->mech_type == 1 && desc->load == 0 &&
-+		   desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_DRAWER;
--	else
-+	} else {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
- }
+@@ -321,6 +323,7 @@ static void meson_drv_unbind(struct device *dev)
+ 	struct drm_device *drm = priv->drm;
  
- /* Test if ODD is zero power ready by sense code */
+ 	drm_dev_unregister(drm);
++	drm_irq_uninstall(drm);
+ 	drm_kms_helper_poll_fini(drm);
+ 	drm_fbdev_cma_fini(priv->fbdev);
+ 	drm_mode_config_cleanup(drm);
 -- 
 2.19.1
 
