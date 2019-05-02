@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6A711F4B
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE4E11F6F
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726866AbfEBPWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38458 "EHLO mail.kernel.org"
+        id S1727359AbfEBPYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:24:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726809AbfEBPWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:55 -0400
+        id S1727375AbfEBPYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:24:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D71B216FD;
-        Thu,  2 May 2019 15:22:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC7472085A;
+        Thu,  2 May 2019 15:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810574;
-        bh=071qU4FYFqP+jfSHj3u5DwRgRM6TOMGyikw3DM6siUg=;
+        s=default; t=1556810683;
+        bh=8YJT1FpzLUsFmD5n9vM9UGGa9NVdyiXY65SPaX5MK94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCd6WvCvdRYOamEhYfTjr/DP66D6Vx6u133mPm9f8vsEd02CbitP6IzISLedFM5Jt
-         0JD7AMQHHt6KCGZi325JZTsuSyNY3eJ85ygpsqVkHshYDHgqpCg0krtcum5vjWsk26
-         sxABfYpZvND2QY80kJB5f71BsND3bup6WV/T192U=
+        b=ze3wKbPme+ezvGvaUcG0Gow6C82m/zaxTQ3FO9qZZN9ZaED7JW76+z1UoxOOkOtXH
+         UEVyGFDf5Dvd8nmYQQVYCNpkRRBd8uOikScCO55PpLAZHGniSNVeznGOktBNOyj1T4
+         KTrC3euCZFPuQ4DMRN4IKfq+nqRzSmuASA9fflX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Richard Leitner <richard.leitner@skidata.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 31/32] leds: pca9532: fix a potential NULL pointer dereference
+Subject: [PATCH 4.14 40/49] usb: usb251xb: fix to avoid potential NULL pointer dereference
 Date:   Thu,  2 May 2019 17:21:17 +0200
-Message-Id: <20190502143323.337421780@linuxfoundation.org>
+Message-Id: <20190502143329.061339727@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0aab8e4df4702b31314a27ec4b0631dfad0fae0a ]
+[ Upstream commit 41f00e6e9e55546390031996b773e7f3c1d95928 ]
 
-In case of_match_device cannot find a match, return -EINVAL to avoid
-NULL pointer dereference.
+of_match_device in usb251xb_probe can fail and returns a NULL pointer.
+The patch avoids a potential NULL pointer dereference in this scenario.
 
-Fixes: fa4191a609f2 ("leds: pca9532: Add device tree support")
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Reviewed-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/leds/leds-pca9532.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/misc/usb251xb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/leds/leds-pca9532.c b/drivers/leds/leds-pca9532.c
-index 09a7cffbc46f..896b38f6f9c0 100644
---- a/drivers/leds/leds-pca9532.c
-+++ b/drivers/leds/leds-pca9532.c
-@@ -488,6 +488,7 @@ static int pca9532_probe(struct i2c_client *client,
- 	const struct i2c_device_id *id)
- {
- 	int devid;
-+	const struct of_device_id *of_id;
- 	struct pca9532_data *data = i2c_get_clientdata(client);
- 	struct pca9532_platform_data *pca9532_pdata =
- 			dev_get_platdata(&client->dev);
-@@ -503,8 +504,11 @@ static int pca9532_probe(struct i2c_client *client,
- 			dev_err(&client->dev, "no platform data\n");
- 			return -EINVAL;
- 		}
--		devid = (int)(uintptr_t)of_match_device(
--			of_pca9532_leds_match, &client->dev)->data;
-+		of_id = of_match_device(of_pca9532_leds_match,
-+				&client->dev);
-+		if (unlikely(!of_id))
-+			return -EINVAL;
-+		devid = (int)(uintptr_t) of_id->data;
- 	} else {
- 		devid = id->driver_data;
- 	}
+diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
+index 135c91c434bf..ba8fcdb377e8 100644
+--- a/drivers/usb/misc/usb251xb.c
++++ b/drivers/usb/misc/usb251xb.c
+@@ -530,7 +530,7 @@ static int usb251xb_probe(struct usb251xb *hub)
+ 							   dev);
+ 	int err;
+ 
+-	if (np) {
++	if (np && of_id) {
+ 		err = usb251xb_get_ofdata(hub,
+ 					  (struct usb251xb_data *)of_id->data);
+ 		if (err) {
 -- 
 2.19.1
 
