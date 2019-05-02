@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED80011DA4
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62BAD11F19
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbfEBPcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
+        id S1727524AbfEBPZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbfEBPcM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:12 -0400
+        id S1727018AbfEBPZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:25:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D01420B7C;
-        Thu,  2 May 2019 15:32:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7048721670;
+        Thu,  2 May 2019 15:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811131;
-        bh=bX/q7qkLSeJnBfh86gMhWCiYqGgWCc51M0T+sqV7Au0=;
+        s=default; t=1556810719;
+        bh=Z5Q3p7tnXJAzzJtZccMCQ5DxuI62SO5FeHj3JdloG34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqMsGBBs2gCsKRHIMY2lIQjGxxt0RGWd2W5O92uKvOMoGrH693Yph3MZx0TLDvKoR
-         Bpv6q4CTXKbbqxnrCh3qfhQpPozHqtN7ShxbmgbhiXyAo+lgqqQDlugXQbcWpY64qn
-         aPUtn8pnB35uhrfTVAGWR14M3OvfkczgO40nkGyA=
+        b=fyYyp0SYzq0tVgU0CXTUZF5HnZRd7fxhFu+pZ+LGQ2mFSzEx+TidUUcaXhHGoeHF+
+         9gj3Jnxwth9wvQxzWofD/IP/iOH7vJ/h4l8BZP+DhmpMermkUb0aNxg0TbAKjpfABK
+         VcZpCTNQOz+5OkUeDSapeYElF4AdoLMCNslmUqTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Richard Leitner <richard.leitner@skidata.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Douglas Miller <dougmill@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 069/101] usb: usb251xb: fix to avoid potential NULL pointer dereference
+Subject: [PATCH 4.14 34/49] net: ibm: fix possible object reference leak
 Date:   Thu,  2 May 2019 17:21:11 +0200
-Message-Id: <20190502143344.437698052@linuxfoundation.org>
+Message-Id: <20190502143328.133935883@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 41f00e6e9e55546390031996b773e7f3c1d95928 ]
+[ Upstream commit be693df3cf9dd113ff1d2c0d8150199efdba37f6 ]
 
-of_match_device in usb251xb_probe can fail and returns a NULL pointer.
-The patch avoids a potential NULL pointer dereference in this scenario.
+The call to ehea_get_eth_dn returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Richard Leitner <richard.leitner@skidata.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Detected by coccinelle with the following warnings:
+./drivers/net/ethernet/ibm/ehea/ehea_main.c:3163:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3154, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Douglas Miller <dougmill@linux.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/usb/misc/usb251xb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ehea/ehea_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
-index a6efb9a72939..5f7734c729b1 100644
---- a/drivers/usb/misc/usb251xb.c
-+++ b/drivers/usb/misc/usb251xb.c
-@@ -601,7 +601,7 @@ static int usb251xb_probe(struct usb251xb *hub)
- 							   dev);
- 	int err;
+diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+index 4878b7169e0f..30cbdf0fed59 100644
+--- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
++++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+@@ -3176,6 +3176,7 @@ static ssize_t ehea_probe_port(struct device *dev,
  
--	if (np) {
-+	if (np && of_id) {
- 		err = usb251xb_get_ofdata(hub,
- 					  (struct usb251xb_data *)of_id->data);
- 		if (err) {
+ 	if (ehea_add_adapter_mr(adapter)) {
+ 		pr_err("creating MR failed\n");
++		of_node_put(eth_dn);
+ 		return -EIO;
+ 	}
+ 
 -- 
 2.19.1
 
