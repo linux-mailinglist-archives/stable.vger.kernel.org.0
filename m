@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E56F11F57
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE5711E28
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726424AbfEBPXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39318 "EHLO mail.kernel.org"
+        id S1727767AbfEBP0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:26:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726457AbfEBPXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:38 -0400
+        id S1727020AbfEBP0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DB9820B7C;
-        Thu,  2 May 2019 15:23:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 625FF20B7C;
+        Thu,  2 May 2019 15:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810617;
-        bh=rrITFjnyUhhYDVW/naiSucdeagEbMJbBsJwj+gWcrIM=;
+        s=default; t=1556810793;
+        bh=eMuUugkn/QVnGKH27JUQ/qIsqtVMgnkFRqow9ECHJYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3m/sue4bXsvULDpnNVwXL54BFoCcgI78P82RzbU7+prQ1rrLDpuGZ+dH1/UaM4Ct
-         86znn6MuTOq3vTZHsvsvPRGjWSiGiT7aTzOZjvJ5sePgVKhx/uKbg7Hn9JCCyozpRs
-         jVgjyutz7na6+gYZTiCk7xWmCpXUoFldKDDk4zMs=
+        b=sOMDIDxjLFhTs53fNc4vq6/84prTgf6PIYZD6FQgJlwbFNFoSM5ghhQz5gbsUq1VW
+         9Z6ji8KbzUbqCwF5j2S9k+6GEu/A0r473+ztjZ3J9guFQMeTZH/9isn/kGqIyDIg2s
+         8zjjfxUcQqOjE9vrkDWjtIV5/TCPdf3LzR85K0xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.com>,
-        Andrey Batyiev <batyiev@gmail.com>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        stable@vger.kernel.org, Stefan Christ <s.christ@phytec.de>,
+        Christian Hemp <c.hemp@phytec.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 15/49] serial: ar933x_uart: Fix build failure with disabled console
-Date:   Thu,  2 May 2019 17:20:52 +0200
-Message-Id: <20190502143325.917009539@linuxfoundation.org>
+Subject: [PATCH 4.19 31/72] ARM: dts: pfla02: increase phy reset duration
+Date:   Thu,  2 May 2019 17:20:53 +0200
+Message-Id: <20190502143335.951408855@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 72ff51d8dd262d1fef25baedc2ac35116435be47 ]
+[ Upstream commit 032f85c9360fb1a08385c584c2c4ed114b33c260 ]
 
-Andrey has reported on OpenWrt's bug tracking system[1], that he
-currently can't use ar93xx_uart as pure serial UART without console
-(CONFIG_SERIAL_8250_CONSOLE and CONFIG_SERIAL_AR933X_CONSOLE undefined),
-because compilation ends with following error:
+Increase the reset duration to ensure correct phy functionality. The
+reset duration is taken from barebox commit 52fdd510de ("ARM: dts:
+pfla02: use long enough reset for ethernet phy"):
 
- ar933x_uart.c: In function 'ar933x_uart_console_write':
- ar933x_uart.c:550:14: error: 'struct uart_port' has no
-                               member named 'sysrq'
+  Use a longer reset time for ethernet phy Micrel KSZ9031RNX. Otherwise a
+  small percentage of modules have 'transmission timeouts' errors like
 
-So this patch moves all the code related to console handling behind
-series of CONFIG_SERIAL_AR933X_CONSOLE ifdefs.
+  barebox@Phytec phyFLEX-i.MX6 Quad Carrier-Board:/ ifup eth0
+  warning: No MAC address set. Using random address 7e:94:4d:02:f8:f3
+  eth0: 1000Mbps full duplex link detected
+  eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
 
-1. https://bugs.openwrt.org/index.php?do=details&task_id=2152
-
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jslaby@suse.com>
-Cc: Andrey Batyiev <batyiev@gmail.com>
-Reported-by: Andrey Batyiev <batyiev@gmail.com>
-Tested-by: Andrey Batyiev <batyiev@gmail.com>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Stefan Christ <s.christ@phytec.de>
+Cc: Christian Hemp <c.hemp@phytec.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 3180f956668e ("ARM: dts: Phytec imx6q pfla02 and pbab01 support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/tty/serial/ar933x_uart.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
-index decc7f3c1ab2..ed545a61413c 100644
---- a/drivers/tty/serial/ar933x_uart.c
-+++ b/drivers/tty/serial/ar933x_uart.c
-@@ -52,11 +52,6 @@ struct ar933x_uart_port {
- 	struct clk		*clk;
- };
- 
--static inline bool ar933x_uart_console_enabled(void)
--{
--	return IS_ENABLED(CONFIG_SERIAL_AR933X_CONSOLE);
--}
--
- static inline unsigned int ar933x_uart_read(struct ar933x_uart_port *up,
- 					    int offset)
- {
-@@ -511,6 +506,7 @@ static const struct uart_ops ar933x_uart_ops = {
- 	.verify_port	= ar933x_uart_verify_port,
- };
- 
-+#ifdef CONFIG_SERIAL_AR933X_CONSOLE
- static struct ar933x_uart_port *
- ar933x_console_ports[CONFIG_SERIAL_AR933X_NR_UARTS];
- 
-@@ -607,14 +603,7 @@ static struct console ar933x_uart_console = {
- 	.index		= -1,
- 	.data		= &ar933x_uart_driver,
- };
--
--static void ar933x_uart_add_console_port(struct ar933x_uart_port *up)
--{
--	if (!ar933x_uart_console_enabled())
--		return;
--
--	ar933x_console_ports[up->port.line] = up;
--}
-+#endif /* CONFIG_SERIAL_AR933X_CONSOLE */
- 
- static struct uart_driver ar933x_uart_driver = {
- 	.owner		= THIS_MODULE,
-@@ -703,7 +692,9 @@ static int ar933x_uart_probe(struct platform_device *pdev)
- 	baud = ar933x_uart_get_baud(port->uartclk, 0, AR933X_UART_MAX_STEP);
- 	up->max_baud = min_t(unsigned int, baud, AR933X_UART_MAX_BAUD);
- 
--	ar933x_uart_add_console_port(up);
-+#ifdef CONFIG_SERIAL_AR933X_CONSOLE
-+	ar933x_console_ports[up->port.line] = up;
-+#endif
- 
- 	ret = uart_add_one_port(&ar933x_uart_driver, &up->port);
- 	if (ret)
-@@ -752,8 +743,9 @@ static int __init ar933x_uart_init(void)
- {
- 	int ret;
- 
--	if (ar933x_uart_console_enabled())
--		ar933x_uart_driver.cons = &ar933x_uart_console;
-+#ifdef CONFIG_SERIAL_AR933X_CONSOLE
-+	ar933x_uart_driver.cons = &ar933x_uart_console;
-+#endif
- 
- 	ret = uart_register_driver(&ar933x_uart_driver);
- 	if (ret)
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index ed1aafd56973..fe4e89d773f5 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -89,6 +89,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	phy-reset-duration = <10>; /* in msecs */
+ 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+ 	phy-supply = <&vdd_eth_io_reg>;
+ 	status = "disabled";
 -- 
 2.19.1
 
