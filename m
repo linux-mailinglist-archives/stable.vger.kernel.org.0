@@ -2,138 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82549119CC
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 15:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3214119F7
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 15:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbfEBNKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 09:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
+        id S1726268AbfEBNUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 09:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbfEBNKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 09:10:46 -0400
+        id S1726203AbfEBNUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 09:20:34 -0400
 Received: from localhost (adsl-173-228-226-134.prtc.net [173.228.226.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C40FC205C9;
-        Thu,  2 May 2019 13:10:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F5CD2063F;
+        Thu,  2 May 2019 13:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556802645;
-        bh=4fQtbdaVs/4+uzqSaNzRIG8pX+f7mzq0ARnvx/AOwmk=;
+        s=default; t=1556803233;
+        bh=lnBk0334Jw7S1ntJD6loqfr3/5TE3zzisr0gGgvbCf0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=feGnt6F/KySm6fuQ4HYE+I4PHdxk9Ae+0UEWYX0IsW13wfBxwl2rjexeYX6KvJ05C
-         4W0nBRqd3+3Pt0v/mS3LdHWfoe41zWJaVCJMVSWPn1azlYCTk1B5Zbd3mAze7mZFeV
-         1VVXmticWgPQL33navCR1P6pM302BVgpwNgBSCJ0=
-Date:   Thu, 2 May 2019 09:03:53 -0400
+        b=K1DW+SZKdsZBuwirEld6Cstp5DbaXwO1uukz+H8oVkn+s9KAxk7RqCqzZP5B9+6mp
+         wgSqx7is2SyZHeRF40/7vsqOM/H304D3kTZlhogDIJSgFILpEcmuavg4YIg22Lo8WR
+         Ijh7C75sXrjlIJNL1qgDWrQka4ilN9e6jyWrSbzg=
+Date:   Thu, 2 May 2019 09:20:27 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Kappner <agk@godking.net>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v4.4,v4.9,v4.14 1/2] usbnet: ipheth: prevent TX queue
- timeouts when device not ready
-Message-ID: <20190502130353.GE11584@sasha-vm>
-References: <1556668410-31439-1-git-send-email-linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Dave Chinner <david@fromorbit.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Andre Noll <maan@tuebingen.mpg.de>, linux-xfs@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: xfs: Assertion failed in xfs_ag_resv_init()
+Message-ID: <20190502132027.GF11584@sasha-vm>
+References: <20190430190525.GB2780@tuebingen.mpg.de>
+ <20190430191825.GF5217@magnolia>
+ <20190430210724.GD2780@tuebingen.mpg.de>
+ <20190501153643.GL5207@magnolia>
+ <20190501165933.GF2780@tuebingen.mpg.de>
+ <20190501171529.GB28949@kroah.com>
+ <20190501175129.GH2780@tuebingen.mpg.de>
+ <20190501192822.GM5207@magnolia>
+ <20190501221107.GI29573@dread.disaster.area>
+ <20190502114440.GB21563@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1556668410-31439-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <20190502114440.GB21563@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 04:53:29PM -0700, Guenter Roeck wrote:
->From: Alexander Kappner <agk@godking.net>
+On Thu, May 02, 2019 at 01:44:40PM +0200, Greg Kroah-Hartman wrote:
+>On Thu, May 02, 2019 at 08:11:07AM +1000, Dave Chinner wrote:
+>> On Wed, May 01, 2019 at 12:28:22PM -0700, Darrick J. Wong wrote:
+>> > On Wed, May 01, 2019 at 07:51:29PM +0200, Andre Noll wrote:
+>> > > On Wed, May 01, 19:15, Greg Kroah-Hartman wrote
+>> > > > On Wed, May 01, 2019 at 06:59:33PM +0200, Andre Noll wrote:
+>> > > > > On Wed, May 01, 08:36, Darrick J. Wong wrote
+>> > > > > > > > You could send this patch to the stable list, but my guess is that
+>> > > > > > > > they'd prefer a straight backport of all three commits...
+>> > > > > > >
+>> > > > > > > Hm, cherry-picking the first commit onto 4.9,171 already gives
+>> > > > > > > four conflicting files. The conflicts are trivial to resolve (git
+>> > > > > > > cherry-pick -xX theirs 21ec54168b36 does it), but that doesn't
+>> > > > > > > compile because xfs_btree_query_all() is missing.  So e9a2599a249ed
+>> > > > > > > (xfs: create a function to query all records in a btree) is needed as
+>> > > > > > > well. But then, applying 86210fbebae (xfs: move various type verifiers
+>> > > > > > > to common file) on top of that gives non-trivial conflicts.
+>> > > > > >
+>> > > > > > Ah, I suspected that might happen.  Backports are hard. :(
+>> > > > > >
+>> > > > > > I suppose one saving grace of the patch you sent is that it'll likely
+>> > > > > > break the build if anyone ever /does/ attempt a backport of those first
+>> > > > > > two commits.  Perhaps that is the most practical way forward.
+>> > > > > >
+>> > > > > > > So, for automatic backporting we would need to cherry-pick even more,
+>> > > > > > > and each backported commit should be tested of course. Given this, do
+>> > > > > > > you still think Greg prefers a rather large set of straight backports
+>> > > > > > > over the simple commit that just pulls in the missing function?
+>> > > > > >
+>> > > > > > I think you'd have to ask him that, if you decide not to send
+>> > > > > > yesterday's patch.
+>> > > > >
+>> > > > > Let's try. I've added a sentence to the commit message which explains
+>> > > > > why a straight backport is not practical, and how to proceed if anyone
+>> > > > > wants to backport the earlier commits.
+>> > > > >
+>> > > > > Greg: Under the given circumstances, would you be willing to accept
+>> > > > > the patch below for 4.9?
+>> > > >
+>> > > > If the xfs maintainers say this is ok, it is fine with me.
+>> > >
+>> > > Darrick said, he's in favor of the patch, so I guess I can add his
+>> > > Acked-by. Would you also like to see the ack from Dave (the author
+>> > > of the original commit)?
+>> >
+>> > FWIW it seems fine to me, though Dave [cc'd] might have stronger opinions...
+>>
+>> Only thing I care about is whether it is QA'd properly. Greg, Sasha,
+>> is the 4.9 stable kernel having fstests run on it as part of the
+>> release gating?
 >
->commit bb1b40c7cb863f0800a6410c7dcb86cf3f28d3b1 upstream.
+>I do not know about fstests, I know Linaro was looking into doing it as
+>part of the test suites that they verify before I do a release.  But I
+>doubt it's run on an XFS filesystem.
 >
->iOS devices require the host to be "trusted" before servicing network
->packets. Establishing trust requires the user to confirm a dialog on the
->iOS device.Until trust is established, the iOS device will silently discard
->network packets from the host. Currently, the ipheth driver does not detect
->whether an iOS device has established trust with the host, and immediately
->sets up the transmit queues.
->
->This causes the following problems:
->
->- Kernel taint due to WARN() in netdev watchdog.
->- Dmesg spam ("TX timeout").
->- Disruption of user space networking activity (dhcpd, etc...) when new
->interface comes up but cannot be used.
->- Unnecessary host and device wakeups and USB traffic
->
->Example dmesg output:
->
->[ 1101.319778] NETDEV WATCHDOG: eth1 (ipheth): transmit queue 0 timed out
->[ 1101.319817] ------------[ cut here ]------------
->[ 1101.319828] WARNING: CPU: 0 PID: 0 at net/sched/sch_generic.c:316 dev_watchdog+0x20f/0x220
->[ 1101.319831] Modules linked in: ipheth usbmon nvidia_drm(PO) nvidia_modeset(PO) nvidia(PO) iwlmvm mac80211 iwlwifi btusb btrtl btbcm btintel qmi_wwan bluetooth cfg80211 ecdh_generic thinkpad_acpi rfkill [last unloaded: ipheth]
->[ 1101.319861] CPU: 0 PID: 0 Comm: swapper/0 Tainted: P           O    4.13.12.1 #1
->[ 1101.319864] Hardware name: LENOVO 20ENCTO1WW/20ENCTO1WW, BIOS N1EET62W (1.35 ) 11/10/2016
->[ 1101.319867] task: ffffffff81e11500 task.stack: ffffffff81e00000
->[ 1101.319873] RIP: 0010:dev_watchdog+0x20f/0x220
->[ 1101.319876] RSP: 0018:ffff8810a3c03e98 EFLAGS: 00010292
->[ 1101.319880] RAX: 000000000000003a RBX: 0000000000000000 RCX: 0000000000000000
->[ 1101.319883] RDX: ffff8810a3c15c48 RSI: ffffffff81ccbfc2 RDI: 00000000ffffffff
->[ 1101.319886] RBP: ffff880c04ebc41c R08: 0000000000000000 R09: 0000000000000379
->[ 1101.319889] R10: 00000100696589d0 R11: 0000000000000378 R12: ffff880c04ebc000
->[ 1101.319892] R13: 0000000000000000 R14: 0000000000000001 R15: ffff880c2865fc80
->[ 1101.319896] FS:  0000000000000000(0000) GS:ffff8810a3c00000(0000) knlGS:0000000000000000
->[ 1101.319899] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->[ 1101.319902] CR2: 00007f3ff24ac000 CR3: 0000000001e0a000 CR4: 00000000003406f0
->[ 1101.319905] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->[ 1101.319908] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->[ 1101.319910] Call Trace:
->[ 1101.319914]  <IRQ>
->[ 1101.319921]  ? dev_graft_qdisc+0x70/0x70
->[ 1101.319928]  ? dev_graft_qdisc+0x70/0x70
->[ 1101.319934]  ? call_timer_fn+0x2e/0x170
->[ 1101.319939]  ? dev_graft_qdisc+0x70/0x70
->[ 1101.319944]  ? run_timer_softirq+0x1ea/0x440
->[ 1101.319951]  ? timerqueue_add+0x54/0x80
->[ 1101.319956]  ? enqueue_hrtimer+0x38/0xa0
->[ 1101.319963]  ? __do_softirq+0xed/0x2e7
->[ 1101.319970]  ? irq_exit+0xb4/0xc0
->[ 1101.319976]  ? smp_apic_timer_interrupt+0x39/0x50
->[ 1101.319981]  ? apic_timer_interrupt+0x8c/0xa0
->[ 1101.319983]  </IRQ>
->[ 1101.319992]  ? cpuidle_enter_state+0xfa/0x2a0
->[ 1101.319999]  ? do_idle+0x1a3/0x1f0
->[ 1101.320004]  ? cpu_startup_entry+0x5f/0x70
->[ 1101.320011]  ? start_kernel+0x444/0x44c
->[ 1101.320017]  ? early_idt_handler_array+0x120/0x120
->[ 1101.320023]  ? x86_64_start_kernel+0x145/0x154
->[ 1101.320028]  ? secondary_startup_64+0x9f/0x9f
->[ 1101.320033] Code: 20 04 00 00 eb 9f 4c 89 e7 c6 05 59 44 71 00 01 e8 a7 df fd ff 89 d9 4c 89 e6 48 c7 c7 70 b7 cd 81 48 89 c2 31 c0 e8 97 64 90 ff <0f> ff eb bf 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00
->[ 1101.320103] ---[ end trace 0cc4d251e2b57080 ]---
->[ 1101.320110] ipheth 1-5:4.2: ipheth_tx_timeout: TX timeout
->
->The last message "TX timeout" is repeated every 5 seconds until trust is
->established or the device is disconnected, filling up dmesg.
->
->The proposed patch eliminates the problem by, upon connection, keeping the
->TX queue and carrier disabled until a packet is first received from the iOS
->device. This is reflected by the confirmed_pairing variable in the device
->structure. Only after at least one packet has been received from the iOS
->device, the transmit queue and carrier are brought up during the periodic
->device poll in ipheth_carrier_set. Because the iOS device will always send
->a packet immediately upon trust being established, this should not delay
->the interface becoming useable. To prevent failed UBRs in
->ipheth_rcvbulk_callback from perpetually re-enabling the queue if it was
->disabled, a new check is added so only successful transfers re-enable the
->queue, whereas failed transfers only trigger an immediate poll.
->
->This has the added benefit of removing the periodic control requests to the
->iOS device until trust has been established and thus should reduce wakeup
->events on both the host and the iOS device.
->
->Signed-off-by: Alexander Kappner <agk@godking.net>
->Signed-off-by: David S. Miller <davem@davemloft.net>
->[groeck: Fixed context conflict seen because 45611c61dd50 was applied first]
->Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>Sasha was doing some work in this area though, Sasha?
 
-Greg queued it up, thanks :)
+My biggest blocker at this point that it is extremely difficult to get a
+baseline for a kernel version.
+
+Even after adding all the "known" failures to the expunge list, I ket
+hitting issues that reproduced once every 100 runs, and once those are
+expunged I started hitting even rarer stuff.
+
+While there's no actual real difficulty in building these expunge lists,
+it ended up being somewhat of a loop where I couldn't establish a solid
+baseline since random things kept breaking.
 
 --
 Thanks,
