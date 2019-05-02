@@ -2,216 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F5212123
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 19:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C911212E
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 19:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfEBRfF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 2 May 2019 13:35:05 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:5969 "EHLO mx1.redhat.com"
+        id S1726349AbfEBRoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 13:44:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726434AbfEBRfF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 13:35:05 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726145AbfEBRoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 13:44:10 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AC8E03151C45
-        for <stable@vger.kernel.org>; Thu,  2 May 2019 17:35:04 +0000 (UTC)
-Received: from [172.54.27.0] (cpt-0009.paas.prod.upshift.rdu2.redhat.com [10.0.18.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id ADFEDA234;
-        Thu,  2 May 2019 17:34:58 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id E612620652;
+        Thu,  2 May 2019 17:44:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556819049;
+        bh=AMv+eXJkjD042SznW2vCmMnt07QMgg96ey3ze4iBa4o=;
+        h=Subject:To:From:Date:From;
+        b=tldEv/npBUc6G21mxkwX1Ob5dxljt94ysZdsHIEgS6vtvotf8Bf+nMucN21WmZQEH
+         lyuYBkP/CVJAh7TO1af6K2iNXG8aOfiwSswoMUdQAn6GIuk7l2xuCbNIumopkUnVU/
+         dZlRGqK2pNqcIB12u+I3DpNFiJK+eAP+Hawh0ELQ=
+Subject: patch "staging: most: cdev: fix chrdev_region leak in mod_exit" added to staging-testing
+To:     sudipi@jp.adit-jv.com, christian.gromm@microchip.com,
+        erosca@de.adit-jv.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 02 May 2019 19:43:54 +0200
+Message-ID: <1556819034161159@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.0.12-rc1-16cdf5e.cki
- (stable)
-CC:     Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.3EDBFB661C.C1SUQ5FYIG@redhat.com>
-X-Gitlab-Pipeline-ID: 9237
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9237
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Thu, 02 May 2019 17:35:04 +0000 (UTC)
-Date:   Thu, 2 May 2019 13:35:05 -0400
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a recent commit from this kernel tree:
+This is a note to let you know that I've just added the patch titled
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 17f93022a8c9 - Linux 5.0.12-rc1
+    staging: most: cdev: fix chrdev_region leak in mod_exit
 
-The results of these automated tests are provided below.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-17f93022a8c96d740be0f8dfc01e1ccaa70eea5f.tar.gz
+If you have any questions about this process, please let me know.
 
 
-Hardware testing
-----------------
+From af708900e9a48c0aa46070c8a8cdf0608a1d2025 Mon Sep 17 00:00:00 2001
+From: Suresh Udipi <sudipi@jp.adit-jv.com>
+Date: Wed, 24 Apr 2019 21:23:43 +0200
+Subject: staging: most: cdev: fix chrdev_region leak in mod_exit
 
-We booted each kernel and ran the following tests:
+It looks like v4.18-rc1 commit [0] which upstreams mld-1.8.0
+commit [1] missed to fix the memory leak in mod_exit function.
 
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
+Do it now.
 
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
+[0] aba258b7310167 ("staging: most: cdev: fix chrdev_region leak")
+[1] https://github.com/microchip-ais/linux/commit/a2d8f7ae7ea381
+    ("staging: most: cdev: fix leak for chrdev_region")
 
-  s390x:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     🚧 ✅ kdump: sysrq-c [19]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ❎ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
+Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Acked-by: Christian Gromm <christian.gromm@microchip.com>
+Fixes: aba258b73101 ("staging: most: cdev: fix chrdev_region leak")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/most/cdev/cdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  x86_64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ httpd: mod_ssl smoke sanity [6]
-     ✅ iotop: sanity [7]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [8]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [9]
-     ✅ tuned: tune-processes-through-perf [10]
-     ✅ Usex - version 1.9-29 [11]
-     ✅ lvm thinp sanity [12]
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [13]
-     ✅ xfstests: xfs [13]
-     🚧 ✅ kdump: sysrq-c [19]
-     🚧 ✅ Networking route: pmtu [14]
-     🚧 ✅ audit: audit testsuite test [15]
-     🚧 ✅ Storage blktests [16]
-     🚧 ✅ stress: stress-ng [17]
-     🚧 ✅ kdump: sysrq-c - megaraid_sas [19]
-     🚧 ✅ selinux-policy: serge-testsuite [18]
+diff --git a/drivers/staging/most/cdev/cdev.c b/drivers/staging/most/cdev/cdev.c
+index d98977c57a4b..d0cc0b746107 100644
+--- a/drivers/staging/most/cdev/cdev.c
++++ b/drivers/staging/most/cdev/cdev.c
+@@ -555,7 +555,7 @@ static void __exit mod_exit(void)
+ 		destroy_cdev(c);
+ 		destroy_channel(c);
+ 	}
+-	unregister_chrdev_region(comp.devno, 1);
++	unregister_chrdev_region(comp.devno, CHRDEV_REGION_SIZE);
+ 	ida_destroy(&comp.minor_id);
+ 	class_destroy(comp.class);
+ }
+-- 
+2.21.0
 
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
 
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
