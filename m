@@ -2,100 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C110114D4
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 10:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A979D1153A
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 10:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbfEBIIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 04:08:02 -0400
-Received: from sonic310-13.consmr.mail.bf2.yahoo.com ([74.6.135.123]:45448
-        "EHLO sonic310-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726479AbfEBIIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 04:08:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rocketmail.com; s=s2048; t=1556784480; bh=eqPLWwwRqRVmzP2YKccqgKJef102gkry4Z7Y3+dSxpU=; h=Date:From:To:Cc:In-Reply-To:References:Subject:From:Subject; b=a54Ac64R6FQZoKZfwg4EGrzpULSchLC4M/3V5A0ntvSlJtUEWkaoesIogY0i7Yr5bxFOPZ4bsTlkBNc+pueyj7wEObCrDGyV5gRm6E/OmZe26xEVsj1osIOMSXN4/l6fgx0hHhaugsNNdo/XfgrVQL9a6HtzGgRmEmq1UK4zk9L0kgmhn3+nmmCIDuyEiiK90HlQIWrbPQZzVZ3tMYt8z3ZGp3LqDuoh/5NB0qW0LFKjsgLHSA37bYFY01jJTMsCVlhfgwypWwyAMU27jU0Qzh7iBTdeWb7qxQk/mh6+TAqlnLykUEv0DM/hnVZvWnz2xMXwxmHCfmT3tNgyPuZoDg==
-X-YMail-OSG: 7RoG7rAVM1lVcMBwOFiMzuVHlXnke1Jh.1NnEcWAeIOHaSSoAuW8QxaWKMU_QM.
- b.NKhsTu.eUxYSaEXcxNzoDsyVW1yATu3URu8Sqx4jo5xr.pY1hEAmB9BiffJCQzUQxP9byJ5HAD
- APcJLTxCu7UKHzal7MAUpuPe6zp1geIx3GuFGoQCNW.UVXnAFa3akW6.0Jx3I4XIogNafhlihnMT
- 5cyNYutPf8j.BxsG_Ns5O5IkkP.K1D1329WFSJPac51.Mor2mNxqIXAUG8dxjTHN0mfOKHIY7CQT
- RumQHgEEzTD5fpYttrlfnInTj23GtkG3gquhbw2Gw91ax8VudufNsdNAFh5xAMHFa_5WIiXJ6YdK
- E7WE1R0KSJ7muX_MNRT6juK_YLtYoZSEwUmpWIRjzVHF0UhyGPh0.fBgF1fZXYSaSNGhtNnb3dqn
- ncPvioX_39bqIHAPvsqqMi80Fv.YirXTNgX6D614l8sSvHt9EwoYB8dqxRKCqZ009X4If6l4ZL6e
- N4MNOUbjuVQZNcfgfnHbybnbRqL1xWTOzQ99OoRZRzc0AAadEh.PZi2RmYIc0yBe7XTSLHmyUlTz
- wgqK4QSOTnUp8O4nVEshTHd9phqtPZiKWc_XCxoK1QEFKGaqS267R4w7PErcflg7F6XRcch5ZvdF
- Bz_QiyIEXcae7tv68lNgTrgyMy7A3cGCvG5xnmlfWn0etQ4wguhZNr8mRSKP3oxtzAJxH9lbh12H
- aPx2OyUvQN.32CETmpsl0fiB2sY0xqe594uHAZVR8uC_zcDmj42apPsJKee_0A4hzFDsVHSLBxVq
- oX.xtqlPfrhrRx8gNL9Y5wBIkUwcnn4QlyrzLsw1smkpfd8omcmEGuA9nSr2YOFitsIoi07IH2Ji
- HrJuzotoRYKAVD3RiaHhByjLS9Esj3fambpf3edxup6hLSNYvLdLpJfUjUbQwZbIAi.ZRbu2IoV.
- cKkTLFXRN3EyAJkbtXr9XUCI8BGi5v67teOkpDbR6oRlSEYR1c2Ytbxqcm9s6CgHtVuKm5UtO48g
- meYV8JH9GkQwxhEdMXwK88VDr.Q8VAuWr7LS9_epkCmbuBTWSvQuY20_rOOoqBkZzw0yV4medu7v
- ZUVT.q4bS6_wg1XYIFCANZsDj0t5BETj1SB9sOXHTYPF5SfALO0.d_lu0yMzAV59F4F.HisQk4.N
- Z2Z0S5gUZLtAQH1.6dwIQ6jAX.bGly2U_fS.gbJ6Q7nYBTeLTZQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Thu, 2 May 2019 08:08:00 +0000
-Date:   Thu, 2 May 2019 08:07:58 +0000 (UTC)
-From:   Keijo Vaara <ferdasyn@rocketmail.com>
-To:     linux-i2c@vger.kernel.org,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
-Message-ID: <1541197134.3231703.1556784478268@mail.yahoo.com>
-In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host
- Notify is required
+        id S1726403AbfEBIUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 04:20:51 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:34713 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726378AbfEBIUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 04:20:51 -0400
+Received: by mail-wr1-f65.google.com with SMTP id e9so2050136wrc.1
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 01:20:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=aWi878xnV6KlWRkVUFlNgy353W5qPmy1gzXHxl6AF4k=;
+        b=giMPiy261wORuhEJWjtixbRbPdVepDY8GkRqqGgx/w9CUkj6rprS6/579gDWcm/pO+
+         q7i4/XDQESefpSfsREChQl/peDoTe6fs3Qbuh/eim1aKJrVa0m8A0eM5fgwaKscwFYMI
+         tzLH2Kar4Eu2Jd7f4IwtBCf5ryTlhiG4LCRSl4g/ywS8r/koD2z2nxyzdS+yikzeuNgk
+         8v72t69nYf6tkCWFuDz3Au+LNeFGTWU6vufb8eNKt9tFeKi/nyllldG2iVREN3fwjWK6
+         Qh8zTTd46fU+gDKCNbS4wh4GRJDyrKCUJSmL9+6T/k/O3FAD3lSxTwm6jpYaVB3tuPCt
+         zEmw==
+X-Gm-Message-State: APjAAAXLAEqEw8atBqLkoOEd18T4XopdlRkNwQAoIurJ3kzS6Q+LVShV
+        nOvtrcdVkI2xDwbicTp/pCNfug==
+X-Google-Smtp-Source: APXvYqxqnUE+/mjZrBD67q0BtFtcBxAWLiyIwN/uGNg2kTclgxUwdofCAsNVGhzTKMu7+mqcIK+a3g==
+X-Received: by 2002:adf:a28b:: with SMTP id s11mr1758306wra.16.1556785248899;
+        Thu, 02 May 2019 01:20:48 -0700 (PDT)
+Received: from steredhat.homenet.telecomitalia.it (host103-125-dynamic.46-79-r.retail.telecomitalia.it. [79.46.125.103])
+        by smtp.gmail.com with ESMTPSA id t27sm13268456wrb.27.2019.05.02.01.20.47
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 02 May 2019 01:20:47 -0700 (PDT)
+Date:   Thu, 2 May 2019 10:20:45 +0200
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     Stefan Hajnoczi <stefanha@redhat.com>
+Cc:     "Jorge E. Moreira" <jemoreira@google.com>,
+        linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
+ registering the driver
+Message-ID: <20190502082045.u3xypjbac5npbhtc@steredhat.homenet.telecomitalia.it>
+References: <20190501003001.186239-1-jemoreira@google.com>
+ <20190501190831.GF22391@stefanha-x1.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: WebService/1.1.13554 YMailNorrin Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190501190831.GF22391@stefanha-x1.localdomain>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 4:23 PM Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->
-> ---
-> Keijo: could you test this does it fix the issue you reported? This is
-> practically the same diff I sent earlier what you probably haven't tested=
- yet.
-> I wanted to send a commitable fix in case it works since I'll be out of
-> office in a few coming days.
-> ---
->=C2=A0 drivers/i2c/i2c-core-base.c | 4 ++++
->=C2=A0 1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 38af18645133..8149c9e32b69 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -327,6 +327,8 @@ static int i2c_device_probe(struct device *dev)
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (client->flags =
-& I2C_CLIENT_HOST_NOTIFY) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 dev_dbg(dev, "Using Host Notify IRQ\n");
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 /* Keep adapter active when Host Notify is required */
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 pm_runtime_get_sync(&client->adapter->dev);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D i2c_smbus_host_notify_to_irq(client);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 } else if (dev->of=
-_node) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D of_irq_get_byname(dev->of_node, "irq");
-> @@ -431,6 +433,8 @@ static int i2c_device_remove(struct device *dev)
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 device_init_wakeup(&client->dev, false);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 client->irq =3D client->init_irq;
-> +=C2=A0 =C2=A0 =C2=A0 if (client->flags & I2C_CLIENT_HOST_NOTIFY)
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pm_runtime_put(&client-=
->adapter->dev);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 return status;
->=C2=A0 }
-> --
-> 2.20.1
->
+On Wed, May 01, 2019 at 03:08:31PM -0400, Stefan Hajnoczi wrote:
+> On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
+> > Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> > accessed (while handling interrupts) before they are initialized.
+> >
+> > 
+> > [    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
+> > [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+> > [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+> > [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+> > [    4.211379] Modules linked in:
+> > [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
+> > [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+> > [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+> > [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+> > [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+> > [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+> > [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
+> > [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
+> > [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
+> > [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
+> > [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
+> > [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
+> > [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
+> > [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > [    4.211379] Call Trace:
+> > [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+> > [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+> > [    4.211379]  ? detach_buf+0x1b5/0x210
+> > [    4.211379]  virtio_transport_rx_work+0xb7/0x140
+> > [    4.211379]  process_one_work+0x1ef/0x480
+> > [    4.211379]  worker_thread+0x312/0x460
+> > [    4.211379]  kthread+0x132/0x140
+> > [    4.211379]  ? process_one_work+0x480/0x480
+> > [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+> > [    4.211379]  ret_from_fork+0x35/0x40
+> > [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+> > [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+> > [    4.211379] CR2: ffffffffffffffe8
+> > [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+> > [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+> > [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> > [    4.211379] Rebooting in 5 seconds..
+> > 
+> > Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+> > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: kvm@vger.kernel.org
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: kernel-team@android.com
+> > Cc: stable@vger.kernel.org [4.9+]
+> > Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> > ---
+> >  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+> >  1 file changed, 6 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > index 15eb5d3d4750..96ab344f17bb 100644
+> > --- a/net/vmw_vsock/virtio_transport.c
+> > +++ b/net/vmw_vsock/virtio_transport.c
+> > @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+> >  	if (!virtio_vsock_workqueue)
+> >  		return -ENOMEM;
+> >  
+> > -	ret = register_virtio_driver(&virtio_vsock_driver);
+> > +	ret = vsock_core_init(&virtio_transport.transport);
+> 
+> Have you checked that all transport callbacks are safe even if another
+> CPU calls them while virtio_vsock_probe() is executing on another CPU?
+> 
 
-Thanks guys, I've tested the patch and can confirm it fixes the issue.
+I have the same doubt.
+
+What do you think to take the 'the_virtio_vsock_mutex' in the
+virtio_vsock_init(), keeping the previous order?
+
+This should prevent this issue because the virtio_vsock_probe() remains
+blocked in the mutex until the end of vsock_core_init().
+
+Cheers,
+Stefano
