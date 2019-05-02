@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E19911F4A
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09AC411DD0
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726873AbfEBPWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
+        id S1728123AbfEBPdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:33:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbfEBPWw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:52 -0400
+        id S1728942AbfEBPdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:33:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70006217F5;
-        Thu,  2 May 2019 15:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE95121479;
+        Thu,  2 May 2019 15:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810572;
-        bh=UxxP16QCIPhoLx3KhYdXtv4AQlgH/cih9ULv5+o93Hc=;
+        s=default; t=1556811183;
+        bh=trZFVr/mcfnl1e/lvg9fpklzwz9lS/uDICL5IXnW5wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKRpRxO+nVbnYNSievM5ytlwk3J2KRiS1dhUZwHHZk2O292ZwCVNwU7UTlXHO+u+t
-         RL9GtPVhIwqatY6L7gdUoDOKSZaNBAM7NzrRYbsi6zmmiNAx4MZoXvthCx5DzaG95S
-         Qj3SBhgflrhKNSeM1X2qfjqYzHQ0+5x98rfDNY0M=
+        b=F7ZqERK2sPmDL1AiArml3LAuXv6aP3yNhxfEd3Pq8rCNEb2Tyr4WzUp2y/gLRh4x1
+         bsC6+rZirNIbUi41Z9A5nc9AXciNfx2eQ4symDJ/XwH9k0hyGs8PWNYCPeYKsRbe/z
+         HXH7/4H4fXAxa/Asnefx5BpxuXzbvjKJSWUcANqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 30/32] kconfig/[mn]conf: handle backspace (^H) key
+Subject: [PATCH 5.0 074/101] ceph: fix use-after-free on symlink traversal
 Date:   Thu,  2 May 2019 17:21:16 +0200
-Message-Id: <20190502143323.212877920@linuxfoundation.org>
+Message-Id: <20190502143344.855114210@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9c38f1f044080392603c497ecca4d7d09876ff99 ]
+[ Upstream commit daf5cc27eed99afdea8d96e71b89ba41f5406ef6 ]
 
-Backspace is not working on some terminal emulators which do not send the
-key code defined by terminfo. Terminals either send '^H' (8) or '^?' (127).
-But currently only '^?' is handled. Let's also handle '^H' for those
-terminals.
+free the symlink body after the same RCU delay we have for freeing the
+struct inode itself, so that traversal during RCU pathwalk wouldn't step
+into freed memory.
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- scripts/kconfig/lxdialog/inputbox.c | 3 ++-
- scripts/kconfig/nconf.c             | 2 +-
- scripts/kconfig/nconf.gui.c         | 3 ++-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ fs/ceph/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/kconfig/lxdialog/inputbox.c b/scripts/kconfig/lxdialog/inputbox.c
-index d58de1dc5360..510049a7bd1d 100644
---- a/scripts/kconfig/lxdialog/inputbox.c
-+++ b/scripts/kconfig/lxdialog/inputbox.c
-@@ -126,7 +126,8 @@ int dialog_inputbox(const char *title, const char *prompt, int height, int width
- 			case KEY_DOWN:
- 				break;
- 			case KEY_BACKSPACE:
--			case 127:
-+			case 8:   /* ^H */
-+			case 127: /* ^? */
- 				if (pos) {
- 					wattrset(dialog, dlg.inputbox.atr);
- 					if (input_x == 0) {
-diff --git a/scripts/kconfig/nconf.c b/scripts/kconfig/nconf.c
-index d42d534a66cd..f7049e288e93 100644
---- a/scripts/kconfig/nconf.c
-+++ b/scripts/kconfig/nconf.c
-@@ -1046,7 +1046,7 @@ static int do_match(int key, struct match_state *state, int *ans)
- 		state->match_direction = FIND_NEXT_MATCH_UP;
- 		*ans = get_mext_match(state->pattern,
- 				state->match_direction);
--	} else if (key == KEY_BACKSPACE || key == 127) {
-+	} else if (key == KEY_BACKSPACE || key == 8 || key == 127) {
- 		state->pattern[strlen(state->pattern)-1] = '\0';
- 		adj_match_dir(&state->match_direction);
- 	} else
-diff --git a/scripts/kconfig/nconf.gui.c b/scripts/kconfig/nconf.gui.c
-index 4b2f44c20caf..9a65035cf787 100644
---- a/scripts/kconfig/nconf.gui.c
-+++ b/scripts/kconfig/nconf.gui.c
-@@ -439,7 +439,8 @@ int dialog_inputbox(WINDOW *main_window,
- 		case KEY_F(F_EXIT):
- 		case KEY_F(F_BACK):
- 			break;
--		case 127:
-+		case 8:   /* ^H */
-+		case 127: /* ^? */
- 		case KEY_BACKSPACE:
- 			if (cursor_position > 0) {
- 				memmove(&result[cursor_position-1],
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 9d1f34d46627..f7f9e305aaf8 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -524,6 +524,7 @@ static void ceph_i_callback(struct rcu_head *head)
+ 	struct inode *inode = container_of(head, struct inode, i_rcu);
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 
++	kfree(ci->i_symlink);
+ 	kmem_cache_free(ceph_inode_cachep, ci);
+ }
+ 
+@@ -561,7 +562,6 @@ void ceph_destroy_inode(struct inode *inode)
+ 		ceph_put_snap_realm(mdsc, realm);
+ 	}
+ 
+-	kfree(ci->i_symlink);
+ 	while ((n = rb_first(&ci->i_fragtree)) != NULL) {
+ 		frag = rb_entry(n, struct ceph_inode_frag, node);
+ 		rb_erase(n, &ci->i_fragtree);
 -- 
 2.19.1
 
