@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE75811DD8
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C6111CD1
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726406AbfEBPed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51480 "EHLO mail.kernel.org"
+        id S1726974AbfEBPZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729086AbfEBPcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:02 -0400
+        id S1726963AbfEBPZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:25:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D39CA20C01;
-        Thu,  2 May 2019 15:32:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69BF62085A;
+        Thu,  2 May 2019 15:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811121;
-        bh=Na7835Vjg79k31aUQRQ3eZo3Y9Jd6T+CHPZgrq81pmA=;
+        s=default; t=1556810706;
+        bh=qeRtJdY2lVqyEgh89+ZBGB9AihGkjC2DK6ctS8XbHtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iYidboAO5X5t8xrH6zk+Ukd4ZxOvK/7p+CE1biX+f5vki/vz3ie0PzvHgjXGpOEY
-         cJQ9fCHqkUZ81zNNob7zS9QCKCS+hWoEelloU4qV+RP36sjeTk196TGmzVsMXK79qm
-         OaZRyu/nxbNsfrkgOJnV1exrroy2s40ADkkgAka0=
+        b=PCco3wpb6q3aTYTnxV68+XrvI03/f6mQpeXRai536fjebrW/mqfCu0dN8ocN0Md3H
+         GK9GfcsgTH8vYDTOji4pajLOSmMXwjtdvDEipgASjCdUbOLTNUjfucjUJK7GxcxUyg
+         79GefzMlB9RBtERLQcMlugpXC61uSPYxc5Gn4zWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Venkatesh Srinivas <venkateshs@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
+        stable@vger.kernel.org, Andrei Vagin <avagin@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 083/101] KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)
+Subject: [PATCH 4.14 48/49] ptrace: take into account saved_sigmask in PTRACE{GET,SET}SIGMASK
 Date:   Thu,  2 May 2019 17:21:25 +0200
-Message-Id: <20190502143345.428568863@linuxfoundation.org>
+Message-Id: <20190502143329.915572044@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,150 +47,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 05d5a48635259e621ea26d01e8316c6feeb34190 ]
+[ Upstream commit fcfc2aa0185f4a731d05a21e9f359968fdfd02e7 ]
 
-Errata#1096:
+There are a few system calls (pselect, ppoll, etc) which replace a task
+sigmask while they are running in a kernel-space
 
-On a nested data page fault when CR.SMAP=1 and the guest data read
-generates a SMAP violation, GuestInstrBytes field of the VMCB on a
-VMEXIT will incorrectly return 0h instead the correct guest
-instruction bytes .
+When a task calls one of these syscalls, the kernel saves a current
+sigmask in task->saved_sigmask and sets a syscall sigmask.
 
-Recommend Workaround:
+On syscall-exit-stop, ptrace traps a task before restoring the
+saved_sigmask, so PTRACE_GETSIGMASK returns the syscall sigmask and
+PTRACE_SETSIGMASK does nothing, because its sigmask is replaced by
+saved_sigmask, when the task returns to user-space.
 
-To determine what instruction the guest was executing the hypervisor
-will have to decode the instruction at the instruction pointer.
+This patch fixes this problem.  PTRACE_GETSIGMASK returns saved_sigmask
+if it's set.  PTRACE_SETSIGMASK drops the TIF_RESTORE_SIGMASK flag.
 
-The recommended workaround can not be implemented for the SEV
-guest because guest memory is encrypted with the guest specific key,
-and instruction decoder will not be able to decode the instruction
-bytes. If we hit this errata in the SEV guest then log the message
-and request a guest shutdown.
-
-Reported-by: Venkatesh Srinivas <venkateshs@google.com>
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: "Radim Krčmář" <rkrcmar@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Brijesh Singh <brijesh.singh@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: http://lkml.kernel.org/r/20181120060616.6043-1-avagin@gmail.com
+Fixes: 29000caecbe8 ("ptrace: add ability to get/set signal-blocked mask")
+Signed-off-by: Andrei Vagin <avagin@gmail.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h |  2 ++
- arch/x86/kvm/mmu.c              |  8 +++++---
- arch/x86/kvm/svm.c              | 32 ++++++++++++++++++++++++++++++++
- arch/x86/kvm/vmx/vmx.c          |  6 ++++++
- 4 files changed, 45 insertions(+), 3 deletions(-)
+ include/linux/sched/signal.h | 18 ++++++++++++++++++
+ kernel/ptrace.c              | 15 +++++++++++++--
+ 2 files changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 71d763ad2637..9f2d890733a9 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1198,6 +1198,8 @@ struct kvm_x86_ops {
- 	int (*nested_enable_evmcs)(struct kvm_vcpu *vcpu,
- 				   uint16_t *vmcs_version);
- 	uint16_t (*nested_get_evmcs_version)(struct kvm_vcpu *vcpu);
-+
-+	bool (*need_emulation_on_page_fault)(struct kvm_vcpu *vcpu);
- };
- 
- struct kvm_arch_async_pf {
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index acab95dcffb6..77dbb57412cc 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -5395,10 +5395,12 @@ int kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gva_t cr2, u64 error_code,
- 	 * This can happen if a guest gets a page-fault on data access but the HW
- 	 * table walker is not able to read the instruction page (e.g instruction
- 	 * page is not present in memory). In those cases we simply restart the
--	 * guest.
-+	 * guest, with the exception of AMD Erratum 1096 which is unrecoverable.
- 	 */
--	if (unlikely(insn && !insn_len))
--		return 1;
-+	if (unlikely(insn && !insn_len)) {
-+		if (!kvm_x86_ops->need_emulation_on_page_fault(vcpu))
-+			return 1;
-+	}
- 
- 	er = x86_emulate_instruction(vcpu, cr2, emulation_type, insn, insn_len);
- 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 516c1de03d47..e544cec812f9 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -7114,6 +7114,36 @@ static int nested_enable_evmcs(struct kvm_vcpu *vcpu,
- 	return -ENODEV;
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index fbf86ecd149d..bcaba7e8ca6e 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -377,10 +377,20 @@ static inline void set_restore_sigmask(void)
+ 	set_thread_flag(TIF_RESTORE_SIGMASK);
+ 	WARN_ON(!test_thread_flag(TIF_SIGPENDING));
  }
- 
-+static bool svm_need_emulation_on_page_fault(struct kvm_vcpu *vcpu)
++
++static inline void clear_tsk_restore_sigmask(struct task_struct *tsk)
 +{
-+	bool is_user, smap;
-+
-+	is_user = svm_get_cpl(vcpu) == 3;
-+	smap = !kvm_read_cr4_bits(vcpu, X86_CR4_SMAP);
-+
-+	/*
-+	 * Detect and workaround Errata 1096 Fam_17h_00_0Fh
-+	 *
-+	 * In non SEV guest, hypervisor will be able to read the guest
-+	 * memory to decode the instruction pointer when insn_len is zero
-+	 * so we return true to indicate that decoding is possible.
-+	 *
-+	 * But in the SEV guest, the guest memory is encrypted with the
-+	 * guest specific key and hypervisor will not be able to decode the
-+	 * instruction pointer so we will not able to workaround it. Lets
-+	 * print the error and request to kill the guest.
-+	 */
-+	if (is_user && smap) {
-+		if (!sev_guest(vcpu->kvm))
-+			return true;
-+
-+		pr_err_ratelimited("KVM: Guest triggered AMD Erratum 1096\n");
-+		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
-+	}
-+
-+	return false;
++	clear_tsk_thread_flag(tsk, TIF_RESTORE_SIGMASK);
 +}
 +
- static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = has_svm,
- 	.disabled_by_bios = is_disabled,
-@@ -7247,6 +7277,8 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 
- 	.nested_enable_evmcs = nested_enable_evmcs,
- 	.nested_get_evmcs_version = nested_get_evmcs_version,
-+
-+	.need_emulation_on_page_fault = svm_need_emulation_on_page_fault,
- };
- 
- static int __init svm_init(void)
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 34499081022c..e7fe8c692362 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7526,6 +7526,11 @@ static int enable_smi_window(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static bool vmx_need_emulation_on_page_fault(struct kvm_vcpu *vcpu)
-+{
-+	return 0;
-+}
-+
- static __init int hardware_setup(void)
+ static inline void clear_restore_sigmask(void)
  {
- 	unsigned long host_bndcfgs;
-@@ -7828,6 +7833,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.set_nested_state = NULL,
- 	.get_vmcs12_pages = NULL,
- 	.nested_enable_evmcs = NULL,
-+	.need_emulation_on_page_fault = vmx_need_emulation_on_page_fault,
- };
+ 	clear_thread_flag(TIF_RESTORE_SIGMASK);
+ }
++static inline bool test_tsk_restore_sigmask(struct task_struct *tsk)
++{
++	return test_tsk_thread_flag(tsk, TIF_RESTORE_SIGMASK);
++}
+ static inline bool test_restore_sigmask(void)
+ {
+ 	return test_thread_flag(TIF_RESTORE_SIGMASK);
+@@ -398,6 +408,10 @@ static inline void set_restore_sigmask(void)
+ 	current->restore_sigmask = true;
+ 	WARN_ON(!test_thread_flag(TIF_SIGPENDING));
+ }
++static inline void clear_tsk_restore_sigmask(struct task_struct *tsk)
++{
++	tsk->restore_sigmask = false;
++}
+ static inline void clear_restore_sigmask(void)
+ {
+ 	current->restore_sigmask = false;
+@@ -406,6 +420,10 @@ static inline bool test_restore_sigmask(void)
+ {
+ 	return current->restore_sigmask;
+ }
++static inline bool test_tsk_restore_sigmask(struct task_struct *tsk)
++{
++	return tsk->restore_sigmask;
++}
+ static inline bool test_and_clear_restore_sigmask(void)
+ {
+ 	if (!current->restore_sigmask)
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index 84b1367935e4..f1c85b6c39ae 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -29,6 +29,7 @@
+ #include <linux/hw_breakpoint.h>
+ #include <linux/cn_proc.h>
+ #include <linux/compat.h>
++#include <linux/sched/signal.h>
  
- static void vmx_cleanup_l1d_flush(void)
+ /*
+  * Access another process' address space via ptrace.
+@@ -925,18 +926,26 @@ int ptrace_request(struct task_struct *child, long request,
+ 			ret = ptrace_setsiginfo(child, &siginfo);
+ 		break;
+ 
+-	case PTRACE_GETSIGMASK:
++	case PTRACE_GETSIGMASK: {
++		sigset_t *mask;
++
+ 		if (addr != sizeof(sigset_t)) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+ 
+-		if (copy_to_user(datavp, &child->blocked, sizeof(sigset_t)))
++		if (test_tsk_restore_sigmask(child))
++			mask = &child->saved_sigmask;
++		else
++			mask = &child->blocked;
++
++		if (copy_to_user(datavp, mask, sizeof(sigset_t)))
+ 			ret = -EFAULT;
+ 		else
+ 			ret = 0;
+ 
+ 		break;
++	}
+ 
+ 	case PTRACE_SETSIGMASK: {
+ 		sigset_t new_set;
+@@ -962,6 +971,8 @@ int ptrace_request(struct task_struct *child, long request,
+ 		child->blocked = new_set;
+ 		spin_unlock_irq(&child->sighand->siglock);
+ 
++		clear_tsk_restore_sigmask(child);
++
+ 		ret = 0;
+ 		break;
+ 	}
 -- 
 2.19.1
 
