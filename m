@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 183BA11F14
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8EC11DC7
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727018AbfEBPZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41752 "EHLO mail.kernel.org"
+        id S1727555AbfEBPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:33:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727549AbfEBPZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:25:28 -0400
+        id S1729290AbfEBPc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:32:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DDBE20C01;
-        Thu,  2 May 2019 15:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F9E3204FD;
+        Thu,  2 May 2019 15:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810727;
-        bh=r+ZSj1TIX7JKLkzV3urREXxfRbXAatv90V2Lp5h6Nps=;
+        s=default; t=1556811178;
+        bh=ScKkV3RlCgegUjZxC97f52fjXHPn9Qxp5wXrr3irFr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3T7qzYMAlhBl2cEQQxvy18+2/AxBux75ckLZ03qtmvMCVDh97uEkRisyF8yWPWl4
-         HmjgIqQFwrnkftjLdG6b/Eo+Im3fxrX+TEeddnsKy62SVU8mRgqocPJWHFOZXZ02az
-         HBdrnHLqGlxrsf6ug96/copYjWn1gMeyufVOJi1U=
+        b=VtDdgcCPWS3uvaA8dfs3oVFDsfV9yQkfoFF5q2TuqspUeUA93/1AQJQChk5oxTdgd
+         s75hFq0wfNf8Hby/jMd6nzYXrkn+Sze9F3fUYNAEBma1rwiOxdWS9w7AxIWzSuCpew
+         5NcaxDQREfj0EYv2eMMWOe1HVcnmnZZfFa8QA4aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 37/49] drm/meson: Fix invalid pointer in meson_drv_unbind()
+Subject: [PATCH 5.0 072/101] x86/realmode: Dont leak the trampoline kernel address
 Date:   Thu,  2 May 2019 17:21:14 +0200
-Message-Id: <20190502143328.617041308@linuxfoundation.org>
+Message-Id: <20190502143344.750930603@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 776e78677f514ecddd12dba48b9040958999bd5a ]
+[ Upstream commit b929a500d68479163c48739d809cbf4c1335db6f ]
 
-meson_drv_bind() registers a meson_drm struct as the device's privdata,
-but meson_drv_unbind() tries to retrieve a drm_device. This may cause a
-segfault on shutdown:
+Since commit
 
-[ 5194.593429] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000197
- ...
-[ 5194.788850] Call trace:
-[ 5194.791349]  drm_dev_unregister+0x1c/0x118 [drm]
-[ 5194.795848]  meson_drv_unbind+0x50/0x78 [meson_drm]
+  ad67b74d2469 ("printk: hash addresses printed with %p")
 
-Retrieve the right pointer in meson_drv_unbind().
+at boot "____ptrval____" is printed instead of the trampoline addresses:
 
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190322152657.13752-1-jean-philippe.brucker@arm.com
+  Base memory trampoline at [(____ptrval____)] 99000 size 24576
+
+Remove the print as we don't want to leak kernel addresses and this
+statement is not needed anymore.
+
+Fixes: ad67b74d2469d9b8 ("printk: hash addresses printed with %p")
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190326203046.20787-1-mcroce@redhat.com
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/realmode/init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 5deb44ac6791..1a1b0b9cf1fa 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -294,8 +294,8 @@ static int meson_drv_bind(struct device *dev)
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index d10105825d57..47d097946872 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -20,8 +20,6 @@ void __init set_real_mode_mem(phys_addr_t mem, size_t size)
+ 	void *base = __va(mem);
  
- static void meson_drv_unbind(struct device *dev)
- {
--	struct drm_device *drm = dev_get_drvdata(dev);
--	struct meson_drm *priv = drm->dev_private;
-+	struct meson_drm *priv = dev_get_drvdata(dev);
-+	struct drm_device *drm = priv->drm;
+ 	real_mode_header = (struct real_mode_header *) base;
+-	printk(KERN_DEBUG "Base memory trampoline at [%p] %llx size %zu\n",
+-	       base, (unsigned long long)mem, size);
+ }
  
- 	drm_dev_unregister(drm);
- 	drm_kms_helper_poll_fini(drm);
+ void __init reserve_real_mode(void)
 -- 
 2.19.1
 
