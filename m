@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB8211F24
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6708311E49
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726607AbfEBPqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S1728045AbfEBP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:27:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727400AbfEBPYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:54 -0400
+        id S1728053AbfEBP1p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:27:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3365E2081C;
-        Thu,  2 May 2019 15:24:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99FDA21783;
+        Thu,  2 May 2019 15:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810693;
-        bh=oa14tgMjU4N5xaPgdT6hJvgc7xxgECrRjtP6VdmlO+c=;
+        s=default; t=1556810865;
+        bh=ScKkV3RlCgegUjZxC97f52fjXHPn9Qxp5wXrr3irFr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/FNzDPbbDIZLHft+MH/1LFSFqPduOHWO8eHNvmpI255umdO7RzGZYUiLzuWHYXFM
-         Pf+tao1rzRuLxB0/EaDb2msuVYIt0HLqmZKydgdn1cFHSyV7yYCO+ZaUJN6kY5Y59N
-         HIk/nv3KnrP9LzjdEH9DEfiYvc6PcGFFoEpmb/A8=
+        b=eHl99IsLxGEO5ZSOsNG83m/OZOx/lG5hxAdDvwNfs+hs4SjsQgpbcR1qoVQagv3uD
+         IvzHuG9uHfI/v57c3p5fdPrHSC3vcFuq4jnC9XtlvSNo9FW2/lC2DgoI5wOe2ZyzQP
+         G8iSoZUWZP1LhwExZO9AZ4+QeN6e/Wb1hxdvE6dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, raymond pang <raymondpangxd@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 44/49] libata: fix using DMA buffers on stack
+Subject: [PATCH 4.19 59/72] x86/realmode: Dont leak the trampoline kernel address
 Date:   Thu,  2 May 2019 17:21:21 +0200
-Message-Id: <20190502143329.436013494@linuxfoundation.org>
+Message-Id: <20190502143338.064447209@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd08a8d9a66de4b54575c294a92630299f7e0fe7 ]
+[ Upstream commit b929a500d68479163c48739d809cbf4c1335db6f ]
 
-When CONFIG_VMAP_STACK=y, __pa() returns incorrect physical address for
-a stack virtual address. Stack DMA buffers must be avoided.
+Since commit
 
-Signed-off-by: raymond pang <raymondpangxd@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  ad67b74d2469 ("printk: hash addresses printed with %p")
+
+at boot "____ptrval____" is printed instead of the trampoline addresses:
+
+  Base memory trampoline at [(____ptrval____)] 99000 size 24576
+
+Remove the print as we don't want to leak kernel addresses and this
+statement is not needed anymore.
+
+Fixes: ad67b74d2469d9b8 ("printk: hash addresses printed with %p")
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190326203046.20787-1-mcroce@redhat.com
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/ata/libata-zpodd.c | 34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ arch/x86/realmode/init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/ata/libata-zpodd.c b/drivers/ata/libata-zpodd.c
-index b3ed8f9953a8..173e6f2dd9af 100644
---- a/drivers/ata/libata-zpodd.c
-+++ b/drivers/ata/libata-zpodd.c
-@@ -52,38 +52,52 @@ static int eject_tray(struct ata_device *dev)
- /* Per the spec, only slot type and drawer type ODD can be supported */
- static enum odd_mech_type zpodd_get_mech_type(struct ata_device *dev)
- {
--	char buf[16];
-+	char *buf;
- 	unsigned int ret;
--	struct rm_feature_desc *desc = (void *)(buf + 8);
-+	struct rm_feature_desc *desc;
- 	struct ata_taskfile tf;
- 	static const char cdb[] = {  GPCMD_GET_CONFIGURATION,
- 			2,      /* only 1 feature descriptor requested */
- 			0, 3,   /* 3, removable medium feature */
- 			0, 0, 0,/* reserved */
--			0, sizeof(buf),
-+			0, 16,
- 			0, 0, 0,
- 	};
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index d10105825d57..47d097946872 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -20,8 +20,6 @@ void __init set_real_mode_mem(phys_addr_t mem, size_t size)
+ 	void *base = __va(mem);
  
-+	buf = kzalloc(16, GFP_KERNEL);
-+	if (!buf)
-+		return ODD_MECH_TYPE_UNSUPPORTED;
-+	desc = (void *)(buf + 8);
-+
- 	ata_tf_init(dev, &tf);
- 	tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
- 	tf.command = ATA_CMD_PACKET;
- 	tf.protocol = ATAPI_PROT_PIO;
--	tf.lbam = sizeof(buf);
-+	tf.lbam = 16;
- 
- 	ret = ata_exec_internal(dev, &tf, cdb, DMA_FROM_DEVICE,
--				buf, sizeof(buf), 0);
--	if (ret)
-+				buf, 16, 0);
-+	if (ret) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
- 
--	if (be16_to_cpu(desc->feature_code) != 3)
-+	if (be16_to_cpu(desc->feature_code) != 3) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
- 
--	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1)
-+	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_SLOT;
--	else if (desc->mech_type == 1 && desc->load == 0 && desc->eject == 1)
-+	} else if (desc->mech_type == 1 && desc->load == 0 &&
-+		   desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_DRAWER;
--	else
-+	} else {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
+ 	real_mode_header = (struct real_mode_header *) base;
+-	printk(KERN_DEBUG "Base memory trampoline at [%p] %llx size %zu\n",
+-	       base, (unsigned long long)mem, size);
  }
  
- /* Test if ODD is zero power ready by sense code */
+ void __init reserve_real_mode(void)
 -- 
 2.19.1
 
