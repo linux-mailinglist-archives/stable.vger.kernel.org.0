@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 632F411F55
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3E911E24
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbfEBPXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
+        id S1727738AbfEBP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:26:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726424AbfEBPXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:33 -0400
+        id S1726998AbfEBP01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D91A921743;
-        Thu,  2 May 2019 15:23:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C760120B7C;
+        Thu,  2 May 2019 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810612;
-        bh=6bC4sujzDPneC8WgMYJgejpI4ScXjciKFuUAV5WoXwI=;
+        s=default; t=1556810786;
+        bh=ffm1ZePdkczTXlneRZz7fsIlj9QJKLtDsTaRRetpzSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5WVi1zlsBbneDUI6+FF7PGBlfN4c40i+iv3i/H5enNwmWGVbY6Rx8N7yWP8+YWS8
-         a08VKZIqIURnDiIe6ICeMAFO4HpLWGktH2Qf7Wt5NEzFzUf8t8dI4eHaTESSV0KaqH
-         scY5AyFci5hDpeIqdznXGivmiKyNbkQVc+d+IBxQ=
+        b=D5RQLC5ccRtMOYkPr9gKwIyvmmwBREsQ4XWF1a3Bi7IE/EFUO8+paIPp8hsTjU+06
+         MslcVyjCqiQ0UXosJ2480TAN22zxiu7jVh2A/jXG1c3aIWgUA9TLLylcZz/mCRIUJB
+         hwyQ/X8ZYKZbyMnecJ2IoUjWDCq0e/oLicGo900Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 13/49] s390/qeth: fix race when initializing the IP address table
-Date:   Thu,  2 May 2019 17:20:50 +0200
-Message-Id: <20190502143325.771108416@linuxfoundation.org>
+Subject: [PATCH 4.19 29/72] usb: gadget: net2280: Fix net2280_dequeue()
+Date:   Thu,  2 May 2019 17:20:51 +0200
+Message-Id: <20190502143335.814488479@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7221b727f0079a32aca91f657141e1de564d4b97 ]
+[ Upstream commit f1d3fba17cd4eeea20397f1324b7b9c69a6a935c ]
 
-The ucast IP table is utilized by some of the L3-specific sysfs attributes
-that qeth_l3_create_device_attributes() provides. So initialize the table
-_before_ registering the attributes.
+When a request must be dequeued with net2280_dequeue() e.g. due
+to a device clear action and the same request is finished by the
+function scan_dma_completions() then the function net2280_dequeue()
+does not find the request in the following search loop and
+returns the error -EINVAL without restoring the status ep->stopped.
+Thus the endpoint keeps blocked and does not receive any data
+anymore.
+This fix restores the status and does not issue an error message.
 
-Fixes: ebccc7397e4a ("s390/qeth: add missing hash table initializations")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l3_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/net2280.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index a19f2dc69e8a..d9830c86d0c1 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3022,12 +3022,14 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
- 	int rc;
- 
-+	hash_init(card->ip_htable);
-+
- 	if (gdev->dev.type == &qeth_generic_devtype) {
- 		rc = qeth_l3_create_device_attributes(&gdev->dev);
- 		if (rc)
- 			return rc;
+diff --git a/drivers/usb/gadget/udc/net2280.c b/drivers/usb/gadget/udc/net2280.c
+index c57046b1da0e..ee872cad5270 100644
+--- a/drivers/usb/gadget/udc/net2280.c
++++ b/drivers/usb/gadget/udc/net2280.c
+@@ -1273,9 +1273,9 @@ static int net2280_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+ 			break;
  	}
--	hash_init(card->ip_htable);
-+
- 	hash_init(card->ip_mc_htable);
- 	card->options.layer2 = 0;
- 	card->info.hwtrap = 0;
+ 	if (&req->req != _req) {
++		ep->stopped = stopped;
+ 		spin_unlock_irqrestore(&ep->dev->lock, flags);
+-		dev_err(&ep->dev->pdev->dev, "%s: Request mismatch\n",
+-								__func__);
++		ep_dbg(ep->dev, "%s: Request mismatch\n", __func__);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.19.1
 
