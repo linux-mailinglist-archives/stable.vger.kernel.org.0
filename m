@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8342A115BC
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 10:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B6A116BD
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 11:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725905AbfEBIu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 04:50:59 -0400
-Received: from mail-wr1-f50.google.com ([209.85.221.50]:39997 "EHLO
+        id S1726268AbfEBJxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 05:53:51 -0400
+Received: from mail-wr1-f50.google.com ([209.85.221.50]:39866 "EHLO
         mail-wr1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726011AbfEBIu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 04:50:59 -0400
-Received: by mail-wr1-f50.google.com with SMTP id h4so2143841wre.7
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 01:50:56 -0700 (PDT)
+        with ESMTP id S1726127AbfEBJxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 05:53:51 -0400
+Received: by mail-wr1-f50.google.com with SMTP id a9so2427009wrp.6
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 02:53:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=R4+or7/U9nu2WVIiDHgiNxnBr8asOooNCPzsau20hVk=;
-        b=RU1+7b6Eo44ThMchaTmf/ROpvP+EVSjnkrgr3hIc0VBCzgGhNHT7X/qLNC1Q3lMdus
-         viyO6Bd3zg+1NgUVEg5hYuW/6OA0VvEaFJKfmMcF+nEOxs5E0Lh3vbm1vCiDXsqgHNZs
-         XWiNAFoMmMv2QL91XW2rX7almxRNDVev5ZFgT781JQ1TJFDLt5ZLxPlDwrETImukqcga
-         JGYf2z706WWKQ0IFE9QHJtqQTCnt8JpEel/y93SJGRxFWL//Z2kKdAzoGY697VvjN2h5
-         shMfl/rvy3V1CQH5gpvQtHR9R0rlaY1tK8LuMrMMesgWgXiuMhKJnZl9VtGG8hSJ3zk/
-         rtaw==
+        bh=n6HMc4vM0MD5rc4ePNqKsAbCk2SnCliK99oLLQnutqA=;
+        b=OZsNUKdUdxUlkghhtANvhsY6z14MraqJiVHWoMCuY572vbCwzuN1Z+pAxtbUnXrbFH
+         X/8aR24M17CROE3Q60ssT8CWwJBPI9caNH0clZyS+hqaErcciocedrYuXPTzmN6MWJFE
+         phVkqpqV3h9/Ii1EoN4+peIiMqzVFnKDM0n/SiBX+9welg++b8Ob03RBJIL2fw0oWQKy
+         Dg9WkuDipAtcuQNUz4lj6FrvNbmjCZXlZycQ65NaAdQHRK6YpNyedaq/iOsdLeQRNoDX
+         yYKFsR/lpiQkdT6tq79bVPK273Q8jGPg1J32FWDTYdv5mguRKKm4k3NWty2LK2E6x8Zg
+         TjQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=R4+or7/U9nu2WVIiDHgiNxnBr8asOooNCPzsau20hVk=;
-        b=YS0Dtlhjh7FNljhrmTjUqb7DIP5gj9s63LF80DcvNFw6TuTd7QPSN3J1JPtwvnlOg1
-         Md7ztXWeUV7X9uVZiCABTASElxQKaSnjRmv5D5s/MZt+a2mDMW40jpc7xx3u9lJLiNc+
-         SE2Z2B0GmV3KUTx1UxAr6bYUKxXZi3PAdff57rD0LYCcxxjHz03eGLaUwqIaek1ybOSM
-         LMnXFneqDPXhwVZdPDQvzm9Ej9XLThMXIARxR3/hJtiHftaHK2SQQyxnJI5jP35qZYml
-         334dclauu2R9y6qSOLoNN2rNG1e8DbOBphWDLrjWaAAT4QfXX1e1MtR5IFNfQeJKDCQh
-         8JBQ==
-X-Gm-Message-State: APjAAAWCsEiK4T75+4V/4REHni71p5WQ+YbLAHyVBKCXFx8olE8v4XNT
-        gCqN2MN8cbQrKLByjL/Nq/4MD0goRZat0Q==
-X-Google-Smtp-Source: APXvYqyiV4vFkgk3AGyOZNVPiXjyrpxNRxNLlbSFR5FpPaYUwhwZW4weeTbhppQY4LGFGVbIzoTJYg==
-X-Received: by 2002:a5d:4c8d:: with SMTP id z13mr1784939wrs.296.1556787054371;
-        Thu, 02 May 2019 01:50:54 -0700 (PDT)
+        bh=n6HMc4vM0MD5rc4ePNqKsAbCk2SnCliK99oLLQnutqA=;
+        b=l75+tkWfZzF9EJuiFeHV6XsBI8TZMUcWGvFMHHip2bVuqls1IhB+K2hOjioZqJuiiH
+         +JH2Rx10qmvloN7BnsasQa108V6r69iaW6t6Chf5zAg5UrwK5G8lIFm/UnswG0iARKld
+         sok3TsBKUEcJh4cE0Xb6X8AYkeFNo2tdMQuqJ0gaIgBHwZq4cG8lyO8z2OxjCLmWtZ0o
+         vSGDP1ZEpEXousij51ZkuFpAO51k5J8bZxch2+qwscticQBeO8+HmS+CjhbYbYLDXWwI
+         S9SgZguuBYwOUgL7JBl3CwCM+gEuVF/t5kQsO6VwiuqQjJH5Lcqubl9r4/07qf5geajR
+         +ygA==
+X-Gm-Message-State: APjAAAVnxIdkyTthbPmBb0AJ1qIusqpN3uF4PDu1XW+4t6CZCHYYTXn1
+        rakuy1xV5IwEdKT2heXA/LNg/nSNqzPxyg==
+X-Google-Smtp-Source: APXvYqzrcqyioXWxCFzpcoYzUZQWP7sYt+C6Ei3rPlujxE8PgKaEzMA3p17XslzbNhGiVJWHTXuksQ==
+X-Received: by 2002:a5d:6988:: with SMTP id g8mr2171363wru.117.1556790824646;
+        Thu, 02 May 2019 02:53:44 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y197sm7744115wmd.34.2019.05.02.01.50.53
+        by smtp.gmail.com with ESMTPSA id v1sm42677910wrd.47.2019.05.02.02.53.43
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2019 01:50:53 -0700 (PDT)
-Message-ID: <5ccaaf6d.1c69fb81.5c5d5.9a49@mx.google.com>
-Date:   Thu, 02 May 2019 01:50:53 -0700 (PDT)
+        Thu, 02 May 2019 02:53:43 -0700 (PDT)
+Message-ID: <5ccabe27.1c69fb81.afeee.01ae@mx.google.com>
+Date:   Thu, 02 May 2019 02:53:43 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Kernel: v4.14.115
 X-Kernelci-Report-Type: build
 X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.14.y build: 201 builds: 4 failed, 197 passed, 10 errors,
- 135 warnings (v4.14.115)
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y build: 201 builds: 4 failed, 197 passed,
+ 10 errors, 135 warnings (v4.14.115)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,18 +63,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y build: 201 builds: 4 failed, 197 passed, 10 errors, 135=
- warnings (v4.14.115)
+stable-rc/linux-4.14.y build: 201 builds: 4 failed, 197 passed, 10 errors, =
+135 warnings (v4.14.115)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.115/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.115/
 
-Tree: stable
+Tree: stable-rc
 Branch: linux-4.14.y
 Git Describe: v4.14.115
 Git Commit: 1c046f37313210e0c41b036fcd14c4bdb1581d47
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 6 unique architectures
 
 Build Failures Detected:
@@ -386,12 +386,12 @@ axs103_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
 ection mismatches
 
 Warnings:
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
     net/ipv4/tcp_input.c:4275:49: warning: array subscript is above array b=
 ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
@@ -737,12 +737,12 @@ hsdk_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
  mismatches
 
 Warnings:
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
     net/ipv4/tcp_input.c:4275:49: warning: array subscript is above array b=
 ounds [-Warray-bounds]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1625,11 +1625,6 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (x86_64, gcc-7) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
@@ -1638,13 +1633,18 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (arm64, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
 tinyconfig (arm, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-7) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1681,12 +1681,12 @@ tion mismatches
 Warnings:
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
     net/ipv4/tcp_input.c:4275:49: warning: array subscript is above array b=
 ounds [-Warray-bounds]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1696,12 +1696,12 @@ vdk_hs38_smp_defconfig (arc, gcc-7) =E2=80=94 PASS, 0 errors, 4 warnings, 0=
 Warnings:
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
     net/ipv4/tcp_input.c:4275:49: warning: array subscript is above array b=
 ounds [-Warray-bounds]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
