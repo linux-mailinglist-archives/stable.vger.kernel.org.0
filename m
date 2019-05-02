@@ -2,110 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D0E11BA6
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 16:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0138311BD6
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 16:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726270AbfEBOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 10:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726197AbfEBOmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 10:42:16 -0400
-Received: from localhost (c-67-180-165-146.hsd1.ca.comcast.net [67.180.165.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC50B20656;
-        Thu,  2 May 2019 14:42:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556808135;
-        bh=zl3f1U1qdc5+UGyWIUNpw3Pep+eDR0yy7kgp5H5+0Yw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=l2xBFaFKiw471yvWye0sbMhxsqCsbECno6mwYPuqzPLooiFDPkn8wW2T1p2Hcwly6
-         q9eFuB67kier9E6fCp4kctoQ3/YKD8iZhhEtLYTADJ/e3VsHO4IfxjhU8ZjbszQVtB
-         nOOaP1qG7q3J0ygghSMeHpsbBOcxEbEFxqha4ZLo=
-From:   Andy Lutomirski <luto@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Rik van Riel <riel@surriel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end() export
-Date:   Thu,  2 May 2019 07:42:14 -0700
-Message-Id: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org>
-X-Mailer: git-send-email 2.21.0
+        id S1726302AbfEBOyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 10:54:44 -0400
+Received: from mail-wm1-f44.google.com ([209.85.128.44]:54485 "EHLO
+        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726267AbfEBOyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 10:54:43 -0400
+Received: by mail-wm1-f44.google.com with SMTP id b10so3267799wmj.4
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 07:54:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=X2PevsvMgcYAF5YoSEzLskwnOJa9F0Jfxq4jGYPV3tE=;
+        b=0bVr+RtjcnuNIzJkIwVzO6bdUksYN5IkEVF1Pp4XlmyOKlz7IJPdPs6m0NOyDPkFhC
+         fzfkqyMKWYfZ0CQF87YfPBy9RsqADO+BM82bOq7vigYS0GTbrvzhm1T1Kqxjln8nHUxk
+         R/Oy4FWlI/oAohl7KmpbX1TxdB7sE23vVebKSUmLAFwOFPJPYTEErrTUIg3w2EbhDer3
+         01Whkrc+k2QeKnPUeZhXNls3gYy9j4h3Ynlu9WnpVyXl2DuD4VN/ds2g8nHdDekpb2E0
+         mHmQEm1gd9GtdmOjKFS3jzv0ahPTP1MsGY8ICodOmVYFgPs1THO5RH+73IeRAPbIEBkp
+         oLWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=X2PevsvMgcYAF5YoSEzLskwnOJa9F0Jfxq4jGYPV3tE=;
+        b=qnR/7hykRKLHbcU8qO+FKL0ie4kThf3ZzFua7LPqBz8+TvAO48kX0drz+9WS3jv7Tl
+         TPcI1FBUPePF6y84ia/kdX0Uniubg75ZwwR5JkIoUY4K/2Ub88fplB4tp1BvhHIHiYRw
+         9YxIRJU6IS1lNqa9YuCxdKuXe/K5f1SE54wsQQINDqhTMJPX/3zdngmSi7NU95na1wW0
+         XKXwOAc0CiwuhB6IhP2JBgU/XuJum9RL45yHjkbvBVEqsAh98grdD7YvMjg5P+eyTYZW
+         CiyJ91AaZkQweKrX7RS08gyZc4tLvoGg6UyvyyYd9wsv6KxCsi8x+/GMD+W2xkGi4JaB
+         QcIQ==
+X-Gm-Message-State: APjAAAVAEP3eQ5evE66UrAz9pMVlOPbEijf4rUCSsslkt7P5sJR85nCz
+        XGwdFhdMcHqZe/8NrwVCv4l0zpumV0BR/g==
+X-Google-Smtp-Source: APXvYqzXB3ppeHWCoznmsdbBG4oc1qezzf4aViw50/tg5kib5QNQiLFdkH37ZbQ15Yg/zsrKIrOguA==
+X-Received: by 2002:a1c:2d0e:: with SMTP id t14mr2683367wmt.33.1556808881662;
+        Thu, 02 May 2019 07:54:41 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t18sm15160759wrg.19.2019.05.02.07.54.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 02 May 2019 07:54:41 -0700 (PDT)
+Message-ID: <5ccb04b1.1c69fb81.80f78.0f39@mx.google.com>
+Date:   Thu, 02 May 2019 07:54:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.38
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 120 boots: 2 failed,
+ 115 passed with 3 offline (v4.19.38)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The FPU is not a super-Linuxy internal detail, so remove the _GPL
-from its export.  Without something like this patch, it's impossible
-for even highly license-respecting non-GPL modules to use the FPU,
-which seems silly to me.  After all, the FPU is a CPU feature, not
-really a kernel feature at all.
+stable-rc/linux-4.19.y boot: 120 boots: 2 failed, 115 passed with 3 offline=
+ (v4.19.38)
 
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:: Borislav Petkov <bp@suse.de>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86@kernel.org
-Cc: stable@vger.kernel.org
-Fixes: 12209993e98c ("x86/fpu: Don't export __kernel_fpu_{begin,end}()")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.38/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.38/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.38
+Git Commit: a03957ab0fd5d7d03b512a72ab9106a1749f556e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 67 unique boards, 24 SoC families, 14 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-7:
+          tegra124-nyan-big:
+              lab-collabora: failing since 5 days (last pass: v4.19.30-281-=
+gf4bc3dea377c - first fail: v4.19.37)
+
+    tegra_defconfig:
+        gcc-7:
+          tegra124-nyan-big:
+              lab-collabora: failing since 5 days (last pass: v4.19.30-281-=
+gf4bc3dea377c - first fail: v4.19.37)
+
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-7:
+            tegra124-nyan-big: 1 failed lab
+
+    tegra_defconfig:
+        gcc-7:
+            tegra124-nyan-big: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-7
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
 ---
-
-This fixes a genuine annoyance for ZFS on Linux.  Regardless of what
-one may think about the people who distribute ZFS on Linux
-*binaries*, as far as I know, the source and the users who build it
-themselves are entirely respectful of everyone's license.  I have no
-problem with EXPORT_SYMBOL_GPL() in general, but let's please avoid
-using it for things that aren't fundamentally Linux internals.
-
- arch/x86/kernel/fpu/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 2e5003fef51a..8de5687a470d 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -127,14 +127,14 @@ void kernel_fpu_begin(void)
- 	preempt_disable();
- 	__kernel_fpu_begin();
- }
--EXPORT_SYMBOL_GPL(kernel_fpu_begin);
-+EXPORT_SYMBOL(kernel_fpu_begin);
- 
- void kernel_fpu_end(void)
- {
- 	__kernel_fpu_end();
- 	preempt_enable();
- }
--EXPORT_SYMBOL_GPL(kernel_fpu_end);
-+EXPORT_SYMBOL(kernel_fpu_end);
- 
- /*
-  * Save the FPU state (mark it for reload if necessary):
--- 
-2.21.0
-
+For more info write to <info@kernelci.org>
