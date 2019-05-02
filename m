@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D370211DE4
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 566F211E33
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbfEBPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50594 "EHLO mail.kernel.org"
+        id S1727317AbfEBP1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:27:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728984AbfEBPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:31:28 -0400
+        id S1727105AbfEBP07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F94D216FD;
-        Thu,  2 May 2019 15:31:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B005C20449;
+        Thu,  2 May 2019 15:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811087;
-        bh=dVQlqAC67wU1zfrjFQLABbObTIR57m5jyuldxLYEPAo=;
+        s=default; t=1556810818;
+        bh=FAOdV6X0lvrtwWMnvZw0fTD6ooo1Cg8DxlUZNEtRbho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfOe7QhSYOa17cS0l3qDdnE8OC8R9eRmlmFKKs9/arJwiytOnSHhk0wSvcOEXakAX
-         DZByc3KyUFLyyJaUmwNjuFy9Mu0TIHyNQ3VeyhPHNvlId+RWFEqoXhaqjvaeJldvxh
-         sN9SwkYFroYD2J6vNr2xl02vRtJjTrOL8FRDpylM=
+        b=o97akdYxDtzmVR014Hi/MKd6CuqNfzPez01IlbifxkqE096/izN1RCuODzsI9KQfR
+         wsxglsVDW3IsIm7CFY3iRvVmZwlzURzmi68bQpelvbyDKshRxUeyUl+7mnR+ctA1DU
+         hIWGzVQC9rS//izWFDuqCi/5wivm+WtxMAtF89Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 033/101] KVM: arm/arm64: vgic-its: Take the srcu lock when writing to guest memory
+Subject: [PATCH 4.19 13/72] xsk: fix umem memory leak on cleanup
 Date:   Thu,  2 May 2019 17:20:35 +0200
-Message-Id: <20190502143341.847596598@linuxfoundation.org>
+Message-Id: <20190502143334.454298740@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,170 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a6ecfb11bf37743c1ac49b266595582b107b61d4 ]
+[ Upstream commit 044175a06706d516aa42874bb44dbbfc3c4d20eb ]
 
-When halting a guest, QEMU flushes the virtual ITS caches, which
-amounts to writing to the various tables that the guest has allocated.
+When the umem is cleaned up, the task that created it might already be
+gone. If the task was gone, the xdp_umem_release function did not free
+the pages member of struct xdp_umem.
 
-When doing this, we fail to take the srcu lock, and the kernel
-shouts loudly if running a lockdep kernel:
+It turned out that the task lookup was not needed at all; The code was
+a left-over when we moved from task accounting to user accounting [1].
 
-[   69.680416] =============================
-[   69.680819] WARNING: suspicious RCU usage
-[   69.681526] 5.1.0-rc1-00008-g600025238f51-dirty #18 Not tainted
-[   69.682096] -----------------------------
-[   69.682501] ./include/linux/kvm_host.h:605 suspicious rcu_dereference_check() usage!
-[   69.683225]
-[   69.683225] other info that might help us debug this:
-[   69.683225]
-[   69.683975]
-[   69.683975] rcu_scheduler_active = 2, debug_locks = 1
-[   69.684598] 6 locks held by qemu-system-aar/4097:
-[   69.685059]  #0: 0000000034196013 (&kvm->lock){+.+.}, at: vgic_its_set_attr+0x244/0x3a0
-[   69.686087]  #1: 00000000f2ed935e (&its->its_lock){+.+.}, at: vgic_its_set_attr+0x250/0x3a0
-[   69.686919]  #2: 000000005e71ea54 (&vcpu->mutex){+.+.}, at: lock_all_vcpus+0x64/0xd0
-[   69.687698]  #3: 00000000c17e548d (&vcpu->mutex){+.+.}, at: lock_all_vcpus+0x64/0xd0
-[   69.688475]  #4: 00000000ba386017 (&vcpu->mutex){+.+.}, at: lock_all_vcpus+0x64/0xd0
-[   69.689978]  #5: 00000000c2c3c335 (&vcpu->mutex){+.+.}, at: lock_all_vcpus+0x64/0xd0
-[   69.690729]
-[   69.690729] stack backtrace:
-[   69.691151] CPU: 2 PID: 4097 Comm: qemu-system-aar Not tainted 5.1.0-rc1-00008-g600025238f51-dirty #18
-[   69.691984] Hardware name: rockchip evb_rk3399/evb_rk3399, BIOS 2019.04-rc3-00124-g2feec69fb1 03/15/2019
-[   69.692831] Call trace:
-[   69.694072]  lockdep_rcu_suspicious+0xcc/0x110
-[   69.694490]  gfn_to_memslot+0x174/0x190
-[   69.694853]  kvm_write_guest+0x50/0xb0
-[   69.695209]  vgic_its_save_tables_v0+0x248/0x330
-[   69.695639]  vgic_its_set_attr+0x298/0x3a0
-[   69.696024]  kvm_device_ioctl_attr+0x9c/0xd8
-[   69.696424]  kvm_device_ioctl+0x8c/0xf8
-[   69.696788]  do_vfs_ioctl+0xc8/0x960
-[   69.697128]  ksys_ioctl+0x8c/0xa0
-[   69.697445]  __arm64_sys_ioctl+0x28/0x38
-[   69.697817]  el0_svc_common+0xd8/0x138
-[   69.698173]  el0_svc_handler+0x38/0x78
-[   69.698528]  el0_svc+0x8/0xc
+This patch fixes the memory leak by removing the task lookup logic
+completely.
 
-The fix is to obviously take the srcu lock, just like we do on the
-read side of things since bf308242ab98. One wonders why this wasn't
-fixed at the same time, but hey...
+[1] https://lore.kernel.org/netdev/20180131135356.19134-3-bjorn.topel@gmail.com/
 
-Fixes: bf308242ab98 ("KVM: arm/arm64: VGIC/ITS: protect kvm_read_guest() calls with SRCU lock")
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Link: https://lore.kernel.org/netdev/c1cb2ca8-6a14-3980-8672-f3de0bb38dfd@suse.cz/
+Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
+Reported-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/arm/include/asm/kvm_mmu.h   | 11 +++++++++++
- arch/arm64/include/asm/kvm_mmu.h | 11 +++++++++++
- virt/kvm/arm/vgic/vgic-its.c     |  8 ++++----
- virt/kvm/arm/vgic/vgic-v3.c      |  4 ++--
- 4 files changed, 28 insertions(+), 6 deletions(-)
+ include/net/xdp_sock.h |  1 -
+ net/xdp/xdp_umem.c     | 19 +------------------
+ 2 files changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/arch/arm/include/asm/kvm_mmu.h b/arch/arm/include/asm/kvm_mmu.h
-index 3a875fc1b63c..cee06509f00a 100644
---- a/arch/arm/include/asm/kvm_mmu.h
-+++ b/arch/arm/include/asm/kvm_mmu.h
-@@ -381,6 +381,17 @@ static inline int kvm_read_guest_lock(struct kvm *kvm,
- 	return ret;
- }
+diff --git a/include/net/xdp_sock.h b/include/net/xdp_sock.h
+index 7161856bcf9c..c2c10cc9ffa0 100644
+--- a/include/net/xdp_sock.h
++++ b/include/net/xdp_sock.h
+@@ -34,7 +34,6 @@ struct xdp_umem {
+ 	u32 headroom;
+ 	u32 chunk_size_nohr;
+ 	struct user_struct *user;
+-	struct pid *pid;
+ 	unsigned long address;
+ 	refcount_t users;
+ 	struct work_struct work;
+diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
+index bfe2dbea480b..a3b037fbfecd 100644
+--- a/net/xdp/xdp_umem.c
++++ b/net/xdp/xdp_umem.c
+@@ -152,9 +152,6 @@ static void xdp_umem_unaccount_pages(struct xdp_umem *umem)
  
-+static inline int kvm_write_guest_lock(struct kvm *kvm, gpa_t gpa,
-+				       const void *data, unsigned long len)
-+{
-+	int srcu_idx = srcu_read_lock(&kvm->srcu);
-+	int ret = kvm_write_guest(kvm, gpa, data, len);
-+
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+
-+	return ret;
-+}
-+
- static inline void *kvm_get_hyp_vector(void)
+ static void xdp_umem_release(struct xdp_umem *umem)
  {
- 	switch(read_cpuid_part()) {
-diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
-index 8af4b1befa42..c246effd1b67 100644
---- a/arch/arm64/include/asm/kvm_mmu.h
-+++ b/arch/arm64/include/asm/kvm_mmu.h
-@@ -444,6 +444,17 @@ static inline int kvm_read_guest_lock(struct kvm *kvm,
- 	return ret;
+-	struct task_struct *task;
+-	struct mm_struct *mm;
+-
+ 	xdp_umem_clear_dev(umem);
+ 
+ 	if (umem->fq) {
+@@ -169,21 +166,10 @@ static void xdp_umem_release(struct xdp_umem *umem)
+ 
+ 	xdp_umem_unpin_pages(umem);
+ 
+-	task = get_pid_task(umem->pid, PIDTYPE_PID);
+-	put_pid(umem->pid);
+-	if (!task)
+-		goto out;
+-	mm = get_task_mm(task);
+-	put_task_struct(task);
+-	if (!mm)
+-		goto out;
+-
+-	mmput(mm);
+ 	kfree(umem->pages);
+ 	umem->pages = NULL;
+ 
+ 	xdp_umem_unaccount_pages(umem);
+-out:
+ 	kfree(umem);
  }
  
-+static inline int kvm_write_guest_lock(struct kvm *kvm, gpa_t gpa,
-+				       const void *data, unsigned long len)
-+{
-+	int srcu_idx = srcu_read_lock(&kvm->srcu);
-+	int ret = kvm_write_guest(kvm, gpa, data, len);
-+
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+
-+	return ret;
-+}
-+
- #ifdef CONFIG_KVM_INDIRECT_VECTORS
- /*
-  * EL2 vectors can be mapped and rerouted in a number of ways,
-diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
-index ab3f47745d9c..c41e11fd841c 100644
---- a/virt/kvm/arm/vgic/vgic-its.c
-+++ b/virt/kvm/arm/vgic/vgic-its.c
-@@ -1919,7 +1919,7 @@ static int vgic_its_save_ite(struct vgic_its *its, struct its_device *dev,
- 	       ((u64)ite->irq->intid << KVM_ITS_ITE_PINTID_SHIFT) |
- 		ite->collection->collection_id;
- 	val = cpu_to_le64(val);
--	return kvm_write_guest(kvm, gpa, &val, ite_esz);
-+	return kvm_write_guest_lock(kvm, gpa, &val, ite_esz);
+@@ -312,7 +298,6 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 	if (size_chk < 0)
+ 		return -EINVAL;
+ 
+-	umem->pid = get_task_pid(current, PIDTYPE_PID);
+ 	umem->address = (unsigned long)addr;
+ 	umem->props.chunk_mask = ~((u64)chunk_size - 1);
+ 	umem->props.size = size;
+@@ -328,7 +313,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 
+ 	err = xdp_umem_account_pages(umem);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	err = xdp_umem_pin_pages(umem);
+ 	if (err)
+@@ -347,8 +332,6 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 
+ out_account:
+ 	xdp_umem_unaccount_pages(umem);
+-out:
+-	put_pid(umem->pid);
+ 	return err;
  }
  
- /**
-@@ -2066,7 +2066,7 @@ static int vgic_its_save_dte(struct vgic_its *its, struct its_device *dev,
- 	       (itt_addr_field << KVM_ITS_DTE_ITTADDR_SHIFT) |
- 		(dev->num_eventid_bits - 1));
- 	val = cpu_to_le64(val);
--	return kvm_write_guest(kvm, ptr, &val, dte_esz);
-+	return kvm_write_guest_lock(kvm, ptr, &val, dte_esz);
- }
- 
- /**
-@@ -2246,7 +2246,7 @@ static int vgic_its_save_cte(struct vgic_its *its,
- 	       ((u64)collection->target_addr << KVM_ITS_CTE_RDBASE_SHIFT) |
- 	       collection->collection_id);
- 	val = cpu_to_le64(val);
--	return kvm_write_guest(its->dev->kvm, gpa, &val, esz);
-+	return kvm_write_guest_lock(its->dev->kvm, gpa, &val, esz);
- }
- 
- static int vgic_its_restore_cte(struct vgic_its *its, gpa_t gpa, int esz)
-@@ -2317,7 +2317,7 @@ static int vgic_its_save_collection_table(struct vgic_its *its)
- 	 */
- 	val = 0;
- 	BUG_ON(cte_esz > sizeof(val));
--	ret = kvm_write_guest(its->dev->kvm, gpa, &val, cte_esz);
-+	ret = kvm_write_guest_lock(its->dev->kvm, gpa, &val, cte_esz);
- 	return ret;
- }
- 
-diff --git a/virt/kvm/arm/vgic/vgic-v3.c b/virt/kvm/arm/vgic/vgic-v3.c
-index 4ee0aeb9a905..89260964be73 100644
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -358,7 +358,7 @@ int vgic_v3_lpi_sync_pending_status(struct kvm *kvm, struct vgic_irq *irq)
- 	if (status) {
- 		/* clear consumed data */
- 		val &= ~(1 << bit_nr);
--		ret = kvm_write_guest(kvm, ptr, &val, 1);
-+		ret = kvm_write_guest_lock(kvm, ptr, &val, 1);
- 		if (ret)
- 			return ret;
- 	}
-@@ -409,7 +409,7 @@ int vgic_v3_save_pending_tables(struct kvm *kvm)
- 		else
- 			val &= ~(1 << bit_nr);
- 
--		ret = kvm_write_guest(kvm, ptr, &val, 1);
-+		ret = kvm_write_guest_lock(kvm, ptr, &val, 1);
- 		if (ret)
- 			return ret;
- 	}
 -- 
 2.19.1
 
