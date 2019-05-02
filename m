@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D6F11DF0
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0305711CB6
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728901AbfEBPbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:31:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50032 "EHLO mail.kernel.org"
+        id S1727189AbfEBPYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:24:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728922AbfEBPbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:31:04 -0400
+        id S1727183AbfEBPYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:24:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06565216FD;
-        Thu,  2 May 2019 15:31:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5136120675;
+        Thu,  2 May 2019 15:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811063;
-        bh=mR+u4Caz6YnEub7R/AE3gj73TlqcHvIq8vNBjHJ9mjQ=;
+        s=default; t=1556810646;
+        bh=S+K5sWvjqKihKdJAuAeDawcXCjJD/SG0Yv5eXYtLY24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x01/xsX/+OG9JY7UQMHWFGNlG7s13uxUe73Uw6nkm4tuQIcEa9uNcDRcy40oRqa5O
-         5T9WsdciRuZkrt4CHaqTQ3kc+rRWrX6vdaW8Zyd7gIJPFQRYO2Jeooh0boTTAFlpm0
-         nj2oFnIPagWzpQZ6SGgIdUYzvD0myIlac43uo0lk=
+        b=G1hRCTuRsayhKfxAUHU+vAIT5B4DflxylI82UvF4n+cY0KzkcpMbC+q1c1VWhJyOC
+         BSLD6J7x4eZSRMq5ukq2KCU6q1VxA95tmIbt4LmT8os5WZBbr833StwTFhUnHa9m0N
+         4d04Jb8N94h4dvHAuE5dfPMP59IvnLj3v3dLrSSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <sean@poorly.run>, Dave Airlie <airlied@redhat.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Hans de Goede <hdegoede@redhat.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 059/101] drm: Fix drm_release() and device unplug
-Date:   Thu,  2 May 2019 17:21:01 +0200
-Message-Id: <20190502143343.626814362@linuxfoundation.org>
+Subject: [PATCH 4.14 25/49] staging: rtl8188eu: Fix potential NULL pointer dereference of kcalloc
+Date:   Thu,  2 May 2019 17:21:02 +0200
+Message-Id: <20190502143327.070889060@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,70 +45,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3f04e0a6cfebf48152ac64502346cdc258811f79 ]
+[ Upstream commit 7671ce0d92933762f469266daf43bd34d422d58c ]
 
-If userspace has open fd(s) when drm_dev_unplug() is run, it will result
-in drm_dev_unregister() being called twice. First in drm_dev_unplug() and
-then later in drm_release() through the call to drm_put_dev().
+hwxmits is allocated via kcalloc and not checked for failure before its
+dereference. The patch fixes this problem by returning error upstream
+in rtl8723bs, rtl8188eu.
 
-Since userspace already holds a ref on drm_device through the drm_minor,
-it's not necessary to add extra ref counting based on no open file
-handles. Instead just drm_dev_put() unconditionally in drm_dev_unplug().
-
-We now have this:
-- Userpace holds a ref on drm_device as long as there's open fd(s)
-- The driver holds a ref on drm_device as long as it's bound to the
-  struct device
-
-When both sides are done with drm_device, it is released.
-
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Sean Paul <sean@poorly.run>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190208140103.28919-2-noralf@tronnes.org
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Acked-by: Mukesh Ojha <mojha@codeaurora.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_drv.c  | 6 +-----
- drivers/gpu/drm/drm_file.c | 6 ++----
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ drivers/staging/rtl8188eu/core/rtw_xmit.c    |  9 +++++++--
+ drivers/staging/rtl8188eu/include/rtw_xmit.h |  2 +-
+ drivers/staging/rtl8723bs/core/rtw_xmit.c    | 14 +++++++-------
+ drivers/staging/rtl8723bs/include/rtw_xmit.h |  2 +-
+ 4 files changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index 12e5e2be7890..7a59b8b3ed5a 100644
---- a/drivers/gpu/drm/drm_drv.c
-+++ b/drivers/gpu/drm/drm_drv.c
-@@ -381,11 +381,7 @@ void drm_dev_unplug(struct drm_device *dev)
- 	synchronize_srcu(&drm_unplug_srcu);
+diff --git a/drivers/staging/rtl8188eu/core/rtw_xmit.c b/drivers/staging/rtl8188eu/core/rtw_xmit.c
+index be2f46eb9f78..904b988ecc4e 100644
+--- a/drivers/staging/rtl8188eu/core/rtw_xmit.c
++++ b/drivers/staging/rtl8188eu/core/rtw_xmit.c
+@@ -188,7 +188,9 @@ s32	_rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
  
- 	drm_dev_unregister(dev);
--
--	mutex_lock(&drm_global_mutex);
--	if (dev->open_count == 0)
--		drm_dev_put(dev);
--	mutex_unlock(&drm_global_mutex);
-+	drm_dev_put(dev);
+ 	pxmitpriv->free_xmit_extbuf_cnt = num_xmit_extbuf;
+ 
+-	rtw_alloc_hwxmits(padapter);
++	res = rtw_alloc_hwxmits(padapter);
++	if (res == _FAIL)
++		goto exit;
+ 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
+ 
+ 	for (i = 0; i < 4; i++)
+@@ -1573,7 +1575,7 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
+ 	return res;
  }
- EXPORT_SYMBOL(drm_dev_unplug);
  
-diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
-index 46f48f245eb5..3f20f598cd7c 100644
---- a/drivers/gpu/drm/drm_file.c
-+++ b/drivers/gpu/drm/drm_file.c
-@@ -479,11 +479,9 @@ int drm_release(struct inode *inode, struct file *filp)
+-void rtw_alloc_hwxmits(struct adapter *padapter)
++s32 rtw_alloc_hwxmits(struct adapter *padapter)
+ {
+ 	struct hw_xmit *hwxmits;
+ 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+@@ -1582,6 +1584,8 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
  
- 	drm_file_free(file_priv);
+ 	pxmitpriv->hwxmits = kcalloc(pxmitpriv->hwxmit_entry,
+ 				     sizeof(struct hw_xmit), GFP_KERNEL);
++	if (!pxmitpriv->hwxmits)
++		return _FAIL;
  
--	if (!--dev->open_count) {
-+	if (!--dev->open_count)
- 		drm_lastclose(dev);
--		if (drm_dev_is_unplugged(dev))
--			drm_put_dev(dev);
+ 	hwxmits = pxmitpriv->hwxmits;
+ 
+@@ -1589,6 +1593,7 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
+ 	hwxmits[1] .sta_queue = &pxmitpriv->vi_pending;
+ 	hwxmits[2] .sta_queue = &pxmitpriv->be_pending;
+ 	hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
++	return _SUCCESS;
+ }
+ 
+ void rtw_free_hwxmits(struct adapter *padapter)
+diff --git a/drivers/staging/rtl8188eu/include/rtw_xmit.h b/drivers/staging/rtl8188eu/include/rtw_xmit.h
+index dd6b7a9a8d4a..1be4b478475a 100644
+--- a/drivers/staging/rtl8188eu/include/rtw_xmit.h
++++ b/drivers/staging/rtl8188eu/include/rtw_xmit.h
+@@ -342,7 +342,7 @@ s32 rtw_txframes_sta_ac_pending(struct adapter *padapter,
+ void rtw_init_hwxmits(struct hw_xmit *phwxmit, int entry);
+ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
+ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv);
+-void rtw_alloc_hwxmits(struct adapter *padapter);
++s32 rtw_alloc_hwxmits(struct adapter *padapter);
+ void rtw_free_hwxmits(struct adapter *padapter);
+ s32 rtw_xmit(struct adapter *padapter, struct sk_buff **pkt);
+ 
+diff --git a/drivers/staging/rtl8723bs/core/rtw_xmit.c b/drivers/staging/rtl8723bs/core/rtw_xmit.c
+index 022f654419e4..91dab7f8a739 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_xmit.c
++++ b/drivers/staging/rtl8723bs/core/rtw_xmit.c
+@@ -271,7 +271,9 @@ s32	_rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
+ 		}
+ 	}
+ 
+-	rtw_alloc_hwxmits(padapter);
++	res = rtw_alloc_hwxmits(padapter);
++	if (res == _FAIL)
++		goto exit;
+ 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
+ 
+ 	for (i = 0; i < 4; i++) {
+@@ -2157,7 +2159,7 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
+ 	return res;
+ }
+ 
+-void rtw_alloc_hwxmits(struct adapter *padapter)
++s32 rtw_alloc_hwxmits(struct adapter *padapter)
+ {
+ 	struct hw_xmit *hwxmits;
+ 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+@@ -2168,10 +2170,8 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
+ 
+ 	pxmitpriv->hwxmits = (struct hw_xmit *)rtw_zmalloc(sizeof(struct hw_xmit) * pxmitpriv->hwxmit_entry);
+ 
+-	if (pxmitpriv->hwxmits == NULL) {
+-		DBG_871X("alloc hwxmits fail!...\n");
+-		return;
 -	}
-+
- 	mutex_unlock(&drm_global_mutex);
++	if (!pxmitpriv->hwxmits)
++		return _FAIL;
  
- 	drm_minor_release(minor);
+ 	hwxmits = pxmitpriv->hwxmits;
+ 
+@@ -2217,7 +2217,7 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
+ 
+ 	}
+ 
+-
++	return _SUCCESS;
+ }
+ 
+ void rtw_free_hwxmits(struct adapter *padapter)
+diff --git a/drivers/staging/rtl8723bs/include/rtw_xmit.h b/drivers/staging/rtl8723bs/include/rtw_xmit.h
+index 11571649cd2c..92236ca8a1ef 100644
+--- a/drivers/staging/rtl8723bs/include/rtw_xmit.h
++++ b/drivers/staging/rtl8723bs/include/rtw_xmit.h
+@@ -494,7 +494,7 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
+ void _rtw_free_xmit_priv (struct xmit_priv *pxmitpriv);
+ 
+ 
+-void rtw_alloc_hwxmits(struct adapter *padapter);
++s32 rtw_alloc_hwxmits(struct adapter *padapter);
+ void rtw_free_hwxmits(struct adapter *padapter);
+ 
+ 
 -- 
 2.19.1
 
