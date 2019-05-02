@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1510511E51
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D2411DC9
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727366AbfEBP21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S1727943AbfEBPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:33:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726877AbfEBP20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:28:26 -0400
+        id S1726371AbfEBPdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:33:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 930F1214DA;
-        Thu,  2 May 2019 15:28:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 402F02081C;
+        Thu,  2 May 2019 15:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810906;
-        bh=7v1BeYu2wyp5sZIlcIHXzFbRN1Twg/ra8ChEFniQ45g=;
+        s=default; t=1556811180;
+        bh=mVORm+0ku597W0sEvQH4ehVlIGITPVEsH7yBofTk18Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rl6k0nooyAaEYaERYD8pS2se2lwJLffB/eV9Up+4tdMUIx5vOYXT00/3akO0gK1jZ
-         v129E9I4PRTF7Vi9Gj759i7M3d3ITMrWqXRmDOwna91ONCOGUwDJyK6mEHz1qe6OlZ
-         4psPCSQznRWGXLQqbAwlBNRYcafDLkSfZ/73FLwo=
+        b=vr2NM7Lu9W/EPxWoo4aLbOPZKlW7iD79RDrVwatlWRC7v96M4mE3odTPnqQXoP5cs
+         eRfiTFyxzFVexJXSue6IxWPeQkuEOgMHpxkfxIZgyYrSfcLXTWJhlmw0wGh6ldoReK
+         1BA5HNrZzc/A9BnMAUfMAk73NiCbUd5A94Q+cqsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>,
-        David Lechner <david@lechnology.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Mukesh Ojha <mojha@codeaurora.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 53/72] ARM: davinci: fix build failure with allnoconfig
+Subject: [PATCH 5.0 073/101] usb: u132-hcd: fix resource leak
 Date:   Thu,  2 May 2019 17:21:15 +0200
-Message-Id: <20190502143337.621159192@linuxfoundation.org>
+Message-Id: <20190502143344.794860557@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2dbed152e2d4c3fe2442284918d14797898b1e8a ]
+[ Upstream commit f276e002793cdb820862e8ea8f76769d56bba575 ]
 
-allnoconfig build with just ARCH_DAVINCI enabled
-fails because drivers/clk/davinci/* depends on
-REGMAP being enabled.
+if platform_driver_register fails, cleanup the allocated resource
+gracefully.
 
-Fix it by selecting REGMAP_MMIO when building in
-DaVinci support.
-
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
-Reviewed-by: David Lechner <david@lechnology.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/u132-hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index cd4c74daf71e..51794c7fa6d5 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -612,6 +612,7 @@ config ARCH_DAVINCI
- 	select HAVE_IDE
- 	select PM_GENERIC_DOMAINS if PM
- 	select PM_GENERIC_DOMAINS_OF if PM && OF
-+	select REGMAP_MMIO
- 	select RESET_CONTROLLER
- 	select USE_OF
- 	select ZONE_DMA
+diff --git a/drivers/usb/host/u132-hcd.c b/drivers/usb/host/u132-hcd.c
+index 5b8a3d9530c4..5cac83aaeac3 100644
+--- a/drivers/usb/host/u132-hcd.c
++++ b/drivers/usb/host/u132-hcd.c
+@@ -3202,6 +3202,9 @@ static int __init u132_hcd_init(void)
+ 	printk(KERN_INFO "driver %s\n", hcd_name);
+ 	workqueue = create_singlethread_workqueue("u132");
+ 	retval = platform_driver_register(&u132_platform_driver);
++	if (retval)
++		destroy_workqueue(workqueue);
++
+ 	return retval;
+ }
+ 
 -- 
 2.19.1
 
