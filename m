@@ -2,100 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B22B711852
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 13:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC0211859
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 13:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726268AbfEBLqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 07:46:25 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:44923 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726231AbfEBLqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 07:46:24 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id AB99525AC4;
-        Thu,  2 May 2019 07:46:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 02 May 2019 07:46:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=rKgpGaeCu0sPpgsDi5ecs9OoJOP
-        E3K93zFQ6qhFU1XE=; b=KuFNCmP26pjxv9fgA1IzozS01i6MUrUKMBqC1Yx7Y0P
-        DcpagR1QfuI35iSvTT9w4T/gyIJ7W5p43evcRCoYZvSsicTbUOrZZq5iCojoC8WM
-        FwzijSHQYwZ9DXQn2KJDxTod1aK3Gpu4SzR7SYKzWxyaMb/zn/mQGipfMVRC3iQb
-        ERA2JB+Z2xMAtP91w8/sN6EaepQa4aI7/UaOK6KmVRFUrKcfPbLk8IZ+dLrkN3mf
-        ke6eWFl/rKWHk60DVsdztq+rpYezp6YfMBmP/YbMxHveo7vGAqNi3ez3mqsMDLOK
-        0E7HQrSbJNi1xFXjyv3PvZBb4EFnUS9s04QuF/AsMPA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rKgpGa
-        eCu0sPpgsDi5ecs9OoJOPE3K93zFQ6qhFU1XE=; b=wL/HmGBXyyorTYT7w7UwjI
-        Pvjez3j9u4jJsKwXyR+2ySFtOfhk1sP4tACypEc9O3ir23NvCm72U46OY8iUULDv
-        j5tUyNmj0PFHoXtpQkDVnHC5/EYBJqzYbmww5sTIwgutuBzk3kVqvFcmNGi+yStc
-        rEwtaY178JXxBPE+brAAAv2BAazbHPpQfsl0ukoE7+QjDh6RDnrq84i7LGynVKfE
-        w9bZc7BBOeCMDqPK7zYaSlz713dodYEXH+iVum/27b4SDAxQCM4S6Xx7nmwl7lY6
-        +r2BvufhefuOtcr/W0zfAI5xYxtPqLWszZc9oQBwK+ndntmt17lcz5gFV5gUaqJw
-        ==
-X-ME-Sender: <xms:j9jKXA4wO5Y1uijLSGmIVzBFCsD5648XEj_XZQfOCoXOG51F51p9Dg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrieelgdegiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:j9jKXOhV5NF5YEUmQ1iEad0HnrNJfRYYi5LCKqqj4RMH_dh0aY7NfA>
-    <xmx:j9jKXF1pZ4l1dKtQ6DPyrQMQiC012yLiPqRpsBwERPIavNK-QAffjw>
-    <xmx:j9jKXPAA-w7u889bWhrQGkV8TGADcCPcePHxXRN1B7XSTyQHn-b0zA>
-    <xmx:j9jKXOA4QravYzq3bX71o6YalxxmDnnBSC7lxmqkM4Z5UQQ0-PXZKQ>
+        id S1726297AbfEBLry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 07:47:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32896 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726189AbfEBLrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 07:47:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CE7C210369;
-        Thu,  2 May 2019 07:46:22 -0400 (EDT)
-Date:   Thu, 2 May 2019 13:46:21 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH 4.9] media: vivid: check if the cec_adapter is valid
-Message-ID: <20190502114621.GA24696@kroah.com>
-References: <20190502051546.12515-1-naresh.kamboju@linaro.org>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E39D12081C;
+        Thu,  2 May 2019 11:47:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556797673;
+        bh=awQPB7LyG47gPem32vUmf18uAGFHweaMzjGFvlLX3cI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ENBR8cVS6c7tI3SAXuSMu3FtlLrGVdge+cgBe6zOwjC2IefGV1kkA7mXWaW8cQDeP
+         Y5FvccUwnj82yz7HhJxttKPwdeaUF06NEtbwgHCizRYcX1B8QA9/dtpOwMBmukid7H
+         GaglM38g4d3oEFqlDcCrWg+SVn3MJKn3nzc8IVSI=
+Date:   Thu, 2 May 2019 13:47:51 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     stable@vger.kernel.org,
+        Anusha Srivatsa <anusha.srivatsa@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: Re: [PATCH 5.0-stable] drm/i915: Do not enable FEC without DSC
+Message-ID: <20190502114751.GB24696@kroah.com>
+References: <155652995323242@kroah.com>
+ <20190430175054.21797-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190502051546.12515-1-naresh.kamboju@linaro.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190430175054.21797-1-ville.syrjala@linux.intel.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 06:15:46AM +0100, Naresh Kamboju wrote:
-> commit ed356f110403f6acc64dcbbbfdc38662ab9b06c2 upstream.
+On Tue, Apr 30, 2019 at 08:50:54PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> If CEC is not enabled for the vivid driver, then the adap pointer is NULL
-> and 'adap->phys_addr' will fail.
-> 
-> Cc: <stable@vger.kernel.org> # v4.9
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> [ Naresh: Fixed rebase conflict ]
-> Signed-off-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> ---
->  drivers/media/platform/vivid/vivid-vid-common.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/media/platform/vivid/vivid-vid-common.c b/drivers/media/platform/vivid/vivid-vid-common.c
-> index f9a810e3f521..d380c2da1926 100644
-> --- a/drivers/media/platform/vivid/vivid-vid-common.c
-> +++ b/drivers/media/platform/vivid/vivid-vid-common.c
-> @@ -841,6 +841,7 @@ int vidioc_g_edid(struct file *file, void *_fh,
->  	if (edid->start_block + edid->blocks > dev->edid_blocks)
->  		edid->blocks = dev->edid_blocks - edid->start_block;
->  	memcpy(edid->edid, dev->edid, edid->blocks * 128);
-> -	cec_set_edid_phys_addr(edid->edid, edid->blocks * 128, adap->phys_addr);
-> +        if (adap)
+> commit 5aae7832d1b4ec614996ea0f4fafc4d9855ec0b0 upstream.
 
-No tabs?
+Thanks for the backport, now queued up.
 
-I'll go fix that up by hand :(
-
+greg k-h
