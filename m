@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D901611EFE
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4799511E86
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbfEBP0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42694 "EHLO mail.kernel.org"
+        id S1727298AbfEBPht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727681AbfEBP0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:07 -0400
+        id S1728190AbfEBPaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:30:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBBD620675;
-        Thu,  2 May 2019 15:26:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 509652081C;
+        Thu,  2 May 2019 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810767;
-        bh=jcwjbZ5dXknDxTSPNu0a49P6GAKSkmKtzpwc6ty9Yqs=;
+        s=default; t=1556811013;
+        bh=n6TmpvV7ZyMKI+KcjMHX070YR43loG/ifxmOyCgMVwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGGxp8m++RANR1/8eI4RonCIca7+1fZ2h0D0gOwSnyFsWo1rJiXUHSdZhO0bnrmaS
-         6n7cf/+iIngVBWe8eLdiVGYyirlDOIMzpmaZsW6u59rubmmevcKNMicG1odM9QvS1/
-         vTV6Wgm/u6+a8VYnvwWLJfyMR4HKmmpYtZQmeGzE=
+        b=jsxdLAIUu2WW5Idnb1uZp4Ohz7slmvoO4sxLXf0m4QEjwVkvHquF8Ylhx6xJ6DPBg
+         20+PO60AdzQPEuUCCngp2VdvOmuShU+Jqvu/p7oLaoE4BHYxb20Kbya+43ezIruyN4
+         jgv1X3DP8wGLLdp60F27ERTyHYZKKVIv32gyBhr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Frank Pavlic <f.pavlic@kunbus.de>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Tristram Ha <Tristram.Ha@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 22/72] sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()
+Subject: [PATCH 5.0 042/101] net: ks8851: Dequeue RX packets explicitly
 Date:   Thu,  2 May 2019 17:20:44 +0200
-Message-Id: <20190502143335.161477427@linuxfoundation.org>
+Message-Id: <20190502143342.510168850@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ac0cdb3d990108df795b676cd0d0e65ac34b2273 ]
+[ Upstream commit 536d3680fd2dab5c39857d62a3e084198fc74ff9 ]
 
-Add the missing uart_unregister_driver() and i2c_del_driver() before return
-from sc16is7xx_init() in the error handling case.
+The ks8851 driver lets the chip auto-dequeue received packets once they
+have been read in full. It achieves that by setting the ADRFE flag in
+the RXQCR register ("Auto-Dequeue RXQ Frame Enable").
 
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However if allocation of a packet's socket buffer or retrieval of the
+packet over the SPI bus fails, the packet will not have been read in
+full and is not auto-dequeued. Such partial retrieval of a packet
+confuses the chip's RX queue management:  On the next RX interrupt,
+the first packet read from the queue will be the one left there
+previously and this one can be retrieved without issues. But for any
+newly received packets, the frame header status and byte count registers
+(RXFHSR and RXFHBCR) contain bogus values, preventing their retrieval.
+
+The chip allows explicitly dequeueing a packet from the RX queue by
+setting the RRXEF flag in the RXQCR register ("Release RX Error Frame").
+This could be used to dequeue the packet in case of an error, but if
+that error is a failed SPI transfer, it is unknown if the packet was
+transferred in full and was auto-dequeued or if it was only transferred
+in part and requires an explicit dequeue. The safest approach is thus
+to always dequeue packets explicitly and forgo auto-dequeueing.
+
+Without this change, I've witnessed packet retrieval break completely
+when an SPI DMA transfer fails, requiring a chip reset. Explicit
+dequeueing magically fixes this and makes packet retrieval absolutely
+robust for me.
+
+The chip's documentation suggests auto-dequeuing and uses the RRXEF
+flag only to dequeue error frames which the driver doesn't want to
+retrieve. But that seems to be a fair-weather approach.
+
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: Frank Pavlic <f.pavlic@kunbus.de>
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Tristram Ha <Tristram.Ha@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/micrel/ks8851.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index 47b41159a8bc..55b178c1bd65 100644
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1481,7 +1481,7 @@ static int __init sc16is7xx_init(void)
- 	ret = i2c_add_driver(&sc16is7xx_i2c_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx i2c --> %d\n", ret);
--		return ret;
-+		goto err_i2c;
- 	}
- #endif
+diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
+index bd6e9014bc74..a93f8e842c07 100644
+--- a/drivers/net/ethernet/micrel/ks8851.c
++++ b/drivers/net/ethernet/micrel/ks8851.c
+@@ -535,9 +535,8 @@ static void ks8851_rx_pkts(struct ks8851_net *ks)
+ 		/* set dma read address */
+ 		ks8851_wrreg16(ks, KS_RXFDPR, RXFDPR_RXFPAI | 0x00);
  
-@@ -1489,10 +1489,18 @@ static int __init sc16is7xx_init(void)
- 	ret = spi_register_driver(&sc16is7xx_spi_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx spi --> %d\n", ret);
--		return ret;
-+		goto err_spi;
+-		/* start the packet dma process, and set auto-dequeue rx */
+-		ks8851_wrreg16(ks, KS_RXQCR,
+-			       ks->rc_rxqcr | RXQCR_SDA | RXQCR_ADRFE);
++		/* start DMA access */
++		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr | RXQCR_SDA);
+ 
+ 		if (rxlen > 4) {
+ 			unsigned int rxalign;
+@@ -568,7 +567,8 @@ static void ks8851_rx_pkts(struct ks8851_net *ks)
+ 			}
+ 		}
+ 
+-		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr);
++		/* end DMA access and dequeue packet */
++		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr | RXQCR_RRXEF);
  	}
- #endif
- 	return ret;
-+
-+err_spi:
-+#ifdef CONFIG_SERIAL_SC16IS7XX_I2C
-+	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
-+#endif
-+err_i2c:
-+	uart_unregister_driver(&sc16is7xx_uart);
-+	return ret;
  }
- module_init(sc16is7xx_init);
  
 -- 
 2.19.1
