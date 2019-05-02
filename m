@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FF611F34
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C3411F59
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726542AbfEBPWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
+        id S1726506AbfEBPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726518AbfEBPWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:13 -0400
+        id S1727100AbfEBPXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:23:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49FBB2085A;
-        Thu,  2 May 2019 15:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57EE120B7C;
+        Thu,  2 May 2019 15:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810532;
-        bh=au3gB4Ww5FD4EQ/j7tTVGHNJdsnxCFXON5ALOg5K4jY=;
+        s=default; t=1556810622;
+        bh=ws82KC501gVjUTNJBv5cgYxkLmImrqdirK6yBkcTvhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klvris8phzaf9o1u0sK79RUFPSdnaepP3YkRNGmpo3D9XcQ9YH/k9SASSSqyJzCsg
-         JCHi/L9FfF1W1P4Yvh5EHOj6juqGimy2Aiaf8qBtMP6lAJ5WfiHyWVuPaYMdUkIF+2
-         Ra+Tkc71/mbPOWEpw3ARRTPMzYFsnNxOaM/0BDOw=
+        b=xB80QtNXt4aOik0O1RR82NBaNS3Edc4F7mjZ5ddpUBIPKKq2ANUhMl+EvzqTwWq9t
+         Ura9UugosE+LTchI2DqABvMtoPpzN9PiRmdT5CbkSiTcO+tDH36eAZqZ4uH7RrXmpZ
+         4SHcetcmz8cMmr3MU9vJmC6uO5dpYhvX9kYB4EU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 08/32] netfilter: bridge: set skb transport_header before entering NF_INET_PRE_ROUTING
+Subject: [PATCH 4.14 17/49] usb: gadget: net2280: Fix overrun of OUT messages
 Date:   Thu,  2 May 2019 17:20:54 +0200
-Message-Id: <20190502143317.844224388@linuxfoundation.org>
+Message-Id: <20190502143326.250537180@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e166e4fdaced850bee3d5ee12a5740258fb30587 ]
+[ Upstream commit 9d6a54c1430647355a5e23434881b2ca3d192b48 ]
 
-Since Commit 21d1196a35f5 ("ipv4: set transport header earlier"),
-skb->transport_header has been always set before entering INET
-netfilter. This patch is to set skb->transport_header for bridge
-before entering INET netfilter by bridge-nf-call-iptables.
+The OUT endpoint normally blocks (NAK) subsequent packets when a
+short packet was received and returns an incomplete queue entry to
+the gadget driver. Thereby the gadget driver can detect a short packet
+when reading queue entries with a length that is not equal to a
+multiple of packet size.
 
-It also fixes an issue that sctp_error() couldn't compute a right
-csum due to unset skb->transport_header.
+The start_queue() function enables receiving OUT packets regardless of
+the content of the OUT FIFO. This results in a race: With the current
+code, it's possible that the "!ep->is_in && (readl(&ep->regs->ep_stat)
+& BIT(NAK_OUT_PACKETS))" test in start_dma() will fail, then a short
+packet will be received, and then start_queue() will call
+stop_out_naking(). That's what we don't want (OUT naking gets turned
+off while there is data in the FIFO) because then the next driver
+request might receive a mixture of old and new packets.
 
-Fixes: e6d8b64b34aa ("net: sctp: fix and consolidate SCTP checksumming code")
-Reported-by: Li Shuang <shuali@redhat.com>
-Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+With the patch, this race can't occur because the FIFO's state is
+tested after we know that OUT naking is already turned on, and OUT
+naking is stopped only when both of the conditions are met.  This
+ensures that all received data is delivered to the gadget driver,
+which can detect a short packet now before new packets are appended
+to the last short packet.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 1 +
- net/bridge/br_netfilter_ipv6.c  | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/usb/gadget/udc/net2280.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 38865deab3ac..0c96773d1829 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -512,6 +512,7 @@ static unsigned int br_nf_pre_routing(void *priv,
- 	nf_bridge->ipv4_daddr = ip_hdr(skb)->daddr;
+diff --git a/drivers/usb/gadget/udc/net2280.c b/drivers/usb/gadget/udc/net2280.c
+index 9cbb061582a7..a071ab0c163b 100644
+--- a/drivers/usb/gadget/udc/net2280.c
++++ b/drivers/usb/gadget/udc/net2280.c
+@@ -870,9 +870,6 @@ static void start_queue(struct net2280_ep *ep, u32 dmactl, u32 td_dma)
+ 	(void) readl(&ep->dev->pci->pcimstctl);
  
- 	skb->protocol = htons(ETH_P_IP);
-+	skb->transport_header = skb->network_header + ip_hdr(skb)->ihl * 4;
+ 	writel(BIT(DMA_START), &dma->dmastat);
+-
+-	if (!ep->is_in)
+-		stop_out_naking(ep);
+ }
  
- 	NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
- 		skb->dev, NULL,
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index a1b57cb07f1e..8c08dd07419f 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -235,6 +235,8 @@ unsigned int br_nf_pre_routing_ipv6(void *priv,
- 	nf_bridge->ipv6_daddr = ipv6_hdr(skb)->daddr;
+ static void start_dma(struct net2280_ep *ep, struct net2280_request *req)
+@@ -911,6 +908,7 @@ static void start_dma(struct net2280_ep *ep, struct net2280_request *req)
+ 			writel(BIT(DMA_START), &dma->dmastat);
+ 			return;
+ 		}
++		stop_out_naking(ep);
+ 	}
  
- 	skb->protocol = htons(ETH_P_IPV6);
-+	skb->transport_header = skb->network_header + sizeof(struct ipv6hdr);
-+
- 	NF_HOOK(NFPROTO_IPV6, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
- 		skb->dev, NULL,
- 		br_nf_pre_routing_finish_ipv6);
+ 	tmp = dmactl_default;
 -- 
 2.19.1
 
