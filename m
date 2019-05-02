@@ -2,80 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10030118E3
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 14:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F03911915
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 14:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726278AbfEBMUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 08:20:43 -0400
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:35008 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726270AbfEBMUm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 08:20:42 -0400
-Received: by mail-wm1-f54.google.com with SMTP id y197so2361944wmd.0
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 05:20:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cy52rSJzzivxljOHLWomcy8yR5XWBsQU5Bbag9d9VkM=;
-        b=XtdE5c3cUWILn5GbMvsPBNkfsF59x9DNpdmw2snYgVYpQowdM2RFAWdWr67l3sZhPb
-         A765ahStkWpQuqb0sbYMWx6HWIrnHZoI7cxRAKwsGSi3iNebWwAninQwcwyaXWf+zc3Z
-         rlW2tsQ2zYXFFG7fRy+RZVhAnlPRbbymjeSjQLFNzRp+XW61mJDL4OjJgfwuZffm7Di+
-         Q4dZU4O3VPNs5peXIEPuv9er0rPh49sbINAXYkU/hKo1OsuLFNu0elPlEhYZ4WwGfXR+
-         7aKGTXvInzn+x8kjnoGgEkrA0y1AmbMloDemM4IEr0deqrlbnFZBdeWyeu/2rcGPmm3N
-         BSnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cy52rSJzzivxljOHLWomcy8yR5XWBsQU5Bbag9d9VkM=;
-        b=K1i5daxvbU31wtX81BTXZfVJSZMzvnrztu1jPsKLCam8DDrd7B+0PUuR6ldKA9UZ21
-         spwZABiqH4pbJFQ1STOz/foTigy81FJtxY9aHLPFhpCpjIcsWt5c8ilLdhUrppt2nCEz
-         bXNKKXFCqgmcCLBDh+yS9o6mYfayCk8KOPM8DfivOApsrgzq72/7bX7xFWZ83ZrGuFhG
-         NGp144V8R8CIXPZXudr1wCs6gfSBAeaE2w4CM+K20gwKwNSvyOQaNVtFr2yr+OjuaGau
-         PJB1CU8MwWx5FkOA0W+PONSQK+hmLI9GeSljdAz4ctjmnN7brjaMVEaSaNzE328xcER1
-         n/Mw==
-X-Gm-Message-State: APjAAAW7jm3QyWQZKosvHLOGeiFfGv3qhETHk+N73WLT2Zu9juZhBzjC
-        cLkD+TG7Pr6DGoYpNFYrloa4EZ4HPgTksQ==
-X-Google-Smtp-Source: APXvYqyqRoVkPbSUZvwEj0IbphJ/WuxrUshi2U2N/IXFF6yM8mbXHDPLujEWVaCxVA/5vLRyfs/Nig==
-X-Received: by 2002:a7b:c5c7:: with SMTP id n7mr2244353wmk.9.1556799640938;
-        Thu, 02 May 2019 05:20:40 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u17sm5747958wmj.1.2019.05.02.05.20.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2019 05:20:40 -0700 (PDT)
-Message-ID: <5ccae098.1c69fb81.c36e5.e219@mx.google.com>
-Date:   Thu, 02 May 2019 05:20:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726462AbfEBMc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 08:32:27 -0400
+Received: from mga14.intel.com ([192.55.52.115]:26643 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726197AbfEBMc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 08:32:27 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 May 2019 05:32:26 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.60,421,1549958400"; 
+   d="scan'208";a="147544813"
+Received: from mylly.fi.intel.com (HELO [10.237.72.57]) ([10.237.72.57])
+  by orsmga003.jf.intel.com with ESMTP; 02 May 2019 05:32:24 -0700
+Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
+ is required
+To:     Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>
+References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
+ <20190430155637.1B45E21743@mail.kernel.org>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Message-ID: <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
+Date:   Thu, 2 May 2019 15:32:24 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.115
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.14.y boot: 55 boots: 0 failed, 55 passed (v4.14.115)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190430155637.1B45E21743@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 55 boots: 0 failed, 55 passed (v4.14.115)
+On 4/30/19 6:56 PM, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
+> 
+> The bot has tested the following trees: v5.0.10, v4.19.37.
+> 
+> v5.0.10: Build OK!
+> v4.19.37: Failed to apply! Possible dependencies:
+>      6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+>      93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
+> 
+> 
+> How should we proceed with this patch?
+> 
+There's also dependency to commit
+b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.115/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.115/
+Without it 93b6604c5a66 doesn't apply.
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.115
-Git Commit: 1c046f37313210e0c41b036fcd14c4bdb1581d47
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 30 unique boards, 15 SoC families, 10 builds out of 201
+Otherwise my patch don't have dependency into these so I can have 
+another version for 4.19 if needed.
 
----
-For more info write to <info@kernelci.org>
+I got impression from the mail thread for 6f108dd70d30 that it could be 
+also stable material but cannot really judge.
+
+Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the fix 
+93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply without 
+them but doesn't depend on them).
+
+-- 
+Jarkko
