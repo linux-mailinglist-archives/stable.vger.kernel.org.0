@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB32811EFC
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DACEE11E17
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbfEBP0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42854 "EHLO mail.kernel.org"
+        id S1727931AbfEBPaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:30:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727694AbfEBP0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:14 -0400
+        id S1728674AbfEBPaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:30:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E39E721670;
-        Thu,  2 May 2019 15:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 818B620675;
+        Thu,  2 May 2019 15:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810773;
-        bh=g7pQ+qV9qjfPJPHbFyDA5wuEwJSJCE5Zp4tcHpf0DN0=;
+        s=default; t=1556811019;
+        bh=KlR5qBkFFwyurYyyRxUc8BxwSlXbeqURBub8Huv9Img=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1EheUvTVtRFft5XTvvk1JIpRTh+9wj7oSRdo+VkM5nB/K60/0rN/9DObMjkzrVb+
-         rO5On9Tk5BMtgSHTOOokERY/lwkzw359/y+MCJmIOg+0o0JFpGnAVk7U6lm6AHdvU+
-         mudnExxABkwgZb5i7Bi2R67fHigs7w0k3bjnmC0s=
+        b=FFGwdqzOcEbvdpqTfFidw5gjz/K3AOu9OeaccoDScbUr78qjTQKnp2K4J6rt1ZmQZ
+         VAQkGlobLDU5nfoGYCa6cwBvFXiBA1c0n/XU8CejAM7tqugxUTGVbsk3/U7jCn97qP
+         3NZJz9FxJb6KpPYDb/10/corKGoy08Kok7HFC76w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien.grall@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Frank Pavlic <f.pavlic@kunbus.de>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Tristram Ha <Tristram.Ha@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 24/72] KVM: arm64: Reset the PMU in preemptible context
+Subject: [PATCH 5.0 044/101] net: ks8851: Delay requesting IRQ until opened
 Date:   Thu,  2 May 2019 17:20:46 +0200
-Message-Id: <20190502143335.312482735@linuxfoundation.org>
+Message-Id: <20190502143342.638875064@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +47,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ebff0b0e3d3c862c16c487959db5e0d879632559 ]
+[ Upstream commit d268f31552794abf5b6aa5af31021643411f25f5 ]
 
-We've become very cautious to now always reset the vcpu when nothing
-is loaded on the physical CPU. To do so, we now disable preemption
-and do a kvm_arch_vcpu_put() to make sure we have all the state
-in memory (and that it won't be loaded behind out back).
+The ks8851 driver currently requests the IRQ before registering the
+net_device.  Because the net_device name is used as IRQ name and is
+still "eth%d" when the IRQ is requested, it's impossibe to tell IRQs
+apart if multiple ks8851 chips are present.  Most other drivers delay
+requesting the IRQ until the net_device is opened.  Do the same.
 
-This now causes issues with resetting the PMU, which calls into perf.
-Perf itself uses mutexes, which clashes with the lack of preemption.
-It is worth realizing that the PMU is fully emulated, and that
-no PMU state is ever loaded on the physical CPU. This means we can
-perfectly reset the PMU outside of the non-preemptible section.
+The driver doesn't enable interrupts on the chip before opening the
+net_device and disables them when closing it, so there doesn't seem to
+be a need to request the IRQ already on probe.
 
-Fixes: e761a927bc9a ("KVM: arm/arm64: Reset the VCPU without preemption and vcpu state loaded")
-Reported-by: Julien Grall <julien.grall@arm.com>
-Tested-by: Julien Grall <julien.grall@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: Frank Pavlic <f.pavlic@kunbus.de>
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Tristram Ha <Tristram.Ha@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/arm64/kvm/reset.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/micrel/ks8851.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
-index 18b9a522a2b3..0688816f19e2 100644
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -117,6 +117,9 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 	int ret = -EINVAL;
- 	bool loaded;
- 
-+	/* Reset PMU outside of the non-preemptible section */
-+	kvm_pmu_vcpu_reset(vcpu);
+diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
+index 1633fa5c709c..c9faec4c5b25 100644
+--- a/drivers/net/ethernet/micrel/ks8851.c
++++ b/drivers/net/ethernet/micrel/ks8851.c
+@@ -785,6 +785,15 @@ static void ks8851_tx_work(struct work_struct *work)
+ static int ks8851_net_open(struct net_device *dev)
+ {
+ 	struct ks8851_net *ks = netdev_priv(dev);
++	int ret;
 +
- 	preempt_disable();
- 	loaded = (vcpu->cpu != -1);
- 	if (loaded)
-@@ -164,9 +167,6 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 		vcpu->arch.reset_state.reset = false;
++	ret = request_threaded_irq(dev->irq, NULL, ks8851_irq,
++				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++				   dev->name, ks);
++	if (ret < 0) {
++		netdev_err(dev, "failed to get irq\n");
++		return ret;
++	}
+ 
+ 	/* lock the card, even if we may not actually be doing anything
+ 	 * else at the moment */
+@@ -899,6 +908,8 @@ static int ks8851_net_stop(struct net_device *dev)
+ 		dev_kfree_skb(txb);
  	}
  
--	/* Reset PMU */
--	kvm_pmu_vcpu_reset(vcpu);
++	free_irq(dev->irq, ks);
++
+ 	return 0;
+ }
+ 
+@@ -1529,14 +1540,6 @@ static int ks8851_probe(struct spi_device *spi)
+ 	ks8851_read_selftest(ks);
+ 	ks8851_init_mac(ks);
+ 
+-	ret = request_threaded_irq(spi->irq, NULL, ks8851_irq,
+-				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-				   ndev->name, ks);
+-	if (ret < 0) {
+-		dev_err(&spi->dev, "failed to get irq\n");
+-		goto err_irq;
+-	}
 -
- 	/* Default workaround setup is enabled (if supported) */
- 	if (kvm_arm_have_ssbd() == KVM_SSBD_KERNEL)
- 		vcpu->arch.workaround_flags |= VCPU_WORKAROUND_2_FLAG;
+ 	ret = register_netdev(ndev);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "failed to register network device\n");
+@@ -1549,11 +1552,7 @@ static int ks8851_probe(struct spi_device *spi)
+ 
+ 	return 0;
+ 
+-
+ err_netdev:
+-	free_irq(ndev->irq, ks);
+-
+-err_irq:
+ err_id:
+ 	if (gpio_is_valid(gpio))
+ 		gpio_set_value(gpio, 0);
+@@ -1574,7 +1573,6 @@ static int ks8851_remove(struct spi_device *spi)
+ 		dev_info(&spi->dev, "remove\n");
+ 
+ 	unregister_netdev(priv->netdev);
+-	free_irq(spi->irq, priv);
+ 	if (gpio_is_valid(priv->gpio))
+ 		gpio_set_value(priv->gpio, 0);
+ 	regulator_disable(priv->vdd_reg);
 -- 
 2.19.1
 
