@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 252C011F5B
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360CE11F5D
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727140AbfEBPXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39528 "EHLO mail.kernel.org"
+        id S1726519AbfEBPX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727133AbfEBPXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:48 -0400
+        id S1726521AbfEBPXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:23:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 755FA20B7C;
-        Thu,  2 May 2019 15:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D15BA20675;
+        Thu,  2 May 2019 15:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810627;
-        bh=XIszzMle7hH7QFFSNuriAhew6Fm075CM15HW1boiOTs=;
+        s=default; t=1556810633;
+        bh=WXyegsyKEmqZpDPXlLMlEes5aVGl9UTln7Gj+Pu2KWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIahi+cOajvqvJcfMXa0cW0odYEuTDpI/n1INpGyA9ozA61CsxfaBLCEkXqBQBaTh
-         CZznZCGdULifrfMG4auj7ninUTT89nHH+59bzNEe2n7e5FE4dBfTu/wO4H45SCZnx4
-         GsAAjgCzRiY+QpzueZP7EakmItLNvHx5Pi2qnqu4=
+        b=ieXa+GfPkcu/UHwyPDlIV+V/W5SN8/2oFVgyDEIcALBQLlVspAbh1QphC+afoqmtt
+         TXhqk42zMKrLMv6+t6OnfSIcKcygptEarOaVCmMJMjbWbHiq3Cr9+svBaFCqChTMBF
+         DZ6yRPb9mJubATTyiOu4CiDGFA2imnP8SPpgCNg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Stefan Christ <s.christ@phytec.de>,
+        Christian Hemp <c.hemp@phytec.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 19/49] usb: gadget: net2272: Fix net2272_dequeue()
-Date:   Thu,  2 May 2019 17:20:56 +0200
-Message-Id: <20190502143326.478456131@linuxfoundation.org>
+Subject: [PATCH 4.14 20/49] ARM: dts: pfla02: increase phy reset duration
+Date:   Thu,  2 May 2019 17:20:57 +0200
+Message-Id: <20190502143326.527704630@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
 References: <20190502143323.397051088@linuxfoundation.org>
@@ -45,39 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 091dacc3cc10979ab0422f0a9f7fcc27eee97e69 ]
+[ Upstream commit 032f85c9360fb1a08385c584c2c4ed114b33c260 ]
 
-Restore the status of ep->stopped in function net2272_dequeue().
+Increase the reset duration to ensure correct phy functionality. The
+reset duration is taken from barebox commit 52fdd510de ("ARM: dts:
+pfla02: use long enough reset for ethernet phy"):
 
-When the given request is not found in the endpoint queue
-the function returns -EINVAL without restoring the state of
-ep->stopped. Thus the endpoint keeps blocked and does not transfer
-any data anymore.
+  Use a longer reset time for ethernet phy Micrel KSZ9031RNX. Otherwise a
+  small percentage of modules have 'transmission timeouts' errors like
 
-This fix is only compile-tested, since we do not have a
-corresponding hardware. An analogous fix was tested in the sibling
-driver. See "usb: gadget: net2280: Fix net2280_dequeue()"
+  barebox@Phytec phyFLEX-i.MX6 Quad Carrier-Board:/ ifup eth0
+  warning: No MAC address set. Using random address 7e:94:4d:02:f8:f3
+  eth0: 1000Mbps full duplex link detected
+  eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc: Stefan Christ <s.christ@phytec.de>
+Cc: Christian Hemp <c.hemp@phytec.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 3180f956668e ("ARM: dts: Phytec imx6q pfla02 and pbab01 support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/net2272.c | 1 +
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/udc/net2272.c b/drivers/usb/gadget/udc/net2272.c
-index e0759a826b60..7fb31a3b53e6 100644
---- a/drivers/usb/gadget/udc/net2272.c
-+++ b/drivers/usb/gadget/udc/net2272.c
-@@ -958,6 +958,7 @@ net2272_dequeue(struct usb_ep *_ep, struct usb_request *_req)
- 			break;
- 	}
- 	if (&req->req != _req) {
-+		ep->stopped = stopped;
- 		spin_unlock_irqrestore(&ep->dev->lock, flags);
- 		return -EINVAL;
- 	}
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index d81b0078a100..25b0704c6054 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -89,6 +89,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	phy-reset-duration = <10>; /* in msecs */
+ 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+ 	phy-supply = <&vdd_eth_io_reg>;
+ 	status = "disabled";
 -- 
 2.19.1
 
