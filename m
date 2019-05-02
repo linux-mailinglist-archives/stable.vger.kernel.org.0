@@ -2,127 +2,242 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB32122FF
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 22:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BDC12321
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 22:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbfEBUJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 16:09:09 -0400
-Received: from mail-pg1-f202.google.com ([209.85.215.202]:36050 "EHLO
-        mail-pg1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725962AbfEBUJJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 16:09:09 -0400
-Received: by mail-pg1-f202.google.com with SMTP id l13so1808408pgp.3
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 13:09:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=ybRTyJtBXApIl4yXjoSrJV3yhQpiIq0fhWYqnNEgzIQ=;
-        b=tQPSQA19CW9fimawq50GdgkxoHSAU1X8/5KprS0qxaalkY+Oqt4IiwaSj476gWvnzH
-         CdzSr0rzQmjIJoxtVNzO+KyiDpBk6y16H1KfV0UAIxj3y3F1fYoBbYiqFAm7yDgoNMxe
-         ME59YcdyH8pGSL7Avbi9BR+67ZDfauQ4srgClkTh9/Y5JUb8rYEu/r8twcI8HKck24D7
-         kMgqgxBWM8juVKTdcnC4aGYsXJQ/2U6orFXV+WY8wXX3xq58CCAubuuy0X2gWFf6ZNQj
-         KENL34+LaJQnBHMs+FUDFkaOn3fy5+nUSDlXdBlaPER2tnQGYFHyfhmR0xYmDmgWURUH
-         okHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=ybRTyJtBXApIl4yXjoSrJV3yhQpiIq0fhWYqnNEgzIQ=;
-        b=ctcx7s9BcdOM8A4HXq1vt2hyIPnjvBBgoUOgHD7MDI8O834iZf5p9Z18ODSFzrX/WR
-         Fs3bkwvNg+Hn4EjQBwXSQ+VFI7OGoFTtXXim3+pwNYJ8R7O00XEPWd1dTOmzO/jJ3X8L
-         WSD2H1sKqiCVgcQ4F92tJby8D5tf7ssaL3aqhEBzHeLqzZhDromEqbVAkJNxeIwkJprK
-         Z4xvZgWk27nZh/4+AlF/f+wN9JOt24yQ+otmEoXuXbtvKfynLauxCQbK9HYh429PnbQZ
-         dfeTSQWp9lbGABioigUVK0P5WBQKKK3LZYKOghpVz/9/LGkL4ipTrOaWKGNk2KM5nRuz
-         P9sg==
-X-Gm-Message-State: APjAAAUXh7P7SxiZh7kL5ZJHYHvr1UlWrfi8zrwIUJOegN+E93jcR/vp
-        8a09xgvYXJR1ZNCu9VfYVM94sFFrcCwdxrBbsicDEK2YUDu4l1ldROiaTqpcR/nNdlQgs3STfGI
-        Av4aN+dksY/6prNfULl/OLDHZ2qxK89dxba/jhnUHHu2YNASjBdjbV1tM+wOO+v/CuR83E4EhXQ
-        ==
-X-Google-Smtp-Source: APXvYqzy98BDo1ZjElAaJ7XsMXlxmeun8/ZLIFvSs9QWn92BJ/S4D4Nu+M2yCAtukoQsZunQjUKT0XW+BCHmhsZSrg==
-X-Received: by 2002:a65:5c82:: with SMTP id a2mr5996693pgt.378.1556827748039;
- Thu, 02 May 2019 13:09:08 -0700 (PDT)
-Date:   Thu,  2 May 2019 13:09:05 -0700
-Message-Id: <20190502200905.147551-1-rkolchmeyer@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.21.0.593.g511ec345e18-goog
-Subject: [PATCH] mm: do not stall register_shrinker()
-From:   Robert Kolchmeyer <rkolchmeyer@google.com>
-To:     stable@vger.kernel.org
-Cc:     Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Robert Kolchmeyer <rkolchmeyer@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726128AbfEBUXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 16:23:03 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:58852 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725962AbfEBUXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 16:23:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=DeS5fpBInvb+CBBZI1b/8r9ktgsMiE0FAYJoIYERPB0=; b=fxBWhgwXPeZIWTwyHwOosGbzg
+        6sWeCg9lKr8xMF03VNqcVIXVd1yW5qVrvms00SSarfVssNGxu/vEHYd3KE41CmuZGyl6p97+l9s7U
+        WJQg34/N1KUVwphd3stwWuI+nghXaez8ghWtJ8Kq3gBjO76NRR1Bjod0nfxXKrXLHdFduLIkUBBce
+        SZpfCBnK0JXAwYrORy69u5J/k9Yi+6GmcMYa34lO+qE3hPh5pBI1Wd4bedoNu0Ugc1lDWF7kIWm8R
+        IL2kdMWpejqJJhLqAcokSCeZ6JaMt6sDE4ighHehMxqQTzmi2NkGfT9W/7fOD0xzB4006BwdNb3pH
+        uudV0BFlA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hMIDF-0003Ox-1B; Thu, 02 May 2019 20:21:49 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 869DA209A1C85; Thu,  2 May 2019 22:21:46 +0200 (CEST)
+Date:   Thu, 2 May 2019 22:21:46 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+Message-ID: <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
+References: <20190501202830.347656894@goodmis.org>
+ <20190501203152.397154664@goodmis.org>
+ <20190501232412.1196ef18@oasis.local.home>
+ <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+ <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+On Thu, May 02, 2019 at 11:43:37AM -0700, Linus Torvalds wrote:
+> What would it look like with the "int3-from-kernel is special" modification?
 
-commit e496612c5130567fc9d5f1969ca4b86665aa3cbb upstream.
+Something like so; it boots; but I could've made some horrible mistake
+(again).
 
-Shakeel Butt reported he has observed in production systems that the job
-loader gets stuck for 10s of seconds while doing a mount operation.  It
-turns out that it was stuck in register_shrinker() because some
-unrelated job was under memory pressure and was spending time in
-shrink_slab().  Machines have a lot of shrinkers registered and jobs
-under memory pressure have to traverse all of those memcg-aware
-shrinkers and affect unrelated jobs which want to register their own
-shrinkers.
-
-To solve the issue, this patch simply bails out slab shrinking if it is
-found that someone wants to register a shrinker in parallel.  A downside
-is it could cause unfair shrinking between shrinkers.  However, it
-should be rare and we can add compilcated logic if we find it's not
-enough.
-
-[akpm@linux-foundation.org: tweak code comment]
-Link: http://lkml.kernel.org/r/20171115005602.GB23810@bbox
-Link: http://lkml.kernel.org/r/1511481899-20335-1-git-send-email-minchan@kernel.org
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: Shakeel Butt <shakeelb@google.com>
-Tested-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[rkolchmeyer: Backported to 4.14: adjusted context]
-Signed-off-by: Robert Kolchmeyer <rkolchmeyer@google.com>
 ---
-Backport of commit e496612c5130567fc9d5f1969ca4b86665aa3cbb upstream.
-We would like to apply this to linux-4.14.y.
-I needed to change the patch context for the patch to apply to linux-4.14.y.
-The actual fix remains unchanged.
-
- mm/vmscan.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 9734e62654fa..99837e931f53 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -502,6 +502,15 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
- 			sc.nid = 0;
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 7b23431be5cb..4de51cff5b8a 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -67,9 +67,20 @@
+ # define preempt_stop(clobbers)	DISABLE_INTERRUPTS(clobbers); TRACE_IRQS_OFF
+ #else
+ # define preempt_stop(clobbers)
+-# define resume_kernel		restore_all_kernel
+ #endif
  
- 		freed += do_shrink_slab(&sc, shrinker, nr_scanned, nr_eligible);
-+		/*
-+		 * Bail out if someone want to register a new shrinker to
-+		 * prevent the regsitration from being stalled for long periods
-+		 * by parallel ongoing shrinking.
-+		 */
-+		if (rwsem_is_contended(&shrinker_rwsem)) {
-+			freed = freed ? : 1;
-+			break;
-+		}
- 	}
++.macro RETINT_PREEMPT
++#ifdef CONFIG_PREEMPT
++	DISABLE_INTERRUPTS(CLBR_ANY)
++	cmpl	$0, PER_CPU_VAR(__preempt_count)
++	jnz	.Lend_\@
++	testl	$X86_EFLAGS_IF, PT_EFLAGS(%esp)	# interrupts off (exception path) ?
++	jz	.Lend_\@
++	call	preempt_schedule_irq
++.Lend_\@:
++#endif
++.endm
++
+ .macro TRACE_IRQS_IRET
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ 	testl	$X86_EFLAGS_IF, PT_EFLAGS(%esp)     # interrupts off?
+@@ -755,7 +766,7 @@ END(ret_from_fork)
+ 	andl	$SEGMENT_RPL_MASK, %eax
+ #endif
+ 	cmpl	$USER_RPL, %eax
+-	jb	resume_kernel			# not returning to v8086 or userspace
++	jb	restore_all_kernel		# not returning to v8086 or userspace
  
- 	up_read(&shrinker_rwsem);
--- 
-2.21.0.593.g511ec345e18-goog
-
+ ENTRY(resume_userspace)
+ 	DISABLE_INTERRUPTS(CLBR_ANY)
+@@ -765,18 +776,6 @@ ENTRY(resume_userspace)
+ 	jmp	restore_all
+ END(ret_from_exception)
+ 
+-#ifdef CONFIG_PREEMPT
+-ENTRY(resume_kernel)
+-	DISABLE_INTERRUPTS(CLBR_ANY)
+-	cmpl	$0, PER_CPU_VAR(__preempt_count)
+-	jnz	restore_all_kernel
+-	testl	$X86_EFLAGS_IF, PT_EFLAGS(%esp)	# interrupts off (exception path) ?
+-	jz	restore_all_kernel
+-	call	preempt_schedule_irq
+-	jmp	restore_all_kernel
+-END(resume_kernel)
+-#endif
+-
+ GLOBAL(__begin_SYSENTER_singlestep_region)
+ /*
+  * All code from here through __end_SYSENTER_singlestep_region is subject
+@@ -1027,6 +1026,7 @@ ENTRY(entry_INT80_32)
+ 	INTERRUPT_RETURN
+ 
+ restore_all_kernel:
++	RETINT_PREEMPT
+ 	TRACE_IRQS_IRET
+ 	PARANOID_EXIT_TO_KERNEL_MODE
+ 	BUG_IF_WRONG_CR3
+@@ -1477,6 +1477,94 @@ END(nmi)
+ 
+ ENTRY(int3)
+ 	ASM_CLAC
++
++#ifdef CONFIG_VM86
++	testl	$X86_EFLAGS_VM, 8(%esp)
++	jnz	.Lfrom_usermode_no_gap
++#endif
++	testl	$SEGMENT_RPL_MASK, 4(%esp)
++	jnz	.Lfrom_usermode_no_gap
++
++	/*
++	 * Here from kernel mode; so the (exception) stack looks like:
++	 *
++	 * 12(esp) - <previous context>
++	 *  8(esp) - flags
++	 *  4(esp) - cs
++	 *  0(esp) - ip
++	 *
++	 * Lets build a 5 entry IRET frame after that, such that struct pt_regs
++	 * is complete and in particular regs->sp is correct. This gives us
++	 * the original 3 enties as gap:
++	 *
++	 * 32(esp) - <previous context>
++	 * 28(esp) - orig_flags / gap
++	 * 24(esp) - orig_cs	/ gap
++	 * 20(esp) - orig_ip	/ gap
++	 * 16(esp) - ss
++	 * 12(esp) - sp
++	 *  8(esp) - flags
++	 *  4(esp) - cs
++	 *  0(esp) - ip
++	 */
++	pushl	%ss	  # ss
++	pushl	%esp      # sp (points at ss)
++	pushl	4*4(%esp) # flags
++	pushl	4*4(%esp) # cs
++	pushl	4*4(%esp) # ip
++
++	add	$16, 12(%esp) # point sp back at the previous context
++
++	pushl	$-1				# orig_eax; mark as interrupt
++
++	SAVE_ALL
++	ENCODE_FRAME_POINTER
++	TRACE_IRQS_OFF
++	xorl	%edx, %edx			# zero error code
++	movl	%esp, %eax			# pt_regs pointer
++	call	do_int3
++
++	RETINT_PREEMPT
++	TRACE_IRQS_IRET
++	/*
++	 * If we really never INT3 from entry code, it looks like
++	 * we can skip this one.
++	PARANOID_EXIT_TO_KERNEL_MODE
++	 */
++	BUG_IF_WRONG_CR3
++	RESTORE_REGS 4				# consume orig_eax
++
++	/*
++	 * Reconstruct the 3 entry IRET frame right after the (modified)
++	 * regs->sp without lowering %esp in between, such that an NMI in the
++	 * middle doesn't scribble our stack.
++	 */
++
++	pushl	%eax
++	pushl	%ecx
++	movl	5*4(%esp), %eax		# (modified) regs->sp
++
++	movl	4*4(%esp), %ecx		# flags
++	movl	%ecx, -4(%eax)
++
++	movl	3*4(%esp), %ecx		# cs
++	andl	$0x0000ffff, %ecx
++	movl	%ecx, -8(%eax)
++
++	movl	2*4(%esp), %ecx		# ip
++	movl	%ecx, -12(%eax)
++
++	movl	1*4(%esp), %ecx		# eax
++	movl	%ecx, -16(%eax)
++
++	popl	%ecx
++	lea	-16(%eax), %esp
++	popl	%eax
++
++	jmp	.Lirq_return
++
++.Lfrom_usermode_no_gap:
++
+ 	pushl	$-1				# mark this as an int
+ 
+ 	SAVE_ALL switch_stacks=1
