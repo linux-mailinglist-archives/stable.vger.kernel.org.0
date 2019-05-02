@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EEE611E45
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5489F11E91
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726852AbfEBP1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44470 "EHLO mail.kernel.org"
+        id S1728124AbfEBPiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727996AbfEBP1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:27:35 -0400
+        id S1728626AbfEBPaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:30:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA892081C;
-        Thu,  2 May 2019 15:27:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52F9420C01;
+        Thu,  2 May 2019 15:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810854;
-        bh=djyInSHTCQqaF8tjMhJZ3EopzTq1PtfC9tQnVRxQMkY=;
+        s=default; t=1556811004;
+        bh=eN6soJ3TpOF/EPFMS28aOsh3zauJV4nUZIBAaAxAP9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+L6yvZ1OPQOnANjrhg4BS3EqpXEuzudeQdu4SeP3mqHWztBqE5vw84FItDXftACk
-         eJtpvkv2B3rxGDHwZAdtj3tkFvg8SBatTg5kvEq44JSZbTPBCHHzRpXBPQiGSwEPmD
-         KH4VBZBgu4iLzgT4PC3aqSqhjgeYPBUwAC96mMLc=
+        b=LDSHABrGCUP9h/JwsmV7ukQN+JaA9U3TkyQb5AVl1UB8Y++3kUhIjI3uXnS37O/PE
+         UMNRJCs9n2XWtTX7kPFAKFKrg415YI+9Dliz3tHCTGDgnz4zKcH4PTNHfk79r+U3+2
+         pAwD4W6pMkN7kctoWA9EO3zGcQ/8F52/kQx8AHgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?M=C3=A1t=C3=A9=20Eckl?= <ecklm94@gmail.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Stefan Christ <s.christ@phytec.de>,
+        Christian Hemp <c.hemp@phytec.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 18/72] netfilter: fix NETFILTER_XT_TARGET_TEE dependencies
-Date:   Thu,  2 May 2019 17:20:40 +0200
-Message-Id: <20190502143334.764997451@linuxfoundation.org>
+Subject: [PATCH 5.0 039/101] ARM: dts: pfla02: increase phy reset duration
+Date:   Thu,  2 May 2019 17:20:41 +0200
+Message-Id: <20190502143342.307911368@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,45 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d1fa381033eb718df5c602f64b6e88676138dfc6 ]
+[ Upstream commit 032f85c9360fb1a08385c584c2c4ed114b33c260 ]
 
-With NETFILTER_XT_TARGET_TEE=y and IP6_NF_IPTABLES=m, we get a link
-error when referencing the NF_DUP_IPV6 module:
+Increase the reset duration to ensure correct phy functionality. The
+reset duration is taken from barebox commit 52fdd510de ("ARM: dts:
+pfla02: use long enough reset for ethernet phy"):
 
-net/netfilter/xt_TEE.o: In function `tee_tg6':
-xt_TEE.c:(.text+0x14): undefined reference to `nf_dup_ipv6'
+  Use a longer reset time for ethernet phy Micrel KSZ9031RNX. Otherwise a
+  small percentage of modules have 'transmission timeouts' errors like
 
-The problem here is the 'select NF_DUP_IPV6 if IP6_NF_IPTABLES'
-that forces NF_DUP_IPV6 to be =m as well rather than setting it
-to =y as was intended here. Adding a soft dependency on
-IP6_NF_IPTABLES avoids that broken configuration.
+  barebox@Phytec phyFLEX-i.MX6 Quad Carrier-Board:/ ifup eth0
+  warning: No MAC address set. Using random address 7e:94:4d:02:f8:f3
+  eth0: 1000Mbps full duplex link detected
+  eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
 
-Fixes: 5d400a4933e8 ("netfilter: Kconfig: Change select IPv6 dependencies")
-Cc: Máté Eckl <ecklm94@gmail.com>
-Cc: Taehee Yoo <ap420073@gmail.com>
-Link: https://patchwork.ozlabs.org/patch/999498/
-Link: https://lore.kernel.org/patchwork/patch/960062/
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Stefan Christ <s.christ@phytec.de>
+Cc: Christian Hemp <c.hemp@phytec.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 3180f956668e ("ARM: dts: Phytec imx6q pfla02 and pbab01 support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- net/netfilter/Kconfig | 1 +
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
-index f61c306de1d0..e0fb56d67d42 100644
---- a/net/netfilter/Kconfig
-+++ b/net/netfilter/Kconfig
-@@ -1003,6 +1003,7 @@ config NETFILTER_XT_TARGET_TEE
- 	depends on NETFILTER_ADVANCED
- 	depends on IPV6 || IPV6=n
- 	depends on !NF_CONNTRACK || NF_CONNTRACK
-+	depends on IP6_NF_IPTABLES || !IP6_NF_IPTABLES
- 	select NF_DUP_IPV4
- 	select NF_DUP_IPV6 if IP6_NF_IPTABLES
- 	---help---
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 1b50b01e9bac..65d03c5d409b 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -90,6 +90,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	phy-reset-duration = <10>; /* in msecs */
+ 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+ 	phy-supply = <&vdd_eth_io_reg>;
+ 	status = "disabled";
 -- 
 2.19.1
 
