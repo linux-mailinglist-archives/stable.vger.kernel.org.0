@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2070A11E69
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C75111EAA
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbfEBP3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
+        id S1728647AbfEBPjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728489AbfEBP3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:29:37 -0400
+        id S1728504AbfEBP3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:29:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5764020675;
-        Thu,  2 May 2019 15:29:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7B7221743;
+        Thu,  2 May 2019 15:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810976;
-        bh=4ccVWNT2Tr70kaPTsw1BldkHwE63xEjvmTgBVq7Pshs=;
+        s=default; t=1556810979;
+        bh=dlIPRiQwHmgV41SHZ+rhrz0xbtgOVkapfmBtKyxx64c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VetEtNO6Xay7vihiswbvicnkAOtXkRECBF9pfV3roqYFmafJ8UDKtp55LYrY02mB6
-         FD0NBcYtunO+uJxAksT0wnfWktuU6K8hrzvNGk2NrEqnaVvavCvnF4nrCwvC6Nn45k
-         BnxigToy0oMv+J31iPoF9Xz+hFi2VCzUXEgP1V+Q=
+        b=U7L5vy7o2Jrn3UZd5uVyhnnZA38hNVfZ2RmUpF4v3twEQj82VWzVMqe/FQ/wCHNOU
+         LO6juXd+mxMl6twfr1eRWuOILzo/WQ4e756OWzzmHGI2bwrcxzwh7t7ooRMGByaelC
+         BbGTI6I2SRDi3sjbD3Hinr5glZB2Q41e0imQNdNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anusha Srivatsa <anusha.srivatsa@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.0 003/101] drm/i915: Do not enable FEC without DSC
-Date:   Thu,  2 May 2019 17:20:05 +0200
-Message-Id: <20190502143339.703409532@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Jann Horn <jannh@google.com>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.0 004/101] mm: make page ref count overflow check tighter and more explicit
+Date:   Thu,  2 May 2019 17:20:06 +0200
+Message-Id: <20190502143339.771236765@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
 References: <20190502143339.434882399@linuxfoundation.org>
@@ -47,53 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 5aae7832d1b4ec614996ea0f4fafc4d9855ec0b0 upstream.
+commit f958d7b528b1b40c44cfda5eabe2d82760d868c3 upstream.
 
-Currently we enable FEC even when DSC is no used. While that is
-theoretically valid supposedly there isn't much of a benefit from
-this. But more importantly we do not account for the FEC link
-bandwidth overhead (2.4%) in the non-DSC link bandwidth computations.
-So the code may think we have enough bandwidth when we in fact
-do not.
+We have a VM_BUG_ON() to check that the page reference count doesn't
+underflow (or get close to overflow) by checking the sign of the count.
 
-Cc: stable@vger.kernel.org
-Cc: Anusha Srivatsa <anusha.srivatsa@intel.com>
-Cc: Manasi Navare <manasi.d.navare@intel.com>
-Fixes: 240999cf339f ("i915/dp/fec: Add fec_enable to the crtc state.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190326144903.6617-1-ville.syrjala@linux.intel.com
-Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
-(cherry picked from commit 6fd3134ae3551d4802a04669c0f39f2f5c56f77d)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+That's all fine, but we actually want to allow people to use a "get page
+ref unless it's already very high" helper function, and we want that one
+to use the sign of the page ref (without triggering this VM_BUG_ON).
+
+Change the VM_BUG_ON to only check for small underflows (or _very_ close
+to overflowing), and ignore overflows which have strayed into negative
+territory.
+
+Acked-by: Matthew Wilcox <willy@infradead.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_dp.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/mm.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_dp.c
-+++ b/drivers/gpu/drm/i915/intel_dp.c
-@@ -1871,6 +1871,9 @@ static bool intel_dp_dsc_compute_config(
- 	u8 dsc_max_bpc;
- 	int pipe_bpp;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -965,6 +965,10 @@ static inline bool is_pci_p2pdma_page(co
+ }
+ #endif /* CONFIG_DEV_PAGEMAP_OPS */
  
-+	pipe_config->fec_enable = !intel_dp_is_edp(intel_dp) &&
-+		intel_dp_supports_fec(intel_dp, pipe_config);
++/* 127: arbitrary random number, small enough to assemble well */
++#define page_ref_zero_or_close_to_overflow(page) \
++	((unsigned int) page_ref_count(page) + 127u <= 127u)
 +
- 	if (!intel_dp_supports_dsc(intel_dp, pipe_config))
- 		return false;
- 
-@@ -2097,9 +2100,6 @@ intel_dp_compute_config(struct intel_enc
- 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLCLK)
- 		return false;
- 
--	pipe_config->fec_enable = !intel_dp_is_edp(intel_dp) &&
--				  intel_dp_supports_fec(intel_dp, pipe_config);
--
- 	if (!intel_dp_compute_link_config(encoder, pipe_config, conn_state))
- 		return false;
+ static inline void get_page(struct page *page)
+ {
+ 	page = compound_head(page);
+@@ -972,7 +976,7 @@ static inline void get_page(struct page
+ 	 * Getting a normal page or the head of a compound page
+ 	 * requires to already have an elevated page->_refcount.
+ 	 */
+-	VM_BUG_ON_PAGE(page_ref_count(page) <= 0, page);
++	VM_BUG_ON_PAGE(page_ref_zero_or_close_to_overflow(page), page);
+ 	page_ref_inc(page);
+ }
  
 
 
