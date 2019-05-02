@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8313411E08
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632F411F55
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728760AbfEBPae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49128 "EHLO mail.kernel.org"
+        id S1726434AbfEBPXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:23:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728758AbfEBPad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:30:33 -0400
+        id S1726424AbfEBPXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:23:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 780C02081C;
-        Thu,  2 May 2019 15:30:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D91A921743;
+        Thu,  2 May 2019 15:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811033;
-        bh=e3eVxnadCoGxRSoPfyWsk0nMuC6MS0NgJ5rOnYWkLRI=;
+        s=default; t=1556810612;
+        bh=6bC4sujzDPneC8WgMYJgejpI4ScXjciKFuUAV5WoXwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1sSlLiFz35kYcZyymwAEe275DD5H63bKUD3utGAdrYj7ST7AW4+0i1DP2wkYnNPk
-         ZyNSkJ+tTqS0SzVYTtNCKFg+O49agFw+3RVSnzjI2bnUgdwmfHiaq9G7zg3ZZYbh7F
-         UD76WSJJw6jo764ygNeufvaBc3IdkWWa28lFDMYo=
+        b=P5WVi1zlsBbneDUI6+FF7PGBlfN4c40i+iv3i/H5enNwmWGVbY6Rx8N7yWP8+YWS8
+         a08VKZIqIURnDiIe6ICeMAFO4HpLWGktH2Qf7Wt5NEzFzUf8t8dI4eHaTESSV0KaqH
+         scY5AyFci5hDpeIqdznXGivmiKyNbkQVc+d+IBxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 048/101] staging: rtl8712: uninitialized memory in read_bbreg_hdl()
+Subject: [PATCH 4.14 13/49] s390/qeth: fix race when initializing the IP address table
 Date:   Thu,  2 May 2019 17:20:50 +0200
-Message-Id: <20190502143342.907776006@linuxfoundation.org>
+Message-Id: <20190502143325.771108416@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 22c971db7dd4b0ad8dd88e99c407f7a1f4231a2e ]
+[ Upstream commit 7221b727f0079a32aca91f657141e1de564d4b97 ]
 
-Colin King reported a bug in read_bbreg_hdl():
+The ucast IP table is utilized by some of the L3-specific sysfs attributes
+that qeth_l3_create_device_attributes() provides. So initialize the table
+_before_ registering the attributes.
 
-	memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
-
-The problem is that "val" is uninitialized.
-
-This code is obviously not useful, but so far as I can tell
-"pcmd->cmdcode" is never GEN_CMD_CODE(_Read_BBREG) so it's not harmful
-either.  For now the easiest fix is to just call r8712_free_cmd_obj()
-and return.
-
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ebccc7397e4a ("s390/qeth: add missing hash table initializations")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c | 10 +---------
- drivers/staging/rtl8712/rtl8712_cmd.h |  2 +-
- 2 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8712/rtl8712_cmd.c b/drivers/staging/rtl8712/rtl8712_cmd.c
-index 1920d02f7c9f..8c36acedf507 100644
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -147,17 +147,9 @@ static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index a19f2dc69e8a..d9830c86d0c1 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3022,12 +3022,14 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
+ 	int rc;
  
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
--	u32 val;
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
- 
--	if (pcmd->rsp && pcmd->rspsz > 0)
--		memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
-+	r8712_free_cmd_obj(pcmd);
- 	return H2C_SUCCESS;
- }
- 
-diff --git a/drivers/staging/rtl8712/rtl8712_cmd.h b/drivers/staging/rtl8712/rtl8712_cmd.h
-index 92fb77666d44..1ef86b8c592f 100644
---- a/drivers/staging/rtl8712/rtl8712_cmd.h
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.h
-@@ -140,7 +140,7 @@ enum rtl8712_h2c_cmd {
- static struct _cmd_callback	cmd_callback[] = {
- 	{GEN_CMD_CODE(_Read_MACREG), NULL}, /*0*/
- 	{GEN_CMD_CODE(_Write_MACREG), NULL},
--	{GEN_CMD_CODE(_Read_BBREG), &r8712_getbbrfreg_cmdrsp_callback},
-+	{GEN_CMD_CODE(_Read_BBREG), NULL},
- 	{GEN_CMD_CODE(_Write_BBREG), NULL},
- 	{GEN_CMD_CODE(_Read_RFREG), &r8712_getbbrfreg_cmdrsp_callback},
- 	{GEN_CMD_CODE(_Write_RFREG), NULL}, /*5*/
++	hash_init(card->ip_htable);
++
+ 	if (gdev->dev.type == &qeth_generic_devtype) {
+ 		rc = qeth_l3_create_device_attributes(&gdev->dev);
+ 		if (rc)
+ 			return rc;
+ 	}
+-	hash_init(card->ip_htable);
++
+ 	hash_init(card->ip_mc_htable);
+ 	card->options.layer2 = 0;
+ 	card->info.hwtrap = 0;
 -- 
 2.19.1
 
