@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB7811DAF
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E1D11E4F
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727933AbfEBPc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52082 "EHLO mail.kernel.org"
+        id S1727775AbfEBP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbfEBPc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:28 -0400
+        id S1727070AbfEBP2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D90CC204FD;
-        Thu,  2 May 2019 15:32:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C4CA2085A;
+        Thu,  2 May 2019 15:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811147;
-        bh=nhABnP/eZJca2ySwVW8EZE45ezHpT5DkPiUpZAu3HQk=;
+        s=default; t=1556810901;
+        bh=TDcYA3yCdFSvEvqNP5VLT/qJ0q6rfiqsgb0e7fcpklQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQD8NRI38pGVS1NBVgu/F6cmamzqfuiWAsr7HTDdhoOQC0W6aVVww9s7/hT+LfiMt
-         K1NIUXTQK1m5tRhkB9ki/2FqmCUZeUgPN9Cp6XkdHPIbwtyYAVN2nOJiXlgeY+WCSK
-         OtU5Xg7jw4lkErOTJ4uDAqwQdBCSyIAcuhg4ACwA=
+        b=p9f70qYlXtFlqOuDr1rXj7rso2v5VxSPvQPpo01gm/R+xWinJpzpYvnkB7uDk1XUO
+         fuHuSenNMMhtupwK+7uQPK2JgiOyJFYc7lp+bpaM3V90q4DCIAZ28ACt3IJD1MhD2r
+         8GPFh+FNL8SHhNhfooISZRPx5QU8POkYMlzpJyZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 092/101] nvmet: fix building bvec from sg list
+Subject: [PATCH 4.19 72/72] leds: trigger: netdev: use memcpy in device_name_store
 Date:   Thu,  2 May 2019 17:21:34 +0200
-Message-Id: <20190502143346.030401859@linuxfoundation.org>
+Message-Id: <20190502143338.948518662@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 02db99548d3608a625cf481cff2bb7b626829b3f ]
+[ Upstream commit 909346433064b8d840dc82af26161926b8d37558 ]
 
-There are two mistakes for building bvec from sg list for file
-backed ns:
+If userspace doesn't end the input with a newline (which can easily
+happen if the write happens from a C program that does write(fd,
+iface, strlen(iface))), we may end up including garbage from a
+previous, longer value in the device_name. For example
 
-- use request data length to compute number of io vector, this way
-doesn't consider sg->offset, and the result may be smaller than required
-io vectors
+# cat device_name
 
-- bvec->bv_len isn't capped by sg->length
+# printf 'eth12' > device_name
+# cat device_name
+eth12
+# printf 'eth3' > device_name
+# cat device_name
+eth32
 
-This patch fixes this issue by building bvec from sg directly, given
-the whole IO stack is ready for multi-page bvec.
+I highly doubt anybody is relying on this behaviour, so switch to
+simply copying the bytes (we've already checked that size is <
+IFNAMSIZ) and unconditionally zero-terminate it; of course, we also
+still have to strip a trailing newline.
 
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Fixes: 3a85a5de29ea ("nvme-loop: add a NVMe loopback host driver")
+This is also preparation for future patches.
 
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 06f502f57d0d ("leds: trigger: Introduce a NETDEV trigger")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/nvme/target/io-cmd-file.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/leds/trigger/ledtrig-netdev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index 517522305e5c..9a0fa3943ca7 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -75,11 +75,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
- 	return ret;
- }
- 
--static void nvmet_file_init_bvec(struct bio_vec *bv, struct sg_page_iter *iter)
-+static void nvmet_file_init_bvec(struct bio_vec *bv, struct scatterlist *sg)
- {
--	bv->bv_page = sg_page_iter_page(iter);
--	bv->bv_offset = iter->sg->offset;
--	bv->bv_len = PAGE_SIZE - iter->sg->offset;
-+	bv->bv_page = sg_page(sg);
-+	bv->bv_offset = sg->offset;
-+	bv->bv_len = sg->length;
- }
- 
- static ssize_t nvmet_file_submit_bvec(struct nvmet_req *req, loff_t pos,
-@@ -128,14 +128,14 @@ static void nvmet_file_io_done(struct kiocb *iocb, long ret, long ret2)
- 
- static bool nvmet_file_execute_io(struct nvmet_req *req, int ki_flags)
- {
--	ssize_t nr_bvec = DIV_ROUND_UP(req->data_len, PAGE_SIZE);
--	struct sg_page_iter sg_pg_iter;
-+	ssize_t nr_bvec = req->sg_cnt;
- 	unsigned long bv_cnt = 0;
- 	bool is_sync = false;
- 	size_t len = 0, total_len = 0;
- 	ssize_t ret = 0;
- 	loff_t pos;
--
-+	int i;
-+	struct scatterlist *sg;
- 
- 	if (req->f.mpool_alloc && nr_bvec > NVMET_MAX_MPOOL_BVEC)
- 		is_sync = true;
-@@ -147,8 +147,8 @@ static bool nvmet_file_execute_io(struct nvmet_req *req, int ki_flags)
+diff --git a/drivers/leds/trigger/ledtrig-netdev.c b/drivers/leds/trigger/ledtrig-netdev.c
+index 167a94c02d05..136f86a1627d 100644
+--- a/drivers/leds/trigger/ledtrig-netdev.c
++++ b/drivers/leds/trigger/ledtrig-netdev.c
+@@ -122,7 +122,8 @@ static ssize_t device_name_store(struct device *dev,
+ 		trigger_data->net_dev = NULL;
  	}
  
- 	memset(&req->f.iocb, 0, sizeof(struct kiocb));
--	for_each_sg_page(req->sg, &sg_pg_iter, req->sg_cnt, 0) {
--		nvmet_file_init_bvec(&req->f.bvec[bv_cnt], &sg_pg_iter);
-+	for_each_sg(req->sg, sg, req->sg_cnt, i) {
-+		nvmet_file_init_bvec(&req->f.bvec[bv_cnt], sg);
- 		len += req->f.bvec[bv_cnt].bv_len;
- 		total_len += req->f.bvec[bv_cnt].bv_len;
- 		bv_cnt++;
-@@ -225,7 +225,7 @@ static void nvmet_file_submit_buffered_io(struct nvmet_req *req)
+-	strncpy(trigger_data->device_name, buf, size);
++	memcpy(trigger_data->device_name, buf, size);
++	trigger_data->device_name[size] = 0;
+ 	if (size > 0 && trigger_data->device_name[size - 1] == '\n')
+ 		trigger_data->device_name[size - 1] = 0;
  
- static void nvmet_file_execute_rw(struct nvmet_req *req)
- {
--	ssize_t nr_bvec = DIV_ROUND_UP(req->data_len, PAGE_SIZE);
-+	ssize_t nr_bvec = req->sg_cnt;
- 
- 	if (!req->sg_cnt || !nr_bvec) {
- 		nvmet_req_complete(req, 0);
 -- 
 2.19.1
 
