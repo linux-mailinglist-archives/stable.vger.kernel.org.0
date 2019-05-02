@@ -2,124 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3214119F7
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 15:20:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852AC11A16
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 15:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726268AbfEBNUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 09:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44096 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbfEBNUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 09:20:34 -0400
-Received: from localhost (adsl-173-228-226-134.prtc.net [173.228.226.134])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F5CD2063F;
-        Thu,  2 May 2019 13:20:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556803233;
-        bh=lnBk0334Jw7S1ntJD6loqfr3/5TE3zzisr0gGgvbCf0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K1DW+SZKdsZBuwirEld6Cstp5DbaXwO1uukz+H8oVkn+s9KAxk7RqCqzZP5B9+6mp
-         wgSqx7is2SyZHeRF40/7vsqOM/H304D3kTZlhogDIJSgFILpEcmuavg4YIg22Lo8WR
-         Ijh7C75sXrjlIJNL1qgDWrQka4ilN9e6jyWrSbzg=
-Date:   Thu, 2 May 2019 09:20:27 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Dave Chinner <david@fromorbit.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Andre Noll <maan@tuebingen.mpg.de>, linux-xfs@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: xfs: Assertion failed in xfs_ag_resv_init()
-Message-ID: <20190502132027.GF11584@sasha-vm>
-References: <20190430190525.GB2780@tuebingen.mpg.de>
- <20190430191825.GF5217@magnolia>
- <20190430210724.GD2780@tuebingen.mpg.de>
- <20190501153643.GL5207@magnolia>
- <20190501165933.GF2780@tuebingen.mpg.de>
- <20190501171529.GB28949@kroah.com>
- <20190501175129.GH2780@tuebingen.mpg.de>
- <20190501192822.GM5207@magnolia>
- <20190501221107.GI29573@dread.disaster.area>
- <20190502114440.GB21563@kroah.com>
+        id S1726283AbfEBNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 09:23:32 -0400
+Received: from mail-wr1-f47.google.com ([209.85.221.47]:40139 "EHLO
+        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726197AbfEBNXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 09:23:32 -0400
+Received: by mail-wr1-f47.google.com with SMTP id h4so3343166wre.7
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 06:23:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pWqRDQVb3Girp3Kwe/JPILsIwtMMUAIt+M73H8w8ZB0=;
+        b=lY+6+2kJGiWKzONwp3z3jfJOuk8knhk0J17LvSNax9sCxNVZEfv91KrrjPrEfQGhH1
+         /BqG6HCp1h+aLW5K6VZy9nHg07eTrTNeQA1yQN/4sDtSi4Pjm0oldJN+ns0D0oCpNYLo
+         zB+OY7bVzI/jJ8fVM2UBdHa6GwKswsC5NZ1hKzysWK97ZMWmFjrQhbMguD1EgMRXaRaB
+         TT1s/LTDm9FLSOah2oKSB9GMdYbCbZ+lyi++CN8lbkho7jnW0oGNvN26WE893yJhbk/0
+         qCy4UDg/suh9tkI3/E8Us3+6N/7II37EEg5U+wVACIVFUce/AlEyBByKFYegj5Pq6pDq
+         ZTtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pWqRDQVb3Girp3Kwe/JPILsIwtMMUAIt+M73H8w8ZB0=;
+        b=Bv1jb9/MLCugHDNV55r44/qYldG4pZxhN57Lt70pJ+EFZnKD7UzSEtVj+dmTyUbyEq
+         c+dHGQTkoDKaxhGaTIDlNptcF6GEHNmkete2VvZvZjfDNyx104PQtvqXb7bnpGzukCUT
+         90cu2rPHKhpAKN0TAmMOWLmJ9V7gbtQybjGk3bZrSPQ+Ts62NA9kBuxDW0CKKpJPsfdp
+         3dhLO3fnuLo6t6vYehnzSwBTjpHJKoqipMGDgMABC97CU5jTIyOIwa/bzPzhK97nOlbr
+         OVfEn20beiPD3Qfw23+hubBtKpYcmjibvxCxD6kktQzR4XZKN5y/O+QYEKTfzzmdpTf3
+         2Zjg==
+X-Gm-Message-State: APjAAAUXqNlXO5MsQVNwMhSeYey3rb94ED3aI7V7Q9I6iSwP1D6Vcxdi
+        WrajN29W8djD/5mN9CVCyQ7FUUZpnWQzEQ==
+X-Google-Smtp-Source: APXvYqzGc4Q5wiO97rYw0Egx8vcVAEQMnOtOpP94EkGUfqqKMSx5IVXkUHPl62zqZScWE2AFwdUR1Q==
+X-Received: by 2002:adf:f68c:: with SMTP id v12mr2909584wrp.40.1556803410213;
+        Thu, 02 May 2019 06:23:30 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v9sm2822259wrg.20.2019.05.02.06.23.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 02 May 2019 06:23:29 -0700 (PDT)
+Message-ID: <5ccaef51.1c69fb81.b93f1.fc3e@mx.google.com>
+Date:   Thu, 02 May 2019 06:23:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190502114440.GB21563@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.115
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 120 boots: 1 failed,
+ 116 passed with 3 offline (v4.14.115)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 01:44:40PM +0200, Greg Kroah-Hartman wrote:
->On Thu, May 02, 2019 at 08:11:07AM +1000, Dave Chinner wrote:
->> On Wed, May 01, 2019 at 12:28:22PM -0700, Darrick J. Wong wrote:
->> > On Wed, May 01, 2019 at 07:51:29PM +0200, Andre Noll wrote:
->> > > On Wed, May 01, 19:15, Greg Kroah-Hartman wrote
->> > > > On Wed, May 01, 2019 at 06:59:33PM +0200, Andre Noll wrote:
->> > > > > On Wed, May 01, 08:36, Darrick J. Wong wrote
->> > > > > > > > You could send this patch to the stable list, but my guess is that
->> > > > > > > > they'd prefer a straight backport of all three commits...
->> > > > > > >
->> > > > > > > Hm, cherry-picking the first commit onto 4.9,171 already gives
->> > > > > > > four conflicting files. The conflicts are trivial to resolve (git
->> > > > > > > cherry-pick -xX theirs 21ec54168b36 does it), but that doesn't
->> > > > > > > compile because xfs_btree_query_all() is missing.  So e9a2599a249ed
->> > > > > > > (xfs: create a function to query all records in a btree) is needed as
->> > > > > > > well. But then, applying 86210fbebae (xfs: move various type verifiers
->> > > > > > > to common file) on top of that gives non-trivial conflicts.
->> > > > > >
->> > > > > > Ah, I suspected that might happen.  Backports are hard. :(
->> > > > > >
->> > > > > > I suppose one saving grace of the patch you sent is that it'll likely
->> > > > > > break the build if anyone ever /does/ attempt a backport of those first
->> > > > > > two commits.  Perhaps that is the most practical way forward.
->> > > > > >
->> > > > > > > So, for automatic backporting we would need to cherry-pick even more,
->> > > > > > > and each backported commit should be tested of course. Given this, do
->> > > > > > > you still think Greg prefers a rather large set of straight backports
->> > > > > > > over the simple commit that just pulls in the missing function?
->> > > > > >
->> > > > > > I think you'd have to ask him that, if you decide not to send
->> > > > > > yesterday's patch.
->> > > > >
->> > > > > Let's try. I've added a sentence to the commit message which explains
->> > > > > why a straight backport is not practical, and how to proceed if anyone
->> > > > > wants to backport the earlier commits.
->> > > > >
->> > > > > Greg: Under the given circumstances, would you be willing to accept
->> > > > > the patch below for 4.9?
->> > > >
->> > > > If the xfs maintainers say this is ok, it is fine with me.
->> > >
->> > > Darrick said, he's in favor of the patch, so I guess I can add his
->> > > Acked-by. Would you also like to see the ack from Dave (the author
->> > > of the original commit)?
->> >
->> > FWIW it seems fine to me, though Dave [cc'd] might have stronger opinions...
->>
->> Only thing I care about is whether it is QA'd properly. Greg, Sasha,
->> is the 4.9 stable kernel having fstests run on it as part of the
->> release gating?
->
->I do not know about fstests, I know Linaro was looking into doing it as
->part of the test suites that they verify before I do a release.  But I
->doubt it's run on an XFS filesystem.
->
->Sasha was doing some work in this area though, Sasha?
+stable-rc/linux-4.14.y boot: 120 boots: 1 failed, 116 passed with 3 offline=
+ (v4.14.115)
 
-My biggest blocker at this point that it is extremely difficult to get a
-baseline for a kernel version.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.115/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.115/
 
-Even after adding all the "known" failures to the expunge list, I ket
-hitting issues that reproduced once every 100 runs, and once those are
-expunged I started hitting even rarer stuff.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.115
+Git Commit: 1c046f37313210e0c41b036fcd14c4bdb1581d47
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 24 SoC families, 14 builds out of 201
 
-While there's no actual real difficulty in building these expunge lists,
-it ended up being somewhat of a loop where I couldn't establish a solid
-baseline since random things kept breaking.
+Boot Failure Detected:
 
---
-Thanks,
-Sasha
+arm64:
+    defconfig:
+        gcc-7:
+            rk3399-firefly: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-7
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
