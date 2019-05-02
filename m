@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A4811F4C
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E5911E2E
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726888AbfEBPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38544 "EHLO mail.kernel.org"
+        id S1727846AbfEBP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbfEBPXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:00 -0400
+        id S1727842AbfEBP0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4765620675;
-        Thu,  2 May 2019 15:22:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0752208C4;
+        Thu,  2 May 2019 15:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810579;
-        bh=lBH4euxWsbc31ffPe/vjrAQWtFU+61FTad3Lf8HK/fU=;
+        s=default; t=1556810813;
+        bh=CQdNOpkCUYS+fJWizHJvurWoB2prYbApk3+vaXeZ2gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xn9+fgBkzRIGEvmHGi8pcEB6PRqrnbWzPDPcBywEO8IwkrISI1ghGXrhebNB4jNBj
-         EZVSIvhZQCRxuK7TJXvXNLV/yUuQH8T4ThGufGYNdsrwSn43PuUJtODQWNYtmNpd9Z
-         hs4USm5tdeOT+GCKbsFa9r5tuzCZRvTcMSwXZmq8=
+        b=MysQV+TV/kyz3XIGZ+pT9d7TftMhCwGzu8BMfQaOtnJKwjeLlJcClJRk+Jhk/ZxZm
+         lhVzAUQ4HfmlWww8wHuqEcfwmbCkjESdnfPiyEivNE3fr5V5GsB2xk2iLd2CTxij+T
+         88otB6bqTQsnUf+4Y9an+oBmgj9DDMHtCDclcB0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mukesh Ojha <mojha@codeaurora.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 13/32] usb: gadget: net2272: Fix net2272_dequeue()
-Date:   Thu,  2 May 2019 17:20:59 +0200
-Message-Id: <20190502143319.113341619@linuxfoundation.org>
+Subject: [PATCH 4.19 38/72] staging: rtlwifi: rtl8822b: fix to avoid potential NULL pointer dereference
+Date:   Thu,  2 May 2019 17:21:00 +0200
+Message-Id: <20190502143336.551166533@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 091dacc3cc10979ab0422f0a9f7fcc27eee97e69 ]
+[ Upstream commit d70d70aec9632679dd00dcc1b1e8b2517e2c7da0 ]
 
-Restore the status of ep->stopped in function net2272_dequeue().
+skb allocated via dev_alloc_skb can fail and return a NULL pointer.
+This patch avoids such a scenario and returns, consistent with other
+invocations.
 
-When the given request is not found in the endpoint queue
-the function returns -EINVAL without restoring the state of
-ep->stopped. Thus the endpoint keeps blocked and does not transfer
-any data anymore.
-
-This fix is only compile-tested, since we do not have a
-corresponding hardware. An analogous fix was tested in the sibling
-driver. See "usb: gadget: net2280: Fix net2280_dequeue()"
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/net2272.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/rtlwifi/rtl8822be/fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/net2272.c b/drivers/usb/gadget/udc/net2272.c
-index 40396a265a3f..f57d293a1791 100644
---- a/drivers/usb/gadget/udc/net2272.c
-+++ b/drivers/usb/gadget/udc/net2272.c
-@@ -958,6 +958,7 @@ net2272_dequeue(struct usb_ep *_ep, struct usb_request *_req)
- 			break;
- 	}
- 	if (&req->req != _req) {
-+		ep->stopped = stopped;
- 		spin_unlock_irqrestore(&ep->dev->lock, flags);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/staging/rtlwifi/rtl8822be/fw.c b/drivers/staging/rtlwifi/rtl8822be/fw.c
+index a40396614814..c1ed52df05f0 100644
+--- a/drivers/staging/rtlwifi/rtl8822be/fw.c
++++ b/drivers/staging/rtlwifi/rtl8822be/fw.c
+@@ -741,6 +741,8 @@ void rtl8822be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1_rsvd_page_loc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	memcpy((u8 *)skb_put(skb, totalpacketlen), &reserved_page_packet,
+ 	       totalpacketlen);
+ 
 -- 
 2.19.1
 
