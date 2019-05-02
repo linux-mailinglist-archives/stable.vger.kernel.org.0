@@ -2,109 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2074511968
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 14:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82549119CC
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 15:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbfEBMyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 08:54:24 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:34839 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726197AbfEBMyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 08:54:23 -0400
-Received: by mail-lj1-f193.google.com with SMTP id z26so2089744ljj.2
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 05:54:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=f2iV3bnerzLXP9x+uTFOU0GfRhZhG/Forl0VLEurI0E=;
-        b=D7aTUJ8Tpfpg99B1fGNAekTouN23OQZ1zCh7Tay3/mEGSBfiayty2oGWZ7Ii0cykaS
-         FH0puEgBWs5UfmBFPp1OsLPtq/HyWejO/s4qF35qXGIAFGg60MUCDlXKRpR3QhkQ8cKi
-         n4d9qmPPPsa9TjHa4Wuhqn1S2ieDwy0DaYkgfVWKy0sLg7XAezPcOyoDWzkTJl1msNIm
-         iq9VHxkkQU0CiHDyYMjgumVgHpgh01H5Ta9GCOfxwX3s2glUzH8sMo9NaajG00FZ8ltO
-         luaIw93Y8sP59DJdmdQEKCofG18R9TFX9a75OpuB+ibOpgYMb6LtBn3bi3MnTHLAzRoT
-         fHQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=f2iV3bnerzLXP9x+uTFOU0GfRhZhG/Forl0VLEurI0E=;
-        b=eBESVk7P4bxN6+V5E+bddganDQkhR2/KjfAhwXl4yugk5B2i5JfV+bmYQTXQl025Zh
-         j2HLlBAQX1TiK54M18MWxoij8WGSMGkI+jLAe5B3wUynqvMa0rcl4xEPUcsWkseF77By
-         Uj6MTZNkafW3QiejumJiajtj+L4bv/489JjNCh7SYef1biqaEu4P80IWPSwu3qaBpP8Y
-         jRDP3j9lXIkBDpRdz3U3AiergAxuUEOvvD9j96lOZsTZTqdELTEQCuHQa6Ta1XQqiwox
-         xWJN74K3xJuR9MrqRwXWWQwjtkO03fRMRagPuBuqD5MhVCouMoV8/byLq04aqxLdBEBD
-         TKSw==
-X-Gm-Message-State: APjAAAWvbu/aZTplOHKMntzUDeMZ+YQagbLv1L0f6/l4w4pA8t2gkSKS
-        1nfO5nI+qhUrf3TXe2D/9Ywu3xYcN5K3HxOjVlg=
-X-Google-Smtp-Source: APXvYqyNN6h47CvkEUshGiUc9OTFTZAq9oGFln3ciMmxqoD5IPsrs1TGv6yN7dqDKu3VYZtMysnDlE9Kv26mO9XpL4s=
-X-Received: by 2002:a2e:8794:: with SMTP id n20mr2004032lji.76.1556801661788;
- Thu, 02 May 2019 05:54:21 -0700 (PDT)
+        id S1726267AbfEBNKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 09:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726203AbfEBNKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 09:10:46 -0400
+Received: from localhost (adsl-173-228-226-134.prtc.net [173.228.226.134])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C40FC205C9;
+        Thu,  2 May 2019 13:10:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556802645;
+        bh=4fQtbdaVs/4+uzqSaNzRIG8pX+f7mzq0ARnvx/AOwmk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=feGnt6F/KySm6fuQ4HYE+I4PHdxk9Ae+0UEWYX0IsW13wfBxwl2rjexeYX6KvJ05C
+         4W0nBRqd3+3Pt0v/mS3LdHWfoe41zWJaVCJMVSWPn1azlYCTk1B5Zbd3mAze7mZFeV
+         1VVXmticWgPQL33navCR1P6pM302BVgpwNgBSCJ0=
+Date:   Thu, 2 May 2019 09:03:53 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Alexander Kappner <agk@godking.net>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v4.4,v4.9,v4.14 1/2] usbnet: ipheth: prevent TX queue
+ timeouts when device not ready
+Message-ID: <20190502130353.GE11584@sasha-vm>
+References: <1556668410-31439-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-References: <20190502113020.8642-1-festevam@gmail.com> <20190502122645.C5FD52081C@mail.kernel.org>
- <CAOMZO5B6GJ_OCX_22M+RQ6HQG=_kxEcM7x1X8+VL9fRc+jHx2w@mail.gmail.com>
-In-Reply-To: <CAOMZO5B6GJ_OCX_22M+RQ6HQG=_kxEcM7x1X8+VL9fRc+jHx2w@mail.gmail.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Thu, 2 May 2019 09:54:16 -0300
-Message-ID: <CAOMZO5BMpwqQUYQ==MRowu62SboL7ikFztUVA2ODkRtONU6gsg@mail.gmail.com>
-Subject: Re: [PATCH] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1556668410-31439-1-git-send-email-linux@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 2, 2019 at 9:33 AM Fabio Estevam <festevam@gmail.com> wrote:
+On Tue, Apr 30, 2019 at 04:53:29PM -0700, Guenter Roeck wrote:
+>From: Alexander Kappner <agk@godking.net>
 >
-> On Thu, May 2, 2019 at 9:26 AM Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > Hi,
-> >
-> > [This is an automated email]
-> >
-> > This commit has been processed because it contains a "Fixes:" tag,
-> > fixing commit: 1e434b703248 ARM: imx: update the cpu power up timing setting on i.mx6sx.
-> >
-> > The bot has tested the following trees: v5.0.10, v4.19.37, v4.14.114, v4.9.171, v4.4.179.
-> >
-> > v5.0.10: Build OK!
-> > v4.19.37: Build OK!
-> > v4.14.114: Build OK!
-> > v4.9.171: Build OK!
-> > v4.4.179: Failed to apply! Possible dependencies:
-> >     6ae44aa651d0 ("ARM: imx: enable WAIT mode hardware workaround for imx6sx")
-> >
-> >
-> > How should we proceed with this patch?
+>commit bb1b40c7cb863f0800a6410c7dcb86cf3f28d3b1 upstream.
 >
-> I can submit a version for 4.4 stable tree once this hits mainline.
-> The conflict resolution is very simple.
+>iOS devices require the host to be "trusted" before servicing network
+>packets. Establishing trust requires the user to confirm a dialog on the
+>iOS device.Until trust is established, the iOS device will silently discard
+>network packets from the host. Currently, the ipheth driver does not detect
+>whether an iOS device has established trust with the host, and immediately
+>sets up the transmit queues.
+>
+>This causes the following problems:
+>
+>- Kernel taint due to WARN() in netdev watchdog.
+>- Dmesg spam ("TX timeout").
+>- Disruption of user space networking activity (dhcpd, etc...) when new
+>interface comes up but cannot be used.
+>- Unnecessary host and device wakeups and USB traffic
+>
+>Example dmesg output:
+>
+>[ 1101.319778] NETDEV WATCHDOG: eth1 (ipheth): transmit queue 0 timed out
+>[ 1101.319817] ------------[ cut here ]------------
+>[ 1101.319828] WARNING: CPU: 0 PID: 0 at net/sched/sch_generic.c:316 dev_watchdog+0x20f/0x220
+>[ 1101.319831] Modules linked in: ipheth usbmon nvidia_drm(PO) nvidia_modeset(PO) nvidia(PO) iwlmvm mac80211 iwlwifi btusb btrtl btbcm btintel qmi_wwan bluetooth cfg80211 ecdh_generic thinkpad_acpi rfkill [last unloaded: ipheth]
+>[ 1101.319861] CPU: 0 PID: 0 Comm: swapper/0 Tainted: P           O    4.13.12.1 #1
+>[ 1101.319864] Hardware name: LENOVO 20ENCTO1WW/20ENCTO1WW, BIOS N1EET62W (1.35 ) 11/10/2016
+>[ 1101.319867] task: ffffffff81e11500 task.stack: ffffffff81e00000
+>[ 1101.319873] RIP: 0010:dev_watchdog+0x20f/0x220
+>[ 1101.319876] RSP: 0018:ffff8810a3c03e98 EFLAGS: 00010292
+>[ 1101.319880] RAX: 000000000000003a RBX: 0000000000000000 RCX: 0000000000000000
+>[ 1101.319883] RDX: ffff8810a3c15c48 RSI: ffffffff81ccbfc2 RDI: 00000000ffffffff
+>[ 1101.319886] RBP: ffff880c04ebc41c R08: 0000000000000000 R09: 0000000000000379
+>[ 1101.319889] R10: 00000100696589d0 R11: 0000000000000378 R12: ffff880c04ebc000
+>[ 1101.319892] R13: 0000000000000000 R14: 0000000000000001 R15: ffff880c2865fc80
+>[ 1101.319896] FS:  0000000000000000(0000) GS:ffff8810a3c00000(0000) knlGS:0000000000000000
+>[ 1101.319899] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>[ 1101.319902] CR2: 00007f3ff24ac000 CR3: 0000000001e0a000 CR4: 00000000003406f0
+>[ 1101.319905] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>[ 1101.319908] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>[ 1101.319910] Call Trace:
+>[ 1101.319914]  <IRQ>
+>[ 1101.319921]  ? dev_graft_qdisc+0x70/0x70
+>[ 1101.319928]  ? dev_graft_qdisc+0x70/0x70
+>[ 1101.319934]  ? call_timer_fn+0x2e/0x170
+>[ 1101.319939]  ? dev_graft_qdisc+0x70/0x70
+>[ 1101.319944]  ? run_timer_softirq+0x1ea/0x440
+>[ 1101.319951]  ? timerqueue_add+0x54/0x80
+>[ 1101.319956]  ? enqueue_hrtimer+0x38/0xa0
+>[ 1101.319963]  ? __do_softirq+0xed/0x2e7
+>[ 1101.319970]  ? irq_exit+0xb4/0xc0
+>[ 1101.319976]  ? smp_apic_timer_interrupt+0x39/0x50
+>[ 1101.319981]  ? apic_timer_interrupt+0x8c/0xa0
+>[ 1101.319983]  </IRQ>
+>[ 1101.319992]  ? cpuidle_enter_state+0xfa/0x2a0
+>[ 1101.319999]  ? do_idle+0x1a3/0x1f0
+>[ 1101.320004]  ? cpu_startup_entry+0x5f/0x70
+>[ 1101.320011]  ? start_kernel+0x444/0x44c
+>[ 1101.320017]  ? early_idt_handler_array+0x120/0x120
+>[ 1101.320023]  ? x86_64_start_kernel+0x145/0x154
+>[ 1101.320028]  ? secondary_startup_64+0x9f/0x9f
+>[ 1101.320033] Code: 20 04 00 00 eb 9f 4c 89 e7 c6 05 59 44 71 00 01 e8 a7 df fd ff 89 d9 4c 89 e6 48 c7 c7 70 b7 cd 81 48 89 c2 31 c0 e8 97 64 90 ff <0f> ff eb bf 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00
+>[ 1101.320103] ---[ end trace 0cc4d251e2b57080 ]---
+>[ 1101.320110] ipheth 1-5:4.2: ipheth_tx_timeout: TX timeout
+>
+>The last message "TX timeout" is repeated every 5 seconds until trust is
+>established or the device is disconnected, filling up dmesg.
+>
+>The proposed patch eliminates the problem by, upon connection, keeping the
+>TX queue and carrier disabled until a packet is first received from the iOS
+>device. This is reflected by the confirmed_pairing variable in the device
+>structure. Only after at least one packet has been received from the iOS
+>device, the transmit queue and carrier are brought up during the periodic
+>device poll in ipheth_carrier_set. Because the iOS device will always send
+>a packet immediately upon trust being established, this should not delay
+>the interface becoming useable. To prevent failed UBRs in
+>ipheth_rcvbulk_callback from perpetually re-enabling the queue if it was
+>disabled, a new check is added so only successful transfers re-enable the
+>queue, whereas failed transfers only trigger an immediate poll.
+>
+>This has the added benefit of removing the periodic control requests to the
+>iOS device until trust has been established and thus should reduce wakeup
+>events on both the host and the iOS device.
+>
+>Signed-off-by: Alexander Kappner <agk@godking.net>
+>Signed-off-by: David S. Miller <davem@davemloft.net>
+>[groeck: Fixed context conflict seen because 45611c61dd50 was applied first]
+>Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Or maybe I can send a simpler version that applies all the way to 4.4:
+Greg queued it up, thanks :)
 
---- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-@@ -15,6 +15,7 @@
-
- #include "common.h"
- #include "cpuidle.h"
-+#include "hardware.h"
-
- static int imx6sx_idle_finish(unsigned long val)
- {
-@@ -110,7 +111,7 @@ int __init imx6sx_cpuidle_init(void)
-  * except for power up sw2iso which need to be
-  * larger than LDO ramp up time.
-  */
-- imx_gpc_set_arm_power_up_timing(0xf, 1);
-+ imx_gpc_set_arm_power_up_timing(cpu_is_imx6sx() ? 0xf: 0x2, 1);
-  imx_gpc_set_arm_power_down_timing(1, 1);
-
-  return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
-
-Would this be preferred?
+--
+Thanks,
+Sasha
