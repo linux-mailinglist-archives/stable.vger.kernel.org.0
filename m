@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B07C411E36
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514C911F76
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727894AbfEBP1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43786 "EHLO mail.kernel.org"
+        id S1726582AbfEBPre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:47:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727872AbfEBP1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:27:04 -0400
+        id S1726611AbfEBPYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:24:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E884320675;
-        Thu,  2 May 2019 15:27:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E92ED208C4;
+        Thu,  2 May 2019 15:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810823;
-        bh=FDNU4kDC2n76Cl9nLieE106/2Os9s6nt8AFRwtENVIo=;
+        s=default; t=1556810649;
+        bh=5GKA2ndTMnBO9OGe+bY2RSGvKe0hCCrXFPdVQ/SPbLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3swyAHHUo+ZIT/E/cr9a8xJ20zrZAH8IG3mSXWBPzDLVUn7/Q+RMadX0u7FPt8ap
-         W0iy2YwLmQyTTxAgAPPtlAxjLYwyO7QgVV9loW+OCJlQmlep2MK20b9ec6p1qKxH65
-         aDntSVtx6dh7I24W+z9Bmawma4E4LE5zFUZeOpnA=
+        b=flwfVSUVx3EffgBh/QnFfoAbQKcbodQDXzv7+FDEDuZAteUZIu515RRNuzJsbySdS
+         HlTxbJHokKN5PdNH1IgYMgeoPYcaoQF6jKAifldCnWPEH00xI2MBA03YbrEyogJWd7
+         1rSGv9Y4iOX5yQvUd28PcdLKbTg+y3F8YGNI86G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mukesh Ojha <mojha@codeaurora.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 41/72] net: macb: Add null check for PCLK and HCLK
+Subject: [PATCH 4.14 26/49] staging: rtlwifi: rtl8822b: fix to avoid potential NULL pointer dereference
 Date:   Thu,  2 May 2019 17:21:03 +0200
-Message-Id: <20190502143336.755702883@linuxfoundation.org>
+Message-Id: <20190502143327.196651698@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cd5afa91f078c0787be0a62b5ef90301c00b0271 ]
+[ Upstream commit d70d70aec9632679dd00dcc1b1e8b2517e2c7da0 ]
 
-Both PCLK and HCLK are "required" clocks according to macb devicetree
-documentation. There is a chance that devm_clk_get doesn't return a
-negative error but just a NULL clock structure instead. In such a case
-the driver proceeds as usual and uses pclk value 0 to calculate MDC
-divisor which is incorrect. Hence fix the same in clock initialization.
+skb allocated via dev_alloc_skb can fail and return a NULL pointer.
+This patch avoids such a scenario and returns, consistent with other
+invocations.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/staging/rtlwifi/rtl8822be/fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 8abea1c3844f..7d7b51383adf 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3323,14 +3323,20 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
- 		*hclk = devm_clk_get(&pdev->dev, "hclk");
- 	}
+diff --git a/drivers/staging/rtlwifi/rtl8822be/fw.c b/drivers/staging/rtlwifi/rtl8822be/fw.c
+index acabb2470d55..02ca3157c5a5 100644
+--- a/drivers/staging/rtlwifi/rtl8822be/fw.c
++++ b/drivers/staging/rtlwifi/rtl8822be/fw.c
+@@ -752,6 +752,8 @@ void rtl8822be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1_rsvd_page_loc, 3);
  
--	if (IS_ERR(*pclk)) {
-+	if (IS_ERR_OR_NULL(*pclk)) {
- 		err = PTR_ERR(*pclk);
-+		if (!err)
-+			err = -ENODEV;
-+
- 		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
- 		return err;
- 	}
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	memcpy((u8 *)skb_put(skb, totalpacketlen), &reserved_page_packet,
+ 	       totalpacketlen);
  
--	if (IS_ERR(*hclk)) {
-+	if (IS_ERR_OR_NULL(*hclk)) {
- 		err = PTR_ERR(*hclk);
-+		if (!err)
-+			err = -ENODEV;
-+
- 		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
- 		return err;
- 	}
 -- 
 2.19.1
 
