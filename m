@@ -2,51 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A961137B
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 08:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D73113B0
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 09:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726268AbfEBGoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 02:44:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60192 "EHLO mail.kernel.org"
+        id S1726265AbfEBHIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 03:08:01 -0400
+Received: from mga11.intel.com ([192.55.52.93]:30290 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725772AbfEBGoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 02:44:18 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E03F4208C4;
-        Thu,  2 May 2019 06:44:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556779457;
-        bh=kiu0kiYCJm693AxN/CZK7ikgqWBQr0vP+hyr4NAc60Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Tx/7wFDQka6+zB8ZpYzkG9e3GjmQ0a074LYzXuRkCWUi8Ht7ApfI1UKc+VWvY6brR
-         hrbKxgLUkveQFUHENvsJXWTSdSl9zrMIH6Wl/rW/TGPaWS4k27YKmJ5BXfSf/W/XeU
-         WWKelPCQkPc3YBJXUYheN/QnYN7W8HIAq/8Nv9/g=
-Date:   Thu, 2 May 2019 08:44:15 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Bharath Vedartham <linux.bhar@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.0 00/89] 5.0.11-stable review
-Message-ID: <20190502064415.GA15017@kroah.com>
-References: <20190430113609.741196396@linuxfoundation.org>
- <20190502053039.GB419@bharath12345-Inspiron-5559>
+        id S1725791AbfEBHIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 03:08:01 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 May 2019 00:08:00 -0700
+X-ExtLoop1: 1
+Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.189])
+  by orsmga002.jf.intel.com with ESMTP; 02 May 2019 00:07:57 -0700
+Date:   Thu, 2 May 2019 10:07:58 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>
+Subject: Re: [PATCH] tpm/tpm_i2c_atmel: Return -E2BIG when the transfer is
+ incomplete
+Message-ID: <20190502070758.GA14532@linux.intel.com>
+References: <20190423124335.19792-1-jarkko.sakkinen@linux.intel.com>
+ <20190423150307.GN17719@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190502053039.GB419@bharath12345-Inspiron-5559>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190423150307.GN17719@sasha-vm>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 11:00:39AM +0530, Bharath Vedartham wrote:
-> Built and booted on my x86 machine. No dmesg regression.
+On Tue, Apr 23, 2019 at 11:03:07AM -0400, Sasha Levin wrote:
+> On Tue, Apr 23, 2019 at 03:43:35PM +0300, Jarkko Sakkinen wrote:
+> > commit 442601e87a4769a8daba4976ec3afa5222ca211d upstream
+> > 
+> > Return -E2BIG when the transfer is incomplete. The upper layer does
+> > not retry, so not doing that is incorrect behaviour.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: a2871c62e186 ("tpm: Add support for Atmel I2C TPMs")
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> > Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> 
+> Okay, between the upstream version and your backports we have this fix
+> on all branches, thank you!
 
-Thanks for testing two of these and letting me know.
+Awesome!
 
-greg k-h
+/Jarkko
