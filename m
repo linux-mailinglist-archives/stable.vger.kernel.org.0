@@ -2,128 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D9F410F75
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 00:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52508111D6
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 05:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbfEAW5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 May 2019 18:57:42 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:37532 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbfEAW5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 May 2019 18:57:41 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id C35C0261212
-Received: by earth.universe (Postfix, from userid 1000)
-        id B9AF23C0D1B; Thu,  2 May 2019 00:57:36 +0200 (CEST)
-Date:   Thu, 2 May 2019 00:57:36 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Chen-Yu Tsai <wens@csie.org>, linux-pm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] power: supply: axp288_fuel_gauge: Add ACEPC T8 and T11
- mini PCs to the blacklist
-Message-ID: <20190501225736.jhbyklotrtndux5v@earth.universe>
-References: <20190422204301.6233-1-hdegoede@redhat.com>
+        id S1726205AbfEBDYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 May 2019 23:24:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726197AbfEBDYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 May 2019 23:24:17 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 578FE20675;
+        Thu,  2 May 2019 03:24:14 +0000 (UTC)
+Date:   Wed, 1 May 2019 23:24:12 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
+ functions
+Message-ID: <20190501232412.1196ef18@oasis.local.home>
+In-Reply-To: <20190501203152.397154664@goodmis.org>
+References: <20190501202830.347656894@goodmis.org>
+        <20190501203152.397154664@goodmis.org>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4pxoyuqearsvopnh"
-Content-Disposition: inline
-In-Reply-To: <20190422204301.6233-1-hdegoede@redhat.com>
-User-Agent: NeoMutt/20180716
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 01 May 2019 16:28:31 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
---4pxoyuqearsvopnh
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+> index d309f30cf7af..50bbf4035baf 100644
+> --- a/arch/x86/entry/entry_32.S
+> +++ b/arch/x86/entry/entry_32.S
+> @@ -1478,6 +1478,17 @@ ENTRY(int3)
+>  	ASM_CLAC
+>  	pushl	$-1				# mark this as an int
+>  
+> +#ifdef CONFIG_VM86
+> +	testl	$X86_EFLAGS_VM, PT_EFLAGS(%esp)
+> +	jnz	.Lfrom_usermode_no_gap
+> +#endif
+> +	testl	$SEGMENT_RPL_MASK, PT_CS(%esp)
+> +	jnz	.Lfrom_usermode_no_gap
+> +	.rept 6
+> +	pushl	5*4(%esp)
+> +	.endr
+> +.Lfrom_usermode_no_gap:
+> +
+>  	SAVE_ALL switch_stacks=1
+>  	ENCODE_FRAME_POINTER
+>  	TRACE_IRQS_OFF
 
-Hi,
+This failed to work on 32 bit at all (crashed and burned badly - triple
+fault!). Looking at it I found one issue. This code is done before the
+regs are saved, and PT_EFLAGS(%esp) and PT_CS(%esp) expect %esp to
+contain them. I applied this patch against this but it didn't totally
+fix the problems. It still constantly crashes (although, with this
+update I can put in some printks to get some ideas). I haven't spent
+too much time on it, but it looks like there's an issue with the
+entry-stack that int3 switches to. I'm not sure its handling the copy
+well.
 
-On Mon, Apr 22, 2019 at 10:43:01PM +0200, Hans de Goede wrote:
-> The ACEPC T8 and T11 Cherry Trail Z8350 mini PCs use an AXP288 and as PCs,
-> rather then portables, they does not have a battery. Still for some
-> reason the AXP288 not only thinks there is a battery, it actually
-> thinks it is discharging while the PC is running, slowly going to
-> 0% full, causing userspace to shutdown the system due to the battery
-> being critically low after a while.
->
-> This commit adds the ACEPC T8 and T11 to the axp288 fuel-gauge driver
-> blacklist, so that we stop reporting bogus battery readings on this devic=
-e.
->=20
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1690852
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
+-- Steve
 
-Thanks, you made my day =F0=9F=98=82. Queued to power-supply's for-next bra=
-nch.
-
--- Sebastian
-
->  drivers/power/supply/axp288_fuel_gauge.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->=20
-> diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/sup=
-ply/axp288_fuel_gauge.c
-> index 9ff2461820d8..368281bc0d2b 100644
-> --- a/drivers/power/supply/axp288_fuel_gauge.c
-> +++ b/drivers/power/supply/axp288_fuel_gauge.c
-> @@ -685,6 +685,26 @@ static void fuel_gauge_init_irq(struct axp288_fg_inf=
-o *info)
->   * detection reports one despite it not being there.
->   */
->  static const struct dmi_system_id axp288_fuel_gauge_blacklist[] =3D {
-> +	{
-> +		/* ACEPC T8 Cherry Trail Z8350 mini PC */
-> +		.matches =3D {
-> +			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
-> +			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-> +			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T8"),
-> +			/* also match on somewhat unique bios-version */
-> +			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
-> +		},
-> +	},
-> +	{
-> +		/* ACEPC T11 Cherry Trail Z8350 mini PC */
-> +		.matches =3D {
-> +			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
-> +			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-> +			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T11"),
-> +			/* also match on somewhat unique bios-version */
-> +			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
-> +		},
-> +	},
->  	{
->  		/* Intel Cherry Trail Compute Stick, Windows version */
->  		.matches =3D {
-> --=20
-> 2.21.0
->=20
-
---4pxoyuqearsvopnh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlzKJF0ACgkQ2O7X88g7
-+pqOAA/+OYV/kWE96sNXL8NC8HBO1UDZCTL5+6c0WPit1ocVRYXw8Zl2bBD9UeGG
-+qWPTgzJrlxv4WIv420x99yjJNYoCJTyZsLjpLAGxuIJ37vRMOYOgd6eh/qsiown
-T45XYWVTtdznhpeciJxW+FkqxfKGriZgD7aaV4tzAoXjb/nGvYwy4MSTnL+fpwzi
-yVkEJvBbIGyp2S+gHNotPXvZ6g7mKd9uEO8kBUi4OlPjD44ZtE8cVx1t2lNAqJQv
-8yRHFaQSJM99aRVdtQ6DoEYft3A35FkSuWAW741h8K/GSH93yFfNEw4GE1lBOPoW
-Y4Yn4XoISo5RIwWjUJafpOuEnEQF+SKaFuDP62wwUpJOpLN8gF/BJS/WhmZSaizx
-dE9764X7AfylMlj2v//tAS0jfPrsMeafZdGfnwZuAOyy8y2IJ3j7pPOqIZLLD9LR
-T1iNAADQU0An0HX60tewCxzEUMrnf+2miret0l5g25s3uWCOlBcNImUuG3sgfZRA
-PTQJdsIdsqVpqBGm1MbbKIcuJ222MqtWt7d9BW45xtLoecGKHHLtvjZBdo5gDxqY
-W5vtZr7ZAwT9bqPqHCqouurW+AADa7d1SZiGo/blIklO3K0uJ+27lKWNXEtCHwm+
-yyerIOhx4wiq9uFtaHrAjOosfe0gZ8VIfgaJfYgvU97efGypTgk=
-=91c6
------END PGP SIGNATURE-----
-
---4pxoyuqearsvopnh--
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 50bbf4035baf..4f427285e421 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -1479,10 +1479,10 @@ ENTRY(int3)
+ 	pushl	$-1				# mark this as an int
+ 
+ #ifdef CONFIG_VM86
+-	testl	$X86_EFLAGS_VM, PT_EFLAGS(%esp)
++	testl	$X86_EFLAGS_VM, PT_EFLAGS-PT_ORIG_EAX(%esp)
+ 	jnz	.Lfrom_usermode_no_gap
+ #endif
+-	testl	$SEGMENT_RPL_MASK, PT_CS(%esp)
++	testl	$SEGMENT_RPL_MASK, PT_CS-PT_ORIG_EAX(%esp)
+ 	jnz	.Lfrom_usermode_no_gap
+ 	.rept 6
+ 	pushl	5*4(%esp)
