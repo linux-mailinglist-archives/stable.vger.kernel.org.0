@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A3F11F20
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE26111F3B
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727437AbfEBPZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:25:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41132 "EHLO mail.kernel.org"
+        id S1726599AbfEBPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727431AbfEBPZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:25:05 -0400
+        id S1726617AbfEBPW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:22:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD36720675;
-        Thu,  2 May 2019 15:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3609220449;
+        Thu,  2 May 2019 15:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810704;
-        bh=OIiIwFpL32ezEt1GXclMSHdGI81OzQ4c3atY4iwVccE=;
+        s=default; t=1556810545;
+        bh=E2poy0g6Sl804u5T0jy1Z8irUeLl7FlDnO9jlBiUKJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Oyo/0+ODlOAXNIICkcVL7XZfHEKVEHDsXigy0lt7ac54H5zb/Irn18+l8A24ycHH
-         RcX5W7qsCBtthNsg3e7EDA4VUhHJc+XEyDRmJiW0+uc0y9MjU1qtWN/FjKx3ruNJ/T
-         KLeeHX0KKuj3OjTzGpJTEWAzI7toofmwtpOTBJ+M=
+        b=j7ost97R0OQwAWTRjziH0EUzcDvTePhfK8mHwfqp7W/QkZAjs4BZbgXk0nex6WKAN
+         Ez1zBJigE4+9s0C+VW+TO1toKkPASkKEfR+IuCgW09JeLp63PySAlAnid9U8xY+NnN
+         kNJp2WEAsiQs+E0DY9536RZLvib7D0TexgPurTys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Anirudha Sarangi <anirudh@xilinx.com>,
+        John Linn <John.Linn@xilinx.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Michal Simek <michal.simek@xilinx.com>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 30/49] net/sched: dont dereference a->goto_chain to read the chain index
+Subject: [PATCH 4.9 21/32] net: xilinx: fix possible object reference leak
 Date:   Thu,  2 May 2019 17:21:07 +0200
-Message-Id: <20190502143327.657639861@linuxfoundation.org>
+Message-Id: <20190502143320.771687142@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fe384e2fa36ca084a456fd30558cccc75b4b3fbd ]
+[ Upstream commit fa3a419d2f674b431d38748cb58fb7da17ee8949 ]
 
-callers of tcf_gact_goto_chain_index() can potentially read an old value
-of the chain index, or even dereference a NULL 'goto_chain' pointer,
-because 'goto_chain' and 'tcfa_action' are read in the traffic path
-without caring of concurrent write in the control path. The most recent
-value of chain index can be read also from a->tcfa_action (it's encoded
-there together with TC_ACT_GOTO_CHAIN bits), so we don't really need to
-dereference 'goto_chain': just read the chain id from the control action.
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Fixes: e457d86ada27 ("net: sched: add couple of goto_chain helpers")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Detected by coccinelle with the following warnings:
+./drivers/net/ethernet/xilinx/xilinx_axienet_main.c:1624:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1569, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Anirudha Sarangi <anirudh@xilinx.com>
+Cc: John Linn <John.Linn@xilinx.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: netdev@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- include/net/tc_act/tc_gact.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/net/tc_act/tc_gact.h b/include/net/tc_act/tc_gact.h
-index e82d93346b63..bb74ea83d57d 100644
---- a/include/net/tc_act/tc_gact.h
-+++ b/include/net/tc_act/tc_gact.h
-@@ -51,7 +51,7 @@ static inline bool is_tcf_gact_goto_chain(const struct tc_action *a)
- 
- static inline u32 tcf_gact_goto_chain_index(const struct tc_action *a)
- {
--	return a->goto_chain->index;
-+	return READ_ONCE(a->tcfa_action) & TC_ACT_EXT_VAL_MASK;
- }
- 
- #endif /* __NET_TC_GACT_H */
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index c688d68c39aa..a8afc92cbfca 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -1548,12 +1548,14 @@ static int axienet_probe(struct platform_device *pdev)
+ 	ret = of_address_to_resource(np, 0, &dmares);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "unable to get DMA resource\n");
++		of_node_put(np);
+ 		goto free_netdev;
+ 	}
+ 	lp->dma_regs = devm_ioremap_resource(&pdev->dev, &dmares);
+ 	if (IS_ERR(lp->dma_regs)) {
+ 		dev_err(&pdev->dev, "could not map DMA regs\n");
+ 		ret = PTR_ERR(lp->dma_regs);
++		of_node_put(np);
+ 		goto free_netdev;
+ 	}
+ 	lp->rx_irq = irq_of_parse_and_map(np, 1);
 -- 
 2.19.1
 
