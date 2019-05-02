@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F1A11F7B
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D34C11D81
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726520AbfEBPsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38786 "EHLO mail.kernel.org"
+        id S1727584AbfEBPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726958AbfEBPXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:11 -0400
+        id S1728936AbfEBPbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:31:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C60F52081C;
-        Thu,  2 May 2019 15:23:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D3B321670;
+        Thu,  2 May 2019 15:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810590;
-        bh=VkXJd7GfaGTCPs1rwOP60Aow9q6IaXg/4ZcqNq+ta3M=;
+        s=default; t=1556811068;
+        bh=ru9PthWpGSsmfn/1Nkaxy2u/a7UwNK0Wh9OvzJQUUtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znZC7yxAqgSKcCi6GLwzXvtMhpZCtAoEKfkW6MdQjZOFIqRmrXpNFEhUpe0h9y2wv
-         Zv0puLsyrM/taZ4iqG3U2VS+7W0OfvAmiuTbuDrPfuNF4Ry/6m7AQq6BSBC7JCA98Q
-         1UXfwYKqujcoV4/ZHe8JoSqg229ggdmeMj9bzyDc=
+        b=P3nwdl7rABcH9I1IwUS6zdDGnuILnuN5iIovc1UjdXHMdRyJsaX/MMcZBbqhW7rVY
+         7N5OZlQe5YSLVWF+LpwSqfittoiwmCQ1OQbUPOJDtJ8I5VX1/z3hMNcVGUmfe85fCi
+         PZoaKOKv0mawnzn4mP9BAbeiHQksXPlYfMKzac9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 17/32] net: ks8851: Delay requesting IRQ until opened
+Subject: [PATCH 5.0 061/101] drm/meson: Fix invalid pointer in meson_drv_unbind()
 Date:   Thu,  2 May 2019 17:21:03 +0200
-Message-Id: <20190502143320.148720624@linuxfoundation.org>
+Message-Id: <20190502143343.766148944@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d268f31552794abf5b6aa5af31021643411f25f5 ]
+[ Upstream commit 776e78677f514ecddd12dba48b9040958999bd5a ]
 
-The ks8851 driver currently requests the IRQ before registering the
-net_device.  Because the net_device name is used as IRQ name and is
-still "eth%d" when the IRQ is requested, it's impossibe to tell IRQs
-apart if multiple ks8851 chips are present.  Most other drivers delay
-requesting the IRQ until the net_device is opened.  Do the same.
+meson_drv_bind() registers a meson_drm struct as the device's privdata,
+but meson_drv_unbind() tries to retrieve a drm_device. This may cause a
+segfault on shutdown:
 
-The driver doesn't enable interrupts on the chip before opening the
-net_device and disables them when closing it, so there doesn't seem to
-be a need to request the IRQ already on probe.
+[ 5194.593429] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000197
+ ...
+[ 5194.788850] Call trace:
+[ 5194.791349]  drm_dev_unregister+0x1c/0x118 [drm]
+[ 5194.795848]  meson_drv_unbind+0x50/0x78 [meson_drm]
 
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Retrieve the right pointer in meson_drv_unbind().
+
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190322152657.13752-1-jean-philippe.brucker@arm.com
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/meson/meson_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index a8c5641ff955..ff6cab4f6343 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -797,6 +797,15 @@ static void ks8851_tx_work(struct work_struct *work)
- static int ks8851_net_open(struct net_device *dev)
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 12ff47b13668..c1115a96453f 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -336,8 +336,8 @@ static int meson_drv_bind(struct device *dev)
+ 
+ static void meson_drv_unbind(struct device *dev)
  {
- 	struct ks8851_net *ks = netdev_priv(dev);
-+	int ret;
-+
-+	ret = request_threaded_irq(dev->irq, NULL, ks8851_irq,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   dev->name, ks);
-+	if (ret < 0) {
-+		netdev_err(dev, "failed to get irq\n");
-+		return ret;
-+	}
+-	struct drm_device *drm = dev_get_drvdata(dev);
+-	struct meson_drm *priv = drm->dev_private;
++	struct meson_drm *priv = dev_get_drvdata(dev);
++	struct drm_device *drm = priv->drm;
  
- 	/* lock the card, even if we may not actually be doing anything
- 	 * else at the moment */
-@@ -911,6 +920,8 @@ static int ks8851_net_stop(struct net_device *dev)
- 		dev_kfree_skb(txb);
- 	}
- 
-+	free_irq(dev->irq, ks);
-+
- 	return 0;
- }
- 
-@@ -1542,14 +1553,6 @@ static int ks8851_probe(struct spi_device *spi)
- 	ks8851_read_selftest(ks);
- 	ks8851_init_mac(ks);
- 
--	ret = request_threaded_irq(spi->irq, NULL, ks8851_irq,
--				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				   ndev->name, ks);
--	if (ret < 0) {
--		dev_err(&spi->dev, "failed to get irq\n");
--		goto err_irq;
--	}
--
- 	ret = register_netdev(ndev);
- 	if (ret) {
- 		dev_err(&spi->dev, "failed to register network device\n");
-@@ -1562,11 +1565,7 @@ static int ks8851_probe(struct spi_device *spi)
- 
- 	return 0;
- 
--
- err_netdev:
--	free_irq(ndev->irq, ks);
--
--err_irq:
- err_id:
- 	if (gpio_is_valid(gpio))
- 		gpio_set_value(gpio, 0);
-@@ -1587,7 +1586,6 @@ static int ks8851_remove(struct spi_device *spi)
- 		dev_info(&spi->dev, "remove\n");
- 
- 	unregister_netdev(priv->netdev);
--	free_irq(spi->irq, priv);
- 	if (gpio_is_valid(priv->gpio))
- 		gpio_set_value(priv->gpio, 0);
- 	regulator_disable(priv->vdd_reg);
+ 	if (priv->canvas) {
+ 		meson_canvas_free(priv->canvas, priv->canvas_id_osd1);
 -- 
 2.19.1
 
