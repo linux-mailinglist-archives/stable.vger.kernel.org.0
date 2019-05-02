@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7380411F48
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3438211F6D
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726833AbfEBPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38236 "EHLO mail.kernel.org"
+        id S1726724AbfEBPYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726809AbfEBPWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:47 -0400
+        id S1726769AbfEBPYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:24:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1687A20675;
-        Thu,  2 May 2019 15:22:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADA382085A;
+        Thu,  2 May 2019 15:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810566;
-        bh=rPDTKpxLtWVx3Ngis1eC/2Bn9FdqpXs4F64UVxD6DTA=;
+        s=default; t=1556810678;
+        bh=rfnD1DDuit9QawVxPT4jQHRi6d0WphtiqeoarjV9JJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MncP7KfghXYzgiWO5DUVbDo+iz3uSmwcxJ/hVuspJlxFsMYR4iBXRl2H0Y1twK3PX
-         jEoX1tZVJOE6C5unDjWiIQFa/iTLZygqgjxcByjYQziYpKMNHOYJrhiMi+pmwpoUG2
-         JTqWuBz1yHpLQ7xiJRjBP8MtUz/5WEkAfKHC14yI=
+        b=qqwydqLrzkdPNZdrJlecWERtxIKEj6GohGLbS7W3MawTX+Y0+qExzSZM7NkrnVHzz
+         /+FcO7/7mSG3PQyubklBbuSsBYbf1lSFfkNykfd/qqVzyzxVQ2X9VEp7HyUmLusS3B
+         zlHQAoKMPgrIXZXPPF9NUt++laCGkw7U0l5OqSeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 29/32] gpio: of: Fix of_gpiochip_add() error path
+Subject: [PATCH 4.14 38/49] drm/meson: Uninstall IRQ handler
 Date:   Thu,  2 May 2019 17:21:15 +0200
-Message-Id: <20190502143322.727461789@linuxfoundation.org>
+Message-Id: <20190502143328.724426473@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
+References: <20190502143323.397051088@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f7299d441a4da8a5088e651ea55023525a793a13 ]
+[ Upstream commit 2d8f92897ad816f5dda54b2ed2fd9f2d7cb1abde ]
 
-If the call to of_gpiochip_scan_gpios() in of_gpiochip_add() fails, no
-error handling is performed.  This lead to the need of callers to call
-of_gpiochip_remove() on failure, which causes "BAD of_node_put() on ..."
-if the failure happened before the call to of_node_get().
+meson_drv_unbind() doesn't unregister the IRQ handler, which can lead to
+use-after-free if the IRQ fires after unbind:
 
-Fix this by adding proper error handling.
+[   64.656876] Unable to handle kernel paging request at virtual address ffff000011706dbc
+...
+[   64.662001] pc : meson_irq+0x18/0x30 [meson_drm]
 
-Note that calling gpiochip_remove_pin_ranges() multiple times causes no
-harm: subsequent calls are a no-op.
+I'm assuming that a similar problem could happen on the error path of
+bind(), so uninstall the IRQ handler there as well.
 
-Fixes: dfbd379ba9b7431e ("gpio: of: Return error if gpio hog configuration failed")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190322152657.13752-2-jean-philippe.brucker@arm.com
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index aac84329c759..b863386be911 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -531,7 +531,13 @@ int of_gpiochip_add(struct gpio_chip *chip)
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 1a1b0b9cf1fa..0608243c3387 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -277,10 +277,12 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
  
- 	of_node_get(chip->of_node);
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+-		goto free_drm;
++		goto uninstall_irq;
  
--	return of_gpiochip_scan_gpios(chip);
-+	status = of_gpiochip_scan_gpios(chip);
-+	if (status) {
-+		of_node_put(chip->of_node);
-+		gpiochip_remove_pin_ranges(chip);
-+	}
-+
-+	return status;
- }
+ 	return 0;
  
- void of_gpiochip_remove(struct gpio_chip *chip)
++uninstall_irq:
++	drm_irq_uninstall(drm);
+ free_drm:
+ 	drm_dev_unref(drm);
+ 
+@@ -298,6 +300,7 @@ static void meson_drv_unbind(struct device *dev)
+ 	struct drm_device *drm = priv->drm;
+ 
+ 	drm_dev_unregister(drm);
++	drm_irq_uninstall(drm);
+ 	drm_kms_helper_poll_fini(drm);
+ 	drm_fbdev_cma_fini(priv->fbdev);
+ 	drm_mode_config_cleanup(drm);
 -- 
 2.19.1
 
