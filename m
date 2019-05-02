@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD3E11F50
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D9E11EEF
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726969AbfEBPXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
+        id S1727167AbfEBPns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726978AbfEBPXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:23:16 -0400
+        id S1727340AbfEBP1J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:27:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DBA320675;
-        Thu,  2 May 2019 15:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8B37208C4;
+        Thu,  2 May 2019 15:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810595;
-        bh=7txGcVyoUCHAkF+h3UiYC9pjFD6QBIsiwjOWqny7tVU=;
+        s=default; t=1556810828;
+        bh=AEVPONUc6OvFBB8Yxfip2dKnmzoT+a1ZJIOAZcEZVHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woPseF32U/30lDG+lETlmOz26/dFi5o1dVCLMbAHpGpxzyp6S9jjDOTe5yhl7hTNs
-         FVGwyyB9jd/VnqVm/ELOxXoQALhqRAUV1/NhGNVTV9G9X+XIItKR6nZU8lVBDWXtQb
-         MR7n/ThCYzs9JPrxmS3t4LG5GTD6DByf6T4vv7wU=
+        b=V0ZWYexExhYmzK1fIDS4InV/WMJCmTZ+v+LLW6Av2eauApgvLdr86iKQLGd0J6oFX
+         00doOXsz2UNkkX2GNZTBBAtuHoYf8Gqt9KNJnD3RMXhIvgATjgFIcSfK2UGx3paHKE
+         22KQ2s2RreXpaOboag8ntzeN5ItpBs/ws55GWrsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Masanari Iida <standby24x7@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 19/32] staging: rtl8712: uninitialized memory in read_bbreg_hdl()
+Subject: [PATCH 4.19 43/72] ARM: dts: imx6qdl: Fix typo in imx6qdl-icore-rqs.dtsi
 Date:   Thu,  2 May 2019 17:21:05 +0200
-Message-Id: <20190502143320.447183085@linuxfoundation.org>
+Message-Id: <20190502143336.915085208@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 22c971db7dd4b0ad8dd88e99c407f7a1f4231a2e ]
+[ Upstream commit 41b37f4c0fa67185691bcbd30201cad566f2f0d1 ]
 
-Colin King reported a bug in read_bbreg_hdl():
+This patch fixes a spelling typo.
 
-	memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
-
-The problem is that "val" is uninitialized.
-
-This code is obviously not useful, but so far as I can tell
-"pcmd->cmdcode" is never GEN_CMD_CODE(_Read_BBREG) so it's not harmful
-either.  For now the easiest fix is to just call r8712_free_cmd_obj()
-and return.
-
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+Fixes: cc42603de320 ("ARM: dts: imx6q-icore-rqs: Add Engicam IMX6 Q7 initial support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c | 10 +---------
- drivers/staging/rtl8712/rtl8712_cmd.h |  2 +-
- 2 files changed, 2 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/imx6qdl-icore-rqs.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/rtl8712_cmd.c b/drivers/staging/rtl8712/rtl8712_cmd.c
-index 9f61583af150..41b667c8385c 100644
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -158,17 +158,9 @@ static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
- 
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
--	u32 val;
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
- 
--	if (pcmd->rsp && pcmd->rspsz > 0)
--		memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
-+	r8712_free_cmd_obj(pcmd);
- 	return H2C_SUCCESS;
- }
- 
-diff --git a/drivers/staging/rtl8712/rtl8712_cmd.h b/drivers/staging/rtl8712/rtl8712_cmd.h
-index 67e9e910aef9..d10a59d4a550 100644
---- a/drivers/staging/rtl8712/rtl8712_cmd.h
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.h
-@@ -152,7 +152,7 @@ enum rtl8712_h2c_cmd {
- static struct _cmd_callback	cmd_callback[] = {
- 	{GEN_CMD_CODE(_Read_MACREG), NULL}, /*0*/
- 	{GEN_CMD_CODE(_Write_MACREG), NULL},
--	{GEN_CMD_CODE(_Read_BBREG), &r8712_getbbrfreg_cmdrsp_callback},
-+	{GEN_CMD_CODE(_Read_BBREG), NULL},
- 	{GEN_CMD_CODE(_Write_BBREG), NULL},
- 	{GEN_CMD_CODE(_Read_RFREG), &r8712_getbbrfreg_cmdrsp_callback},
- 	{GEN_CMD_CODE(_Write_RFREG), NULL}, /*5*/
+diff --git a/arch/arm/boot/dts/imx6qdl-icore-rqs.dtsi b/arch/arm/boot/dts/imx6qdl-icore-rqs.dtsi
+index acc3b11fba2a..cde3025d9603 100644
+--- a/arch/arm/boot/dts/imx6qdl-icore-rqs.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-icore-rqs.dtsi
+@@ -298,7 +298,7 @@
+ 	pinctrl-2 = <&pinctrl_usdhc3_200mhz>;
+ 	vmcc-supply = <&reg_sd3_vmmc>;
+ 	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
+-	bus-witdh = <4>;
++	bus-width = <4>;
+ 	no-1-8-v;
+ 	status = "okay";
+ };
+@@ -309,7 +309,7 @@
+ 	pinctrl-1 = <&pinctrl_usdhc4_100mhz>;
+ 	pinctrl-2 = <&pinctrl_usdhc4_200mhz>;
+ 	vmcc-supply = <&reg_sd4_vmmc>;
+-	bus-witdh = <8>;
++	bus-width = <8>;
+ 	no-1-8-v;
+ 	non-removable;
+ 	status = "okay";
 -- 
 2.19.1
 
