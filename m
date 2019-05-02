@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A58EE11F5E
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7ED911F4D
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbfEBPYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
+        id S1726923AbfEBPXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727183AbfEBPYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:02 -0400
+        id S1726852AbfEBPXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:23:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1042B2081C;
-        Thu,  2 May 2019 15:24:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B55320449;
+        Thu,  2 May 2019 15:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810641;
-        bh=Y1q/zmXcyw9R3cDss6gqtKA4Dug7mtQrDsv8A40xHbU=;
+        s=default; t=1556810582;
+        bh=1BIVo3pVY2ZtWEenmS3Wmcbt8cA5RI3kvqpgpyigA0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ScuAKeuPV0Pa331tYRs+mEYjDKubbuuOV6IPHXanFdohNHyFQzcExTY6RROQoJjA+
-         suaUp+x4NVgs15kF5z5iQX6NfKiDHNTN5Jw8tacanAfEqWUhG/csdpezSA3artBxMq
-         TaGTP2YFqMG/cPhJu6S+UJTqqSKI2bb1QoqQpJeA=
+        b=OWo/8zknsH7hD8Pillo7OUPqsqvR/2mCrK1lXjkQ/rkpcxjnzifNC5OFXpfxoldxx
+         ppY8A9TjtNDzP6hgWVF5ERu4PCLvRWcZvlJMuvoxCc7OKRTsZRhH8PFfATmFU8SNJi
+         1NO92iDMkJNrDrngRNJUA0UpMGeAQKsNSIFIByPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Stefan Christ <s.christ@phytec.de>,
+        Christian Hemp <c.hemp@phytec.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 23/49] net: ks8851: Delay requesting IRQ until opened
+Subject: [PATCH 4.9 14/32] ARM: dts: pfla02: increase phy reset duration
 Date:   Thu,  2 May 2019 17:21:00 +0200
-Message-Id: <20190502143326.834120750@linuxfoundation.org>
+Message-Id: <20190502143319.301837113@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d268f31552794abf5b6aa5af31021643411f25f5 ]
+[ Upstream commit 032f85c9360fb1a08385c584c2c4ed114b33c260 ]
 
-The ks8851 driver currently requests the IRQ before registering the
-net_device.  Because the net_device name is used as IRQ name and is
-still "eth%d" when the IRQ is requested, it's impossibe to tell IRQs
-apart if multiple ks8851 chips are present.  Most other drivers delay
-requesting the IRQ until the net_device is opened.  Do the same.
+Increase the reset duration to ensure correct phy functionality. The
+reset duration is taken from barebox commit 52fdd510de ("ARM: dts:
+pfla02: use long enough reset for ethernet phy"):
 
-The driver doesn't enable interrupts on the chip before opening the
-net_device and disables them when closing it, so there doesn't seem to
-be a need to request the IRQ already on probe.
+  Use a longer reset time for ethernet phy Micrel KSZ9031RNX. Otherwise a
+  small percentage of modules have 'transmission timeouts' errors like
 
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  barebox@Phytec phyFLEX-i.MX6 Quad Carrier-Board:/ ifup eth0
+  warning: No MAC address set. Using random address 7e:94:4d:02:f8:f3
+  eth0: 1000Mbps full duplex link detected
+  eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+  T eth0: transmission timeout
+
+Cc: Stefan Christ <s.christ@phytec.de>
+Cc: Christian Hemp <c.hemp@phytec.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 3180f956668e ("ARM: dts: Phytec imx6q pfla02 and pbab01 support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index 546a79b9cb15..b8f20aa2b7ad 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -776,6 +776,15 @@ static void ks8851_tx_work(struct work_struct *work)
- static int ks8851_net_open(struct net_device *dev)
- {
- 	struct ks8851_net *ks = netdev_priv(dev);
-+	int ret;
-+
-+	ret = request_threaded_irq(dev->irq, NULL, ks8851_irq,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   dev->name, ks);
-+	if (ret < 0) {
-+		netdev_err(dev, "failed to get irq\n");
-+		return ret;
-+	}
- 
- 	/* lock the card, even if we may not actually be doing anything
- 	 * else at the moment */
-@@ -890,6 +899,8 @@ static int ks8851_net_stop(struct net_device *dev)
- 		dev_kfree_skb(txb);
- 	}
- 
-+	free_irq(dev->irq, ks);
-+
- 	return 0;
- }
- 
-@@ -1520,14 +1531,6 @@ static int ks8851_probe(struct spi_device *spi)
- 	ks8851_read_selftest(ks);
- 	ks8851_init_mac(ks);
- 
--	ret = request_threaded_irq(spi->irq, NULL, ks8851_irq,
--				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				   ndev->name, ks);
--	if (ret < 0) {
--		dev_err(&spi->dev, "failed to get irq\n");
--		goto err_irq;
--	}
--
- 	ret = register_netdev(ndev);
- 	if (ret) {
- 		dev_err(&spi->dev, "failed to register network device\n");
-@@ -1540,11 +1543,7 @@ static int ks8851_probe(struct spi_device *spi)
- 
- 	return 0;
- 
--
- err_netdev:
--	free_irq(ndev->irq, ks);
--
--err_irq:
- err_id:
- 	if (gpio_is_valid(gpio))
- 		gpio_set_value(gpio, 0);
-@@ -1565,7 +1564,6 @@ static int ks8851_remove(struct spi_device *spi)
- 		dev_info(&spi->dev, "remove\n");
- 
- 	unregister_netdev(priv->netdev);
--	free_irq(spi->irq, priv);
- 	if (gpio_is_valid(priv->gpio))
- 		gpio_set_value(priv->gpio, 0);
- 	regulator_disable(priv->vdd_reg);
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index e0280cac2484..fed72a5f3ffa 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -90,6 +90,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	phy-reset-duration = <10>; /* in msecs */
+ 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+ 	phy-supply = <&vdd_eth_io_reg>;
+ 	status = "disabled";
 -- 
 2.19.1
 
