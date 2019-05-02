@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC73B11F0D
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D8111EB9
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbfEBPZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42106 "EHLO mail.kernel.org"
+        id S1727836AbfEBPj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727587AbfEBPZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:25:41 -0400
+        id S1728426AbfEBP31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:29:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4473820B7C;
-        Thu,  2 May 2019 15:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08341216FD;
+        Thu,  2 May 2019 15:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810740;
-        bh=UKjT9EWMSlisdkdHMpuQfPtWIf4rtQi8MIWPWYdnC0U=;
+        s=default; t=1556810966;
+        bh=bYW8/Xmc7CpnAqWyvgEBWI/CoTdqcYb11ufflwpm/rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbvK/CMH1XfQUYDAAxP+6pJMldpTp5ojZGN2bIw66rH+W9qD12YllTSOJ1PsjxGmq
-         FvLqNif0I7NmiTN/BhioUld+JWxz27fMUqv+XNjWaOcfGAYN0ul9FOq0XJcypU6gfj
-         Fh1PXKnKiGoTvnA1+L0++fTRF70KlpCmxkM7hihs=
+        b=mjN7Nd/6WCH3oo5f7N5LJAbcIKbfmzmy9sT4bgj/ogI/jVWb6AXQwnfW1bM6chNDB
+         /0qpd5wlW1l9IoauLtQVcfBn9k8o6eQ+xuLaVxRYQR3Fnfsr0/qaXxkTeWiljXEwiW
+         5pSJHBfM7Z+2BPXQVaS+nJ1tEW04bp31gQO8RmQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Jann Horn <jannh@google.com>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 04/72] mm: add try_get_page() helper function
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Florian Westphal <fw@strlen.de>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 024/101] netfilter: bridge: set skb transport_header before entering NF_INET_PRE_ROUTING
 Date:   Thu,  2 May 2019 17:20:26 +0200
-Message-Id: <20190502143333.829739491@linuxfoundation.org>
+Message-Id: <20190502143341.423182462@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+[ Upstream commit e166e4fdaced850bee3d5ee12a5740258fb30587 ]
 
-commit 88b1a17dfc3ed7728316478fae0f5ad508f50397 upstream.
+Since Commit 21d1196a35f5 ("ipv4: set transport header earlier"),
+skb->transport_header has been always set before entering INET
+netfilter. This patch is to set skb->transport_header for bridge
+before entering INET netfilter by bridge-nf-call-iptables.
 
-This is the same as the traditional 'get_page()' function, but instead
-of unconditionally incrementing the reference count of the page, it only
-does so if the count was "safe".  It returns whether the reference count
-was incremented (and is marked __must_check, since the caller obviously
-has to be aware of it).
+It also fixes an issue that sctp_error() couldn't compute a right
+csum due to unset skb->transport_header.
 
-Also like 'get_page()', you can't use this function unless you already
-had a reference to the page.  The intent is that you can use this
-exactly like get_page(), but in situations where you want to limit the
-maximum reference count.
-
-The code currently does an unconditional WARN_ON_ONCE() if we ever hit
-the reference count issues (either zero or negative), as a notification
-that the conditional non-increment actually happened.
-
-NOTE! The count access for the "safety" check is inherently racy, but
-that doesn't matter since the buffer we use is basically half the range
-of the reference count (ie we look at the sign of the count).
-
-Acked-by: Matthew Wilcox <willy@infradead.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e6d8b64b34aa ("net: sctp: fix and consolidate SCTP checksumming code")
+Reported-by: Li Shuang <shuali@redhat.com>
+Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- include/linux/mm.h |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/bridge/br_netfilter_hooks.c | 1 +
+ net/bridge/br_netfilter_ipv6.c  | 2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -930,6 +930,15 @@ static inline void get_page(struct page
- 	page_ref_inc(page);
- }
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 40d058378b52..fc605758323b 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -502,6 +502,7 @@ static unsigned int br_nf_pre_routing(void *priv,
+ 	nf_bridge->ipv4_daddr = ip_hdr(skb)->daddr;
  
-+static inline __must_check bool try_get_page(struct page *page)
-+{
-+	page = compound_head(page);
-+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
-+		return false;
-+	page_ref_inc(page);
-+	return true;
-+}
+ 	skb->protocol = htons(ETH_P_IP);
++	skb->transport_header = skb->network_header + ip_hdr(skb)->ihl * 4;
+ 
+ 	NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
+ 		skb->dev, NULL,
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index 564710f88f93..e88d6641647b 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -235,6 +235,8 @@ unsigned int br_nf_pre_routing_ipv6(void *priv,
+ 	nf_bridge->ipv6_daddr = ipv6_hdr(skb)->daddr;
+ 
+ 	skb->protocol = htons(ETH_P_IPV6);
++	skb->transport_header = skb->network_header + sizeof(struct ipv6hdr);
 +
- static inline void put_page(struct page *page)
- {
- 	page = compound_head(page);
+ 	NF_HOOK(NFPROTO_IPV6, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
+ 		skb->dev, NULL,
+ 		br_nf_pre_routing_finish_ipv6);
+-- 
+2.19.1
+
 
 
