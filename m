@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3770A11DF3
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFCE11CE2
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbfEBPa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49842 "EHLO mail.kernel.org"
+        id S1726814AbfEBP0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbfEBPa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:30:59 -0400
+        id S1727145AbfEBP0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F127520B7C;
-        Thu,  2 May 2019 15:30:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4878A20675;
+        Thu,  2 May 2019 15:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811058;
-        bh=Y0K7P0IsU1YwVGWUMhlOZ8Zl2XsPlxv4nMMMN/QNaAQ=;
+        s=default; t=1556810759;
+        bh=qQn0/K5CrRb6a/UDIpJ0+TmSgtkLdapNLzx/sKNBoVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frNC/7WT5gu2ykpn8HTZenwZ+RjtU/e5QG2UjkucOc447VCrOESDYvTLDAm1Fg5JM
-         bgzGGUW3TvlNaxBYCElbL8lzX4aasU7yl1rgiSnaE6f5ek2Q/ZYV/ZxOwvdlKGGADd
-         C90MPg5qf7kua/IYjxk4WiKumQKf4DWs8px6nZu0=
+        b=jxt9aYoT+wR+xwBYwiLqNGB6To0o5Pr48t5tCXZnZ4Fv4HjsQEGPFAAouJnkLz23w
+         GcVrNKPSzxFDS9faRugG8xVONCWWb6vt922HSRILlJ563b6wyD2FzsrvAaXgkCwRYG
+         9V2uug7VDesY7cy87yeeNhsTJSNJ1Py5Mf5Wo7PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien.grall@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 031/101] KVM: arm64: Reset the PMU in preemptible context
+Subject: [PATCH 4.19 11/72] net: stmmac: dont set own bit too early for jumbo frames
 Date:   Thu,  2 May 2019 17:20:33 +0200
-Message-Id: <20190502143341.723021357@linuxfoundation.org>
+Message-Id: <20190502143334.324197718@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ebff0b0e3d3c862c16c487959db5e0d879632559 ]
+[ Upstream commit 80acbed9f8fca1db3fbe915540b756f048aa0fd7 ]
 
-We've become very cautious to now always reset the vcpu when nothing
-is loaded on the physical CPU. To do so, we now disable preemption
-and do a kvm_arch_vcpu_put() to make sure we have all the state
-in memory (and that it won't be loaded behind out back).
+Commit 0e80bdc9a72d ("stmmac: first frame prep at the end of xmit
+routine") overlooked jumbo frames when re-ordering the code, and as a
+result the own bit was not getting set anymore for the first jumbo frame
+descriptor. Commit 487e2e22ab79 ("net: stmmac: Set OWN bit for jumbo
+frames") tried to fix this, but now the bit is getting set too early and
+the DMA may start while we are still setting up the remaining descriptors.
+And with the chain mode the own bit remains still unset.
 
-This now causes issues with resetting the PMU, which calls into perf.
-Perf itself uses mutexes, which clashes with the lack of preemption.
-It is worth realizing that the PMU is fully emulated, and that
-no PMU state is ever loaded on the physical CPU. This means we can
-perfectly reset the PMU outside of the non-preemptible section.
+Fix by setting the own bit at the end of xmit also with jumbo frames.
 
-Fixes: e761a927bc9a ("KVM: arm/arm64: Reset the VCPU without preemption and vcpu state loaded")
-Reported-by: Julien Grall <julien.grall@arm.com>
-Tested-by: Julien Grall <julien.grall@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Fixes: 0e80bdc9a72d ("stmmac: first frame prep at the end of xmit routine")
+Fixes: 487e2e22ab79 ("net: stmmac: Set OWN bit for jumbo frames")
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+Acked-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/arm64/kvm/reset.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
-index f16a5f8ff2b4..e2a0500cd7a2 100644
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -123,6 +123,9 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 	int ret = -EINVAL;
- 	bool loaded;
- 
-+	/* Reset PMU outside of the non-preemptible section */
-+	kvm_pmu_vcpu_reset(vcpu);
-+
- 	preempt_disable();
- 	loaded = (vcpu->cpu != -1);
- 	if (loaded)
-@@ -170,9 +173,6 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 		vcpu->arch.reset_state.reset = false;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 62460a5b4ad9..39c105092214 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3195,14 +3195,16 @@ static netdev_tx_t stmmac_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		stmmac_prepare_tx_desc(priv, first, 1, nopaged_len,
+ 				csum_insertion, priv->mode, 1, last_segment,
+ 				skb->len);
+-
+-		/* The own bit must be the latest setting done when prepare the
+-		 * descriptor and then barrier is needed to make sure that
+-		 * all is coherent before granting the DMA engine.
+-		 */
+-		wmb();
++	} else {
++		stmmac_set_tx_owner(priv, first);
  	}
  
--	/* Reset PMU */
--	kvm_pmu_vcpu_reset(vcpu);
--
- 	/* Default workaround setup is enabled (if supported) */
- 	if (kvm_arm_have_ssbd() == KVM_SSBD_KERNEL)
- 		vcpu->arch.workaround_flags |= VCPU_WORKAROUND_2_FLAG;
++	/* The own bit must be the latest setting done when prepare the
++	 * descriptor and then barrier is needed to make sure that
++	 * all is coherent before granting the DMA engine.
++	 */
++	wmb();
++
+ 	netdev_tx_sent_queue(netdev_get_tx_queue(dev, queue), skb->len);
+ 
+ 	stmmac_enable_dma_transmission(priv, priv->ioaddr);
 -- 
 2.19.1
 
