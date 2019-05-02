@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6679F11F65
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CEF11F02
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbfEBPYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:24:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40196 "EHLO mail.kernel.org"
+        id S1726817AbfEBP0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:26:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727259AbfEBPYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:20 -0400
+        id S1727663AbfEBP0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:26:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ECBE2081C;
-        Thu,  2 May 2019 15:24:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D393C2081C;
+        Thu,  2 May 2019 15:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810659;
-        bh=43Wx7ufeKBgKvgVXesu2MuU8wP1RhKxMfcNoIfIQnIQ=;
+        s=default; t=1556810762;
+        bh=kw0SEU1fYOOVed2EWjsU4W6r8umOhNzjGb+OOAZ2sms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJaiQwx1vIAiug0MheTdIj4wLfzVl4fQ5FBBx66BNwATEJ+Eb7aqgeV7wxb946hwp
-         NeVuYY93m7HzGJ7Pzn3mAASf50ncdMCMGSvylyWVCCSLx65oTqmZXmEiWYo0+iK26g
-         Fe/y3oImJxZ3MRBFn9ixgaBV7SctXzBbOYdVFzpg=
+        b=QYwzPkZq+uIXEgqqO6ET2IyXOw/AKF2rIDFJRR5ppK8ix1FgeOKpWOEDAtL8+Hfcs
+         KWHwT5CcjyN94IXiJPQkC1kkIKEAM+qZQ6ApGFXgakGJY1Ih5P+GuEVCEFpeinTkcC
+         RAmRpzrO7IwVFpsizh+Jm2rXW3yoNT94E9daAGKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Jann Horn <jannh@google.com>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 05/49] mm: add try_get_page() helper function
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 4.19 20/72] s390/qeth: fix race when initializing the IP address table
 Date:   Thu,  2 May 2019 17:20:42 +0200
-Message-Id: <20190502143324.714897978@linuxfoundation.org>
+Message-Id: <20190502143334.955647649@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+[ Upstream commit 7221b727f0079a32aca91f657141e1de564d4b97 ]
 
-commit 88b1a17dfc3ed7728316478fae0f5ad508f50397 upstream.
+The ucast IP table is utilized by some of the L3-specific sysfs attributes
+that qeth_l3_create_device_attributes() provides. So initialize the table
+_before_ registering the attributes.
 
-This is the same as the traditional 'get_page()' function, but instead
-of unconditionally incrementing the reference count of the page, it only
-does so if the count was "safe".  It returns whether the reference count
-was incremented (and is marked __must_check, since the caller obviously
-has to be aware of it).
-
-Also like 'get_page()', you can't use this function unless you already
-had a reference to the page.  The intent is that you can use this
-exactly like get_page(), but in situations where you want to limit the
-maximum reference count.
-
-The code currently does an unconditional WARN_ON_ONCE() if we ever hit
-the reference count issues (either zero or negative), as a notification
-that the conditional non-increment actually happened.
-
-NOTE! The count access for the "safety" check is inherently racy, but
-that doesn't matter since the buffer we use is basically half the range
-of the reference count (ie we look at the sign of the count).
-
-Acked-by: Matthew Wilcox <willy@infradead.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ebccc7397e4a ("s390/qeth: add missing hash table initializations")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- include/linux/mm.h |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/s390/net/qeth_l3_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -839,6 +839,15 @@ static inline void get_page(struct page
- 	page_ref_inc(page);
- }
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 7f71ca0d08e7..9c5e801b3f6c 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2586,12 +2586,14 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
+ 	int rc;
  
-+static inline __must_check bool try_get_page(struct page *page)
-+{
-+	page = compound_head(page);
-+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
-+		return false;
-+	page_ref_inc(page);
-+	return true;
-+}
++	hash_init(card->ip_htable);
 +
- static inline void put_page(struct page *page)
- {
- 	page = compound_head(page);
+ 	if (gdev->dev.type == &qeth_generic_devtype) {
+ 		rc = qeth_l3_create_device_attributes(&gdev->dev);
+ 		if (rc)
+ 			return rc;
+ 	}
+-	hash_init(card->ip_htable);
++
+ 	hash_init(card->ip_mc_htable);
+ 	card->options.layer2 = 0;
+ 	card->info.hwtrap = 0;
+-- 
+2.19.1
+
 
 
