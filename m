@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1876911F45
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0547A11DD2
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbfEBPWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38110 "EHLO mail.kernel.org"
+        id S1728105AbfEBPdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:33:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726711AbfEBPWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:22:42 -0400
+        id S1729285AbfEBPcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2B0E214DA;
-        Thu,  2 May 2019 15:22:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBCBD2081C;
+        Thu,  2 May 2019 15:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810561;
-        bh=wn9NK9BonpFtix8c3B2GMJjIcTZDq56qxvXJhz5UG1Q=;
+        s=default; t=1556811175;
+        bh=TIF04Z/Lv3iGuadkLwXaDkgKC/e5kCrQWQcV1wlwvIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKwDDiSTgmkq0Dj7QASfpPReynxM6UgBcS04WVWsLSZ0+nmsTonFyMVVCoAl8RZXM
-         ocPgUyQq4gSqZE7XA+UqmxCR/jLeENvOyqRw/LTG9qZWjKeweDOTGh2Jcf/F2qv6O4
-         cdHM15voO+FF1mifYKHQuaZuabPPg2N8cZU7F4cw=
+        b=af41vASEa6oId0gmIOyG/+Wxlf2SFhSPVW9cVIyNM1wXimWIDFwE3Jyv2ZScIDhDg
+         nxCoBZYjtg2ZrPX0yC4q4lKXNh203dNiAu5OcBsSLE50+Qbg9x2YpNm4yVp+Pnx3Cr
+         V0MkIyPlJe95U+vMVbrs1Kyy/0W0hvvTB6VDCnYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Alakesh Haloi <alakesh.haloi@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.9 27/32] scsi: zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
+Subject: [PATCH 5.0 071/101] SUNRPC: fix uninitialized variable warning
 Date:   Thu,  2 May 2019 17:21:13 +0200
-Message-Id: <20190502143322.130184791@linuxfoundation.org>
+Message-Id: <20190502143344.684910273@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
-References: <20190502143314.649935114@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,109 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c8206579175c34a2546de8a74262456278a7795a ]
+[ Upstream commit 01f2f5b82a2b523ae76af53f2ff43c48dde10a00 ]
 
-If an incoming ELS of type RSCN contains more than one element, zfcp
-suboptimally causes repeated erp trigger NOP trace records for each
-previously failed port. These could be ports that went away.  It loops over
-each RSCN element, and for each of those in an inner loop over all
-zfcp_ports.
+Avoid following compiler warning on uninitialized variable
 
-The trigger to recover failed ports should be just the reception of some
-RSCN, no matter how many elements it has. So we can loop over failed ports
-separately, and only then loop over each RSCN element to handle the
-non-failed ports.
+net/sunrpc/xprtsock.c: In function ‘xs_read_stream_request.constprop’:
+net/sunrpc/xprtsock.c:525:10: warning: ‘read’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+   return read;
+          ^~~~
+net/sunrpc/xprtsock.c:529:23: warning: ‘ret’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  return ret < 0 ? ret : read;
+         ~~~~~~~~~~~~~~^~~~~~
 
-The call chain was:
-
-  zfcp_fc_incoming_rscn
-    for (i = 1; i < no_entries; i++)
-      _zfcp_fc_incoming_rscn
-        list_for_each_entry(port, &adapter->port_list, list)
-          if (masked port->d_id match) zfcp_fc_test_link
-          if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"   <===
-
-In order the reduce the "flooding" of the REC trace area in such cases, we
-factor out handling the failed ports to be outside of the entries loop:
-
-  zfcp_fc_incoming_rscn
-    if (no_entries > 1)                                     <===
-      list_for_each_entry(port, &adapter->port_list, list)  <===
-        if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"     <===
-    for (i = 1; i < no_entries; i++)
-      _zfcp_fc_incoming_rscn
-        list_for_each_entry(port, &adapter->port_list, list)
-          if (masked port->d_id match) zfcp_fc_test_link
-
-Abbreviated example trace records before this code change:
-
-Tag            : fcrscn1
-WWPN           : 0x500507630310d327
-ERP want       : 0x02
-ERP need       : 0x02
-
-Tag            : fcrscn1
-WWPN           : 0x500507630310d327
-ERP want       : 0x02
-ERP need       : 0x00                 NOP => superfluous trace record
-
-The last trace entry repeats if there are more than 2 RSCN elements.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Alakesh Haloi <alakesh.haloi@gmail.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_fc.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ net/sunrpc/xprtsock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 237688af179b..f7630cf581cd 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -238,10 +238,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
- 	list_for_each_entry(port, &adapter->port_list, list) {
- 		if ((port->d_id & range) == (ntoh24(page->rscn_fid) & range))
- 			zfcp_fc_test_link(port);
--		if (!port->d_id)
--			zfcp_erp_port_reopen(port,
--					     ZFCP_STATUS_COMMON_ERP_FAILED,
--					     "fcrscn1");
- 	}
- 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
- }
-@@ -249,6 +245,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
- static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 7754aa3e434f..f88c2bd1335a 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -486,8 +486,8 @@ xs_read_stream_request(struct sock_xprt *transport, struct msghdr *msg,
+ 		int flags, struct rpc_rqst *req)
  {
- 	struct fsf_status_read_buffer *status_buffer = (void *)fsf_req->data;
-+	struct zfcp_adapter *adapter = fsf_req->adapter;
- 	struct fc_els_rscn *head;
- 	struct fc_els_rscn_page *page;
- 	u16 i;
-@@ -261,6 +258,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
- 	/* see FC-FS */
- 	no_entries = head->rscn_plen / sizeof(struct fc_els_rscn_page);
+ 	struct xdr_buf *buf = &req->rq_private_buf;
+-	size_t want, read;
+-	ssize_t ret;
++	size_t want, uninitialized_var(read);
++	ssize_t uninitialized_var(ret);
  
-+	if (no_entries > 1) {
-+		/* handle failed ports */
-+		unsigned long flags;
-+		struct zfcp_port *port;
-+
-+		read_lock_irqsave(&adapter->port_list_lock, flags);
-+		list_for_each_entry(port, &adapter->port_list, list) {
-+			if (port->d_id)
-+				continue;
-+			zfcp_erp_port_reopen(port,
-+					     ZFCP_STATUS_COMMON_ERP_FAILED,
-+					     "fcrscn1");
-+		}
-+		read_unlock_irqrestore(&adapter->port_list_lock, flags);
-+	}
-+
- 	for (i = 1; i < no_entries; i++) {
- 		/* skip head and start with 1st element */
- 		page++;
+ 	xs_read_header(transport, buf);
+ 
 -- 
 2.19.1
 
