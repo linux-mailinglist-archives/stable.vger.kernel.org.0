@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1985011E2C
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A836911DF8
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbfEBP0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
+        id S1727492AbfEBPay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727819AbfEBP0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:48 -0400
+        id S1727097AbfEBPay (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:30:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E5DC2085A;
-        Thu,  2 May 2019 15:26:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E06492081C;
+        Thu,  2 May 2019 15:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810807;
-        bh=gekNsEzgSHkYP5jSNIiRS2kgZaj324muWZGEBXZoKps=;
+        s=default; t=1556811053;
+        bh=IdYfBAf9kVErGJENq0rn63Vkl12PCHwRv+6MEgLtK6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBzX15vutEW0+8Dy6MNXenmIFk6KbrU8AXKYM65RWelb5QZac4shZlInBRZkmlL8O
-         g01mZ1RNRuwoJVWoF/QRZCMuSE/IDJZXD5I4CwDfu/NybWz8knkFAr6g2DVT/6p8iI
-         q7C4dxyf4GYpR1YelZwTpbKLtNSm0NVbLOkUXC14=
+        b=E1kxO5XtmGZm3qvYxF/8cRw3PMBZ+KknzWjVulbbG6jRXGmyEBo55Fy0Ps6iqRXPH
+         Azhv+SxFMP5/IupwnNj51uwcRKZz8rT6JwZnMCg3DpeI31Bz9BYnYT8oUXH/Uwfrok
+         7q29pBObkpVNLe+TaSAbP3rr9qdr7Fzl3WRnkx0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Anirudha Sarangi <anirudh@xilinx.com>,
+        John Linn <John.Linn@xilinx.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Michal Simek <michal.simek@xilinx.com>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 36/72] net: ks8851: Set initial carrier state to down
+Subject: [PATCH 5.0 056/101] net: xilinx: fix possible object reference leak
 Date:   Thu,  2 May 2019 17:20:58 +0200
-Message-Id: <20190502143336.401214899@linuxfoundation.org>
+Message-Id: <20190502143343.413795985@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9624bafa5f6418b9ca5b3f66d1f6a6a2e8bf6d4c ]
+[ Upstream commit fa3a419d2f674b431d38748cb58fb7da17ee8949 ]
 
-The ks8851 chip's initial carrier state is down. A Link Change Interrupt
-is signaled once interrupts are enabled if the carrier is up.
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-The ks8851 driver has it backwards by assuming that the initial carrier
-state is up. The state is therefore misrepresented if the interface is
-opened with no cable attached. Fix it.
+Detected by coccinelle with the following warnings:
+./drivers/net/ethernet/xilinx/xilinx_axienet_main.c:1624:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1569, but without a corresponding object release within this function.
 
-The Link Change interrupt is sometimes not signaled unless the P1MBSR
-register (which contains the Link Status bit) is read on ->ndo_open().
-This might be a hardware erratum. Read the register by calling
-mii_check_link(), which has the desirable side effect of setting the
-carrier state to down if the cable was detached while the interface was
-closed.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Anirudha Sarangi <anirudh@xilinx.com>
+Cc: John Linn <John.Linn@xilinx.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: netdev@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 2 ++
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index c9faec4c5b25..b83b070a9eec 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -858,6 +858,7 @@ static int ks8851_net_open(struct net_device *dev)
- 	netif_dbg(ks, ifup, ks->netdev, "network device up\n");
- 
- 	mutex_unlock(&ks->lock);
-+	mii_check_link(&ks->mii);
- 	return 0;
- }
- 
-@@ -1519,6 +1520,7 @@ static int ks8851_probe(struct spi_device *spi)
- 
- 	spi_set_drvdata(spi, ks);
- 
-+	netif_carrier_off(ks->netdev);
- 	ndev->if_port = IF_PORT_100BASET;
- 	ndev->netdev_ops = &ks8851_netdev_ops;
- 	ndev->irq = spi->irq;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 0789d8af7d72..1ef56edb3918 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -1575,12 +1575,14 @@ static int axienet_probe(struct platform_device *pdev)
+ 	ret = of_address_to_resource(np, 0, &dmares);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "unable to get DMA resource\n");
++		of_node_put(np);
+ 		goto free_netdev;
+ 	}
+ 	lp->dma_regs = devm_ioremap_resource(&pdev->dev, &dmares);
+ 	if (IS_ERR(lp->dma_regs)) {
+ 		dev_err(&pdev->dev, "could not map DMA regs\n");
+ 		ret = PTR_ERR(lp->dma_regs);
++		of_node_put(np);
+ 		goto free_netdev;
+ 	}
+ 	lp->rx_irq = irq_of_parse_and_map(np, 1);
 -- 
 2.19.1
 
