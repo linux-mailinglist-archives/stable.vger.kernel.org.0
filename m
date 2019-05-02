@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA8911DB3
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA9911DB5
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbfEBPcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52210 "EHLO mail.kernel.org"
+        id S1729214AbfEBPcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728651AbfEBPcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:33 -0400
+        id S1729210AbfEBPcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:32:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C812520675;
-        Thu,  2 May 2019 15:32:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EE58204FD;
+        Thu,  2 May 2019 15:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811152;
-        bh=aFnUXFlRaYzH6NCPbxdKrZuk1ZJSOgHvyS+LtCDVygc=;
+        s=default; t=1556811154;
+        bh=z9O/DLDnBTmFqqtdFThko8RGkfUPkvSyGB9c+tTayOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XexrajBfztBxSi5wvfePgWpoQy01q7PUiC4OrMfA+PPVXJnhiSUq5i98D1EzgSnQx
-         +3kNbhR5c8AB9M1/u/Md1fWvIBC6/49QeIEK7SArDonzA+RelJ4tSSJ6j1mZrDjSfl
-         lRbtUSkRsXOsMZc2QjskuLI9CE16X80u0XXK51aE=
+        b=AE296F+1LlFLFZf+DazhbSWCWdYt+/r3j8Ai9zQeydSYyWt4X4s1T6NhEjdhlaQBL
+         VJ958RL1U9JkFy3cJcwAhGwaQlpGOedC6hCSyOJN1pHrdzBXpzOVe0MYvqCRDp0JGf
+         XNHbMxKC06JsL/099XrNizCW/MEhj7/pER1db7yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Solomon Tan <solomonbobstoner@gmail.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Jiri Olsa <jolsa@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        David Ahern <dsahern@gmail.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Kim Phillips <kim.phillips@arm.com>,
+        Li Bin <huawei.libin@huawei.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Robert Walker <robert.walker@arm.com>,
-        Suzuki K Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 094/101] perf cs-etm: Add missing case value
-Date:   Thu,  2 May 2019 17:21:36 +0200
-Message-Id: <20190502143346.174914362@linuxfoundation.org>
+Subject: [PATCH 5.0 095/101] perf machine: Update kernel map address and re-order properly
+Date:   Thu,  2 May 2019 17:21:37 +0200
+Message-Id: <20190502143346.229095122@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
 References: <20190502143339.434882399@linuxfoundation.org>
@@ -52,70 +52,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c8fa7a807f3c5f946bd92076fbaf7826edb650dc ]
+[ Upstream commit 977c7a6d1e263ff1d755f28595b99e4bc0c48a9f ]
 
-The following error was thrown when compiling `tools/perf` using OpenCSD
-v0.11.1. This patch fixes said error.
+Since commit 1fb87b8e9599 ("perf machine: Don't search for active kernel
+start in __machine__create_kernel_maps"), the __machine__create_kernel_maps()
+just create a map what start and end are both zero. Though the address will be
+updated later, the order of map in the rbtree may be incorrect.
 
-    CC       util/intel-pt-decoder/intel-pt-log.o
-    CC       util/cs-etm-decoder/cs-etm-decoder.o
-  util/cs-etm-decoder/cs-etm-decoder.c: In function
-  ‘cs_etm_decoder__buffer_range’:
-  util/cs-etm-decoder/cs-etm-decoder.c:370:2: error: enumeration value
-  ‘OCSD_INSTR_WFI_WFE’ not handled in switch [-Werror=switch-enum]
-    switch (elem->last_i_type) {
-    ^~~~~~
-    CC       util/intel-pt-decoder/intel-pt-decoder.o
-  cc1: all warnings being treated as errors
+The commit ee05d21791db ("perf machine: Set main kernel end address properly")
+fixed the logic in machine__create_kernel_maps(), but it's still wrong in
+function machine__process_kernel_mmap_event().
 
-Because `OCSD_INSTR_WFI_WFE` case was added only in v0.11.0, the minimum
-required OpenCSD library version for this patch is no longer v0.10.0.
+To reproduce this issue, we need an environment which the module address
+is before the kernel text segment. I tested it on an aarch64 machine with
+kernel 4.19.25:
 
-Signed-off-by: Solomon Tan <solomonbobstoner@gmail.com>
+  [root@localhost hulk]# grep _stext /proc/kallsyms
+  ffff000008081000 T _stext
+  [root@localhost hulk]# grep _etext /proc/kallsyms
+  ffff000009780000 R _etext
+  [root@localhost hulk]# tail /proc/modules
+  hisi_sas_v2_hw 77824 0 - Live 0xffff00000191d000
+  nvme_core 126976 7 nvme, Live 0xffff0000018b6000
+  mdio 20480 1 ixgbe, Live 0xffff0000018ab000
+  hisi_sas_main 106496 1 hisi_sas_v2_hw, Live 0xffff000001861000
+  hns_mdio 20480 2 - Live 0xffff000001822000
+  hnae 28672 3 hns_dsaf,hns_enet_drv, Live 0xffff000001815000
+  dm_mirror 40960 0 - Live 0xffff000001804000
+  dm_region_hash 32768 1 dm_mirror, Live 0xffff0000017f5000
+  dm_log 32768 2 dm_mirror,dm_region_hash, Live 0xffff0000017e7000
+  dm_mod 315392 17 dm_mirror,dm_log, Live 0xffff000001780000
+  [root@localhost hulk]#
+
+Before fix:
+
+  [root@localhost bin]# perf record sleep 3
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.011 MB perf.data (9 samples) ]
+  [root@localhost bin]# perf buildid-list -i perf.data
+  4c4e46c971ca935f781e603a09b52a92e8bdfee8 [vdso]
+  [root@localhost bin]# perf buildid-list -i perf.data -H
+  0000000000000000000000000000000000000000 /proc/kcore
+  [root@localhost bin]#
+
+After fix:
+
+  [root@localhost tools]# ./perf/perf record sleep 3
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.011 MB perf.data (9 samples) ]
+  [root@localhost tools]# ./perf/perf buildid-list -i perf.data
+  28a6c690262896dbd1b5e1011ed81623e6db0610 [kernel.kallsyms]
+  106c14ce6e4acea3453e484dc604d66666f08a2f [vdso]
+  [root@localhost tools]# ./perf/perf buildid-list -i perf.data -H
+  28a6c690262896dbd1b5e1011ed81623e6db0610 /proc/kcore
+
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Kim Phillips <kim.phillips@arm.com>
+Cc: Li Bin <huawei.libin@huawei.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Walker <robert.walker@arm.com>
-Cc: Suzuki K Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190322052255.GA4809@w-OptiPlex-7050
+Link: http://lkml.kernel.org/r/20190228092003.34071-1-liwei391@huawei.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- tools/build/feature/test-libopencsd.c           | 4 ++--
- tools/perf/util/cs-etm-decoder/cs-etm-decoder.c | 1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ tools/perf/util/machine.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/tools/build/feature/test-libopencsd.c b/tools/build/feature/test-libopencsd.c
-index d68eb4fb40cc..2b0e02c38870 100644
---- a/tools/build/feature/test-libopencsd.c
-+++ b/tools/build/feature/test-libopencsd.c
-@@ -4,9 +4,9 @@
- /*
-  * Check OpenCSD library version is sufficient to provide required features
-  */
--#define OCSD_MIN_VER ((0 << 16) | (10 << 8) | (0))
-+#define OCSD_MIN_VER ((0 << 16) | (11 << 8) | (0))
- #if !defined(OCSD_VER_NUM) || (OCSD_VER_NUM < OCSD_MIN_VER)
--#error "OpenCSD >= 0.10.0 is required"
-+#error "OpenCSD >= 0.11.0 is required"
- #endif
+diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
+index 143f7057d581..596db1daee35 100644
+--- a/tools/perf/util/machine.c
++++ b/tools/perf/util/machine.c
+@@ -1358,6 +1358,20 @@ static void machine__set_kernel_mmap(struct machine *machine,
+ 		machine->vmlinux_map->end = ~0ULL;
+ }
  
- int main(void)
-diff --git a/tools/perf/util/cs-etm-decoder/cs-etm-decoder.c b/tools/perf/util/cs-etm-decoder/cs-etm-decoder.c
-index 8c155575c6c5..2a8bf6b45a30 100644
---- a/tools/perf/util/cs-etm-decoder/cs-etm-decoder.c
-+++ b/tools/perf/util/cs-etm-decoder/cs-etm-decoder.c
-@@ -374,6 +374,7 @@ cs_etm_decoder__buffer_range(struct cs_etm_decoder *decoder,
- 		break;
- 	case OCSD_INSTR_ISB:
- 	case OCSD_INSTR_DSB_DMB:
-+	case OCSD_INSTR_WFI_WFE:
- 	case OCSD_INSTR_OTHER:
- 	default:
- 		packet->last_instr_taken_branch = false;
++static void machine__update_kernel_mmap(struct machine *machine,
++				     u64 start, u64 end)
++{
++	struct map *map = machine__kernel_map(machine);
++
++	map__get(map);
++	map_groups__remove(&machine->kmaps, map);
++
++	machine__set_kernel_mmap(machine, start, end);
++
++	map_groups__insert(&machine->kmaps, map);
++	map__put(map);
++}
++
+ int machine__create_kernel_maps(struct machine *machine)
+ {
+ 	struct dso *kernel = machine__get_kernel(machine);
+@@ -1390,17 +1404,11 @@ int machine__create_kernel_maps(struct machine *machine)
+ 			goto out_put;
+ 		}
+ 
+-		/* we have a real start address now, so re-order the kmaps */
+-		map = machine__kernel_map(machine);
+-
+-		map__get(map);
+-		map_groups__remove(&machine->kmaps, map);
+-
+-		/* assume it's the last in the kmaps */
+-		machine__set_kernel_mmap(machine, addr, ~0ULL);
+-
+-		map_groups__insert(&machine->kmaps, map);
+-		map__put(map);
++		/*
++		 * we have a real start address now, so re-order the kmaps
++		 * assume it's the last in the kmaps
++		 */
++		machine__update_kernel_mmap(machine, addr, ~0ULL);
+ 	}
+ 
+ 	if (machine__create_extra_kernel_maps(machine, kernel))
+@@ -1536,7 +1544,7 @@ static int machine__process_kernel_mmap_event(struct machine *machine,
+ 		if (strstr(kernel->long_name, "vmlinux"))
+ 			dso__set_short_name(kernel, "[kernel.vmlinux]", false);
+ 
+-		machine__set_kernel_mmap(machine, event->mmap.start,
++		machine__update_kernel_mmap(machine, event->mmap.start,
+ 					 event->mmap.start + event->mmap.len);
+ 
+ 		/*
 -- 
 2.19.1
 
