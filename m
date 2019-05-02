@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA0111F21
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0429411D9D
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726278AbfEBPZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41068 "EHLO mail.kernel.org"
+        id S1728301AbfEBPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727419AbfEBPZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:25:02 -0400
+        id S1728533AbfEBPb7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:31:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3252E20675;
-        Thu,  2 May 2019 15:25:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7466920C01;
+        Thu,  2 May 2019 15:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810701;
-        bh=sjXReCjuQx05tZbTtXNF9nA/eq4E1+OxYjNkYAfnyU4=;
+        s=default; t=1556811118;
+        bh=Dv/lA4+6p+s0BaejKtvMlqfyZszd/eHGZ6o5sxIBGao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFWbd56XP1Kw9tLLMhTdiaVMpG9Cd4PEZxj4qPCPj3SL9RQ/WgP4fljzmumlRoFQM
-         S4sZIGtM4SS5hq0alUfWxKtZ5O9O74sJK3qJqmBoAlZrP7RYl/f+xi3D3vB2+BT3YB
-         Xk5IZthgz8lO7jSTlNAt8GrOIS7fTk7VIad0GrSU=
+        b=bTYzcGbxuyFSXW7E+uj6Me7hlI8SHQTN1jUhmIRH+ll5U3E99obfPRSDH4uMXH7ng
+         6Dkx73icelymCwA5sfFFBvaxyBwm5s0LjwRgNi9ky8H0Nw+sa3wgJWcO1DZfDQTH4X
+         HYlPJNr6oqn446+wEuSrRV/U2A/0+ZCCu7urL1S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Gary R Hook <gary.hook@amd.com>,
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 47/49] iommu/amd: Reserve exclusion range in iova-domain
+Subject: [PATCH 5.0 082/101] KVM: nVMX: Do not inherit quadrant and invalid for the root shadow EPT
 Date:   Thu,  2 May 2019 17:21:24 +0200
-Message-Id: <20190502143329.825571164@linuxfoundation.org>
+Message-Id: <20190502143345.354225167@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
-References: <20190502143323.397051088@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8aafaaf2212192012f5bae305bb31cdf7681d777 ]
+[ Upstream commit 552c69b1dc714854a5f4e27d37a43c6d797adf7d ]
 
-If a device has an exclusion range specified in the IVRS
-table, this region needs to be reserved in the iova-domain
-of that device. This hasn't happened until now and can cause
-data corruption on data transfered with these devices.
+Explicitly zero out quadrant and invalid instead of inheriting them from
+the root_mmu.  Functionally, this patch is a nop as we (should) never
+set quadrant for a direct mapped (EPT) root_mmu and nested EPT is only
+allowed if EPT is used for L1, and the root_mmu will never be invalid at
+this point.
 
-Treat exclusion ranges as reserved regions in the iommu-core
-to fix the problem.
+Explicitly setting flags sets the stage for repurposing the legacy
+paging bits in role, e.g. nxe, cr0_wp, and sm{a,e}p_andnot_wp, at which
+point 'smm' would be the only flag to be inherited from root_mmu.
 
-Fixes: be2a022c0dd0 ('x86, AMD IOMMU: add functions to parse IOMMU memory mapping requirements for devices')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c       | 9 ++++++---
- drivers/iommu/amd_iommu_init.c  | 7 ++++---
- drivers/iommu/amd_iommu_types.h | 2 ++
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ arch/x86/kvm/mmu.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index bd339bfe0d15..684f7cdd814b 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -3127,21 +3127,24 @@ static void amd_iommu_get_resv_regions(struct device *dev,
- 		return;
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index 9ab33cab9486..acab95dcffb6 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -4915,11 +4915,15 @@ static union kvm_mmu_role
+ kvm_calc_shadow_ept_root_page_role(struct kvm_vcpu *vcpu, bool accessed_dirty,
+ 				   bool execonly)
+ {
+-	union kvm_mmu_role role;
++	union kvm_mmu_role role = {0};
++	union kvm_mmu_page_role root_base = vcpu->arch.root_mmu.mmu_role.base;
  
- 	list_for_each_entry(entry, &amd_iommu_unity_map, list) {
-+		int type, prot = 0;
- 		size_t length;
--		int prot = 0;
+-	/* Base role is inherited from root_mmu */
+-	role.base.word = vcpu->arch.root_mmu.mmu_role.base.word;
+-	role.ext = kvm_calc_mmu_role_ext(vcpu);
++	/* Legacy paging and SMM flags are inherited from root_mmu */
++	role.base.smm = root_base.smm;
++	role.base.nxe = root_base.nxe;
++	role.base.cr0_wp = root_base.cr0_wp;
++	role.base.smep_andnot_wp = root_base.smep_andnot_wp;
++	role.base.smap_andnot_wp = root_base.smap_andnot_wp;
  
- 		if (devid < entry->devid_start || devid > entry->devid_end)
- 			continue;
+ 	role.base.level = PT64_ROOT_4LEVEL;
+ 	role.base.direct = false;
+@@ -4927,6 +4931,7 @@ kvm_calc_shadow_ept_root_page_role(struct kvm_vcpu *vcpu, bool accessed_dirty,
+ 	role.base.guest_mode = true;
+ 	role.base.access = ACC_ALL;
  
-+		type   = IOMMU_RESV_DIRECT;
- 		length = entry->address_end - entry->address_start;
- 		if (entry->prot & IOMMU_PROT_IR)
- 			prot |= IOMMU_READ;
- 		if (entry->prot & IOMMU_PROT_IW)
- 			prot |= IOMMU_WRITE;
-+		if (entry->prot & IOMMU_UNITY_MAP_FLAG_EXCL_RANGE)
-+			/* Exclusion range */
-+			type = IOMMU_RESV_RESERVED;
++	role.ext = kvm_calc_mmu_role_ext(vcpu);
+ 	role.ext.execonly = execonly;
  
- 		region = iommu_alloc_resv_region(entry->address_start,
--						 length, prot,
--						 IOMMU_RESV_DIRECT);
-+						 length, prot, type);
- 		if (!region) {
- 			pr_err("Out of memory allocating dm-regions for %s\n",
- 				dev_name(dev));
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index b97984a5ddad..91d7718625a6 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -1980,6 +1980,9 @@ static int __init init_unity_map_range(struct ivmd_header *m)
- 	if (e == NULL)
- 		return -ENOMEM;
- 
-+	if (m->flags & IVMD_FLAG_EXCL_RANGE)
-+		init_exclusion_range(m);
-+
- 	switch (m->type) {
- 	default:
- 		kfree(e);
-@@ -2026,9 +2029,7 @@ static int __init init_memory_definitions(struct acpi_table_header *table)
- 
- 	while (p < end) {
- 		m = (struct ivmd_header *)p;
--		if (m->flags & IVMD_FLAG_EXCL_RANGE)
--			init_exclusion_range(m);
--		else if (m->flags & IVMD_FLAG_UNITY_MAP)
-+		if (m->flags & (IVMD_FLAG_UNITY_MAP | IVMD_FLAG_EXCL_RANGE))
- 			init_unity_map_range(m);
- 
- 		p += m->length;
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index f6b24c7d8b70..3054c0971759 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -369,6 +369,8 @@
- #define IOMMU_PROT_IR 0x01
- #define IOMMU_PROT_IW 0x02
- 
-+#define IOMMU_UNITY_MAP_FLAG_EXCL_RANGE	(1 << 2)
-+
- /* IOMMU capabilities */
- #define IOMMU_CAP_IOTLB   24
- #define IOMMU_CAP_NPCACHE 26
+ 	return role;
 -- 
 2.19.1
 
