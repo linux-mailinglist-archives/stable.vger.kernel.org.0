@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8932711E2D
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC33E11DF6
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfEBP0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:26:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
+        id S1727097AbfEBPa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727833AbfEBP0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:51 -0400
+        id S1728879AbfEBPa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:30:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1654920449;
-        Thu,  2 May 2019 15:26:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69AEB20675;
+        Thu,  2 May 2019 15:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810810;
-        bh=ZXWQolyZBCzpMAOOBxkzSyS8XoCRuncSuRNee1yozXA=;
+        s=default; t=1556811055;
+        bh=3Cjv0R6wA+s0VDEbUphwpMt57zNShaEsnxW8o1ya+BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1SS/xfUhppew0tDvqlfQixNHJ5hVqVynnPRondIXNX860ebITmYdUAE1vkggAKo+
-         H5/TeXrFlUNC24ajJZAaGRNnmpCuX2Zs/TYHRCnzprs1q9w/oX1zamKVo1fwhctQ1A
-         x8xMskdDN/M7a06aHdvrtK4qRJ98wauqKYHRiI+E=
+        b=nns1/23Piy06iDUZQFnEp+UxhdeVMO/x9L+O+qDXFF6HfsCrzpG4DJv0qHFTD0wcS
+         71fo/6y6u4jSTiRQgctfpdmgdPGCRvh39fC2F+fuShBkMgkC0g3kzz3HhsMTqJDjhb
+         e+Lk0iZMBC/72xV2VCsygQIanp2YMpvCslzaZhjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Douglas Miller <dougmill@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 37/72] staging: rtl8188eu: Fix potential NULL pointer dereference of kcalloc
+Subject: [PATCH 5.0 057/101] net: ibm: fix possible object reference leak
 Date:   Thu,  2 May 2019 17:20:59 +0200
-Message-Id: <20190502143336.472991277@linuxfoundation.org>
+Message-Id: <20190502143343.481047476@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+References: <20190502143339.434882399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,136 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7671ce0d92933762f469266daf43bd34d422d58c ]
+[ Upstream commit be693df3cf9dd113ff1d2c0d8150199efdba37f6 ]
 
-hwxmits is allocated via kcalloc and not checked for failure before its
-dereference. The patch fixes this problem by returning error upstream
-in rtl8723bs, rtl8188eu.
+The call to ehea_get_eth_dn returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Acked-by: Mukesh Ojha <mojha@codeaurora.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Detected by coccinelle with the following warnings:
+./drivers/net/ethernet/ibm/ehea/ehea_main.c:3163:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3154, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Douglas Miller <dougmill@linux.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/core/rtw_xmit.c    |  9 +++++++--
- drivers/staging/rtl8188eu/include/rtw_xmit.h |  2 +-
- drivers/staging/rtl8723bs/core/rtw_xmit.c    | 14 +++++++-------
- drivers/staging/rtl8723bs/include/rtw_xmit.h |  2 +-
- 4 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/ibm/ehea/ehea_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8188eu/core/rtw_xmit.c b/drivers/staging/rtl8188eu/core/rtw_xmit.c
-index 2130d78e0d9f..dd9b02d316f3 100644
---- a/drivers/staging/rtl8188eu/core/rtw_xmit.c
-+++ b/drivers/staging/rtl8188eu/core/rtw_xmit.c
-@@ -178,7 +178,9 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
+diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+index 3baabdc89726..90b62c1412c8 100644
+--- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
++++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+@@ -3160,6 +3160,7 @@ static ssize_t ehea_probe_port(struct device *dev,
  
- 	pxmitpriv->free_xmit_extbuf_cnt = num_xmit_extbuf;
- 
--	rtw_alloc_hwxmits(padapter);
-+	res = rtw_alloc_hwxmits(padapter);
-+	if (res == _FAIL)
-+		goto exit;
- 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
- 
- 	for (i = 0; i < 4; i++)
-@@ -1502,7 +1504,7 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 	return res;
- }
- 
--void rtw_alloc_hwxmits(struct adapter *padapter)
-+s32 rtw_alloc_hwxmits(struct adapter *padapter)
- {
- 	struct hw_xmit *hwxmits;
- 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-@@ -1511,6 +1513,8 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
- 
- 	pxmitpriv->hwxmits = kcalloc(pxmitpriv->hwxmit_entry,
- 				     sizeof(struct hw_xmit), GFP_KERNEL);
-+	if (!pxmitpriv->hwxmits)
-+		return _FAIL;
- 
- 	hwxmits = pxmitpriv->hwxmits;
- 
-@@ -1518,6 +1522,7 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
- 	hwxmits[1] .sta_queue = &pxmitpriv->vi_pending;
- 	hwxmits[2] .sta_queue = &pxmitpriv->be_pending;
- 	hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
-+	return _SUCCESS;
- }
- 
- void rtw_free_hwxmits(struct adapter *padapter)
-diff --git a/drivers/staging/rtl8188eu/include/rtw_xmit.h b/drivers/staging/rtl8188eu/include/rtw_xmit.h
-index 788f59c74ea1..ba7e15fbde72 100644
---- a/drivers/staging/rtl8188eu/include/rtw_xmit.h
-+++ b/drivers/staging/rtl8188eu/include/rtw_xmit.h
-@@ -336,7 +336,7 @@ s32 rtw_txframes_sta_ac_pending(struct adapter *padapter,
- void rtw_init_hwxmits(struct hw_xmit *phwxmit, int entry);
- s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
- void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv);
--void rtw_alloc_hwxmits(struct adapter *padapter);
-+s32 rtw_alloc_hwxmits(struct adapter *padapter);
- void rtw_free_hwxmits(struct adapter *padapter);
- s32 rtw_xmit(struct adapter *padapter, struct sk_buff **pkt);
- 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_xmit.c b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-index edb678190b4b..16291de5c0d9 100644
---- a/drivers/staging/rtl8723bs/core/rtw_xmit.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-@@ -260,7 +260,9 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
- 		}
+ 	if (ehea_add_adapter_mr(adapter)) {
+ 		pr_err("creating MR failed\n");
++		of_node_put(eth_dn);
+ 		return -EIO;
  	}
- 
--	rtw_alloc_hwxmits(padapter);
-+	res = rtw_alloc_hwxmits(padapter);
-+	if (res == _FAIL)
-+		goto exit;
- 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
- 
- 	for (i = 0; i < 4; i++) {
-@@ -2144,7 +2146,7 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 	return res;
- }
- 
--void rtw_alloc_hwxmits(struct adapter *padapter)
-+s32 rtw_alloc_hwxmits(struct adapter *padapter)
- {
- 	struct hw_xmit *hwxmits;
- 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-@@ -2155,10 +2157,8 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
- 
- 	pxmitpriv->hwxmits = rtw_zmalloc(sizeof(struct hw_xmit) * pxmitpriv->hwxmit_entry);
- 
--	if (pxmitpriv->hwxmits == NULL) {
--		DBG_871X("alloc hwxmits fail!...\n");
--		return;
--	}
-+	if (!pxmitpriv->hwxmits)
-+		return _FAIL;
- 
- 	hwxmits = pxmitpriv->hwxmits;
- 
-@@ -2204,7 +2204,7 @@ void rtw_alloc_hwxmits(struct adapter *padapter)
- 
- 	}
- 
--
-+	return _SUCCESS;
- }
- 
- void rtw_free_hwxmits(struct adapter *padapter)
-diff --git a/drivers/staging/rtl8723bs/include/rtw_xmit.h b/drivers/staging/rtl8723bs/include/rtw_xmit.h
-index a75b668d09a6..021c72361fbb 100644
---- a/drivers/staging/rtl8723bs/include/rtw_xmit.h
-+++ b/drivers/staging/rtl8723bs/include/rtw_xmit.h
-@@ -486,7 +486,7 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
- void _rtw_free_xmit_priv (struct xmit_priv *pxmitpriv);
- 
- 
--void rtw_alloc_hwxmits(struct adapter *padapter);
-+s32 rtw_alloc_hwxmits(struct adapter *padapter);
- void rtw_free_hwxmits(struct adapter *padapter);
- 
  
 -- 
 2.19.1
