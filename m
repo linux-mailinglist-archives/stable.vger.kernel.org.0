@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C55A411E7A
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C17A011F04
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728595AbfEBPaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:30:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48140 "EHLO mail.kernel.org"
+        id S1726397AbfEBPZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:25:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728591AbfEBPaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:30:00 -0400
+        id S1727637AbfEBPZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:25:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 312C3214DA;
-        Thu,  2 May 2019 15:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00B2C20B7C;
+        Thu,  2 May 2019 15:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810999;
-        bh=fpzIvYxbbVMxE87nXsbrxX8bl+v/uaZPk+QbJ4RNM7s=;
+        s=default; t=1556810753;
+        bh=yyMPE9cEVt9Iu1b2UKe0SrMnndHzDIif32M3JP+1pk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIJP18gVbSCQEqdvLHcMg4Ks2bsN9DapI4XKCU5e21+QYQVWaDVo4siQJjV+3q35R
-         TO4VIvKburyn1esTBlJI0KQIWjR7f/vpoTTJcM9oHQIIRWNvyMDzzagMW/qcaC0PhH
-         6xyyR3W9e03VMlnsxesAg5I9LSksXGO4K+8DkTu0=
+        b=cxOQ+vIxLwfp796OWwbUEy0MoBx8+Ov6BPWGeMnvE/8UFHZDeSeiaCyHanK/ZZl+w
+         t1hgT/joSLNzbVDioQAH15sldU6roPLRcX0P1WlkafpEfOfTZDswR//ntkcYV45qJT
+         2hygH6cFkg2/gfjg8N8/1YPk5B1IQ+8rePkWKo8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 029/101] sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()
+Subject: [PATCH 4.19 09/72] net: ieee802154: fix a potential NULL pointer dereference
 Date:   Thu,  2 May 2019 17:20:31 +0200
-Message-Id: <20190502143341.621454889@linuxfoundation.org>
+Message-Id: <20190502143334.240377603@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ac0cdb3d990108df795b676cd0d0e65ac34b2273 ]
+[ Upstream commit 2795e8c251614ac0784c9d41008551109f665716 ]
 
-Add the missing uart_unregister_driver() and i2c_del_driver() before return
-from sc16is7xx_init() in the error handling case.
+In case alloc_ordered_workqueue fails, the fix releases
+sources and returns -ENOMEM to avoid NULL pointer dereference.
 
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ieee802154/adf7242.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index 268098681856..114e94f476c6 100644
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1509,7 +1509,7 @@ static int __init sc16is7xx_init(void)
- 	ret = i2c_add_driver(&sc16is7xx_i2c_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx i2c --> %d\n", ret);
--		return ret;
-+		goto err_i2c;
- 	}
- #endif
+diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/adf7242.c
+index cd1d8faccca5..cd6b95e673a5 100644
+--- a/drivers/net/ieee802154/adf7242.c
++++ b/drivers/net/ieee802154/adf7242.c
+@@ -1268,6 +1268,10 @@ static int adf7242_probe(struct spi_device *spi)
+ 	INIT_DELAYED_WORK(&lp->work, adf7242_rx_cal_work);
+ 	lp->wqueue = alloc_ordered_workqueue(dev_name(&spi->dev),
+ 					     WQ_MEM_RECLAIM);
++	if (unlikely(!lp->wqueue)) {
++		ret = -ENOMEM;
++		goto err_hw_init;
++	}
  
-@@ -1517,10 +1517,18 @@ static int __init sc16is7xx_init(void)
- 	ret = spi_register_driver(&sc16is7xx_spi_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx spi --> %d\n", ret);
--		return ret;
-+		goto err_spi;
- 	}
- #endif
- 	return ret;
-+
-+err_spi:
-+#ifdef CONFIG_SERIAL_SC16IS7XX_I2C
-+	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
-+#endif
-+err_i2c:
-+	uart_unregister_driver(&sc16is7xx_uart);
-+	return ret;
- }
- module_init(sc16is7xx_init);
- 
+ 	ret = adf7242_hw_init(lp);
+ 	if (ret)
 -- 
 2.19.1
 
