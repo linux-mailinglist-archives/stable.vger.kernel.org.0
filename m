@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A07511DA9
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C2B11EE7
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729147AbfEBPcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:32:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51852 "EHLO mail.kernel.org"
+        id S1727321AbfEBPm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:42:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729142AbfEBPcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:32:17 -0400
+        id S1728153AbfEBP2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90E8E20675;
-        Thu,  2 May 2019 15:32:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FAEE2081C;
+        Thu,  2 May 2019 15:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811137;
-        bh=4ACLzxXGGweNd17xot1i13hZHjJRXVj1UnMpZx67kak=;
+        s=default; t=1556810888;
+        bh=y7BOXXaN8v9vDrDLxNuTeWSQJqbJNlFPXXod/PLTK5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7wKvPptjPa/Sgq+yXSJr4UQAkB6EX6pTmPCLfq/+w15vIePFcDbL9Kw0wmk4blUc
-         aIjva81biF7VktIBqBx+6aUwNMGGsMZT1izMR24qAsSvtLh8HK78+L2fWCorO3mOD1
-         VM8YdIUb8VZ5OMwQ3+PbbrU/CE5NKKqjBp6mrcbc=
+        b=KZUA6IqPkAuSJgHK/goWU7As0RYXOuPVAjIsiPuTDQGHGhcgTLUcG3Vn2yNR/tkr2
+         84UEH6nBpl5vurlJP16kutXjO5V3Mc0VbIwBOs9BiMPSYAD/c0YJ1sy/2jYtYEiicN
+         bqhLWR4OqZt/cFaS4rA6MRNc3JmV6fjnOWJDwcbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 088/101] KVM: selftests: disable stack protector for all KVM tests
+Subject: [PATCH 4.19 68/72] kconfig/[mn]conf: handle backspace (^H) key
 Date:   Thu,  2 May 2019 17:21:30 +0200
-Message-Id: <20190502143345.751297735@linuxfoundation.org>
+Message-Id: <20190502143338.680368135@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ffac839d040619847217647434b2b02469926871 ]
+[ Upstream commit 9c38f1f044080392603c497ecca4d7d09876ff99 ]
 
-Since 4.8.3, gcc has enabled -fstack-protector by default.  This is
-problematic for the KVM selftests as they do not configure fs or gs
-segments (the stack canary is pulled from fs:0x28).  With the default
-behavior, gcc will insert a stack canary on any function that creates
-buffers of 8 bytes or more.  As a result, ucall() will hit a triple
-fault shutdown due to reading a bad fs segment when inserting its
-stack canary, i.e. every test fails with an unexpected SHUTDOWN.
+Backspace is not working on some terminal emulators which do not send the
+key code defined by terminfo. Terminals either send '^H' (8) or '^?' (127).
+But currently only '^?' is handled. Let's also handle '^H' for those
+terminals.
 
-Fixes: 14c47b7530e2d ("kvm: selftests: introduce ucall")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ scripts/kconfig/lxdialog/inputbox.c | 3 ++-
+ scripts/kconfig/nconf.c             | 2 +-
+ scripts/kconfig/nconf.gui.c         | 3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 212b8f0032ae..cb4a992d6dd3 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -28,8 +28,8 @@ LIBKVM += $(LIBKVM_$(UNAME_M))
- INSTALL_HDR_PATH = $(top_srcdir)/usr
- LINUX_HDR_PATH = $(INSTALL_HDR_PATH)/include/
- LINUX_TOOL_INCLUDE = $(top_srcdir)/tools/include
--CFLAGS += -O2 -g -std=gnu99 -no-pie -I$(LINUX_TOOL_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude -I$(<D) -Iinclude/$(UNAME_M) -I..
--LDFLAGS += -pthread
-+CFLAGS += -O2 -g -std=gnu99 -fno-stack-protector -fno-PIE -I$(LINUX_TOOL_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude -I$(<D) -Iinclude/$(UNAME_M) -I..
-+LDFLAGS += -pthread -no-pie
- 
- # After inclusion, $(OUTPUT) is defined and
- # $(TEST_GEN_PROGS) starts with $(OUTPUT)/
+diff --git a/scripts/kconfig/lxdialog/inputbox.c b/scripts/kconfig/lxdialog/inputbox.c
+index fe82ff6d744e..b15c8d1744f5 100644
+--- a/scripts/kconfig/lxdialog/inputbox.c
++++ b/scripts/kconfig/lxdialog/inputbox.c
+@@ -126,7 +126,8 @@ int dialog_inputbox(const char *title, const char *prompt, int height, int width
+ 			case KEY_DOWN:
+ 				break;
+ 			case KEY_BACKSPACE:
+-			case 127:
++			case 8:   /* ^H */
++			case 127: /* ^? */
+ 				if (pos) {
+ 					wattrset(dialog, dlg.inputbox.atr);
+ 					if (input_x == 0) {
+diff --git a/scripts/kconfig/nconf.c b/scripts/kconfig/nconf.c
+index 1ef232ae5ab9..c8ff1c99dd5c 100644
+--- a/scripts/kconfig/nconf.c
++++ b/scripts/kconfig/nconf.c
+@@ -1049,7 +1049,7 @@ static int do_match(int key, struct match_state *state, int *ans)
+ 		state->match_direction = FIND_NEXT_MATCH_UP;
+ 		*ans = get_mext_match(state->pattern,
+ 				state->match_direction);
+-	} else if (key == KEY_BACKSPACE || key == 127) {
++	} else if (key == KEY_BACKSPACE || key == 8 || key == 127) {
+ 		state->pattern[strlen(state->pattern)-1] = '\0';
+ 		adj_match_dir(&state->match_direction);
+ 	} else
+diff --git a/scripts/kconfig/nconf.gui.c b/scripts/kconfig/nconf.gui.c
+index 88874acfda36..820fc9256532 100644
+--- a/scripts/kconfig/nconf.gui.c
++++ b/scripts/kconfig/nconf.gui.c
+@@ -440,7 +440,8 @@ int dialog_inputbox(WINDOW *main_window,
+ 		case KEY_F(F_EXIT):
+ 		case KEY_F(F_BACK):
+ 			break;
+-		case 127:
++		case 8:   /* ^H */
++		case 127: /* ^? */
+ 		case KEY_BACKSPACE:
+ 			if (cursor_position > 0) {
+ 				memmove(&result[cursor_position-1],
 -- 
 2.19.1
 
