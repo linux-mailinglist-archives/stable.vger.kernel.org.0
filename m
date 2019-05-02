@@ -2,123 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8EAC122AC
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 21:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB32122FF
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 22:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726299AbfEBTqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 15:46:31 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35203 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726175AbfEBTqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 15:46:31 -0400
-Received: by mail-wr1-f66.google.com with SMTP id f7so5033683wrs.2
-        for <stable@vger.kernel.org>; Thu, 02 May 2019 12:46:29 -0700 (PDT)
+        id S1725995AbfEBUJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 16:09:09 -0400
+Received: from mail-pg1-f202.google.com ([209.85.215.202]:36050 "EHLO
+        mail-pg1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725962AbfEBUJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 16:09:09 -0400
+Received: by mail-pg1-f202.google.com with SMTP id l13so1808408pgp.3
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 13:09:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=PPKlM6ilF+RkuSDVJ6SNKmbFhrwgZfo86vIcplrjIGs=;
-        b=STP47j7HepJrq5qfRhipbbid6HfvYjzUCDuJcAIILX41LHI+xjdk6K0wo3HXdkRCBs
-         OHkq0ljl+VlIv3r94Ba3rUI0vZMcge/amtHsGcDlrBh2tAwqDZ1VZVYjvTlKQ+/AiR6v
-         FPWWa0mjK3LTf3JOqjwp1wbWvuVZlm6/UlkI0W1G0HYh1PRuXAPfPsQzoMhTkAf63Huh
-         030xSj4/LYs8YysWuvp9euWI9KEPNyWmMa4LNTDyn6Z+kUbxlZjDAup+rqTkQq/Bp40l
-         6jsWkexImXi3uS2jhYaLg1BnBa4Vr3Eo+Xpfeqobq0i+Xy5ah3VyL0r7ud1BiH8KxTW1
-         vmow==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=ybRTyJtBXApIl4yXjoSrJV3yhQpiIq0fhWYqnNEgzIQ=;
+        b=tQPSQA19CW9fimawq50GdgkxoHSAU1X8/5KprS0qxaalkY+Oqt4IiwaSj476gWvnzH
+         CdzSr0rzQmjIJoxtVNzO+KyiDpBk6y16H1KfV0UAIxj3y3F1fYoBbYiqFAm7yDgoNMxe
+         ME59YcdyH8pGSL7Avbi9BR+67ZDfauQ4srgClkTh9/Y5JUb8rYEu/r8twcI8HKck24D7
+         kMgqgxBWM8juVKTdcnC4aGYsXJQ/2U6orFXV+WY8wXX3xq58CCAubuuy0X2gWFf6ZNQj
+         KENL34+LaJQnBHMs+FUDFkaOn3fy5+nUSDlXdBlaPER2tnQGYFHyfhmR0xYmDmgWURUH
+         okHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=PPKlM6ilF+RkuSDVJ6SNKmbFhrwgZfo86vIcplrjIGs=;
-        b=lOJP6/Ck7rwPkmA+Hsz/MtT5l7cmU1ry/W9DYwlzmki+rxmk59UDFGoZ48gtJFCTk6
-         5Ov0xLZW9jHdjMGLTmV6hCxUtKsHEXq76xQ3b69p3sfU+wyFy+pVgZkJ/1G1GAFI5lW3
-         fa45ZsdDuNuMa5PTD/dKnNpTCiMb6RH0LUathhdl/0t11Xo9R3sjMCQb/YXHZVrE0YPq
-         0PVPzqO0aBvti9pdzwiWFsuBCZneRptV0jYrbRl4r+CpjQqhlASkIo6LdXtu5MlIs+1n
-         7AVkzVfEQc9v0pMn/vB0FsmAfcY4CmSGhKpLii+wEZdliuDg+NcRuaCAdPlvo/63SCUR
-         4oxg==
-X-Gm-Message-State: APjAAAWupKmOHOWKU/95IPf4/SJfm+XvRmJNu13gf/iwCpcxhU2pTIv/
-        DnAssp2FQPs0SJJepwheCeXmoA==
-X-Google-Smtp-Source: APXvYqyMHUSSVqgm9gT9+BCN718D5XJraPqR9H8SNJ1JKGaMYWhGx9TQ3dWcLx2S6YDwFfKYUdSdiA==
-X-Received: by 2002:adf:eb87:: with SMTP id t7mr794403wrn.39.1556826389212;
-        Thu, 02 May 2019 12:46:29 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s12sm81242wmj.42.2019.05.02.12.46.28
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2019 12:46:28 -0700 (PDT)
-Message-ID: <5ccb4914.1c69fb81.e4b8b.084c@mx.google.com>
-Date:   Thu, 02 May 2019 12:46:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.0.11-102-g17f93022a8c9
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
-Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=ybRTyJtBXApIl4yXjoSrJV3yhQpiIq0fhWYqnNEgzIQ=;
+        b=ctcx7s9BcdOM8A4HXq1vt2hyIPnjvBBgoUOgHD7MDI8O834iZf5p9Z18ODSFzrX/WR
+         Fs3bkwvNg+Hn4EjQBwXSQ+VFI7OGoFTtXXim3+pwNYJ8R7O00XEPWd1dTOmzO/jJ3X8L
+         WSD2H1sKqiCVgcQ4F92tJby8D5tf7ssaL3aqhEBzHeLqzZhDromEqbVAkJNxeIwkJprK
+         Z4xvZgWk27nZh/4+AlF/f+wN9JOt24yQ+otmEoXuXbtvKfynLauxCQbK9HYh429PnbQZ
+         dfeTSQWp9lbGABioigUVK0P5WBQKKK3LZYKOghpVz/9/LGkL4ipTrOaWKGNk2KM5nRuz
+         P9sg==
+X-Gm-Message-State: APjAAAUXh7P7SxiZh7kL5ZJHYHvr1UlWrfi8zrwIUJOegN+E93jcR/vp
+        8a09xgvYXJR1ZNCu9VfYVM94sFFrcCwdxrBbsicDEK2YUDu4l1ldROiaTqpcR/nNdlQgs3STfGI
+        Av4aN+dksY/6prNfULl/OLDHZ2qxK89dxba/jhnUHHu2YNASjBdjbV1tM+wOO+v/CuR83E4EhXQ
+        ==
+X-Google-Smtp-Source: APXvYqzy98BDo1ZjElAaJ7XsMXlxmeun8/ZLIFvSs9QWn92BJ/S4D4Nu+M2yCAtukoQsZunQjUKT0XW+BCHmhsZSrg==
+X-Received: by 2002:a65:5c82:: with SMTP id a2mr5996693pgt.378.1556827748039;
+ Thu, 02 May 2019 13:09:08 -0700 (PDT)
+Date:   Thu,  2 May 2019 13:09:05 -0700
+Message-Id: <20190502200905.147551-1-rkolchmeyer@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.21.0.593.g511ec345e18-goog
+Subject: [PATCH] mm: do not stall register_shrinker()
+From:   Robert Kolchmeyer <rkolchmeyer@google.com>
+To:     stable@vger.kernel.org
+Cc:     Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
+        Robert Kolchmeyer <rkolchmeyer@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 129 boots: 4 failed, 121 passed with 3 offline,=
- 1 untried/unknown (v5.0.11-102-g17f93022a8c9)
+From: Minchan Kim <minchan@kernel.org>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.11-102-g17f93022a8c9/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.11-102-g17f93022a8c9/
+commit e496612c5130567fc9d5f1969ca4b86665aa3cbb upstream.
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.11-102-g17f93022a8c9
-Git Commit: 17f93022a8c96d740be0f8dfc01e1ccaa70eea5f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 74 unique boards, 24 SoC families, 14 builds out of 208
+Shakeel Butt reported he has observed in production systems that the job
+loader gets stuck for 10s of seconds while doing a mount operation.  It
+turns out that it was stuck in register_shrinker() because some
+unrelated job was under memory pressure and was spending time in
+shrink_slab().  Machines have a lot of shrinkers registered and jobs
+under memory pressure have to traverse all of those memcg-aware
+shrinkers and affect unrelated jobs which want to register their own
+shrinkers.
 
-Boot Regressions Detected:
+To solve the issue, this patch simply bails out slab shrinking if it is
+found that someone wants to register a shrinker in parallel.  A downside
+is it could cause unfair shrinking between shrinkers.  However, it
+should be rare and we can add compilcated logic if we find it's not
+enough.
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-7:
-          sun8i-h2-plus-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.0.11)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-7:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            bcm72521-bcm97252sffe: 1 failed lab
-            bcm7445-bcm97445c: 1 failed lab
-            sun8i-h2-plus-libretech-all-h3-cc: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-7
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-7
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-7
-            exynos5800-peach-pi: 1 offline lab
-
+[akpm@linux-foundation.org: tweak code comment]
+Link: http://lkml.kernel.org/r/20171115005602.GB23810@bbox
+Link: http://lkml.kernel.org/r/1511481899-20335-1-git-send-email-minchan@kernel.org
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Tested-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[rkolchmeyer: Backported to 4.14: adjusted context]
+Signed-off-by: Robert Kolchmeyer <rkolchmeyer@google.com>
 ---
-For more info write to <info@kernelci.org>
+Backport of commit e496612c5130567fc9d5f1969ca4b86665aa3cbb upstream.
+We would like to apply this to linux-4.14.y.
+I needed to change the patch context for the patch to apply to linux-4.14.y.
+The actual fix remains unchanged.
+
+ mm/vmscan.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 9734e62654fa..99837e931f53 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -502,6 +502,15 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
+ 			sc.nid = 0;
+ 
+ 		freed += do_shrink_slab(&sc, shrinker, nr_scanned, nr_eligible);
++		/*
++		 * Bail out if someone want to register a new shrinker to
++		 * prevent the regsitration from being stalled for long periods
++		 * by parallel ongoing shrinking.
++		 */
++		if (rwsem_is_contended(&shrinker_rwsem)) {
++			freed = freed ? : 1;
++			break;
++		}
+ 	}
+ 
+ 	up_read(&shrinker_rwsem);
+-- 
+2.21.0.593.g511ec345e18-goog
+
