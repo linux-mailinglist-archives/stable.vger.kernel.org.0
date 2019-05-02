@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D622C11D18
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F2011F84
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbfEBP2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
+        id S1726762AbfEBPtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:49:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727481AbfEBP2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:28:42 -0400
+        id S1726729AbfEBPWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:22:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4936020B7C;
-        Thu,  2 May 2019 15:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B88F216FD;
+        Thu,  2 May 2019 15:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810921;
-        bh=PoPu/I84kFCzCWxj8UouCBzrxnj1cCJbzkgCqkMbJBA=;
+        s=default; t=1556810556;
+        bh=Y4+DkkEm6qw6MrPYv/QXTPbREB3iYOpAviwK5X3+YB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEy6oo8Gra7qvffo7x4UPegKVfiemGDOBhTOjitD3gkwnrLab7ldckvPriyRD8A/W
-         vEYDtQBntIqF+L/CXTEI61ay0v9ZUUsItCsIw2EQtlkSeBSGtEugcx1FZPSRfXpkkq
-         sfxRdsV++/1WWmFMnDB2D1RDB+of92+KMbiP9apA=
+        b=wGjyQzAqzXJQL/vK1F3Uo90ma5OUoQVKxosQ7lyvn/H7rRrSkbMjHxJTzWzPml/fa
+         Qe5Bt1FofkORud+h4LCRXkY2nH1T6DdBlbWq3kbabanYZ5SGDFzqLJaFGcODyb0PUW
+         atPy2LfTgpOVFAtpact5cwyqJ7VeFZ64r2oyxZ/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <sean@poorly.run>, Dave Airlie <airlied@redhat.com>,
+        stable@vger.kernel.org, Mukesh Ojha <mojha@codeaurora.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 49/72] drm: Fix drm_release() and device unplug
+Subject: [PATCH 4.9 25/32] usb: u132-hcd: fix resource leak
 Date:   Thu,  2 May 2019 17:21:11 +0200
-Message-Id: <20190502143337.314286147@linuxfoundation.org>
+Message-Id: <20190502143321.788945171@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,70 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3f04e0a6cfebf48152ac64502346cdc258811f79 ]
+[ Upstream commit f276e002793cdb820862e8ea8f76769d56bba575 ]
 
-If userspace has open fd(s) when drm_dev_unplug() is run, it will result
-in drm_dev_unregister() being called twice. First in drm_dev_unplug() and
-then later in drm_release() through the call to drm_put_dev().
+if platform_driver_register fails, cleanup the allocated resource
+gracefully.
 
-Since userspace already holds a ref on drm_device through the drm_minor,
-it's not necessary to add extra ref counting based on no open file
-handles. Instead just drm_dev_put() unconditionally in drm_dev_unplug().
-
-We now have this:
-- Userpace holds a ref on drm_device as long as there's open fd(s)
-- The driver holds a ref on drm_device as long as it's bound to the
-  struct device
-
-When both sides are done with drm_device, it is released.
-
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Sean Paul <sean@poorly.run>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190208140103.28919-2-noralf@tronnes.org
+Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_drv.c  | 6 +-----
- drivers/gpu/drm/drm_file.c | 6 ++----
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ drivers/usb/host/u132-hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index ea4941da9b27..0201ccb22f4c 100644
---- a/drivers/gpu/drm/drm_drv.c
-+++ b/drivers/gpu/drm/drm_drv.c
-@@ -381,11 +381,7 @@ void drm_dev_unplug(struct drm_device *dev)
- 	synchronize_srcu(&drm_unplug_srcu);
- 
- 	drm_dev_unregister(dev);
--
--	mutex_lock(&drm_global_mutex);
--	if (dev->open_count == 0)
--		drm_dev_put(dev);
--	mutex_unlock(&drm_global_mutex);
-+	drm_dev_put(dev);
- }
- EXPORT_SYMBOL(drm_dev_unplug);
- 
-diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
-index ffa8dc35515f..e4ccb52c67ea 100644
---- a/drivers/gpu/drm/drm_file.c
-+++ b/drivers/gpu/drm/drm_file.c
-@@ -479,11 +479,9 @@ int drm_release(struct inode *inode, struct file *filp)
- 
- 	drm_file_free(file_priv);
- 
--	if (!--dev->open_count) {
-+	if (!--dev->open_count)
- 		drm_lastclose(dev);
--		if (drm_dev_is_unplugged(dev))
--			drm_put_dev(dev);
--	}
+diff --git a/drivers/usb/host/u132-hcd.c b/drivers/usb/host/u132-hcd.c
+index 43618976d68a..3efb7b0e8269 100644
+--- a/drivers/usb/host/u132-hcd.c
++++ b/drivers/usb/host/u132-hcd.c
+@@ -3208,6 +3208,9 @@ static int __init u132_hcd_init(void)
+ 	printk(KERN_INFO "driver %s\n", hcd_name);
+ 	workqueue = create_singlethread_workqueue("u132");
+ 	retval = platform_driver_register(&u132_platform_driver);
++	if (retval)
++		destroy_workqueue(workqueue);
 +
- 	mutex_unlock(&drm_global_mutex);
+ 	return retval;
+ }
  
- 	drm_minor_release(minor);
 -- 
 2.19.1
 
