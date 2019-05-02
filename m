@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 124B611D93
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454ED11E58
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729049AbfEBPbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:31:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51046 "EHLO mail.kernel.org"
+        id S1727403AbfEBP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729043AbfEBPbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:31:46 -0400
+        id S1728263AbfEBP2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:28:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AAB8216FD;
-        Thu,  2 May 2019 15:31:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A18A20449;
+        Thu,  2 May 2019 15:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556811106;
-        bh=oa14tgMjU4N5xaPgdT6hJvgc7xxgECrRjtP6VdmlO+c=;
+        s=default; t=1556810919;
+        bh=IrfZlWArowlj4XAYmIMnowmF9GVSWBoqIzTFQcWYWMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5xVxVhyC7aLXrkYI0tiCBn1btQTyqiiOPDr+CSu6JwimJmoaKoEJKINL/Y3a/ocz
-         AE+C/Mz4dwFXATfADdJkIcv98TAuS7/kRWze8a59HVuehZ1lC8mAmDp4+MTwOpWEwZ
-         3A4Nhv0oeMI/cuP+2ItZ4R0Hmng95rerK5yCAbYg=
+        b=oU/hxVKm0mMMvYx4xkhTUhrbaOCk+NZ8yZv63bhcBOKPTlGIcePk9APcUAAd4ML1G
+         0PeDKehRAv8kUwr+dUkhIKse49oEe4z5JlJphW5ovmmKDqFq3wItxxlfDX1OkJUiT8
+         33QIfFohww/dJNZWI9dCJg+KCBVXWP7w9kfa7aMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, raymond pang <raymondpangxd@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 077/101] libata: fix using DMA buffers on stack
-Date:   Thu,  2 May 2019 17:21:19 +0200
-Message-Id: <20190502143345.035305841@linuxfoundation.org>
+Subject: [PATCH 4.19 58/72] leds: trigger: netdev: fix refcnt leak on interface rename
+Date:   Thu,  2 May 2019 17:21:20 +0200
+Message-Id: <20190502143337.986275826@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd08a8d9a66de4b54575c294a92630299f7e0fe7 ]
+[ Upstream commit 4cb6560514fa19d556954b88128f3846fee66a03 ]
 
-When CONFIG_VMAP_STACK=y, __pa() returns incorrect physical address for
-a stack virtual address. Stack DMA buffers must be avoided.
+Renaming a netdev-trigger-tracked interface was resulting in an
+unbalanced dev_hold().
 
-Signed-off-by: raymond pang <raymondpangxd@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Example:
+> iw phy phy0 interface add foo type __ap
+> echo netdev > trigger
+> echo foo > device_name
+> ip link set foo name bar
+> iw dev bar del
+[  237.355366] unregister_netdevice: waiting for bar to become free. Usage count = 1
+[  247.435362] unregister_netdevice: waiting for bar to become free. Usage count = 1
+[  257.545366] unregister_netdevice: waiting for bar to become free. Usage count = 1
+
+Above problem was caused by trigger checking a dev->name which obviously
+changes after renaming an interface. It meant missing all further events
+including the NETDEV_UNREGISTER which is required for calling dev_put().
+
+This change fixes that by:
+1) Comparing device struct *address* for notification-filtering purposes
+2) Dropping unneeded NETDEV_CHANGENAME code (no behavior change)
+
+Fixes: 06f502f57d0d ("leds: trigger: Introduce a NETDEV trigger")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/ata/libata-zpodd.c | 34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/leds/trigger/ledtrig-netdev.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/ata/libata-zpodd.c b/drivers/ata/libata-zpodd.c
-index b3ed8f9953a8..173e6f2dd9af 100644
---- a/drivers/ata/libata-zpodd.c
-+++ b/drivers/ata/libata-zpodd.c
-@@ -52,38 +52,52 @@ static int eject_tray(struct ata_device *dev)
- /* Per the spec, only slot type and drawer type ODD can be supported */
- static enum odd_mech_type zpodd_get_mech_type(struct ata_device *dev)
- {
--	char buf[16];
-+	char *buf;
- 	unsigned int ret;
--	struct rm_feature_desc *desc = (void *)(buf + 8);
-+	struct rm_feature_desc *desc;
- 	struct ata_taskfile tf;
- 	static const char cdb[] = {  GPCMD_GET_CONFIGURATION,
- 			2,      /* only 1 feature descriptor requested */
- 			0, 3,   /* 3, removable medium feature */
- 			0, 0, 0,/* reserved */
--			0, sizeof(buf),
-+			0, 16,
- 			0, 0, 0,
- 	};
+diff --git a/drivers/leds/trigger/ledtrig-netdev.c b/drivers/leds/trigger/ledtrig-netdev.c
+index 3dd3ed46d473..167a94c02d05 100644
+--- a/drivers/leds/trigger/ledtrig-netdev.c
++++ b/drivers/leds/trigger/ledtrig-netdev.c
+@@ -301,11 +301,11 @@ static int netdev_trig_notify(struct notifier_block *nb,
+ 		container_of(nb, struct led_netdev_data, notifier);
  
-+	buf = kzalloc(16, GFP_KERNEL);
-+	if (!buf)
-+		return ODD_MECH_TYPE_UNSUPPORTED;
-+	desc = (void *)(buf + 8);
-+
- 	ata_tf_init(dev, &tf);
- 	tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
- 	tf.command = ATA_CMD_PACKET;
- 	tf.protocol = ATAPI_PROT_PIO;
--	tf.lbam = sizeof(buf);
-+	tf.lbam = 16;
+ 	if (evt != NETDEV_UP && evt != NETDEV_DOWN && evt != NETDEV_CHANGE
+-	    && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER
+-	    && evt != NETDEV_CHANGENAME)
++	    && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER)
+ 		return NOTIFY_DONE;
  
- 	ret = ata_exec_internal(dev, &tf, cdb, DMA_FROM_DEVICE,
--				buf, sizeof(buf), 0);
--	if (ret)
-+				buf, 16, 0);
-+	if (ret) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
+-	if (strcmp(dev->name, trigger_data->device_name))
++	if (!(dev == trigger_data->net_dev ||
++	      (evt == NETDEV_REGISTER && !strcmp(dev->name, trigger_data->device_name))))
+ 		return NOTIFY_DONE;
  
--	if (be16_to_cpu(desc->feature_code) != 3)
-+	if (be16_to_cpu(desc->feature_code) != 3) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
- 
--	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1)
-+	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_SLOT;
--	else if (desc->mech_type == 1 && desc->load == 0 && desc->eject == 1)
-+	} else if (desc->mech_type == 1 && desc->load == 0 &&
-+		   desc->eject == 1) {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_DRAWER;
--	else
-+	} else {
-+		kfree(buf);
- 		return ODD_MECH_TYPE_UNSUPPORTED;
-+	}
- }
- 
- /* Test if ODD is zero power ready by sense code */
+ 	cancel_delayed_work_sync(&trigger_data->work);
+@@ -320,12 +320,9 @@ static int netdev_trig_notify(struct notifier_block *nb,
+ 		dev_hold(dev);
+ 		trigger_data->net_dev = dev;
+ 		break;
+-	case NETDEV_CHANGENAME:
+ 	case NETDEV_UNREGISTER:
+-		if (trigger_data->net_dev) {
+-			dev_put(trigger_data->net_dev);
+-			trigger_data->net_dev = NULL;
+-		}
++		dev_put(trigger_data->net_dev);
++		trigger_data->net_dev = NULL;
+ 		break;
+ 	case NETDEV_UP:
+ 	case NETDEV_CHANGE:
 -- 
 2.19.1
 
