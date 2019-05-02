@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D8111EB9
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB4411F0C
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727836AbfEBPj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S1727595AbfEBPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728426AbfEBP31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:29:27 -0400
+        id S1727588AbfEBPZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:25:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08341216FD;
-        Thu,  2 May 2019 15:29:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9BBA21734;
+        Thu,  2 May 2019 15:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810966;
-        bh=bYW8/Xmc7CpnAqWyvgEBWI/CoTdqcYb11ufflwpm/rg=;
+        s=default; t=1556810743;
+        bh=7/ArnvMDTDjNqheHlVaR2ef1murRUtc7CpjitUMGWsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjN7Nd/6WCH3oo5f7N5LJAbcIKbfmzmy9sT4bgj/ogI/jVWb6AXQwnfW1bM6chNDB
-         /0qpd5wlW1l9IoauLtQVcfBn9k8o6eQ+xuLaVxRYQR3Fnfsr0/qaXxkTeWiljXEwiW
-         5pSJHBfM7Z+2BPXQVaS+nJ1tEW04bp31gQO8RmQI=
+        b=qpu6N91RRjwVu04eJhUreyVNSObDAG9MBAHNlw1XA3xGcDebNVZe0eplpd5lzE/hp
+         c9fcOfSaLmZfoSi5dnU5ZoRTaLR2poelUWSaIpzw0E3c7OUQCWguzKgyXgsR1Lykz9
+         xwzzyM5gDWrinHrwGq59w13+YF8SxGtYb8gbJhig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Florian Westphal <fw@strlen.de>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 024/101] netfilter: bridge: set skb transport_header before entering NF_INET_PRE_ROUTING
-Date:   Thu,  2 May 2019 17:20:26 +0200
-Message-Id: <20190502143341.423182462@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Matthew Wilcox <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 05/72] mm: prevent get_user_pages() from overflowing page refcount
+Date:   Thu,  2 May 2019 17:20:27 +0200
+Message-Id: <20190502143333.866262625@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
+References: <20190502143333.437607839@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +44,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e166e4fdaced850bee3d5ee12a5740258fb30587 ]
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-Since Commit 21d1196a35f5 ("ipv4: set transport header earlier"),
-skb->transport_header has been always set before entering INET
-netfilter. This patch is to set skb->transport_header for bridge
-before entering INET netfilter by bridge-nf-call-iptables.
+commit 8fde12ca79aff9b5ba951fce1a2641901b8d8e64 upstream.
 
-It also fixes an issue that sctp_error() couldn't compute a right
-csum due to unset skb->transport_header.
+If the page refcount wraps around past zero, it will be freed while
+there are still four billion references to it.  One of the possible
+avenues for an attacker to try to make this happen is by doing direct IO
+on a page multiple times.  This patch makes get_user_pages() refuse to
+take a new page reference if there are already more than two billion
+references to the page.
 
-Fixes: e6d8b64b34aa ("net: sctp: fix and consolidate SCTP checksumming code")
-Reported-by: Li Shuang <shuali@redhat.com>
-Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Matthew Wilcox <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/bridge/br_netfilter_hooks.c | 1 +
- net/bridge/br_netfilter_ipv6.c  | 2 ++
- 2 files changed, 3 insertions(+)
+ mm/gup.c     |   45 ++++++++++++++++++++++++++++++++++-----------
+ mm/hugetlb.c |   13 +++++++++++++
+ 2 files changed, 47 insertions(+), 11 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 40d058378b52..fc605758323b 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -502,6 +502,7 @@ static unsigned int br_nf_pre_routing(void *priv,
- 	nf_bridge->ipv4_daddr = ip_hdr(skb)->daddr;
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -153,7 +153,10 @@ retry:
+ 	}
  
- 	skb->protocol = htons(ETH_P_IP);
-+	skb->transport_header = skb->network_header + ip_hdr(skb)->ihl * 4;
+ 	if (flags & FOLL_GET) {
+-		get_page(page);
++		if (unlikely(!try_get_page(page))) {
++			page = ERR_PTR(-ENOMEM);
++			goto out;
++		}
  
- 	NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
- 		skb->dev, NULL,
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index 564710f88f93..e88d6641647b 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -235,6 +235,8 @@ unsigned int br_nf_pre_routing_ipv6(void *priv,
- 	nf_bridge->ipv6_daddr = ipv6_hdr(skb)->daddr;
+ 		/* drop the pgmap reference now that we hold the page */
+ 		if (pgmap) {
+@@ -296,7 +299,10 @@ retry_locked:
+ 			if (pmd_trans_unstable(pmd))
+ 				ret = -EBUSY;
+ 		} else {
+-			get_page(page);
++			if (unlikely(!try_get_page(page))) {
++				spin_unlock(ptl);
++				return ERR_PTR(-ENOMEM);
++			}
+ 			spin_unlock(ptl);
+ 			lock_page(page);
+ 			ret = split_huge_page(page);
+@@ -480,7 +486,10 @@ static int get_gate_page(struct mm_struc
+ 		if (is_device_public_page(*page))
+ 			goto unmap;
+ 	}
+-	get_page(*page);
++	if (unlikely(!try_get_page(*page))) {
++		ret = -ENOMEM;
++		goto unmap;
++	}
+ out:
+ 	ret = 0;
+ unmap:
+@@ -1368,6 +1377,20 @@ static void undo_dev_pagemap(int *nr, in
+ 	}
+ }
  
- 	skb->protocol = htons(ETH_P_IPV6);
-+	skb->transport_header = skb->network_header + sizeof(struct ipv6hdr);
++/*
++ * Return the compund head page with ref appropriately incremented,
++ * or NULL if that failed.
++ */
++static inline struct page *try_get_compound_head(struct page *page, int refs)
++{
++	struct page *head = compound_head(page);
++	if (WARN_ON_ONCE(page_ref_count(head) < 0))
++		return NULL;
++	if (unlikely(!page_cache_add_speculative(head, refs)))
++		return NULL;
++	return head;
++}
 +
- 	NF_HOOK(NFPROTO_IPV6, NF_INET_PRE_ROUTING, state->net, state->sk, skb,
- 		skb->dev, NULL,
- 		br_nf_pre_routing_finish_ipv6);
--- 
-2.19.1
-
+ #ifdef CONFIG_ARCH_HAS_PTE_SPECIAL
+ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+ 			 int write, struct page **pages, int *nr)
+@@ -1402,9 +1425,9 @@ static int gup_pte_range(pmd_t pmd, unsi
+ 
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+-		head = compound_head(page);
+ 
+-		if (!page_cache_get_speculative(head))
++		head = try_get_compound_head(page, 1);
++		if (!head)
+ 			goto pte_unmap;
+ 
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+@@ -1543,8 +1566,8 @@ static int gup_huge_pmd(pmd_t orig, pmd_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pmd_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pmd_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -1581,8 +1604,8 @@ static int gup_huge_pud(pud_t orig, pud_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pud_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pud_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -1618,8 +1641,8 @@ static int gup_huge_pgd(pgd_t orig, pgd_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pgd_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pgd_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4299,6 +4299,19 @@ long follow_hugetlb_page(struct mm_struc
+ 
+ 		pfn_offset = (vaddr & ~huge_page_mask(h)) >> PAGE_SHIFT;
+ 		page = pte_page(huge_ptep_get(pte));
++
++		/*
++		 * Instead of doing 'try_get_page()' below in the same_page
++		 * loop, just check the count once here.
++		 */
++		if (unlikely(page_count(page) <= 0)) {
++			if (pages) {
++				spin_unlock(ptl);
++				remainder = 0;
++				err = -ENOMEM;
++				break;
++			}
++		}
+ same_page:
+ 		if (pages) {
+ 			pages[i] = mem_map_offset(page, pfn_offset);
 
 
