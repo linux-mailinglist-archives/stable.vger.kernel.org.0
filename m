@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EABB411F73
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A3F11F20
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbfEBPrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:47:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40524 "EHLO mail.kernel.org"
+        id S1727437AbfEBPZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:25:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbfEBPYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:24:36 -0400
+        id S1727431AbfEBPZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:25:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D562085A;
-        Thu,  2 May 2019 15:24:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD36720675;
+        Thu,  2 May 2019 15:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810675;
-        bh=nUB5IZFtHI+purIs8RbbHWZy1zApJU1NDmRUnwkVuMU=;
+        s=default; t=1556810704;
+        bh=OIiIwFpL32ezEt1GXclMSHdGI81OzQ4c3atY4iwVccE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+TbuVcsw9/QaY83uYVGK/AQiUEbXONP63qGS7yMy3RMU3AjuMftZfhtkjuae+VCQ
-         REPbL7cYQJQCJse14QOymWnCV3hLTydl2JdPCVxHg20OPzZBjkznaTpCez4Q/7jbwn
-         jXZDmZIpwYJl/ohLjQTTVZf8fCXy+WTtsC6BPEiQ=
+        b=0Oyo/0+ODlOAXNIICkcVL7XZfHEKVEHDsXigy0lt7ac54H5zb/Irn18+l8A24ycHH
+         RcX5W7qsCBtthNsg3e7EDA4VUhHJc+XEyDRmJiW0+uc0y9MjU1qtWN/FjKx3ruNJ/T
+         KLeeHX0KKuj3OjTzGpJTEWAzI7toofmwtpOTBJ+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.14 29/49] net: macb: Add null check for PCLK and HCLK
-Date:   Thu,  2 May 2019 17:21:06 +0200
-Message-Id: <20190502143327.603851682@linuxfoundation.org>
+Subject: [PATCH 4.14 30/49] net/sched: dont dereference a->goto_chain to read the chain index
+Date:   Thu,  2 May 2019 17:21:07 +0200
+Message-Id: <20190502143327.657639861@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190502143323.397051088@linuxfoundation.org>
 References: <20190502143323.397051088@linuxfoundation.org>
@@ -44,48 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cd5afa91f078c0787be0a62b5ef90301c00b0271 ]
+[ Upstream commit fe384e2fa36ca084a456fd30558cccc75b4b3fbd ]
 
-Both PCLK and HCLK are "required" clocks according to macb devicetree
-documentation. There is a chance that devm_clk_get doesn't return a
-negative error but just a NULL clock structure instead. In such a case
-the driver proceeds as usual and uses pclk value 0 to calculate MDC
-divisor which is incorrect. Hence fix the same in clock initialization.
+callers of tcf_gact_goto_chain_index() can potentially read an old value
+of the chain index, or even dereference a NULL 'goto_chain' pointer,
+because 'goto_chain' and 'tcfa_action' are read in the traffic path
+without caring of concurrent write in the control path. The most recent
+value of chain index can be read also from a->tcfa_action (it's encoded
+there together with TC_ACT_GOTO_CHAIN bits), so we don't really need to
+dereference 'goto_chain': just read the chain id from the control action.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Fixes: e457d86ada27 ("net: sched: add couple of goto_chain helpers")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ include/net/tc_act/tc_gact.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 9046993947cc..2287749de087 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -2817,14 +2817,20 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
- 		*hclk = devm_clk_get(&pdev->dev, "hclk");
- 	}
+diff --git a/include/net/tc_act/tc_gact.h b/include/net/tc_act/tc_gact.h
+index e82d93346b63..bb74ea83d57d 100644
+--- a/include/net/tc_act/tc_gact.h
++++ b/include/net/tc_act/tc_gact.h
+@@ -51,7 +51,7 @@ static inline bool is_tcf_gact_goto_chain(const struct tc_action *a)
  
--	if (IS_ERR(*pclk)) {
-+	if (IS_ERR_OR_NULL(*pclk)) {
- 		err = PTR_ERR(*pclk);
-+		if (!err)
-+			err = -ENODEV;
-+
- 		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
- 		return err;
- 	}
+ static inline u32 tcf_gact_goto_chain_index(const struct tc_action *a)
+ {
+-	return a->goto_chain->index;
++	return READ_ONCE(a->tcfa_action) & TC_ACT_EXT_VAL_MASK;
+ }
  
--	if (IS_ERR(*hclk)) {
-+	if (IS_ERR_OR_NULL(*hclk)) {
- 		err = PTR_ERR(*hclk);
-+		if (!err)
-+			err = -ENODEV;
-+
- 		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
- 		return err;
- 	}
+ #endif /* __NET_TC_GACT_H */
 -- 
 2.19.1
 
