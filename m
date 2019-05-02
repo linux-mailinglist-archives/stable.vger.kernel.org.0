@@ -2,54 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC0211859
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 13:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9794A11866
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 13:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbfEBLry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 07:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32896 "EHLO mail.kernel.org"
+        id S1726473AbfEBLtA convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 2 May 2019 07:49:00 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56304 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726189AbfEBLrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 07:47:53 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726579AbfEBLtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 07:49:00 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E39D12081C;
-        Thu,  2 May 2019 11:47:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556797673;
-        bh=awQPB7LyG47gPem32vUmf18uAGFHweaMzjGFvlLX3cI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ENBR8cVS6c7tI3SAXuSMu3FtlLrGVdge+cgBe6zOwjC2IefGV1kkA7mXWaW8cQDeP
-         Y5FvccUwnj82yz7HhJxttKPwdeaUF06NEtbwgHCizRYcX1B8QA9/dtpOwMBmukid7H
-         GaglM38g4d3oEFqlDcCrWg+SVn3MJKn3nzc8IVSI=
-Date:   Thu, 2 May 2019 13:47:51 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     stable@vger.kernel.org,
-        Anusha Srivatsa <anusha.srivatsa@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: Re: [PATCH 5.0-stable] drm/i915: Do not enable FEC without DSC
-Message-ID: <20190502114751.GB24696@kroah.com>
-References: <155652995323242@kroah.com>
- <20190430175054.21797-1-ville.syrjala@linux.intel.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id DBDD83087944
+        for <stable@vger.kernel.org>; Thu,  2 May 2019 11:48:59 +0000 (UTC)
+Received: from [172.54.27.0] (cpt-0009.paas.prod.upshift.rdu2.redhat.com [10.0.18.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C764C79C73;
+        Thu,  2 May 2019 11:48:56 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190430175054.21797-1-ville.syrjala@linux.intel.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.0
+Message-ID: <cki.AA219C7705.26F3CWUN4Q@redhat.com>
+X-Gitlab-Pipeline-ID: 9202
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9202
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Thu, 02 May 2019 11:48:59 +0000 (UTC)
+Date:   Thu, 2 May 2019 07:49:00 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 08:50:54PM +0300, Ville Syrjala wrote:
-> From: Ville Syrj�l� <ville.syrjala@linux.intel.com>
-> 
-> commit 5aae7832d1b4ec614996ea0f4fafc4d9855ec0b0 upstream.
+Hello,
 
-Thanks for the backport, now queued up.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-greg k-h
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: d5a2675b207d - Linux 5.0.11
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: d5a2675b207d - Linux 5.0.11
+
+We then merged the patchset with `git am`:
+
+  selinux-use-kernel-linux-socket.h-for-genheaders-and-mdp.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-56aa81506bfc2ea99d21a7ef938e7c304614cdbd.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     🚧 ✅ selinux-policy: serge-testsuite [6]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     🚧 ✅ selinux-policy: serge-testsuite [6]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     🚧 ✅ selinux-policy: serge-testsuite [6]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     🚧 ✅ selinux-policy: serge-testsuite [6]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
