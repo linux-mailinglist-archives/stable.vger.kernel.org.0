@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BB911EF6
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EAD111F30
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 17:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbfEBPoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 11:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42996 "EHLO mail.kernel.org"
+        id S1726435AbfEBPWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 11:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726607AbfEBP0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 11:26:21 -0400
+        id S1726425AbfEBPWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 May 2019 11:22:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C48FA20C01;
-        Thu,  2 May 2019 15:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8A4820B7C;
+        Thu,  2 May 2019 15:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556810781;
-        bh=uGYza00XV509ulcCWStHCVAXfERLnsbLdzv62TTibjU=;
+        s=default; t=1556810522;
+        bh=+TO7gHlyhoWJKA0F5aJpmLHgOAqbaaTgOMJ+5YIaN2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLuAJnzM++Jl4FoZL9UnrnoYDMJtHXVN0VQUnW8PRMLYae7vaFwuulwSdhI5MEEG0
-         WEJZrhti4tQxXWNXhTu5Zb1abFZ0LZNnkatk/9CbV7qgUQCGqcVmHNzzMGjiF3DMFV
-         OAue22Fq7A4TzjRSmQ2OLr1kwNIDbISAvTzN/MTE=
+        b=DsL38ODHnXPq+2niVRaFhTUEDY9AMNhYOQme8+vPLlXpjTuaN6NNYKF9/PkVYjbCH
+         WDlaMoYddzEzVxmyerz1vjs13wrXguml0CcmdezQ4zbeFpPCXPkwC9FUX4u0zhfCCI
+         yjsY3k5V12bQS7GmsIzoJ2PKUJkdnuJAzbJc/Um0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
+        Eric Anholt <eric@anholt.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 27/72] usb: dwc3: pci: add support for Comet Lake PCH ID
-Date:   Thu,  2 May 2019 17:20:49 +0200
-Message-Id: <20190502143335.591920570@linuxfoundation.org>
+Subject: [PATCH 4.9 04/32] ARM: dts: bcm283x: Fix hdmi hpd gpio pull
+Date:   Thu,  2 May 2019 17:20:50 +0200
+Message-Id: <20190502143316.405963045@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190502143333.437607839@linuxfoundation.org>
-References: <20190502143333.437607839@linuxfoundation.org>
+In-Reply-To: <20190502143314.649935114@linuxfoundation.org>
+References: <20190502143314.649935114@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7ae622c978db6b2e28b4fced6ecd2a174492059d ]
+[ Upstream commit 544e784188f1dd7c797c70b213385e67d92005b6 ]
 
-This patch simply adds a new PCI Device ID
+Raspberry pi board model B revison 2 have the hot plug detector gpio
+active high (and not low as it was in the dts).
 
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Fixes: 49ac67e0c39c ("ARM: bcm2835: Add VC4 to the device tree.")
+Reviewed-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Eric Anholt <eric@anholt.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index fdc6e4e403e8..8cced3609e24 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -29,6 +29,7 @@
- #define PCI_DEVICE_ID_INTEL_BXT_M		0x1aaa
- #define PCI_DEVICE_ID_INTEL_APL			0x5aaa
- #define PCI_DEVICE_ID_INTEL_KBP			0xa2b0
-+#define PCI_DEVICE_ID_INTEL_CMLH		0x02ee
- #define PCI_DEVICE_ID_INTEL_GLK			0x31aa
- #define PCI_DEVICE_ID_INTEL_CNPLP		0x9dee
- #define PCI_DEVICE_ID_INTEL_CNPH		0xa36e
-@@ -305,6 +306,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MRFLD),
- 	  (kernel_ulong_t) &dwc3_pci_mrfld_properties, },
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+index 84df85ea6296..7efde03daadd 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+@@ -26,5 +26,5 @@
+ };
  
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_CMLH),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
-+
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_SPTLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
+ &hdmi {
+-	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
++	hpd-gpios = <&gpio 46 GPIO_ACTIVE_HIGH>;
+ };
 -- 
 2.19.1
 
