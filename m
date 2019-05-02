@@ -2,91 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFC812153
-	for <lists+stable@lfdr.de>; Thu,  2 May 2019 19:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AE0121B1
+	for <lists+stable@lfdr.de>; Thu,  2 May 2019 20:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726220AbfEBR4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 May 2019 13:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725962AbfEBR4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 May 2019 13:56:02 -0400
-Received: from localhost (adsl-173-228-226-134.prtc.net [173.228.226.134])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CDD620652;
-        Thu,  2 May 2019 17:56:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556819761;
-        bh=yyOfE5WOPuEC+HAmQynDKOs8Hj8lVMs0jDuisL88W7w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zZcQdJDw1HSHnMkiltPrEPXtM7EWy1aE8XN3GzKqKUlTuU7r9mTIItkCsqNGyDUtp
-         m4nvpr654pmlPZlpjWraFbtCF/DEXj19tzifA7i99k+LM6/qaOKwqLZ3TbRaiyt44t
-         XN8PgDVHTd40liBAQZU5x9zF+8yVU9mZz2VVD3wI=
-Date:   Thu, 2 May 2019 13:55:59 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Andre Noll <maan@tuebingen.mpg.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dave Chinner <david@fromorbit.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: xfs: Assertion failed in xfs_ag_resv_init()
-Message-ID: <20190502175559.GB3048@sasha-vm>
-References: <20190501171529.GB28949@kroah.com>
- <20190501175129.GH2780@tuebingen.mpg.de>
- <20190501192822.GM5207@magnolia>
- <20190501221107.GI29573@dread.disaster.area>
- <20190502114440.GB21563@kroah.com>
- <20190502132027.GF11584@sasha-vm>
- <20190502141025.GB13141@kroah.com>
- <20190502152736.GW2780@tuebingen.mpg.de>
- <20190502165244.GB14995@kroah.com>
- <20190502174516.GY2780@tuebingen.mpg.de>
+        id S1726334AbfEBSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 May 2019 14:08:42 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:40364 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726279AbfEBSIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 May 2019 14:08:42 -0400
+Received: by mail-lj1-f195.google.com with SMTP id d15so3039949ljc.7
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 11:08:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XO+Zlh5OfgsxKPXw6nrLGh0MdRFOFwIafTJLR0kldnk=;
+        b=e6CwPUpEdJ9HB9TpIWcHmbxuXkXB0tjXiE9LQCN7gSHPP80yow7acWCfXNiqcj8IHi
+         4gl44pCGLrAB/tvwbllzaa4dl64fl7TnbOotFQ668wqUF0cSxM3+zN1q72KaCH9jZUiQ
+         fus4OOganySkp4Rhyvc2a1f3it518rB/oX8hU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XO+Zlh5OfgsxKPXw6nrLGh0MdRFOFwIafTJLR0kldnk=;
+        b=fp8EeABMGH63nvpg+cZ3U9k68uUrOP71Yzu4QBCov44l55IPQ/GME/S/HEju+CmbGk
+         qb4L3NDwj8CusF0sHo2zLPcVWnCdJHdiWsv0nV2JsTsZvjHlKzQxmpYcTNLSfpKFMUQK
+         i/+oiLViZoRunhMYHgNjw2VE6zU1Plf3nD75ZtKJZs7pyGgi6vQRslDtho2BBf6VK7mW
+         M4/YuWJMMkSJ2DAm7jU6Dc4eUu3az4woI0+il9GO6PBfzyH1YVxs6OXl7SJNa1rQKyB9
+         BHbqq1u+ZRl/qcmUChw5jC3letfs+PpjINJvEIlro8XWINjZeZWhC9BpGB7KoDc5HEl0
+         0MTg==
+X-Gm-Message-State: APjAAAUTKw5MrEQIn8ItMC6FUY11bpGEnQjrNlbIonIk8qjV+2fTrGBt
+        7C313RrN+/Le7ctlnc194kf1ifEf6oE=
+X-Google-Smtp-Source: APXvYqzFu3zIQQCzqSfhfnOWWFqAe2Vv+1ycBowLXNkzk1YbXcJ3Ncaliv7hdAaMHXs/7qEFybbWiQ==
+X-Received: by 2002:a2e:3a0a:: with SMTP id h10mr665349lja.1.1556820519199;
+        Thu, 02 May 2019 11:08:39 -0700 (PDT)
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com. [209.85.167.53])
+        by smtp.gmail.com with ESMTPSA id z16sm11170289lfi.9.2019.05.02.11.08.38
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 02 May 2019 11:08:38 -0700 (PDT)
+Received: by mail-lf1-f53.google.com with SMTP id t11so2555405lfl.12
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 11:08:38 -0700 (PDT)
+X-Received: by 2002:a19:f50e:: with SMTP id j14mr2692667lfb.11.1556820176647;
+ Thu, 02 May 2019 11:02:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190502174516.GY2780@tuebingen.mpg.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190501202830.347656894@goodmis.org> <20190501203152.397154664@goodmis.org>
+ <20190501232412.1196ef18@oasis.local.home> <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 2 May 2019 11:02:40 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+Message-ID: <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 07:45:16PM +0200, Andre Noll wrote:
->On Thu, May 02, 18:52, Greg Kroah-Hartman wrote
->> On Thu, May 02, 2019 at 05:27:36PM +0200, Andre Noll wrote:
->> > On Thu, May 02, 16:10, Greg Kroah-Hartman wrote
->> > > Ok, then how about we hold off on this patch for 4.9.y then.  "no one"
->> > > should be using 4.9.y in a "server system" anymore, unless you happen to
->> > > have an enterprise kernel based on it.  So we should be fine as the
->> > > users of the older kernels don't run xfs.
->> >
->> > Well, we do run xfs on top of bcache on vanilla 4.9 kernels on a few
->> > dozen production servers here. Mainly because we ran into all sorts
->> > of issues with newer kernels (not necessary related to xfs). 4.9,
->> > OTOH, appears to be rock solid for our workload.
->>
->> Great, but what is wrong with 4.14.y or better yet, 4.19.y?  Do those
->> also work for your workload?  If not, we should fix that, and soon :)
+On Thu, May 2, 2019 at 9:21 AM Peter Zijlstra <peterz@infradead.org> wrote:
 >
->Some months ago we tried 4.14 and it was a real disaster: random
->crashes with nothing in the logs on the file servers and unkillable
->hung processes on the compute machines. The thing is, I can't afford
->an extended downtime of these production systems, or test patches, or
->enable debugging options which slow down the systems too much. Also,
->10 of the compute nodes load the nvidia module, so all bets are off
->anyway. But we've seen the hung processes also on the non-gpu nodes
->where the nvidia module is not loaded.
->
->As for 4.19, xfs on bcache was broken until a couple of weeks
->ago. Meanwhile the fix (e578f90d8a9c) went in, so I benchmarked 4.19.x
->on one system briefly. To my surprise the results were *worse* than
->with 4.9. This seems to be another cache bypass issue, but I need to
->have a closer look, and more reliable numbers.
+> TL;DR, on x86_32 kernel->kernel IRET frames are only 3 entries and do
+> not include ESP/SS, so not only wasn't regs->sp setup, if you changed it
+> it wouldn't be effective and corrupt random stack state.
 
-Is this something you can reproduce outside of those 10 magical
-machines?
+Indeed, the 32-bit case for same-RPL exceptions/iret is entirely
+different, and I'd forgotten about that.
 
---
-Thanks,
-Sasha
+And honestly, this makes the 32-bit case much worse. Now the entry
+stack modifications of int3 suddenly affect not just the entry, but
+every exit too.
+
+This is _exactly_ the kind of subtle kernel entry/exit code I wanted
+us to avoid.
+
+And while your code looks kind of ok, it's subtly buggy. This sequence:
+
++       pushl   %eax
++       movl    %esp, %eax
++
++       movl    4*4(%eax), %esp         # restore (modified) regs->sp
++
++       /* rebuild IRET frame */
++       pushl   3*4(%eax)               # flags
++       pushl   2*4(%eax)               # cs
++       pushl   1*4(%eax)               # ip
++
++       andl    $0x0000ffff, 4(%esp)    # clear high CS bits
++
++       movl    (%eax), %eax            # restore eax
+
+looks very wrong to me. When you do that "restore (modified)
+regs->sp", isn't that now resetting %esp to the point where %eax now
+points below the stack? So if we get an NMI in this sequence, that
+will overwrite the parts you are trying to copy from?
+
+Am I missing something? doesn't it need to be done something like
+
+  pushl %eax
+  pushl %ecx
+  movl 20(%esp),%eax   # possibly modified regs->sp
+  movl 16(%esp),%ecx   # flags
+  movl %ecx,-4(%eax)
+  movl 12(%esp),%ecx   # cs
+  movl %ecx,-8(%eax)
+  movl 8(%esp),%ecx   # ip
+  movl %ecx, -12(%eax)
+  movl 4(%esp),%ecx   # eax
+  movl %ecx, -16(%eax)
+  popl %ecx
+  lea -16(%eax),%esp
+  popl %eax
+
+(NOTE NOTE NOTE I might have gotten the offsets and the direction of
+the moves *completely* wrong, this is not a serious patch, it's meant
+as a "something like this" thing!!)
+
+But now I confused myself, and maybe I'm wrong.
+
+                   Linus
