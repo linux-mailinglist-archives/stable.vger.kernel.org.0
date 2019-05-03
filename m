@@ -2,79 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 861A2128E6
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 09:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E211A12906
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 09:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726022AbfECHcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 03:32:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725768AbfECHcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 May 2019 03:32:51 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726156AbfECHoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 03:44:24 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55054 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725809AbfECHoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 03:44:24 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x437bGtm049914
+        for <stable@vger.kernel.org>; Fri, 3 May 2019 03:44:22 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2s8gweh9mb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 03:44:22 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <ajd@linux.ibm.com>;
+        Fri, 3 May 2019 08:44:20 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 3 May 2019 08:44:18 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x437iHgj60424428
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 May 2019 07:44:17 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C5F8511C054;
+        Fri,  3 May 2019 07:44:17 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77A4411C052;
+        Fri,  3 May 2019 07:44:17 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  3 May 2019 07:44:17 +0000 (GMT)
+Received: from intelligence.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher DHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ECA52075C;
-        Fri,  3 May 2019 07:32:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556868770;
-        bh=NCOqAHbr04W3fEc+gwthvKv36/OfLDeO7qlPWhVGpyk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xXmQQhw5idyZnqcAdHvJCpJRLJ2MhR28IoA9OSokyVyJ0po5kWEXlR0Ey+NEWqHyE
-         RlEjVrRkas+LkjxQpb04RQN1PXTrsyxAbHcoVPy9ShyWgHrgzNzxMA8k50depe+Wj6
-         Z5gR667vkiiWlscFeQQughY/74NX2XhNG+5UttS0=
-Date:   Fri, 3 May 2019 09:32:47 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
-Message-ID: <20190503073247.GA24977@kroah.com>
-References: <20190502143339.434882399@linuxfoundation.org>
- <CA+G9fYuu37iYrWuY_+jYjawjmFmjvMTOXJCFKT7k853-_ruiew@mail.gmail.com>
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 91049A0241;
+        Fri,  3 May 2019 17:44:15 +1000 (AEST)
+From:   Andrew Donnellan <ajd@linux.ibm.com>
+To:     linuxppc-dev@lists.ozlabs.org
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Stewart Smith <stewart@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH] powerpc/powernv: Restrict OPAL symbol map to only be readable by root
+Date:   Fri,  3 May 2019 17:44:05 +1000
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuu37iYrWuY_+jYjawjmFmjvMTOXJCFKT7k853-_ruiew@mail.gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+X-TM-AS-GCONF: 00
+x-cbid: 19050307-0012-0000-0000-00000317D396
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19050307-0013-0000-0000-000021504547
+Message-Id: <20190503074405.20708-1-ajd@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-03_03:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1905030049
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 03, 2019 at 12:19:51PM +0530, Naresh Kamboju wrote:
-> On Thu, 2 May 2019 at 21:00, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.0.12 release.
-> > There are 101 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sat 04 May 2019 02:32:10 PM UTC.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.12-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+Currently the OPAL symbol map is globally readable, which seems bad as it
+contains physical addresses.
 
-Great!  Thanks for testing all of these and letting me know.
+Restrict it to root.
 
-greg k-h
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Jordan Niethe <jniethe5@gmail.com>
+Cc: Stewart Smith <stewart@linux.ibm.com>
+Fixes: c8742f85125d ("powerpc/powernv: Expose OPAL firmware symbol map")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+---
+ arch/powerpc/platforms/powernv/opal.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index 2b0eca104f86..505460a72052 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -681,7 +681,10 @@ static ssize_t symbol_map_read(struct file *fp, struct kobject *kobj,
+ 				       bin_attr->size);
+ }
+ 
+-static BIN_ATTR_RO(symbol_map, 0);
++static struct bin_attribute symbol_map_attr = {
++	.attr = {.name = "symbol_map", .mode = 0400},
++	.read = symbol_map_read
++};
+ 
+ static void opal_export_symmap(void)
+ {
+@@ -698,10 +701,10 @@ static void opal_export_symmap(void)
+ 		return;
+ 
+ 	/* Setup attributes */
+-	bin_attr_symbol_map.private = __va(be64_to_cpu(syms[0]));
+-	bin_attr_symbol_map.size = be64_to_cpu(syms[1]);
++        symbol_map_attr.private = __va(be64_to_cpu(syms[0]));
++	symbol_map_attr.size = be64_to_cpu(syms[1]);
+ 
+-	rc = sysfs_create_bin_file(opal_kobj, &bin_attr_symbol_map);
++	rc = sysfs_create_bin_file(opal_kobj, &symbol_map_attr);
+ 	if (rc)
+ 		pr_warn("Error %d creating OPAL symbols file\n", rc);
+ }
+-- 
+2.20.1
+
