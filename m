@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C72127A1
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 08:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AAC127C0
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 08:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726801AbfECGS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 02:18:58 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:53074 "EHLO
+        id S1726883AbfECGYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 02:24:37 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:33632 "EHLO
         heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726743AbfECGS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 02:18:57 -0400
+        with ESMTP id S1727002AbfECGXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 02:23:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
         Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
         List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=ZQwUU+J/MQcrEGIy0MJ+HGRMeveOuqWSbA/IkAltfgs=; b=dBcYRvUe1aCP
-        YZGZsViJliQgDvfMwTe4+d113vEp7lkGUS7j9+9b0hacgeOKj4nV6j9rfXymYydE48ER93PKLjne8
-        5qNi67Fq6TvXnRW3RgKVYGbLeTHwwcLOrvQLTtKF6W3JccRjWJHGdmelTC9HnbavV/QJf5lKY4KJE
-        icsyw=;
+        List-Archive; bh=ZQwUU+J/MQcrEGIy0MJ+HGRMeveOuqWSbA/IkAltfgs=; b=qWrCcM5maPcy
+        rJLp3VUSxkK7tfwySdkal5afdLPPDqqWT2HKlVJVLpiBQlSdhiBKVHamf24PUPMuivhQwwss+ZOty
+        Mx6TblpdBmUkn+5Kl/u8f0d4Vm0HLcXXFD0yuKpi/ZF8PzZK7TBGW2ty9sGgmWTnAJ3OoNRHhGmtb
+        3yZH8=;
 Received: from [42.29.24.106] (helo=finisterre.ee.mobilebroadband)
         by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <broonie@sirena.org.uk>)
-        id 1hMRWw-0000Wg-Oi; Fri, 03 May 2019 06:18:47 +0000
+        id 1hMRb8-0000bh-6o; Fri, 03 May 2019 06:23:06 +0000
 Received: by finisterre.ee.mobilebroadband (Postfix, from userid 1000)
-        id 6D839441D58; Fri,  3 May 2019 07:18:42 +0100 (BST)
+        id EDBA1441D67; Fri,  3 May 2019 07:21:29 +0100 (BST)
 From:   Mark Brown <broonie@kernel.org>
 To:     Ross Zwisler <zwisler@chromium.org>
 Cc:     alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>,
@@ -40,8 +40,8 @@ Cc:     alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>,
 Subject: Applied "ASoC: Intel: avoid Oops if DMA setup fails" to the asoc tree
 In-Reply-To: <20190429182517.210909-1-zwisler@google.com>
 X-Patchwork-Hint: ignore
-Message-Id: <20190503061842.6D839441D58@finisterre.ee.mobilebroadband>
-Date:   Fri,  3 May 2019 07:18:42 +0100 (BST)
+Message-Id: <20190503062129.EDBA1441D67@finisterre.ee.mobilebroadband>
+Date:   Fri,  3 May 2019 07:21:29 +0100 (BST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
