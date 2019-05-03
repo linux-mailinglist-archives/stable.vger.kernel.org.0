@@ -2,136 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E42DA127B8
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 08:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A377712800
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 08:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727043AbfECGXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 02:23:55 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:33908 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727061AbfECGXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 02:23:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=ZQwUU+J/MQcrEGIy0MJ+HGRMeveOuqWSbA/IkAltfgs=; b=a1Afsbzi0iI8
-        BX8SvVx+DoACqhfVuyw9iAPBy/YOudOv1gqW3PdiwOI9nIai/jlEzWh4bgWsCVbMlR1HYfqNxh91c
-        6z1dfTLO4jOJJhOIvCD9xeJRQzhxXfRnmtPe1dh47kfer5lo6Zaipo974btGJPDuZIUGFe5pvvduU
-        iHHgU=;
-Received: from [42.29.24.106] (helo=finisterre.ee.mobilebroadband)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hMRbc-0000jW-CG; Fri, 03 May 2019 06:23:37 +0000
-Received: by finisterre.ee.mobilebroadband (Postfix, from userid 1000)
-        id 33FB0441D3F; Fri,  3 May 2019 07:23:32 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Ross Zwisler <zwisler@chromium.org>
-Cc:     alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>,
-        Jie Yang <yang.jie@linux.intel.com>,
-        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
-        linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ross Zwisler <zwisler@google.com>, stable@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.com>
-Subject: Applied "ASoC: Intel: avoid Oops if DMA setup fails" to the asoc tree
-In-Reply-To: <20190429182517.210909-1-zwisler@google.com>
-X-Patchwork-Hint: ignore
-Message-Id: <20190503062332.33FB0441D3F@finisterre.ee.mobilebroadband>
-Date:   Fri,  3 May 2019 07:23:32 +0100 (BST)
+        id S1726990AbfECGuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 02:50:04 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:39020 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbfECGuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 02:50:04 -0400
+Received: by mail-lf1-f66.google.com with SMTP id d12so3650292lfk.6
+        for <stable@vger.kernel.org>; Thu, 02 May 2019 23:50:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1kSepQ57Np35bAbZP6a06Oga5L1IXObYQ3D5v/bThhg=;
+        b=U8ZFZuY1aRDo781JTWMxR/vTWPAssGZIy0MYIb/A5uuH8Y35wfYa6AaDdVe+wQx26Z
+         FwdlIRq5AR1Nvxf32GmWlpWr+29aDb0TC50I8iQVovnaApdAjwjTostWI/Tvc7mv7+s8
+         Cl8FG3rH11duhW8o8NOHrfTQMwDDqkDy5XYpb13CNXsxmgFb3Z1Hs0TfVOEa4NEbexF8
+         NKjVfwerfuphBg2aghM2JmGaJtHzc7krROAzlua2iqtRZU/Mhcm4i/oJIOLNOIEegMlk
+         ooUyyr7vHa2xMo4+uQkeORpU/KdjytwMpSqDLv5gmmPbU6z6mLfcFJ1V3o7YYHjQQWKf
+         RfiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1kSepQ57Np35bAbZP6a06Oga5L1IXObYQ3D5v/bThhg=;
+        b=sDhbxqLoxNzuotPkI7gglCpwH+OC0U5um95opX3Z8B86VRTO4yvxhzR2x7eB92i/fw
+         TDeOf8b1sJhWhm4kFcjnX2ye9cWmiXrblj4xA6UXkAJ3GeEPnWVoqVVG6b75DZltSXbs
+         oX/wXZrmak4G8y7eAEfeZPAtWgUKp3CNO54H5+A9nA+YoWs+kxzQAP8KPOBQyG+ZF2z/
+         Ts0jygAKjbvbOmn9yAD7KUpRjcGcFKAPMC4Q+47/bEXPhQT/OyqT7gM4jjCRXBMT+Dnw
+         OWjSodSC4L3Ntm7W0xsvxhb1LUtpTeCCSYlLvkR/PMMlOKGQAGqg0FHjf7YmM4REnPfe
+         wBKQ==
+X-Gm-Message-State: APjAAAWeLW3zgT1ANEQCO5czp//lCgHgtSWd8jCpL1m8bk2Y53gRZFsW
+        pjZ4TceAsEGw/cJgnDXJYNX4Of+koWAjd+DPl3g34w==
+X-Google-Smtp-Source: APXvYqz93pCSH8atc4z9XsP6Fr93k4FFm93v2txrcLTOJhLE09pHuXR0cvMGS07Dpw7ojno2PdVA8mj3GY0cthWcHl8=
+X-Received: by 2002:a19:6f4d:: with SMTP id n13mr4165736lfk.57.1556866202694;
+ Thu, 02 May 2019 23:50:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190502143339.434882399@linuxfoundation.org>
+In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 3 May 2019 12:19:51 +0530
+Message-ID: <CA+G9fYuu37iYrWuY_+jYjawjmFmjvMTOXJCFKT7k853-_ruiew@mail.gmail.com>
+Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+On Thu, 2 May 2019 at 21:00, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.0.12 release.
+> There are 101 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 04 May 2019 02:32:10 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.0.12-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-   ASoC: Intel: avoid Oops if DMA setup fails
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-has been applied to the asoc tree at
+Summary
+------------------------------------------------------------------------
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-5.2
+kernel: 5.0.12-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.0.y
+git commit: 17f93022a8c96d740be0f8dfc01e1ccaa70eea5f
+git describe: v5.0.11-102-g17f93022a8c9
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/bui=
+ld/v5.0.11-102-g17f93022a8c9
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+No regressions (compared to build v5.0.11)
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+No fixes (compared to build v5.0.11)
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+Ran 22922 total tests in the following environments and test suites.
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
 
-Thanks,
-Mark
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* spectre-meltdown-checker-test
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-none
 
-From 0efa3334d65b7f421ba12382dfa58f6ff5bf83c4 Mon Sep 17 00:00:00 2001
-From: Ross Zwisler <zwisler@chromium.org>
-Date: Mon, 29 Apr 2019 12:25:17 -0600
-Subject: [PATCH] ASoC: Intel: avoid Oops if DMA setup fails
-
-Currently in sst_dsp_new() if we get an error return from sst_dma_new()
-we just print an error message and then still complete the function
-successfully.  This means that we are trying to run without sst->dma
-properly set up, which will result in NULL pointer dereference when
-sst->dma is later used.  This was happening for me in
-sst_dsp_dma_get_channel():
-
-        struct sst_dma *dma = dsp->dma;
-	...
-        dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
-
-This resulted in:
-
-   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
-   IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
-
-Fix this by adding proper error handling for the case where we fail to
-set up DMA.
-
-This change only affects Haswell and Broadwell systems.  Baytrail
-systems explicilty opt-out of DMA via sst->pdata->resindex_dma_base
-being set to -1.
-
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Cc: stable@vger.kernel.org
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- sound/soc/intel/common/sst-firmware.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/sound/soc/intel/common/sst-firmware.c b/sound/soc/intel/common/sst-firmware.c
-index 1e067504b604..f830e59f93ea 100644
---- a/sound/soc/intel/common/sst-firmware.c
-+++ b/sound/soc/intel/common/sst-firmware.c
-@@ -1251,11 +1251,15 @@ struct sst_dsp *sst_dsp_new(struct device *dev,
- 		goto irq_err;
- 
- 	err = sst_dma_new(sst);
--	if (err)
--		dev_warn(dev, "sst_dma_new failed %d\n", err);
-+	if (err)  {
-+		dev_err(dev, "sst_dma_new failed %d\n", err);
-+		goto dma_err;
-+	}
- 
- 	return sst;
- 
-+dma_err:
-+	free_irq(sst->irq, sst);
- irq_err:
- 	if (sst->ops->free)
- 		sst->ops->free(sst);
--- 
-2.20.1
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
