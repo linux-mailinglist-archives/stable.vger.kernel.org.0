@@ -2,36 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A333C1324B
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 18:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437FC13267
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 18:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727584AbfECQfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 12:35:54 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:52620 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725809AbfECQfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 12:35:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=/LENoSgXzLnW9DRzg5bqii7vmsoRoQ47x0BTapkqwk4=; b=pUJFndPoOeujxusJvYrBI3BOW
-        LGwNIdKeMmGzZY/QohuDgLb/FXoiWvCIwRCRPEzyORJ8zyLlbDzeOgZqqIRT1GeALMLJKWbzVTupM
-        snWgdPxLtBR4cs9qhOd3juRSzH1bKD+ISF3uQqNIsPYGiJYUT9OdtnLtGAZAnF4TtLz0ltMiCaP/r
-        NUzVkmhKPBHihhqKpe4D5Zfx/oqayLtN6WaBr8Xk+B3ZklTToqwpv0R98cENmdjE0MQAVVhCBMHM3
-        lpiC6X2v6cNubRcDwe/1GuH9A4sgGlbN5dup/fXumrUdP8RE9nEdv3baLD0SFj+GiFYLfpy5f2lm1
-        6fnk0XvwA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hMb9l-0007T3-8p; Fri, 03 May 2019 16:35:29 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 8E072286B652D; Fri,  3 May 2019 18:35:27 +0200 (CEST)
-Date:   Fri, 3 May 2019 18:35:27 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
+        id S1728521AbfECQox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 12:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37676 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728519AbfECQov (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 May 2019 12:44:51 -0400
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64F59217F5
+        for <stable@vger.kernel.org>; Fri,  3 May 2019 16:44:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556901890;
+        bh=8cw3huy9JgI135+NqQSe0fA379tB3gSlEfIQFk7nPPI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=GN4tW4310AbL/mqvzyrO++mK6/0nJYMgriLgH/q3fTqUVlEYFgRBnwDRYwBAHOC5U
+         SHgH4n3HB0aRrvENvxva9NuxFHVrOU6bdD4uObslpFeiCQi27bKzd7jnhT0ggW4+nl
+         KWnKsSPtDikAHiIUxujOQeWbAleHYH56aw9on6gw=
+Received: by mail-wr1-f54.google.com with SMTP id a9so8671176wrp.6
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 09:44:50 -0700 (PDT)
+X-Gm-Message-State: APjAAAVIEUqUFEpNRa4IRJk6VyiUGk3Pdb/8Mt3KTKEsaL+L4QA6TllE
+        PcQrfmMm9oyd296wjw4I/t8JIqtZjTJJ+O5QIAHLTw==
+X-Google-Smtp-Source: APXvYqwdh0bncv2mEhNhDzUjkAso7jUC2TqrfVvEwRSxKalPbLqYKMBf8BsmaQA/bDkxZZthnfNip2uVK/Cx8DvGL2Q=
+X-Received: by 2002:adf:ec42:: with SMTP id w2mr5212912wrn.77.1556901887167;
+ Fri, 03 May 2019 09:44:47 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+ <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <20190502185225.0cdfc8bc@gandalf.local.home>
+ <20190502193129.664c5b2e@gandalf.local.home> <20190502195052.0af473cf@gandalf.local.home>
+ <20190503092959.GB2623@hirez.programming.kicks-ass.net> <20190503092247.20cc1ff0@gandalf.local.home>
+ <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net> <20190503123126.3a2801be@gandalf.local.home>
+ <20190503163527.GI2606@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190503163527.GI2606@hirez.programming.kicks-ass.net>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Fri, 3 May 2019 09:44:35 -0700
+X-Gmail-Original-Message-ID: <CALCETrUcEH8kswYGNkoupVVP+3hEsTA4BWTfLk-RY_RfkDsHGw@mail.gmail.com>
+Message-ID: <CALCETrUcEH8kswYGNkoupVVP+3hEsTA4BWTfLk-RY_RfkDsHGw@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
         Ingo Molnar <mingo@kernel.org>,
@@ -41,7 +55,7 @@ Cc:     Andy Lutomirski <luto@amacapital.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Jiri Kosina <jikos@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
@@ -59,30 +73,21 @@ Cc:     Andy Lutomirski <luto@amacapital.net>,
         Joerg Roedel <jroedel@suse.de>,
         "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-Message-ID: <20190503163527.GI2606@hirez.programming.kicks-ass.net>
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
- <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
- <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
- <20190502185225.0cdfc8bc@gandalf.local.home>
- <20190502193129.664c5b2e@gandalf.local.home>
- <20190502195052.0af473cf@gandalf.local.home>
- <20190503092959.GB2623@hirez.programming.kicks-ass.net>
- <20190503092247.20cc1ff0@gandalf.local.home>
- <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
- <20190503123126.3a2801be@gandalf.local.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190503123126.3a2801be@gandalf.local.home>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 03, 2019 at 12:31:26PM -0400, Steven Rostedt wrote:
-> I guess the real question is, what's the performance impact of doing
-> that?
+On Fri, May 3, 2019 at 9:35 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Fri, May 03, 2019 at 12:31:26PM -0400, Steven Rostedt wrote:
+> > I guess the real question is, what's the performance impact of doing
+> > that?
+>
+> Is there anyone that considers i386 a performance platform?
 
-Is there anyone that considers i386 a performance platform?
+Not me.  As far as I'm concerned, I will basically always gladly trade
+several cycles for simplicity on 32-bit.
+
+--Andy
