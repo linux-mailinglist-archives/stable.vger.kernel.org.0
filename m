@@ -2,97 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C2C12A78
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 11:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC2D512A7D
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 11:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727307AbfECJ2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 05:28:01 -0400
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:3405 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725804AbfECJ2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 05:28:01 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ccc099c0001>; Fri, 03 May 2019 02:27:56 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 03 May 2019 02:28:00 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 03 May 2019 02:28:00 -0700
-Received: from [10.21.132.148] (10.124.1.5) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 3 May
- 2019 09:27:57 +0000
-Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190502143339.434882399@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <7a4ddaf6-819f-b8f3-4104-f979b2c08655@nvidia.com>
-Date:   Fri, 3 May 2019 10:27:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726041AbfECJar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 05:30:47 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:36870 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbfECJar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 05:30:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=/sJFNjnkXiIwcXqbtjN09ZmuuifrOAid7089Ha4ecjg=; b=mcoWHhStv7fEKw2GUAKatzGDe
+        PVcoK+XWyUpxja6wb7rQMMvbiDpxYJcikrKi4TYhdDcrt7FcLuztkV3Z0llyLOyTLdWIBMZmg4TOv
+        zuVhsnaan5xTVDcCbrfeX9+VvbEMWNd7GQxoSVEMegwm0gFXFVwk52orBeOPOiqn2C3YzC+6x/JU+
+        OJHUVlioJ0yhdg/jsyV0C5634itkGTUZtNHPVxojO94elcLU9qBw/1L5HjgP7Rff8ochhshhT8L/Z
+        wVo+5VB+J2ZV50RMBUUGbA/avxgnfY4dpk0FR9wnWoHRttbcF4OM3Ijy7gLqYn/O8ToNn5mUN1k0L
+        Qj715Jf7Q==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hMUW3-0008PY-TQ; Fri, 03 May 2019 09:30:04 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id ABE0C209A1C83; Fri,  3 May 2019 11:29:59 +0200 (CEST)
+Date:   Fri, 3 May 2019 11:29:59 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+Message-ID: <20190503092959.GB2623@hirez.programming.kicks-ass.net>
+References: <20190501203152.397154664@goodmis.org>
+ <20190501232412.1196ef18@oasis.local.home>
+ <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+ <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+ <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
+ <20190502185225.0cdfc8bc@gandalf.local.home>
+ <20190502193129.664c5b2e@gandalf.local.home>
+ <20190502195052.0af473cf@gandalf.local.home>
 MIME-Version: 1.0
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL101.nvidia.com (172.20.187.10)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1556875676; bh=ZakalKCGUqgTa7eOrd6KjldSfkB7Pz1YEJDda4CByqo=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=DDe9Vc72ckBstqd6sMV5GG9mahoeaKP2NLvsbAsgkwqxXoBhj8bzDXHrptyXqLcuZ
-         IaRYlDT+nmtkCWGZgnoiD5fk8z+f+VWANFrfHRP+kkYOYwWXYHEoaugb7oUcpuXgw/
-         utvHPJGPdVCLe7dxPpRTKKadplJZ8fncc1F1cl7ZYKT6cl34zNHuCBuoEUMNBGjdeI
-         Y+5jXLBd42AIfoEr7TgqclffbqlZe2JGVKasVvkvNxRmqM7o6xXxMMxbqix6Wt4/Ta
-         x87KTmYzDE9vNNNp2SIrsMHGrF/SZL4opuImLKr8bjX6NPwz5XMoHpRVmlM7BrQnZN
-         0Nn9WPIQxXlSg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190502195052.0af473cf@gandalf.local.home>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 02/05/2019 16:20, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.0.12 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, May 02, 2019 at 07:50:52PM -0400, Steven Rostedt wrote:
+> On Thu, 2 May 2019 19:31:29 -0400
+> Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> Responses should be made by Sat 04 May 2019 02:32:10 PM UTC.
-> Anything received after that time might be too late.
+> > Digging a little further, I pinpointed it out to being kretprobes. The
+> > problem I believe is the use of kernel_stack_pointer() which does some
+> > magic on x86_32. kretprobes uses this to hijack the return address of
+> > the function (much like the function graph tracer does). I do have code
+> > that would allow kretprobes to use the function graph tracer instead,
+> > but that's still in progress (almost done!). But still, we should not
+> > have this break the use of kernel_stack_pointer() either.
+> > 
+> > Adding some printks in that code, it looks to be returning "&regs->sp"
+> > which I think we changed.
+> >
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
-> and the diffstat can be found below.
+> This appears to fix it!
 > 
-> thanks,
+> -- Steve
 > 
-> greg k-h
+> diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+> index 4b8ee05dd6ad..600ead178bf4 100644
+> --- a/arch/x86/kernel/ptrace.c
+> +++ b/arch/x86/kernel/ptrace.c
+> @@ -171,8 +171,12 @@ unsigned long kernel_stack_pointer(struct pt_regs *regs)
+>  	unsigned long sp = (unsigned long)&regs->sp;
+>  	u32 *prev_esp;
+>  
+> -	if (context == (sp & ~(THREAD_SIZE - 1)))
+> +	if (context == (sp & ~(THREAD_SIZE - 1))) {
+> +		/* int3 code adds a gap */
+> +		if (sp == regs->sp - 5*4)
+> +			return regs->sp;
+>  		return sp;
+> +	}
+>  
+>  	prev_esp = (u32 *)(context);
+>  	if (*prev_esp)
 
-All tests are passing for Tegra ...
+OMG, WTF, ARGH... That code is fsck'ing horrible. I'd almost argue to
+always do the INT3 thing, just to avoid games like that.
 
-Test results for stable-v5.0:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+That said; for normal traps &regs->sp is indeed the previous context --
+if it doesn't fall off the stack. Your hack detects the regular INT3
+frame. Howver if regs->sp has been modified (int3_emulate_push, for
+example) your detectoring comes unstuck.
 
-Linux version:	5.0.12-rc1-g17f9302
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana, tegra210,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+Now, it is rather unlikely these two code paths interact, but just to be
+safe, something like so might be more reliable:
 
-Cheers
-Jon
 
--- 
-nvpublic
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index 4b8ee05dd6ad..aceaad0cc9a9 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -163,6 +163,9 @@ static inline bool invalid_selector(u16 value)
+  * stack pointer we fall back to regs as stack if no previous stack
+  * exists.
+  *
++ * There is a special case for INT3, there we construct a full pt_regs
++ * environment. We can detect this case by a high bit in regs->cs
++ *
+  * This is valid only for kernel mode traps.
+  */
+ unsigned long kernel_stack_pointer(struct pt_regs *regs)
+@@ -171,6 +174,9 @@ unsigned long kernel_stack_pointer(struct pt_regs *regs)
+ 	unsigned long sp = (unsigned long)&regs->sp;
+ 	u32 *prev_esp;
+ 
++	if (regs->__csh & (1 << 13)) /* test CS_FROM_INT3 */
++		return regs->sp;
++
+ 	if (context == (sp & ~(THREAD_SIZE - 1)))
+ 		return sp;
+ 
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -388,6 +388,7 @@
+ 
+ #define CS_FROM_ENTRY_STACK	(1 << 31)
+ #define CS_FROM_USER_CR3	(1 << 30)
++#define CS_FROM_INT3		(1 << 29)
+ 
+ .macro SWITCH_TO_KERNEL_STACK
+ 
+@@ -1515,6 +1516,9 @@ ENTRY(int3)
+ 
+ 	add	$16, 12(%esp) # point sp back at the previous context
+ 
++	andl	$0x0000ffff, 4(%esp)
++	orl	$CS_FROM_INT3, 4(%esp)
++
+ 	pushl	$-1				# orig_eax; mark as interrupt
+ 
+ 	SAVE_ALL
