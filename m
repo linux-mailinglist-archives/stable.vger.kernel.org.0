@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8F5135EE
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 01:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5172013612
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 01:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726810AbfECXIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 19:08:23 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:38524 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726042AbfECXIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 19:08:22 -0400
-Received: by mail-lj1-f196.google.com with SMTP id e18so6545373lja.5
-        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:08:20 -0700 (PDT)
+        id S1726041AbfECXRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 19:17:21 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:36742 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726755AbfECXRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 19:17:21 -0400
+Received: by mail-lf1-f68.google.com with SMTP id u17so5492141lfi.3
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:17:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=PJAflPmQogNQpRfYKXa4wncPdUKgvcxegImOYQZ9y4M=;
-        b=YRB1C4a8aY6oNQ4Dcz6qJG4DjRq4rRf5c96hJky+mFEos14uxAjmg5IRtblz5Zm/+p
-         AIWWkKxTm6hIurYsOfUWuKlPO3f3CKS4z4ENU/Uxi4oZSRGIkqbYn5VX66A1WW96OEeW
-         VfyeY+ZH75pBqOv3uAMq5kkfebEdfOYQXUMAE=
+        bh=OHqZ1dasojZtZXeDb6AOgPCoclYuOoFb8Dw9XhQcuX8=;
+        b=Z5lqxrRs7Uo5ooOZcjNQMQ0wMKgNkbdgLGUsuVX4JfUFji1uCAkCzJ4BGPfIaizpY6
+         JWe5m/qV8Q8llt6hrEswIs+Q/3t9J9sE6JAaJ3czcaSnBtxbhbEqSZL2NpE9lbHSXdrI
+         gxKi90AMf5eRvy/aupAWhDZHVdVjhL/W1hUdk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=PJAflPmQogNQpRfYKXa4wncPdUKgvcxegImOYQZ9y4M=;
-        b=Him6srrvFvloDPmKs3Xw9Ar38XDr+dyiczhlmQyKXX0vIB4i01eyWLQx1qn7H+QDs7
-         UuQFN2imRPpCsnpLq2JPsjIb3t1i1ntPOKJSXSxEHvGL00NsN8v5vLVsYppAruk6I6F2
-         wUM77rru2O5cr+LV/nGjNsBPvcMybz3xVtjGaE6MPY8SArAy2LfvdWiP/lbxOyhJCckA
-         pPwo3q0rRR0JSkRc46pqdAEqwYFz+RGTqMp8Y033UqvzDrBuENWYU5DlU/CCm3nH4wNG
-         lIKcXgF+X5Kih+/s9ueldinXHtROmB6JNfEBU1cl3V43kmub56LwW+BANKavzmMYA7XZ
-         h3Ow==
-X-Gm-Message-State: APjAAAV/dlBmpTX/5x2pYhmCX+ql2bl/xnF6PSUUISUz7afvOu17VPQK
-        D/fhR20iW0hZ47t9AJbIoyQkkNMLVhU=
-X-Google-Smtp-Source: APXvYqxhaOREqKEg1anJi0ldjz2cM69OfmtQWgNlqPUZnIvww5gT0m2O/56aNPJQb0whosERBKcJSg==
-X-Received: by 2002:a2e:85c9:: with SMTP id h9mr4637145ljj.110.1556924899701;
-        Fri, 03 May 2019 16:08:19 -0700 (PDT)
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com. [209.85.208.169])
-        by smtp.gmail.com with ESMTPSA id q5sm92464lfj.1.2019.05.03.16.08.16
+        bh=OHqZ1dasojZtZXeDb6AOgPCoclYuOoFb8Dw9XhQcuX8=;
+        b=ZXMlPiiCR+13QnXODE5sOhI2r8WX5oiXHNeqYtSBE9tkB90bgv+Z/B15XWXUUvvBQU
+         ep50HiEcUYA9n9NWk54YXMb4OpK00CMW7IHwLAPeC/sASAkY3Cc7y66IaOkxLv85CVK8
+         KSWD4L/q8/wdyHgKOf+nR6hHnZAeiBQc2KJxkBoRxMsHyZZWBPJgKdhsZfUg5wRx6uwL
+         6n2ZJYuw9p/CUHWa3R9cw395L34ACUcqeu4LSzkypS7HpwiddsPkyQodMBc+aZwaF41p
+         PF73G52ba0KSb8g0UwwzAAFS/ai6WL3VRpp7WDdwP85XNwg+KZeDoQWbLPLThSf/wHMg
+         1W2A==
+X-Gm-Message-State: APjAAAWOrApjNPy81uG6wGyfSGiAMNqftL4TE7VhVUYbDJd4uzaIcuUg
+        sk7JU1jzWZTgfr6WK1yct4W5yicCPW4=
+X-Google-Smtp-Source: APXvYqzLzV9VFtoOURbbmXLUWn4k+0GLtEj0hQOyRScImhJg3hrWSuw1GZXv3lEco0saEi3MuKHcMQ==
+X-Received: by 2002:ac2:5181:: with SMTP id u1mr6703989lfi.59.1556925438793;
+        Fri, 03 May 2019 16:17:18 -0700 (PDT)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id t17sm615885ljg.70.2019.05.03.16.17.16
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 May 2019 16:08:19 -0700 (PDT)
-Received: by mail-lj1-f169.google.com with SMTP id z5so1421808lji.10
-        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:08:16 -0700 (PDT)
-X-Received: by 2002:a2e:9a84:: with SMTP id p4mr6156404lji.22.1556924895019;
- Fri, 03 May 2019 16:08:15 -0700 (PDT)
+        Fri, 03 May 2019 16:17:18 -0700 (PDT)
+Received: by mail-lj1-f179.google.com with SMTP id q10so6547767ljc.6
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:17:16 -0700 (PDT)
+X-Received: by 2002:a2e:890a:: with SMTP id d10mr5422300lji.94.1556925434455;
+ Fri, 03 May 2019 16:17:14 -0700 (PDT)
 MIME-Version: 1.0
 References: <20190501202830.347656894@goodmis.org> <20190501203152.397154664@goodmis.org>
  <20190501232412.1196ef18@oasis.local.home> <20190502162133.GX2623@hirez.programming.kicks-ass.net>
@@ -53,15 +53,16 @@ References: <20190501202830.347656894@goodmis.org> <20190501203152.397154664@goo
  <20190502181811.GY2623@hirez.programming.kicks-ass.net> <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
  <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <CAHk-=wh8bi5c_GkyjPtDAiaXaZRqtmhWs30usUvs4qK_F+c9tg@mail.gmail.com>
  <20190503152405.2d741af8@gandalf.local.home> <CAHk-=wiA-WbrFrDs-kOfJZMXy4zMo9-SZfk=7B-GfmBJ866naw@mail.gmail.com>
- <20190503184919.2b7ef242@gandalf.local.home>
-In-Reply-To: <20190503184919.2b7ef242@gandalf.local.home>
+ <2962A4E4-3B9F-4195-9C6D-9932809D98F9@amacapital.net>
+In-Reply-To: <2962A4E4-3B9F-4195-9C6D-9932809D98F9@amacapital.net>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 3 May 2019 16:07:59 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wh2vPLvsGBi6JtmEYeqHxB5UpTzHDjY5JsWG=YR0Lypzw@mail.gmail.com>
-Message-ID: <CAHk-=wh2vPLvsGBi6JtmEYeqHxB5UpTzHDjY5JsWG=YR0Lypzw@mail.gmail.com>
+Date:   Fri, 3 May 2019 16:16:58 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjZDhwStWvioV7totCnZfp74bqH0y1UJxkmFfdLg48wDA@mail.gmail.com>
+Message-ID: <CAHk-=wjZDhwStWvioV7totCnZfp74bqH0y1UJxkmFfdLg48wDA@mail.gmail.com>
 Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
         Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -94,72 +95,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 3, 2019 at 3:49 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+On Fri, May 3, 2019 at 3:55 PM Andy Lutomirski <luto@amacapital.net> wrote:
 >
-> You are saying that we have a do_int3() for user space int3, and
-> do_kernel_int3() for kernel space. That would need to be done in asm
-> for both, because having x86_64 call do_int3() for kernel and
-> user would be interesting.
+> But I think this will end up worse than the version where the entry code fixes it up.  This is because, if the C code moves pt_regs, then we need some way to pass the new pointer back to the asm.
 
-The clean/simple way is to just do this
+What? I already posted that code. Let me quote it again:
 
- - x86-32 does the special asm for the kernel_do_int3(), case and
-calls user_do_int3 otherwise.
+Message-ID: <CAHk-=wh8bi5c_GkyjPtDAiaXaZRqtmhWs30usUvs4qK_F+c9tg@mail.gmail.com>
 
- - x86-64 doesn't care, and just calls "do_int3()".
+        # args: pt_regs pointer (no error code for int3)
+        movl %esp,%eax
+        # allocate a bit of extra room on the stack, so that
+        # 'kernel_int3' can move the pt_regs
+        subl $8,%esp
+        call kernel_int3
+        movl %eax,%esp
 
-We have a trivial helper function like
+It's that easy (this is with the assumption that we've already applied
+the "standalone simple int3" case, but I think the above might work
+even with the current code model, just the "call do_int3" needs to
+have the kernel/not-kernel distinction and do the above for the kernel
+case)
 
-    dotraplinkage void notrace do_int3(struct pt_regs *regs, long error_code)
+That's *MUCH* easier than your code to move entries around on the
+stack just as you return, and has the advantage of not changing any
+C-visible layout.
+
+The C interface looks like this
+
+    /* Note: on x86-32, we can move 'regs' around for push/pop emulation */
+    struct pt_regs *kernel_int3(struct pt_regs *regs)
     {
-        if (user_mode(regs))
-                user_int3(regs);
-        else
-                WARN_ON_ONCE(kernel_int3(regs) != regs);
+        ..
+        .. need to pass regs to emulation functions
+        .. and call emulation needs to return it
+        ..
+        return regs;
     }
 
-which adds that warning just for debug purposes.
+and I just posted as a response to Stephen the *trivial* do_int3()
+wrapper (so that x86-64 doesn't need to care), and the *trivial* code
+to actually emulate a call instruction.
 
-Then we make the rule be that user_int3() does the normal stuff, and
-kernel_int3() returns the pt_regs it was passed in.
+And when I say "trivial", I obviously mean "totally untested and
+probably buggy", but it sure seems *simple*.,
 
-Easy-peasy, there is absolutely no difference between x86-64 and
-x86-32 here except for the trivial case that x86-32 does its thing at
-the asm layer, which is what allows "kernel_int3()" to move pt_regs
-around by a small amount.
+Notice? Simple and minimal changes to entry code that only affect
+int3, and nothing else.
 
-Now, the _real_ difference is when you do the "call_emulate()" case,
-which will have to do something like this
-
-    static struct pt_regs *emulate_call(struct pt_regs *regs, unsigned
-long return, unsigned long target)
-    {
-    #ifdef CONFIG_X86_32
-            /* BIG comment about how we need to move pt_regs to make
-room and to update the return 'sp' */
-            struct pt_regs *new = (void *)regs - 4;
-            unsigned long *sp = (unsigned long *)(new + 1);
-            memmove(new, regs, sizeof(*regs));
-            regs = new;
-    #else
-            unsigned long *sp = regs->sp;
-            regs->sp -= 4;
-    #endif
-            *sp = value;
-            regs->ip = target;
-            return regs;
-    }
-
-but look, the above isn't that complicated, is it? And notice how the
-subtle pt_regs movement is exactly where it needs to be and nowhere
-else.
-
-And what's the cost of all of this? NOTHING. The x86-32 entry code has
-to do the test for kernel space anyway, and *all* it does now is to
-call "kernel_int3" for the kernel case after having made a bit of
-extra room on the stack so that you *can* move pt_regs around (maybe
-people want to pop things too? It would work as well).
-
-See what I mean by "localized to the cases the need it"?
-
-              Linus
+                 Linus
