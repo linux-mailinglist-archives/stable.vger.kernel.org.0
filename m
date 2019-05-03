@@ -2,85 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58022133B5
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 20:46:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58E13133B9
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 20:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbfECSqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 14:46:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55782 "EHLO mail.kernel.org"
+        id S1726646AbfECStL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 14:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725997AbfECSqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 May 2019 14:46:38 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        id S1725997AbfECStL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 May 2019 14:49:11 -0400
+Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C71412075E;
-        Fri,  3 May 2019 18:46:34 +0000 (UTC)
-Date:   Fri, 3 May 2019 14:46:33 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        by mail.kernel.org (Postfix) with ESMTPSA id C4B342075E;
+        Fri,  3 May 2019 18:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556909350;
+        bh=KGeziaPtUPNmb1W4HZA4UsYcNlgAPR6LLCaYja2jOI0=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=a6WHutb8yyJeTowNbUA9CnGwkEfxZjeofA38FDIxS5Gg23KjOr4kO2SXW0CNomKEZ
+         M50naF6JDjC5LIgJZnEZE1+wjTwURLekRH/z/YigcLqD8HqQV7pKueBxH2rZqMUMUk
+         XFI83FcU348qcOtojOq6MG0+ML7p2H/cCB+EG8vo=
+Date:   Fri, 3 May 2019 20:49:05 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+cc:     Andy Lutomirski <luto@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@surriel.com>,
         "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1.5/2] x86: Add int3_emulate_call() selftest
-Message-ID: <20190503144633.750ca9a5@gandalf.local.home>
-In-Reply-To: <20190503102247.GC2623@hirez.programming.kicks-ass.net>
-References: <20190501202830.347656894@goodmis.org>
-        <20190503102247.GC2623@hirez.programming.kicks-ass.net>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?ISO-8859-2?Q?Radim_Kr=E8m=E1=F8?= <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        stable@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
+ export
+In-Reply-To: <20190502154043.gfv4iplcvzjz3mc6@linutronix.de>
+Message-ID: <nycvar.YFH.7.76.1905032044250.10635@cbobk.fhfr.pm>
+References: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org> <20190502154043.gfv4iplcvzjz3mc6@linutronix.de>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 3 May 2019 12:22:47 +0200
-Peter Zijlstra <peterz@infradead.org> wrote:
+On Thu, 2 May 2019, Sebastian Andrzej Siewior wrote:
 
-> Given that the entry_*.S changes for this functionality are somewhat
-> tricky, make sure the paths are tested every boot, instead of on the
-> rare occasion when we trip an INT3 while rewriting text.
-> 
-> Getting the INT3 frame setup even slightly wrong will make this come
-> unstuck something spectacular.
-> 
-> Requested-by: Andy Lutomirski <luto@kernel.org>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/x86/kernel/alternative.c | 81 ++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 77 insertions(+), 4 deletions(-)
+> Please don't start this. We have everything _GPL that is used for FPU
+> related code and only a few functions are exported because KVM needs it.
 
-I'll add this to my queue, as I tested this on x86_32 and 64. I also
-put in a printk("HERE in int3_magic\n") to make sure it really did get
-there (although, the BUG_ON should be good enough).
+That's not completely true. There are a lot of static inlines out there, 
+which basically made it possible for external modules to use FPU (in some 
+way) when they had kernel_fpu_[begin|end]() available.
 
-The printk will be removed from the official commit. It was just for my
-peace of mind.
+I personally don't care about ZFS a tiny little bit; but in general, the 
+current situation with _GPL and non-_GPL exports is simply not nice. It's 
+not really about licensing (despite the name), it's about 'internal vs 
+external', which noone is probably able to define properly.
 
--- Steve
+If it would be strictly about license compatibility, that'd at least make 
+us somewhat deterministic.
+
+-- 
+Jiri Kosina
+SUSE Labs
+
