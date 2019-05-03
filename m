@@ -2,58 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B97F135E1
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 00:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8F5135EE
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 01:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726600AbfECWzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 18:55:17 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:39152 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726572AbfECWzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 18:55:16 -0400
-Received: by mail-pl1-f195.google.com with SMTP id e92so3369581plb.6
-        for <stable@vger.kernel.org>; Fri, 03 May 2019 15:55:16 -0700 (PDT)
+        id S1726810AbfECXIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 19:08:23 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:38524 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726042AbfECXIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 19:08:22 -0400
+Received: by mail-lj1-f196.google.com with SMTP id e18so6545373lja.5
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:08:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=Jh8aRs6M204wQzik6wivrIiSI13IXCdNHX7pPqq9CBI=;
-        b=OCtteQBYyMIkBq9cEO5w0dUfflKGQ9tjo/sN0ogG8gF6bMVn3+Ow1X7rjho8n1A3fq
-         a4RWG8yh5WKNJhTiolQN9daJ2OM4WkQ3MTpo9IZ3+1ngvaZRtSui3RbXHdxJRHJkDoRg
-         XB9cuBpEiuqbTfot6T0Z8qoLrCn8MtzLorIz7xiF8HMwfzZklsv9dI+LvEXJoA4tfUvq
-         P2WdHZhY00dni3VupTFKa4VN8vMPM4m3G7z9hQ7viHoCN051/T1tsNszD7akvGflqq80
-         YFGMze56lazv1nqPymHG3ho/LCC0KZ9Yt1JRVkExWD9JY7k/u4Kew+ntpabxyfHfd259
-         cspg==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PJAflPmQogNQpRfYKXa4wncPdUKgvcxegImOYQZ9y4M=;
+        b=YRB1C4a8aY6oNQ4Dcz6qJG4DjRq4rRf5c96hJky+mFEos14uxAjmg5IRtblz5Zm/+p
+         AIWWkKxTm6hIurYsOfUWuKlPO3f3CKS4z4ENU/Uxi4oZSRGIkqbYn5VX66A1WW96OEeW
+         VfyeY+ZH75pBqOv3uAMq5kkfebEdfOYQXUMAE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=Jh8aRs6M204wQzik6wivrIiSI13IXCdNHX7pPqq9CBI=;
-        b=t6GPCLyZPn17k4YrbTFYog0VtA+hutIKctmteLgihqVMbx/cGlWvgx7CfXOAZPwVF4
-         WwnJ690CyMVnZWmoVtxNpeSmWPoT6ZWpJlfFUX7TFk0enh92UfynzNV9LI+rywGlXRUA
-         VjT5wHy92dXx1Bis5X+f2cjSrZd8dfYY9JhI8SAEkmt4AEKhGd+A3qWMnPjorpTFD5r3
-         SsKjaBEeRLW8j/YqVBdIUug3AApxbBkG53RhyGetVmkembnzVQGihVAZkuMrH2LMtcrA
-         FKhL2y3cXadXEuqBlBHOGIdBzHnVE3vmL2Wo9N+T3FE7CdKKyyr5HW2z9T/0/h4ngbao
-         GHyg==
-X-Gm-Message-State: APjAAAWgnO88DZQYe1g6zLRtMFsiBUE3+garCehf+Cb9y1P9mAkJtC6o
-        uEAp/9fjCnngUhFu7uNa9xBgtw==
-X-Google-Smtp-Source: APXvYqxOMrve5vMLWGbWTyUTBFUkDVaaOUrfEcD9ZTOc7JwEAkevEiH30M1gMq/yEyB1KC6PAi2S2g==
-X-Received: by 2002:a17:902:9a48:: with SMTP id x8mr14226141plv.133.1556924115416;
-        Fri, 03 May 2019 15:55:15 -0700 (PDT)
-Received: from ?IPv6:2600:1010:b02a:6215:98ef:57cc:ac0d:e82b? ([2600:1010:b02a:6215:98ef:57cc:ac0d:e82b])
-        by smtp.gmail.com with ESMTPSA id d3sm4094108pfn.113.2019.05.03.15.55.13
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PJAflPmQogNQpRfYKXa4wncPdUKgvcxegImOYQZ9y4M=;
+        b=Him6srrvFvloDPmKs3Xw9Ar38XDr+dyiczhlmQyKXX0vIB4i01eyWLQx1qn7H+QDs7
+         UuQFN2imRPpCsnpLq2JPsjIb3t1i1ntPOKJSXSxEHvGL00NsN8v5vLVsYppAruk6I6F2
+         wUM77rru2O5cr+LV/nGjNsBPvcMybz3xVtjGaE6MPY8SArAy2LfvdWiP/lbxOyhJCckA
+         pPwo3q0rRR0JSkRc46pqdAEqwYFz+RGTqMp8Y033UqvzDrBuENWYU5DlU/CCm3nH4wNG
+         lIKcXgF+X5Kih+/s9ueldinXHtROmB6JNfEBU1cl3V43kmub56LwW+BANKavzmMYA7XZ
+         h3Ow==
+X-Gm-Message-State: APjAAAV/dlBmpTX/5x2pYhmCX+ql2bl/xnF6PSUUISUz7afvOu17VPQK
+        D/fhR20iW0hZ47t9AJbIoyQkkNMLVhU=
+X-Google-Smtp-Source: APXvYqxhaOREqKEg1anJi0ldjz2cM69OfmtQWgNlqPUZnIvww5gT0m2O/56aNPJQb0whosERBKcJSg==
+X-Received: by 2002:a2e:85c9:: with SMTP id h9mr4637145ljj.110.1556924899701;
+        Fri, 03 May 2019 16:08:19 -0700 (PDT)
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com. [209.85.208.169])
+        by smtp.gmail.com with ESMTPSA id q5sm92464lfj.1.2019.05.03.16.08.16
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 May 2019 15:55:14 -0700 (PDT)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (1.0)
+        Fri, 03 May 2019 16:08:19 -0700 (PDT)
+Received: by mail-lj1-f169.google.com with SMTP id z5so1421808lji.10
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 16:08:16 -0700 (PDT)
+X-Received: by 2002:a2e:9a84:: with SMTP id p4mr6156404lji.22.1556924895019;
+ Fri, 03 May 2019 16:08:15 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190501202830.347656894@goodmis.org> <20190501203152.397154664@goodmis.org>
+ <20190501232412.1196ef18@oasis.local.home> <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+ <20190502181811.GY2623@hirez.programming.kicks-ass.net> <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+ <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <CAHk-=wh8bi5c_GkyjPtDAiaXaZRqtmhWs30usUvs4qK_F+c9tg@mail.gmail.com>
+ <20190503152405.2d741af8@gandalf.local.home> <CAHk-=wiA-WbrFrDs-kOfJZMXy4zMo9-SZfk=7B-GfmBJ866naw@mail.gmail.com>
+ <20190503184919.2b7ef242@gandalf.local.home>
+In-Reply-To: <20190503184919.2b7ef242@gandalf.local.home>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 3 May 2019 16:07:59 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wh2vPLvsGBi6JtmEYeqHxB5UpTzHDjY5JsWG=YR0Lypzw@mail.gmail.com>
+Message-ID: <CAHk-=wh2vPLvsGBi6JtmEYeqHxB5UpTzHDjY5JsWG=YR0Lypzw@mail.gmail.com>
 Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-From:   Andy Lutomirski <luto@amacapital.net>
-X-Mailer: iPhone Mail (16E227)
-In-Reply-To: <CAHk-=wiA-WbrFrDs-kOfJZMXy4zMo9-SZfk=7B-GfmBJ866naw@mail.gmail.com>
-Date:   Fri, 3 May 2019 15:55:12 -0700
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
         Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -62,7 +70,7 @@ Cc:     Steven Rostedt <rostedt@goodmis.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Jiri Kosina <jikos@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
@@ -80,54 +88,78 @@ Cc:     Steven Rostedt <rostedt@goodmis.org>,
         Joerg Roedel <jroedel@suse.de>,
         "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <2962A4E4-3B9F-4195-9C6D-9932809D98F9@amacapital.net>
-References: <20190501202830.347656894@goodmis.org> <20190501203152.397154664@goodmis.org> <20190501232412.1196ef18@oasis.local.home> <20190502162133.GX2623@hirez.programming.kicks-ass.net> <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com> <20190502181811.GY2623@hirez.programming.kicks-ass.net> <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com> <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <CAHk-=wh8bi5c_GkyjPtDAiaXaZRqtmhWs30usUvs4qK_F+c9tg@mail.gmail.com> <20190503152405.2d741af8@gandalf.local.home> <CAHk-=wiA-WbrFrDs-kOfJZMXy4zMo9-SZfk=7B-GfmBJ866naw@mail.gmail.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, May 3, 2019 at 3:49 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> You are saying that we have a do_int3() for user space int3, and
+> do_kernel_int3() for kernel space. That would need to be done in asm
+> for both, because having x86_64 call do_int3() for kernel and
+> user would be interesting.
 
+The clean/simple way is to just do this
 
-> On May 3, 2019, at 2:46 PM, Linus Torvalds <torvalds@linux-foundation.org>=
- wrote:
->=20
->> On Fri, May 3, 2019 at 12:24 PM Steven Rostedt <rostedt@goodmis.org> wrot=
-e:
->>=20
->> The problem with this approach is that it would require doing the same
->> for x86_64, as the int3 C code is the same for both. And that may be a
->> bit more difficult on the x86_64 side because it's all done with a
->> simple flag in the idtentry macro to add the gap.
->=20
-> That argument is weakened by the fact that we have to do _other_
-> things differently on 32-bit and 64-bit anyway.
->=20
-> So we might as well have a "on 32-bit, the call emulation needs to
-> move the pt_regs to make space" special case in the call emulation
-> code. It's very easy to explain why.
->=20
-> And then we'd limit the special case to where it matters (with a big
-> comment about what's going on), rather than adding random special case
-> handling to random _other_ places.
+ - x86-32 does the special asm for the kernel_do_int3(), case and
+calls user_do_int3 otherwise.
 
-If we do this, it should IMO look like this:
+ - x86-64 doesn't care, and just calls "do_int3()".
 
-struct pt_regs *change_kernel_stack_pointer(struct pt_regs *, unsigned long n=
-ew_sp);
+We have a trivial helper function like
 
-And that helper should be used on both variants.
+    dotraplinkage void notrace do_int3(struct pt_regs *regs, long error_code)
+    {
+        if (user_mode(regs))
+                user_int3(regs);
+        else
+                WARN_ON_ONCE(kernel_int3(regs) != regs);
+    }
 
-But I think this will end up worse than the version where the entry code fix=
-es it up.  This is because, if the C code moves pt_regs, then we need some w=
-ay to pass the new pointer back to the asm.  We will also have a much harder=
- time with runtime sanity checks.  In the model where the C code merely upda=
-tes regs->sp, it=E2=80=99s very easy to compare sp and &regs to check for ov=
-erlap, but it=E2=80=99s much harder to tell whether memmoveing it is going t=
-o overwrite something important.  And we have to worry about whether there=E2=
-=80=99s some other code that assumes that pt_regs stays put.
+which adds that warning just for debug purposes.
 
-So my intuition is that the pure asm fixup will result is more maintainable c=
-ode.
+Then we make the rule be that user_int3() does the normal stuff, and
+kernel_int3() returns the pt_regs it was passed in.
+
+Easy-peasy, there is absolutely no difference between x86-64 and
+x86-32 here except for the trivial case that x86-32 does its thing at
+the asm layer, which is what allows "kernel_int3()" to move pt_regs
+around by a small amount.
+
+Now, the _real_ difference is when you do the "call_emulate()" case,
+which will have to do something like this
+
+    static struct pt_regs *emulate_call(struct pt_regs *regs, unsigned
+long return, unsigned long target)
+    {
+    #ifdef CONFIG_X86_32
+            /* BIG comment about how we need to move pt_regs to make
+room and to update the return 'sp' */
+            struct pt_regs *new = (void *)regs - 4;
+            unsigned long *sp = (unsigned long *)(new + 1);
+            memmove(new, regs, sizeof(*regs));
+            regs = new;
+    #else
+            unsigned long *sp = regs->sp;
+            regs->sp -= 4;
+    #endif
+            *sp = value;
+            regs->ip = target;
+            return regs;
+    }
+
+but look, the above isn't that complicated, is it? And notice how the
+subtle pt_regs movement is exactly where it needs to be and nowhere
+else.
+
+And what's the cost of all of this? NOTHING. The x86-32 entry code has
+to do the test for kernel space anyway, and *all* it does now is to
+call "kernel_int3" for the kernel case after having made a bit of
+extra room on the stack so that you *can* move pt_regs around (maybe
+people want to pop things too? It would work as well).
+
+See what I mean by "localized to the cases the need it"?
+
+              Linus
