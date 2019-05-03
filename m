@@ -2,114 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF60129F1
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 10:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DEB129DE
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 10:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbfECIdV convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 3 May 2019 04:33:21 -0400
-Received: from securetransport.cubewerk.de ([188.68.39.254]:40496 "EHLO
-        securetransport.cubewerk.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725789AbfECIdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 04:33:21 -0400
-X-Greylist: delayed 469 seconds by postgrey-1.27 at vger.kernel.org; Fri, 03 May 2019 04:33:20 EDT
-Received: from DHPLMX01.DH-ELECTRONICS.ORG (unknown [188.193.158.174])
-        (using TLSv1.2 with cipher DHE-RSA-CAMELLIA128-SHA256 (128/128 bits))
+        id S1725997AbfECI13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 04:27:29 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46402 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725777AbfECI13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 04:27:29 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x438GiG6115305
+        for <stable@vger.kernel.org>; Fri, 3 May 2019 04:27:28 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2s8f54xk2n-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 03 May 2019 04:27:27 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <ajd@linux.ibm.com>;
+        Fri, 3 May 2019 09:27:25 +0100
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 3 May 2019 09:27:22 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x438RLkj30081238
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 May 2019 08:27:21 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 246E811C050;
+        Fri,  3 May 2019 08:27:21 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C857B11C052;
+        Fri,  3 May 2019 08:27:20 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  3 May 2019 08:27:20 +0000 (GMT)
+Received: from [10.61.2.125] (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher AES128-SHA (128/128 bits))
         (No client certificate requested)
-        by securetransport.cubewerk.de (Postfix) with ESMTPSA id E4BEF5E987;
-        Fri,  3 May 2019 10:23:47 +0200 (CEST)
-Received: from DHPLMX01 (localhost [127.0.0.1])
-        by DHPLMX01.DH-ELECTRONICS.ORG (Postfix) with ESMTP id 9A2A32140024;
-        Fri,  3 May 2019 10:23:47 +0200 (CEST)
-Received: by DHPLMX01 (kopano-spooler) with MAPI; Fri, 3 May 2019 10:23:47
- +0200
-Subject: RE: [PATCH] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase
- to i.MX6SX [Klartext]
-From:   =?utf-8?Q?Christoph_Niedermaier?= <cniedermaier@dh-electronics.com>
-To:     =?utf-8?Q?Fabio_Estevam?= <festevam@gmail.com>,
-        =?utf-8?Q?shawnguo=40k?= =?utf-8?Q?ernel=2Eorg?= 
-        <shawnguo@kernel.org>
-Cc:     =?utf-8?Q?kernel=40pengutronix=2Ede?= <kernel@pengutronix.de>,
-        =?utf-8?Q?linux-imx=40nxp=2Ecom?= <linux-imx@nxp.com>,
-        =?utf-8?Q?linux-arm-kernel=40lists=2Einfradead=2Eorg?= 
-        <linux-arm-kernel@lists.infradead.org>,
-        =?utf-8?Q?anson=2Ehuang=40nxp=2E?= =?utf-8?Q?com?= 
-        <anson.huang@nxp.com>,
-        =?utf-8?Q?stable=40vger=2Ekernel=2E?= =?utf-8?Q?org?= 
-        <stable@vger.kernel.org>
-Date:   Fri, 3 May 2019 08:23:47 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20190502113020.8642-1-festevam@gmail.com>
-References: <20190502113020.8642-1-festevam@gmail.com>
-X-Priority: 3 (Normal)
-X-Mailer: Kopano 8.6.8
-Message-Id: <kcis.9E822BA1761B40BAB23F42EDD9B5F6A8@DHPLMX01>
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 3848BA01D4;
+        Fri,  3 May 2019 18:27:19 +1000 (AEST)
+Subject: Re: [PATCH v2] powerpc/powernv: Restrict OPAL symbol map to only be
+ readable by root
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Stewart Smith <stewart@linux.ibm.com>, stable@vger.kernel.org
+References: <20190503075253.22798-1-ajd@linux.ibm.com>
+ <20190503075916.GA14960@kroah.com>
+From:   Andrew Donnellan <ajd@linux.ibm.com>
+Date:   Fri, 3 May 2019 18:27:18 +1000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+In-Reply-To: <20190503075916.GA14960@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-AU
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 19050308-0020-0000-0000-00000338D3B3
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19050308-0021-0000-0000-0000218B5F11
+Message-Id: <f584ce91-a49b-ef33-7090-cb0a91b87e82@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-03_03:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=990 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1905030054
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
-Sent: Thursday 2nd May 2019 13:30
-> Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
-> setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
-> as reported by Christoph Niedermaier.
+On 3/5/19 5:59 pm, Greg KH wrote:>> -static BIN_ATTR_RO(symbol_map, 0);
+>> +static struct bin_attribute symbol_map_attr = {
+>> +	.attr = {.name = "symbol_map", .mode = 0400},
+>> +	.read = symbol_map_read
+>> +};
 > 
-> The intention of such commit was to increase the SW2ISO field for i.MX6SX
-> only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
-> unintended side effects on other SoCs.
-> 
-> Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
-> and only increase SW2ISO in the i.MX6SX case.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on
-> i.mx6sx")
-> Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> ---
->  arch/arm/mach-imx/cpuidle-imx6sx.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm/mach-imx/cpuidle-imx6sx.c b/arch/arm/mach-imx/cpuidle-imx6sx.c
-> index fd0053e47a15..57cb9c763222 100644
-> --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-> +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-> @@ -15,6 +15,7 @@
->  
->  #include "common.h"
->  #include "cpuidle.h"
-> +#include "hardware.h"
->  
->  static int imx6sx_idle_finish(unsigned long val)
->  {
-> @@ -99,8 +100,12 @@ static struct cpuidle_driver imx6sx_cpuidle_driver = {
->  .safe_state_index = 0,
->  };
->  
-> +#define SW2ISO_ORIGINAL 0x2
-> +#define SW2ISO_IMX6SX 0xf
->  int __init imx6sx_cpuidle_init(void)
->  {
-> + u32 sw2iso = SW2ISO_ORIGINAL;
-> +
->  imx6_set_int_mem_clk_lpm(true);
->  imx6_enable_rbc(false);
->  imx_gpc_set_l2_mem_power_in_lpm(false);
-> @@ -110,7 +115,9 @@ int __init imx6sx_cpuidle_init(void)
->  * except for power up sw2iso which need to be
->  * larger than LDO ramp up time.
->  */
-> - imx_gpc_set_arm_power_up_timing(0xf, 1);
-> + if (cpu_is_imx6sx())
-> + sw2iso = SW2ISO_IMX6SX;
-> + imx_gpc_set_arm_power_up_timing(sw2iso, 1);
->  imx_gpc_set_arm_power_down_timing(1, 1);
->  
->  return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
->
+> There's no real need to rename the structure, right?  Why not just keep
+> the bin_attr_symbol_map name?  That would make this patch even smaller.
 
-Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+No real need but it's locally more consistent with the rest of the PPC 
+code. (Though perhaps the other cases should use the BIN_ATTR macro...)
 
-Best regards,
+Given this is for stable I'm happy to change that if the smaller patch 
+is more acceptable.
+
+> 
+>>   static void opal_export_symmap(void)
+>>   {
+>> @@ -698,10 +701,10 @@ static void opal_export_symmap(void)
+>>   		return;
+>>   
+>>   	/* Setup attributes */
+>> -	bin_attr_symbol_map.private = __va(be64_to_cpu(syms[0]));
+>> -	bin_attr_symbol_map.size = be64_to_cpu(syms[1]);
+>> +	symbol_map_attr.private = __va(be64_to_cpu(syms[0]));
+>> +	symbol_map_attr.size = be64_to_cpu(syms[1]);
+>>   
+>> -	rc = sysfs_create_bin_file(opal_kobj, &bin_attr_symbol_map);
+>> +	rc = sysfs_create_bin_file(opal_kobj, &symbol_map_attr);
+> 
+> Meta-comment, odds are you are racing userspace when you create this
+> sysfs file, why not add it to the device's default attributes so the
+> driver core creates it for you at the correct time?
+
+I was not previously aware of default attributes...
+
+Are we actually racing against userspace in a subsys initcall?
+
+-- 
+Andrew Donnellan              OzLabs, ADL Canberra
+ajd@linux.ibm.com             IBM Australia Limited
+
