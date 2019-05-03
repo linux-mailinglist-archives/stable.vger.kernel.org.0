@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C105D129EE
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 10:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8310F129F2
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 10:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726558AbfECIcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 04:32:15 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:50528 "EHLO
+        id S1725789AbfECIeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 04:34:01 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:50555 "EHLO
         atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725789AbfECIcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 04:32:15 -0400
+        with ESMTP id S1725777AbfECIeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 04:34:00 -0400
 Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id ED0A480376; Fri,  3 May 2019 10:32:03 +0200 (CEST)
-Date:   Fri, 3 May 2019 10:32:14 +0200
+        id 9C28E80377; Fri,  3 May 2019 10:33:49 +0200 (CEST)
+Date:   Fri, 3 May 2019 10:33:59 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kangjie Lu <kjlu@umn.edu>,
-        Michael Hennerich <michael.hennerich@analog.com>,
+        Li RongQing <lirongqing@baidu.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 09/72] net: ieee802154: fix a potential NULL pointer
- dereference
-Message-ID: <20190503083213.GB5834@amd>
+Subject: Re: [PATCH 4.19 10/72] ieee802154: hwsim: propagate genlmsg_reply
+ return code
+Message-ID: <20190503083359.GC5834@amd>
 References: <20190502143333.437607839@linuxfoundation.org>
- <20190502143334.240377603@linuxfoundation.org>
+ <20190502143334.278374504@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+        protocol="application/pgp-signature"; boundary="6zdv2QT/q3FMhpsV"
 Content-Disposition: inline
-In-Reply-To: <20190502143334.240377603@linuxfoundation.org>
+In-Reply-To: <20190502143334.278374504@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -38,55 +37,51 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---CUfgB8w4ZwR/yMy5
+--6zdv2QT/q3FMhpsV
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu 2019-05-02 17:20:31, Greg Kroah-Hartman wrote:
-> [ Upstream commit 2795e8c251614ac0784c9d41008551109f665716 ]
+On Thu 2019-05-02 17:20:32, Greg Kroah-Hartman wrote:
+> [ Upstream commit 19b39a25388e71390e059906c979f87be4ef0c71 ]
 >=20
-> In case alloc_ordered_workqueue fails, the fix releases
-> sources and returns -ENOMEM to avoid NULL pointer dereference.
->=20
-> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-> Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+> genlmsg_reply can fail, so propagate its return code
 
-> diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/ad=
-f7242.c
-> index cd1d8faccca5..cd6b95e673a5 100644
-> --- a/drivers/net/ieee802154/adf7242.c
-> +++ b/drivers/net/ieee802154/adf7242.c
-> @@ -1268,6 +1268,10 @@ static int adf7242_probe(struct spi_device *spi)
->  	INIT_DELAYED_WORK(&lp->work, adf7242_rx_cal_work);
->  	lp->wqueue =3D alloc_ordered_workqueue(dev_name(&spi->dev),
->  					     WQ_MEM_RECLAIM);
-> +	if (unlikely(!lp->wqueue)) {
-> +		ret =3D -ENOMEM;
-> +		goto err_hw_init;
-> +	}
->
+> diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee8=
+02154/mac802154_hwsim.c
+> index 624bff4d3636..f1ed1744801c 100644
+> --- a/drivers/net/ieee802154/mac802154_hwsim.c
+> +++ b/drivers/net/ieee802154/mac802154_hwsim.c
+> @@ -332,7 +332,7 @@ static int hwsim_get_radio_nl(struct sk_buff *msg, st=
+ruct genl_info *info)
+>  			goto out_err;
+>  		}
+> =20
+> -		genlmsg_reply(skb, info);
+> +		res =3D genlmsg_reply(skb, info);
+>  		break;
+>  	}
 
-This does ieee802154_free_hw(lp->hw) before adf7242_hw_init(). I don't
-think that's correct.
-								Pavel
+How does the bug manifest for the user and is it severe enough?
+
+Should this free the skb when it is signalling an error?
+
+									Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---CUfgB8w4ZwR/yMy5
+--6zdv2QT/q3FMhpsV
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAlzL/I0ACgkQMOfwapXb+vJjvQCfZgzVG4aw7F9lyttv5J6laO/3
-diUAoIk2C2O662Re/lTiqoMkWvxog/Kn
-=pTKU
+iEYEARECAAYFAlzL/PcACgkQMOfwapXb+vJWnQCgugyfXV5OAsDsuIiwJURwLqDp
+FtEAoJUgUHX2bJuNHYGWG6tYU92cQ+Pw
+=pVLA
 -----END PGP SIGNATURE-----
 
---CUfgB8w4ZwR/yMy5--
+--6zdv2QT/q3FMhpsV--
