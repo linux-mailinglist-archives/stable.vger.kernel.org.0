@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 438BA131B6
-	for <lists+stable@lfdr.de>; Fri,  3 May 2019 18:01:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EFC131C6
+	for <lists+stable@lfdr.de>; Fri,  3 May 2019 18:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbfECQBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 12:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38162 "EHLO mail.kernel.org"
+        id S1728421AbfECQEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 12:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726495AbfECQBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 May 2019 12:01:47 -0400
+        id S1726495AbfECQEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 May 2019 12:04:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C82E2089E;
-        Fri,  3 May 2019 16:01:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 667B02087F;
+        Fri,  3 May 2019 16:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556899305;
-        bh=5lC5j/lyXoOs/5seppOEsqtwyj6A+154FKUdipZ/au0=;
+        s=default; t=1556899454;
+        bh=ZwGfkz0z5dIYCULBfV8xg6qSeaNuK2WCNP+cZUTdVBM=;
         h=Subject:To:From:Date:From;
-        b=EfRKzFjidnfHMhlC1WrxtGCW77MThY5F/OhL0O0SOZ8teGYygKGwiQBYocMckxgh0
-         Y6nm8plgbukRDb85b9sZo6FurqYPKiTXGDYHhDQXcOOTOzr05ggtDqF5tg5MiP7CxE
-         id2Gvx/pHJPvxOKmVBVCrPLDE75EKvJ32CUyN8Do=
-Subject: patch "USB: serial: f81232: fix interrupt worker not stop" added to usb-testing
+        b=ZpRnQABKWsrkgssaDzE8J7WJYKIC6yi6S8NSCeIvEb1Jkya5ova9LH5XugkIq0eqp
+         sZl+hYN4pXPK08cm1rHKRlCxsbASPfqTJIi44jsmzWM9PJfbxiJ27oQoGvnW9OZHlQ
+         SoRdH3JHqXyryXjCZC4c8mC2CJ5d5ZuL8ZE9Zu9g=
+Subject: patch "USB: serial: f81232: fix interrupt worker not stop" added to usb-next
 To:     hpeter@gmail.com, hpeter+linux_kernel@gmail.com, johan@kernel.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 May 2019 18:00:56 +0200
-Message-ID: <155689925611057@kroah.com>
+Date:   Fri, 03 May 2019 18:03:32 +0200
+Message-ID: <155689941224883@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,13 +44,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
