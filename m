@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E081390A
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CECFE13918
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727694AbfEDK01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35990 "EHLO mail.kernel.org"
+        id S1727322AbfEDK3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:29:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727710AbfEDK00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:26:26 -0400
+        id S1727312AbfEDK1F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D589E2084A;
-        Sat,  4 May 2019 10:26:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DC7F20859;
+        Sat,  4 May 2019 10:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965585;
-        bh=ls4QDGuqYdGPmgaeQMHr6F52iikuwmWvSQiGIdTpikY=;
+        s=default; t=1556965624;
+        bh=mj5bq9ExhWvppyqu2OGwhYDfO1FA/a7oNaWdZHOr7yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxBfpZlT2BAj0LUHRO88Bkx0ucnubtBXmcCEYN2M0oOBLys62loRaqCjXqSR0z0oD
-         UTjdCn8S4m2MeuHsEwqbPb6qb2W9mhM/Y/BWRa7sGC1M9AHkKzc3zdysrMlEzzPiFt
-         aybMAd8CoKsaIqLO6E5jqujmuxlOKwOy6wlS0bdM=
+        b=u0SdDuXsq//Ny4RJGUpWG/H4O91Zy6YhJOF4F/xo0QHF55TO+Ivkbs6J3ekSFGXoQ
+         vzqGh43gogPf0QQqL+GR2SnPc94z7AyfjtCPY4cLpb33JrNQAvagX3frNIYYd8pJPf
+         4yNFDxm6HHgz9vqx8NnZ2aLwJpOIz5zPppnWOH9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        John Hurley <john.hurley@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 27/32] net/tls: fix copy to fragments in reencrypt
+Subject: [PATCH 4.19 10/23] net/tls: avoid NULL pointer deref on nskb->sk in fallback
 Date:   Sat,  4 May 2019 12:25:12 +0200
-Message-Id: <20190504102453.318811912@linuxfoundation.org>
+Message-Id: <20190504102451.887482769@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
-References: <20190504102452.523724210@linuxfoundation.org>
+In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
+References: <20190504102451.512405835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit eb3d38d5adb520435d4e4af32529ccb13ccc9935 ]
+[ Upstream commit 2dcb003314032c6efb13a065ffae60d164b2dd35 ]
 
-Fragments may contain data from other records so we have to account
-for that when we calculate the destination and max length of copy we
-can perform.  Note that 'offset' is the offset within the message,
-so it can't be passed as offset within the frag..
+update_chksum() accesses nskb->sk before it has been set
+by complete_skb(), move the init up.
 
-Here skb_store_bits() would have realised the call is wrong and
-simply not copy data.
-
-Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: John Hurley <john.hurley@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_device.c |   29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
+ net/tls/tls_device_fallback.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -579,7 +579,7 @@ void handle_device_resync(struct sock *s
- static int tls_device_reencrypt(struct sock *sk, struct sk_buff *skb)
- {
- 	struct strp_msg *rxm = strp_msg(skb);
--	int err = 0, offset = rxm->offset, copy, nsg;
-+	int err = 0, offset = rxm->offset, copy, nsg, data_len, pos;
- 	struct sk_buff *skb_iter, *unused;
- 	struct scatterlist sg[1];
- 	char *orig_buf, *buf;
-@@ -610,9 +610,10 @@ static int tls_device_reencrypt(struct s
- 	else
- 		err = 0;
+--- a/net/tls/tls_device_fallback.c
++++ b/net/tls/tls_device_fallback.c
+@@ -200,13 +200,14 @@ static void complete_skb(struct sk_buff
  
-+	data_len = rxm->full_len - TLS_CIPHER_AES_GCM_128_TAG_SIZE;
+ 	skb_put(nskb, skb->len);
+ 	memcpy(nskb->data, skb->data, headln);
+-	update_chksum(nskb, headln);
+ 
+ 	nskb->destructor = skb->destructor;
+ 	nskb->sk = sk;
+ 	skb->destructor = NULL;
+ 	skb->sk = NULL;
+ 
++	update_chksum(nskb, headln);
 +
- 	if (skb_pagelen(skb) > offset) {
--		copy = min_t(int, skb_pagelen(skb) - offset,
--			     rxm->full_len - TLS_CIPHER_AES_GCM_128_TAG_SIZE);
-+		copy = min_t(int, skb_pagelen(skb) - offset, data_len);
- 
- 		if (skb->decrypted)
- 			skb_store_bits(skb, offset, buf, copy);
-@@ -621,16 +622,30 @@ static int tls_device_reencrypt(struct s
- 		buf += copy;
- 	}
- 
-+	pos = skb_pagelen(skb);
- 	skb_walk_frags(skb, skb_iter) {
--		copy = min_t(int, skb_iter->len,
--			     rxm->full_len - offset + rxm->offset -
--			     TLS_CIPHER_AES_GCM_128_TAG_SIZE);
-+		int frag_pos;
-+
-+		/* Practically all frags must belong to msg if reencrypt
-+		 * is needed with current strparser and coalescing logic,
-+		 * but strparser may "get optimized", so let's be safe.
-+		 */
-+		if (pos + skb_iter->len <= offset)
-+			goto done_with_frag;
-+		if (pos >= data_len + rxm->offset)
-+			break;
-+
-+		frag_pos = offset - pos;
-+		copy = min_t(int, skb_iter->len - frag_pos,
-+			     data_len + rxm->offset - offset);
- 
- 		if (skb_iter->decrypted)
--			skb_store_bits(skb_iter, offset, buf, copy);
-+			skb_store_bits(skb_iter, frag_pos, buf, copy);
- 
- 		offset += copy;
- 		buf += copy;
-+done_with_frag:
-+		pos += skb_iter->len;
- 	}
- 
- free_buf:
+ 	delta = nskb->truesize - skb->truesize;
+ 	if (likely(delta < 0))
+ 		WARN_ON_ONCE(refcount_sub_and_test(-delta, &sk->sk_wmem_alloc));
 
 
