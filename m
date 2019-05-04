@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7A8138ED
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB07813906
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728313AbfEDK1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38372 "EHLO mail.kernel.org"
+        id S1727201AbfEDK0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:26:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727592AbfEDK1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:49 -0400
+        id S1727582AbfEDK0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:26:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2238206BB;
-        Sat,  4 May 2019 10:27:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 938DB2084A;
+        Sat,  4 May 2019 10:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965669;
-        bh=WxviFEhBUVUEYscPUv8ZVWpQNTSHav4t3Z4Ag8TB/i8=;
+        s=default; t=1556965572;
+        bh=i4G+T7+1VNeRwDdYjfrazs21INpoB0rvKCLMQF7ScBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXIRrpkmOPte8nRlLUZ9Rh5el7KTewWeXhwrRnCrpOo1Ge1CbK0HqljcwWRSCx/iy
-         VVinkSq1NGh9Ad6Vft06a8XjMFQ9++pyJhQgRPBCbE4DK0RMMPboywgErPQRwHAzWL
-         EpMlnMccCN3vdkM5UzedtzUELWZVAcH5gjj0taks=
+        b=1rFoq1BOzY67w4/25J4uCFI4icRmfggbWHcun43jb5ypINiUUnI/UtveM52dLoZcp
+         KeFujdA8nDTmZkHbqUeIgDzWgGmMDYReJTyq5DCVMnvQjouJoAZKshADsKgnYKCTnY
+         msyVHlNPB8F0bWS5VLJRiO3ZHkzdS0Biwv0l+PFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/23] ipv6: invert flowlabel sharing check in process and user mode
+Subject: [PATCH 5.0 22/32] bnxt_en: Fix possible crash in bnxt_hwrm_ring_free() under error conditions.
 Date:   Sat,  4 May 2019 12:25:07 +0200
-Message-Id: <20190504102451.747750335@linuxfoundation.org>
+Message-Id: <20190504102453.183315150@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
-References: <20190504102451.512405835@linuxfoundation.org>
+In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
+References: <20190504102452.523724210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 95c169251bf734aa555a1e8043e4d88ec97a04ec ]
+[ Upstream commit 1f83391bd6fc48f92f627b0ec0bce686d100c6a5 ]
 
-A request for a flowlabel fails in process or user exclusive mode must
-fail if the caller pid or uid does not match. Invert the test.
+If we encounter errors during open and proceed to clean up,
+bnxt_hwrm_ring_free() may crash if the rings we try to free have never
+been allocated.  bnxt_cp_ring_for_rx() or bnxt_cp_ring_for_tx()
+may reference pointers that have not been allocated.
 
-Previously, the test was unsafe wrt PID recycling, but indeed tested
-for inequality: fl1->owner != fl->owner
+Fix it by checking for valid fw_ring_id first before calling
+bnxt_cp_ring_for_rx() or bnxt_cp_ring_for_tx().
 
-Fixes: 4f82f45730c68 ("net ip6 flowlabel: Make owner a union of struct pid* and kuid_t")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
+Fixes: 2c61d2117ecb ("bnxt_en: Add helper functions to get firmware CP ring ID.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_flowlabel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -639,9 +639,9 @@ recheck:
- 				if (fl1->share == IPV6_FL_S_EXCL ||
- 				    fl1->share != fl->share ||
- 				    ((fl1->share == IPV6_FL_S_PROCESS) &&
--				     (fl1->owner.pid == fl->owner.pid)) ||
-+				     (fl1->owner.pid != fl->owner.pid)) ||
- 				    ((fl1->share == IPV6_FL_S_USER) &&
--				     uid_eq(fl1->owner.uid, fl->owner.uid)))
-+				     !uid_eq(fl1->owner.uid, fl->owner.uid)))
- 					goto release;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5131,10 +5131,10 @@ static void bnxt_hwrm_ring_free(struct b
+ 	for (i = 0; i < bp->tx_nr_rings; i++) {
+ 		struct bnxt_tx_ring_info *txr = &bp->tx_ring[i];
+ 		struct bnxt_ring_struct *ring = &txr->tx_ring_struct;
+-		u32 cmpl_ring_id;
  
- 				err = -ENOMEM;
+-		cmpl_ring_id = bnxt_cp_ring_for_tx(bp, txr);
+ 		if (ring->fw_ring_id != INVALID_HW_RING_ID) {
++			u32 cmpl_ring_id = bnxt_cp_ring_for_tx(bp, txr);
++
+ 			hwrm_ring_free_send_msg(bp, ring,
+ 						RING_FREE_REQ_RING_TYPE_TX,
+ 						close_path ? cmpl_ring_id :
+@@ -5147,10 +5147,10 @@ static void bnxt_hwrm_ring_free(struct b
+ 		struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
+ 		struct bnxt_ring_struct *ring = &rxr->rx_ring_struct;
+ 		u32 grp_idx = rxr->bnapi->index;
+-		u32 cmpl_ring_id;
+ 
+-		cmpl_ring_id = bnxt_cp_ring_for_rx(bp, rxr);
+ 		if (ring->fw_ring_id != INVALID_HW_RING_ID) {
++			u32 cmpl_ring_id = bnxt_cp_ring_for_rx(bp, rxr);
++
+ 			hwrm_ring_free_send_msg(bp, ring,
+ 						RING_FREE_REQ_RING_TYPE_RX,
+ 						close_path ? cmpl_ring_id :
+@@ -5169,10 +5169,10 @@ static void bnxt_hwrm_ring_free(struct b
+ 		struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
+ 		struct bnxt_ring_struct *ring = &rxr->rx_agg_ring_struct;
+ 		u32 grp_idx = rxr->bnapi->index;
+-		u32 cmpl_ring_id;
+ 
+-		cmpl_ring_id = bnxt_cp_ring_for_rx(bp, rxr);
+ 		if (ring->fw_ring_id != INVALID_HW_RING_ID) {
++			u32 cmpl_ring_id = bnxt_cp_ring_for_rx(bp, rxr);
++
+ 			hwrm_ring_free_send_msg(bp, ring, type,
+ 						close_path ? cmpl_ring_id :
+ 						INVALID_HW_RING_ID);
 
 
