@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6403113917
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E221390B
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbfEDK1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37012 "EHLO mail.kernel.org"
+        id S1727710AbfEDK0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:26:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbfEDK1I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:08 -0400
+        id S1727740AbfEDK03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:26:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B595F20859;
-        Sat,  4 May 2019 10:27:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 865D62084A;
+        Sat,  4 May 2019 10:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965627;
-        bh=bu4Qr5GLcxAJI6wB3LOHDbPjo4NMJVK8ZhjryAZWb9o=;
+        s=default; t=1556965588;
+        bh=VYeaM02WOFZmDAkP9Bx9OXLSTfvKcsMXVnWcxFAVXtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxISS7eMgcICZn1UkoD2343mfDRlMwJfTdvL8h34twQAixgO/BmzVdv9+WGm8Hv2I
-         8XZCitKVrci1En6vmQxOhQUUZzU0MqiMOgezq9xD4BbrwBefrtpg6uATCWSYi7+v8T
-         JL6wueyMf1uM5E65QAwBZ1C3c57yJpT6VqOekY6Q=
+        b=FmD0Q0nlLiK62RHuOcRUVvPDg+8pbfL4E8v7lmSWyyAs8IvFQbOADmR2kaYxrvnKM
+         8xlkcFdBXALD251Wei0LU+ALvW9FIrJccUrK2PAvIDcFgVp3fq8QqeTSu2hPcfz5+U
+         rDjU4qrKvb9c5M9oPsa+6aGjkrF7Ke8ESk2AIeAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 11/23] rxrpc: Fix net namespace cleanup
+        stable@vger.kernel.org, Simon Becherer <simon@becherer.de>,
+        Gabriele Balducci <balducci@units.it>,
+        Antti Antinoja <reader@fennosys.fi>,
+        Takashi Iwai <tiwai@suse.com>, Jiri Slaby <jslaby@suse.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Iakov Karpov <srid@rkmail.ru>
+Subject: [PATCH 5.0 28/32] KVM: x86: Whitelist port 0x7e for pre-incrementing %rip
 Date:   Sat,  4 May 2019 12:25:13 +0200
-Message-Id: <20190504102451.914917394@linuxfoundation.org>
+Message-Id: <20190504102453.345374945@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
-References: <20190504102451.512405835@linuxfoundation.org>
+In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
+References: <20190504102452.523724210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +48,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit b13023421b5179413421333f602850914f6a7ad8 ]
+commit 8764ed55c9705e426d889ff16c26f398bba70b9b upstream.
 
-In rxrpc_destroy_all_calls(), there are two phases: (1) make sure the
-->calls list is empty, emitting error messages if not, and (2) wait for the
-RCU cleanup to happen on outstanding calls (ie. ->nr_calls becomes 0).
+KVM's recent bug fix to update %rip after emulating I/O broke userspace
+that relied on the previous behavior of incrementing %rip prior to
+exiting to userspace.  When running a Windows XP guest on AMD hardware,
+Qemu may patch "OUT 0x7E" instructions in reaction to the OUT itself.
+Because KVM's old behavior was to increment %rip before exiting to
+userspace to handle the I/O, Qemu manually adjusted %rip to account for
+the OUT instruction.
 
-To avoid taking the call_lock, the function prechecks ->calls and if empty,
-it returns to avoid taking the lock - this is wrong, however: it still
-needs to go and do the second phase and wait for ->nr_calls to become 0.
+Arguably this is a userspace bug as KVM requires userspace to re-enter
+the kernel to complete instruction emulation before taking any other
+actions.  That being said, this is a bit of a grey area and breaking
+userspace that has worked for many years is bad.
 
-Without this, the rxrpc_net struct may get deallocated before we get to the
-RCU cleanup for the last calls.  This can lead to:
+Pre-increment %rip on OUT to port 0x7e before exiting to userspace to
+hack around the issue.
 
-  Slab corruption (Not tainted): kmalloc-16k start=ffff88802b178000, len=16384
-  050: 6b 6b 6b 6b 6b 6b 6b 6b 61 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkakkkkkkk
-
-Note the "61" at offset 0x58.  This corresponds to the ->nr_calls member of
-struct rxrpc_net (which is >9k in size, and thus allocated out of the 16k
-slab).
-
-Fix this by flipping the condition on the if-statement, putting the locked
-section inside the if-body and dropping the return from there.  The
-function will then always go on to wait for the RCU cleanup on outstanding
-calls.
-
-Fixes: 2baec2c3f854 ("rxrpc: Support network namespacing")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 45def77ebf79e ("KVM: x86: update %rip after emulating IO")
+Reported-by: Simon Becherer <simon@becherer.de>
+Reported-and-tested-by: Iakov Karpov <srid@rkmail.ru>
+Reported-by: Gabriele Balducci <balducci@units.it>
+Reported-by: Antti Antinoja <reader@fennosys.fi>
+Cc: stable@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rxrpc/call_object.c |   38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
 
---- a/net/rxrpc/call_object.c
-+++ b/net/rxrpc/call_object.c
-@@ -701,30 +701,30 @@ void rxrpc_destroy_all_calls(struct rxrp
+---
+ arch/x86/include/uapi/asm/kvm.h |    1 +
+ arch/x86/kvm/x86.c              |   21 +++++++++++++++++++--
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/include/uapi/asm/kvm.h
++++ b/arch/x86/include/uapi/asm/kvm.h
+@@ -381,6 +381,7 @@ struct kvm_sync_regs {
+ #define KVM_X86_QUIRK_LINT0_REENABLED	(1 << 0)
+ #define KVM_X86_QUIRK_CD_NW_CLEARED	(1 << 1)
+ #define KVM_X86_QUIRK_LAPIC_MMIO_HOLE	(1 << 2)
++#define KVM_X86_QUIRK_OUT_7E_INC_RIP	(1 << 3)
  
- 	_enter("");
- 
--	if (list_empty(&rxnet->calls))
--		return;
--
--	write_lock(&rxnet->call_lock);
-+	if (!list_empty(&rxnet->calls)) {
-+		write_lock(&rxnet->call_lock);
- 
--	while (!list_empty(&rxnet->calls)) {
--		call = list_entry(rxnet->calls.next, struct rxrpc_call, link);
--		_debug("Zapping call %p", call);
--
--		rxrpc_see_call(call);
--		list_del_init(&call->link);
--
--		pr_err("Call %p still in use (%d,%s,%lx,%lx)!\n",
--		       call, atomic_read(&call->usage),
--		       rxrpc_call_states[call->state],
--		       call->flags, call->events);
-+		while (!list_empty(&rxnet->calls)) {
-+			call = list_entry(rxnet->calls.next,
-+					  struct rxrpc_call, link);
-+			_debug("Zapping call %p", call);
-+
-+			rxrpc_see_call(call);
-+			list_del_init(&call->link);
-+
-+			pr_err("Call %p still in use (%d,%s,%lx,%lx)!\n",
-+			       call, atomic_read(&call->usage),
-+			       rxrpc_call_states[call->state],
-+			       call->flags, call->events);
-+
-+			write_unlock(&rxnet->call_lock);
-+			cond_resched();
-+			write_lock(&rxnet->call_lock);
-+		}
- 
- 		write_unlock(&rxnet->call_lock);
--		cond_resched();
--		write_lock(&rxnet->call_lock);
- 	}
- 
--	write_unlock(&rxnet->call_lock);
--
- 	atomic_dec(&rxnet->nr_calls);
- 	wait_var_event(&rxnet->nr_calls, !atomic_read(&rxnet->nr_calls));
+ #define KVM_STATE_NESTED_GUEST_MODE	0x00000001
+ #define KVM_STATE_NESTED_RUN_PENDING	0x00000002
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6536,6 +6536,12 @@ int kvm_emulate_instruction_from_buffer(
  }
+ EXPORT_SYMBOL_GPL(kvm_emulate_instruction_from_buffer);
+ 
++static int complete_fast_pio_out_port_0x7e(struct kvm_vcpu *vcpu)
++{
++	vcpu->arch.pio.count = 0;
++	return 1;
++}
++
+ static int complete_fast_pio_out(struct kvm_vcpu *vcpu)
+ {
+ 	vcpu->arch.pio.count = 0;
+@@ -6552,12 +6558,23 @@ static int kvm_fast_pio_out(struct kvm_v
+ 	unsigned long val = kvm_register_read(vcpu, VCPU_REGS_RAX);
+ 	int ret = emulator_pio_out_emulated(&vcpu->arch.emulate_ctxt,
+ 					    size, port, &val, 1);
++	if (ret)
++		return ret;
+ 
+-	if (!ret) {
++	/*
++	 * Workaround userspace that relies on old KVM behavior of %rip being
++	 * incremented prior to exiting to userspace to handle "OUT 0x7e".
++	 */
++	if (port == 0x7e &&
++	    kvm_check_has_quirk(vcpu->kvm, KVM_X86_QUIRK_OUT_7E_INC_RIP)) {
++		vcpu->arch.complete_userspace_io =
++			complete_fast_pio_out_port_0x7e;
++		kvm_skip_emulated_instruction(vcpu);
++	} else {
+ 		vcpu->arch.pio.linear_rip = kvm_get_linear_rip(vcpu);
+ 		vcpu->arch.complete_userspace_io = complete_fast_pio_out;
+ 	}
+-	return ret;
++	return 0;
+ }
+ 
+ static int complete_fast_pio_in(struct kvm_vcpu *vcpu)
 
 
