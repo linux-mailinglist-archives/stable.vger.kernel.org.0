@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD7C1390F
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ACBD138DD
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbfEDK0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36332 "EHLO mail.kernel.org"
+        id S1728105AbfEDK1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:27:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727824AbfEDK0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:26:42 -0400
+        id S1728101AbfEDK1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F9E2084A;
-        Sat,  4 May 2019 10:26:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2785C206BB;
+        Sat,  4 May 2019 10:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965601;
-        bh=9ZHuU2Hf6SOEwxUkORIvKlysz29x98mgwyOMfsIKH0s=;
+        s=default; t=1556965637;
+        bh=5lUeQBG0ZmEvdz4I8R0kP1lrUXmYLTdnfiS59FfdrtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqtzm+e/KulpgE4UnUqTMjXoKIa8JgB/adsgWXRH+Y76WTlBNRX7TicCXhorOi64c
-         35vxiP9sPfjMMydIzAlsqv1XIVmf9I+6nnFz7DcE8+fmwYI9cWuntzKQzyW8kG4hV/
-         itS5AZ09EOmPBo2WzUFMpFm0i6sAAHtT6rkLAUhc=
+        b=koVDlpSlXE1lfOoxz5X7OXlCgya1AVJNuDBk6MDQzRDUR3HN+pjnCu4h1KA6syc94
+         1DN7T/wlDCrXhz3GXWxnRaXPTtinbI4hqHY0t3M4Wj9jZkoP6Ll70fSItbZBJSlCcq
+         ZIT+uIFaaMuQ/O+HSKoPjA2oswgsY2/t4i80gBqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Claire Chang <tientzu@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.0 32/32] ath10k: Drop WARN_ON()s that always trigger during system resume
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 15/23] bnxt_en: Improve multicast address setup logic.
 Date:   Sat,  4 May 2019 12:25:17 +0200
-Message-Id: <20190504102453.455405100@linuxfoundation.org>
+Message-Id: <20190504102452.031344554@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
-References: <20190504102452.523724210@linuxfoundation.org>
+In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
+References: <20190504102451.512405835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 9e80ad37f6788ed52b89a3cfcd593e0aa69b216d upstream.
+[ Upstream commit b4e30e8e7ea1d1e35ffd64ca46f7d9a7f227b4bf ]
 
-ath10k_mac_vif_chan() always returns an error for the given vif
-during system-wide resume which reliably triggers two WARN_ON()s
-in ath10k_bss_info_changed() and they are not particularly
-useful in that code path, so drop them.
+The driver builds a list of multicast addresses and sends it to the
+firmware when the driver's ndo_set_rx_mode() is called.  In rare
+cases, the firmware can fail this call if internal resources to
+add multicast addresses are exhausted.  In that case, we should
+try the call again by setting the ALL_MCAST flag which is more
+guaranteed to succeed.
 
-Tested: QCA6174 hw3.2 PCI with WLAN.RM.2.0-00180-QCARMSWPZ-1
-Tested: QCA6174 hw3.2 SDIO with WLAN.RMH.4.4.1-00007-QCARMSWP-1
-
-Fixes: cd93b83ad927 ("ath10k: support for multicast rate control")
-Fixes: f279294e9ee2 ("ath10k: add support for configuring management packet rate")
-Cc: stable@vger.kernel.org
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Claire Chang <tientzu@chromium.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/ath/ath10k/mac.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -5705,7 +5705,7 @@ static void ath10k_bss_info_changed(stru
- 	}
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7441,8 +7441,15 @@ static int bnxt_cfg_rx_mode(struct bnxt
  
- 	if (changed & BSS_CHANGED_MCAST_RATE &&
--	    !WARN_ON(ath10k_mac_vif_chan(arvif->vif, &def))) {
-+	    !ath10k_mac_vif_chan(arvif->vif, &def)) {
- 		band = def.chan->band;
- 		rateidx = vif->bss_conf.mcast_rate[band] - 1;
+ skip_uc:
+ 	rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
++	if (rc && vnic->mc_list_count) {
++		netdev_info(bp->dev, "Failed setting MC filters rc: %d, turning on ALL_MCAST mode\n",
++			    rc);
++		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
++		vnic->mc_list_count = 0;
++		rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
++	}
+ 	if (rc)
+-		netdev_err(bp->dev, "HWRM cfa l2 rx mask failure rc: %x\n",
++		netdev_err(bp->dev, "HWRM cfa l2 rx mask failure rc: %d\n",
+ 			   rc);
  
-@@ -5743,7 +5743,7 @@ static void ath10k_bss_info_changed(stru
- 	}
- 
- 	if (changed & BSS_CHANGED_BASIC_RATES) {
--		if (WARN_ON(ath10k_mac_vif_chan(vif, &def))) {
-+		if (ath10k_mac_vif_chan(vif, &def)) {
- 			mutex_unlock(&ar->conf_mutex);
- 			return;
- 		}
+ 	return rc;
 
 
