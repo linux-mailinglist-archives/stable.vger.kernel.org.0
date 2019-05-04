@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9951138EB
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A50138F9
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727547AbfEDK1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38214 "EHLO mail.kernel.org"
+        id S1727236AbfEDK2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:28:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728267AbfEDK1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:44 -0400
+        id S1727568AbfEDK1s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FB41206BB;
-        Sat,  4 May 2019 10:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 099BE20859;
+        Sat,  4 May 2019 10:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965663;
-        bh=IqR6aOHJr84WkXO1ufd2zzpS6nwGZ6RHP17IXDZj/hQ=;
+        s=default; t=1556965666;
+        bh=FwKT+klbAU6IuKJGLc8X7ttbHeesRLveH+crazINx7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbfKMzFB6A+/zjEb2k54CBLFxdQsdhnGzzb4OwOI+zLm+/RbnY/4UPw3vT1GStJkp
-         //rd8BYJrJdXdDS4jTx8TaZTPZrB/rMgkxjG587ZyaAT+K3dMLv51rZXu4Qx5S/YDG
-         D25KN7JJJHGqc58IPUkYM2t0kzraRWJmCvcckMsE=
+        b=YPvUp4GDPnwO5Bz3Jm0TqyG0Tc1/ny063ohmsw6QFAmobeX8LZNKeeL9JwDy73IOH
+         1OE05ylrPRHA/NTiHKxprFH1FeFJeCAGrG5Ef2HcOjjs7WebatWxYWN4yzG/nzgclT
+         gvazOMHJ/rDMSWRTu4Kb/5JfUgTW4d/Wm0mv0pAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         syzbot <syzkaller@googlegroups.com>,
-        David Ahern <dsahern@gmail.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Wei Wang <weiwan@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 03/23] ipv6: fix races in ip6_dst_destroy()
-Date:   Sat,  4 May 2019 12:25:05 +0200
-Message-Id: <20190504102451.692306114@linuxfoundation.org>
+Subject: [PATCH 4.19 04/23] ipv6/flowlabel: wait rcu grace period before put_pid()
+Date:   Sat,  4 May 2019 12:25:06 +0200
+Message-Id: <20190504102451.720245884@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
 References: <20190504102451.512405835@linuxfoundation.org>
@@ -49,138 +47,149 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 0e2338749192ce0e52e7174c5352f627632f478a ]
+[ Upstream commit 6c0afef5fb0c27758f4d52b2210c61b6bd8b4470 ]
 
-We had many syzbot reports that seem to be caused by use-after-free
-of struct fib6_info.
+syzbot was able to catch a use-after-free read in pid_nr_ns() [1]
 
-ip6_dst_destroy(), fib6_drop_pcpu_from() and rt6_remove_exception()
-are writers vs rt->from, and use non consistent synchronization among
-themselves.
+ip6fl_seq_show() seems to use RCU protection, dereferencing fl->owner.pid
+but fl_free() releases fl->owner.pid before rcu grace period is started.
 
-Switching to xchg() will solve the issues with no possible
-lockdep issues.
+[1]
 
-BUG: KASAN: user-memory-access in atomic_dec_and_test include/asm-generic/atomic-instrumented.h:747 [inline]
-BUG: KASAN: user-memory-access in fib6_info_release include/net/ip6_fib.h:294 [inline]
-BUG: KASAN: user-memory-access in fib6_info_release include/net/ip6_fib.h:292 [inline]
-BUG: KASAN: user-memory-access in fib6_drop_pcpu_from net/ipv6/ip6_fib.c:927 [inline]
-BUG: KASAN: user-memory-access in fib6_purge_rt+0x4f6/0x670 net/ipv6/ip6_fib.c:960
-Write of size 4 at addr 0000000000ffffb4 by task syz-executor.1/7649
+BUG: KASAN: use-after-free in pid_nr_ns+0x128/0x140 kernel/pid.c:407
+Read of size 4 at addr ffff888094012a04 by task syz-executor.0/18087
 
-CPU: 0 PID: 7649 Comm: syz-executor.1 Not tainted 5.1.0-rc6+ #183
+CPU: 0 PID: 18087 Comm: syz-executor.0 Not tainted 5.1.0-rc6+ #89
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
  __dump_stack lib/dump_stack.c:77 [inline]
  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- kasan_report.cold+0x5/0x40 mm/kasan/report.c:321
- check_memory_region_inline mm/kasan/generic.c:185 [inline]
- check_memory_region+0x123/0x190 mm/kasan/generic.c:191
- kasan_check_write+0x14/0x20 mm/kasan/common.c:108
- atomic_dec_and_test include/asm-generic/atomic-instrumented.h:747 [inline]
- fib6_info_release include/net/ip6_fib.h:294 [inline]
- fib6_info_release include/net/ip6_fib.h:292 [inline]
- fib6_drop_pcpu_from net/ipv6/ip6_fib.c:927 [inline]
- fib6_purge_rt+0x4f6/0x670 net/ipv6/ip6_fib.c:960
- fib6_del_route net/ipv6/ip6_fib.c:1813 [inline]
- fib6_del+0xac2/0x10a0 net/ipv6/ip6_fib.c:1844
- fib6_clean_node+0x3a8/0x590 net/ipv6/ip6_fib.c:2006
- fib6_walk_continue+0x495/0x900 net/ipv6/ip6_fib.c:1928
- fib6_walk+0x9d/0x100 net/ipv6/ip6_fib.c:1976
- fib6_clean_tree+0xe0/0x120 net/ipv6/ip6_fib.c:2055
- __fib6_clean_all+0x118/0x2a0 net/ipv6/ip6_fib.c:2071
- fib6_clean_all+0x2b/0x40 net/ipv6/ip6_fib.c:2082
- rt6_sync_down_dev+0x134/0x150 net/ipv6/route.c:4057
- rt6_disable_ip+0x27/0x5f0 net/ipv6/route.c:4062
- addrconf_ifdown+0xa2/0x1220 net/ipv6/addrconf.c:3705
- addrconf_notify+0x19a/0x2260 net/ipv6/addrconf.c:3630
- notifier_call_chain+0xc7/0x240 kernel/notifier.c:93
- __raw_notifier_call_chain kernel/notifier.c:394 [inline]
- raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:401
- call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1753
- call_netdevice_notifiers_extack net/core/dev.c:1765 [inline]
- call_netdevice_notifiers net/core/dev.c:1779 [inline]
- dev_close_many+0x33f/0x6f0 net/core/dev.c:1522
- rollback_registered_many+0x43b/0xfd0 net/core/dev.c:8177
- rollback_registered+0x109/0x1d0 net/core/dev.c:8242
- unregister_netdevice_queue net/core/dev.c:9289 [inline]
- unregister_netdevice_queue+0x1ee/0x2c0 net/core/dev.c:9282
- unregister_netdevice include/linux/netdevice.h:2658 [inline]
- __tun_detach+0xd5b/0x1000 drivers/net/tun.c:727
- tun_detach drivers/net/tun.c:744 [inline]
- tun_chr_close+0xe0/0x180 drivers/net/tun.c:3443
- __fput+0x2e5/0x8d0 fs/file_table.c:278
- ____fput+0x16/0x20 fs/file_table.c:309
- task_work_run+0x14a/0x1c0 kernel/task_work.c:113
- exit_task_work include/linux/task_work.h:22 [inline]
- do_exit+0x90a/0x2fa0 kernel/exit.c:876
- do_group_exit+0x135/0x370 kernel/exit.c:980
- __do_sys_exit_group kernel/exit.c:991 [inline]
- __se_sys_exit_group kernel/exit.c:989 [inline]
- __x64_sys_exit_group+0x44/0x50 kernel/exit.c:989
+ print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
+ kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
+ __asan_report_load4_noabort+0x14/0x20 mm/kasan/generic_report.c:131
+ pid_nr_ns+0x128/0x140 kernel/pid.c:407
+ ip6fl_seq_show+0x2f8/0x4f0 net/ipv6/ip6_flowlabel.c:794
+ seq_read+0xad3/0x1130 fs/seq_file.c:268
+ proc_reg_read+0x1fe/0x2c0 fs/proc/inode.c:227
+ do_loop_readv_writev fs/read_write.c:701 [inline]
+ do_loop_readv_writev fs/read_write.c:688 [inline]
+ do_iter_read+0x4a9/0x660 fs/read_write.c:922
+ vfs_readv+0xf0/0x160 fs/read_write.c:984
+ kernel_readv fs/splice.c:358 [inline]
+ default_file_splice_read+0x475/0x890 fs/splice.c:413
+ do_splice_to+0x12a/0x190 fs/splice.c:876
+ splice_direct_to_actor+0x2d2/0x970 fs/splice.c:953
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1062
+ do_sendfile+0x597/0xd00 fs/read_write.c:1443
+ __do_sys_sendfile64 fs/read_write.c:1498 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1490 [inline]
+ __x64_sys_sendfile64+0x15a/0x220 fs/read_write.c:1490
  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 RIP: 0033:0x458da9
 Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffeafc2a6a8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-RAX: ffffffffffffffda RBX: 000000000000001c RCX: 0000000000458da9
-RDX: 0000000000412a80 RSI: 0000000000a54ef0 RDI: 0000000000000043
-RBP: 00000000004be552 R08: 000000000000000c R09: 000000000004c0d1
-R10: 0000000002341940 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00007ffeafc2a7f0 R14: 000000000004c065 R15: 00007ffeafc2a800
+RSP: 002b:00007f300d24bc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000458da9
+RDX: 00000000200000c0 RSI: 0000000000000008 RDI: 0000000000000007
+RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 000000000000005a R11: 0000000000000246 R12: 00007f300d24c6d4
+R13: 00000000004c5fa3 R14: 00000000004da748 R15: 00000000ffffffff
 
-Fixes: a68886a69180 ("net/ipv6: Make from in rt6_info rcu protected")
+Allocated by task 17543:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_kmalloc mm/kasan/common.c:497 [inline]
+ __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
+ kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
+ slab_post_alloc_hook mm/slab.h:437 [inline]
+ slab_alloc mm/slab.c:3393 [inline]
+ kmem_cache_alloc+0x11a/0x6f0 mm/slab.c:3555
+ alloc_pid+0x55/0x8f0 kernel/pid.c:168
+ copy_process.part.0+0x3b08/0x7980 kernel/fork.c:1932
+ copy_process kernel/fork.c:1709 [inline]
+ _do_fork+0x257/0xfd0 kernel/fork.c:2226
+ __do_sys_clone kernel/fork.c:2333 [inline]
+ __se_sys_clone kernel/fork.c:2327 [inline]
+ __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 7789:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
+ __cache_free mm/slab.c:3499 [inline]
+ kmem_cache_free+0x86/0x260 mm/slab.c:3765
+ put_pid.part.0+0x111/0x150 kernel/pid.c:111
+ put_pid+0x20/0x30 kernel/pid.c:105
+ fl_free+0xbe/0xe0 net/ipv6/ip6_flowlabel.c:102
+ ip6_fl_gc+0x295/0x3e0 net/ipv6/ip6_flowlabel.c:152
+ call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
+ expire_timers kernel/time/timer.c:1362 [inline]
+ __run_timers kernel/time/timer.c:1681 [inline]
+ __run_timers kernel/time/timer.c:1649 [inline]
+ run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
+ __do_softirq+0x266/0x95a kernel/softirq.c:293
+
+The buggy address belongs to the object at ffff888094012a00
+ which belongs to the cache pid_2 of size 88
+The buggy address is located 4 bytes inside of
+ 88-byte region [ffff888094012a00, ffff888094012a58)
+The buggy address belongs to the page:
+page:ffffea0002500480 count:1 mapcount:0 mapping:ffff88809a483080 index:0xffff888094012980
+flags: 0x1fffc0000000200(slab)
+raw: 01fffc0000000200 ffffea00018a3508 ffffea0002524a88 ffff88809a483080
+raw: ffff888094012980 ffff888094012000 000000010000001b 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff888094012900: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012980: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+>ffff888094012a00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+                   ^
+ ffff888094012a80: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012b00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+
+Fixes: 4f82f45730c6 ("net ip6 flowlabel: Make owner a union of struct pid * and kuid_t")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: David Ahern <dsahern@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Wei Wang <weiwan@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_fib.c |    4 +---
- net/ipv6/route.c   |    9 ++-------
- 2 files changed, 3 insertions(+), 10 deletions(-)
+ net/ipv6/ip6_flowlabel.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -889,9 +889,7 @@ static void fib6_drop_pcpu_from(struct f
- 		if (pcpu_rt) {
- 			struct fib6_info *from;
- 
--			from = rcu_dereference_protected(pcpu_rt->from,
--					     lockdep_is_held(&table->tb6_lock));
--			rcu_assign_pointer(pcpu_rt->from, NULL);
-+			from = xchg((__force struct fib6_info **)&pcpu_rt->from, NULL);
- 			fib6_info_release(from);
- 		}
- 	}
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -382,11 +382,8 @@ static void ip6_dst_destroy(struct dst_e
- 		in6_dev_put(idev);
- 	}
- 
--	rcu_read_lock();
--	from = rcu_dereference(rt->from);
--	rcu_assign_pointer(rt->from, NULL);
-+	from = xchg((__force struct fib6_info **)&rt->from, NULL);
- 	fib6_info_release(from);
--	rcu_read_unlock();
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -94,15 +94,21 @@ static struct ip6_flowlabel *fl_lookup(s
+ 	return fl;
  }
  
- static void ip6_dst_ifdown(struct dst_entry *dst, struct net_device *dev,
-@@ -1296,9 +1293,7 @@ static void rt6_remove_exception(struct
- 	/* purge completely the exception to allow releasing the held resources:
- 	 * some [sk] cache may keep the dst around for unlimited time
- 	 */
--	from = rcu_dereference_protected(rt6_ex->rt6i->from,
--					 lockdep_is_held(&rt6_exception_lock));
--	rcu_assign_pointer(rt6_ex->rt6i->from, NULL);
-+	from = xchg((__force struct fib6_info **)&rt6_ex->rt6i->from, NULL);
- 	fib6_info_release(from);
- 	dst_dev_put(&rt6_ex->rt6i->dst);
++static void fl_free_rcu(struct rcu_head *head)
++{
++	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
++
++	if (fl->share == IPV6_FL_S_PROCESS)
++		put_pid(fl->owner.pid);
++	kfree(fl->opt);
++	kfree(fl);
++}
++
  
+ static void fl_free(struct ip6_flowlabel *fl)
+ {
+-	if (fl) {
+-		if (fl->share == IPV6_FL_S_PROCESS)
+-			put_pid(fl->owner.pid);
+-		kfree(fl->opt);
+-		kfree_rcu(fl, rcu);
+-	}
++	if (fl)
++		call_rcu(&fl->rcu, fl_free_rcu);
+ }
+ 
+ static void fl_release(struct ip6_flowlabel *fl)
 
 
