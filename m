@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 262EC138CC
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E730413902
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727814AbfEDK0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36204 "EHLO mail.kernel.org"
+        id S1728087AbfEDK1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727794AbfEDK0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:26:37 -0400
+        id S1728082AbfEDK1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 520A920881;
-        Sat,  4 May 2019 10:26:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D2DA20859;
+        Sat,  4 May 2019 10:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965595;
-        bh=LtiEmKRnOf4ksZ01CQhY8ojA3ltVuzRQkuvilKrzSsc=;
+        s=default; t=1556965635;
+        bh=aMmom8i1CZXrKAwiIbaXBCIae3WEMKTSqa+RADeoR24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrFSevoQK5UisvoAd1dRBN44LEBgyrvuTc7pfiFbWDQhgnDAG/JG5gievsiWGeScc
-         9cHk9jaFzW6MZWztmXe5u9NUCx3XN0gKP6bA6JCjEPOxf/9mCz2RTDIRnrzu2lVqhO
-         WIleJ9Y+o6pCoY0ezg4U8SojEqf5otQVDgNSUYC8=
+        b=K78RidgwgvRVNFFpVN9jbHHShjf5adf3aNGwy3sLgO7BqOhhlhp5ccawQv5qn2c0P
+         8qRGgJ3N4DmtS2BzEZsDZ4RA4bcj2Z5SrKfp0570PV+FwXskny5Rb48iMiZkF1Klg7
+         JSmXydNckH033/5VmrQ3/u/o4NU+VFOj85Oe2gbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christo Gouws <gouws.christo@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 30/32] ALSA: line6: use dynamic buffers
-Date:   Sat,  4 May 2019 12:25:15 +0200
-Message-Id: <20190504102453.401059961@linuxfoundation.org>
+        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 14/23] packet: validate msg_namelen in send directly
+Date:   Sat,  4 May 2019 12:25:16 +0200
+Message-Id: <20190504102452.002650513@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
-References: <20190504102452.523724210@linuxfoundation.org>
+In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
+References: <20190504102451.512405835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,299 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Willem de Bruijn <willemb@google.com>
 
-commit e5c812e84f0dece3400d5caf42522287e6ef139f upstream.
+[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
 
-The line6 driver uses a lot of USB buffers off of the stack, which is
-not allowed on many systems, causing the driver to crash on some of
-them.  Fix this up by dynamically allocating the buffers with kmalloc()
-which allows for proper DMA-able memory.
+Packet sockets in datagram mode take a destination address. Verify its
+length before passing to dev_hard_header.
 
-Reported-by: Christo Gouws <gouws.christo@gmail.com>
-Reported-by: Alan Stern <stern@rowland.harvard.edu>
-Tested-by: Christo Gouws <gouws.christo@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
+established behavior. Directly compare msg_namelen to dev->addr_len.
+
+Change v1->v2: initialize addr in all paths
+
+Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
+Suggested-by: David Laight <David.Laight@aculab.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/usb/line6/driver.c   |   60 ++++++++++++++++++++++++++-------------------
- sound/usb/line6/podhd.c    |   21 +++++++++------
- sound/usb/line6/toneport.c |   24 +++++++++++++-----
- 3 files changed, 65 insertions(+), 40 deletions(-)
+ net/packet/af_packet.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -351,12 +351,16 @@ int line6_read_data(struct usb_line6 *li
- {
- 	struct usb_device *usbdev = line6->usbdev;
- 	int ret;
--	unsigned char len;
-+	unsigned char *len;
- 	unsigned count;
- 
- 	if (address > 0xffff || datalen > 0xff)
- 		return -EINVAL;
- 
-+	len = kmalloc(sizeof(*len), GFP_KERNEL);
-+	if (!len)
-+		return -ENOMEM;
-+
- 	/* query the serial number: */
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-@@ -365,7 +369,7 @@ int line6_read_data(struct usb_line6 *li
- 
- 	if (ret < 0) {
- 		dev_err(line6->ifcdev, "read request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2603,8 +2603,8 @@ static int tpacket_snd(struct packet_soc
+ 	void *ph;
+ 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
+ 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
++	unsigned char *addr = NULL;
+ 	int tp_len, size_max;
+-	unsigned char *addr;
+ 	void *data;
+ 	int len_sum = 0;
+ 	int status = TP_STATUS_AVAILABLE;
+@@ -2615,7 +2615,6 @@ static int tpacket_snd(struct packet_soc
+ 	if (likely(saddr == NULL)) {
+ 		dev	= packet_cached_dev_get(po);
+ 		proto	= po->num;
+-		addr	= NULL;
+ 	} else {
+ 		err = -EINVAL;
+ 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
+@@ -2625,10 +2624,13 @@ static int tpacket_snd(struct packet_soc
+ 						sll_addr)))
+ 			goto out;
+ 		proto	= saddr->sll_protocol;
+-		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
+ 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
+-		if (addr && dev && saddr->sll_halen < dev->addr_len)
+-			goto out_put;
++		if (po->sk.sk_socket->type == SOCK_DGRAM) {
++			if (dev && msg->msg_namelen < dev->addr_len +
++				   offsetof(struct sockaddr_ll, sll_addr))
++				goto out_put;
++			addr = saddr->sll_addr;
++		}
  	}
  
- 	/* Wait for data length. We'll get 0xff until length arrives. */
-@@ -375,28 +379,29 @@ int line6_read_data(struct usb_line6 *li
- 		ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
- 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
- 				      USB_DIR_IN,
--				      0x0012, 0x0000, &len, 1,
-+				      0x0012, 0x0000, len, 1,
- 				      LINE6_TIMEOUT * HZ);
- 		if (ret < 0) {
- 			dev_err(line6->ifcdev,
- 				"receive length failed (error %d)\n", ret);
--			return ret;
-+			goto exit;
- 		}
- 
--		if (len != 0xff)
-+		if (*len != 0xff)
- 			break;
+ 	err = -ENXIO;
+@@ -2800,7 +2802,7 @@ static int packet_snd(struct socket *soc
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	__be16 proto;
+-	unsigned char *addr;
++	unsigned char *addr = NULL;
+ 	int err, reserve = 0;
+ 	struct sockcm_cookie sockc;
+ 	struct virtio_net_hdr vnet_hdr = { 0 };
+@@ -2817,7 +2819,6 @@ static int packet_snd(struct socket *soc
+ 	if (likely(saddr == NULL)) {
+ 		dev	= packet_cached_dev_get(po);
+ 		proto	= po->num;
+-		addr	= NULL;
+ 	} else {
+ 		err = -EINVAL;
+ 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
+@@ -2825,10 +2826,13 @@ static int packet_snd(struct socket *soc
+ 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
+ 			goto out;
+ 		proto	= saddr->sll_protocol;
+-		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
+ 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
+-		if (addr && dev && saddr->sll_halen < dev->addr_len)
+-			goto out_unlock;
++		if (sock->type == SOCK_DGRAM) {
++			if (dev && msg->msg_namelen < dev->addr_len +
++				   offsetof(struct sockaddr_ll, sll_addr))
++				goto out_unlock;
++			addr = saddr->sll_addr;
++		}
  	}
  
--	if (len == 0xff) {
-+	ret = -EIO;
-+	if (*len == 0xff) {
- 		dev_err(line6->ifcdev, "read failed after %d retries\n",
- 			count);
--		return -EIO;
--	} else if (len != datalen) {
-+		goto exit;
-+	} else if (*len != datalen) {
- 		/* should be equal or something went wrong */
- 		dev_err(line6->ifcdev,
- 			"length mismatch (expected %d, got %d)\n",
--			(int)datalen, (int)len);
--		return -EIO;
-+			(int)datalen, (int)*len);
-+		goto exit;
- 	}
- 
- 	/* receive the result: */
-@@ -405,12 +410,12 @@ int line6_read_data(struct usb_line6 *li
- 			      0x0013, 0x0000, data, datalen,
- 			      LINE6_TIMEOUT * HZ);
- 
--	if (ret < 0) {
-+	if (ret < 0)
- 		dev_err(line6->ifcdev, "read failed (error %d)\n", ret);
--		return ret;
--	}
- 
--	return 0;
-+exit:
-+	kfree(len);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(line6_read_data);
- 
-@@ -422,12 +427,16 @@ int line6_write_data(struct usb_line6 *l
- {
- 	struct usb_device *usbdev = line6->usbdev;
- 	int ret;
--	unsigned char status;
-+	unsigned char *status;
- 	int count;
- 
- 	if (address > 0xffff || datalen > 0xffff)
- 		return -EINVAL;
- 
-+	status = kmalloc(sizeof(*status), GFP_KERNEL);
-+	if (!status)
-+		return -ENOMEM;
-+
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 			      0x0022, address, data, datalen,
-@@ -436,7 +445,7 @@ int line6_write_data(struct usb_line6 *l
- 	if (ret < 0) {
- 		dev_err(line6->ifcdev,
- 			"write request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	for (count = 0; count < LINE6_READ_WRITE_MAX_RETRIES; count++) {
-@@ -447,28 +456,29 @@ int line6_write_data(struct usb_line6 *l
- 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
- 				      USB_DIR_IN,
- 				      0x0012, 0x0000,
--				      &status, 1, LINE6_TIMEOUT * HZ);
-+				      status, 1, LINE6_TIMEOUT * HZ);
- 
- 		if (ret < 0) {
- 			dev_err(line6->ifcdev,
- 				"receiving status failed (error %d)\n", ret);
--			return ret;
-+			goto exit;
- 		}
- 
--		if (status != 0xff)
-+		if (*status != 0xff)
- 			break;
- 	}
- 
--	if (status == 0xff) {
-+	if (*status == 0xff) {
- 		dev_err(line6->ifcdev, "write failed after %d retries\n",
- 			count);
--		return -EIO;
--	} else if (status != 0) {
-+		ret = -EIO;
-+	} else if (*status != 0) {
- 		dev_err(line6->ifcdev, "write failed (error %d)\n", ret);
--		return -EIO;
-+		ret = -EIO;
- 	}
--
--	return 0;
-+exit:
-+	kfree(status);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(line6_write_data);
- 
---- a/sound/usb/line6/podhd.c
-+++ b/sound/usb/line6/podhd.c
-@@ -225,28 +225,32 @@ static void podhd_startup_start_workqueu
- static int podhd_dev_start(struct usb_line6_podhd *pod)
- {
- 	int ret;
--	u8 init_bytes[8];
-+	u8 *init_bytes;
- 	int i;
- 	struct usb_device *usbdev = pod->line6.usbdev;
- 
-+	init_bytes = kmalloc(8, GFP_KERNEL);
-+	if (!init_bytes)
-+		return -ENOMEM;
-+
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
- 					0x67, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					0x11, 0,
- 					NULL, 0, LINE6_TIMEOUT * HZ);
- 	if (ret < 0) {
- 		dev_err(pod->line6.ifcdev, "read request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	/* NOTE: looks like some kind of ping message */
- 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
- 					USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
- 					0x11, 0x0,
--					&init_bytes, 3, LINE6_TIMEOUT * HZ);
-+					init_bytes, 3, LINE6_TIMEOUT * HZ);
- 	if (ret < 0) {
- 		dev_err(pod->line6.ifcdev,
- 			"receive length failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	pod->firmware_version =
-@@ -255,7 +259,7 @@ static int podhd_dev_start(struct usb_li
- 	for (i = 0; i <= 16; i++) {
- 		ret = line6_read_data(&pod->line6, 0xf000 + 0x08 * i, init_bytes, 8);
- 		if (ret < 0)
--			return ret;
-+			goto exit;
- 	}
- 
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-@@ -263,10 +267,9 @@ static int podhd_dev_start(struct usb_li
- 					USB_TYPE_STANDARD | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					1, 0,
- 					NULL, 0, LINE6_TIMEOUT * HZ);
--	if (ret < 0)
--		return ret;
--
--	return 0;
-+exit:
-+	kfree(init_bytes);
-+	return ret;
- }
- 
- static void podhd_startup_workqueue(struct work_struct *work)
---- a/sound/usb/line6/toneport.c
-+++ b/sound/usb/line6/toneport.c
-@@ -365,16 +365,21 @@ static bool toneport_has_source_select(s
- /*
- 	Setup Toneport device.
- */
--static void toneport_setup(struct usb_line6_toneport *toneport)
-+static int toneport_setup(struct usb_line6_toneport *toneport)
- {
--	u32 ticks;
-+	u32 *ticks;
- 	struct usb_line6 *line6 = &toneport->line6;
- 	struct usb_device *usbdev = line6->usbdev;
- 
-+	ticks = kmalloc(sizeof(*ticks), GFP_KERNEL);
-+	if (!ticks)
-+		return -ENOMEM;
-+
- 	/* sync time on device with host: */
- 	/* note: 32-bit timestamps overflow in year 2106 */
--	ticks = (u32)ktime_get_real_seconds();
--	line6_write_data(line6, 0x80c6, &ticks, 4);
-+	*ticks = (u32)ktime_get_real_seconds();
-+	line6_write_data(line6, 0x80c6, ticks, 4);
-+	kfree(ticks);
- 
- 	/* enable device: */
- 	toneport_send_cmd(usbdev, 0x0301, 0x0000);
-@@ -389,6 +394,7 @@ static void toneport_setup(struct usb_li
- 		toneport_update_led(toneport);
- 
- 	mod_timer(&toneport->timer, jiffies + TONEPORT_PCM_DELAY * HZ);
-+	return 0;
- }
- 
- /*
-@@ -451,7 +457,9 @@ static int toneport_init(struct usb_line
- 			return err;
- 	}
- 
--	toneport_setup(toneport);
-+	err = toneport_setup(toneport);
-+	if (err)
-+		return err;
- 
- 	/* register audio system: */
- 	return snd_card_register(line6->card);
-@@ -463,7 +471,11 @@ static int toneport_init(struct usb_line
- */
- static int toneport_reset_resume(struct usb_interface *interface)
- {
--	toneport_setup(usb_get_intfdata(interface));
-+	int err;
-+
-+	err = toneport_setup(usb_get_intfdata(interface));
-+	if (err)
-+		return err;
- 	return line6_resume(interface);
- }
- #endif
+ 	err = -ENXIO;
 
 
