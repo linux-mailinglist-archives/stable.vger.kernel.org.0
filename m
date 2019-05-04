@@ -2,187 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4BE13816
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054581381A
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725823AbfEDHTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 03:19:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47756 "EHLO mail.kernel.org"
+        id S1727129AbfEDH0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 03:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbfEDHTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 03:19:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1727123AbfEDH0a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 03:26:30 -0400
+Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BE42206DF;
-        Sat,  4 May 2019 07:19:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D90E20645;
+        Sat,  4 May 2019 07:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556954372;
-        bh=93yCQlptcTPcsahBVjN7N+r2xKcI+gXJqvad5sQLhN8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lei/g3n3abukkFocktrK9/CA//IXA6CWqwNUPs27lcWU7AjnSp6TWtJ9N/nEcqVjb
-         I49hq1XmgqwPN8EHdKO32uV/ydWapkkyf3Z8H5kFlWYO5gqlhq7VXeQPdykVs4cSbF
-         Qc/9uHDV6OYK8MsPKiPddFO8HGYhI3pi0CMEXV+M=
-Date:   Sat, 4 May 2019 09:19:30 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     =?iso-8859-1?Q?Fran=E7ois?= Valenduc <francoisvalenduc@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: Commit 8c37f7c23c02f6ac020ffdc746026c2363b23a5a causes warnings
-Message-ID: <20190504071930.GB12815@kroah.com>
-References: <4031e343-ab11-6b58-71b7-f6f8cf69b677@gmail.com>
- <20190504064159.GC26311@kroah.com>
- <21459a1b-907c-1ffd-472a-ba2443919c6a@gmail.com>
+        s=default; t=1556954790;
+        bh=7M8LWi4HCapsDw9sC9lfXVqB6NXjC4jpoo3wJEk0Y9U=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=yovRT7xNo6EJS5AH5pqX9Cc4Od3KFmo5LaqMcdp6FyopwPsLd2nTziHl/GpA+WBpU
+         d4vFGD8Skpdj5ktfU/+OD9RfJD9aQqOy0Up285HuLdxvvBa5Qf4OgI47tV230FyQ7W
+         eDAlNqmXnu+A8hJjiJWiGuDBog4HntdljGn1VLhE=
+Date:   Sat, 4 May 2019 09:26:19 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+cc:     Andy Lutomirski <luto@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@surriel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?ISO-8859-2?Q?Radim_Kr=E8m=E1=F8?= <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
+ export
+In-Reply-To: <nycvar.YFH.7.76.1905032044250.10635@cbobk.fhfr.pm>
+Message-ID: <nycvar.YFH.7.76.1905040849370.17054@cbobk.fhfr.pm>
+References: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org> <20190502154043.gfv4iplcvzjz3mc6@linutronix.de> <nycvar.YFH.7.76.1905032044250.10635@cbobk.fhfr.pm>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <21459a1b-907c-1ffd-472a-ba2443919c6a@gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 04, 2019 at 08:57:28AM +0200, François Valenduc wrote:
-> 
-> Le 4/05/19 à 08:41, Greg KH a écrit :
-> > On Fri, May 03, 2019 at 10:17:39PM +0200, François Valenduc wrote:
-> >> Commit 8c37f7c23c02f6ac020ffdc746026c2363b23a5a ( workqueue: Try to
-> >> catch flush_work() without INIT_WORK().) causes the following warning
-> >> when mounting encrypted filesystems:
-> >>
-> >> May  3 21:29:33 pc-francois kernel: [   20.202934] WARNING: CPU: 1 PID:
-> >> 1719 at kernel/workqueue.c:2911 __flush_work+0x1a4/0x1c0
-> >> May  3 21:29:33 pc-francois kernel: [   20.205470] Modules linked in:
-> >> uvcvideo videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videodev
-> >> videobuf2_common arc4 rtl8188ee rtl_pci rtlwifi mac80211 cfg80211
-> >> snd_hda_codec_hdmi alx mdio psmou
-> >> se snd_hda_codec_generic snd_hda_intel snd_hda_codec snd_hda_core
-> >> snd_pcm snd_timer snd soundcore evdev coretemp battery nls_utf8
-> >> nls_cp850 efivars vfat fat ac hwmon vboxpci(O) vboxnetadp(O)
-> >> vboxnetflt(O) vboxdrv(O) nbd kvm_intel nfsd au
-> >> th_rpcgss kvm irqbypass dm_thin_pool dm_persistent_data dm_bio_prison
-> >> dm_round_robin dm_multipath xts cbc fuse xfs nfs lockd grace sunrpc
-> >> btrfs xor zstd_decompress zstd_compress xxhash raid6_pq crc32c_generic
-> >> libcrc32c zlib_inflate ext4
-> >> mbcache jbd2 dm_snapshot dm_bufio dm_crypt dm_mirror dm_region_hash
-> >> dm_log dm_mod dax ohci_hcd sr_mod sd_mod cdrom usb_storage hid_generic
-> >> May  3 21:29:33 pc-francois kernel: [   20.218000]  usbhid hid xhci_pci
-> >> aesni_intel aes_x86_64 crypto_simd cryptd glue_helper ehci_pci ahci
-> >> xhci_hcd ehci_hcd libahci usbcore usb_common
-> >> May  3 21:29:33 pc-francois kernel: [   20.220780] CPU: 1 PID: 1719
-> >> Comm: systemd-cryptse Tainted: G        W  O      4.19.39-rc1 #41
-> >> May  3 21:29:33 pc-francois kernel: [   20.223587] Hardware name:
-> >> TOSHIBA SATELLITE C70-A/Type2 - Board Product Name1, BIOS 1.00 04/30/2013
-> >> May  3 21:29:33 pc-francois kernel: [   20.226435] RIP:
-> >> 0010:__flush_work+0x1a4/0x1c0
-> >> May  3 21:29:33 pc-francois kernel: [   20.229285] Code: 20 e9 f8 fe ff
-> >> ff fb 31 c0 eb 8e 8b 4d 00 48 8b 55 08 83 e1 08 48 0f ba 6d 00 03 80 c9
-> >> f0 e9 54 ff ff ff 0f 0b e9 6f ff ff ff <0f> 0b 31 c0 e9 66 ff ff ff e8
-> >> 7e 8b fe ff 66 66 2e 0
-> >> f 1f 84 00 00
-> >> May  3 21:29:33 pc-francois kernel: [   20.235471] RSP:
-> >> 0018:ffff956f8033fb50 EFLAGS: 00010246
-> >> May  3 21:29:33 pc-francois kernel: [   20.238618] RAX: 0000000000000000
-> >> RBX: ffff8ff5bce9b9d0 RCX: 0000000000000000
-> >> May  3 21:29:33 pc-francois kernel: [   20.241801] RDX: 0000000000000001
-> >> RSI: 0000000000000001 RDI: ffff8ff5bce9b9d0
-> >> May  3 21:29:33 pc-francois kernel: [   20.244991] RBP: ffff8ff5bce9b9d0
-> >> R08: 0000000000000050 R09: ffff8ff5c3019380
-> >> May  3 21:29:33 pc-francois kernel: [   20.248178] R10: 0000000000000ab8
-> >> R11: ffff8ff5c305e688 R12: 0000000000000000
-> >> May  3 21:29:33 pc-francois kernel: [   20.251389] R13: ffff956f8033fbe8
-> >> R14: ffffffff8c0609f0 R15: ffff956f8033fd08
-> >> May  3 21:29:33 pc-francois kernel: [   20.254624] FS: 
-> >> 00007feaa0d15840(0000) GS:ffff8ff5c3040000(0000) knlGS:0000000000000000
-> >> May  3 21:29:33 pc-francois kernel: [   20.257908] CS:  0010 DS: 0000
-> >> ES: 0000 CR0: 0000000080050033
-> >> May  3 21:29:33 pc-francois kernel: [   20.261198] CR2: 00007f9316ec25a0
-> >> CR3: 000000033cf8c003 CR4: 00000000001606a0
-> >> May  3 21:29:33 pc-francois kernel: [   20.264520] Call Trace:
-> >> May  3 21:29:33 pc-francois kernel: [   20.267837]  ?
-> >> _raw_spin_unlock_irq+0xe/0x20
-> >> May  3 21:29:33 pc-francois kernel: [   20.271173]  ?
-> >> finish_task_switch+0x8a/0x2a0
-> >> May  3 21:29:33 pc-francois kernel: [   20.274499]  ? __switch_to+0x2e/0x380
-> >> May  3 21:29:33 pc-francois kernel: [   20.277820]  ?
-> >> __switch_to_asm+0x34/0x70
-> >> May  3 21:29:33 pc-francois kernel: [   20.281136] 
-> >> __cancel_work_timer+0xfe/0x180
-> >> May  3 21:29:33 pc-francois kernel: [   20.284315]  ?
-> >> remove_all+0x30/0x30 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.287332]  ?
-> >> _raw_spin_unlock_irqrestore+0xf/0x30
-> >> May  3 21:29:33 pc-francois kernel: [   20.290326]  ?
-> >> remove_all+0x30/0x30 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.293300]  blk_sync_queue+0x1d/0x80
-> >> May  3 21:29:33 pc-francois kernel: [   20.296253] 
-> >> blk_cleanup_queue+0xc0/0x140
-> >> May  3 21:29:33 pc-francois kernel: [   20.299198] 
-> >> cleanup_mapped_device+0xc3/0x100 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.302158]  free_dev+0x38/0xa0
-> >> [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.305113]  ?
-> >> remove_all+0x30/0x30 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.308044] 
-> >> dev_remove+0xce/0x110 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.310961] 
-> >> ctl_ioctl+0x1a7/0x3a0 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.313881] 
-> >> dm_ctl_ioctl+0x5/0x10 [dm_mod]
-> >> May  3 21:29:33 pc-francois kernel: [   20.316810]  do_vfs_ioctl+0xa0/0x610
-> >> May  3 21:29:33 pc-francois kernel: [   20.319738]  ?
-> >> ksys_semctl+0x124/0x160
-> >> May  3 21:29:33 pc-francois kernel: [   20.322674]  ?
-> >> preempt_count_add+0x74/0xa0
-> >> May  3 21:29:33 pc-francois kernel: [   20.325628]  ksys_ioctl+0x35/0x70
-> >> May  3 21:29:33 pc-francois kernel: [   20.328586] 
-> >> __x64_sys_ioctl+0x11/0x20
-> >> May  3 21:29:33 pc-francois kernel: [   20.331536]  do_syscall_64+0x43/0xf0
-> >> May  3 21:29:33 pc-francois kernel: [   20.334493] 
-> >> entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> >> May  3 21:29:33 pc-francois kernel: [   20.337478] RIP: 0033:0x7feaa2d10b17
-> >> May  3 21:29:33 pc-francois kernel: [   20.340462] Code: 00 00 00 75 0c
-> >> 48 c7 c0 ff ff ff ff 48 83 c4 18 c3 e8 7d e1 01 00 66 2e 0f 1f 84 00 00
-> >> 00 00 00 0f 1f 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48
-> >> 8b 0d 49 b3 0c 00 f7 d8 64 89 01 48
-> >> May  3 21:29:33 pc-francois kernel: [   20.346929] RSP:
-> >> 002b:00007ffc4e75db58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> >> May  3 21:29:33 pc-francois kernel: [   20.350202] RAX: ffffffffffffffda
-> >> RBX: 00007feaa15156e0 RCX: 00007feaa2d10b17
-> >> May  3 21:29:33 pc-francois kernel: [   20.353493] RDX: 00005585e2127a80
-> >> RSI: 00000000c138fd04 RDI: 0000000000000004
-> >> May  3 21:29:33 pc-francois kernel: [   20.356793] RBP: 00007feaa154f4c3
-> >> R08: 000000000000005f R09: 00005585e2103ec0
-> >> May  3 21:29:33 pc-francois kernel: [   20.360101] R10: 00007feaa2d9ef80
-> >> R11: 0000000000000246 R12: 00005585e2127a80
-> >> May  3 21:29:33 pc-francois kernel: [   20.363363] R13: 0000000000000001
-> >> R14: 00005585e2127b30 R15: 00005585e2103650
-> >> May  3 21:29:33 pc-francois kernel: [   20.366616] ---[ end trace
-> >> 170b245abe91a71f ]---
-> >> May  3 21:29:33 pc-francois kernel: [   21.000999] EXT4-fs (dm-14):
-> >> mounted filesystem with ordered data mode. Opts: (null)
-> >>
-> >> Finally If I revert this commit, the problem doesn't occur. I am using
-> >> filesystems encrypted with luks formatted with ext4. The filesystems are
-> >> on LVM volumes.
-> >> Does anybody have an idea about this problem ?
-> > Great, it did what it was trying to do :)
-> >
-> > Do you have this problem on 5.0.y or Linus's current tree?
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> 
-> It only occurs with the 4.19.y branch. On 5.0.11 and 5.1-rc7, I don't
-> have the problem.
+On Fri, 3 May 2019, Jiri Kosina wrote:
 
-Thanks for letting us know, I'll dig through the tree on Monday to see
-if I can find the needed fix that happened between 4.19 and 5.0 for
-this.
+> > Please don't start this. We have everything _GPL that is used for FPU
+> > related code and only a few functions are exported because KVM needs it.
+> 
+> That's not completely true. There are a lot of static inlines out there, 
+> which basically made it possible for external modules to use FPU (in some 
+> way) when they had kernel_fpu_[begin|end]() available.
 
-thanks,
+... any for many uses that's really the only thing that's needed.
 
-greg k-h
+	kernel_fpu_beign();
+	asm volatile ("some SSE2/AVX/... math");
+	kernel_fpu_end();
+
+No other bits of the FPU API, so there is no way of getting anything wrong 
+because of FPU intrinsic details really.
+
+So I don't really see a problem with Andy's patch. If we want to annoy 
+external non-GPL modules as much as possible, sure, that's for a separate 
+discussion though (and I am sure many people would agree to that). 
+Proposal to get rid of EXPORT_SYMBOL in favor of EXPORT_SYMBOL_GPL would 
+be a good start I guess :)
+
+-- 
+Jiri Kosina
+SUSE Labs
+
