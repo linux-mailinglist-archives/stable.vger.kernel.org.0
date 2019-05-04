@@ -2,94 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 843FA137DA
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 08:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51087137DC
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 08:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726500AbfEDGpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 02:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46346 "EHLO mail.kernel.org"
+        id S1725850AbfEDGrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 02:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbfEDGpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 02:45:30 -0400
+        id S1725802AbfEDGrB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 02:47:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37AA920675;
-        Sat,  4 May 2019 06:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2223D20675;
+        Sat,  4 May 2019 06:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556952329;
-        bh=LGCs4gvPTmGr/6mh5CkkCOnBvPtC6U3fKyL7tODsf90=;
+        s=default; t=1556952420;
+        bh=C9jA4rNneJXRM0fWDgn9DV9snN64wDNQzpqf31MNrG8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uPZNCo/dsELO/HxHPmYaPXapjZsBEx9NDHyE0uCgKGEdT6skj1Gfyo8zMiXMqucyv
-         Sq8BkeDRmOfSGn5tLAXB8P2ppTVjQNm4WMKAI+HCXMZ91wmzbrGNHN2btMVuKGCN+H
-         mU7/cQgYNETeGJ6kp//UsfYu2feKn6YBDrwALo7M=
-Date:   Sat, 4 May 2019 08:45:27 +0200
+        b=PkCSm8co2ISt1ZmoItiZtxryMcNsmJ5KVg+vNsYgL2P+9wB2T8UaGoYYO5mkO7JX1
+         l4A6BkSxl67B9dljZxKbcOGG88f7CIkhLm2qXpW+SIcP+Wz8iobbDIMb5lNiYkLvOy
+         AvZCvpDKgeqbWfpQGWbW3wBqLP1K1chUvK86tZBE=
+Date:   Sat, 4 May 2019 08:46:58 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Aditya Pakki <pakki001@umn.edu>,
-        Richard Leitner <richard.leitner@skidata.com>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 57/72] usb: usb251xb: fix to avoid potential NULL
- pointer dereference
-Message-ID: <20190504064527.GD26311@kroah.com>
-References: <20190502143333.437607839@linuxfoundation.org>
- <20190502143337.920245890@linuxfoundation.org>
- <20190503213235.GA9080@amd>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
+Message-ID: <20190504064658.GE26311@kroah.com>
+References: <20190502143339.434882399@linuxfoundation.org>
+ <62fcde1c-2f21-7a51-a2fc-c2657dea0d7f@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190503213235.GA9080@amd>
+In-Reply-To: <62fcde1c-2f21-7a51-a2fc-c2657dea0d7f@kernel.org>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 03, 2019 at 11:32:35PM +0200, Pavel Machek wrote:
-> On Thu 2019-05-02 17:21:19, Greg Kroah-Hartman wrote:
-> > [ Upstream commit 41f00e6e9e55546390031996b773e7f3c1d95928 ]
+On Fri, May 03, 2019 at 03:19:03PM -0600, shuah wrote:
+> On 5/2/19 9:20 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.0.12 release.
+> > There are 101 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > of_match_device in usb251xb_probe can fail and returns a NULL pointer.
-> > The patch avoids a potential NULL pointer dereference in this scenario.
+> > Responses should be made by Sat 04 May 2019 02:32:10 PM UTC.
+> > Anything received after that time might be too late.
 > > 
-> > Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-> > Reviewed-by: Richard Leitner <richard.leitner@skidata.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
-> > ---
-> >  drivers/usb/misc/usb251xb.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.12-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
+> > and the diffstat can be found below.
 > > 
-> > diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
-> > index a6efb9a72939..5f7734c729b1 100644
-> > --- a/drivers/usb/misc/usb251xb.c
-> > +++ b/drivers/usb/misc/usb251xb.c
-> > @@ -601,7 +601,7 @@ static int usb251xb_probe(struct usb251xb *hub)
-> >  							   dev);
-> >  	int err;
-> >  
-> > -	if (np) {
-> > +	if (np && of_id) {
-> >  		err = usb251xb_get_ofdata(hub,
-> >  					  (struct usb251xb_data *)of_id->data);
-> >  		if (err) {
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> Are you sure this si correct?
-> 
-> If of_id is NULL, this will proceed without setting up hub->conf_data
-> etc.
-> 
-> I'd expect it to just return error from probe...?
+> Compiled and booted on my test system. No dmesg regressions.
 
-I think it will error out later on.
-
-> Was this tested?
-
-Don't know, error paths are hard to test :)
-
-But the code obviously fixes a null dereference, so that's a good thing.
-
-thanks,
+Thanks for testing all of these and letting me know.
 
 greg k-h
