@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C7D1390C
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C907313904
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727758AbfEDK0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S1728037AbfEDK1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:27:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727750AbfEDK0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:26:31 -0400
+        id S1728030AbfEDK1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 309BB20859;
-        Sat,  4 May 2019 10:26:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D19F2084A;
+        Sat,  4 May 2019 10:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965590;
-        bh=y7eIOfRWIMAAfniG9cWwpHWvZj9HvBWQy/hZ1FvcB2Y=;
+        s=default; t=1556965629;
+        bh=4iZ5vn7MMcFMFNiQ4hMRCFtwJ73/pIg1/xqKHpRP17g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yLvglB2aMcJLAIdKx4v1Eh8ivanwMbkGIYbkC6Y/xdjUL/VUABSYm9NDhHKEoAek
-         1CmYSFd44lLJ8GBN1ZEFNrOSIkcWHa/lt1/Xp/DHY9Md84it5Xx6mZvqF80qP7zztA
-         j5VJZTo7mnY07BNFBJTI0OjZTXauXEWTNmqZc6bA=
+        b=R282dFlUNb+UzMBFDGG27kOewgj5Q+Hm74lPCaWltn/DUgjxXvKWXOVD6YsSESTKg
+         ORx7Hacv2YLRUY7Cw7lkuZSWfOZIg/RU0nOy/LunEjVa1boVtWzYko5FeIB9eUAMN5
+         YIY0qDx8bDju0ZudgDIKQuiWXn83vvdQrI9h0ipY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Wilhelm <fwilhelm@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Drew Schmitt <dasch@google.com>, Marc Orr <marcorr@google.com>,
-        Peter Shier <pshier@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        stable@ver.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.0 29/32] KVM: nVMX: Fix size checks in vmx_set_nested_state
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 12/23] sctp: avoid running the sctp state machine recursively
 Date:   Sat,  4 May 2019 12:25:14 +0200
-Message-Id: <20190504102453.374211973@linuxfoundation.org>
+Message-Id: <20190504102451.943074752@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
-References: <20190504102452.523724210@linuxfoundation.org>
+In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
+References: <20190504102451.512405835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +46,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit e8ab8d24b488632d07ce5ddb261f1d454114415b upstream.
+[ Upstream commit fbd019737d71e405f86549fd738f81e2ff3dd073 ]
 
-The size checks in vmx_nested_state are wrong because the calculations
-are made based on the size of a pointer to a struct kvm_nested_state
-rather than the size of a struct kvm_nested_state.
+Ying triggered a call trace when doing an asconf testing:
 
-Reported-by: Felix Wilhelm  <fwilhelm@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Drew Schmitt <dasch@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Fixes: 8fcc4b5923af5de58b80b53a069453b135693304
-Cc: stable@ver.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  BUG: scheduling while atomic: swapper/12/0/0x10000100
+  Call Trace:
+   <IRQ>  [<ffffffffa4375904>] dump_stack+0x19/0x1b
+   [<ffffffffa436fcaf>] __schedule_bug+0x64/0x72
+   [<ffffffffa437b93a>] __schedule+0x9ba/0xa00
+   [<ffffffffa3cd5326>] __cond_resched+0x26/0x30
+   [<ffffffffa437bc4a>] _cond_resched+0x3a/0x50
+   [<ffffffffa3e22be8>] kmem_cache_alloc_node+0x38/0x200
+   [<ffffffffa423512d>] __alloc_skb+0x5d/0x2d0
+   [<ffffffffc0995320>] sctp_packet_transmit+0x610/0xa20 [sctp]
+   [<ffffffffc098510e>] sctp_outq_flush+0x2ce/0xc00 [sctp]
+   [<ffffffffc098646c>] sctp_outq_uncork+0x1c/0x20 [sctp]
+   [<ffffffffc0977338>] sctp_cmd_interpreter.isra.22+0xc8/0x1460 [sctp]
+   [<ffffffffc0976ad1>] sctp_do_sm+0xe1/0x350 [sctp]
+   [<ffffffffc099443d>] sctp_primitive_ASCONF+0x3d/0x50 [sctp]
+   [<ffffffffc0977384>] sctp_cmd_interpreter.isra.22+0x114/0x1460 [sctp]
+   [<ffffffffc0976ad1>] sctp_do_sm+0xe1/0x350 [sctp]
+   [<ffffffffc097b3a4>] sctp_assoc_bh_rcv+0xf4/0x1b0 [sctp]
+   [<ffffffffc09840f1>] sctp_inq_push+0x51/0x70 [sctp]
+   [<ffffffffc099732b>] sctp_rcv+0xa8b/0xbd0 [sctp]
+
+As it shows, the first sctp_do_sm() running under atomic context (NET_RX
+softirq) invoked sctp_primitive_ASCONF() that uses GFP_KERNEL flag later,
+and this flag is supposed to be used in non-atomic context only. Besides,
+sctp_do_sm() was called recursively, which is not expected.
+
+Vlad tried to fix this recursive call in Commit c0786693404c ("sctp: Fix
+oops when sending queued ASCONF chunks") by introducing a new command
+SCTP_CMD_SEND_NEXT_ASCONF. But it didn't work as this command is still
+used in the first sctp_do_sm() call, and sctp_primitive_ASCONF() will
+be called in this command again.
+
+To avoid calling sctp_do_sm() recursively, we send the next queued ASCONF
+not by sctp_primitive_ASCONF(), but by sctp_sf_do_prm_asconf() in the 1st
+sctp_do_sm() directly.
+
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/vmx/nested.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/sctp/command.h |    1 -
+ net/sctp/sm_sideeffect.c   |   29 -----------------------------
+ net/sctp/sm_statefuns.c    |   35 +++++++++++++++++++++++++++--------
+ 3 files changed, 27 insertions(+), 38 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5407,7 +5407,7 @@ static int vmx_set_nested_state(struct k
- 		return ret;
+--- a/include/net/sctp/command.h
++++ b/include/net/sctp/command.h
+@@ -105,7 +105,6 @@ enum sctp_verb {
+ 	SCTP_CMD_T1_RETRAN,	 /* Mark for retransmission after T1 timeout  */
+ 	SCTP_CMD_UPDATE_INITTAG, /* Update peer inittag */
+ 	SCTP_CMD_SEND_MSG,	 /* Send the whole use message */
+-	SCTP_CMD_SEND_NEXT_ASCONF, /* Send the next ASCONF after ACK */
+ 	SCTP_CMD_PURGE_ASCONF_QUEUE, /* Purge all asconf queues.*/
+ 	SCTP_CMD_SET_ASOC,	 /* Restore association context */
+ 	SCTP_CMD_LAST
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1112,32 +1112,6 @@ static void sctp_cmd_send_msg(struct sct
+ }
  
- 	/* Empty 'VMXON' state is permitted */
--	if (kvm_state->size < sizeof(kvm_state) + sizeof(*vmcs12))
-+	if (kvm_state->size < sizeof(*kvm_state) + sizeof(*vmcs12))
- 		return 0;
  
- 	if (kvm_state->vmx.vmcs_pa != -1ull) {
-@@ -5451,7 +5451,7 @@ static int vmx_set_nested_state(struct k
- 	    vmcs12->vmcs_link_pointer != -1ull) {
- 		struct vmcs12 *shadow_vmcs12 = get_shadow_vmcs12(vcpu);
+-/* Sent the next ASCONF packet currently stored in the association.
+- * This happens after the ASCONF_ACK was succeffully processed.
+- */
+-static void sctp_cmd_send_asconf(struct sctp_association *asoc)
+-{
+-	struct net *net = sock_net(asoc->base.sk);
+-
+-	/* Send the next asconf chunk from the addip chunk
+-	 * queue.
+-	 */
+-	if (!list_empty(&asoc->addip_chunk_list)) {
+-		struct list_head *entry = asoc->addip_chunk_list.next;
+-		struct sctp_chunk *asconf = list_entry(entry,
+-						struct sctp_chunk, list);
+-		list_del_init(entry);
+-
+-		/* Hold the chunk until an ASCONF_ACK is received. */
+-		sctp_chunk_hold(asconf);
+-		if (sctp_primitive_ASCONF(net, asoc, asconf))
+-			sctp_chunk_free(asconf);
+-		else
+-			asoc->addip_last_asconf = asconf;
+-	}
+-}
+-
+-
+ /* These three macros allow us to pull the debugging code out of the
+  * main flow of sctp_do_sm() to keep attention focused on the real
+  * functionality there.
+@@ -1783,9 +1757,6 @@ static int sctp_cmd_interpreter(enum sct
+ 			}
+ 			sctp_cmd_send_msg(asoc, cmd->obj.msg, gfp);
+ 			break;
+-		case SCTP_CMD_SEND_NEXT_ASCONF:
+-			sctp_cmd_send_asconf(asoc);
+-			break;
+ 		case SCTP_CMD_PURGE_ASCONF_QUEUE:
+ 			sctp_asconf_queue_teardown(asoc);
+ 			break;
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -3824,6 +3824,29 @@ enum sctp_disposition sctp_sf_do_asconf(
+ 	return SCTP_DISPOSITION_CONSUME;
+ }
  
--		if (kvm_state->size < sizeof(kvm_state) + 2 * sizeof(*vmcs12))
-+		if (kvm_state->size < sizeof(*kvm_state) + 2 * sizeof(*vmcs12))
- 			return -EINVAL;
++static enum sctp_disposition sctp_send_next_asconf(
++					struct net *net,
++					const struct sctp_endpoint *ep,
++					struct sctp_association *asoc,
++					const union sctp_subtype type,
++					struct sctp_cmd_seq *commands)
++{
++	struct sctp_chunk *asconf;
++	struct list_head *entry;
++
++	if (list_empty(&asoc->addip_chunk_list))
++		return SCTP_DISPOSITION_CONSUME;
++
++	entry = asoc->addip_chunk_list.next;
++	asconf = list_entry(entry, struct sctp_chunk, list);
++
++	list_del_init(entry);
++	sctp_chunk_hold(asconf);
++	asoc->addip_last_asconf = asconf;
++
++	return sctp_sf_do_prm_asconf(net, ep, asoc, type, asconf, commands);
++}
++
+ /*
+  * ADDIP Section 4.3 General rules for address manipulation
+  * When building TLV parameters for the ASCONF Chunk that will add or
+@@ -3915,14 +3938,10 @@ enum sctp_disposition sctp_sf_do_asconf_
+ 				SCTP_TO(SCTP_EVENT_TIMEOUT_T4_RTO));
  
- 		if (copy_from_user(shadow_vmcs12,
+ 		if (!sctp_process_asconf_ack((struct sctp_association *)asoc,
+-					     asconf_ack)) {
+-			/* Successfully processed ASCONF_ACK.  We can
+-			 * release the next asconf if we have one.
+-			 */
+-			sctp_add_cmd_sf(commands, SCTP_CMD_SEND_NEXT_ASCONF,
+-					SCTP_NULL());
+-			return SCTP_DISPOSITION_CONSUME;
+-		}
++					     asconf_ack))
++			return sctp_send_next_asconf(net, ep,
++					(struct sctp_association *)asoc,
++							type, commands);
+ 
+ 		abort = sctp_make_abort(asoc, asconf_ack,
+ 					sizeof(struct sctp_errhdr));
 
 
