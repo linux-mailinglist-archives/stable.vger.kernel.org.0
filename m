@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA66138FC
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B846138E3
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727138AbfEDK1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37666 "EHLO mail.kernel.org"
+        id S1728188AbfEDK1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:27:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728188AbfEDK13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:29 -0400
+        id S1727501AbfEDK1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:27:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9885F206BB;
-        Sat,  4 May 2019 10:27:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E071B20859;
+        Sat,  4 May 2019 10:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965648;
-        bh=BWFpvBSdMj8bWjVZXoTbFZTlv7FHBpF4S9q60QRo7h8=;
+        s=default; t=1556965653;
+        bh=wFZarfcDgNI7qhNyVlSgudZx3UqdoujzUUIR5OvFHI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXgeNYmK1SidtSHLdoAYl0a0MKVxv7S7QOko7XQFmSGPl0DlJzPXWhrweNFRn7Gq1
-         2GCMUkoxGBd78ocJhG37WkqkgKsUnRcJInyEqdxh640x6FKMtbfskFJAze4XKImscr
-         O4Y3VympAzc6FslKUxqXK9oz1SVzzTqic+TbyJzw=
+        b=rybvaAuBx/dKz4hAGnm2GFyjvMtK16udlumHPGHw7ORRPkTkq1zFkS8vM72LG+yYO
+         bS+uO1UH/CvM7THaGDAPVRxl/HJSE0OKgFAt0E86HbXnHfPic2OEoL6E42f2xUzb1A
+         F+y1mrjPcwBmyfFCEluIegcQD0RMSzwF1533y6QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        John Hurley <john.hurley@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 19/23] net/tls: fix copy to fragments in reencrypt
-Date:   Sat,  4 May 2019 12:25:21 +0200
-Message-Id: <20190504102452.152806399@linuxfoundation.org>
+        stable@vger.kernel.org, Simon Becherer <simon@becherer.de>,
+        Gabriele Balducci <balducci@units.it>,
+        Antti Antinoja <reader@fennosys.fi>,
+        Takashi Iwai <tiwai@suse.com>, Jiri Slaby <jslaby@suse.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Iakov Karpov <srid@rkmail.ru>
+Subject: [PATCH 4.19 20/23] KVM: x86: Whitelist port 0x7e for pre-incrementing %rip
+Date:   Sat,  4 May 2019 12:25:22 +0200
+Message-Id: <20190504102452.182919984@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
 References: <20190504102451.512405835@linuxfoundation.org>
@@ -45,85 +48,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit eb3d38d5adb520435d4e4af32529ccb13ccc9935 ]
+commit 8764ed55c9705e426d889ff16c26f398bba70b9b upstream.
 
-Fragments may contain data from other records so we have to account
-for that when we calculate the destination and max length of copy we
-can perform.  Note that 'offset' is the offset within the message,
-so it can't be passed as offset within the frag..
+KVM's recent bug fix to update %rip after emulating I/O broke userspace
+that relied on the previous behavior of incrementing %rip prior to
+exiting to userspace.  When running a Windows XP guest on AMD hardware,
+Qemu may patch "OUT 0x7E" instructions in reaction to the OUT itself.
+Because KVM's old behavior was to increment %rip before exiting to
+userspace to handle the I/O, Qemu manually adjusted %rip to account for
+the OUT instruction.
 
-Here skb_store_bits() would have realised the call is wrong and
-simply not copy data.
+Arguably this is a userspace bug as KVM requires userspace to re-enter
+the kernel to complete instruction emulation before taking any other
+actions.  That being said, this is a bit of a grey area and breaking
+userspace that has worked for many years is bad.
 
-Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: John Hurley <john.hurley@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Pre-increment %rip on OUT to port 0x7e before exiting to userspace to
+hack around the issue.
+
+Fixes: 45def77ebf79e ("KVM: x86: update %rip after emulating IO")
+Reported-by: Simon Becherer <simon@becherer.de>
+Reported-and-tested-by: Iakov Karpov <srid@rkmail.ru>
+Reported-by: Gabriele Balducci <balducci@units.it>
+Reported-by: Antti Antinoja <reader@fennosys.fi>
+Cc: stable@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tls/tls_device.c |   29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -569,7 +569,7 @@ void handle_device_resync(struct sock *s
- static int tls_device_reencrypt(struct sock *sk, struct sk_buff *skb)
+---
+ arch/x86/include/uapi/asm/kvm.h |    1 +
+ arch/x86/kvm/x86.c              |   21 +++++++++++++++++++--
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/include/uapi/asm/kvm.h
++++ b/arch/x86/include/uapi/asm/kvm.h
+@@ -378,6 +378,7 @@ struct kvm_sync_regs {
+ #define KVM_X86_QUIRK_LINT0_REENABLED	(1 << 0)
+ #define KVM_X86_QUIRK_CD_NW_CLEARED	(1 << 1)
+ #define KVM_X86_QUIRK_LAPIC_MMIO_HOLE	(1 << 2)
++#define KVM_X86_QUIRK_OUT_7E_INC_RIP	(1 << 3)
+ 
+ #define KVM_STATE_NESTED_GUEST_MODE	0x00000001
+ #define KVM_STATE_NESTED_RUN_PENDING	0x00000002
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6328,6 +6328,12 @@ int kvm_emulate_instruction_from_buffer(
+ }
+ EXPORT_SYMBOL_GPL(kvm_emulate_instruction_from_buffer);
+ 
++static int complete_fast_pio_out_port_0x7e(struct kvm_vcpu *vcpu)
++{
++	vcpu->arch.pio.count = 0;
++	return 1;
++}
++
+ static int complete_fast_pio_out(struct kvm_vcpu *vcpu)
  {
- 	struct strp_msg *rxm = strp_msg(skb);
--	int err = 0, offset = rxm->offset, copy, nsg;
-+	int err = 0, offset = rxm->offset, copy, nsg, data_len, pos;
- 	struct sk_buff *skb_iter, *unused;
- 	struct scatterlist sg[1];
- 	char *orig_buf, *buf;
-@@ -600,9 +600,10 @@ static int tls_device_reencrypt(struct s
- 	else
- 		err = 0;
+ 	vcpu->arch.pio.count = 0;
+@@ -6344,12 +6350,23 @@ static int kvm_fast_pio_out(struct kvm_v
+ 	unsigned long val = kvm_register_read(vcpu, VCPU_REGS_RAX);
+ 	int ret = emulator_pio_out_emulated(&vcpu->arch.emulate_ctxt,
+ 					    size, port, &val, 1);
++	if (ret)
++		return ret;
  
-+	data_len = rxm->full_len - TLS_CIPHER_AES_GCM_128_TAG_SIZE;
-+
- 	if (skb_pagelen(skb) > offset) {
--		copy = min_t(int, skb_pagelen(skb) - offset,
--			     rxm->full_len - TLS_CIPHER_AES_GCM_128_TAG_SIZE);
-+		copy = min_t(int, skb_pagelen(skb) - offset, data_len);
- 
- 		if (skb->decrypted)
- 			skb_store_bits(skb, offset, buf, copy);
-@@ -611,16 +612,30 @@ static int tls_device_reencrypt(struct s
- 		buf += copy;
+-	if (!ret) {
++	/*
++	 * Workaround userspace that relies on old KVM behavior of %rip being
++	 * incremented prior to exiting to userspace to handle "OUT 0x7e".
++	 */
++	if (port == 0x7e &&
++	    kvm_check_has_quirk(vcpu->kvm, KVM_X86_QUIRK_OUT_7E_INC_RIP)) {
++		vcpu->arch.complete_userspace_io =
++			complete_fast_pio_out_port_0x7e;
++		kvm_skip_emulated_instruction(vcpu);
++	} else {
+ 		vcpu->arch.pio.linear_rip = kvm_get_linear_rip(vcpu);
+ 		vcpu->arch.complete_userspace_io = complete_fast_pio_out;
  	}
+-	return ret;
++	return 0;
+ }
  
-+	pos = skb_pagelen(skb);
- 	skb_walk_frags(skb, skb_iter) {
--		copy = min_t(int, skb_iter->len,
--			     rxm->full_len - offset + rxm->offset -
--			     TLS_CIPHER_AES_GCM_128_TAG_SIZE);
-+		int frag_pos;
-+
-+		/* Practically all frags must belong to msg if reencrypt
-+		 * is needed with current strparser and coalescing logic,
-+		 * but strparser may "get optimized", so let's be safe.
-+		 */
-+		if (pos + skb_iter->len <= offset)
-+			goto done_with_frag;
-+		if (pos >= data_len + rxm->offset)
-+			break;
-+
-+		frag_pos = offset - pos;
-+		copy = min_t(int, skb_iter->len - frag_pos,
-+			     data_len + rxm->offset - offset);
- 
- 		if (skb_iter->decrypted)
--			skb_store_bits(skb_iter, offset, buf, copy);
-+			skb_store_bits(skb_iter, frag_pos, buf, copy);
- 
- 		offset += copy;
- 		buf += copy;
-+done_with_frag:
-+		pos += skb_iter->len;
- 	}
- 
- free_buf:
+ static int complete_fast_pio_in(struct kvm_vcpu *vcpu)
 
 
