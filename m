@@ -2,112 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBF01392C
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 447F0138F5
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727285AbfEDKa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35264 "EHLO mail.kernel.org"
+        id S1728384AbfEDK2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727448AbfEDKZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:25:57 -0400
+        id S1728374AbfEDK2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:28:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8BD12084A;
-        Sat,  4 May 2019 10:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 895952086A;
+        Sat,  4 May 2019 10:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965556;
-        bh=ym/vF14EpxVfDOnzT5lnswelYOCBfZA/X3gAGxTbSQU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFXzuu8A8dhWmb3+mJKfYlFHirC9ZlG7BU8+niCpGHg8nw8NYFl08eqMeN3Zlre7f
-         B7FoguTLFmOdMuvvaTilyNmmjMatd+CUj75XmjAG92YSmbZAeZdJJ6c7dLOY32vm91
-         1dQiJgJpD6Jm+K8mf9tAUEJI/9/Ay9iUoWrL2nUA=
+        s=default; t=1556965682;
+        bh=+QqCsL8V6t0A56FIlZhLTjflrVGHje5K4fDZZT4DztQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=v1VFCO2InCwMB1tFzIB1Sn7luWVHWIMN0me2ukzgOvq4vRFMPtGS+/ZEmUZUl6y/b
+         fAtzHCgpB4ed0fMumDIjN/Y5feJBdzaeKxKedvZIZgQKB6+J/90z6MIeRHo/s81xFV
+         Tewv8Onmimbs/jkaO7lPqjE6HWRq5OzvXGmj7g3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Richard Purdie <richard.purdie@linuxfoundation.org>,
-        =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@sysophe.eu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 17/32] tcp: add sanity tests in tcp_add_backlog()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 00/23] 4.19.40-stable review
 Date:   Sat,  4 May 2019 12:25:02 +0200
-Message-Id: <20190504102453.048443786@linuxfoundation.org>
+Message-Id: <20190504102451.512405835@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
-References: <20190504102452.523724210@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.40-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.40-rc1
+X-KernelTest-Deadline: 2019-05-06T10:24+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+This is the start of the stable review cycle for the 4.19.40 release.
+There are 23 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit ca2fe2956acef2f87f6c55549874fdd2e92d9824 ]
+Responses should be made by Mon 06 May 2019 10:24:19 AM UTC.
+Anything received after that time might be too late.
 
-Richard and Bruno both reported that my commit added a bug,
-and Bruno was able to determine the problem came when a segment
-wih a FIN packet was coalesced to a prior one in tcp backlog queue.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.40-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-It turns out the header prediction in tcp_rcv_established()
-looks back to TCP headers in the packet, not in the metadata
-(aka TCP_SKB_CB(skb)->tcp_flags)
+thanks,
 
-The fast path in tcp_rcv_established() is not supposed to
-handle a FIN flag (it does not call tcp_fin())
+greg k-h
 
-Therefore we need to make sure to propagate the FIN flag,
-so that the coalesced packet does not go through the fast path,
-the same than a GRO packet carrying a FIN flag.
+-------------
+Pseudo-Shortlog of commits:
 
-While we are at it, make sure we do not coalesce packets with
-RST or SYN, or if they do not have ACK set.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.40-rc1
 
-Many thanks to Richard and Bruno for pinpointing the bad commit,
-and to Richard for providing a first version of the fix.
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ath10k: Drop WARN_ON()s that always trigger during system resume
 
-Fixes: 4f693b55c3d2 ("tcp: implement coalescing on backlog queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-Reported-by: Bruno Prémont <bonbons@sysophe.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_ipv4.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    ALSA: line6: use dynamic buffers
 
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1673,7 +1673,9 @@ bool tcp_add_backlog(struct sock *sk, st
- 	if (TCP_SKB_CB(tail)->end_seq != TCP_SKB_CB(skb)->seq ||
- 	    TCP_SKB_CB(tail)->ip_dsfield != TCP_SKB_CB(skb)->ip_dsfield ||
- 	    ((TCP_SKB_CB(tail)->tcp_flags |
--	      TCP_SKB_CB(skb)->tcp_flags) & TCPHDR_URG) ||
-+	      TCP_SKB_CB(skb)->tcp_flags) & (TCPHDR_SYN | TCPHDR_RST | TCPHDR_URG)) ||
-+	    !((TCP_SKB_CB(tail)->tcp_flags &
-+	      TCP_SKB_CB(skb)->tcp_flags) & TCPHDR_ACK) ||
- 	    ((TCP_SKB_CB(tail)->tcp_flags ^
- 	      TCP_SKB_CB(skb)->tcp_flags) & (TCPHDR_ECE | TCPHDR_CWR)) ||
- #ifdef CONFIG_TLS_DEVICE
-@@ -1692,6 +1694,15 @@ bool tcp_add_backlog(struct sock *sk, st
- 		if (after(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))
- 			TCP_SKB_CB(tail)->ack_seq = TCP_SKB_CB(skb)->ack_seq;
- 
-+		/* We have to update both TCP_SKB_CB(tail)->tcp_flags and
-+		 * thtail->fin, so that the fast path in tcp_rcv_established()
-+		 * is not entered if we append a packet with a FIN.
-+		 * SYN, RST, URG are not present.
-+		 * ACK is set on both packets.
-+		 * PSH : we do not really care in TCP stack,
-+		 *       at least for 'GRO' packets.
-+		 */
-+		thtail->fin |= th->fin;
- 		TCP_SKB_CB(tail)->tcp_flags |= TCP_SKB_CB(skb)->tcp_flags;
- 
- 		if (TCP_SKB_CB(skb)->has_rxtstamp) {
+Jim Mattson <jmattson@google.com>
+    KVM: nVMX: Fix size checks in vmx_set_nested_state
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: x86: Whitelist port 0x7e for pre-incrementing %rip
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: fix copy to fragments in reencrypt
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: don't copy negative amounts of data in reencrypt
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Fix uninitialized variable usage in bnxt_rx_pkt().
+
+Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+    bnxt_en: Free short FW command HWRM memory in error path in bnxt_init_one()
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Improve multicast address setup logic.
+
+Willem de Bruijn <willemb@google.com>
+    packet: validate msg_namelen in send directly
+
+Hangbin Liu <liuhangbin@gmail.com>
+    selftests: fib_rule_tests: print the result and return 1 if any tests failed
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: avoid running the sctp state machine recursively
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Fix net namespace cleanup
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: avoid NULL pointer deref on nskb->sk in fallback
+
+Andrew Lunn <andrew@lunn.ch>
+    net: phy: marvell: Fix buffer overrun with stats counters
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net: dsa: bcm_sf2: fix buffer overflow doing set_rxnfc
+
+Eric Dumazet <edumazet@google.com>
+    l2tp: use rcu_dereference_sk_user_data() in l2tp_udp_encap_recv()
+
+Eric Dumazet <edumazet@google.com>
+    l2ip: fix possible use-after-free
+
+Willem de Bruijn <willemb@google.com>
+    ipv6: invert flowlabel sharing check in process and user mode
+
+Eric Dumazet <edumazet@google.com>
+    ipv6/flowlabel: wait rcu grace period before put_pid()
+
+Eric Dumazet <edumazet@google.com>
+    ipv6: fix races in ip6_dst_destroy()
+
+Martin KaFai Lau <kafai@fb.com>
+    ipv6: A few fixes on dereferencing rt->from
+
+Shmulik Ladkani <shmulik@metanetworks.com>
+    ipv4: ip_do_fragment: Preserve skb_iif during fragmentation
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                      |  4 +-
+ arch/x86/include/uapi/asm/kvm.h               |  1 +
+ arch/x86/kvm/vmx.c                            |  4 +-
+ arch/x86/kvm/x86.c                            | 21 +++++++++-
+ drivers/net/dsa/bcm_sf2_cfp.c                 |  6 +++
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 19 ++++++---
+ drivers/net/phy/marvell.c                     |  6 ++-
+ drivers/net/wireless/ath/ath10k/mac.c         |  2 +-
+ include/net/sctp/command.h                    |  1 -
+ net/ipv4/ip_output.c                          |  1 +
+ net/ipv6/ip6_fib.c                            |  4 +-
+ net/ipv6/ip6_flowlabel.c                      | 22 ++++++----
+ net/ipv6/route.c                              | 47 +++++++++------------
+ net/l2tp/l2tp_core.c                          | 10 ++---
+ net/packet/af_packet.c                        | 24 ++++++-----
+ net/rxrpc/call_object.c                       | 32 +++++++-------
+ net/sctp/sm_sideeffect.c                      | 29 -------------
+ net/sctp/sm_statefuns.c                       | 35 ++++++++++++----
+ net/tls/tls_device.c                          | 39 ++++++++++++-----
+ net/tls/tls_device_fallback.c                 |  3 +-
+ sound/usb/line6/driver.c                      | 60 ++++++++++++++++-----------
+ sound/usb/line6/podhd.c                       | 21 ++++++----
+ sound/usb/line6/toneport.c                    | 24 ++++++++---
+ tools/testing/selftests/net/fib_rule_tests.sh |  6 +++
+ 24 files changed, 248 insertions(+), 173 deletions(-)
 
 
