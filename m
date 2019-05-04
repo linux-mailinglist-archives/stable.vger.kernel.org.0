@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50543138DA
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262EC138CC
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727405AbfEDK1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37176 "EHLO mail.kernel.org"
+        id S1727814AbfEDK0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728063AbfEDK1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:13 -0400
+        id S1727794AbfEDK0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:26:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D88320859;
-        Sat,  4 May 2019 10:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 520A920881;
+        Sat,  4 May 2019 10:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965632;
-        bh=bdyM8oxbQkd8wXQ6tcNLjvAslpgVHezybpZhC3gVPT0=;
+        s=default; t=1556965595;
+        bh=LtiEmKRnOf4ksZ01CQhY8ojA3ltVuzRQkuvilKrzSsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqvAhDgH/H2TM0SN8sFF2lZ6zLbBc8eCzTD6jZwdrPCakwun7I3rEBRyFgD1GOFm1
-         BaA6ndOmr4IBPnDRi0lPPCrHmIvnefPKF+ABAu/z/9Oi4aIQyQmZJRxsOOebBF2S+G
-         p87m7AsgorbX12A5ynxyvvjBfiPpDGh5l3gaaIb0=
+        b=QrFSevoQK5UisvoAd1dRBN44LEBgyrvuTc7pfiFbWDQhgnDAG/JG5gievsiWGeScc
+         9cHk9jaFzW6MZWztmXe5u9NUCx3XN0gKP6bA6JCjEPOxf/9mCz2RTDIRnrzu2lVqhO
+         WIleJ9Y+o6pCoY0ezg4U8SojEqf5otQVDgNSUYC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 13/23] selftests: fib_rule_tests: print the result and return 1 if any tests failed
+        stable@vger.kernel.org, Christo Gouws <gouws.christo@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.0 30/32] ALSA: line6: use dynamic buffers
 Date:   Sat,  4 May 2019 12:25:15 +0200
-Message-Id: <20190504102451.973046799@linuxfoundation.org>
+Message-Id: <20190504102453.401059961@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
-References: <20190504102451.512405835@linuxfoundation.org>
+In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
+References: <20190504102452.523724210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,299 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit f68d7c44e76532e46f292ad941aa3706cb9e6e40 ]
+commit e5c812e84f0dece3400d5caf42522287e6ef139f upstream.
 
-Fixes: 65b2b4939a64 ("selftests: net: initial fib rule tests")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The line6 driver uses a lot of USB buffers off of the stack, which is
+not allowed on many systems, causing the driver to crash on some of
+them.  Fix this up by dynamically allocating the buffers with kmalloc()
+which allows for proper DMA-able memory.
+
+Reported-by: Christo Gouws <gouws.christo@gmail.com>
+Reported-by: Alan Stern <stern@rowland.harvard.edu>
+Tested-by: Christo Gouws <gouws.christo@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/net/fib_rule_tests.sh |    6 ++++++
- 1 file changed, 6 insertions(+)
 
---- a/tools/testing/selftests/net/fib_rule_tests.sh
-+++ b/tools/testing/selftests/net/fib_rule_tests.sh
-@@ -27,6 +27,7 @@ log_test()
- 		nsuccess=$((nsuccess+1))
- 		printf "\n    TEST: %-50s  [ OK ]\n" "${msg}"
- 	else
-+		ret=1
- 		nfail=$((nfail+1))
- 		printf "\n    TEST: %-50s  [FAIL]\n" "${msg}"
- 		if [ "${PAUSE_ON_FAIL}" = "yes" ]; then
-@@ -245,4 +246,9 @@ setup
- run_fibrule_tests
- cleanup
+---
+ sound/usb/line6/driver.c   |   60 ++++++++++++++++++++++++++-------------------
+ sound/usb/line6/podhd.c    |   21 +++++++++------
+ sound/usb/line6/toneport.c |   24 +++++++++++++-----
+ 3 files changed, 65 insertions(+), 40 deletions(-)
+
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -351,12 +351,16 @@ int line6_read_data(struct usb_line6 *li
+ {
+ 	struct usb_device *usbdev = line6->usbdev;
+ 	int ret;
+-	unsigned char len;
++	unsigned char *len;
+ 	unsigned count;
  
-+if [ "$TESTS" != "none" ]; then
-+	printf "\nTests passed: %3d\n" ${nsuccess}
-+	printf "Tests failed: %3d\n"   ${nfail}
-+fi
+ 	if (address > 0xffff || datalen > 0xff)
+ 		return -EINVAL;
+ 
++	len = kmalloc(sizeof(*len), GFP_KERNEL);
++	if (!len)
++		return -ENOMEM;
 +
- exit $ret
+ 	/* query the serial number: */
+ 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
+ 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+@@ -365,7 +369,7 @@ int line6_read_data(struct usb_line6 *li
+ 
+ 	if (ret < 0) {
+ 		dev_err(line6->ifcdev, "read request failed (error %d)\n", ret);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	/* Wait for data length. We'll get 0xff until length arrives. */
+@@ -375,28 +379,29 @@ int line6_read_data(struct usb_line6 *li
+ 		ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
+ 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
+ 				      USB_DIR_IN,
+-				      0x0012, 0x0000, &len, 1,
++				      0x0012, 0x0000, len, 1,
+ 				      LINE6_TIMEOUT * HZ);
+ 		if (ret < 0) {
+ 			dev_err(line6->ifcdev,
+ 				"receive length failed (error %d)\n", ret);
+-			return ret;
++			goto exit;
+ 		}
+ 
+-		if (len != 0xff)
++		if (*len != 0xff)
+ 			break;
+ 	}
+ 
+-	if (len == 0xff) {
++	ret = -EIO;
++	if (*len == 0xff) {
+ 		dev_err(line6->ifcdev, "read failed after %d retries\n",
+ 			count);
+-		return -EIO;
+-	} else if (len != datalen) {
++		goto exit;
++	} else if (*len != datalen) {
+ 		/* should be equal or something went wrong */
+ 		dev_err(line6->ifcdev,
+ 			"length mismatch (expected %d, got %d)\n",
+-			(int)datalen, (int)len);
+-		return -EIO;
++			(int)datalen, (int)*len);
++		goto exit;
+ 	}
+ 
+ 	/* receive the result: */
+@@ -405,12 +410,12 @@ int line6_read_data(struct usb_line6 *li
+ 			      0x0013, 0x0000, data, datalen,
+ 			      LINE6_TIMEOUT * HZ);
+ 
+-	if (ret < 0) {
++	if (ret < 0)
+ 		dev_err(line6->ifcdev, "read failed (error %d)\n", ret);
+-		return ret;
+-	}
+ 
+-	return 0;
++exit:
++	kfree(len);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(line6_read_data);
+ 
+@@ -422,12 +427,16 @@ int line6_write_data(struct usb_line6 *l
+ {
+ 	struct usb_device *usbdev = line6->usbdev;
+ 	int ret;
+-	unsigned char status;
++	unsigned char *status;
+ 	int count;
+ 
+ 	if (address > 0xffff || datalen > 0xffff)
+ 		return -EINVAL;
+ 
++	status = kmalloc(sizeof(*status), GFP_KERNEL);
++	if (!status)
++		return -ENOMEM;
++
+ 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
+ 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+ 			      0x0022, address, data, datalen,
+@@ -436,7 +445,7 @@ int line6_write_data(struct usb_line6 *l
+ 	if (ret < 0) {
+ 		dev_err(line6->ifcdev,
+ 			"write request failed (error %d)\n", ret);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	for (count = 0; count < LINE6_READ_WRITE_MAX_RETRIES; count++) {
+@@ -447,28 +456,29 @@ int line6_write_data(struct usb_line6 *l
+ 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
+ 				      USB_DIR_IN,
+ 				      0x0012, 0x0000,
+-				      &status, 1, LINE6_TIMEOUT * HZ);
++				      status, 1, LINE6_TIMEOUT * HZ);
+ 
+ 		if (ret < 0) {
+ 			dev_err(line6->ifcdev,
+ 				"receiving status failed (error %d)\n", ret);
+-			return ret;
++			goto exit;
+ 		}
+ 
+-		if (status != 0xff)
++		if (*status != 0xff)
+ 			break;
+ 	}
+ 
+-	if (status == 0xff) {
++	if (*status == 0xff) {
+ 		dev_err(line6->ifcdev, "write failed after %d retries\n",
+ 			count);
+-		return -EIO;
+-	} else if (status != 0) {
++		ret = -EIO;
++	} else if (*status != 0) {
+ 		dev_err(line6->ifcdev, "write failed (error %d)\n", ret);
+-		return -EIO;
++		ret = -EIO;
+ 	}
+-
+-	return 0;
++exit:
++	kfree(status);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(line6_write_data);
+ 
+--- a/sound/usb/line6/podhd.c
++++ b/sound/usb/line6/podhd.c
+@@ -225,28 +225,32 @@ static void podhd_startup_start_workqueu
+ static int podhd_dev_start(struct usb_line6_podhd *pod)
+ {
+ 	int ret;
+-	u8 init_bytes[8];
++	u8 *init_bytes;
+ 	int i;
+ 	struct usb_device *usbdev = pod->line6.usbdev;
+ 
++	init_bytes = kmalloc(8, GFP_KERNEL);
++	if (!init_bytes)
++		return -ENOMEM;
++
+ 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
+ 					0x67, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+ 					0x11, 0,
+ 					NULL, 0, LINE6_TIMEOUT * HZ);
+ 	if (ret < 0) {
+ 		dev_err(pod->line6.ifcdev, "read request failed (error %d)\n", ret);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	/* NOTE: looks like some kind of ping message */
+ 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
+ 					USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+ 					0x11, 0x0,
+-					&init_bytes, 3, LINE6_TIMEOUT * HZ);
++					init_bytes, 3, LINE6_TIMEOUT * HZ);
+ 	if (ret < 0) {
+ 		dev_err(pod->line6.ifcdev,
+ 			"receive length failed (error %d)\n", ret);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	pod->firmware_version =
+@@ -255,7 +259,7 @@ static int podhd_dev_start(struct usb_li
+ 	for (i = 0; i <= 16; i++) {
+ 		ret = line6_read_data(&pod->line6, 0xf000 + 0x08 * i, init_bytes, 8);
+ 		if (ret < 0)
+-			return ret;
++			goto exit;
+ 	}
+ 
+ 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
+@@ -263,10 +267,9 @@ static int podhd_dev_start(struct usb_li
+ 					USB_TYPE_STANDARD | USB_RECIP_DEVICE | USB_DIR_OUT,
+ 					1, 0,
+ 					NULL, 0, LINE6_TIMEOUT * HZ);
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++exit:
++	kfree(init_bytes);
++	return ret;
+ }
+ 
+ static void podhd_startup_workqueue(struct work_struct *work)
+--- a/sound/usb/line6/toneport.c
++++ b/sound/usb/line6/toneport.c
+@@ -365,16 +365,21 @@ static bool toneport_has_source_select(s
+ /*
+ 	Setup Toneport device.
+ */
+-static void toneport_setup(struct usb_line6_toneport *toneport)
++static int toneport_setup(struct usb_line6_toneport *toneport)
+ {
+-	u32 ticks;
++	u32 *ticks;
+ 	struct usb_line6 *line6 = &toneport->line6;
+ 	struct usb_device *usbdev = line6->usbdev;
+ 
++	ticks = kmalloc(sizeof(*ticks), GFP_KERNEL);
++	if (!ticks)
++		return -ENOMEM;
++
+ 	/* sync time on device with host: */
+ 	/* note: 32-bit timestamps overflow in year 2106 */
+-	ticks = (u32)ktime_get_real_seconds();
+-	line6_write_data(line6, 0x80c6, &ticks, 4);
++	*ticks = (u32)ktime_get_real_seconds();
++	line6_write_data(line6, 0x80c6, ticks, 4);
++	kfree(ticks);
+ 
+ 	/* enable device: */
+ 	toneport_send_cmd(usbdev, 0x0301, 0x0000);
+@@ -389,6 +394,7 @@ static void toneport_setup(struct usb_li
+ 		toneport_update_led(toneport);
+ 
+ 	mod_timer(&toneport->timer, jiffies + TONEPORT_PCM_DELAY * HZ);
++	return 0;
+ }
+ 
+ /*
+@@ -451,7 +457,9 @@ static int toneport_init(struct usb_line
+ 			return err;
+ 	}
+ 
+-	toneport_setup(toneport);
++	err = toneport_setup(toneport);
++	if (err)
++		return err;
+ 
+ 	/* register audio system: */
+ 	return snd_card_register(line6->card);
+@@ -463,7 +471,11 @@ static int toneport_init(struct usb_line
+ */
+ static int toneport_reset_resume(struct usb_interface *interface)
+ {
+-	toneport_setup(usb_get_intfdata(interface));
++	int err;
++
++	err = toneport_setup(usb_get_intfdata(interface));
++	if (err)
++		return err;
+ 	return line6_resume(interface);
+ }
+ #endif
 
 
