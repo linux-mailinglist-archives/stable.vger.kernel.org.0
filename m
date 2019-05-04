@@ -2,80 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 461C613822
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DA313823
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:40:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725808AbfEDHes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 03:34:48 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:45577 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725802AbfEDHes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 May 2019 03:34:48 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 811EC42B;
-        Sat,  4 May 2019 03:34:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 04 May 2019 03:34:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=v8VtG9rvvDICXJSc0W6/4YIWGKm
-        nk5JLEsMJhhz3cmM=; b=ARinJMyIHwYR+tfIixB1W/Lb2r20XruAu+2XnWubukG
-        dXPp7zJ3h1e/rgU8rmpp1APzHF1iL9Slhzi0BPzqTYpEndQCepYXPYMUg6EOHUY8
-        WzWNSRw+Zu1oBvHoPnx6Q26SoiE4GTpkFC7tgnPeGbDbeluK1Gjp2hWjaimDPsBy
-        57BJ93EfVho5gfqrNWZdMf/UWv8UCMD00Qo4fPn2cZj6kKsRPbg+i6rCWTWFNwGF
-        WBzFa4vnivFuMFJ3L9iKWNNtWiq1fv3T4bi5MmwsfsA/FcTzL3adewXicLG6FQ0l
-        nNz15vNeF3Sds6vo9nBBul7yY/9HBzc4BoLaO/nJ4Kw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=v8VtG9
-        rvvDICXJSc0W6/4YIWGKmnk5JLEsMJhhz3cmM=; b=PN4cgB/x+lWBKBmIrBrbA6
-        WPq5UqPRC7za9eChibriNG9Hh2+TSP7MWgtenLNV5WngJ9uFloXhjI45iQLVGwku
-        /OEmRBt5EQLfgy394xcI8SB7TDtkXaX0wKykmJqfNUYuFv6lTvb3ZqwRtW/JKWxO
-        vHZpUS2nZ2BQ1Ck/j60QEoJxlTgDCo1gUZhZcpuLiYKNkIctArJoQGh2auRIzMVI
-        B0DEKOOU+S3eTAT5HtiXbelBFuhXAY7NndbNh/PxszCjZqYhgmbD8nv7wSpoKJT/
-        MnDrncbtEYhyIzb+98PmHJPoloh3NTcIeiVSe/8e7ykIxRQY5dOuS5s47ZSl98Tg
-        ==
-X-ME-Sender: <xms:lkDNXFQETGDqTFk6I_82DfR_UCOWyFaOhIMcAoirGQA3zk5lkzBWtQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrjedvgdduvddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:lkDNXHaT_xgW9nTISghWMZ1Af2iv_j91EPkfiwXQgge09DYovyZUxA>
-    <xmx:lkDNXCSg-n42JhcUCPXZDTatkVlrVzmSiJ20e-oR9Vg8Bm1ZVptiGw>
-    <xmx:lkDNXG-ikeUgh7sQrXk9WPCHQvv91uu0pf5g28PYRVeKyvke74BfvA>
-    <xmx:l0DNXEFr8uePMtU2rcqG1xRcN8MVUAtVzrIbwmbxqXqOwI0G2MZ8wA>
+        id S1725808AbfEDHkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 03:40:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725802AbfEDHkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 03:40:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F19BAE448F;
-        Sat,  4 May 2019 03:34:45 -0400 (EDT)
-Date:   Sat, 4 May 2019 09:34:44 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20190504073444.GA6294@kroah.com>
-References: <20190504.030118.1910958754445226665.davem@davemloft.net>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF6A62084A;
+        Sat,  4 May 2019 07:40:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556955605;
+        bh=0waMsckColI5BdxYvvzJU/eGM0fOqCPcx+NVaG61enc=;
+        h=Subject:To:From:Date:From;
+        b=D4tiXpyj31Dk6L+r1WDVdFJzHncOrta5gy5YLwqyuc5GYezhmxTvjwKmv3ZWAWrAx
+         82qCPc22IRph8xqgeacJq44CLBYpEucuGOA0y/7+CoeeLuwmba0KUOoD+2UmyNa2Ov
+         Z589Eu8q8XAgmJ28IiEcaEeKHqwKOWaSAqZwWlsM=
+Subject: patch "USB: dummy-hcd: Fix failure to give back unlinked URBs" added to usb-next
+To:     stern@rowland.harvard.edu, felipe.balbi@linux.intel.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 04 May 2019 09:39:49 +0200
+Message-ID: <155695558966162@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190504.030118.1910958754445226665.davem@davemloft.net>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 04, 2019 at 03:01:18AM -0400, David Miller wrote:
-> 
-> Please queue up the following networking bug fixes for v4.19 and
-> v5.0 -stable, respectively.
-> 
-> Thank you.
 
-Thanks for these, all now queued up.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    USB: dummy-hcd: Fix failure to give back unlinked URBs
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 50896c410354432e8e7baf97fcdd7df265e683ae Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Thu, 18 Apr 2019 13:12:07 -0400
+Subject: USB: dummy-hcd: Fix failure to give back unlinked URBs
+
+The syzkaller USB fuzzer identified a failure mode in which dummy-hcd
+would never give back an unlinked URB.  This causes usb_kill_urb() to
+hang, leading to WARNINGs and unkillable threads.
+
+In dummy-hcd, all URBs are given back by the dummy_timer() routine as
+it scans through the list of pending URBS.  Failure to give back URBs
+can be caused by failure to start or early exit from the scanning
+loop.  The code currently has two such pathways: One is triggered when
+an unsupported bus transfer speed is encountered, and the other by
+exhausting the simulated bandwidth for USB transfers during a frame.
+
+This patch removes those two paths, thereby allowing all unlinked URBs
+to be given back in a timely manner.  It adds a check for the bus
+speed when the gadget first starts running, so that dummy_timer() will
+never thereafter encounter an unsupported speed.  And it prevents the
+loop from exiting as soon as the total bandwidth has been used up (the
+scanning loop continues, giving back unlinked URBs as they are found,
+but not transferring any more data).
+
+Thanks to Andrey Konovalov for manually running the syzkaller fuzzer
+to help track down the source of the bug.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+d919b0f29d7b5a4994b9@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+---
+ drivers/usb/gadget/udc/dummy_hcd.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index baf72f95f0f1..213b52508621 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -979,8 +979,18 @@ static int dummy_udc_start(struct usb_gadget *g,
+ 	struct dummy_hcd	*dum_hcd = gadget_to_dummy_hcd(g);
+ 	struct dummy		*dum = dum_hcd->dum;
+ 
+-	if (driver->max_speed == USB_SPEED_UNKNOWN)
++	switch (g->speed) {
++	/* All the speeds we support */
++	case USB_SPEED_LOW:
++	case USB_SPEED_FULL:
++	case USB_SPEED_HIGH:
++	case USB_SPEED_SUPER:
++		break;
++	default:
++		dev_err(dummy_dev(dum_hcd), "Unsupported driver max speed %d\n",
++				driver->max_speed);
+ 		return -EINVAL;
++	}
+ 
+ 	/*
+ 	 * SLAVE side init ... the layer above hardware, which
+@@ -1784,9 +1794,10 @@ static void dummy_timer(struct timer_list *t)
+ 		/* Bus speed is 500000 bytes/ms, so use a little less */
+ 		total = 490000;
+ 		break;
+-	default:
++	default:	/* Can't happen */
+ 		dev_err(dummy_dev(dum_hcd), "bogus device speed\n");
+-		return;
++		total = 0;
++		break;
+ 	}
+ 
+ 	/* FIXME if HZ != 1000 this will probably misbehave ... */
+@@ -1828,7 +1839,7 @@ static void dummy_timer(struct timer_list *t)
+ 
+ 		/* Used up this frame's bandwidth? */
+ 		if (total <= 0)
+-			break;
++			continue;
+ 
+ 		/* find the gadget's ep for this request (if configured) */
+ 		address = usb_pipeendpoint (urb->pipe);
+-- 
+2.21.0
+
 
