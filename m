@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C789138D4
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CB2138D6
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727948AbfEDK0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36696 "EHLO mail.kernel.org"
+        id S1727314AbfEDK1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:27:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727920AbfEDK0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:26:54 -0400
+        id S1727958AbfEDK05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:26:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90EB020859;
-        Sat,  4 May 2019 10:26:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E90E20859;
+        Sat,  4 May 2019 10:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965614;
-        bh=d3kskyLJYes5YWw6IU1MrMwjhax9xWRa3YcLQXscwE0=;
+        s=default; t=1556965616;
+        bh=T3+TvoQx00KlNtioV5SS/qLaMlZYWs8rRDnJUY8hdfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jb6Ti6NMfIhoaJ1QTeeOLL17ZvOgJbwPhkBoDeXd4XQK/mbMBl3IFahbTLUlNWS4M
-         rQxonJSmubNvVjJdOB/nya4VXn3Cfgd9A3zBN+BEFN7KW9YnjK5eeBS1c0pTgAhAYd
-         DJ4cQ2dKd0IL+DCdezWJVHbq8mu8frsXL9QKTpkU=
+        b=L3FICoi0XcTGoVA7uq0e1GSNi63P+7WHBcwev3pi8NmwYTsUxoSRF3/WCNT7pDWej
+         7Mbzrry1l3g1DSVFO1oVEtvgdcufBc6R7ZisFyvCWb8605tAWb+97YVAaoAdzjEzVZ
+         PQ6NQEDlsDcC+EQYHhyBLS3xkl+KU9Hdi+qp6UYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 08/32] net: dsa: bcm_sf2: fix buffer overflow doing set_rxnfc
-Date:   Sat,  4 May 2019 12:24:53 +0200
-Message-Id: <20190504102452.794161677@linuxfoundation.org>
+Subject: [PATCH 5.0 09/32] net: phy: marvell: Fix buffer overrun with stats counters
+Date:   Sat,  4 May 2019 12:24:54 +0200
+Message-Id: <20190504102452.823647104@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
 References: <20190504102452.523724210@linuxfoundation.org>
@@ -43,43 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit f949a12fd697479f68d99dc65e9bbab68ee49043 ]
+[ Upstream commit fdfdf86720a34527f777cbe0d8599bf0528fa146 ]
 
-The "fs->location" is a u32 that comes from the user in ethtool_set_rxnfc().
-We can't pass unclamped values to test_bit() or it results in an out of
-bounds access beyond the end of the bitmap.
+marvell_get_sset_count() returns how many statistics counters there
+are. If the PHY supports fibre, there are 3, otherwise two.
 
-Fixes: 7318166cacad ("net: dsa: bcm_sf2: Add support for ethtool::rxnfc")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+marvell_get_strings() does not make this distinction, and always
+returns 3 strings. This then often results in writing past the end
+of the buffer for the strings.
+
+Fixes: 2170fef78a40 ("Marvell phy: add field to get errors from fiber link.")
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2_cfp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/phy/marvell.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/bcm_sf2_cfp.c
-+++ b/drivers/net/dsa/bcm_sf2_cfp.c
-@@ -854,6 +854,9 @@ static int bcm_sf2_cfp_rule_set(struct d
- 	     fs->m_ext.data[1]))
- 		return -EINVAL;
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1494,9 +1494,10 @@ static int marvell_get_sset_count(struct
  
-+	if (fs->location != RX_CLS_LOC_ANY && fs->location >= CFP_NUM_RULES)
-+		return -EINVAL;
-+
- 	if (fs->location != RX_CLS_LOC_ANY &&
- 	    test_bit(fs->location, priv->cfp.used))
- 		return -EBUSY;
-@@ -942,6 +945,9 @@ static int bcm_sf2_cfp_rule_del(struct b
- 	struct cfp_rule *rule;
- 	int ret;
+ static void marvell_get_strings(struct phy_device *phydev, u8 *data)
+ {
++	int count = marvell_get_sset_count(phydev);
+ 	int i;
  
-+	if (loc >= CFP_NUM_RULES)
-+		return -EINVAL;
-+
- 	/* Refuse deleting unused rules, and those that are not unique since
- 	 * that could leave IPv6 rules with one of the chained rule in the
- 	 * table.
+-	for (i = 0; i < ARRAY_SIZE(marvell_hw_stats); i++) {
++	for (i = 0; i < count; i++) {
+ 		strlcpy(data + i * ETH_GSTRING_LEN,
+ 			marvell_hw_stats[i].string, ETH_GSTRING_LEN);
+ 	}
+@@ -1524,9 +1525,10 @@ static u64 marvell_get_stat(struct phy_d
+ static void marvell_get_stats(struct phy_device *phydev,
+ 			      struct ethtool_stats *stats, u64 *data)
+ {
++	int count = marvell_get_sset_count(phydev);
+ 	int i;
+ 
+-	for (i = 0; i < ARRAY_SIZE(marvell_hw_stats); i++)
++	for (i = 0; i < count; i++)
+ 		data[i] = marvell_get_stat(phydev, i);
+ }
+ 
 
 
