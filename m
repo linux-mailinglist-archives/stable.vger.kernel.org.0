@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E730413902
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B054F1391A
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728087AbfEDK1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:27:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
+        id S1727312AbfEDK3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728082AbfEDK1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:27:15 -0400
+        id S1727788AbfEDK0j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:26:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D2DA20859;
-        Sat,  4 May 2019 10:27:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 000A020859;
+        Sat,  4 May 2019 10:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965635;
-        bh=aMmom8i1CZXrKAwiIbaXBCIae3WEMKTSqa+RADeoR24=;
+        s=default; t=1556965598;
+        bh=Sem2o+BRdo2MN41/QrjREvOG/W8x17nS6VM0QFnHptg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K78RidgwgvRVNFFpVN9jbHHShjf5adf3aNGwy3sLgO7BqOhhlhp5ccawQv5qn2c0P
-         8qRGgJ3N4DmtS2BzEZsDZ4RA4bcj2Z5SrKfp0570PV+FwXskny5Rb48iMiZkF1Klg7
-         JSmXydNckH033/5VmrQ3/u/o4NU+VFOj85Oe2gbo=
+        b=LTqL8DgNn3/zvrbD67ladwdlCG3GdVfrH4RKCrrHchVKc87GsfAMUpk7rtQPCdF0+
+         MxaXGVlp2UgtunQyMdYnPR6rn6//2HwiFjURvWQgs8bHrwEMqBgSXWtRzkz533/Fd+
+         9DoQbr7ClSoH3oKIa9pwACrNdHMJIEREDB4QvKQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 14/23] packet: validate msg_namelen in send directly
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Gabriel Ramirez <gabriello.ramirez@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Intel Linux Wireless <linuxwifi@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.0 31/32] iwlwifi: mvm: properly check debugfs dentry before using it
 Date:   Sat,  4 May 2019 12:25:16 +0200
-Message-Id: <20190504102452.002650513@linuxfoundation.org>
+Message-Id: <20190504102453.427675597@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190504102451.512405835@linuxfoundation.org>
-References: <20190504102451.512405835@linuxfoundation.org>
+In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
+References: <20190504102452.523724210@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
+commit 154d4899e4111ae24e68d6ba955f46856cb046bc upstream.
 
-Packet sockets in datagram mode take a destination address. Verify its
-length before passing to dev_hard_header.
+debugfs can now report an error code if something went wrong instead of
+just NULL.  So if the return value is to be used as a "real" dentry, it
+needs to be checked if it is an error before dereferencing it.
 
-Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
-established behavior. Directly compare msg_namelen to dev->addr_len.
+This is now happening because of ff9fb72bc077 ("debugfs: return error
+values, not NULL").  If multiple iwlwifi devices are in the system, this
+can cause problems when the driver attempts to create the main debugfs
+directory again.  Later on in the code we fail horribly by trying to
+dereference a pointer that is an error value.
 
-Change v1->v2: initialize addr in all paths
-
-Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Laura Abbott <labbott@redhat.com>
+Reported-by: Gabriel Ramirez <gabriello.ramirez@gmail.com>
+Cc: Johannes Berg <johannes.berg@intel.com>
+Cc: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc: Luca Coelho <luciano.coelho@intel.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: stable <stable@vger.kernel.org> # 5.0
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2603,8 +2603,8 @@ static int tpacket_snd(struct packet_soc
- 	void *ph;
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
- 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
-+	unsigned char *addr = NULL;
- 	int tp_len, size_max;
--	unsigned char *addr;
- 	void *data;
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
-@@ -2615,7 +2615,6 @@ static int tpacket_snd(struct packet_soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2625,10 +2624,13 @@ static int tpacket_snd(struct packet_soc
- 						sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_put;
-+		if (po->sk.sk_socket->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_put;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+---
+ drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
+@@ -1482,6 +1482,11 @@ void iwl_mvm_vif_dbgfs_register(struct i
+ 		return;
  
- 	err = -ENXIO;
-@@ -2800,7 +2802,7 @@ static int packet_snd(struct socket *soc
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	__be16 proto;
--	unsigned char *addr;
-+	unsigned char *addr = NULL;
- 	int err, reserve = 0;
- 	struct sockcm_cookie sockc;
- 	struct virtio_net_hdr vnet_hdr = { 0 };
-@@ -2817,7 +2819,6 @@ static int packet_snd(struct socket *soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2825,10 +2826,13 @@ static int packet_snd(struct socket *soc
- 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_unlock;
-+		if (sock->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_unlock;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+ 	mvmvif->dbgfs_dir = debugfs_create_dir("iwlmvm", dbgfs_dir);
++	if (IS_ERR_OR_NULL(mvmvif->dbgfs_dir)) {
++		IWL_ERR(mvm, "Failed to create debugfs directory under %pd\n",
++			dbgfs_dir);
++		return;
++	}
  
- 	err = -ENXIO;
+ 	if (!mvmvif->dbgfs_dir) {
+ 		IWL_ERR(mvm, "Failed to create debugfs directory under %pd\n",
 
 
