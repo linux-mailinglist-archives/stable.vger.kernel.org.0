@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6799A13926
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9FB1392E
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 12:31:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727416AbfEDKZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 06:25:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35070 "EHLO mail.kernel.org"
+        id S1727173AbfEDKak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 06:30:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727376AbfEDKZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 06:25:50 -0400
+        id S1727425AbfEDKZv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 06:25:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA42420862;
-        Sat,  4 May 2019 10:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EC9A2084A;
+        Sat,  4 May 2019 10:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556965548;
-        bh=aMmom8i1CZXrKAwiIbaXBCIae3WEMKTSqa+RADeoR24=;
+        s=default; t=1556965551;
+        bh=Vv78MCYlMzXzeEeW82FVaznn6iZtpHm1IduvsM971Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rua72Zg9vlSU2azwIS/1kYGYpViqhkCdCQiBx6i0fN0bupgsrXkgZ3CKobu7L5dLS
-         5up7alZirgOtzb7yt3eD5Ye/jVlvOIkdD0mfJ49gP6UwWmKFBtg3+mPKPDO7OupA5H
-         RVr51i4Cga0a39PAfDnJUFkAecafjkgfNMIPyG+0=
+        b=suqbmFAqoY7N+1P2ysK41Hd21jjw4Bl41SB2JMFanGILoUI22LLLMpPefzfoCV6We
+         tYds6ZiXNmnejuw+YUrIOvZi+FvDxO90T/FtcSVo0mHan4NMl4Jgk95nj76UwSXKnH
+         W0hJDtWm/qZTXgfeqnifmsu9uGUbdGkVXPxHjVoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
         Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 14/32] packet: validate msg_namelen in send directly
-Date:   Sat,  4 May 2019 12:24:59 +0200
-Message-Id: <20190504102452.965271933@linuxfoundation.org>
+Subject: [PATCH 5.0 15/32] packet: in recvmsg msg_name return at least sizeof sockaddr_ll
+Date:   Sat,  4 May 2019 12:25:00 +0200
+Message-Id: <20190504102452.993434188@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190504102452.523724210@linuxfoundation.org>
 References: <20190504102452.523724210@linuxfoundation.org>
@@ -46,95 +46,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
+[ Upstream commit b2cf86e1563e33a14a1c69b3e508d15dc12f804c ]
 
-Packet sockets in datagram mode take a destination address. Verify its
-length before passing to dev_hard_header.
+Packet send checks that msg_name is at least sizeof sockaddr_ll.
+Packet recv must return at least this length, so that its output
+can be passed unmodified to packet send.
 
-Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
-established behavior. Directly compare msg_namelen to dev->addr_len.
+This ceased to be true since adding support for lladdr longer than
+sll_addr. Since, the return value uses true address length.
 
-Change v1->v2: initialize addr in all paths
+Always return at least sizeof sockaddr_ll, even if address length
+is shorter. Zero the padding bytes.
 
-Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
+Change v1->v2: do not overwrite zeroed padding again. use copy_len.
+
+Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
 Suggested-by: David Laight <David.Laight@aculab.com>
 Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ net/packet/af_packet.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 --- a/net/packet/af_packet.c
 +++ b/net/packet/af_packet.c
-@@ -2603,8 +2603,8 @@ static int tpacket_snd(struct packet_soc
- 	void *ph;
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
- 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
-+	unsigned char *addr = NULL;
- 	int tp_len, size_max;
--	unsigned char *addr;
- 	void *data;
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
-@@ -2615,7 +2615,6 @@ static int tpacket_snd(struct packet_soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2625,10 +2624,13 @@ static int tpacket_snd(struct packet_soc
- 						sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_put;
-+		if (po->sk.sk_socket->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_put;
-+			addr = saddr->sll_addr;
-+		}
+@@ -3349,20 +3349,29 @@ static int packet_recvmsg(struct socket
+ 	sock_recv_ts_and_drops(msg, sk, skb);
+ 
+ 	if (msg->msg_name) {
++		int copy_len;
++
+ 		/* If the address length field is there to be filled
+ 		 * in, we fill it in now.
+ 		 */
+ 		if (sock->type == SOCK_PACKET) {
+ 			__sockaddr_check_size(sizeof(struct sockaddr_pkt));
+ 			msg->msg_namelen = sizeof(struct sockaddr_pkt);
++			copy_len = msg->msg_namelen;
+ 		} else {
+ 			struct sockaddr_ll *sll = &PACKET_SKB_CB(skb)->sa.ll;
+ 
+ 			msg->msg_namelen = sll->sll_halen +
+ 				offsetof(struct sockaddr_ll, sll_addr);
++			copy_len = msg->msg_namelen;
++			if (msg->msg_namelen < sizeof(struct sockaddr_ll)) {
++				memset(msg->msg_name +
++				       offsetof(struct sockaddr_ll, sll_addr),
++				       0, sizeof(sll->sll_addr));
++				msg->msg_namelen = sizeof(struct sockaddr_ll);
++			}
+ 		}
+-		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa,
+-		       msg->msg_namelen);
++		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
  	}
  
- 	err = -ENXIO;
-@@ -2800,7 +2802,7 @@ static int packet_snd(struct socket *soc
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	__be16 proto;
--	unsigned char *addr;
-+	unsigned char *addr = NULL;
- 	int err, reserve = 0;
- 	struct sockcm_cookie sockc;
- 	struct virtio_net_hdr vnet_hdr = { 0 };
-@@ -2817,7 +2819,6 @@ static int packet_snd(struct socket *soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2825,10 +2826,13 @@ static int packet_snd(struct socket *soc
- 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_unlock;
-+		if (sock->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_unlock;
-+			addr = saddr->sll_addr;
-+		}
- 	}
- 
- 	err = -ENXIO;
+ 	if (pkt_sk(sk)->auxdata) {
 
 
