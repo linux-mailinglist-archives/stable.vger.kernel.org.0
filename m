@@ -2,88 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D235D136EE
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 03:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5AA1370F
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 04:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726149AbfEDB2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 May 2019 21:28:14 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:45707 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726042AbfEDB2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 21:28:14 -0400
-Received: by mail-io1-f66.google.com with SMTP id b3so1021454iob.12;
-        Fri, 03 May 2019 18:28:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=fqoxiZyCvyf+sKhxeClpHtSGA08x0zbRLqOhBkhWRcU=;
-        b=PuVZYNeN9paugDedZluU0+Pnfxj09pUnMxZdpb8xEkS17IgNgchlUxgrnQ/Z6gO3s6
-         O4PhncNb+3OmvX7eKalHCCYgiigBOwpMHEQaAPb2dX15nil75T7aLUYoa0F+JWzRSHOO
-         KQnNgZsmNm277KnLWTSZj4La3HHfT+4Nl4bYz5zebMDzRG1Aj6tKfnkFOWoQrkVgi9zE
-         7gPhLFS8mr7KpQHtP0kpmBL4fORMh3liWizt/ppQKomENoK9Y3e4Iu8AgOI/aW2zcNiv
-         Gkk46hYLF1puCxBftcFRhNuzXvFxr/f+2TIucwv1GNB5NaTHVejlNGS6ekz79QAyOw28
-         3wsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=fqoxiZyCvyf+sKhxeClpHtSGA08x0zbRLqOhBkhWRcU=;
-        b=dP2nZf5HXL+mixEFAVKeEHqSGZxiiQpVc8qg5LC04VHYZtVr0xbuzCqN6JlDI1Z3XQ
-         vKzzTamj5kvOTxmDZdeCQRUr+zzzxLHMimTnJWM6ZxoEVbedc46WuqFWsBTuXt0xArRl
-         5i3OenXYP3IT47PcmdR5iOq98jXTwnC0Zp1gTGQ9bDRKjkvKilwykjvUQlnNRo6bMR8g
-         iWlAZj2uQR6Sjep1ISTb4lwYkDkT5AhHQ9jJOOz5yFUU9vEnyLCuJCfY7AE4W+2aKbjv
-         XWhHdOuH88hngsydju1F2poELLWPEvcPBtrfrwjup0v6LLrCAHe2ys1H8lbGXnw6p9AR
-         Pyrg==
-X-Gm-Message-State: APjAAAXy6GM/y3ZDkzFw2F6pQqFo4HQOg3lmp+ZNfmPWD0lwVIHAbxuq
-        NA2CxQVZnDknfAZfSRzBPreSJquaNXFw/A==
-X-Google-Smtp-Source: APXvYqwKe+cIFUdbkRF72PFk0UVrYJLo2sQ80sv0NiPxl5SJGkeAxjTsptrCur2oUC9ABF9hi8gzaQ==
-X-Received: by 2002:a6b:c901:: with SMTP id z1mr5149311iof.3.1556933293852;
-        Fri, 03 May 2019 18:28:13 -0700 (PDT)
-Received: from asus (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id q207sm1738281itc.37.2019.05.03.18.28.12
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 03 May 2019 18:28:13 -0700 (PDT)
-Date:   Fri, 3 May 2019 19:28:11 -0600
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.0 000/101] 5.0.12-stable review
-Message-ID: <20190504012810.GA20514@asus>
-References: <20190502143339.434882399@linuxfoundation.org>
+        id S1726150AbfEDCo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 May 2019 22:44:57 -0400
+Received: from webmail.newmedia-net.de ([185.84.6.166]:44751 "EHLO
+        webmail.newmedia-net.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726059AbfEDCo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 May 2019 22:44:57 -0400
+X-Greylist: delayed 981 seconds by postgrey-1.27 at vger.kernel.org; Fri, 03 May 2019 22:44:56 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=newmedia-net.de; s=mikd;
+        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject; bh=+3UaCGaRK+G9Btvnlqp56gFrq5JPRwLY7YIZojvybzE=;
+        b=bdChA48c3okKbHHJi6e0yiUut34HQ1F8R4xapalMIIomowOmleYgJHWCIOBxPVRYYz1yYnEde4nPxRT7dGXVyn6MDR8U/urmKvv8n7Ag2mOxVCTWbzLIuO6Cum0Edm7Bk+I5GoOnoSrWITxqA2wMWqpm4MbNEhCbnK0NY+yO+u0=;
+Subject: Re: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
+ export
+To:     Ingo Molnar <mingo@kernel.org>, Jiri Kosina <jikos@kernel.org>
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@surriel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        stable@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
+References: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org>
+ <20190502154043.gfv4iplcvzjz3mc6@linutronix.de>
+ <nycvar.YFH.7.76.1905032044250.10635@cbobk.fhfr.pm>
+ <20190504004747.GA107909@gmail.com>
+From:   Sebastian Gottschall <s.gottschall@newmedia-net.de>
+Message-ID: <2238f6ed-9338-903c-760c-6200e73b1599@newmedia-net.de>
+Date:   Sat, 4 May 2019 04:28:17 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190502143339.434882399@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190504004747.GA107909@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Received:  from [2003:c9:3f07:6200:2ce0:fea8:6812:6f6a]
+        by webmail.newmedia-net.de with esmtpsa (TLSv1:AES128-SHA:128)
+        (Exim 4.72)
+        (envelope-from <s.gottschall@newmedia-net.de>)
+        id 1hMkPo-0003Iw-Df; Sat, 04 May 2019 04:28:40 +0200
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 05:20:02PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.0.12 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 04 May 2019 02:32:10 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-Compiled, booted, and no dmesg regressions on my system. 
+Am 04.05.2019 um 02:47 schrieb Ingo Molnar:
+> * Jiri Kosina <jikos@kernel.org> wrote:
+>
+>> On Thu, 2 May 2019, Sebastian Andrzej Siewior wrote:
+>>
+>>> Please don't start this. We have everything _GPL that is used for FPU
+>>> related code and only a few functions are exported because KVM needs it.
+>> That's not completely true. There are a lot of static inlines out there,
+>> which basically made it possible for external modules to use FPU (in some
+>> way) when they had kernel_fpu_[begin|end]() available.
+>>
+>> I personally don't care about ZFS a tiny little bit; but in general, the
+>> current situation with _GPL and non-_GPL exports is simply not nice. It's
+>> not really about licensing (despite the name), it's about 'internal vs
+>> external', which noone is probably able to define properly.
+> But that's exactly what licensing *IS* about: the argument is that
+> 'internal' interfaces are clear proof that the binary module is actually
+> a derived work of the kernel.
+Using fpu code in kernel space in a kernel module is a derived work of 
+the kernel itself?
+dont get me wrong, but this is absurd. i mean you limit the use of cpu 
+instructions. the use
+of cpu instructions should be free of any licensing issue. i would even 
+argument you are violating
+the license of the cpu ower given to the kernel by executing it, by 
+restricting its use for no reason
 
-Cheers,
-Kelsey 
+
+Sebastian
+
+
