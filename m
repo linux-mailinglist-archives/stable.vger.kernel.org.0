@@ -2,74 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC83113812
-	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:18:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4BE13816
+	for <lists+stable@lfdr.de>; Sat,  4 May 2019 09:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbfEDHSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 May 2019 03:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47494 "EHLO mail.kernel.org"
+        id S1725823AbfEDHTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 May 2019 03:19:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbfEDHSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 May 2019 03:18:35 -0400
+        id S1725802AbfEDHTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 May 2019 03:19:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E005A206DF;
-        Sat,  4 May 2019 07:18:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BE42206DF;
+        Sat,  4 May 2019 07:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556954314;
-        bh=KjtIdOqgGdJRkpK539kaYm/XfWHQJNxowDI71iFyh04=;
+        s=default; t=1556954372;
+        bh=93yCQlptcTPcsahBVjN7N+r2xKcI+gXJqvad5sQLhN8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zynfTzrERwQ2d+YOgHuXK5YKpGnpkRJru55Yn+3GTl2D/ipka7IFpkKSozOSkew4I
-         cu8ugxESTz/4SdQ8/Wl6ibUzvnVvV2sCNDG4bscjKFTW4M+4T2bM/MRFEP5W9aUSiT
-         /57JgIM85amImI98v4NO5PC3cyImuet3LvShR6wM=
-Date:   Sat, 4 May 2019 09:18:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/72] 4.19.39-stable review
-Message-ID: <20190504071831.GA12815@kroah.com>
-References: <20190502143333.437607839@linuxfoundation.org>
- <20190504065447.GA16530@amd>
+        b=lei/g3n3abukkFocktrK9/CA//IXA6CWqwNUPs27lcWU7AjnSp6TWtJ9N/nEcqVjb
+         I49hq1XmgqwPN8EHdKO32uV/ydWapkkyf3Z8H5kFlWYO5gqlhq7VXeQPdykVs4cSbF
+         Qc/9uHDV6OYK8MsPKiPddFO8HGYhI3pi0CMEXV+M=
+Date:   Sat, 4 May 2019 09:19:30 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?Fran=E7ois?= Valenduc <francoisvalenduc@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Commit 8c37f7c23c02f6ac020ffdc746026c2363b23a5a causes warnings
+Message-ID: <20190504071930.GB12815@kroah.com>
+References: <4031e343-ab11-6b58-71b7-f6f8cf69b677@gmail.com>
+ <20190504064159.GC26311@kroah.com>
+ <21459a1b-907c-1ffd-472a-ba2443919c6a@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190504065447.GA16530@amd>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <21459a1b-907c-1ffd-472a-ba2443919c6a@gmail.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 04, 2019 at 08:54:47AM +0200, Pavel Machek wrote:
-> On Thu 2019-05-02 17:20:22, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.19.39 release.
-> > There are 72 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat 04 May 2019 02:32:17 PM UTC.
-> > Anything received after that time might be too late.
+On Sat, May 04, 2019 at 08:57:28AM +0200, François Valenduc wrote:
 > 
-> These do not meet stable criteria afaict: (3-5... I see this is
-> probably security bug; it would be good to mention in the preparation
-> patches what is going on because otherwise it is tricky to understand).
+> Le 4/05/19 à 08:41, Greg KH a écrit :
+> > On Fri, May 03, 2019 at 10:17:39PM +0200, François Valenduc wrote:
+> >> Commit 8c37f7c23c02f6ac020ffdc746026c2363b23a5a ( workqueue: Try to
+> >> catch flush_work() without INIT_WORK().) causes the following warning
+> >> when mounting encrypted filesystems:
+> >>
+> >> May  3 21:29:33 pc-francois kernel: [   20.202934] WARNING: CPU: 1 PID:
+> >> 1719 at kernel/workqueue.c:2911 __flush_work+0x1a4/0x1c0
+> >> May  3 21:29:33 pc-francois kernel: [   20.205470] Modules linked in:
+> >> uvcvideo videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videodev
+> >> videobuf2_common arc4 rtl8188ee rtl_pci rtlwifi mac80211 cfg80211
+> >> snd_hda_codec_hdmi alx mdio psmou
+> >> se snd_hda_codec_generic snd_hda_intel snd_hda_codec snd_hda_core
+> >> snd_pcm snd_timer snd soundcore evdev coretemp battery nls_utf8
+> >> nls_cp850 efivars vfat fat ac hwmon vboxpci(O) vboxnetadp(O)
+> >> vboxnetflt(O) vboxdrv(O) nbd kvm_intel nfsd au
+> >> th_rpcgss kvm irqbypass dm_thin_pool dm_persistent_data dm_bio_prison
+> >> dm_round_robin dm_multipath xts cbc fuse xfs nfs lockd grace sunrpc
+> >> btrfs xor zstd_decompress zstd_compress xxhash raid6_pq crc32c_generic
+> >> libcrc32c zlib_inflate ext4
+> >> mbcache jbd2 dm_snapshot dm_bufio dm_crypt dm_mirror dm_region_hash
+> >> dm_log dm_mod dax ohci_hcd sr_mod sd_mod cdrom usb_storage hid_generic
+> >> May  3 21:29:33 pc-francois kernel: [   20.218000]  usbhid hid xhci_pci
+> >> aesni_intel aes_x86_64 crypto_simd cryptd glue_helper ehci_pci ahci
+> >> xhci_hcd ehci_hcd libahci usbcore usb_common
+> >> May  3 21:29:33 pc-francois kernel: [   20.220780] CPU: 1 PID: 1719
+> >> Comm: systemd-cryptse Tainted: G        W  O      4.19.39-rc1 #41
+> >> May  3 21:29:33 pc-francois kernel: [   20.223587] Hardware name:
+> >> TOSHIBA SATELLITE C70-A/Type2 - Board Product Name1, BIOS 1.00 04/30/2013
+> >> May  3 21:29:33 pc-francois kernel: [   20.226435] RIP:
+> >> 0010:__flush_work+0x1a4/0x1c0
+> >> May  3 21:29:33 pc-francois kernel: [   20.229285] Code: 20 e9 f8 fe ff
+> >> ff fb 31 c0 eb 8e 8b 4d 00 48 8b 55 08 83 e1 08 48 0f ba 6d 00 03 80 c9
+> >> f0 e9 54 ff ff ff 0f 0b e9 6f ff ff ff <0f> 0b 31 c0 e9 66 ff ff ff e8
+> >> 7e 8b fe ff 66 66 2e 0
+> >> f 1f 84 00 00
+> >> May  3 21:29:33 pc-francois kernel: [   20.235471] RSP:
+> >> 0018:ffff956f8033fb50 EFLAGS: 00010246
+> >> May  3 21:29:33 pc-francois kernel: [   20.238618] RAX: 0000000000000000
+> >> RBX: ffff8ff5bce9b9d0 RCX: 0000000000000000
+> >> May  3 21:29:33 pc-francois kernel: [   20.241801] RDX: 0000000000000001
+> >> RSI: 0000000000000001 RDI: ffff8ff5bce9b9d0
+> >> May  3 21:29:33 pc-francois kernel: [   20.244991] RBP: ffff8ff5bce9b9d0
+> >> R08: 0000000000000050 R09: ffff8ff5c3019380
+> >> May  3 21:29:33 pc-francois kernel: [   20.248178] R10: 0000000000000ab8
+> >> R11: ffff8ff5c305e688 R12: 0000000000000000
+> >> May  3 21:29:33 pc-francois kernel: [   20.251389] R13: ffff956f8033fbe8
+> >> R14: ffffffff8c0609f0 R15: ffff956f8033fd08
+> >> May  3 21:29:33 pc-francois kernel: [   20.254624] FS: 
+> >> 00007feaa0d15840(0000) GS:ffff8ff5c3040000(0000) knlGS:0000000000000000
+> >> May  3 21:29:33 pc-francois kernel: [   20.257908] CS:  0010 DS: 0000
+> >> ES: 0000 CR0: 0000000080050033
+> >> May  3 21:29:33 pc-francois kernel: [   20.261198] CR2: 00007f9316ec25a0
+> >> CR3: 000000033cf8c003 CR4: 00000000001606a0
+> >> May  3 21:29:33 pc-francois kernel: [   20.264520] Call Trace:
+> >> May  3 21:29:33 pc-francois kernel: [   20.267837]  ?
+> >> _raw_spin_unlock_irq+0xe/0x20
+> >> May  3 21:29:33 pc-francois kernel: [   20.271173]  ?
+> >> finish_task_switch+0x8a/0x2a0
+> >> May  3 21:29:33 pc-francois kernel: [   20.274499]  ? __switch_to+0x2e/0x380
+> >> May  3 21:29:33 pc-francois kernel: [   20.277820]  ?
+> >> __switch_to_asm+0x34/0x70
+> >> May  3 21:29:33 pc-francois kernel: [   20.281136] 
+> >> __cancel_work_timer+0xfe/0x180
+> >> May  3 21:29:33 pc-francois kernel: [   20.284315]  ?
+> >> remove_all+0x30/0x30 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.287332]  ?
+> >> _raw_spin_unlock_irqrestore+0xf/0x30
+> >> May  3 21:29:33 pc-francois kernel: [   20.290326]  ?
+> >> remove_all+0x30/0x30 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.293300]  blk_sync_queue+0x1d/0x80
+> >> May  3 21:29:33 pc-francois kernel: [   20.296253] 
+> >> blk_cleanup_queue+0xc0/0x140
+> >> May  3 21:29:33 pc-francois kernel: [   20.299198] 
+> >> cleanup_mapped_device+0xc3/0x100 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.302158]  free_dev+0x38/0xa0
+> >> [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.305113]  ?
+> >> remove_all+0x30/0x30 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.308044] 
+> >> dev_remove+0xce/0x110 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.310961] 
+> >> ctl_ioctl+0x1a7/0x3a0 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.313881] 
+> >> dm_ctl_ioctl+0x5/0x10 [dm_mod]
+> >> May  3 21:29:33 pc-francois kernel: [   20.316810]  do_vfs_ioctl+0xa0/0x610
+> >> May  3 21:29:33 pc-francois kernel: [   20.319738]  ?
+> >> ksys_semctl+0x124/0x160
+> >> May  3 21:29:33 pc-francois kernel: [   20.322674]  ?
+> >> preempt_count_add+0x74/0xa0
+> >> May  3 21:29:33 pc-francois kernel: [   20.325628]  ksys_ioctl+0x35/0x70
+> >> May  3 21:29:33 pc-francois kernel: [   20.328586] 
+> >> __x64_sys_ioctl+0x11/0x20
+> >> May  3 21:29:33 pc-francois kernel: [   20.331536]  do_syscall_64+0x43/0xf0
+> >> May  3 21:29:33 pc-francois kernel: [   20.334493] 
+> >> entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> >> May  3 21:29:33 pc-francois kernel: [   20.337478] RIP: 0033:0x7feaa2d10b17
+> >> May  3 21:29:33 pc-francois kernel: [   20.340462] Code: 00 00 00 75 0c
+> >> 48 c7 c0 ff ff ff ff 48 83 c4 18 c3 e8 7d e1 01 00 66 2e 0f 1f 84 00 00
+> >> 00 00 00 0f 1f 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48
+> >> 8b 0d 49 b3 0c 00 f7 d8 64 89 01 48
+> >> May  3 21:29:33 pc-francois kernel: [   20.346929] RSP:
+> >> 002b:00007ffc4e75db58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> >> May  3 21:29:33 pc-francois kernel: [   20.350202] RAX: ffffffffffffffda
+> >> RBX: 00007feaa15156e0 RCX: 00007feaa2d10b17
+> >> May  3 21:29:33 pc-francois kernel: [   20.353493] RDX: 00005585e2127a80
+> >> RSI: 00000000c138fd04 RDI: 0000000000000004
+> >> May  3 21:29:33 pc-francois kernel: [   20.356793] RBP: 00007feaa154f4c3
+> >> R08: 000000000000005f R09: 00005585e2103ec0
+> >> May  3 21:29:33 pc-francois kernel: [   20.360101] R10: 00007feaa2d9ef80
+> >> R11: 0000000000000246 R12: 00005585e2127a80
+> >> May  3 21:29:33 pc-francois kernel: [   20.363363] R13: 0000000000000001
+> >> R14: 00005585e2127b30 R15: 00005585e2103650
+> >> May  3 21:29:33 pc-francois kernel: [   20.366616] ---[ end trace
+> >> 170b245abe91a71f ]---
+> >> May  3 21:29:33 pc-francois kernel: [   21.000999] EXT4-fs (dm-14):
+> >> mounted filesystem with ordered data mode. Opts: (null)
+> >>
+> >> Finally If I revert this commit, the problem doesn't occur. I am using
+> >> filesystems encrypted with luks formatted with ext4. The filesystems are
+> >> on LVM volumes.
+> >> Does anybody have an idea about this problem ?
+> > Great, it did what it was trying to do :)
+> >
+> > Do you have this problem on 5.0.y or Linus's current tree?
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> 
+> It only occurs with the 4.19.y branch. On 5.0.11 and 5.1-rc7, I don't
+> have the problem.
 
-I do not do "explain why specific patches are applied" because yes,
-sometimes it is due to security issues that we know about.
+Thanks for letting us know, I'll dig through the tree on Monday to see
+if I can find the needed fix that happened between 4.19 and 5.0 for
+this.
 
-> ?? 03/72] mm: make page ref count overflow check tighter and m -- not sure description is good enough; preparation for later changes?
-> ?? 04/72] mm: add try_get_page() helper function -- adds unused function
-> ?? 05/72] mm: prevent get_user_pages() from overflowing page r -- over
->   100 line limit and depedns on previous patches. get_gate_page() change
->   not in -rc?.. it is in -next.
-
-These are all well-known as solving a public security issue, please see
-lkml for the details, no need for you to "guess".
-
-thanks for the review.
+thanks,
 
 greg k-h
