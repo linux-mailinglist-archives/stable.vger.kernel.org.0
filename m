@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D48141AC
-	for <lists+stable@lfdr.de>; Sun,  5 May 2019 19:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61F16141AF
+	for <lists+stable@lfdr.de>; Sun,  5 May 2019 20:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbfEER6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 May 2019 13:58:04 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:39732 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbfEER6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 13:58:03 -0400
-Received: by mail-ed1-f68.google.com with SMTP id e24so12683171edq.6
-        for <stable@vger.kernel.org>; Sun, 05 May 2019 10:58:02 -0700 (PDT)
+        id S1727325AbfEESBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 May 2019 14:01:37 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:43840 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727034AbfEESBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 14:01:37 -0400
+Received: by mail-ed1-f67.google.com with SMTP id w33so10358185edb.10
+        for <stable@vger.kernel.org>; Sun, 05 May 2019 11:01:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=nDOc1Wu9fLsZLReEFNbO59RLH/hpmi2xtI2QmJmjw/0=;
-        b=OjHgbX+Cn5+45iKx9k7FoJJpBAvJz1oCHR5R4lXL+wDsGGhHRBAf/shAYgH++JN1UY
-         plsvZAyDIH2ADJVVPjGdI32yNMi//SKwOuCOS8nLJY5qqqtnkdIKAN1lsu7fGROe7M8K
-         rNZlb2W7rIcMe48vkc4DIE9eByqIWHyTVGEn1uWCc2fhiVHkWE2zZt/YETzxotGp46tn
-         IevucpyWVrfuCJiX3Z1m28kfUrA2KcdFgcQ1ST0g36QMj96Q6jn0uydTcMblggkhBtlp
-         jdM9dBRKpxHIAPIkbq66BpAiwfp53mXyADzDqv8EWRr8bcn+iR10n9T72rklFbxxZ963
-         JZtQ==
+        bh=2pdCecNGDphLLq/irXt2EarMhjcQS3onZ0w4THJ17/s=;
+        b=AC/K1kVNvr41WX9aBa6SWUDHG/SHxc0cmy/7p/73rjS5s7ShAha60B4kICRZj1OKWZ
+         2AXpKgY99QnkfgAh9NMFGVl0v12bvxBB31/asrzv7GU4Ujk+1ulnhl9wUD6mDcZ8kCNT
+         gt2l0sNlfYSo2zQJzGUhLxu9oLClcVD0N/2HPhfxsGdrz4DcyOfbaS8VJt7s8qEuQkcV
+         4ObPO+MNB5MmMyNgy4gM6n0GjzuOKlmadP0QxCg1a7Y+jrgQCN9Im6oy4T+xT6z0X0LG
+         /2Wq59KvMUDd4i3P149AGX8wZIkzWkWHdTHXd6jkAiCwypGhwbCIDiJYsV9VIq3pLdRI
+         N9WA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=nDOc1Wu9fLsZLReEFNbO59RLH/hpmi2xtI2QmJmjw/0=;
-        b=e6pi3XB28FjqbS4q2Vv6bzeXzKI9ApSDt9CkXceR4L9zN65rjxZzwVlbeXyGQWK2yo
-         Ca2+Dkeuo3OxJQHdp8CJUjeAZjAI0ILBIQh2f+IhcTMvjpxI5gwjvYuvfdRmZmhSsc0t
-         P8EulXd+Ud2amf/x45ZDUCTie1Qs/psoascQLTry+zAqK+GtdK18+jaq1cOId6Mv/iDL
-         2xQQqoRuA5fSSyMyG+k0nxiYBT9qCehb9A+Q4gChpqoa3SlfKQ6V3UuurM+qM4o431wO
-         BluGMYHQ2Idhf/WLOhnJHH3u2/QsGYKg69kCCqxoxw6ZaM6rPLzQvIkjGwFVrxCa3rss
-         1o8A==
-X-Gm-Message-State: APjAAAXifDKJiA4D/B68eCfYB1nYwSIiOAyVtLlbefz3ETxnU/KH93px
-        pc8R/L0f8B5yw6drCI/6xQk=
-X-Google-Smtp-Source: APXvYqwcMhpmZocjZn2HwG8aJLSWkPI7GvvCCqpd2yO8JXEILxdWWnGkgpLPFjBpuJl5BMTbTjzzuQ==
-X-Received: by 2002:a50:e70b:: with SMTP id a11mr14906929edn.294.1557079081734;
-        Sun, 05 May 2019 10:58:01 -0700 (PDT)
+        bh=2pdCecNGDphLLq/irXt2EarMhjcQS3onZ0w4THJ17/s=;
+        b=D5n0+R1wht9iv7VwhNQRF8ID/UzWKJJEeKOxETPYENq9Bf/mzObGQ0bhAye23T8ZGE
+         YXqF+UlqD5XBRLD4XQaANO5Rz7e7vZgBdwU+RCV6LkqYtb8Rxg5bhCLCRcK2TuoSQm4+
+         /UJv5fzcI31pjsbO9FzMDYpK8BbXZPDexJ074XQVvBIBR3T5pLklMatzt3DJ/M7EA61J
+         shpvgsfI4JhOLlcmgVGWA8YBQKPIb5k4LRcc46YhLsUnD3riB/BwxOPMh8lUPKd31cBM
+         AUHP9RvZgg3jS5xaNC2KF5xglWeW/hEnhuApAqR1mVg1OsMRXx5PZdikFVX76FkayNNZ
+         xhDw==
+X-Gm-Message-State: APjAAAXnbXctKj69FZtIYbyHWOISgwBBpXyomVIjD868NX9WY/Aw9Xds
+        3Wz+eimhC7yEhoj/kuUdsHM=
+X-Google-Smtp-Source: APXvYqzK2MHwMFGpZz3m9pN78UTYhXeOBilynCvXR9e6OFASGdSi97ult0/A3x/6juJKHMn/C/fZxg==
+X-Received: by 2002:a50:a544:: with SMTP id z4mr21924070edb.71.1557079295684;
+        Sun, 05 May 2019 11:01:35 -0700 (PDT)
 Received: from alum ([80.71.142.55])
-        by smtp.gmail.com with ESMTPSA id j24sm307279ejc.52.2019.05.05.10.57.58
+        by smtp.gmail.com with ESMTPSA id q4sm1170264ejb.65.2019.05.05.11.01.32
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 05 May 2019 10:57:58 -0700 (PDT)
-Date:   Sun, 5 May 2019 19:57:56 +0200
+        Sun, 05 May 2019 11:01:32 -0700 (PDT)
+Date:   Sun, 5 May 2019 20:01:30 +0200
 From:   Malte Leip <malte@leip.net>
 To:     gregkh@linuxfoundation.org
 Cc:     skhan@linuxfoundation.org, stable@vger.kernel.org
 Subject: [PATCH] usb: usbip: fix isoc packet num validation in get_pipe
-Message-ID: <20190505175756.3skj7ecvknerazcm@alum>
-References: <1557061272154142@kroah.com>
+Message-ID: <20190505180130.ry3w4m4dagmdxnuo@alum>
+References: <15570612735029@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1557061272154142@kroah.com>
+In-Reply-To: <15570612735029@kroah.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -64,7 +64,7 @@ X-Mailing-List: stable@vger.kernel.org
 commit c409ca3be3c6ff3a1eeb303b191184e80d412862 upstream.
 
 Backport of the upstream commit, which fixed c6688ef9f297.
-c6688ef9f297 got backported as commit b6f826ba10dc, as the unavailable
+c6688ef9f297 got backported as commit eebf31529012, as the unavailable
 function usb_endpoint_maxp_mult had to be replaced. The upstream commit
 removed the call to this function, so the backport is straightforward.
 
@@ -89,9 +89,9 @@ submitted, which is allowed according to
 Documentation/driver-api/usb/URB.rst and occurs for example with the
 snd-usb-audio driver.
 
-Fixes: b6f826ba10dc ("usbip: fix stub_rx: harden CMD_SUBMIT path to handle malicious input")
+Fixes: eebf31529012 ("usbip: fix stub_rx: harden CMD_SUBMIT path to handle malicious input")
 Signed-off-by: Malte Leip <malte@leip.net>
-Cc: stable <stable@vger.kernel.org> # 4.4.x
+Cc: stable <stable@vger.kernel.org> # 3.18.x
 
 ---
  drivers/usb/usbip/stub_rx.c      | 18 +++---------------
