@@ -2,70 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A50FF14225
-	for <lists+stable@lfdr.de>; Sun,  5 May 2019 21:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 923DF14233
+	for <lists+stable@lfdr.de>; Sun,  5 May 2019 22:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727325AbfEETpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 May 2019 15:45:01 -0400
-Received: from mail1.windriver.com ([147.11.146.13]:33338 "EHLO
-        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726636AbfEETpB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 15:45:01 -0400
-Received: from ALA-HCB.corp.ad.wrs.com ([147.11.189.41])
-        by mail1.windriver.com (8.15.2/8.15.1) with ESMTPS id x45JitCq003528
-        (version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL);
-        Sun, 5 May 2019 12:44:55 -0700 (PDT)
-Received: from yow-pgortmak-d1.corp.ad.wrs.com (128.224.56.57) by
- ALA-HCB.corp.ad.wrs.com (147.11.189.41) with Microsoft SMTP Server id
- 14.3.439.0; Sun, 5 May 2019 12:44:48 -0700
-Received: by yow-pgortmak-d1.corp.ad.wrs.com (Postfix, from userid 1000)        id
- 5DA002E04E4; Sun,  5 May 2019 15:44:48 -0400 (EDT)
-Date:   Sun, 5 May 2019 15:44:48 -0400
-From:   Paul Gortmaker <paul.gortmaker@windriver.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Erik Schmauss <erik.schmauss@intel.com>
-Subject: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
- interpreter: add region addresses...")
-Message-ID: <20190505194448.GA2649@windriver.com>
+        id S1727343AbfEEUCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 May 2019 16:02:49 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:38451 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726905AbfEEUCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 16:02:49 -0400
+Received: by mail-wr1-f45.google.com with SMTP id k16so14585711wrn.5
+        for <stable@vger.kernel.org>; Sun, 05 May 2019 13:02:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=BSLNib9DvnPuPqNLVp4dEersvTcGQn2rD8jiqVUUxOA=;
+        b=Ri8xa12PZHzS5FHsuv127+DSqGWS6fgqFnNwcypOBytz8j4+kJWxWsiIFH7USM0cJE
+         EIOYlZDvaRoALJGVH6hZ5bRXP6dO/TRV48ylOexvtM7G+0y236OVIB3B56KQzOODC6TT
+         UZbYRXV2nUiSXdlLrIKG5YSe1KWgRCZjyKXon0FcdpqsBFbjd2aW+oHyeWG4zQ9KwgfT
+         v9o13Mv92f9VBDuL/JwrgNDAcRikUWDgryXvhd6v9W4uCneAxz6UBttngpcH8YvB+Zgw
+         4Ql8PcT0l20w0RDCQFGI40AGDYx7FHX9i7KvKcNzfW9Ab5ADQKvQZ79WjkcNkNqcaI0j
+         nSMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=BSLNib9DvnPuPqNLVp4dEersvTcGQn2rD8jiqVUUxOA=;
+        b=c5xT/K9oD013hSWqVbRZx0g/HM2/k7f6cT9JxUrcFIrrdFWRUKSHHZXQUT/vMJOaO0
+         d7t9cZDi2D1mrGmqnEcMUZiWlk+uCC0mtfjVsMWkoCX+K4oqFXcbpcSil9AnWkNR6EXT
+         loEHBps0UL1DuWPFTWoEOOedXN8dSh4f6re0hp39f5x+nj2lMNhT807OqWJC3t9mP0bM
+         3xJc5nlkeRmDplauEOho6be1ZGR9IFc3jwvF0P9cqYHFg0/AVKM6nrIFyYwV9s5AIwOr
+         FOfUhyDylH+i8UoqWZ4QgOUHhTV+rtItqfZSMHzdIzXDn10wcBofVSrzKikiMaHwvsCG
+         lzAw==
+X-Gm-Message-State: APjAAAXszClZXFngjcCExcbX1/mA5XY2Bn5XixpwFwg2HHcnYmj2tGTx
+        UUnSqvtu5bw5fpWOw3osl7swyDZNCBU=
+X-Google-Smtp-Source: APXvYqzwLq0P7eitK50PKPUJYMIGFXa0cidoV+L11L1LoUbQMkcYu7fDq5t94yJobb5iHHx/qwQVSA==
+X-Received: by 2002:adf:eb0c:: with SMTP id s12mr14613608wrn.229.1557086567594;
+        Sun, 05 May 2019 13:02:47 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 15sm12695924wmx.23.2019.05.05.13.02.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 05 May 2019 13:02:46 -0700 (PDT)
+Message-ID: <5ccf4166.1c69fb81.2c7f.6b6c@mx.google.com>
+Date:   Sun, 05 May 2019 13:02:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.173-27-g3d90559ea516
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y boot: 104 boots: 0 failed,
+ 100 passed with 4 offline (v4.9.173-27-g3d90559ea516)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I noticed 4.19.35 got a backport of mainline 4abb951b, but it appears to
-be a duplicate backport that landed in the wrong function.  We can see
-this in the stable-queue repo:
+stable-rc/linux-4.9.y boot: 104 boots: 0 failed, 100 passed with 4 offline =
+(v4.9.173-27-g3d90559ea516)
 
-stable-queue$ find . -name '*acpica-aml-interpreter-add-region-addr*' |grep 4.19
-./releases/4.19.6/acpica-aml-interpreter-add-region-addresses-in-global-list-during-initialization.patch
-./releases/4.19.3/revert-acpica-aml-interpreter-add-region-addresses-in.patch
-./releases/4.19.35/acpica-aml-interpreter-add-region-addresses-in-global-list-during-initialization.patch
-./releases/4.19.2/acpica-aml-interpreter-add-region-addresses-in-global-list-during-initialization.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.173-27-g3d90559ea516/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.173-27-g3d90559ea516/
 
-So it was added to 4.19.2, reverted in .3, re-added in .6, and then
-finally patched into a similar looking but wrong function in .35
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.173-27-g3d90559ea516
+Git Commit: 3d90559ea51678863eb996c86c05a2b9f1487681
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 51 unique boards, 22 SoC families, 15 builds out of 197
 
-If we diff the .6 and .35 versions, we see the function difference:
+Offline Platforms:
 
--@@ -417,6 +417,10 @@ acpi_ds_eval_region_operands(struct acpi
-+@@ -523,6 +523,10 @@ acpi_ds_eval_table_region_operands(struc
+arm:
 
-I don't know what the history is/was around the 2/3/6 churn, but the
-re-addition in 4.19.35 to a different function sure looks wrong.
+    davinci_all_defconfig:
+        gcc-7
+            dm365evm,legacy: 1 offline lab
 
-The commit adds a call "status = acpi_ut_add_address_range(..." and if
-we check mainline, there is only one in that file, but in 4.19.35+ there
-now are two calls - since the two functions had similar context and
-comments, it isn't hard to see how patch could/would apply it a 2nd time
-in the wrong place.
+    exynos_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
 
-I didn't check if any of the other currently maintained linux-stable
-versions also had this possible issue.
+    multi_v7_defconfig:
+        gcc-7
+            exynos5800-peach-pi: 1 offline lab
+            stih410-b2120: 1 offline lab
 
-Paul.
+---
+For more info write to <info@kernelci.org>
