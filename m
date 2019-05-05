@@ -2,132 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECCD13F7B
-	for <lists+stable@lfdr.de>; Sun,  5 May 2019 14:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526F713F81
+	for <lists+stable@lfdr.de>; Sun,  5 May 2019 15:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbfEEMys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 May 2019 08:54:48 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:53523 "EHLO
+        id S1726524AbfEENBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 May 2019 09:01:17 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:45287 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbfEEMys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 08:54:48 -0400
+        by vger.kernel.org with ESMTP id S1725873AbfEENBR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 09:01:17 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id B5D3C349;
-        Sun,  5 May 2019 08:54:44 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 3676C35C;
+        Sun,  5 May 2019 09:01:16 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 05 May 2019 08:54:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=RY3wovewi9AvozTWYkB4FWTt5Os
-        MI612SS/7SLmA00I=; b=sKoHSDFC4U1j8E+IMSPFPx/unJ+RbHJ5gRKl8AXW6vk
-        ZcGav9zLALkBl7Q4HzDEXe0vp5Bdb2GuEOUAPlzkA2DiuqsShcZw2DSj4vmBhbu3
-        cmwqEPJlfMB079giOcAkRpNJ4pQtPhs+P9yORKyr3gEEjaJAwdOa75yG4Bzew8ik
-        vyRa9A8oFVIb7wOFTHrWPjnW4XCsx73ZnF+OcUt3P2F0D5qqyvdVgNJlDcH220pZ
-        MPmU+JbjpjnpUuu4L3p6wO+Uqx7eWc3HIZvFe8s5PJtAor0FPIIFdWCLac8OwfEt
-        rwrB4tPM32JD30VC0RVUi0mvoH9dzYBjvxR/cI6Ageg==
+  by compute6.internal (MEProxy); Sun, 05 May 2019 09:01:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RY3wov
-        ewi9AvozTWYkB4FWTt5OsMI612SS/7SLmA00I=; b=vQT+zCk4tWCTp4TM1joTIK
-        ViCNfmr67XPydHBB+FvTHV/rzBPHBaVD2L3dn4Wz7TcneaVbE67keesPk9XgfSk/
-        BmdH4ZsVeE30yb6hJCILzB+aRilV9PgyGeS90tJ5MxPz/VHXIWkFDgZGDY+nFs2e
-        pBOtw6JoJ/Rz8W9rrXe1J3SbtMNX6IMnsdUbcFrRDeaAnNPoMrLFYJoROsgn8GaV
-        hyagBlR0s9tYpdDTx0k3j75yiE50amEcOQRjVS8DFSgEGec7irekLDRiJEbnsZbT
-        27CzDNDz18NhJSCS65LZwixbkpuaINXPXZYeEfMhoPhkJbWwSBpba0jarWWPY5Tw
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Zn//iS
+        /DVMCohmbgYEOua0+xj5lDSleDC14QPZkhou8=; b=TSuu11ugrZHO/dhrRaZiW3
+        8SevZIXTR/CyV/TxXR2jn1e9ywHQF5Lcqm7rA5UIyR+7L7B4QU47ZXYsQabdoiP3
+        06YkTYmoDdxOZdhkuUgeSedCkO5sRWjcitrhM+7vuJTPUxA6ZUHl/+SzNHFM5tCc
+        hwFyM0rxUI51XyxFB2rOSxwe6RgA1jIVt0J2TExEmIxv9KQq9IItlPY8cn5CPYqk
+        Bo4+LpblOtPd5Ye+/O2gKHhWry5WVLZVJ1OwBjZAZ0qcpsBMtioLxH9j5Ylgu7EN
+        6wlwNx0jwjLKdstBOXDpUehDW7gr8TQl8yLyHKUY1iyrT43nog2TrMQ4+nMPAeRA
         ==
-X-ME-Sender: <xms:E93OXF05a0rjy0VguIUTnLiWOsI2x-iHavNLErtJB076f2rqWlmyCA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrjeehgdeifecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:m97OXG9yTyAz9VqG2cnLwLcsIMCd5TEufk3cQbTUS8NxAZcd1ji_Xg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrjeehgdeihecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:E93OXDEi3bPadcCxpiQ_LaVGq3lL3nM12txPocyldSs6KSnc1CXrGw>
-    <xmx:E93OXCPSd2IjiznJIZfzig2THJs_8C1PMhGAHOFis-n1qgiA4qXk1Q>
-    <xmx:E93OXJuBkYRI2hWTdWeTraInwz-67cCYhFvxDCbBMnxpXVMD_egeBw>
-    <xmx:FN3OXEEohXIMIAxRrdlQIaK4K_QeI7S_EfX1GQIZs1IrBgCDcsntgg>
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:m97OXEK50TXFMNHDFJM2Y7YacQZlCcoBHN7k1NlxWqT1AknEpiwg3w>
+    <xmx:m97OXL_o5Xk5EmGwQdCAGffdL7ZucQdqEIxnyqPwUNuy5cc3iMaJ9A>
+    <xmx:m97OXAFMWBKUCaXvawUf3rQ5ypvs79nGg1jhrMYnv-l4hLag5VdbTw>
+    <xmx:m97OXMK9MunATEvEZU_ZQZMOl1rtSgAJbdTFUQICA_XYG0tVORMRCg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A8EAEE4122;
-        Sun,  5 May 2019 08:54:42 -0400 (EDT)
-Date:   Sun, 5 May 2019 14:54:40 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
-        Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-Message-ID: <20190505125440.GA25640@kroah.com>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
- <20190430155637.1B45E21743@mail.kernel.org>
- <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
- <20190502153251.GG81578@ediswmail.ad.cirrus.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A0D6BE44A1;
+        Sun,  5 May 2019 09:01:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: usbip: fix isoc packet num validation in get_pipe" failed to apply to 4.4-stable tree
+To:     malte@leip.net, gregkh@linuxfoundation.org,
+        skhan@linuxfoundation.org, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 05 May 2019 15:01:12 +0200
+Message-ID: <1557061272154142@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190502153251.GG81578@ediswmail.ad.cirrus.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 02, 2019 at 04:32:51PM +0100, Charles Keepax wrote:
-> On Thu, May 02, 2019 at 03:32:24PM +0300, Jarkko Nikula wrote:
-> > On 4/30/19 6:56 PM, Sasha Levin wrote:
-> > >This commit has been processed because it contains a "Fixes:" tag,
-> > >fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
-> > >
-> > >The bot has tested the following trees: v5.0.10, v4.19.37.
-> > >
-> > >v5.0.10: Build OK!
-> > >v4.19.37: Failed to apply! Possible dependencies:
-> > >     6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> > >     93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
-> > >
-> > >
-> > >How should we proceed with this patch?
-> > >
-> > There's also dependency to commit
-> > b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
-> > 
-> > Without it 93b6604c5a66 doesn't apply.
-> > 
-> > Otherwise my patch don't have dependency into these so I can have
-> > another version for 4.19 if needed.
-> > 
-> > I got impression from the mail thread for 6f108dd70d30 that it could
-> > be also stable material but cannot really judge.
-> > 
-> > Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the
-> > fix 93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply
-> > without them but doesn't depend on them).
-> > 
-> 
-> b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
-> 
-> I don't think this one would make sense to backport it's not
-> fixing any issues it just removes a redundant call. The call just
-> repeats work it does no harm.
-> 
-> 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> 93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
-> 
-> These two are much more of a grey area, they do fix an actual
-> issue, although that issue only happens when you unbind and
-> rebind both an I2C device and the device providing its IRQs. A
-> couple of us have been trying to look for a better fix as well
-> which further complicates matters.
-> 
-> I would suggest you just backport your patch and leave these
-> ones. As evidenced by the fixup patch there is a slight chance
-> of regressions from backporting this fix and the issue it
-> fixes is clearly not something people are normally hitting.
 
-I've queued all of these up now, as they make sense to have for 4.19.y.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c409ca3be3c6ff3a1eeb303b191184e80d412862 Mon Sep 17 00:00:00 2001
+From: Malte Leip <malte@leip.net>
+Date: Sun, 14 Apr 2019 12:00:12 +0200
+Subject: [PATCH] usb: usbip: fix isoc packet num validation in get_pipe
+
+Change the validation of number_of_packets in get_pipe to compare the
+number of packets to a fixed maximum number of packets allowed, set to
+be 1024. This number was chosen due to it being used by other drivers as
+well, for example drivers/usb/host/uhci-q.c
+
+Background/reason:
+The get_pipe function in stub_rx.c validates the number of packets in
+isochronous mode and aborts with an error if that number is too large,
+in order to prevent malicious input from possibly triggering large
+memory allocations. This was previously done by checking whether
+pdu->u.cmd_submit.number_of_packets is bigger than the number of packets
+that would be needed for pdu->u.cmd_submit.transfer_buffer_length bytes
+if all except possibly the last packet had maximum length, given by
+usb_endpoint_maxp(epd) *  usb_endpoint_maxp_mult(epd). This leads to an
+error if URBs with packets shorter than the maximum possible length are
+submitted, which is allowed according to
+Documentation/driver-api/usb/URB.rst and occurs for example with the
+snd-usb-audio driver.
+
+Fixes: c6688ef9f297 ("usbip: fix stub_rx: harden CMD_SUBMIT path to handle malicious input")
+Signed-off-by: Malte Leip <malte@leip.net>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index 97b09a42a10c..dbfb2f24d71e 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -361,16 +361,10 @@ static int get_pipe(struct stub_device *sdev, struct usbip_header *pdu)
+ 	}
+ 
+ 	if (usb_endpoint_xfer_isoc(epd)) {
+-		/* validate packet size and number of packets */
+-		unsigned int maxp, packets, bytes;
+-
+-		maxp = usb_endpoint_maxp(epd);
+-		maxp *= usb_endpoint_maxp_mult(epd);
+-		bytes = pdu->u.cmd_submit.transfer_buffer_length;
+-		packets = DIV_ROUND_UP(bytes, maxp);
+-
++		/* validate number of packets */
+ 		if (pdu->u.cmd_submit.number_of_packets < 0 ||
+-		    pdu->u.cmd_submit.number_of_packets > packets) {
++		    pdu->u.cmd_submit.number_of_packets >
++		    USBIP_MAX_ISO_PACKETS) {
+ 			dev_err(&sdev->udev->dev,
+ 				"CMD_SUBMIT: isoc invalid num packets %d\n",
+ 				pdu->u.cmd_submit.number_of_packets);
+diff --git a/drivers/usb/usbip/usbip_common.h b/drivers/usb/usbip/usbip_common.h
+index bf8afe9b5883..8be857a4fa13 100644
+--- a/drivers/usb/usbip/usbip_common.h
++++ b/drivers/usb/usbip/usbip_common.h
+@@ -121,6 +121,13 @@ extern struct device_attribute dev_attr_usbip_debug;
+ #define USBIP_DIR_OUT	0x00
+ #define USBIP_DIR_IN	0x01
+ 
++/*
++ * Arbitrary limit for the maximum number of isochronous packets in an URB,
++ * compare for example the uhci_submit_isochronous function in
++ * drivers/usb/host/uhci-q.c
++ */
++#define USBIP_MAX_ISO_PACKETS 1024
++
+ /**
+  * struct usbip_header_basic - data pertinent to every request
+  * @command: the usbip request type
+
