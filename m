@@ -2,84 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CCE13E0A
-	for <lists+stable@lfdr.de>; Sun,  5 May 2019 09:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1113213E0C
+	for <lists+stable@lfdr.de>; Sun,  5 May 2019 09:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726359AbfEEHGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 May 2019 03:06:49 -0400
-Received: from Mailgw01.mediatek.com ([1.203.163.78]:1465 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725792AbfEEHGt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 03:06:49 -0400
-X-UUID: 418a181d693649e8a51fa2de1cd7ab65-20190505
-X-UUID: 418a181d693649e8a51fa2de1cd7ab65-20190505
-Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
-        (envelope-from <xiaolei.li@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLS)
-        with ESMTP id 26004991; Sun, 05 May 2019 15:06:43 +0800
-Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS32N1.mediatek.inc
- (172.27.4.71) with Microsoft SMTP Server (TLS) id 15.0.1395.4; Sun, 5 May
- 2019 15:06:41 +0800
-Received: from [10.17.3.153] (172.27.4.253) by MTKCAS32.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Sun, 5 May 2019 15:06:40 +0800
-Message-ID: <1557040000.26455.59.camel@mhfsdcap03>
-Subject: Re: [PATCH v2 1/5] mtd: rawnand: mtk: Correct low level time
- calculation of r/w cycle
-From:   xiaolei li <xiaolei.li@mediatek.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     <miquel.raynal@bootlin.com>, <richard@nod.at>,
-        <linux-mtd@lists.infradead.org>, <stable@vger.kernel.org>
-Date:   Sun, 5 May 2019 15:06:40 +0800
-In-Reply-To: <20190430103205.5175421744@mail.kernel.org>
-References: <20190430100250.28083-2-xiaolei.li@mediatek.com>
-         <20190430103205.5175421744@mail.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
-Content-Transfer-Encoding: 7bit
+        id S1726299AbfEEHI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 May 2019 03:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47590 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726310AbfEEHI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 May 2019 03:08:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 489642087F;
+        Sun,  5 May 2019 07:08:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557040137;
+        bh=vOEOtv07I8ZAy07O+GJLQkeqZ8Wq7P4eDyAWwVcKeY8=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=r+SCcBCGOtCu3MqJ9KoVg2EQxoKRZYTmw9bFAHCivGZK2hiMhcNHzHDQ2QaQTXeLi
+         u1UlW45D5KvZTO429yKLpMvw9RRylsktlSWisSewxOMGxstqzageW/R1nDV60cPRlt
+         A4h7nZzwW7byW3x3b771eVe7//llHgc7qyWmzTHc=
+Date:   Sun, 5 May 2019 09:08:54 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/23] 4.19.40-stable review
+Message-ID: <20190505070854.GA3895@kroah.com>
+References: <20190504102451.512405835@linuxfoundation.org>
+ <20190505030044.q3dlgd5bhfx5txmf@xps.therub.org>
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: B9B3AC740D21CB2D906577B0BCF6E19197523C342EA54B9C5971A556DB209DBF2000:8
-X-MTK:  N
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190505030044.q3dlgd5bhfx5txmf@xps.therub.org>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-I am not sure if it is caused by raw NAND code path change.
-
-Raw NAND code was moved from mtd/nand to mtd/nand/raw subdirectory since
-kernel v4.17.
-
-The fixing commit: edfee3619c49 mtd: nand: mtk:
-add->setup_data_interface() hook exists before kernel v4.17.
-
-@Miquel, do you know if some other raw NAND driver ever encountered this
-case? Thanks.
-
-On Tue, 2019-04-30 at 10:32 +0000, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: edfee3619c49 mtd: nand: mtk: add ->setup_data_interface() hook.
-> 
-> The bot has tested the following trees: v5.0.10, v4.19.37, v4.14.114.
-> 
-> v5.0.10: Build OK!
-> v4.19.37: Build OK!
-> v4.14.114: Failed to apply! Possible dependencies:
->     Unable to calculate
+On Sat, May 04, 2019 at 10:00:44PM -0500, Dan Rue wrote:
+> On Sat, May 04, 2019 at 12:25:02PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.19.40 release.
+> > There are 23 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Mon 06 May 2019 10:24:19 AM UTC.
+> > Anything received after that time might be too late.
 > 
 > 
-> How should we proceed with this patch?
-> 
-> --
-> Thanks,
-> Sasha
+> Results from Linaro’s test farm.
+> Regressions detected.
 
-Thanks,
-Xiaolei
-
+Really?  Where?
