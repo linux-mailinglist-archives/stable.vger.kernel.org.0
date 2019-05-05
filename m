@@ -2,96 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B0013DFF
-	for <lists+stable@lfdr.de>; Sun,  5 May 2019 08:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CCE13E0A
+	for <lists+stable@lfdr.de>; Sun,  5 May 2019 09:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbfEEGyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 May 2019 02:54:36 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:44686 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726359AbfEEGyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 02:54:36 -0400
-Received: by mail-qt1-f194.google.com with SMTP id f24so952392qtk.11
-        for <stable@vger.kernel.org>; Sat, 04 May 2019 23:54:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zoeQTm+1kjphgbb+bWgtXqSPEFyv9htYlcHhPCnNBxE=;
-        b=XSre0aJikzYORbk3VLUefaM8lw5hAC9dN++41Y9tDv9UhoOuLLOI9BhvB2ftRwSLRf
-         ilra0/UUdND+cVafqn9AhGeSD0RTGTFYJtwABrQAgDYytV/Ad3TETUjLJ8RyksFC2+BR
-         FP6AG2lTMxz1RR9rOV/yP8sQsV/eAlhZDrGD/7ousKIhXZWHXBYEqcVP2GYxNtB4pyZu
-         f1BUUCwxXjqNjpyvfUALOmhDvtnv049Ekdl6Gaqh156B+LFYJ+h9HZVHN4j/uFNewWYR
-         ooemPJu7TCn2SvlKtK+gRWF7P43EVHYsmVMc5TBL6CFG8x+5PVuPVRp9GQI3+Q/SXIOt
-         hLcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zoeQTm+1kjphgbb+bWgtXqSPEFyv9htYlcHhPCnNBxE=;
-        b=Kh38lZjY0RyUnrZFioirL0UgYh197pGS9Hyx2twgHprHlWncK7VtcEuLL0inHGSjyA
-         6b1kY576GzF3eP5ELF8I8frFqUIu65j0diSG8+/RnTbefwPkgtLZZ6c3a/VE9Bc0YOdJ
-         FU6a23q7JwM59hqjUhbGDggdW1t2jPMDa1uTu4RMfU0snYUzkDFAJFu7JPkN8mls2X/9
-         OqizRoNU+txpi3QkfG2SZga8+2r7Uapr2ziyivkREyWRW9qSOOExKimzDcEDw6tlQaEs
-         DVryNa4GAsCZk17oNz52UL8oMOXqpmKWJ5lWV8wE1+CPCVKc4g9aDvEmWFJR7IPwWQNl
-         V8CA==
-X-Gm-Message-State: APjAAAXtJpUKG2DztEGyL4do+kdV8On16fJ6fjeN0HEFymRR689tmNKy
-        EFcYYnm22YOdyKGzfLWx+wo+yGZ7LY6o3Dntzd8=
-X-Google-Smtp-Source: APXvYqzjYyYIR8h1mDj2ypBspy/trroQ6rC5iSnzBvbW0chD2jk8OnQmD2RpK2qLPT1HY0triF4uFWVYjrXuwTVaHw0=
-X-Received: by 2002:ac8:25d9:: with SMTP id f25mr10641330qtf.249.1557039275225;
- Sat, 04 May 2019 23:54:35 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a0c:aa09:0:0:0:0:0 with HTTP; Sat, 4 May 2019 23:54:34 -0700 (PDT)
-Reply-To: aishauwaidi702@gmail.com
-From:   Mrs Aisha Uwaidi <drnoel.noel4@gmail.com>
-Date:   Sun, 5 May 2019 08:54:34 +0200
-Message-ID: <CAOu8qmXJyixBYm96EBqiMAE5s5BsVdn-g6qt=o8AAVp6nSvJeg@mail.gmail.com>
-Subject: Peace be upon you
-To:     undisclosed-recipients:;
+        id S1726359AbfEEHGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 May 2019 03:06:49 -0400
+Received: from Mailgw01.mediatek.com ([1.203.163.78]:1465 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725792AbfEEHGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 May 2019 03:06:49 -0400
+X-UUID: 418a181d693649e8a51fa2de1cd7ab65-20190505
+X-UUID: 418a181d693649e8a51fa2de1cd7ab65-20190505
+Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
+        (envelope-from <xiaolei.li@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLS)
+        with ESMTP id 26004991; Sun, 05 May 2019 15:06:43 +0800
+Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS32N1.mediatek.inc
+ (172.27.4.71) with Microsoft SMTP Server (TLS) id 15.0.1395.4; Sun, 5 May
+ 2019 15:06:41 +0800
+Received: from [10.17.3.153] (172.27.4.253) by MTKCAS32.mediatek.inc
+ (172.27.4.170) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Sun, 5 May 2019 15:06:40 +0800
+Message-ID: <1557040000.26455.59.camel@mhfsdcap03>
+Subject: Re: [PATCH v2 1/5] mtd: rawnand: mtk: Correct low level time
+ calculation of r/w cycle
+From:   xiaolei li <xiaolei.li@mediatek.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     <miquel.raynal@bootlin.com>, <richard@nod.at>,
+        <linux-mtd@lists.infradead.org>, <stable@vger.kernel.org>
+Date:   Sun, 5 May 2019 15:06:40 +0800
+In-Reply-To: <20190430103205.5175421744@mail.kernel.org>
+References: <20190430100250.28083-2-xiaolei.li@mediatek.com>
+         <20190430103205.5175421744@mail.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Evolution 3.2.3-0ubuntu6 
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-TM-SNTS-SMTP: B9B3AC740D21CB2D906577B0BCF6E19197523C342EA54B9C5971A556DB209DBF2000:8
+X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My beloved!
+Hi Sasha,
 
-Peace be upon you
+I am not sure if it is caused by raw NAND code path change.
 
-Please forgive me for stressing you with my predicaments as I know
-that this letter may come to you as big surprise. Truly,  I came
-across your contact email address through my personal search, then
-afterward I decided to email you directly believing that you will be
-honest to help me before i die.
+Raw NAND code was moved from mtd/nand to mtd/nand/raw subdirectory since
+kernel v4.17.
 
-Mean while, I am Dr . Mrs. Aisha Sultan Al suwaidi, President of
-Emirates Dental Society, 62 years old from (United Arab Emirate),  a
-registered doctor by profession but sadly I am suffering from long
-time cancer and from all indication my condition is really
-deteriorating as my doctors have confirmed and courageously advised me
-that I may not live beyond two months from now for the reason that my
-tumor has reached a critical stage which has defiled all forms of
-medical treatment.
+The fixing commit: edfee3619c49 mtd: nand: mtk:
+add->setup_data_interface() hook exists before kernel v4.17.
 
-Actually, my husband was dealing on Gold Dust and Gold Dory Bars in
-(Africa) Burkina Faso till his sudden death in the year 2011 then I
-took over his business till date but currently, I have a deposit sum
-of five million five hundred thousand US dollars [$5,500,000.00] with
-one of the leading bank in Burkina Faso but unfortunately I cannot
-visit the bank since I=E2=80=99m critically sick and powerless to do anythi=
-ng
-myself but my bank account officer advised me to assign any of my
-trustworthy relative, friends or partner with authorization letter to
-stand as the recipient of my money but sorrowfully my only beloved
-daughter died at the age of 19 years and I don=E2=80=99t have any reliable
-relative and no other child.
+@Miquel, do you know if some other raw NAND driver ever encountered this
+case? Thanks.
 
-Therefore, I want you to receive the money and take 50%  as your share
-while 50% should be use basically on humanitarian purposes mostly to
-orphanages home, Motherless babies home, less privileged  around the
-world. As soon as I receive your reply I will give you every details
-you need.
+On Tue, 2019-04-30 at 10:32 +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: edfee3619c49 mtd: nand: mtk: add ->setup_data_interface() hook.
+> 
+> The bot has tested the following trees: v5.0.10, v4.19.37, v4.14.114.
+> 
+> v5.0.10: Build OK!
+> v4.19.37: Build OK!
+> v4.14.114: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> 
+> How should we proceed with this patch?
+> 
+> --
+> Thanks,
+> Sasha
 
-Yours Faithfully,
-Dr. Mrs.  Aisha Sultan Al suwaidi
+Thanks,
+Xiaolei
+
