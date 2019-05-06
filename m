@@ -2,25 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 844B414B59
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 15:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F190C14BBB
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725852AbfEFN4g convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 6 May 2019 09:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57964 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725853AbfEFN4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 09:56:36 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EEB02054F;
-        Mon,  6 May 2019 13:56:32 +0000 (UTC)
-Date:   Mon, 6 May 2019 09:56:31 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
+        id S1726094AbfEFOX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:23:27 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:55660 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbfEFOX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 10:23:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=GxKuXy1+s+PeeiwubdliM/pp8/xYTCCy3OKd2YpFtsI=; b=UmZd8Do3/TQldA46xNq9LjC5o
+        ujqe1cGw3Kwuj67vT+ByS393Qd2O2pXTtZ1B4I26kZ6yV09UpFzfMEym3ETWoPvYl3TVGcyFOk5N4
+        hK9n2++qFXLdLa5cOTAUwTsSLPqbs5TX6WrYUNpH+naBZ82mAF1U8bJL8O7LXVuxLo7aru+o3jWYK
+        bFQ3YL526U2l6zTU0A6mwlX+e1Gu9OZyH80MquAzo2GtJW53iokh2Otg2gf0O3tD/g6hB4EExmiWK
+        nIgAQZLottZR3RvnuZLeW+L3Rs8ndg5qHLggBa3yxKoYxOZa51yf746AoYXylzcRuh8aCvd6AT7UH
+        IBiqAoBXw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hNeW8-0005Ye-1s; Mon, 06 May 2019 14:22:56 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 096412029F884; Mon,  6 May 2019 16:22:54 +0200 (CEST)
+Date:   Mon, 6 May 2019 16:22:54 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andy Lutomirski <luto@amacapital.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
         Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -47,63 +59,85 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Joerg Roedel <jroedel@suse.de>,
         "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190506095631.6f71ad7c@gandalf.local.home>
-In-Reply-To: <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
-        <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
-        <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
-        <20190502185225.0cdfc8bc@gandalf.local.home>
-        <20190502193129.664c5b2e@gandalf.local.home>
-        <20190502195052.0af473cf@gandalf.local.home>
-        <20190503092959.GB2623@hirez.programming.kicks-ass.net>
-        <20190503092247.20cc1ff0@gandalf.local.home>
-        <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
-        <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
-        <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+Message-ID: <20190506142254.GG2650@hirez.programming.kicks-ass.net>
+References: <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+ <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
+ <20190502185225.0cdfc8bc@gandalf.local.home>
+ <20190502193129.664c5b2e@gandalf.local.home>
+ <20190502195052.0af473cf@gandalf.local.home>
+ <20190503092959.GB2623@hirez.programming.kicks-ass.net>
+ <20190503092247.20cc1ff0@gandalf.local.home>
+ <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
+ <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
+ <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 6 May 2019 10:19:51 +0200
-Peter Zijlstra <peterz@infradead.org> wrote:
+On Mon, May 06, 2019 at 10:19:51AM +0200, Peter Zijlstra wrote:
+> +.Lfrom_usermode_no_fixup_\@:
+> +.endm
+> +
+> +.macro IRET_FRAME
+> +
+> +	/* orig_eax is already POP'ed when we're here */
+> +
+> +	testl $CS_FROM_KERNEL, 1*4(%esp)
+> +	jz .Lfinished_frame_\@
+> +
+> +	pushl %eax
+> +
 
-> On Fri, May 03, 2019 at 11:57:22AM -0700, Linus Torvalds wrote:
-> > On Fri, May 3, 2019 at 9:21 AM Andy Lutomirski <luto@amacapital.net> wrote:  
-> > >
-> > > So here’s a somewhat nutty suggestion: how about we tweak the 32-bit
-> > > entry code to emulate the sane 64-bit frame, not just for int3 but
-> > > always?  
-> > 
-> > What would the code actually end up looking like? I don't necessarily
-> > object, since that kernel_stack_pointer() thing certainly looks
-> > horrible, but honestly, my suggestion to just pass in the 'struct
-> > pt_regs' and let the call emulation fix it up would have also worked,
-> > and avoided that bug (and who knows what else might be hiding).
-> > 
-> > I really think that you're now hitting all the special case magic
-> > low-level crap that I wanted to avoid.  
-> 
-> This did actually boot on first try; so there must be something horribly
-> wrong...
-> 
-> Now, I know you like that other approach; but I figured I should at
-> least show you what this one looks like. Maybe I've been staring at
-> entry_32.S too much, but I really don't dislike this.
+From there..
 
-I can test this too. I was hoping to get this in by this merge window.
-I spent 3 hours yesterday trying to get Linus's version working on
-i386 with no success. Not sure how much time Linus will have to look at
-this, as he just opened the merge window.
+> +	lea 10*4(%esp), %eax	# address of <previous context>
+> +	cmpl %eax, 4*4(%esp)	# if ->sp is unmodified
+> +	jnz .Lmodified_sp_do_fixup_\@
+> +
+> +	/*
+> +	 * Fast path; regs->sp wasn't modified, reuse the original IRET frame.
+> +	 */
+> +	pop %eax
+> +	add $6*4, %esp
+> +	jmp .Lfinished_frame_\@;
+> +
+> +.Lmodified_sp_do_fixup_\@:
 
-Again, I think Peter's solution here is the more elegant one. But as
-long as we get *a* solution, I'll be happy. And my time to work on it
-has pretty much already been depleted.
+... until here, needs to go, it is buggy. While a clever idea, it looses
+updates to regs->ip and ->flags.
 
--- Steve
+> +
+> +	/*
+> +	 * Reconstruct the 3 entry IRET frame right after the (modified)
+> +	 * regs->sp without lowering %esp in between, such that an NMI in the
+> +	 * middle doesn't scribble our stack.
+> +	 */
+> +	pushl	%ecx
+> +	movl	5*4(%esp), %eax		# (modified) regs->sp
+> +
+> +	movl	4*4(%esp), %ecx		# flags
+> +	movl	%ecx, -4(%eax)
+> +
+> +	movl	3*4(%esp), %ecx		# cs
+> +	andl	$0x0000ffff, %ecx
+> +	movl	%ecx, -8(%eax)
+> +
+> +	movl	2*4(%esp), %ecx		# ip
+> +	movl	%ecx, -12(%eax)
+> +
+> +	movl	1*4(%esp), %ecx		# eax
+> +	movl	%ecx, -16(%eax)
+> +
+> +	popl	%ecx
+> +	lea	-16(%eax), %esp
+> +	popl	%eax
+> +
+> +.Lfinished_frame_\@:
+> +.endm
