@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D4E14DC7
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 938E014D81
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728651AbfEFOq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
+        id S1727127AbfEFOvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727489AbfEFOq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:46:28 -0400
+        id S1729526AbfEFOsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D659221019;
-        Mon,  6 May 2019 14:46:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 949AF216C8;
+        Mon,  6 May 2019 14:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153988;
-        bh=tkZNyjCJmEXNeB56U5CbHmUrYxxIezFMwWCZ4Upz2Aw=;
+        s=default; t=1557154130;
+        bh=aSyAWG8LsqQfGujCDwDQLGJGjglE3ZS5g8PrN4g0IvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuJwF64tkxPNgZTKaFyV5+mHpo68z9f6iZCWOyGW7Wioc7uveKqT9rkQRlUma+o4j
-         WnakuWYkYRXP2Wve0kWN0eL8KzydKcCTgrIXdshzYwraEa9HVwbmo9E7hvaYylnbZR
-         hbSqIc4teGTUqV036gD2WS04u+zwNzhijgo+XudY=
+        b=cunBraeAQ/QBf4mTaPliKhNsisu/C9clktfTB6HnC9sRFVvbauRL3pdh1u9M2ypv5
+         BFhaidS2tmmN1k/1nKUeibxq+JEgocfbhjhYGRjjKybR3Vfqm0Del7X7CZ4ymZYSqq
+         c0CPd3KOhZrdn2TCHbqG2JxxWkqdNlYoeP8oDPxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Dufour <ldufour@linux.vnet.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 71/75] powerpc/mm/hash: Handle mmap_min_addr correctly in get_unmapped_area topdown search
-Date:   Mon,  6 May 2019 16:33:19 +0200
-Message-Id: <20190506143059.702895487@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 49/62] hugetlbfs: fix memory leak for resv_map
+Date:   Mon,  6 May 2019 16:33:20 +0200
+Message-Id: <20190506143055.514093182@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
 
-commit 3b4d07d2674f6b4a9281031f99d1f7efd325b16d upstream.
+When mknod is used to create a block special file in hugetlbfs, it will
+allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
+inode->i_mapping->private_data will point the newly allocated resv_map.
+However, when the device special file is opened bd_acquire() will set
+inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
+allocated resv_map is lost and the structure is leaked.
 
-When doing top-down search the low_limit is not PAGE_SIZE but rather
-max(PAGE_SIZE, mmap_min_addr). This handle cases in which mmap_min_addr >
-PAGE_SIZE.
+Programs to reproduce:
+        mount -t hugetlbfs nodev hugetlbfs
+        mknod hugetlbfs/dev b 0 0
+        exec 30<> hugetlbfs/dev
+        umount hugetlbfs/
 
-Fixes: fba2369e6ceb ("mm: use vm_unmapped_area() on powerpc architecture")
-Reviewed-by: Laurent Dufour <ldufour@linux.vnet.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+resv_map structures are only needed for inodes which can have associated
+page allocations.  To fix the leak, only allocate resv_map for those
+inodes which could possibly be associated with page allocations.
 
+Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Suggested-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/slice.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/hugetlbfs/inode.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/mm/slice.c
-+++ b/arch/powerpc/mm/slice.c
-@@ -31,6 +31,7 @@
- #include <linux/spinlock.h>
- #include <linux/export.h>
- #include <linux/hugetlb.h>
-+#include <linux/security.h>
- #include <asm/mman.h>
- #include <asm/mmu.h>
- #include <asm/copro.h>
-@@ -328,6 +329,7 @@ static unsigned long slice_find_area_top
- 	int pshift = max_t(int, mmu_psize_defs[psize].shift, PAGE_SHIFT);
- 	unsigned long addr, found, prev;
- 	struct vm_unmapped_area_info info;
-+	unsigned long min_addr = max(PAGE_SIZE, mmap_min_addr);
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 001487b230b5..4acc677ac8fb 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -746,11 +746,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 					umode_t mode, dev_t dev)
+ {
+ 	struct inode *inode;
+-	struct resv_map *resv_map;
++	struct resv_map *resv_map = NULL;
  
- 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
- 	info.length = len;
-@@ -344,7 +346,7 @@ static unsigned long slice_find_area_top
- 	if (high_limit  > DEFAULT_MAP_WINDOW)
- 		addr += mm->context.addr_limit - DEFAULT_MAP_WINDOW;
+-	resv_map = resv_map_alloc();
+-	if (!resv_map)
+-		return NULL;
++	/*
++	 * Reserve maps are only needed for inodes that can have associated
++	 * page allocations.
++	 */
++	if (S_ISREG(mode) || S_ISLNK(mode)) {
++		resv_map = resv_map_alloc();
++		if (!resv_map)
++			return NULL;
++	}
  
--	while (addr > PAGE_SIZE) {
-+	while (addr > min_addr) {
- 		info.high_limit = addr;
- 		if (!slice_scan_available(addr - 1, available, 0, &addr))
- 			continue;
-@@ -356,8 +358,8 @@ static unsigned long slice_find_area_top
- 		 * Check if we need to reduce the range, or if we can
- 		 * extend it to cover the previous available slice.
- 		 */
--		if (addr < PAGE_SIZE)
--			addr = PAGE_SIZE;
-+		if (addr < min_addr)
-+			addr = min_addr;
- 		else if (slice_scan_available(addr - 1, available, 0, &prev)) {
- 			addr = prev;
- 			goto prev_slice;
-@@ -479,7 +481,7 @@ unsigned long slice_get_unmapped_area(un
- 		addr = _ALIGN_UP(addr, page_size);
- 		slice_dbg(" aligned addr=%lx\n", addr);
- 		/* Ignore hint if it's too large or overlaps a VMA */
--		if (addr > high_limit - len ||
-+		if (addr > high_limit - len || addr < mmap_min_addr ||
- 		    !slice_area_is_free(mm, addr, len))
- 			addr = 0;
- 	}
+ 	inode = new_inode(sb);
+ 	if (inode) {
+@@ -782,8 +788,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 			break;
+ 		}
+ 		lockdep_annotate_inode_mutex_key(inode);
+-	} else
+-		kref_put(&resv_map->refs, resv_map_release);
++	} else {
++		if (resv_map)
++			kref_put(&resv_map->refs, resv_map_release);
++	}
+ 
+ 	return inode;
+ }
+-- 
+2.20.1
+
 
 
