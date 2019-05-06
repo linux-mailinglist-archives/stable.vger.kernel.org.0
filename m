@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F5614DC9
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DA3314D7A
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728675AbfEFOqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44452 "EHLO mail.kernel.org"
+        id S1727018AbfEFOtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:49:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729150AbfEFOqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:46:31 -0400
+        id S1729574AbfEFOtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:49:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CBD92053B;
-        Mon,  6 May 2019 14:46:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E757216B7;
+        Mon,  6 May 2019 14:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153990;
-        bh=/bA49ZbnmE/CpHWtCL8vSGJJdaufceFH3QoHWjIVC40=;
+        s=default; t=1557154133;
+        bh=mD1NqaD5euBlUloinWF4XRlqylg13UT0Nd0kdHVl4MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIfVOlQ4oRyTyr4iXlr8ItQXYRF9QNAeLj69lqQywvcanxXw1BeNwN7E7ruTulp2B
-         bwMp/VBk5X09Jl5pT+SheOWEQJwG8N52chohp1oA1WKvbQhk5Plzh83hRZ93QC5+Of
-         1afmlE9syfUoc9+HBjf/oq620+Jz1wTjyGeeaPis=
+        b=15HpYY/UBMKWha1pj33H8J/FyrtX6+QlsyyIimLHpxuJCgAiyTEMWGNS7uSmbP5b/
+         FdoFnfPsAW3WdBU5vf4YjOHuSHFAEl4eJuViinMGE/oLkcf73ZKZrJEPjJjwlVAVcH
+         dXR/TqsYI24d4QI4DXPcEziXTMH94mcONXmMf75s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@redhat.com>, Pu Wen <puwen@hygon.cn>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.14 72/75] x86/mce: Improve error message when kernel cannot recover, p2
-Date:   Mon,  6 May 2019 16:33:20 +0200
-Message-Id: <20190506143059.830710223@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 50/62] sh: fix multiple function definition build errors
+Date:   Mon,  6 May 2019 16:33:21 +0200
+Message-Id: <20190506143055.605073394@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
 
-commit 41f035a86b5b72a4f947c38e94239d20d595352a upstream.
+Many of the sh CPU-types have their own plat_irq_setup() and
+arch_init_clk_ops() functions, so these same (empty) functions in
+arch/sh/boards/of-generic.c are not needed and cause build errors.
 
-In
+If there is some case where these empty functions are needed, they can
+be retained by marking them as "__weak" while at the same time making
+builds that do not need them succeed.
 
-  c7d606f560e4 ("x86/mce: Improve error message when kernel cannot recover")
+Fixes these build errors:
 
-a case was added for a machine check caused by a DATA access to poison
-memory from the kernel. A case should have been added also for an
-uncorrectable error during an instruction fetch in the kernel.
+arch/sh/boards/of-generic.o: In function `plat_irq_setup':
+(.init.text+0x134): multiple definition of `plat_irq_setup'
+arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
+arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
+(.init.text+0x118): multiple definition of `arch_init_clk_ops'
+arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
 
-Add that extra case so the error message now reads:
-
-  mce: [Hardware Error]: Machine check: Instruction fetch error in kernel
-
-Fixes: c7d606f560e4 ("x86/mce: Improve error message when kernel cannot recover")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Pu Wen <puwen@hygon.cn>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190225205940.15226-1-tony.luck@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce-severity.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/sh/boards/of-generic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce-severity.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce-severity.c
-@@ -148,6 +148,11 @@ static struct severity {
- 		SER, MASK(MCI_STATUS_OVER|MCI_UC_SAR|MCI_ADDR|MCACOD, MCI_UC_SAR|MCI_ADDR|MCACOD_DATA),
- 		KERNEL
- 		),
-+	MCESEV(
-+		PANIC, "Instruction fetch error in kernel",
-+		SER, MASK(MCI_STATUS_OVER|MCI_UC_SAR|MCI_ADDR|MCACOD, MCI_UC_SAR|MCI_ADDR|MCACOD_INSTR),
-+		KERNEL
-+		),
- #endif
- 	MCESEV(
- 		PANIC, "Action required: unknown MCACOD",
+diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
+index 1fb6d5714bae..fd00566677c9 100644
+--- a/arch/sh/boards/of-generic.c
++++ b/arch/sh/boards/of-generic.c
+@@ -180,10 +180,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
+ 
+ struct sh_clk_ops;
+ 
+-void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
++void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
+ {
+ }
+ 
+-void __init plat_irq_setup(void)
++void __init __weak plat_irq_setup(void)
+ {
+ }
+-- 
+2.20.1
+
 
 
