@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E74A314E32
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D03214D6A
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727810AbfEFOmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
+        id S1728728AbfEFOsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727779AbfEFOmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:49 -0400
+        id S1729416AbfEFOsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D530C21479;
-        Mon,  6 May 2019 14:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 702772053B;
+        Mon,  6 May 2019 14:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153769;
-        bh=l+vwBq8B0iCqSp7zzsk2DETMYixOA5pWhzYBakqzhJw=;
+        s=default; t=1557154083;
+        bh=d5H7LD/60AOvjT9IW8lrl/lZYPLcTuJ6p9oJaAylqqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVfwM6nIqARxOGRxYYeqgNPaLVxFaF580F/sJcppxGIDK8itu+ItC1TNjSWd9O1Ze
-         GI+F7ZgqG9htDXkqTZWzBo+JuG41Knul/hc8JdLyMJVe7nsryhw3blErGuKRc0GjF+
-         7KUgGWCGt/7LwxVYt1fM/esYsZNI7Fv7xmLdd1XA=
+        b=aH6OLn1xWYvwRdJxeIPpuSGWymwWFgkIgicqgNLKwKhN5pmw9LMvuPcba2vdCtbmv
+         IvMkFf0YoPCLjag7dqmLmn3pX/S77Kt1n9SjRYwG551e962YUKa1s5MfTzogSpf6rs
+         z9cyhOGQDnIIKxk5EBmWSjlWLZWKw5zI5nNROG7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 88/99] gpio: mxc: add check to return defer probe if clock tree NOT ready
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 30/62] rtc: sh: Fix invalid alarm warning for non-enabled alarm
 Date:   Mon,  6 May 2019 16:33:01 +0200
-Message-Id: <20190506143101.905965388@linuxfoundation.org>
+Message-Id: <20190506143053.662813531@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <anson.huang@nxp.com>
+[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
 
-commit a329bbe707cee2cf8c660890ef2ad0d00ec7e8a3 upstream.
+When no alarm has been programmed on RSK-RZA1, an error message is
+printed during boot:
 
-On i.MX8MQ platform, clock driver uses platform driver
-model and it is probed after GPIO driver, so when GPIO
-driver fails to get clock, it should check the error type
-to decide whether to return defer probe or just ignore
-the clock operation.
+    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
 
-Fixes: 2808801aab8a ("gpio: mxc: add clock operation")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
+field that is not enabled.  __rtc_read_alarm() validates the received
+alarm values, and fills in missing fields when needed.
+While 0xff is handled fine for the year, month, and day fields, and
+corrected as considered being out-of-range, this is not the case for the
+hour, minute, and second fields, where -1 is expected for missing
+fields.
 
+Fix this by returning -1 instead, as this value is handled fine for all
+fields.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mxc.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-sh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-mxc.c
-+++ b/drivers/gpio/gpio-mxc.c
-@@ -438,8 +438,11 @@ static int mxc_gpio_probe(struct platfor
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index 17b6235d67a5..600fb7f93939 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -454,7 +454,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
+ {
+ 	unsigned int byte;
+-	int value = 0xff;	/* return 0xff for ignored values */
++	int value = -1;			/* return -1 for ignored values */
  
- 	/* the controller clock is optional */
- 	port->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(port->clk))
-+	if (IS_ERR(port->clk)) {
-+		if (PTR_ERR(port->clk) == -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
- 		port->clk = NULL;
-+	}
- 
- 	err = clk_prepare_enable(port->clk);
- 	if (err) {
+ 	byte = readb(rtc->regbase + reg_off);
+ 	if (byte & AR_ENB) {
+-- 
+2.20.1
+
 
 
