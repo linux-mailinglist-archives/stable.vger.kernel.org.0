@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EFB14E9B
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB4C14F0D
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbfEFOjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60624 "EHLO mail.kernel.org"
+        id S1726412AbfEFOgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:36:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727772AbfEFOjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:39:16 -0400
+        id S1727224AbfEFOgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:36:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 889B920449;
-        Mon,  6 May 2019 14:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 234B9204EC;
+        Mon,  6 May 2019 14:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153556;
-        bh=zS1sSyYUibxrxplZamQ4JhvQ7iEZ8zXWwc89tqr9Fyk=;
+        s=default; t=1557153408;
+        bh=eF1lfFAie7NE02O+U2JLXR5vKUcczpO4HqZ2NCz0ivM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFxOW8pktn6STfh5o/ifwlM/EcdPBbWHieMT4CzUBk/n5plFNB8tif5bf1uGBHilK
-         Sbr++usiqv646AFDXFoQjqIO7z6uJr8kam4mCjBaLx0XuNZegsCdSZSjrdNykjtZxY
-         w+RnXFcuvG2056lM1qmXJznht3XulrQVQgEcuQms=
+        b=yRol1mUwJLbYI48gUWoIAdfUmEnSPPsNXW7nASOwaT+FOKzK3wErvP8MpcCZhrod/
+         YGbiItBuzRX9AM3W5JXMEzbHgb7+IoBdppLmf7+lqWsW98GAE1k959mZeis1hAVrLF
+         SC9z+cZC4Td8zMLfNo/oc/TXBp4SWv/FZbabsJd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 11/99] ALSA: hda/realtek - Fixed Dell AIO speaker noise
-Date:   Mon,  6 May 2019 16:31:44 +0200
-Message-Id: <20190506143054.878700080@linuxfoundation.org>
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Or Gerlitz <ogerlitz@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 047/122] net/mlx5: E-Switch, Protect from invalid memory access in offload fdb table
+Date:   Mon,  6 May 2019 16:31:45 +0200
+Message-Id: <20190506143059.165325989@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+[ Upstream commit 5c1d260ed10cf08dd7a0299c103ad0a3f9a9f7a1 ]
 
-commit 0700d3d117a7f110ddddbd83873e13652f69c54b upstream.
+The esw offloads structures share a union with the legacy mode structs.
+Reset the offloads struct to zero in init to protect from null
+assumptions made by the legacy mode code.
 
-Fixed Dell AIO speaker noise.
-spec->gen.auto_mute_via_amp = 1, this option was solved speaker white
-noise at boot.
-codec->power_save_node = 0, this option was solved speaker noise at
-resume back.
-
-Fixes: 9226665159f0 ("ALSA: hda/realtek - Fix Dell AIO LineOut issue")
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Or Gerlitz <ogerlitz@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5448,6 +5448,8 @@ static void alc274_fixup_bind_dacs(struc
- 		return;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index d4e6fe5b9300..ce5766a26baa 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -1402,6 +1402,7 @@ int esw_offloads_init(struct mlx5_eswitch *esw, int nvports)
+ {
+ 	int err;
  
- 	spec->gen.preferred_dacs = preferred_pairs;
-+	spec->gen.auto_mute_via_amp = 1;
-+	codec->power_save_node = 0;
- }
++	memset(&esw->fdb_table.offloads, 0, sizeof(struct offloads_fdb));
+ 	mutex_init(&esw->fdb_table.offloads.fdb_prio_lock);
  
- /* The DAC of NID 0x3 will introduce click/pop noise on headphones, so invalidate it */
+ 	err = esw_create_offloads_fdb_tables(esw, nvports);
+-- 
+2.20.1
+
 
 
