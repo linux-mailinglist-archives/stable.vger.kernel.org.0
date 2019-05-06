@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D6E14EAD
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4D114F6B
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727897AbfEFOjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:39:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32972 "EHLO mail.kernel.org"
+        id S1726190AbfEFOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:35:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726593AbfEFOju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:39:50 -0400
+        id S1726861AbfEFOfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:35:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16E8B206A3;
-        Mon,  6 May 2019 14:39:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6907C21019;
+        Mon,  6 May 2019 14:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153589;
-        bh=S7KL2fzn3VLP6vF6fSXi55MGPnGuWGW66kDHCMAmqCU=;
+        s=default; t=1557153308;
+        bh=fOnT34oNrHlV4KUDqVYLAxQ0jQLiGfUnymj9BUE/VQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIwJm2kpOHr0WosJzqG7WHjeZBxVktrZA+6ncMwqYgRMNUiP1vh8H7GcYi9QO8TMB
-         xMENM8lntKO9/lLP4jVGtaUN+JTJ50UwqrnBzqthAsVc0Zp1LXzeVgMWeuaRzy20DG
-         DJFVrqWRPJ9rGLyXOdxBr4nCU7hjSVW/wt8Ptavo=
+        b=TZIGyKdsmyhIObRiaIBMdPIwPKVSwwgp241Sbd9qFxevAmo4rXU46I3D4cKI82IuP
+         DTWtTn85mJMbXYPJtA0/Q8dyA9PzKuxAoSF1anSdFXNlgQe9Miu+6nyvmw+PvQcWaF
+         BsV7BiqmRGf9twUjhePDFYWp4+2udgKx/+ZTGtFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 4.19 05/99] i2c: imx: correct the method of getting private data in notifier_call
+        stable@vger.kernel.org, Arvind Sankar <niveditas98@gmail.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 040/122] igb: Fix WARN_ONCE on runtime suspend
 Date:   Mon,  6 May 2019 16:31:38 +0200
-Message-Id: <20190506143054.357242011@linuxfoundation.org>
+Message-Id: <20190506143058.511439350@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +46,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <anson.huang@nxp.com>
+[ Upstream commit dabb8338be533c18f50255cf39ff4f66d4dabdbe ]
 
-commit d386bb9042f4629bf62cdc5952ea8aab225f24a7 upstream.
+The runtime_suspend device callbacks are not supposed to save
+configuration state or change the power state. Commit fb29f76cc566
+("igb: Fix an issue that PME is not enabled during runtime suspend")
+changed the driver to not save configuration state during runtime
+suspend, however the driver callback still put the device into a
+low-power state. This causes a warning in the pci pm core and results in
+pci_pm_runtime_suspend not calling pci_save_state or pci_finish_runtime_suspend.
 
-The way of getting private imx_i2c_struct in i2c_imx_clk_notifier_call()
-is incorrect, should use clk_change_nb element to get correct address
-and avoid below kernel dump during POST_RATE_CHANGE notify by clk
-framework:
+Fix this by not changing the power state either, leaving that to pci pm
+core, and make the same change for suspend callback as well.
 
-Unable to handle kernel paging request at virtual address 03ef1488
-pgd = (ptrval)
-[03ef1488] *pgd=00000000
-Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Workqueue: events reduce_bus_freq_handler
-PC is at i2c_imx_set_clk+0x10/0xb8
-LR is at i2c_imx_clk_notifier_call+0x20/0x28
-pc : [<806a893c>]    lr : [<806a8a04>]    psr: a0080013
-sp : bf399dd8  ip : bf3432ac  fp : bf7c1dc0
-r10: 00000002  r9 : 00000000  r8 : 00000000
-r7 : 03ef1480  r6 : bf399e50  r5 : ffffffff  r4 : 00000000
-r3 : bf025300  r2 : bf399e50  r1 : 00b71b00  r0 : bf399be8
-Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c5387d  Table: 4e03004a  DAC: 00000051
-Process kworker/2:1 (pid: 38, stack limit = 0x(ptrval))
-Stack: (0xbf399dd8 to 0xbf39a000)
-9dc0:                                                       806a89e4 00000000
-9de0: ffffffff bf399e50 00000002 806a8a04 806a89e4 80142900 ffffffff 00000000
-9e00: bf34ef18 bf34ef04 00000000 ffffffff bf399e50 80142d84 00000000 bf399e6c
-9e20: bf34ef00 80f214c4 bf025300 00000002 80f08d08 bf017480 00000000 80142df0
-9e40: 00000000 80166ed8 80c27638 8045de58 bf352340 03ef1480 00b71b00 0f82e242
-9e60: bf025300 00000002 03ef1480 80f60e5c 00000001 8045edf0 00000002 8045eb08
-9e80: bf025300 00000002 03ef1480 8045ee10 03ef1480 8045eb08 bf01be40 00000002
-9ea0: 03ef1480 8045ee10 07de2900 8045eb08 bf01b780 00000002 07de2900 8045ee10
-9ec0: 80c27898 bf399ee4 bf020a80 00000002 1f78a400 8045ee10 80f60e5c 80460514
-9ee0: 80f60e5c bf01b600 bf01b480 80460460 0f82e242 bf383a80 bf383a00 80f60e5c
-9f00: 00000000 bf7c1dc0 80f60e70 80460564 80f60df0 80f60d24 80f60df0 8011e72c
-9f20: 00000000 80f60df0 80f60e6c bf7c4f00 00000000 8011e7ac bf274000 8013bd84
-9f40: bf7c1dd8 80f03d00 bf274000 bf7c1dc0 bf274014 bf7c1dd8 80f03d00 bf398000
-9f60: 00000008 8013bfb4 00000000 bf25d100 bf25d0c0 00000000 bf274000 8013bf88
-9f80: bf25d11c bf0cfebc 00000000 8014140c bf25d0c0 801412ec 00000000 00000000
-9fa0: 00000000 00000000 00000000 801010e8 00000000 00000000 00000000 00000000
-9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-9fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
-[<806a893c>] (i2c_imx_set_clk) from [<806a8a04>] (i2c_imx_clk_notifier_call+0x20/0x28)
-[<806a8a04>] (i2c_imx_clk_notifier_call) from [<80142900>] (notifier_call_chain+0x44/0x84)
-[<80142900>] (notifier_call_chain) from [<80142d84>] (__srcu_notifier_call_chain+0x44/0x98)
-[<80142d84>] (__srcu_notifier_call_chain) from [<80142df0>] (srcu_notifier_call_chain+0x18/0x20)
-[<80142df0>] (srcu_notifier_call_chain) from [<8045de58>] (__clk_notify+0x78/0xa4)
-[<8045de58>] (__clk_notify) from [<8045edf0>] (__clk_recalc_rates+0x60/0xb4)
-[<8045edf0>] (__clk_recalc_rates) from [<8045ee10>] (__clk_recalc_rates+0x80/0xb4)
-Code: e92d40f8 e5903298 e59072a0 e1530001 (e5975008)
----[ end trace fc7f5514b97b6cbb ]---
+Also move a couple of defines into the appropriate header file instead
+of inline in the .c file.
 
-Fixes: 90ad2cbe88c2 ("i2c: imx: use clk notifier for rate changes")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: fb29f76cc566 ("igb: Fix an issue that PME is not enabled during runtime suspend")
+Signed-off-by: Arvind Sankar <niveditas98@gmail.com>
+Reviewed-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/intel/igb/e1000_defines.h    |  2 +
+ drivers/net/ethernet/intel/igb/igb_main.c     | 57 +++----------------
+ 2 files changed, 10 insertions(+), 49 deletions(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -510,9 +510,9 @@ static int i2c_imx_clk_notifier_call(str
- 				     unsigned long action, void *data)
- {
- 	struct clk_notifier_data *ndata = data;
--	struct imx_i2c_struct *i2c_imx = container_of(&ndata->clk,
-+	struct imx_i2c_struct *i2c_imx = container_of(nb,
- 						      struct imx_i2c_struct,
--						      clk);
-+						      clk_change_nb);
+diff --git a/drivers/net/ethernet/intel/igb/e1000_defines.h b/drivers/net/ethernet/intel/igb/e1000_defines.h
+index 01fcfc6f3415..d2e2c50ce257 100644
+--- a/drivers/net/ethernet/intel/igb/e1000_defines.h
++++ b/drivers/net/ethernet/intel/igb/e1000_defines.h
+@@ -194,6 +194,8 @@
+ /* enable link status from external LINK_0 and LINK_1 pins */
+ #define E1000_CTRL_SWDPIN0  0x00040000  /* SWDPIN 0 value */
+ #define E1000_CTRL_SWDPIN1  0x00080000  /* SWDPIN 1 value */
++#define E1000_CTRL_ADVD3WUC 0x00100000  /* D3 WUC */
++#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000 /* PHY PM enable */
+ #define E1000_CTRL_SDP0_DIR 0x00400000  /* SDP0 Data direction */
+ #define E1000_CTRL_SDP1_DIR 0x00800000  /* SDP1 Data direction */
+ #define E1000_CTRL_RST      0x04000000  /* Global reset */
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 7137e7f9c7f3..21ccadb720d1 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -8755,9 +8755,7 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	u32 ctrl, rctl, status;
+ 	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
+-#ifdef CONFIG_PM
+-	int retval = 0;
+-#endif
++	bool wake;
  
- 	if (action & POST_RATE_CHANGE)
- 		i2c_imx_set_clk(i2c_imx, ndata->new_rate);
+ 	rtnl_lock();
+ 	netif_device_detach(netdev);
+@@ -8770,14 +8768,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 	igb_clear_interrupt_scheme(adapter);
+ 	rtnl_unlock();
+ 
+-#ifdef CONFIG_PM
+-	if (!runtime) {
+-		retval = pci_save_state(pdev);
+-		if (retval)
+-			return retval;
+-	}
+-#endif
+-
+ 	status = rd32(E1000_STATUS);
+ 	if (status & E1000_STATUS_LU)
+ 		wufc &= ~E1000_WUFC_LNKC;
+@@ -8794,10 +8784,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 		}
+ 
+ 		ctrl = rd32(E1000_CTRL);
+-		/* advertise wake from D3Cold */
+-		#define E1000_CTRL_ADVD3WUC 0x00100000
+-		/* phy power management enable */
+-		#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000
+ 		ctrl |= E1000_CTRL_ADVD3WUC;
+ 		wr32(E1000_CTRL, ctrl);
+ 
+@@ -8811,12 +8797,15 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 		wr32(E1000_WUFC, 0);
+ 	}
+ 
+-	*enable_wake = wufc || adapter->en_mng_pt;
+-	if (!*enable_wake)
++	wake = wufc || adapter->en_mng_pt;
++	if (!wake)
+ 		igb_power_down_link(adapter);
+ 	else
+ 		igb_power_up_link(adapter);
+ 
++	if (enable_wake)
++		*enable_wake = wake;
++
+ 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
+ 	 * would have already happened in close and is redundant.
+ 	 */
+@@ -8859,22 +8848,7 @@ static void igb_deliver_wake_packet(struct net_device *netdev)
+ 
+ static int __maybe_unused igb_suspend(struct device *dev)
+ {
+-	int retval;
+-	bool wake;
+-	struct pci_dev *pdev = to_pci_dev(dev);
+-
+-	retval = __igb_shutdown(pdev, &wake, 0);
+-	if (retval)
+-		return retval;
+-
+-	if (wake) {
+-		pci_prepare_to_sleep(pdev);
+-	} else {
+-		pci_wake_from_d3(pdev, false);
+-		pci_set_power_state(pdev, PCI_D3hot);
+-	}
+-
+-	return 0;
++	return __igb_shutdown(to_pci_dev(dev), NULL, 0);
+ }
+ 
+ static int __maybe_unused igb_resume(struct device *dev)
+@@ -8945,22 +8919,7 @@ static int __maybe_unused igb_runtime_idle(struct device *dev)
+ 
+ static int __maybe_unused igb_runtime_suspend(struct device *dev)
+ {
+-	struct pci_dev *pdev = to_pci_dev(dev);
+-	int retval;
+-	bool wake;
+-
+-	retval = __igb_shutdown(pdev, &wake, 1);
+-	if (retval)
+-		return retval;
+-
+-	if (wake) {
+-		pci_prepare_to_sleep(pdev);
+-	} else {
+-		pci_wake_from_d3(pdev, false);
+-		pci_set_power_state(pdev, PCI_D3hot);
+-	}
+-
+-	return 0;
++	return __igb_shutdown(to_pci_dev(dev), NULL, 1);
+ }
+ 
+ static int __maybe_unused igb_runtime_resume(struct device *dev)
+-- 
+2.20.1
+
 
 
