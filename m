@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1695714CBB
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F32E14D6D
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727140AbfEFOnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38736 "EHLO mail.kernel.org"
+        id S1729113AbfEFOsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728639AbfEFOnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:17 -0400
+        id S1727845AbfEFOsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52B0221479;
-        Mon,  6 May 2019 14:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9533205ED;
+        Mon,  6 May 2019 14:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153796;
-        bh=JoJB5VMng8NPu4tyyX+HHPyVO3AaIoTy9QwqCQI1tTk=;
+        s=default; t=1557154096;
+        bh=Yo/FcclupItuUI/duShN/8hCZGvDgKe9Px+JlwS0P3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ua5BmdUsegcU6xxjIImAdD1PwL7pkYAHES+qvaejJgsJQBFPruwKZxt6X0UCYSbrk
-         7lTdO0JXrivCOpwr6W+x6GO5OpZJxtZOnqXkdcFme/2hSLL4ExoK6ilXYmxCsSNJhD
-         bgkG+seZreW9iyxuE0Xn+TT1VMBnWxxI4OWZzJsg=
+        b=SISdyqC+YcTY04f+9TnYrDc859SdLrN8mV1RkiedrjZbhMxSdKM4ZBOf/E+zgRjmr
+         g79Wl4PLCtx+/1Ie7/RLwPeP1Ej5ZoI4oq+1oGanqDI3MwcJ4WNbEsW9X6n2C+naQe
+         LpGpTFEzayYFbEbJhWCA+7+sI2CWBa7pWp7DdKJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Dufour <ldufour@linux.vnet.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 92/99] powerpc/mm/hash: Handle mmap_min_addr correctly in get_unmapped_area topdown search
+        stable@vger.kernel.org, Arvind Sankar <niveditas98@gmail.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 34/62] igb: Fix WARN_ONCE on runtime suspend
 Date:   Mon,  6 May 2019 16:33:05 +0200
-Message-Id: <20190506143102.210573858@linuxfoundation.org>
+Message-Id: <20190506143054.022934768@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +46,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[ Upstream commit dabb8338be533c18f50255cf39ff4f66d4dabdbe ]
 
-commit 3b4d07d2674f6b4a9281031f99d1f7efd325b16d upstream.
+The runtime_suspend device callbacks are not supposed to save
+configuration state or change the power state. Commit fb29f76cc566
+("igb: Fix an issue that PME is not enabled during runtime suspend")
+changed the driver to not save configuration state during runtime
+suspend, however the driver callback still put the device into a
+low-power state. This causes a warning in the pci pm core and results in
+pci_pm_runtime_suspend not calling pci_save_state or pci_finish_runtime_suspend.
 
-When doing top-down search the low_limit is not PAGE_SIZE but rather
-max(PAGE_SIZE, mmap_min_addr). This handle cases in which mmap_min_addr >
-PAGE_SIZE.
+Fix this by not changing the power state either, leaving that to pci pm
+core, and make the same change for suspend callback as well.
 
-Fixes: fba2369e6ceb ("mm: use vm_unmapped_area() on powerpc architecture")
-Reviewed-by: Laurent Dufour <ldufour@linux.vnet.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also move a couple of defines into the appropriate header file instead
+of inline in the .c file.
 
+Fixes: fb29f76cc566 ("igb: Fix an issue that PME is not enabled during runtime suspend")
+Signed-off-by: Arvind Sankar <niveditas98@gmail.com>
+Reviewed-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/slice.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ .../net/ethernet/intel/igb/e1000_defines.h    |  2 +
+ drivers/net/ethernet/intel/igb/igb_main.c     | 57 +++----------------
+ 2 files changed, 10 insertions(+), 49 deletions(-)
 
---- a/arch/powerpc/mm/slice.c
-+++ b/arch/powerpc/mm/slice.c
-@@ -31,6 +31,7 @@
- #include <linux/spinlock.h>
- #include <linux/export.h>
- #include <linux/hugetlb.h>
-+#include <linux/security.h>
- #include <asm/mman.h>
- #include <asm/mmu.h>
- #include <asm/copro.h>
-@@ -376,6 +377,7 @@ static unsigned long slice_find_area_top
- 	int pshift = max_t(int, mmu_psize_defs[psize].shift, PAGE_SHIFT);
- 	unsigned long addr, found, prev;
- 	struct vm_unmapped_area_info info;
-+	unsigned long min_addr = max(PAGE_SIZE, mmap_min_addr);
+diff --git a/drivers/net/ethernet/intel/igb/e1000_defines.h b/drivers/net/ethernet/intel/igb/e1000_defines.h
+index 2688180a7acd..f948eec7b35f 100644
+--- a/drivers/net/ethernet/intel/igb/e1000_defines.h
++++ b/drivers/net/ethernet/intel/igb/e1000_defines.h
+@@ -193,6 +193,8 @@
+ /* enable link status from external LINK_0 and LINK_1 pins */
+ #define E1000_CTRL_SWDPIN0  0x00040000  /* SWDPIN 0 value */
+ #define E1000_CTRL_SWDPIN1  0x00080000  /* SWDPIN 1 value */
++#define E1000_CTRL_ADVD3WUC 0x00100000  /* D3 WUC */
++#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000 /* PHY PM enable */
+ #define E1000_CTRL_SDP0_DIR 0x00400000  /* SDP0 Data direction */
+ #define E1000_CTRL_SDP1_DIR 0x00800000  /* SDP1 Data direction */
+ #define E1000_CTRL_RST      0x04000000  /* Global reset */
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 82e48e355fb9..7956176c2c73 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7548,9 +7548,7 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	u32 ctrl, rctl, status;
+ 	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
+-#ifdef CONFIG_PM
+-	int retval = 0;
+-#endif
++	bool wake;
  
- 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
- 	info.length = len;
-@@ -392,7 +394,7 @@ static unsigned long slice_find_area_top
- 	if (high_limit > DEFAULT_MAP_WINDOW)
- 		addr += mm->context.slb_addr_limit - DEFAULT_MAP_WINDOW;
+ 	rtnl_lock();
+ 	netif_device_detach(netdev);
+@@ -7563,14 +7561,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 	igb_clear_interrupt_scheme(adapter);
+ 	rtnl_unlock();
  
--	while (addr > PAGE_SIZE) {
-+	while (addr > min_addr) {
- 		info.high_limit = addr;
- 		if (!slice_scan_available(addr - 1, available, 0, &addr))
- 			continue;
-@@ -404,8 +406,8 @@ static unsigned long slice_find_area_top
- 		 * Check if we need to reduce the range, or if we can
- 		 * extend it to cover the previous available slice.
- 		 */
--		if (addr < PAGE_SIZE)
--			addr = PAGE_SIZE;
-+		if (addr < min_addr)
-+			addr = min_addr;
- 		else if (slice_scan_available(addr - 1, available, 0, &prev)) {
- 			addr = prev;
- 			goto prev_slice;
-@@ -527,7 +529,7 @@ unsigned long slice_get_unmapped_area(un
- 		addr = _ALIGN_UP(addr, page_size);
- 		slice_dbg(" aligned addr=%lx\n", addr);
- 		/* Ignore hint if it's too large or overlaps a VMA */
--		if (addr > high_limit - len ||
-+		if (addr > high_limit - len || addr < mmap_min_addr ||
- 		    !slice_area_is_free(mm, addr, len))
- 			addr = 0;
+-#ifdef CONFIG_PM
+-	if (!runtime) {
+-		retval = pci_save_state(pdev);
+-		if (retval)
+-			return retval;
+-	}
+-#endif
+-
+ 	status = rd32(E1000_STATUS);
+ 	if (status & E1000_STATUS_LU)
+ 		wufc &= ~E1000_WUFC_LNKC;
+@@ -7587,10 +7577,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 		}
+ 
+ 		ctrl = rd32(E1000_CTRL);
+-		/* advertise wake from D3Cold */
+-		#define E1000_CTRL_ADVD3WUC 0x00100000
+-		/* phy power management enable */
+-		#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000
+ 		ctrl |= E1000_CTRL_ADVD3WUC;
+ 		wr32(E1000_CTRL, ctrl);
+ 
+@@ -7604,12 +7590,15 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ 		wr32(E1000_WUFC, 0);
  	}
+ 
+-	*enable_wake = wufc || adapter->en_mng_pt;
+-	if (!*enable_wake)
++	wake = wufc || adapter->en_mng_pt;
++	if (!wake)
+ 		igb_power_down_link(adapter);
+ 	else
+ 		igb_power_up_link(adapter);
+ 
++	if (enable_wake)
++		*enable_wake = wake;
++
+ 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
+ 	 * would have already happened in close and is redundant.
+ 	 */
+@@ -7624,22 +7613,7 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
+ #ifdef CONFIG_PM_SLEEP
+ static int igb_suspend(struct device *dev)
+ {
+-	int retval;
+-	bool wake;
+-	struct pci_dev *pdev = to_pci_dev(dev);
+-
+-	retval = __igb_shutdown(pdev, &wake, 0);
+-	if (retval)
+-		return retval;
+-
+-	if (wake) {
+-		pci_prepare_to_sleep(pdev);
+-	} else {
+-		pci_wake_from_d3(pdev, false);
+-		pci_set_power_state(pdev, PCI_D3hot);
+-	}
+-
+-	return 0;
++	return __igb_shutdown(to_pci_dev(dev), NULL, 0);
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
+@@ -7707,22 +7681,7 @@ static int igb_runtime_idle(struct device *dev)
+ 
+ static int igb_runtime_suspend(struct device *dev)
+ {
+-	struct pci_dev *pdev = to_pci_dev(dev);
+-	int retval;
+-	bool wake;
+-
+-	retval = __igb_shutdown(pdev, &wake, 1);
+-	if (retval)
+-		return retval;
+-
+-	if (wake) {
+-		pci_prepare_to_sleep(pdev);
+-	} else {
+-		pci_wake_from_d3(pdev, false);
+-		pci_set_power_state(pdev, PCI_D3hot);
+-	}
+-
+-	return 0;
++	return __igb_shutdown(to_pci_dev(dev), NULL, 1);
+ }
+ 
+ static int igb_runtime_resume(struct device *dev)
+-- 
+2.20.1
+
 
 
