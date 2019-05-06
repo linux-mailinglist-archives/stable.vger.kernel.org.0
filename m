@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6699B14EDA
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA8B14CD7
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727146AbfEFPFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:05:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59836 "EHLO mail.kernel.org"
+        id S1728581AbfEFOop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726837AbfEFOih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:38:37 -0400
+        id S1728178AbfEFOoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:44:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 632B621479;
-        Mon,  6 May 2019 14:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C2B720C01;
+        Mon,  6 May 2019 14:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153516;
-        bh=3z1Fx/ysaX/9QBrtU064uvhtjuzLx7SX+k95KYaEq7s=;
+        s=default; t=1557153883;
+        bh=Z7ikgiFRCPOljMKSUhSYS78sMaW7K9kNnm2rD19GWQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JKd3VM5zf0jyJ+7YW+J8bDqMblUQwwJGBcGb4Mskv76rsqh8yU5QiOFR7UpLdJgw
-         1yBIxIopHtVoVTQDysbApclKuM4yEDP1/Vv4E0JOIa192JVxet9vDDqfGRmL0vtDTB
-         ZaVpcBdJMU2415dEEhKjoXEzsVCU424TRdHQKam0=
+        b=2dZyt829GQaBwWpiDgDLAcEpuHaeCH/5RtPiNaWsQR1cgdIHaccK5NLhphs2daYlu
+         I7kO0HTfwPWaljWcbGqO+gB+fXnmt1G+Y9UdKD0dNldBVdiV9PMk/w1pYr+hRVgqGF
+         lzrshfJxJOUbwFnqJ5QgiXCsnI2SeogpmnteKw5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.0 101/122] KVM: nVMX: Remove a rogue "rax" clobber from nested_vmx_check_vmentry_hw()
+        stable@vger.kernel.org, Martin Weinelt <martin@linuxlounge.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/75] batman-adv: Reduce tt_global hash refcnt only for removed entry
 Date:   Mon,  6 May 2019 16:32:39 +0200
-Message-Id: <20190506143103.836917849@linuxfoundation.org>
+Message-Id: <20190506143056.011292754@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+[ Upstream commit f131a56880d10932931e74773fb8702894a94a75 ]
 
-commit 9ce0a07a6f49822238fd4357c02e0dba060a43cc upstream.
+The batadv_hash_remove is a function which searches the hashtable for an
+entry using a needle, a hashtable bucket selection function and a compare
+function. It will lock the bucket list and delete an entry when the compare
+function matches it with the needle. It returns the pointer to the
+hlist_node which matches or NULL when no entry matches the needle.
 
-RAX is not touched by nested_vmx_check_vmentry_hw(), directly or
-indirectly (e.g. vmx_vmenter()).  Remove it from the clobber list.
+The batadv_tt_global_free is not itself protected in anyway to avoid that
+any other function is modifying the hashtable between the search for the
+entry and the call to batadv_hash_remove. It can therefore happen that the
+entry either doesn't exist anymore or an entry was deleted which is not the
+same object as the needle. In such an situation, the reference counter (for
+the reference stored in the hashtable) must not be reduced for the needle.
+Instead the reference counter of the actually removed entry has to be
+reduced.
 
-Fixes: 52017608da33 ("KVM: nVMX: add option to perform early consistency checks via H/W")
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Otherwise the reference counter will underflow and the object might be
+freed before all its references were dropped. The kref helpers reported
+this problem as:
 
+  refcount_t: underflow; use-after-free.
+
+Fixes: 7683fdc1e886 ("batman-adv: protect the local and the global trans-tables with rcu")
+Reported-by: Martin Weinelt <martin@linuxlounge.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/translation-table.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2793,7 +2793,7 @@ static int nested_vmx_check_vmentry_hw(s
- 		[fail]"i"(offsetof(struct vcpu_vmx, fail)),
- 		[host_rsp]"i"(offsetof(struct vcpu_vmx, host_rsp)),
- 		[wordsize]"i"(sizeof(ulong))
--	      : "rax", "cc", "memory"
-+	      : "cc", "memory"
- 	);
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index 6c3e446abeed..020a8adc4cce 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -614,14 +614,26 @@ static void batadv_tt_global_free(struct batadv_priv *bat_priv,
+ 				  struct batadv_tt_global_entry *tt_global,
+ 				  const char *message)
+ {
++	struct batadv_tt_global_entry *tt_removed_entry;
++	struct hlist_node *tt_removed_node;
++
+ 	batadv_dbg(BATADV_DBG_TT, bat_priv,
+ 		   "Deleting global tt entry %pM (vid: %d): %s\n",
+ 		   tt_global->common.addr,
+ 		   batadv_print_vid(tt_global->common.vid), message);
  
- 	preempt_enable();
+-	batadv_hash_remove(bat_priv->tt.global_hash, batadv_compare_tt,
+-			   batadv_choose_tt, &tt_global->common);
+-	batadv_tt_global_entry_put(tt_global);
++	tt_removed_node = batadv_hash_remove(bat_priv->tt.global_hash,
++					     batadv_compare_tt,
++					     batadv_choose_tt,
++					     &tt_global->common);
++	if (!tt_removed_node)
++		return;
++
++	/* drop reference of remove hash entry */
++	tt_removed_entry = hlist_entry(tt_removed_node,
++				       struct batadv_tt_global_entry,
++				       common.hash_entry);
++	batadv_tt_global_entry_put(tt_removed_entry);
+ }
+ 
+ /**
+-- 
+2.20.1
+
 
 
