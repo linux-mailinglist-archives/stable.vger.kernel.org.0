@@ -2,23 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB64154E5
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 22:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2291550E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 22:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbfEFU3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 16:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726190AbfEFU3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 16:29:21 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C47F20830;
-        Mon,  6 May 2019 20:29:17 +0000 (UTC)
-Date:   Mon, 6 May 2019 16:29:15 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        id S1726403AbfEFUsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 16:48:04 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:38816 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726439AbfEFUsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 16:48:04 -0400
+Received: by mail-lj1-f193.google.com with SMTP id u21so3196031lja.5
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 13:48:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LN8/NTM9pRgOW6Qf1pdY0qkm+a38UqLa0bBTAH2+TkU=;
+        b=evA/FZOl+4vi7XMcxBB/gYj89Z6IdHQ5/igigK5Y+YPsXpuGYwuw6t4TEIDlA60P57
+         BPb+CmUxzNVrjEfc4zrJ5mmulbz8GTGhJS3vzxORSu4CzH/aGkuq6kd1492nwVstVwD7
+         +BsguG7MutEBgjcZlB/Jrxx7a0wvgr9VRX8Jo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LN8/NTM9pRgOW6Qf1pdY0qkm+a38UqLa0bBTAH2+TkU=;
+        b=KdrMi6EHNZ2Jw5cjY/Xwe0ersTT0+lFvbE8XYqVu0iDX1HrmRTXvuNwzeXQf0XT7+v
+         6DwoIoSFWnZUaAhj1IjZ4zQW9p2KG79kP5EK/Vf9O80SRRFZen5tCZa8ItchPzgPN3AH
+         0ItjdpMnnG5sK1fyRG4ou22sl3t6sy95sKO/twzI1BGtClgFPPKV63MROAlOSE+Tg5Jb
+         t/BASlgvABQpl1OiFTSWipEjEvjP6UK4HV042ZC/aMFJJmf3ENisHUB/xbE1J6DjiUvB
+         1UB+Mj/FTLlLdreirOioZGXFUGUuxzefKe2svmIm9RSqVAg/2VgHZaiPy66/q8lCskgl
+         O65Q==
+X-Gm-Message-State: APjAAAUXnZmMX++6fcsJnxgXrMn6Yqxt1duru21zb1Bpyza2GZ1OurYe
+        DJKHEEbObksL6/PkAOu72sdyqs5lIZU=
+X-Google-Smtp-Source: APXvYqx6JS7zp/hywOMIhwZDPexx38h9T2KIE6cJpfwetkbN2iDIi1pW9LK4J2rXRZXgTpLjdK0QMA==
+X-Received: by 2002:a2e:63d1:: with SMTP id s78mr10218046lje.166.1557175681331;
+        Mon, 06 May 2019 13:48:01 -0700 (PDT)
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
+        by smtp.gmail.com with ESMTPSA id w17sm1046271ljd.41.2019.05.06.13.48.00
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 May 2019 13:48:01 -0700 (PDT)
+Received: by mail-lf1-f41.google.com with SMTP id o16so10149508lfl.7
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 13:48:00 -0700 (PDT)
+X-Received: by 2002:a19:f50e:: with SMTP id j14mr13952445lfb.11.1557175348252;
+ Mon, 06 May 2019 13:42:28 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
+ <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <20190502185225.0cdfc8bc@gandalf.local.home>
+ <20190502193129.664c5b2e@gandalf.local.home> <20190502195052.0af473cf@gandalf.local.home>
+ <20190503092959.GB2623@hirez.programming.kicks-ass.net> <20190503092247.20cc1ff0@gandalf.local.home>
+ <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net> <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
+ <20190506081951.GJ2606@hirez.programming.kicks-ass.net> <20190506095631.6f71ad7c@gandalf.local.home>
+ <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
+ <20190506130643.62c35eeb@gandalf.local.home> <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
+ <20190506145745.17c59596@gandalf.local.home> <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
+ <20190506162915.380993f9@gandalf.local.home>
+In-Reply-To: <20190506162915.380993f9@gandalf.local.home>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 6 May 2019 13:42:12 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
+Message-ID: <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Andy Lutomirski <luto@amacapital.net>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
@@ -47,221 +93,70 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Joerg Roedel <jroedel@suse.de>,
         "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190506162915.380993f9@gandalf.local.home>
-In-Reply-To: <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
-        <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
-        <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
-        <20190502185225.0cdfc8bc@gandalf.local.home>
-        <20190502193129.664c5b2e@gandalf.local.home>
-        <20190502195052.0af473cf@gandalf.local.home>
-        <20190503092959.GB2623@hirez.programming.kicks-ass.net>
-        <20190503092247.20cc1ff0@gandalf.local.home>
-        <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
-        <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
-        <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
-        <20190506095631.6f71ad7c@gandalf.local.home>
-        <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
-        <20190506130643.62c35eeb@gandalf.local.home>
-        <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
-        <20190506145745.17c59596@gandalf.local.home>
-        <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 6 May 2019 12:46:11 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+On Mon, May 6, 2019 at 1:29 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Because that call to ftrace_stub is also dynamic.
 
-> On Mon, May 6, 2019 at 11:57 AM Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > You should have waited another week to open that merge window ;-)  
-> 
-> Hmm. I'm looking at it while the test builds happen, and since I don't
-> see what's wrong in the low-level entry code, I'm looking at the
-> ftrace code instead.
-> 
-> What's going on here?
-> 
->                *pregs = int3_emulate_call(regs, (unsigned
-> long)ftrace_regs_caller);
-> 
-> that line makes no sense. Why would we emulate a call to
-> ftrace_regs_caller()? That function sets up a pt_regs, and then calls
-> ftrace_stub().
+You're missing the point.
 
-Because that call to ftrace_stub is also dynamic.
+We are rewriting a single "cal" instruction to point to something.
 
-In entry_32.S
+The "int3" emulation should call THE SAME THING.
 
-.globl ftrace_call
-ftrace_call:
-	call	ftrace_stub
+Right now it doesn't.
 
+> Part of the code will change it to call the function needed directly.
+>
+> struct ftrace_ops my_ops {
+>         .func = my_handler
+> };
+>
+>         register_ftrace_function(&my_ops);
+>
+> Will change "call ftrace_stub" into "call my_handler"
 
-update_ftrace_func()
-{
-  [..]
-	} else if (is_ftrace_caller(ip)) {
-		if (!ftrace_update_func_call) {
-			int3_emulate_jmp(regs, ip + CALL_INSN_SIZE);
-			return 1;
-		}
-		*pregs = int3_emulate_call(regs, ftrace_update_func_call);
-		return 1;
-	}
+But that's not what you're actually *doing*.
 
-Part of the code will change it to call the function needed directly.
+Instead, you're now _emulating_ calling ftrace_regs_caller, which will
+call that ftrace_stub, which in turn will try to update the call site.
 
-struct ftrace_ops my_ops {
-	.func = my_handler
-};
+But that's insane. It's insane because
 
-	register_ftrace_function(&my_ops);
+ - it's not even what your call rewriting is doing Why aren't you just
+doing the emulation using the *SAME* target that you're rewriting the
+actual call instruction with?
 
-Will change "call ftrace_stub" into "call my_handler"
+ - even if ftrace_regs_caller ends up being that same function, you'd
+be better off just passing the "struct pt_regs" that you *ALREADY
+HAVE* directly to ftrace_stub in the int3 handler, rather than create
+*another* pt_regs stack
 
-If you register another ftrace_ops, it will change that to
+See? In that second case, why don't you just use "int3_emulate_call()"
+to do the reguired 'struct pt_regs' updates, and then call
+ftrace_stub() *with* that fixed-up pt_regs thing?
 
-	call ftrace_ops_list_func
+In other words, I think you should always do "int3_emulate_call()"
+with the *exact* same address that the instruction you are rewriting
+is using. There's no "three different cases". The only possible cases
+are "am I rewriting a jump" or "am I rewriting a call".
 
-Which will iterate over all registered ftrace_ops, and depending on the
-hashs in ftrace_ops, will call the registered handler for them.
+There is no "am I rewriting a call to one address, and then emulating
+it with a call to another address" case that makes sense.
 
+What *can* make sense is "Oh, I'm emulating a call, but I know that
+call will be rewritten, so let me emulate the call and then
+short-circuit the emulation immediately".
 
-> 
-> But we *have* pt_regs here already with the right values. Why isn't
-> this just a direct call to ftrace_stub() from within the int3 handler?
-> 
-> And the thing is, calling ftrace_regs_caller() looks wrong, because
-> that's not what happens for *real* mcount handling, which uses that
-> "create_trampoline()" to create the thing we're supposed to really
-> use?
+But that is not what the ftrace code is doing. The ftrace code is
+doing something odd and insane.
 
-The ftrace_regs_caller() is what is called if there's two or more
-callbacks registered to a single function. For example, you have a
-function that is being lived patch (it uses the ftrace_regs_caller copy
-of the trampoline). But if you enable function tracing (which doesn't
-need a copy of regs), it will call the ftrace_regs_caller, which will
-call a ftrace_ops_list_func() which will look at the ftrace_ops (which
-is the descriptor representing registered callbacks to ftrace), and
-based on the hash value in them, will call their handler if the
-ftrace_ops hashes match the function being called.
+And no, your "explanation" makes no sense. Because it doesn't actually
+touch on the fundamental insanity.
 
-
-> 
-> Anyway, I simply don't understand the code, so I'm confused. But why
-> is the int3 emulation creating a call that doesn't seem to match what
-> the instruction that we're actually rewriting is supposed to do?
-> 
-> IOW, it looks to me like ftrace_int3_handler() is actually emulating
-> something different than what ftrace_modify_code() is actually
-> modifying the code to do!
-> 
-> Since the only caller of ftrace_modify_code() is update_ftrace_func(),
-> why is that function not just saving the target and we'd emulate the
-> call to that? Using anything else looks crazy?
-> 
-> But as mentioned, I just don't understand the ftrace logic. It looks
-> insane to me, and much more likely to be buggy than the very simple
-> entry code.
-
-
-Let's go an example. Let's say we live patched do_IRQ() and
-__migrate_task(). We would have this:
-
-live_patch_trampoline:
-   (which is a modified copy of the ftrace_regs_caller)
-	pushl	$__KERNEL_CS
-	pushl	4(%esp)
-	pushl	$0
-	pushl	%gs
-	pushl	%fs
-	pushl	%es
-	pushl	%ds
-	pushl	%eax
-	pushf
-	popl	%eax
-	movl	%eax, 8*4(%esp)
-	pushl	%ebp
-	pushl	%edi
-	pushl	%esi
-	pushl	%edx
-	pushl	%ecx
-	pushl	%ebx
-	movl	12*4(%esp), %eax
-	subl	$MCOUNT_INSN_SIZE, %eax
-	movl	15*4(%esp), %edx		/* Load parent ip (2nd parameter) */
-	movl	function_trace_op, %ecx		/* Save ftrace_pos in 3rd parameter */
-	pushl	%esp				/* Save pt_regs as 4th parameter */
-
-	call	live_kernel_patch_func
-
-	addl	$4, %esp			/* Skip pt_regs */
-	push	14*4(%esp)
-	popf
-	movl	12*4(%esp), %eax
-	movl	%eax, 14*4(%esp)
-	popl	%ebx
-	popl	%ecx
-	popl	%edx
-	popl	%esi
-	popl	%edi
-	popl	%ebp
-	popl	%eax
-	popl	%ds
-	popl	%es
-	popl	%fs
-	popl	%gs
-	lea	3*4(%esp), %esp			/* Skip orig_ax, ip and cs */
-	jmp	.Lftrace_ret
-
-
-<do_IRQ>:
-	call live_patch_trampoline
-	[..]
-
-<__migrate_task>:
-	call_live_patch_trampoline
-
-
-Now we enable function tracing on all functions that can be traced, and
-this includes do_IRQ() and __migrate_task(). Thus, we first modify that
-call to ftrace_stub in the ftrace_regs_caller to point to the
-ftrace_ops_list_func() as that will iterate over the ftrace_ops for
-live kernel patching, and the ftrace_ops for the function tracer. That
-iterator will check the hashes against the called functions, and for
-live kernel patching, it will it will call its handler if the passed in
-ip matches either do_IRQ() or __migrate_task(). It will see that the
-ftrace_ops for function tracing is set to trace all functions and just
-call its handler in that loop too.
-
-Today, when we place an int3 on those functions, we basically turn them
-into nops.
-
-<do_IRQ>:
-	<int3>(convert from call live_patch_trampoline
-	                 to call ftrace_regs_caller)
-	[..]
-
-But that int3 handler, doesn't call either the live_patch_trampoline or
-ftrace_regs_caller, which means, the live kernel patching doesn't get
-to make that function call something different. We basically, just
-disabled tracing completely for those functions during that transition.
-
-Remember that ftrace_regs_caller gets updated to not call ftrace_stub,
-but to the list iterator if there's more than one handler registered
-with ftrace (and so does ftrace_caller). By making the int3 handler
-call it, will do the iteration over all registered ftrace_ops and
-nothing will be missed.
-
-Does that help explain what's going on?
-
--- Steve
+            Linus
