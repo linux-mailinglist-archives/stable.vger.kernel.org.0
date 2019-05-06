@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8363C14E20
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BCE14D83
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728639AbfEFOnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:43:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
+        id S1727022AbfEFOwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728620AbfEFOnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:23 -0400
+        id S1729049AbfEFOsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B05C21479;
-        Mon,  6 May 2019 14:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEF8F20C01;
+        Mon,  6 May 2019 14:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153802;
-        bh=PfLeZyYVsYOyH47/cY4Cr0MKkIiL4NuQjQGlWyG1dHs=;
+        s=default; t=1557154117;
+        bh=0sCxsk4ZhCr/cOB8EqI0wCflLdcv00pT061/03t1zBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFQtgGG2FAF+7nyxhVOCya3xEM6hBYWtIWhTreX/1hLSnox/aVekFGpeFaCbmCBaq
-         /VSOi+L5KpqclcEQ9PUgWo1/U12zEFUMOJvDn22/dWnAif5eaWBSoplpxCCyd9XuYn
-         kff9P+ajxbQ/EsrWZXxcp8n9ga0WlQqm9J3CK5mo=
+        b=UCWk/B0/c4gPK2VE8WEae/a5bTI7Rp5rJP1Iq8H2icGqmCUerWZQ36bNmGCJS6q/H
+         Q4Iq1UtkQnUFla5XrWP+TH6PuxYO36uOH+Orp7Sps7LFssLaCX9IUL5eqVVSnu0rcO
+         xCLFe8ms+xkST7A0jsPFMsg92Fi1HO4g5LkaffwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.19 94/99] clk: x86: Add system specific quirk to mark clocks as critical
+        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 36/62] bonding: show full hw address in sysfs for slave entries
 Date:   Mon,  6 May 2019 16:33:07 +0200
-Message-Id: <20190506143102.369504329@linuxfoundation.org>
+Message-Id: <20190506143054.215161905@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,133 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Müller <dave.mueller@gmx.ch>
+[ Upstream commit 18bebc6dd3281955240062655a4df35eef2c46b3 ]
 
-commit 7c2e07130090ae001a97a6b65597830d6815e93e upstream.
+Bond expects ethernet hwaddr for its slave, but it can be longer than 6
+bytes - infiniband interface for example.
 
-Since commit 648e921888ad ("clk: x86: Stop marking clocks as
-CLK_IS_CRITICAL"), the pmc_plt_clocks of the Bay Trail SoC are
-unconditionally gated off. Unfortunately this will break systems where these
-clocks are used for external purposes beyond the kernel's knowledge. Fix it
-by implementing a system specific quirk to mark the necessary pmc_plt_clks as
-critical.
+ # cat /sys/devices/<skipped>/net/ib0/address
+ 80:00:02:08:fe:80:00:00:00:00:00:00:7c:fe:90:03:00:be:5d:e1
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Signed-off-by: David Müller <dave.mueller@gmx.ch>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # cat /sys/devices/<skipped>/net/ib0/bonding_slave/perm_hwaddr
+ 80:00:02:08:fe:80
 
+So print full hwaddr in sysfs "bonding_slave/perm_hwaddr" as well.
+
+Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/x86/clk-pmc-atom.c                 |   14 +++++++++++---
- drivers/platform/x86/pmc_atom.c                |   21 +++++++++++++++++++++
- include/linux/platform_data/x86/clk-pmc-atom.h |    3 +++
- 3 files changed, 35 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_sysfs_slave.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/x86/clk-pmc-atom.c
-+++ b/drivers/clk/x86/clk-pmc-atom.c
-@@ -165,7 +165,7 @@ static const struct clk_ops plt_clk_ops
- };
+diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
+index 7d16c51e6913..641a532b67cb 100644
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -55,7 +55,9 @@ static SLAVE_ATTR_RO(link_failure_count);
  
- static struct clk_plt *plt_clk_register(struct platform_device *pdev, int id,
--					void __iomem *base,
-+					const struct pmc_clk_data *pmc_data,
- 					const char **parent_names,
- 					int num_parents)
+ static ssize_t perm_hwaddr_show(struct slave *slave, char *buf)
  {
-@@ -184,9 +184,17 @@ static struct clk_plt *plt_clk_register(
- 	init.num_parents = num_parents;
- 
- 	pclk->hw.init = &init;
--	pclk->reg = base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
-+	pclk->reg = pmc_data->base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
- 	spin_lock_init(&pclk->lock);
- 
-+	/*
-+	 * On some systems, the pmc_plt_clocks already enabled by the
-+	 * firmware are being marked as critical to avoid them being
-+	 * gated by the clock framework.
-+	 */
-+	if (pmc_data->critical && plt_clk_is_enabled(&pclk->hw))
-+		init.flags |= CLK_IS_CRITICAL;
-+
- 	ret = devm_clk_hw_register(&pdev->dev, &pclk->hw);
- 	if (ret) {
- 		pclk = ERR_PTR(ret);
-@@ -332,7 +340,7 @@ static int plt_clk_probe(struct platform
- 		return PTR_ERR(parent_names);
- 
- 	for (i = 0; i < PMC_CLK_NUM; i++) {
--		data->clks[i] = plt_clk_register(pdev, i, pmc_data->base,
-+		data->clks[i] = plt_clk_register(pdev, i, pmc_data,
- 						 parent_names, data->nparents);
- 		if (IS_ERR(data->clks[i])) {
- 			err = PTR_ERR(data->clks[i]);
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -17,6 +17,7 @@
- 
- #include <linux/debugfs.h>
- #include <linux/device.h>
-+#include <linux/dmi.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/platform_data/x86/clk-pmc-atom.h>
-@@ -391,11 +392,27 @@ static int pmc_dbgfs_register(struct pmc
+-	return sprintf(buf, "%pM\n", slave->perm_hwaddr);
++	return sprintf(buf, "%*phC\n",
++		       slave->dev->addr_len,
++		       slave->perm_hwaddr);
  }
- #endif /* CONFIG_DEBUG_FS */
+ static SLAVE_ATTR_RO(perm_hwaddr);
  
-+/*
-+ * Some systems need one or more of their pmc_plt_clks to be
-+ * marked as critical.
-+ */
-+static const struct dmi_system_id critclk_systems[] __initconst = {
-+	{
-+		.ident = "MPL CEC1x",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
-+		},
-+	},
-+	{ /*sentinel*/ }
-+};
-+
- static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
- 			  const struct pmc_data *pmc_data)
- {
- 	struct platform_device *clkdev;
- 	struct pmc_clk_data *clk_data;
-+	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
- 
- 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
- 	if (!clk_data)
-@@ -403,6 +420,10 @@ static int pmc_setup_clks(struct pci_dev
- 
- 	clk_data->base = pmc_regmap; /* offset is added by client */
- 	clk_data->clks = pmc_data->clks;
-+	if (d) {
-+		clk_data->critical = true;
-+		pr_info("%s critclks quirk enabled\n", d->ident);
-+	}
- 
- 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
- 					       PLATFORM_DEVID_NONE,
---- a/include/linux/platform_data/x86/clk-pmc-atom.h
-+++ b/include/linux/platform_data/x86/clk-pmc-atom.h
-@@ -35,10 +35,13 @@ struct pmc_clk {
-  *
-  * @base:	PMC clock register base offset
-  * @clks:	pointer to set of registered clocks, typically 0..5
-+ * @critical:	flag to indicate if firmware enabled pmc_plt_clks
-+ *		should be marked as critial or not
-  */
- struct pmc_clk_data {
- 	void __iomem *base;
- 	const struct pmc_clk *clks;
-+	bool critical;
- };
- 
- #endif /* __PLATFORM_DATA_X86_CLK_PMC_ATOM_H */
+-- 
+2.20.1
+
 
 
