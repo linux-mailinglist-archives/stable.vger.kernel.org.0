@@ -2,65 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D2A1507E
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:42:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80202150DE
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 18:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726819AbfEFPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55906 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726520AbfEFPmS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 11:42:18 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 655BC2087F;
-        Mon,  6 May 2019 15:42:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557157337;
-        bh=ab6vxZ2ZuztsL+zONdbHamFuLiBrBSj1aNspFw3TDiA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AnOojHHDqk9z0eY/XOioX5B2/GZzIOHMuCNWpKD0k1Q6sVMZHaE4nU6g3jzMvJKov
-         TLJoWsgtVZyxZLsXWSV9X7yHzCAV9k21/Mq7Ya1flVzOQhiDZ5ZESo1u8CfGYKJOnA
-         3BgbnTsI/UZZAa2/7+9htZhO6YPqrsEYHOKz3Pwo=
-Date:   Mon, 6 May 2019 17:42:15 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.9 10/62] kasan: rework Kconfig settings
-Message-ID: <20190506154215.GB14919@kroah.com>
-References: <20190506143051.102535767@linuxfoundation.org>
- <20190506143051.984481239@linuxfoundation.org>
- <8bdd66ba-d6e8-ef65-47fd-cf18e18fcd3e@virtuozzo.com>
+        id S1725994AbfEFQF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 12:05:27 -0400
+Received: from mail-ua1-f66.google.com ([209.85.222.66]:33391 "EHLO
+        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbfEFQF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 12:05:27 -0400
+Received: by mail-ua1-f66.google.com with SMTP id 49so1448788uas.0
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 09:05:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rRFFU8Q/jQghW94GutkX/fzbuY9dKYgOCq1w5lys5os=;
+        b=h2G+g0f5qcaSkmO+aIkatHsodbmhrHyNCkxJUs1xGr5Fil8QSPcy2zpt/dYAmSjtoo
+         qNZIeF/MEpm8x3u4dQZ5NOzIxeuDUCemWdlh05SkylMyMccltrh9MUUIjiqdtgdyeb0D
+         x9EtOIkulHA5fOCXhXBT9wjgf5lZuGNPbi4BE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rRFFU8Q/jQghW94GutkX/fzbuY9dKYgOCq1w5lys5os=;
+        b=IpotecH4qbVrsQ9NkW2n+q4L5l3qXVHEHxBdC2nwY55y/J1mjZt7wysQ5i6ZqE2PZw
+         uxuznz6Kghfu1uz/y0AhYPIbykJD7ioNWeZwoMfL7HpE++lYpC/f69Fv6dwaUPRb0KFJ
+         yVXDvXOSmyekAA9G1xgW7XXl1fG6PUhSnvjm4UDUZ7OTew3DuvatsiZ9Hftzsndh2DoL
+         tbn+Nz+eiGb8CQvT5ea9HP5kxCkVQ0gAxftTOCGRwRypmduwtC+7uJYWjKwnPbrCT3WD
+         wdgthT3bSisJ6NWE6iGzU3A0ypdXRW6LB4dw7SZnttjOB1zz6rO0d6dWCnB4XpSJFpFH
+         klkw==
+X-Gm-Message-State: APjAAAVFPcmgxoMYZ1NXqVUa5E0VQnwY8irANuqS/46BjYKwUA8pLFgR
+        g214SA0R3vGMWjvXcaBkGmCSSL3o/u0=
+X-Google-Smtp-Source: APXvYqz8lahPfd3zeWD1Wyg9SCf12JCRQy+w1iHFiHzA8rN8kxNvigrajPojEE7hiKUMMpbxA92Nzg==
+X-Received: by 2002:ab0:664e:: with SMTP id b14mr14634uaq.97.1557158725273;
+        Mon, 06 May 2019 09:05:25 -0700 (PDT)
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com. [209.85.222.53])
+        by smtp.gmail.com with ESMTPSA id 8sm2969078vkw.38.2019.05.06.09.05.24
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 May 2019 09:05:24 -0700 (PDT)
+Received: by mail-ua1-f53.google.com with SMTP id 94so2588955uaf.10
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 09:05:24 -0700 (PDT)
+X-Received: by 2002:ab0:d89:: with SMTP id i9mr13008936uak.96.1557158723903;
+ Mon, 06 May 2019 09:05:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8bdd66ba-d6e8-ef65-47fd-cf18e18fcd3e@virtuozzo.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20181018185616.14768-1-keescook@chromium.org> <20181018185616.14768-3-keescook@chromium.org>
+ <CAM0oz-91yjPQKnxGDjwFThs19U=+iziuUr=9z13NSibr_uRxZQ@mail.gmail.com>
+ <20190505131654.GC25640@kroah.com> <CAD=FV=UV7x-qJU86MzHxY8bqDV7rcc3XoyotKyy_+1MpMM22bA@mail.gmail.com>
+ <CAGXu5jKzH0Ttdtp5bXP_EAfp+fA+tEQwLXh=VmZ1r5q6wdpqaw@mail.gmail.com>
+In-Reply-To: <CAGXu5jKzH0Ttdtp5bXP_EAfp+fA+tEQwLXh=VmZ1r5q6wdpqaw@mail.gmail.com>
+From:   Kees Cook <keescook@chromium.org>
+Date:   Mon, 6 May 2019 09:05:12 -0700
+X-Gmail-Original-Message-ID: <CAGXu5jKtteYVhB=jpjBBkGqW5_XK=zpCP24Fj+mM0L8RBnhh=A@mail.gmail.com>
+Message-ID: <CAGXu5jKtteYVhB=jpjBBkGqW5_XK=zpCP24Fj+mM0L8RBnhh=A@mail.gmail.com>
+Subject: Re: [PATCH pstore-next v2 2/4] pstore: Allocate compression during late_initcall()
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 06, 2019 at 05:58:59PM +0300, Andrey Ryabinin wrote:
-> 
-> 
-> On 5/6/19 5:32 PM, Greg Kroah-Hartman wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > commit e7c52b84fb18f08ce49b6067ae6285aca79084a8 upstream.
-> > 
-> 
-> This is a fix/workaround for the previous patch c5caf21ab0cf "kasan: turn on -fsanitize-address-use-after-scope"
-> which shouldn't be in the -stable. So without c5caf21ab0cf we don't need this one.
+Doug said:
+> > > > I'd propose that these three patches:
+> > > >
+> > > > 95047b0519c1 pstore: Refactor compression initialization
+> > > > 416031653eb5 pstore: Allocate compression during late_initcall()
+> > > > cb095afd4476 pstore: Centralize init/exit routines
 
-Great, will go drop this now as well!
+Okay, confirmed. These look sufficient to me, and the resulting tree
+passes my pstore tests. Greg, can you please pull these into 4.19?
 
-greg k-h
+Thanks!
+
+-- 
+Kees Cook
