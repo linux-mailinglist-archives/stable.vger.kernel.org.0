@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 946F314CB6
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8BC314EF1
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726308AbfEFOnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:43:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
+        id S1727450AbfEFOho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:37:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727549AbfEFOnD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:03 -0400
+        id S1727447AbfEFOho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0DBF216C4;
-        Mon,  6 May 2019 14:43:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DB18204EC;
+        Mon,  6 May 2019 14:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153782;
-        bh=JfTKtXFNOHSrgjA7GMHgaGf6E7mV96kS+hHxxaVNAnY=;
+        s=default; t=1557153463;
+        bh=VlWkBUEImB78/og5ALQ2v1xG5jr0UAHU6iU6re1Vq5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEo6Uv+vhhP+yv1H/k/i8WnEh+YCekL5mVDU5LnMR/zrWMjprMbZuYSMMpox7+9Lu
-         7CCM2mLalWgYtCGVBgpr466I19rZqOXca+Q9XLtA8DhutBzPm4s+S4acFXFFJuInOL
-         EZiX4B1KiocoTE/Y8i/6b2K6Cz9RhHqvjkd6K97M=
+        b=qPCWpawv6Xf7EZAger1HMUauaIj2knqUtI/fLd/2VpGmIZP1iD/qkOrRDP6FwiQG1
+         f9/uPLZFQTinQfjk5oPpLOOwsKZdXmxT9HOd5cmm2o7/aVKBHoUj1ilv+kEqz95CO9
+         k8zXNrldZzsaYl6RFQz0WDPXQsSTECguUDXWhmBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yufen Yu <yuyufen@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 63/99] hugetlbfs: fix memory leak for resv_map
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.0 098/122] ASoC: dpcm: skip missing substream while applying symmetry
 Date:   Mon,  6 May 2019 16:32:36 +0200
-Message-Id: <20190506143059.813682386@linuxfoundation.org>
+Message-Id: <20190506143103.555118908@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-When mknod is used to create a block special file in hugetlbfs, it will
-allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
-inode->i_mapping->private_data will point the newly allocated resv_map.
-However, when the device special file is opened bd_acquire() will set
-inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
-allocated resv_map is lost and the structure is leaked.
+commit 6246f283d5e02ac757bd8d9bacde8fdc54c4582d upstream.
 
-Programs to reproduce:
-        mount -t hugetlbfs nodev hugetlbfs
-        mknod hugetlbfs/dev b 0 0
-        exec 30<> hugetlbfs/dev
-        umount hugetlbfs/
+If for any reason, the backend does not have the requested substream
+(like capture on a playback only backend), the BE will be skipped in
+dpcm_be_dai_startup().
 
-resv_map structures are only needed for inodes which can have associated
-page allocations.  To fix the leak, only allocate resv_map for those
-inodes which could possibly be associated with page allocations.
+However, dpcm_apply_symmetry() does not skip those BE and will
+dereference the be_substream (NULL) pointer anyway.
 
-Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Suggested-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Like in dpcm_be_dai_startup(), just skip those BE.
+
+Fixes: 906c7d690c3b ("ASoC: dpcm: Apply symmetry for DPCM")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/hugetlbfs/inode.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ sound/soc/soc-pcm.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index a7fa037b876b..a3a3d256fb0e 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -741,11 +741,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 					umode_t mode, dev_t dev)
- {
- 	struct inode *inode;
--	struct resv_map *resv_map;
-+	struct resv_map *resv_map = NULL;
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1895,10 +1895,15 @@ static int dpcm_apply_symmetry(struct sn
+ 		struct snd_soc_pcm_runtime *be = dpcm->be;
+ 		struct snd_pcm_substream *be_substream =
+ 			snd_soc_dpcm_get_substream(be, stream);
+-		struct snd_soc_pcm_runtime *rtd = be_substream->private_data;
++		struct snd_soc_pcm_runtime *rtd;
+ 		struct snd_soc_dai *codec_dai;
+ 		int i;
  
--	resv_map = resv_map_alloc();
--	if (!resv_map)
--		return NULL;
-+	/*
-+	 * Reserve maps are only needed for inodes that can have associated
-+	 * page allocations.
-+	 */
-+	if (S_ISREG(mode) || S_ISLNK(mode)) {
-+		resv_map = resv_map_alloc();
-+		if (!resv_map)
-+			return NULL;
-+	}
++		/* A backend may not have the requested substream */
++		if (!be_substream)
++			continue;
++
++		rtd = be_substream->private_data;
+ 		if (rtd->dai_link->be_hw_params_fixup)
+ 			continue;
  
- 	inode = new_inode(sb);
- 	if (inode) {
-@@ -780,8 +786,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 			break;
- 		}
- 		lockdep_annotate_inode_mutex_key(inode);
--	} else
--		kref_put(&resv_map->refs, resv_map_release);
-+	} else {
-+		if (resv_map)
-+			kref_put(&resv_map->refs, resv_map_release);
-+	}
- 
- 	return inode;
- }
--- 
-2.20.1
-
 
 
