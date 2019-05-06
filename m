@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D4714E52
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76A314C14
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:36:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbfEFOlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35746 "EHLO mail.kernel.org"
+        id S1727094AbfEFOgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727525AbfEFOlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:41:35 -0400
+        id S1727080AbfEFOgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:36:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A7EC20C01;
-        Mon,  6 May 2019 14:41:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E379D204EC;
+        Mon,  6 May 2019 14:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153694;
-        bh=3NovFybzUC5YkkLlXAVHiF72M1hXcAlS07Kd/WhUF5k=;
+        s=default; t=1557153368;
+        bh=ZaoHcNUgs5GV+vfouf2QElCN36BBMQpSYciQTVvDVzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFubIEpD1L/9A6t6WH4ODJiw1SKNICu7S8qxMt7Rqim4IBS15iKwk0/Ynhm/dPME/
-         +xbZ5Qm1PixwJsDQYK6b5Fjv7w0z6TahXlRL4oAn6WKvu2hH+Q6jHPzTwSgpXV5C4j
-         ORogYy+YGpf0+uCcrXiz0eQs+pD6OW+fwLHf26Ao=
+        b=E6Ls1Hrff7uQiPy/r1SJRqRnoTFu+PmOnvxcVK04Sue+YO9RP898OIhwzQtsNrliu
+         I5JSa66ebgSvdJQkBan3he7mNE6G45UcPscKxY+vG+Uqs/dwDBT14ZGmac+J86GNvI
+         gyq7nn5cez1+LyGr908RZik/++hT+GDyLaVo6VeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/99] batman-adv: Reduce tt_local hash refcnt only for removed entry
+        stable@vger.kernel.org, Louis Taylor <louis@kragniz.eu>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 062/122] vfio/pci: use correct format characters
 Date:   Mon,  6 May 2019 16:32:00 +0200
-Message-Id: <20190506143056.416571825@linuxfoundation.org>
+Message-Id: <20190506143100.534917596@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d65b9accab4a7ed5038f6df403fbd5e298398c7 ]
+[ Upstream commit 426b046b748d1f47e096e05bdcc6fb4172791307 ]
 
-The batadv_hash_remove is a function which searches the hashtable for an
-entry using a needle, a hashtable bucket selection function and a compare
-function. It will lock the bucket list and delete an entry when the compare
-function matches it with the needle. It returns the pointer to the
-hlist_node which matches or NULL when no entry matches the needle.
+When compiling with -Wformat, clang emits the following warnings:
 
-The batadv_tt_local_remove is not itself protected in anyway to avoid that
-any other function is modifying the hashtable between the search for the
-entry and the call to batadv_hash_remove. It can therefore happen that the
-entry either doesn't exist anymore or an entry was deleted which is not the
-same object as the needle. In such an situation, the reference counter (for
-the reference stored in the hashtable) must not be reduced for the needle.
-Instead the reference counter of the actually removed entry has to be
-reduced.
+drivers/vfio/pci/vfio_pci.c:1601:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
 
-Otherwise the reference counter will underflow and the object might be
-freed before all its references were dropped. The kref helpers reported
-this problem as:
+drivers/vfio/pci/vfio_pci.c:1601:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
 
-  refcount_t: underflow; use-after-free.
+drivers/vfio/pci/vfio_pci.c:1601:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
 
-Fixes: ef72706a0543 ("batman-adv: protect tt_local_entry from concurrent delete events")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/vfio/pci/vfio_pci.c:1601:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
+The types of these arguments are unconditionally defined, so this patch
+updates the format character to the correct ones for unsigned ints.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Signed-off-by: Louis Taylor <louis@kragniz.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- net/batman-adv/translation-table.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index d21624c44665..696e6ddc534b 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -1332,9 +1332,10 @@ u16 batadv_tt_local_remove(struct batadv_priv *bat_priv, const u8 *addr,
- 			   unsigned short vid, const char *message,
- 			   bool roaming)
- {
-+	struct batadv_tt_local_entry *tt_removed_entry;
- 	struct batadv_tt_local_entry *tt_local_entry;
- 	u16 flags, curr_flags = BATADV_NO_FLAGS;
--	void *tt_entry_exists;
-+	struct hlist_node *tt_removed_node;
- 
- 	tt_local_entry = batadv_tt_local_hash_find(bat_priv, addr, vid);
- 	if (!tt_local_entry)
-@@ -1363,15 +1364,18 @@ u16 batadv_tt_local_remove(struct batadv_priv *bat_priv, const u8 *addr,
- 	 */
- 	batadv_tt_local_event(bat_priv, tt_local_entry, BATADV_TT_CLIENT_DEL);
- 
--	tt_entry_exists = batadv_hash_remove(bat_priv->tt.local_hash,
-+	tt_removed_node = batadv_hash_remove(bat_priv->tt.local_hash,
- 					     batadv_compare_tt,
- 					     batadv_choose_tt,
- 					     &tt_local_entry->common);
--	if (!tt_entry_exists)
-+	if (!tt_removed_node)
- 		goto out;
- 
--	/* extra call to free the local tt entry */
--	batadv_tt_local_entry_put(tt_local_entry);
-+	/* drop reference of remove hash entry */
-+	tt_removed_entry = hlist_entry(tt_removed_node,
-+				       struct batadv_tt_local_entry,
-+				       common.hash_entry);
-+	batadv_tt_local_entry_put(tt_removed_entry);
- 
- out:
- 	if (tt_local_entry)
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index ff60bd1ea587..eb8fc8ccffc6 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1597,11 +1597,11 @@ static void __init vfio_pci_fill_ids(void)
+ 		rc = pci_add_dynid(&vfio_pci_driver, vendor, device,
+ 				   subvendor, subdevice, class, class_mask, 0);
+ 		if (rc)
+-			pr_warn("failed to add dynamic id [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x (%d)\n",
++			pr_warn("failed to add dynamic id [%04x:%04x[%04x:%04x]] class %#08x/%08x (%d)\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask, rc);
+ 		else
+-			pr_info("add [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x\n",
++			pr_info("add [%04x:%04x[%04x:%04x]] class %#08x/%08x\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask);
+ 	}
 -- 
 2.20.1
 
