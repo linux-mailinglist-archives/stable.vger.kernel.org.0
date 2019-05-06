@@ -2,231 +2,293 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 590BA14880
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 12:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9924E148BD
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 13:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725853AbfEFKpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 06:45:11 -0400
-Received: from relay.sw.ru ([185.231.240.75]:53854 "EHLO relay.sw.ru"
+        id S1726034AbfEFLQD convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 6 May 2019 07:16:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49494 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725948AbfEFKpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 06:45:11 -0400
-Received: from [172.16.25.12] (helo=i7.sw.ru)
-        by relay.sw.ru with esmtp (Exim 4.91)
-        (envelope-from <aryabinin@virtuozzo.com>)
-        id 1hNb7J-0002zI-Ox; Mon, 06 May 2019 13:45:05 +0300
-From:   Andrey Ryabinin <aryabinin@virtuozzo.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] ubsan: Fix nasty -Wbuiltin-declaration-mismatch GCC-9 warnings
-Date:   Mon,  6 May 2019 13:45:26 +0300
-Message-Id: <20190506104527.10724-1-aryabinin@virtuozzo.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <CAHk-=winPBAQwSr9onDoa_ejnV6uWhFiAuQSwd1X-B16vknyXw@mail.gmail.com>
-References: <CAHk-=winPBAQwSr9onDoa_ejnV6uWhFiAuQSwd1X-B16vknyXw@mail.gmail.com>
+        id S1725886AbfEFLQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 07:16:03 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0E34C7E437
+        for <stable@vger.kernel.org>; Mon,  6 May 2019 11:16:03 +0000 (UTC)
+Received: from [172.54.27.0] (cpt-0009.paas.prod.upshift.rdu2.redhat.com [10.0.18.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 016A05D969;
+        Mon,  6 May 2019 11:15:57 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-5.0
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.7E6F9B004D.B5E2BOYZ3L@redhat.com>
+X-Gitlab-Pipeline-ID: 9362
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9362
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Mon, 06 May 2019 11:16:03 +0000 (UTC)
+Date:   Mon, 6 May 2019 07:16:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Building lib/ubsan.c with gcc-9 results in a ton of nasty warnings
-like this one:
-    lib/ubsan.c warning: conflicting types for built-in function
-         ‘__ubsan_handle_negate_overflow’; expected ‘void(void *, void *)’ [-Wbuiltin-declaration-mismatch]
+Hello,
 
-The kernel's declarations of __ubsan_handle_*() often uses 'unsigned long'
-types in parameters while GCC these parameters as 'void *' types,
-hence the mismatch.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Fix this by using 'void *' to match GCC's declarations.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: e5b9547b1aa3 - Linux 5.0.13
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Fixes: c6d308534aef ("UBSAN: run-time undefined behavior sanity checker")
-Cc: <stable@vger.kernel.org>
----
- lib/ubsan.c | 49 +++++++++++++++++++++++--------------------------
- 1 file changed, 23 insertions(+), 26 deletions(-)
+The results of these automated tests are provided below.
 
-diff --git a/lib/ubsan.c b/lib/ubsan.c
-index e4162f59a81c..1e9e2ab25539 100644
---- a/lib/ubsan.c
-+++ b/lib/ubsan.c
-@@ -86,11 +86,13 @@ static bool is_inline_int(struct type_descriptor *type)
- 	return bits <= inline_bits;
- }
- 
--static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
-+static s_max get_signed_val(struct type_descriptor *type, void *val)
- {
- 	if (is_inline_int(type)) {
- 		unsigned extra_bits = sizeof(s_max)*8 - type_bit_width(type);
--		return ((s_max)val) << extra_bits >> extra_bits;
-+		unsigned long ulong_val = (unsigned long)val;
-+
-+		return ((s_max)ulong_val) << extra_bits >> extra_bits;
- 	}
- 
- 	if (type_bit_width(type) == 64)
-@@ -99,15 +101,15 @@ static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
- 	return *(s_max *)val;
- }
- 
--static bool val_is_negative(struct type_descriptor *type, unsigned long val)
-+static bool val_is_negative(struct type_descriptor *type, void *val)
- {
- 	return type_is_signed(type) && get_signed_val(type, val) < 0;
- }
- 
--static u_max get_unsigned_val(struct type_descriptor *type, unsigned long val)
-+static u_max get_unsigned_val(struct type_descriptor *type, void *val)
- {
- 	if (is_inline_int(type))
--		return val;
-+		return (unsigned long)val;
- 
- 	if (type_bit_width(type) == 64)
- 		return *(u64 *)val;
-@@ -116,7 +118,7 @@ static u_max get_unsigned_val(struct type_descriptor *type, unsigned long val)
- }
- 
- static void val_to_string(char *str, size_t size, struct type_descriptor *type,
--	unsigned long value)
-+			void *value)
- {
- 	if (type_is_int(type)) {
- 		if (type_bit_width(type) == 128) {
-@@ -163,8 +165,8 @@ static void ubsan_epilogue(unsigned long *flags)
- 	current->in_ubsan--;
- }
- 
--static void handle_overflow(struct overflow_data *data, unsigned long lhs,
--			unsigned long rhs, char op)
-+static void handle_overflow(struct overflow_data *data, void *lhs,
-+			void *rhs, char op)
- {
- 
- 	struct type_descriptor *type = data->type;
-@@ -191,8 +193,7 @@ static void handle_overflow(struct overflow_data *data, unsigned long lhs,
- }
- 
- void __ubsan_handle_add_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 
- 	handle_overflow(data, lhs, rhs, '+');
-@@ -200,23 +201,21 @@ void __ubsan_handle_add_overflow(struct overflow_data *data,
- EXPORT_SYMBOL(__ubsan_handle_add_overflow);
- 
- void __ubsan_handle_sub_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	handle_overflow(data, lhs, rhs, '-');
- }
- EXPORT_SYMBOL(__ubsan_handle_sub_overflow);
- 
- void __ubsan_handle_mul_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	handle_overflow(data, lhs, rhs, '*');
- }
- EXPORT_SYMBOL(__ubsan_handle_mul_overflow);
- 
- void __ubsan_handle_negate_overflow(struct overflow_data *data,
--				unsigned long old_val)
-+				void *old_val)
- {
- 	unsigned long flags;
- 	char old_val_str[VALUE_LENGTH];
-@@ -237,8 +236,7 @@ EXPORT_SYMBOL(__ubsan_handle_negate_overflow);
- 
- 
- void __ubsan_handle_divrem_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	unsigned long flags;
- 	char rhs_val_str[VALUE_LENGTH];
-@@ -323,7 +321,7 @@ static void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
- }
- 
- void __ubsan_handle_type_mismatch(struct type_mismatch_data *data,
--				unsigned long ptr)
-+				void *ptr)
- {
- 	struct type_mismatch_data_common common_data = {
- 		.location = &data->location,
-@@ -332,12 +330,12 @@ void __ubsan_handle_type_mismatch(struct type_mismatch_data *data,
- 		.type_check_kind = data->type_check_kind
- 	};
- 
--	ubsan_type_mismatch_common(&common_data, ptr);
-+	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
- }
- EXPORT_SYMBOL(__ubsan_handle_type_mismatch);
- 
- void __ubsan_handle_type_mismatch_v1(struct type_mismatch_data_v1 *data,
--				unsigned long ptr)
-+				void *ptr)
- {
- 
- 	struct type_mismatch_data_common common_data = {
-@@ -347,12 +345,12 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_data_v1 *data,
- 		.type_check_kind = data->type_check_kind
- 	};
- 
--	ubsan_type_mismatch_common(&common_data, ptr);
-+	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
- }
- EXPORT_SYMBOL(__ubsan_handle_type_mismatch_v1);
- 
- void __ubsan_handle_vla_bound_not_positive(struct vla_bound_data *data,
--					unsigned long bound)
-+					void *bound)
- {
- 	unsigned long flags;
- 	char bound_str[VALUE_LENGTH];
-@@ -369,8 +367,7 @@ void __ubsan_handle_vla_bound_not_positive(struct vla_bound_data *data,
- }
- EXPORT_SYMBOL(__ubsan_handle_vla_bound_not_positive);
- 
--void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data,
--				unsigned long index)
-+void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data, void *index)
- {
- 	unsigned long flags;
- 	char index_str[VALUE_LENGTH];
-@@ -388,7 +385,7 @@ void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data,
- EXPORT_SYMBOL(__ubsan_handle_out_of_bounds);
- 
- void __ubsan_handle_shift_out_of_bounds(struct shift_out_of_bounds_data *data,
--					unsigned long lhs, unsigned long rhs)
-+					void *lhs, void *rhs)
- {
- 	unsigned long flags;
- 	struct type_descriptor *rhs_type = data->rhs_type;
-@@ -439,7 +436,7 @@ void __ubsan_handle_builtin_unreachable(struct unreachable_data *data)
- EXPORT_SYMBOL(__ubsan_handle_builtin_unreachable);
- 
- void __ubsan_handle_load_invalid_value(struct invalid_value_data *data,
--				unsigned long val)
-+				void *val)
- {
- 	unsigned long flags;
- 	char val_str[VALUE_LENGTH];
--- 
-2.21.0
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
+One or more kernel tests failed:
+
+  aarch64:
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: e5b9547b1aa3 - Linux 5.0.13
+
+We then merged the patchset with `git am`:
+
+  selftests-seccomp-prepare-for-exclusive-seccomp-flags.patch
+  seccomp-make-new_listener-and-tsync-flags-exclusive.patch
+  arc-memset-fix-build-with-l1_cache_shift-6.patch
+  iwlwifi-fix-driver-operation-for-5350.patch
+  mwifiex-make-resume-actually-do-something-useful-again-on-sdio-cards.patch
+  mtd-rawnand-marvell-clean-the-controller-state-before-each-operation.patch
+  mac80211-don-t-attempt-to-rename-err_ptr-debugfs-dirs.patch
+  i2c-synquacer-fix-enumeration-of-slave-devices.patch
+  i2c-imx-correct-the-method-of-getting-private-data-in-notifier_call.patch
+  i2c-prevent-runtime-suspend-of-adapter-when-host-notify-is-required.patch
+  alsa-hda-realtek-add-new-dell-platform-for-headset-mode.patch
+  alsa-hda-realtek-fixed-dell-aio-speaker-noise.patch
+  alsa-hda-realtek-apply-the-fixup-for-asus-q325uar.patch
+  usb-yurex-fix-protection-fault-after-device-removal.patch
+  usb-w1-ds2490-fix-bug-caused-by-improper-use-of-altsetting-array.patch
+  usb-dummy-hcd-fix-failure-to-give-back-unlinked-urbs.patch
+  usb-usbip-fix-isoc-packet-num-validation-in-get_pipe.patch
+  usb-core-fix-unterminated-string-returned-by-usb_string.patch
+  usb-core-fix-bug-caused-by-duplicate-interface-pm-usage-counter.patch
+  kvm-lapic-disable-timer-advancement-if-adaptive-tuning-goes-haywire.patch
+  kvm-x86-consider-lapic-tsc-deadline-timer-expired-if-deadline-too-short.patch
+  kvm-lapic-track-lapic-timer-advance-per-vcpu.patch
+  kvm-lapic-allow-user-to-disable-adaptive-tuning-of-timer-advancement.patch
+  kvm-lapic-convert-guest-tsc-to-host-time-domain-if-necessary.patch
+  arm64-dts-rockchip-fix-rk3328-roc-cc-gmac2io-tx-rx_d.patch
+  hid-increase-maximum-report-size-allowed-by-hid_fiel.patch
+  hid-logitech-check-the-return-value-of-create_single.patch
+  hid-debug-fix-race-condition-with-between-rdesc_show.patch
+  rtc-cros-ec-fail-suspend-resume-if-wake-irq-can-t-be.patch
+  rtc-sh-fix-invalid-alarm-warning-for-non-enabled-ala.patch
+  arm-omap2-add-missing-of_node_put-after-of_device_is.patch
+  batman-adv-reduce-claim-hash-refcnt-only-for-removed.patch
+  batman-adv-reduce-tt_local-hash-refcnt-only-for-remo.patch
+  batman-adv-reduce-tt_global-hash-refcnt-only-for-rem.patch
+  batman-adv-fix-warning-in-function-batadv_v_elp_get_.patch
+  arm-dts-rockchip-fix-gpu-opp-node-names-for-rk3288.patch
+  reset-meson-audio-arb-fix-missing-.owner-setting-of-.patch
+  arm-dts-fix-dcan-clkctrl-clock-for-am3.patch
+  i40e-fix-i40e_ptp_adjtime-when-given-a-negative-delt.patch
+  igb-fix-warn_once-on-runtime-suspend.patch
+  ixgbe-fix-mdio-bus-registration.patch
+  i40e-fix-wol-support-check.patch
+  riscv-fix-accessing-8-byte-variable-from-rv32.patch
+  hid-quirks-fix-keyboard-touchpad-on-lenovo-miix-630.patch
+  net-hns3-fix-compile-error.patch
+  xdp-fix-cpumap-redirect-skb-creation-bug.patch
+  net-mlx5-e-switch-protect-from-invalid-memory-access.patch
+  net-mlx5-e-switch-fix-esw-manager-vport-indication-f.patch
+  bonding-show-full-hw-address-in-sysfs-for-slave-entr.patch
+  net-stmmac-use-correct-dma-buffer-size-in-the-rx-des.patch
+  net-stmmac-ratelimit-rx-error-logs.patch
+  net-stmmac-don-t-stop-napi-processing-when-dropping-.patch
+  net-stmmac-don-t-overwrite-discard_frame-status.patch
+  net-stmmac-fix-dropping-of-multi-descriptor-rx-frame.patch
+  net-stmmac-don-t-log-oversized-frames.patch
+  jffs2-fix-use-after-free-on-symlink-traversal.patch
+  debugfs-fix-use-after-free-on-symlink-traversal.patch
+  mfd-twl-core-disable-irq-while-suspended.patch
+  block-use-blk_free_flush_queue-to-free-hctx-fq-in-bl.patch
+  rtc-da9063-set-uie_unsupported-when-relevant.patch
+  hid-input-add-mapping-for-assistant-key.patch
+  vfio-pci-use-correct-format-characters.patch
+  scsi-core-add-new-rdac-lenovo-de_series-device.patch
+  scsi-storvsc-fix-calculation-of-sub-channel-count.patch
+  arm-mach-at91-pm-fix-possible-object-reference-leak.patch
+  blk-mq-do-not-reset-plug-rq_count-before-the-list-is.patch
+  arm64-fix-wrong-check-of-on_sdei_stack-in-nmi-contex.patch
+  net-hns-fix-kasan-use-after-free-in-hns_nic_net_xmit.patch
+  net-hns-use-napi_poll_weight-for-hns-driver.patch
+  net-hns-fix-probabilistic-memory-overwrite-when-hns-.patch
+  net-hns-fix-icmp6-neighbor-solicitation-messages-dis.patch
+  net-hns-fix-warning-when-remove-hns-driver-with-smmu.patch
+  libcxgb-fix-incorrect-ppmax-calculation.patch
+  kvm-svm-prevent-dbg_decrypt-and-dbg_encrypt-overflow.patch
+  kmemleak-powerpc-skip-scanning-holes-in-the-.bss-sec.patch
+  hugetlbfs-fix-memory-leak-for-resv_map.patch
+  sh-fix-multiple-function-definition-build-errors.patch
+  null_blk-prevent-crash-from-bad-home_node-value.patch
+  xsysace-fix-error-handling-in-ace_setup.patch
+  fs-stream_open-opener-for-stream-like-files-so-that-.patch
+  arm-orion-don-t-use-using-64-bit-dma-masks.patch
+  arm-iop-don-t-use-using-64-bit-dma-masks.patch
+  perf-x86-amd-update-generic-hardware-cache-events-for-family-17h.patch
+  bluetooth-btusb-request-wake-pin-with-noautoen.patch
+  bluetooth-mediatek-fix-up-an-error-path-to-restore-bdev-tx_state.patch
+  clk-qcom-add-missing-freq-for-usb30_master_clk-on-8998.patch
+  usb-dwc3-reset-num_trbs-after-skipping.patch
+  staging-iio-adt7316-allow-adt751x-to-use-internal-vref-for-all-dacs.patch
+  staging-iio-adt7316-fix-the-dac-read-calculation.patch
+  staging-iio-adt7316-fix-handling-of-dac-high-resolution-option.patch
+  staging-iio-adt7316-fix-the-dac-write-calculation.patch
+  scsi-hisi_sas-fix-to-only-call-scsi_get_prot_op-for-non-null-scsi_cmnd.patch
+  scsi-rdma-srpt-fix-a-credit-leak-for-aborted-commands.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-6cec7217203fd93112e66d21f43e36a219d9a60a.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-6cec7217203fd93112e66d21f43e36a219d9a60a.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-6cec7217203fd93112e66d21f43e36a219d9a60a.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-6cec7217203fd93112e66d21f43e36a219d9a60a.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-6cec7217203fd93112e66d21f43e36a219d9a60a.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-6cec7217203fd93112e66d21f43e36a219d9a60a.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-6cec7217203fd93112e66d21f43e36a219d9a60a.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-6cec7217203fd93112e66d21f43e36a219d9a60a.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ❎ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ lvm thinp sanity [9]
+     ✅ Boot test [0]
+     ✅ xfstests: xfs [10]
+     🚧 ✅ audit: audit testsuite test [11]
+     🚧 ✅ stress: stress-ng [12]
+     🚧 ✅ selinux-policy: serge-testsuite [13]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ lvm thinp sanity [9]
+     ✅ Boot test [0]
+     ✅ xfstests: xfs [10]
+     🚧 ✅ audit: audit testsuite test [11]
+     🚧 ✅ stress: stress-ng [12]
+     🚧 ✅ selinux-policy: serge-testsuite [13]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Ethernet drivers sanity [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ lvm thinp sanity [9]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [11]
+     🚧 ✅ stress: stress-ng [12]
+     🚧 ✅ selinux-policy: serge-testsuite [13]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ lvm thinp sanity [9]
+     ✅ Boot test [0]
+     ✅ xfstests: xfs [10]
+     🚧 ✅ audit: audit testsuite test [11]
+     🚧 ✅ stress: stress-ng [12]
+     🚧 ✅ selinux-policy: serge-testsuite [13]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
