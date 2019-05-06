@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A47AA14E3C
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5240914F28
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727383AbfEFOki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:40:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
+        id S1727004AbfEFOfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728052AbfEFOkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:40:36 -0400
+        id S1726501AbfEFOfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:35:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF22D20449;
-        Mon,  6 May 2019 14:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50419204EC;
+        Mon,  6 May 2019 14:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153635;
-        bh=4uctYyNEZWRanhDgReXILao5LFghTg83pAgjiloBmZU=;
+        s=default; t=1557153352;
+        bh=hljp+ch+ecoaQHcffwwaeNdZOy52z8Z9nCFkAW0YfVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmqpGJWKD6iS4AGpZmnm6oV4RbzQc0mGyUfL9y0uIRx41oFHGuGFHh1gsf4fKWPEL
-         BrJWApq5jO/R0Hqm790PnSynMq/l2b9K7q/otTE09gpTZnzaShMdDTx8AGNOMCadgZ
-         9CDRo2uEJxq5rFZ0KV6lwlezzcmXCxSUfiT0i4q8=
+        b=W0CxH65HSv3t3xwGXN7hum0IsFGaidwbCoZysWtqxSvNnD3fU8lVVx3CJHzG9Ujto
+         MnYPvPb+9lVu5oSpsV27FXkY/cFEm7PeZWsqBl6PYecFAAcistOSvvjRjBCjeHvG8V
+         GeomSUZwNiukznIIuf3UGYy9fwTL35IdraBHpIDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/99] HID: logitech: check the return value of create_singlethread_workqueue
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 057/122] debugfs: fix use-after-free on symlink traversal
 Date:   Mon,  6 May 2019 16:31:55 +0200
-Message-Id: <20190506143055.948873604@linuxfoundation.org>
+Message-Id: <20190506143100.115753154@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6c44b15e1c9076d925d5236ddadf1318b0a25ce2 ]
+[ Upstream commit 93b919da64c15b90953f96a536e5e61df896ca57 ]
 
-create_singlethread_workqueue may fail and return NULL. The fix checks if it is
-NULL to avoid NULL pointer dereference.  Also, the fix moves the call of
-create_singlethread_workqueue earlier to avoid resource-release issues.
+symlink body shouldn't be freed without an RCU delay.  Switch debugfs to
+->destroy_inode() and use of call_rcu(); free both the inode and symlink
+body in the callback.  Similar to solution for bpf, only here it's even
+more obvious that ->evict_inode() can be dropped.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/debugfs/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 19cc980eebce..8425d3548a41 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 		kfree(data);
- 		return -ENOMEM;
- 	}
-+	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-+	if (!data->wq) {
-+		kfree(data->effect_ids);
-+		kfree(data);
-+		return -ENOMEM;
-+	}
+diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
+index 29c68c5d44d5..c4a4fc6f1a95 100644
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -163,19 +163,24 @@ static int debugfs_show_options(struct seq_file *m, struct dentry *root)
+ 	return 0;
+ }
+ 
+-static void debugfs_evict_inode(struct inode *inode)
++static void debugfs_i_callback(struct rcu_head *head)
+ {
+-	truncate_inode_pages_final(&inode->i_data);
+-	clear_inode(inode);
++	struct inode *inode = container_of(head, struct inode, i_rcu);
+ 	if (S_ISLNK(inode->i_mode))
+ 		kfree(inode->i_link);
++	free_inode_nonrcu(inode);
++}
 +
- 	data->hidpp = hidpp;
- 	data->feature_index = feature_index;
- 	data->version = version;
-@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	/* ignore boost value at response.fap.params[2] */
++static void debugfs_destroy_inode(struct inode *inode)
++{
++	call_rcu(&inode->i_rcu, debugfs_i_callback);
+ }
  
- 	/* init the hardware command queue */
--	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
- 	atomic_set(&data->workqueue_size, 0);
+ static const struct super_operations debugfs_super_operations = {
+ 	.statfs		= simple_statfs,
+ 	.remount_fs	= debugfs_remount,
+ 	.show_options	= debugfs_show_options,
+-	.evict_inode	= debugfs_evict_inode,
++	.destroy_inode	= debugfs_destroy_inode,
+ };
  
- 	/* initialize with zero autocenter to get wheel in usable state */
+ static void debugfs_release_dentry(struct dentry *dentry)
 -- 
 2.20.1
 
