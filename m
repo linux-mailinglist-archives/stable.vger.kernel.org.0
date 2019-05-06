@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD5C14F43
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AABC214E4E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726658AbfEFPI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56138 "EHLO mail.kernel.org"
+        id S1728229AbfEFOl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727043AbfEFOf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:35:56 -0400
+        id S1727489AbfEFOl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3FE021479;
-        Mon,  6 May 2019 14:35:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B470217D4;
+        Mon,  6 May 2019 14:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153355;
-        bh=78zibKYhiig/J4kVmq6XTXpHwwwZRz64lGOKhh4NTDo=;
+        s=default; t=1557153685;
+        bh=jJDHQBwI6tjM+j4UyZaLTGK23NMyvFGa1FsmZwlo0lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DMxM2xtQJVDSGl6WTwiyaYpzow+wd91sIHn6riOc6C5UM6UBx+6I0TJc9+U4KnFfZ
-         xj+W1eJ+l42CJ3bClWCRevvgAZ7EjsMZWwUygwpJLO3F0b9ApXQ4HnrcPYmarHTDzW
-         dfBr/jpi7QJI9O/AnMg81BzX5C5LAYlTiQAkCLYA=
+        b=Y02MBk76YwHTbWxlU+ZlW6+GH+CYgsiNB1MzDBUcEH+gZsr0vX05srzriB5sd+UOl
+         dlNF/vGGagUFvN9UjjLuYGEwVCfx4lZkb7bEA2YKp9J4/300VFPS7T5TUo54TKnpXo
+         YXjxMjxUU6BXNzhPJctFJH9t6rw40tM09dfGpHWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Tony Lindgren <tony@atomide.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 058/122] mfd: twl-core: Disable IRQ while suspended
-Date:   Mon,  6 May 2019 16:31:56 +0200
-Message-Id: <20190506143100.226604550@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Evan Green <evgreen@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/99] rtc: cros-ec: Fail suspend/resume if wake IRQ cant be configured
+Date:   Mon,  6 May 2019 16:31:57 +0200
+Message-Id: <20190506143056.133283565@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20bb907f7dc82ecc9e135ad7067ac7eb69c81222 ]
+[ Upstream commit d6752e185c3168771787a02dc6a55f32260943cc ]
 
-Since commit 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device for suspend")
-on gta04 we have handle_twl4030_pih() called in situations where pm_runtime_get()
-in i2c-omap.c returns -EACCES.
+If we encounter a failure during suspend where this RTC was programmed
+to wakeup the system from suspend, but that wakeup couldn't be
+configured because the system didn't support wakeup interrupts, we'll
+run into the following warning:
 
-[   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
-[   86.485473] printk: Suspending console(s) (use no_console_suspend to debug)
-[   86.555572] Disabling non-boot CPUs ...
-[   86.555664] Successfully put all powerdomains to target state
-[   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563751] twl4030: I2C error -13 reading PIH ISR
-[   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563812] twl4030: I2C error -13 reading PIH ISR
-[   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563903] twl4030: I2C error -13 reading PIH ISR
+	Unbalanced IRQ 166 wake disable
+	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
 
-This happens when we wakeup via something behing twl4030 (powerbutton or rtc
-alarm). This goes on for minutes until the system is finally resumed.
-Disable the irq on suspend and enable it on resume to avoid
-having i2c access problems when the irq registers are checked.
+This happens because the suspend process isn't aborted when the RTC
+fails to configure the wakeup IRQ. Instead, we continue suspending the
+system and then another suspend callback fails the suspend process and
+"unwinds" the previously suspended drivers by calling their resume
+callbacks. When we get back to resuming this RTC driver, we'll call
+disable_irq_wake() on an IRQ that hasn't been configured for wake.
 
-Fixes: 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device for suspend")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Let's just fail suspend/resume here if we can't configure the system to
+wake and the user has chosen to wakeup with this device. This fixes this
+warning and makes the code more robust in case there are systems out
+there that can't wakeup from suspend on this line but the user has
+chosen to do so.
+
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Acked-By: Benson Leung <bleung@chromium.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/twl-core.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/rtc/rtc-cros-ec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index 299016bc46d9..104477b512a2 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -1245,6 +1245,28 @@ twl_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return status;
- }
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index e5444296075e..4d6bf9304ceb 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -298,7 +298,7 @@ static int cros_ec_rtc_suspend(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
  
-+static int __maybe_unused twl_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq)
-+		disable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused twl_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq)
-+		enable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(twl_dev_pm_ops, twl_suspend, twl_resume);
-+
- static const struct i2c_device_id twl_ids[] = {
- 	{ "twl4030", TWL4030_VAUX2 },	/* "Triton 2" */
- 	{ "twl5030", 0 },		/* T2 updated */
-@@ -1262,6 +1284,7 @@ static const struct i2c_device_id twl_ids[] = {
- /* One Client Driver , 4 Clients */
- static struct i2c_driver twl_driver = {
- 	.driver.name	= DRIVER_NAME,
-+	.driver.pm	= &twl_dev_pm_ops,
- 	.id_table	= twl_ids,
- 	.probe		= twl_probe,
- 	.remove		= twl_remove,
+ 	if (device_may_wakeup(dev))
+-		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return enable_irq_wake(cros_ec_rtc->cros_ec->irq);
+ 
+ 	return 0;
+ }
+@@ -309,7 +309,7 @@ static int cros_ec_rtc_resume(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
+ 
+ 	if (device_may_wakeup(dev))
+-		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return disable_irq_wake(cros_ec_rtc->cros_ec->irq);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
