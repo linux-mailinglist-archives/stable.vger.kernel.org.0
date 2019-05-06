@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68BD814D09
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7565F14EC1
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729283AbfEFOrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:47:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46172 "EHLO mail.kernel.org"
+        id S1727725AbfEFOjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:39:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729279AbfEFOrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:47:16 -0400
+        id S1727722AbfEFOjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BEB6214AE;
-        Mon,  6 May 2019 14:47:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78A4D21479;
+        Mon,  6 May 2019 14:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154035;
-        bh=FbLKEUl3KRNnMUhZoYAxYnUWvRn/WoNTy/4xfKgqgTc=;
+        s=default; t=1557153543;
+        bh=YWmIRXnPDSIST+5S/E+Jo9v990ZF95a3j597D5119sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUsUXaFajtpqNF0q1lCxj9XIrxofqh2XCdO6WpTr4XHRDWF/HI4uOUGGhXqvhr8NE
-         MfhqSQRfMMievXaY+F1BpGX+pRcZw4U6enDqD2TymUJ1sgh7BhcCfMlpYpWOLEjIx3
-         Ln85VIyPHfE0k+lc30UIlamnsD8VU+5Cnvu4rn5I=
+        b=Ix10W4p6q1WIb5Zo+Fn34wIF+YhjyyWfF+f9GUrKDcujBxmtEYEpAkwk0NHLtXLax
+         zbx8ze43HXQFPBgYKoT91ffJgd7/4ARdiZ/zgAzY6sfuDIOmsMRcS20eu7ixH5Z49G
+         vsS2qrHVfN4ihsqA2cvVF8Oe3t8kS/v70ncijDxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@google.com>
-Subject: [PATCH 4.9 14/62] kasan: add a prototype of task_struct to avoid warning
+        stable@vger.kernel.org, Daniel Jurgens <danielj@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.0 107/122] IB/core: Fix potential memory leak while creating MAD agents
 Date:   Mon,  6 May 2019 16:32:45 +0200
-Message-Id: <20190506143052.314322038@linuxfoundation.org>
+Message-Id: <20190506143104.203535744@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,49 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Daniel Jurgens <danielj@mellanox.com>
 
-commit 5be9b730b09c45c358bbfe7f51d254e306cccc07 upstream.
+commit 6e88e672b69f0e627acdae74a527b730ea224b6b upstream.
 
-Add a prototype of task_struct to fix below warning on arm64.
+If the MAD agents isn't allowed to manage the subnet, or fails to register
+for the LSM notifier, the security context is leaked. Free the context in
+these cases.
 
-  In file included from arch/arm64/kernel/probes/kprobes.c:19:0:
-  include/linux/kasan.h:81:132: error: 'struct task_struct' declared inside parameter list will not be visible outside of this definition or declaration [-Werror]
-   static inline void kasan_unpoison_task_stack(struct task_struct *task) {}
-
-As same as other types (kmem_cache, page, and vm_struct) this adds a
-prototype of task_struct data structure on top of kasan.h.
-
-[arnd] A related warning was fixed before, but now appears in a
-different line in the same file in v4.11-rc2.  The patch from Masami
-Hiramatsu still seems appropriate, so let's take his version.
-
-Fixes: 71af2ed5eeea ("kasan, sched/headers: Remove <linux/sched.h> from <linux/kasan.h>")
-Link: https://patchwork.kernel.org/patch/9569839/
-Link: http://lkml.kernel.org/r/20170313141517.3397802-1-arnd@arndb.de
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Alexander Potapenko <glider@google.com>
-Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Fixes: 47a2b338fe63 ("IB/core: Enforce security on management datagrams")
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reported-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/kasan.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/security.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/linux/kasan.h
-+++ b/include/linux/kasan.h
-@@ -7,6 +7,7 @@
- struct kmem_cache;
- struct page;
- struct vm_struct;
-+struct task_struct;
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -710,16 +710,20 @@ int ib_mad_agent_security_setup(struct i
+ 						dev_name(&agent->device->dev),
+ 						agent->port_num);
+ 	if (ret)
+-		return ret;
++		goto free_security;
  
- #ifdef CONFIG_KASAN
+ 	agent->lsm_nb.notifier_call = ib_mad_agent_security_change;
+ 	ret = register_lsm_notifier(&agent->lsm_nb);
+ 	if (ret)
+-		return ret;
++		goto free_security;
  
+ 	agent->smp_allowed = true;
+ 	agent->lsm_nb_reg = true;
+ 	return 0;
++
++free_security:
++	security_ib_free_security(agent->security);
++	return ret;
+ }
+ 
+ void ib_mad_agent_security_cleanup(struct ib_mad_agent *agent)
 
 
