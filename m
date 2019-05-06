@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4935F14D2D
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2404114DC3
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729015AbfEFOsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:48:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
+        id S1726939AbfEFOqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729508AbfEFOsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:48:42 -0400
+        id S1728838AbfEFOqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:46:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3D93216B7;
-        Mon,  6 May 2019 14:48:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 316422087F;
+        Mon,  6 May 2019 14:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154122;
-        bh=cwAnhsjms5JETVrm8lBnIu77/bq24kiXauUNJlo/6dk=;
+        s=default; t=1557153982;
+        bh=1kBE+NZDF6goqzCOP7Q49F98RCalj0qAKJg6qhzVuTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tq9bb0NuKroikxPBcGMse/5Igze2MiMaWh8K/yZ9b2NsbuEU+b1RpfQSJdlVBOBxd
-         74kJUE3BDe6UPNvoxM4d5glvchjRXRujSKf3qpUGzk9Y2CnEx/Rp3LgINPB38UFOB9
-         bRH65aTQGqUoNo/tmMWhbB//jtipN0HnAgUQum2A=
+        b=cJVRvTy1uF9+p++Bmzm/h9WlZvTfKEa0uo3t4GgFKaDK4T/JeITW5B4hCOO9/3fYC
+         ghayZmqBD9hqSaqipVFilUYriMdLHl4cILtXJ6AT3fZQ1r1b3FanF3T8GVZvuxEbWr
+         NDc7LANissCubCjboAIbsaOLbtUGTIKnWp41h39E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liubin Shu <shuliubin@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Yonglong Liu <liuyonglong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 46/62] net: hns: fix KASAN: use-after-free in hns_nic_net_xmit_hw()
+        stable@vger.kernel.org, Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 69/75] Input: stmfts - acknowledge that setting brightness is a blocking call
 Date:   Mon,  6 May 2019 16:33:17 +0200
-Message-Id: <20190506143055.229546324@linuxfoundation.org>
+Message-Id: <20190506143059.520111571@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3a39a12ad364a9acd1038ba8da67cd8430f30de4 ]
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This patch is trying to fix the issue due to:
-[27237.844750] BUG: KASAN: use-after-free in hns_nic_net_xmit_hw+0x708/0xa18[hns_enet_drv]
+commit 937c4e552fd1174784045684740edfcea536159d upstream.
 
-After hnae_queue_xmit() in hns_nic_net_xmit_hw(), can be
-interrupted by interruptions, and than call hns_nic_tx_poll_one()
-to handle the new packets, and free the skb. So, when turn back to
-hns_nic_net_xmit_hw(), calling skb->len will cause use-after-free.
+We need to turn regulators on and off when switching brightness, and
+that may block, therefore we have to set stmfts_brightness_set() as
+LED's brightness_set_blocking() method.
 
-This patch update tx ring statistics in hns_nic_tx_poll_one() to
-fix the bug.
+Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
+Acked-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Liubin Shu <shuliubin@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/stmfts.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-index ad8681cf5ef0..f77578a5ea9d 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -375,8 +375,6 @@ netdev_tx_t hns_nic_net_xmit_hw(struct net_device *ndev,
- 	wmb(); /* commit all data before submit */
- 	assert(skb->queue_mapping < priv->ae_handle->q_num);
- 	hnae_queue_xmit(priv->ae_handle->qs[skb->queue_mapping], buf_num);
--	ring->stats.tx_pkts++;
--	ring->stats.tx_bytes += skb->len;
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -111,27 +111,29 @@ struct stmfts_data {
+ 	bool running;
+ };
  
- 	return NETDEV_TX_OK;
+-static void stmfts_brightness_set(struct led_classdev *led_cdev,
++static int stmfts_brightness_set(struct led_classdev *led_cdev,
+ 					enum led_brightness value)
+ {
+ 	struct stmfts_data *sdata = container_of(led_cdev,
+ 					struct stmfts_data, led_cdev);
+ 	int err;
  
-@@ -916,6 +914,9 @@ static int hns_nic_tx_poll_one(struct hns_nic_ring_data *ring_data,
- 		/* issue prefetch for next Tx descriptor */
- 		prefetch(&ring->desc_cb[ring->next_to_clean]);
+-	if (value == sdata->led_status || !sdata->ledvdd)
+-		return;
+-
+-	if (!value) {
+-		regulator_disable(sdata->ledvdd);
+-	} else {
+-		err = regulator_enable(sdata->ledvdd);
+-		if (err)
+-			dev_warn(&sdata->client->dev,
+-				 "failed to disable ledvdd regulator: %d\n",
+-				 err);
++	if (value != sdata->led_status && sdata->ledvdd) {
++		if (!value) {
++			regulator_disable(sdata->ledvdd);
++		} else {
++			err = regulator_enable(sdata->ledvdd);
++			if (err) {
++				dev_warn(&sdata->client->dev,
++					 "failed to disable ledvdd regulator: %d\n",
++					 err);
++				return err;
++			}
++		}
++		sdata->led_status = value;
  	}
-+	/* update tx ring statistics. */
-+	ring->stats.tx_pkts += pkts;
-+	ring->stats.tx_bytes += bytes;
  
- 	NETIF_TX_UNLOCK(ndev);
+-	sdata->led_status = value;
++	return 0;
+ }
  
--- 
-2.20.1
-
+ static enum led_brightness stmfts_brightness_get(struct led_classdev *led_cdev)
+@@ -613,7 +615,7 @@ static int stmfts_enable_led(struct stmf
+ 	sdata->led_cdev.name = STMFTS_DEV_NAME;
+ 	sdata->led_cdev.max_brightness = LED_ON;
+ 	sdata->led_cdev.brightness = LED_OFF;
+-	sdata->led_cdev.brightness_set = stmfts_brightness_set;
++	sdata->led_cdev.brightness_set_blocking = stmfts_brightness_set;
+ 	sdata->led_cdev.brightness_get = stmfts_brightness_get;
+ 
+ 	err = devm_led_classdev_register(&sdata->client->dev, &sdata->led_cdev);
 
 
