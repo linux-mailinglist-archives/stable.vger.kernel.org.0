@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A40F14DD2
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC5314D8A
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbfEFOpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42632 "EHLO mail.kernel.org"
+        id S1726386AbfEFOwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbfEFOpk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:40 -0400
+        id S1726914AbfEFOsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B048214AF;
-        Mon,  6 May 2019 14:45:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F4BC21530;
+        Mon,  6 May 2019 14:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153940;
-        bh=YFjcCRz1LcmuYwDUcw7LQBICT55MkdrKd0g0k9SqRv8=;
+        s=default; t=1557154087;
+        bh=Mz5846nar66Iy343b/Hbki8SXNus2eCbBEC8vFyt5XI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWcmln2UoKWzABiGWx9mFNe9wVW7FAEU/8BJJX+snpTnFxc8iuMHCA/692lT2Qav3
-         6aPgUcEvdzfRBMt2H9CzQjadIDE1A3+m0o+0HONzlrQr5wZKwZXooxO3MzHONyhKjr
-         cYgUFVsat1cKR/ayxV/GpCD8ZoGZSPFKhN9+7g5o=
+        b=MdKcg25t/mXCo3hsyEOgGONkow+VFK1xWxXAYeGPwvO5LeXHNVxZwFHhTaXePzYli
+         ES9Nvjq8CuvyRBDRHVQwGoUIwrvsLFGmh3dAo5CnBYYdg3RwF9eFMzUAUaouXfNgVY
+         5H0pboT9idL8dePhpriROYG3uGmqoSrFWCUK+rzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/75] sh: fix multiple function definition build errors
+Subject: [PATCH 4.9 31/62] batman-adv: Reduce claim hash refcnt only for removed entry
 Date:   Mon,  6 May 2019 16:33:02 +0200
-Message-Id: <20190506143058.139297460@linuxfoundation.org>
+Message-Id: <20190506143053.755589380@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
+[ Upstream commit 4ba104f468bbfc27362c393815d03aa18fb7a20f ]
 
-Many of the sh CPU-types have their own plat_irq_setup() and
-arch_init_clk_ops() functions, so these same (empty) functions in
-arch/sh/boards/of-generic.c are not needed and cause build errors.
+The batadv_hash_remove is a function which searches the hashtable for an
+entry using a needle, a hashtable bucket selection function and a compare
+function. It will lock the bucket list and delete an entry when the compare
+function matches it with the needle. It returns the pointer to the
+hlist_node which matches or NULL when no entry matches the needle.
 
-If there is some case where these empty functions are needed, they can
-be retained by marking them as "__weak" while at the same time making
-builds that do not need them succeed.
+The batadv_bla_del_claim is not itself protected in anyway to avoid that
+any other function is modifying the hashtable between the search for the
+entry and the call to batadv_hash_remove. It can therefore happen that the
+entry either doesn't exist anymore or an entry was deleted which is not the
+same object as the needle. In such an situation, the reference counter (for
+the reference stored in the hashtable) must not be reduced for the needle.
+Instead the reference counter of the actually removed entry has to be
+reduced.
 
-Fixes these build errors:
+Otherwise the reference counter will underflow and the object might be
+freed before all its references were dropped. The kref helpers reported
+this problem as:
 
-arch/sh/boards/of-generic.o: In function `plat_irq_setup':
-(.init.text+0x134): multiple definition of `plat_irq_setup'
-arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
-arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
-(.init.text+0x118): multiple definition of `arch_init_clk_ops'
-arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
+  refcount_t: underflow; use-after-free.
 
-Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/boards/of-generic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
-index 4feb7c86f4ac..5e83ea12303b 100644
---- a/arch/sh/boards/of-generic.c
-+++ b/arch/sh/boards/of-generic.c
-@@ -180,10 +180,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
- 
- struct sh_clk_ops;
- 
--void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
-+void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index 8b6f654bc85d..00123064eb26 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -802,6 +802,8 @@ static void batadv_bla_del_claim(struct batadv_priv *bat_priv,
+ 				 const u8 *mac, const unsigned short vid)
  {
- }
+ 	struct batadv_bla_claim search_claim, *claim;
++	struct batadv_bla_claim *claim_removed_entry;
++	struct hlist_node *claim_removed_node;
  
--void __init plat_irq_setup(void)
-+void __init __weak plat_irq_setup(void)
- {
+ 	ether_addr_copy(search_claim.addr, mac);
+ 	search_claim.vid = vid;
+@@ -812,10 +814,18 @@ static void batadv_bla_del_claim(struct batadv_priv *bat_priv,
+ 	batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_del_claim(): %pM, vid %d\n",
+ 		   mac, BATADV_PRINT_VID(vid));
+ 
+-	batadv_hash_remove(bat_priv->bla.claim_hash, batadv_compare_claim,
+-			   batadv_choose_claim, claim);
+-	batadv_claim_put(claim); /* reference from the hash is gone */
++	claim_removed_node = batadv_hash_remove(bat_priv->bla.claim_hash,
++						batadv_compare_claim,
++						batadv_choose_claim, claim);
++	if (!claim_removed_node)
++		goto free_claim;
+ 
++	/* reference from the hash is gone */
++	claim_removed_entry = hlist_entry(claim_removed_node,
++					  struct batadv_bla_claim, hash_entry);
++	batadv_claim_put(claim_removed_entry);
++
++free_claim:
+ 	/* don't need the reference from hash_find() anymore */
+ 	batadv_claim_put(claim);
  }
 -- 
 2.20.1
