@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5000914DAE
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA37A14D8E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728727AbfEFOqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:46:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45142 "EHLO mail.kernel.org"
+        id S1729138AbfEFOrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:47:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729205AbfEFOqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:46:50 -0400
+        id S1729386AbfEFOrv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:47:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E12D2087F;
-        Mon,  6 May 2019 14:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE7122053B;
+        Mon,  6 May 2019 14:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154009;
-        bh=tAAMd8ksSORD7xo79uXBjUZ6rAkU2i5mjbWmX+5dxc0=;
+        s=default; t=1557154070;
+        bh=KPIeTyq7PxXZiBToaDQs9eXpEPUH3/KdEReEwxZlQoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cytvEtt5mEHnPdZvySzj7jRVOMP73nA+Fjf8dGbKIcaKMjKKU1DUCxt+LqTyjFcVj
-         Z043q2tNFSRlynPw0D87mS+Sx/Z/FiKviW+ZyEOh/lZ5SmmsoFqEMP797n+ab50HUD
-         hZhlSlNmaKQ1GJ+Yk4HuccwaN1/doffGyhqthS18=
+        b=DT7lt69f/fgC/KOmiTIPpbAu5qmB9AwWgyLNmHY2J1lpSqa7qpXSz/23KOlMw60g7
+         STx0wbXYaAoyl6o9T4F+aBxOeksA3FENaBplDXEpPYPyottmPBTA3ZVqr4RtMu6seG
+         F7Ibcd2HyA3PaW/V7FdC2zBnUDo08epOK0uRMVv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/75] net: hns: Fix probabilistic memory overwrite when HNS driver initialized
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+7634edaea4d0b341c625@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 26/62] USB: core: Fix bug caused by duplicate interface PM usage counter
 Date:   Mon,  6 May 2019 16:32:57 +0200
-Message-Id: <20190506143057.668046061@linuxfoundation.org>
+Message-Id: <20190506143053.307728350@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +43,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c0b0984426814f3a9251873b689e67d34d8ccd84 ]
+From: Alan Stern <stern@rowland.harvard.edu>
 
-When reboot the system again and again, may cause a memory
-overwrite.
+commit c2b71462d294cf517a0bc6e4fd6424d7cee5596f upstream.
 
-[   15.638922] systemd[1]: Reached target Swap.
-[   15.667561] tun: Universal TUN/TAP device driver, 1.6
-[   15.676756] Bridge firewalling registered
-[   17.344135] Unable to handle kernel paging request at virtual address 0000000200000040
-[   17.352179] Mem abort info:
-[   17.355007]   ESR = 0x96000004
-[   17.358105]   Exception class = DABT (current EL), IL = 32 bits
-[   17.364112]   SET = 0, FnV = 0
-[   17.367209]   EA = 0, S1PTW = 0
-[   17.370393] Data abort info:
-[   17.373315]   ISV = 0, ISS = 0x00000004
-[   17.377206]   CM = 0, WnR = 0
-[   17.380214] user pgtable: 4k pages, 48-bit VAs, pgdp = (____ptrval____)
-[   17.386926] [0000000200000040] pgd=0000000000000000
-[   17.391878] Internal error: Oops: 96000004 [#1] SMP
-[   17.396824] CPU: 23 PID: 95 Comm: kworker/u130:0 Tainted: G            E     4.19.25-1.2.78.aarch64 #1
-[   17.414175] Hardware name: Huawei TaiShan 2280 /BC11SPCD, BIOS 1.54 08/16/2018
-[   17.425615] Workqueue: events_unbound async_run_entry_fn
-[   17.435151] pstate: 00000005 (nzcv daif -PAN -UAO)
-[   17.444139] pc : __mutex_lock.isra.1+0x74/0x540
-[   17.453002] lr : __mutex_lock.isra.1+0x3c/0x540
-[   17.461701] sp : ffff000100d9bb60
-[   17.469146] x29: ffff000100d9bb60 x28: 0000000000000000
-[   17.478547] x27: 0000000000000000 x26: ffff802fb8945000
-[   17.488063] x25: 0000000000000000 x24: ffff802fa32081a8
-[   17.497381] x23: 0000000000000002 x22: ffff801fa2b15220
-[   17.506701] x21: ffff000009809000 x20: ffff802fa23a0888
-[   17.515980] x19: ffff801fa2b15220 x18: 0000000000000000
-[   17.525272] x17: 0000000200000000 x16: 0000000200000000
-[   17.534511] x15: 0000000000000000 x14: 0000000000000000
-[   17.543652] x13: ffff000008d95db8 x12: 000000000000000d
-[   17.552780] x11: ffff000008d95d90 x10: 0000000000000b00
-[   17.561819] x9 : ffff000100d9bb90 x8 : ffff802fb89d6560
-[   17.570829] x7 : 0000000000000004 x6 : 00000004a1801d05
-[   17.579839] x5 : 0000000000000000 x4 : 0000000000000000
-[   17.588852] x3 : ffff802fb89d5a00 x2 : 0000000000000000
-[   17.597734] x1 : 0000000200000000 x0 : 0000000200000000
-[   17.606631] Process kworker/u130:0 (pid: 95, stack limit = 0x(____ptrval____))
-[   17.617438] Call trace:
-[   17.623349]  __mutex_lock.isra.1+0x74/0x540
-[   17.630927]  __mutex_lock_slowpath+0x24/0x30
-[   17.638602]  mutex_lock+0x50/0x60
-[   17.645295]  drain_workqueue+0x34/0x198
-[   17.652623]  __sas_drain_work+0x7c/0x168
-[   17.659903]  sas_drain_work+0x60/0x68
-[   17.666947]  hisi_sas_scan_finished+0x30/0x40 [hisi_sas_main]
-[   17.676129]  do_scsi_scan_host+0x70/0xb0
-[   17.683534]  do_scan_async+0x20/0x228
-[   17.690586]  async_run_entry_fn+0x4c/0x1d0
-[   17.697997]  process_one_work+0x1b4/0x3f8
-[   17.705296]  worker_thread+0x54/0x470
+The syzkaller fuzzer reported a bug in the USB hub driver which turned
+out to be caused by a negative runtime-PM usage counter.  This allowed
+a hub to be runtime suspended at a time when the driver did not expect
+it.  The symptom is a WARNING issued because the hub's status URB is
+submitted while it is already active:
 
-Every time the call trace is not the same, but the overwrite address
-is always the same:
-Unable to handle kernel paging request at virtual address 0000000200000040
+	URB 0000000031fb463e submitted while active
+	WARNING: CPU: 0 PID: 2917 at drivers/usb/core/urb.c:363
 
-The root cause is, when write the reg XGMAC_MAC_TX_LF_RF_CONTROL_REG,
-didn't use the io_base offset.
+The negative runtime-PM usage count was caused by an unfortunate
+design decision made when runtime PM was first implemented for USB.
+At that time, USB class drivers were allowed to unbind from their
+interfaces without balancing the usage counter (i.e., leaving it with
+a positive count).  The core code would take care of setting the
+counter back to 0 before allowing another driver to bind to the
+interface.
 
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Later on when runtime PM was implemented for the entire kernel, the
+opposite decision was made: Drivers were required to balance their
+runtime-PM get and put calls.  In order to maintain backward
+compatibility, however, the USB subsystem adapted to the new
+implementation by keeping an independent usage counter for each
+interface and using it to automatically adjust the normal usage
+counter back to 0 whenever a driver was unbound.
+
+This approach involves duplicating information, but what is worse, it
+doesn't work properly in cases where a USB class driver delays
+decrementing the usage counter until after the driver's disconnect()
+routine has returned and the counter has been adjusted back to 0.
+Doing so would cause the usage counter to become negative.  There's
+even a warning about this in the USB power management documentation!
+
+As it happens, this is exactly what the hub driver does.  The
+kick_hub_wq() routine increments the runtime-PM usage counter, and the
+corresponding decrement is carried out by hub_event() in the context
+of the hub_wq work-queue thread.  This work routine may sometimes run
+after the driver has been unbound from its interface, and when it does
+it causes the usage counter to go negative.
+
+It is not possible for hub_disconnect() to wait for a pending
+hub_event() call to finish, because hub_disconnect() is called with
+the device lock held and hub_event() acquires that lock.  The only
+feasible fix is to reverse the original design decision: remove the
+duplicate interface-specific usage counter and require USB drivers to
+balance their runtime PM gets and puts.  As far as I know, all
+existing drivers currently do this.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+7634edaea4d0b341c625@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/hisilicon/hns/hns_dsaf_xgmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/usb/power-management.txt |   14 +++++++++-----
+ drivers/usb/core/driver.c              |   13 -------------
+ drivers/usb/storage/realtek_cr.c       |   13 +++++--------
+ include/linux/usb.h                    |    2 --
+ 4 files changed, 14 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_xgmac.c b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_xgmac.c
-index 51e7e9f5af49..70de7b5d28af 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_xgmac.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_xgmac.c
-@@ -129,7 +129,7 @@ static void hns_xgmac_lf_rf_control_init(struct mac_driver *mac_drv)
- 	dsaf_set_bit(val, XGMAC_UNIDIR_EN_B, 0);
- 	dsaf_set_bit(val, XGMAC_RF_TX_EN_B, 1);
- 	dsaf_set_field(val, XGMAC_LF_RF_INSERT_M, XGMAC_LF_RF_INSERT_S, 0);
--	dsaf_write_reg(mac_drv, XGMAC_MAC_TX_LF_RF_CONTROL_REG, val);
-+	dsaf_write_dev(mac_drv, XGMAC_MAC_TX_LF_RF_CONTROL_REG, val);
- }
+--- a/Documentation/usb/power-management.txt
++++ b/Documentation/usb/power-management.txt
+@@ -365,11 +365,15 @@ autosuspend the interface's device.  Whe
+ then the interface is considered to be idle, and the kernel may
+ autosuspend the device.
  
- /**
--- 
-2.20.1
-
+-Drivers need not be concerned about balancing changes to the usage
+-counter; the USB core will undo any remaining "get"s when a driver
+-is unbound from its interface.  As a corollary, drivers must not call
+-any of the usb_autopm_* functions after their disconnect() routine has
+-returned.
++Drivers must be careful to balance their overall changes to the usage
++counter.  Unbalanced "get"s will remain in effect when a driver is
++unbound from its interface, preventing the device from going into
++runtime suspend should the interface be bound to a driver again.  On
++the other hand, drivers are allowed to achieve this balance by calling
++the ``usb_autopm_*`` functions even after their ``disconnect`` routine
++has returned -- say from within a work-queue routine -- provided they
++retain an active reference to the interface (via ``usb_get_intf`` and
++``usb_put_intf``).
+ 
+ Drivers using the async routines are responsible for their own
+ synchronization and mutual exclusion.
+--- a/drivers/usb/core/driver.c
++++ b/drivers/usb/core/driver.c
+@@ -470,11 +470,6 @@ static int usb_unbind_interface(struct d
+ 		pm_runtime_disable(dev);
+ 	pm_runtime_set_suspended(dev);
+ 
+-	/* Undo any residual pm_autopm_get_interface_* calls */
+-	for (r = atomic_read(&intf->pm_usage_cnt); r > 0; --r)
+-		usb_autopm_put_interface_no_suspend(intf);
+-	atomic_set(&intf->pm_usage_cnt, 0);
+-
+ 	if (!error)
+ 		usb_autosuspend_device(udev);
+ 
+@@ -1625,7 +1620,6 @@ void usb_autopm_put_interface(struct usb
+ 	int			status;
+ 
+ 	usb_mark_last_busy(udev);
+-	atomic_dec(&intf->pm_usage_cnt);
+ 	status = pm_runtime_put_sync(&intf->dev);
+ 	dev_vdbg(&intf->dev, "%s: cnt %d -> %d\n",
+ 			__func__, atomic_read(&intf->dev.power.usage_count),
+@@ -1654,7 +1648,6 @@ void usb_autopm_put_interface_async(stru
+ 	int			status;
+ 
+ 	usb_mark_last_busy(udev);
+-	atomic_dec(&intf->pm_usage_cnt);
+ 	status = pm_runtime_put(&intf->dev);
+ 	dev_vdbg(&intf->dev, "%s: cnt %d -> %d\n",
+ 			__func__, atomic_read(&intf->dev.power.usage_count),
+@@ -1676,7 +1669,6 @@ void usb_autopm_put_interface_no_suspend
+ 	struct usb_device	*udev = interface_to_usbdev(intf);
+ 
+ 	usb_mark_last_busy(udev);
+-	atomic_dec(&intf->pm_usage_cnt);
+ 	pm_runtime_put_noidle(&intf->dev);
+ }
+ EXPORT_SYMBOL_GPL(usb_autopm_put_interface_no_suspend);
+@@ -1707,8 +1699,6 @@ int usb_autopm_get_interface(struct usb_
+ 	status = pm_runtime_get_sync(&intf->dev);
+ 	if (status < 0)
+ 		pm_runtime_put_sync(&intf->dev);
+-	else
+-		atomic_inc(&intf->pm_usage_cnt);
+ 	dev_vdbg(&intf->dev, "%s: cnt %d -> %d\n",
+ 			__func__, atomic_read(&intf->dev.power.usage_count),
+ 			status);
+@@ -1742,8 +1732,6 @@ int usb_autopm_get_interface_async(struc
+ 	status = pm_runtime_get(&intf->dev);
+ 	if (status < 0 && status != -EINPROGRESS)
+ 		pm_runtime_put_noidle(&intf->dev);
+-	else
+-		atomic_inc(&intf->pm_usage_cnt);
+ 	dev_vdbg(&intf->dev, "%s: cnt %d -> %d\n",
+ 			__func__, atomic_read(&intf->dev.power.usage_count),
+ 			status);
+@@ -1767,7 +1755,6 @@ void usb_autopm_get_interface_no_resume(
+ 	struct usb_device	*udev = interface_to_usbdev(intf);
+ 
+ 	usb_mark_last_busy(udev);
+-	atomic_inc(&intf->pm_usage_cnt);
+ 	pm_runtime_get_noresume(&intf->dev);
+ }
+ EXPORT_SYMBOL_GPL(usb_autopm_get_interface_no_resume);
+--- a/drivers/usb/storage/realtek_cr.c
++++ b/drivers/usb/storage/realtek_cr.c
+@@ -776,18 +776,16 @@ static void rts51x_suspend_timer_fn(unsi
+ 		break;
+ 	case RTS51X_STAT_IDLE:
+ 	case RTS51X_STAT_SS:
+-		usb_stor_dbg(us, "RTS51X_STAT_SS, intf->pm_usage_cnt:%d, power.usage:%d\n",
+-			     atomic_read(&us->pusb_intf->pm_usage_cnt),
++		usb_stor_dbg(us, "RTS51X_STAT_SS, power.usage:%d\n",
+ 			     atomic_read(&us->pusb_intf->dev.power.usage_count));
+ 
+-		if (atomic_read(&us->pusb_intf->pm_usage_cnt) > 0) {
++		if (atomic_read(&us->pusb_intf->dev.power.usage_count) > 0) {
+ 			usb_stor_dbg(us, "Ready to enter SS state\n");
+ 			rts51x_set_stat(chip, RTS51X_STAT_SS);
+ 			/* ignore mass storage interface's children */
+ 			pm_suspend_ignore_children(&us->pusb_intf->dev, true);
+ 			usb_autopm_put_interface_async(us->pusb_intf);
+-			usb_stor_dbg(us, "RTS51X_STAT_SS 01, intf->pm_usage_cnt:%d, power.usage:%d\n",
+-				     atomic_read(&us->pusb_intf->pm_usage_cnt),
++			usb_stor_dbg(us, "RTS51X_STAT_SS 01, power.usage:%d\n",
+ 				     atomic_read(&us->pusb_intf->dev.power.usage_count));
+ 		}
+ 		break;
+@@ -820,11 +818,10 @@ static void rts51x_invoke_transport(stru
+ 	int ret;
+ 
+ 	if (working_scsi(srb)) {
+-		usb_stor_dbg(us, "working scsi, intf->pm_usage_cnt:%d, power.usage:%d\n",
+-			     atomic_read(&us->pusb_intf->pm_usage_cnt),
++		usb_stor_dbg(us, "working scsi, power.usage:%d\n",
+ 			     atomic_read(&us->pusb_intf->dev.power.usage_count));
+ 
+-		if (atomic_read(&us->pusb_intf->pm_usage_cnt) <= 0) {
++		if (atomic_read(&us->pusb_intf->dev.power.usage_count) <= 0) {
+ 			ret = usb_autopm_get_interface(us->pusb_intf);
+ 			usb_stor_dbg(us, "working scsi, ret=%d\n", ret);
+ 		}
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -129,7 +129,6 @@ enum usb_interface_condition {
+  * @dev: driver model's view of this device
+  * @usb_dev: if an interface is bound to the USB major, this will point
+  *	to the sysfs representation for that device.
+- * @pm_usage_cnt: PM usage counter for this interface
+  * @reset_ws: Used for scheduling resets from atomic context.
+  * @resetting_device: USB core reset the device, so use alt setting 0 as
+  *	current; needs bandwidth alloc after reset.
+@@ -186,7 +185,6 @@ struct usb_interface {
+ 
+ 	struct device dev;		/* interface specific device info */
+ 	struct device *usb_dev;
+-	atomic_t pm_usage_cnt;		/* usage counter for autosuspend */
+ 	struct work_struct reset_ws;	/* for resets in atomic context */
+ };
+ #define	to_usb_interface(d) container_of(d, struct usb_interface, dev)
 
 
