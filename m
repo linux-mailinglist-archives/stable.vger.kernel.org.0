@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C9A14DF7
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FC014D73
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727400AbfEFO4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
+        id S1729265AbfEFOsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728851AbfEFOoq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:46 -0400
+        id S1729178AbfEFOsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0874214C6;
-        Mon,  6 May 2019 14:44:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68A9A20C01;
+        Mon,  6 May 2019 14:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153886;
-        bh=AvJIEhlcW/PNkCt7Wv2OLvO+rCk11nMG+gk94PHYdJs=;
+        s=default; t=1557154111;
+        bh=p6RVOtZfYnh8+vutVexuQSUaNn8ATx66Mk/NyeUR5gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpbMgUhU/ySrwca+zt45aUmqeHVQXRkaK47FcXc0MwKbCGnxYLDXgRyKXlHwiBr3y
-         SJ6Z1Qmp8IzzFXr7mUKHHa7lu43PfVZdUFubs74Phx1I9UKL9qyVMRkJnbPPeH0cdY
-         SYf6HZjGczESiAn1SbG6PP6a2Ju9v0gN1/xjE+Bw=
+        b=GlrGXug/rXVYeU5FIYFpCbloHD7aZQtwrJce2SoMP5Y+qGtJNQvqFGQNyVbwh5ugo
+         0zPNoRtMGPO1874BpRqRN1pcRTQ46UZmD97hGE0S5ZUA84bKyQRkLfP2IImmcPXdFS
+         El06vZ7vMAWrWQykBVZdU7jKuSGA4iper7aHL3Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 32/75] ARM: dts: rockchip: Fix gpu opp node names for rk3288
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 09/62] kasan: turn on -fsanitize-address-use-after-scope
 Date:   Mon,  6 May 2019 16:32:40 +0200
-Message-Id: <20190506143056.105285763@linuxfoundation.org>
+Message-Id: <20190506143051.888762392@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d040e4e8deeaa8257d6aa260e29ad69832b5d630 ]
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-The device tree compiler yells like this:
-  Warning (unit_address_vs_reg):
-  /gpu-opp-table/opp@100000000:
-  node has a unit name, but no reg property
+commit c5caf21ab0cf884ef15b25af234f620e4a233139 upstream.
 
-Let's match the cpu opp node names and use a dash.
+In the upcoming gcc7 release, the -fsanitize=kernel-address option at
+first implied new -fsanitize-address-use-after-scope option.  This would
+cause link errors on older kernels because they don't have two new
+functions required for use-after-scope support.  Therefore, gcc7 changed
+default to -fno-sanitize-address-use-after-scope.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Now the kernel has everything required for that feature since commit
+828347f8f9a5 ("kasan: support use-after-scope detection").  So, to make it
+work, we just have to enable use-after-scope in CFLAGS.
+
+Link: http://lkml.kernel.org/r/1481207977-28654-1-git-send-email-aryabinin@virtuozzo.com
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/rk3288.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ scripts/Makefile.kasan |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index f7a951afd281..5a7888581eea 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -1181,27 +1181,27 @@
- 	gpu_opp_table: gpu-opp-table {
- 		compatible = "operating-points-v2";
+--- a/scripts/Makefile.kasan
++++ b/scripts/Makefile.kasan
+@@ -29,6 +29,8 @@ else
+     endif
+ endif
  
--		opp@100000000 {
-+		opp-100000000 {
- 			opp-hz = /bits/ 64 <100000000>;
- 			opp-microvolt = <950000>;
- 		};
--		opp@200000000 {
-+		opp-200000000 {
- 			opp-hz = /bits/ 64 <200000000>;
- 			opp-microvolt = <950000>;
- 		};
--		opp@300000000 {
-+		opp-300000000 {
- 			opp-hz = /bits/ 64 <300000000>;
- 			opp-microvolt = <1000000>;
- 		};
--		opp@400000000 {
-+		opp-400000000 {
- 			opp-hz = /bits/ 64 <400000000>;
- 			opp-microvolt = <1100000>;
- 		};
--		opp@500000000 {
-+		opp-500000000 {
- 			opp-hz = /bits/ 64 <500000000>;
- 			opp-microvolt = <1200000>;
- 		};
--		opp@600000000 {
-+		opp-600000000 {
- 			opp-hz = /bits/ 64 <600000000>;
- 			opp-microvolt = <1250000>;
- 		};
--- 
-2.20.1
-
++CFLAGS_KASAN += $(call cc-option, -fsanitize-address-use-after-scope)
++
+ CFLAGS_KASAN_NOSANITIZE := -fno-builtin
+ 
+ endif
 
 
