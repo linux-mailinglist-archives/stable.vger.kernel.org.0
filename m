@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B2914BEE
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7AFB14BF0
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726601AbfEFOeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:34:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54012 "EHLO mail.kernel.org"
+        id S1726617AbfEFOe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:34:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726583AbfEFOeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:34:24 -0400
+        id S1726583AbfEFOe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:34:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15BCB204EC;
-        Mon,  6 May 2019 14:34:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE6A921479;
+        Mon,  6 May 2019 14:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153264;
-        bh=Dy+I8rsDbFZauPhRvbkfbHNORIdzXayt9jJPqi/2LOQ=;
+        s=default; t=1557153267;
+        bh=S7KL2fzn3VLP6vF6fSXi55MGPnGuWGW66kDHCMAmqCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQ0by/w8+HvrszFna+yDXTQdRS9iJNKzJV5cKgIKRpkHMcQB0z6YL7XgX/PStIz+2
-         nUb84OMLvegcjC6mgVLDEABmifPbS+YbLnuKKiN3/wv33nBjugBvzmP39911boSiir
-         k782lt3wPsEaBy9lVw14MYw8haVYBJNpWsBhWqoc=
+        b=yzBx7ksCv4tMQ+lcJwkELalGLQZLxWt+NPoeKU5IB/e6MkdRBdb/cF/OqzKtS2VUD
+         YaJpaq+g+MfVaGYB+xn0TTPwYx79xVijEhW0LpvxHiohYQ/ZTlXpFUZgNFU+HddGvc
+         4aHE38o8ZuXY513em6ICdzGWd1irH+RrR1y0hQmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.0 008/122] i2c: synquacer: fix enumeration of slave devices
-Date:   Mon,  6 May 2019 16:31:06 +0200
-Message-Id: <20190506143055.458618424@linuxfoundation.org>
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
+Subject: [PATCH 5.0 009/122] i2c: imx: correct the method of getting private data in notifier_call
+Date:   Mon,  6 May 2019 16:31:07 +0200
+Message-Id: <20190506143055.540883968@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -43,34 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Anson Huang <anson.huang@nxp.com>
 
-commit 95e0cf3caeb11e1b0398c747b5cfa12828263824 upstream.
+commit d386bb9042f4629bf62cdc5952ea8aab225f24a7 upstream.
 
-The I2C host driver for SynQuacer fails to populate the of_node and
-ACPI companion fields of the struct i2c_adapter it instantiates,
-resulting in enumeration of the subordinate I2C bus to fail.
+The way of getting private imx_i2c_struct in i2c_imx_clk_notifier_call()
+is incorrect, should use clk_change_nb element to get correct address
+and avoid below kernel dump during POST_RATE_CHANGE notify by clk
+framework:
 
-Fixes: 0d676a6c4390 ("i2c: add support for Socionext SynQuacer I2C controller")
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Unable to handle kernel paging request at virtual address 03ef1488
+pgd = (ptrval)
+[03ef1488] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: events reduce_bus_freq_handler
+PC is at i2c_imx_set_clk+0x10/0xb8
+LR is at i2c_imx_clk_notifier_call+0x20/0x28
+pc : [<806a893c>]    lr : [<806a8a04>]    psr: a0080013
+sp : bf399dd8  ip : bf3432ac  fp : bf7c1dc0
+r10: 00000002  r9 : 00000000  r8 : 00000000
+r7 : 03ef1480  r6 : bf399e50  r5 : ffffffff  r4 : 00000000
+r3 : bf025300  r2 : bf399e50  r1 : 00b71b00  r0 : bf399be8
+Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c5387d  Table: 4e03004a  DAC: 00000051
+Process kworker/2:1 (pid: 38, stack limit = 0x(ptrval))
+Stack: (0xbf399dd8 to 0xbf39a000)
+9dc0:                                                       806a89e4 00000000
+9de0: ffffffff bf399e50 00000002 806a8a04 806a89e4 80142900 ffffffff 00000000
+9e00: bf34ef18 bf34ef04 00000000 ffffffff bf399e50 80142d84 00000000 bf399e6c
+9e20: bf34ef00 80f214c4 bf025300 00000002 80f08d08 bf017480 00000000 80142df0
+9e40: 00000000 80166ed8 80c27638 8045de58 bf352340 03ef1480 00b71b00 0f82e242
+9e60: bf025300 00000002 03ef1480 80f60e5c 00000001 8045edf0 00000002 8045eb08
+9e80: bf025300 00000002 03ef1480 8045ee10 03ef1480 8045eb08 bf01be40 00000002
+9ea0: 03ef1480 8045ee10 07de2900 8045eb08 bf01b780 00000002 07de2900 8045ee10
+9ec0: 80c27898 bf399ee4 bf020a80 00000002 1f78a400 8045ee10 80f60e5c 80460514
+9ee0: 80f60e5c bf01b600 bf01b480 80460460 0f82e242 bf383a80 bf383a00 80f60e5c
+9f00: 00000000 bf7c1dc0 80f60e70 80460564 80f60df0 80f60d24 80f60df0 8011e72c
+9f20: 00000000 80f60df0 80f60e6c bf7c4f00 00000000 8011e7ac bf274000 8013bd84
+9f40: bf7c1dd8 80f03d00 bf274000 bf7c1dc0 bf274014 bf7c1dd8 80f03d00 bf398000
+9f60: 00000008 8013bfb4 00000000 bf25d100 bf25d0c0 00000000 bf274000 8013bf88
+9f80: bf25d11c bf0cfebc 00000000 8014140c bf25d0c0 801412ec 00000000 00000000
+9fa0: 00000000 00000000 00000000 801010e8 00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[<806a893c>] (i2c_imx_set_clk) from [<806a8a04>] (i2c_imx_clk_notifier_call+0x20/0x28)
+[<806a8a04>] (i2c_imx_clk_notifier_call) from [<80142900>] (notifier_call_chain+0x44/0x84)
+[<80142900>] (notifier_call_chain) from [<80142d84>] (__srcu_notifier_call_chain+0x44/0x98)
+[<80142d84>] (__srcu_notifier_call_chain) from [<80142df0>] (srcu_notifier_call_chain+0x18/0x20)
+[<80142df0>] (srcu_notifier_call_chain) from [<8045de58>] (__clk_notify+0x78/0xa4)
+[<8045de58>] (__clk_notify) from [<8045edf0>] (__clk_recalc_rates+0x60/0xb4)
+[<8045edf0>] (__clk_recalc_rates) from [<8045ee10>] (__clk_recalc_rates+0x80/0xb4)
+Code: e92d40f8 e5903298 e59072a0 e1530001 (e5975008)
+---[ end trace fc7f5514b97b6cbb ]---
+
+Fixes: 90ad2cbe88c2 ("i2c: imx: use clk notifier for rate changes")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-synquacer.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-imx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-synquacer.c
-+++ b/drivers/i2c/busses/i2c-synquacer.c
-@@ -602,6 +602,8 @@ static int synquacer_i2c_probe(struct pl
- 	i2c->adapter = synquacer_i2c_ops;
- 	i2c_set_adapdata(&i2c->adapter, i2c);
- 	i2c->adapter.dev.parent = &pdev->dev;
-+	i2c->adapter.dev.of_node = pdev->dev.of_node;
-+	ACPI_COMPANION_SET(&i2c->adapter.dev, ACPI_COMPANION(&pdev->dev));
- 	i2c->adapter.nr = pdev->id;
- 	init_completion(&i2c->completion);
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -510,9 +510,9 @@ static int i2c_imx_clk_notifier_call(str
+ 				     unsigned long action, void *data)
+ {
+ 	struct clk_notifier_data *ndata = data;
+-	struct imx_i2c_struct *i2c_imx = container_of(&ndata->clk,
++	struct imx_i2c_struct *i2c_imx = container_of(nb,
+ 						      struct imx_i2c_struct,
+-						      clk);
++						      clk_change_nb);
  
+ 	if (action & POST_RATE_CHANGE)
+ 		i2c_imx_set_clk(i2c_imx, ndata->new_rate);
 
 
