@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DB814DC5
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5406D14D76
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbfEFOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44268 "EHLO mail.kernel.org"
+        id S1729518AbfEFOsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729124AbfEFOq0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:46:26 -0400
+        id S1729503AbfEFOsp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF03F20C01;
-        Mon,  6 May 2019 14:46:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 539C420C01;
+        Mon,  6 May 2019 14:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153985;
-        bh=QBSunIwk2sq53lut5q3wAM4APzM6eYRPvuu1yZg2/pM=;
+        s=default; t=1557154124;
+        bh=+m3qKxuvwCbNfYp497QYpLkuddLq7KOSIfHzlGfKYKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xE4O6QLzQbo4ct55Y42pfYb/u1WU1B0ZdSeQDf+iGB471UCSXBuU0CG4zjVh1yUlx
-         4XVmYFijagFaVu6facf1y86XWxOdlTyeu6i9WRIlaFehD3C1lM9+MLADHMoaaNkjGD
-         H7ldTo36Jtz0L//iNnnAjddLMwQ061h882dqddas=
+        b=qIYYW2LNeF1+BOBiZcxN61GAwwzEdveL8HjbjU1P90m2/nDgMisJm/LlZc1A80DD7
+         VoIx3t3xekJvFc+KqqvdVUQ1cBH9vj/D6XsLgEPa8d1XrdsYUO5CLM7yNdG2T6gvxj
+         QhAr5XnyoKiKpA4pjvy0Uzdg0Qe9lFrFb9tnWo9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.14 70/75] selinux: never allow relabeling on context mounts
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 47/62] net: hns: Use NAPI_POLL_WEIGHT for hns driver
 Date:   Mon,  6 May 2019 16:33:18 +0200
-Message-Id: <20190506143059.606606075@linuxfoundation.org>
+Message-Id: <20190506143055.323707576@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+[ Upstream commit acb1ce15a61154aa501891d67ebf79bc9ea26818 ]
 
-commit a83d6ddaebe541570291205cb538e35ad4ff94f9 upstream.
+When the HNS driver loaded, always have an error print:
+"netif_napi_add() called with weight 256"
 
-In the SECURITY_FS_USE_MNTPOINT case we never want to allow relabeling
-files/directories, so we should never set the SBLABEL_MNT flag. The
-'special handling' in selinux_is_sblabel_mnt() is only intended for when
-the behavior is set to SECURITY_FS_USE_GENFS.
+This is because the kernel checks the NAPI polling weights
+requested by drivers and it prints an error message if a driver
+requests a weight bigger than 64.
 
-While there, make the logic in selinux_is_sblabel_mnt() more explicit
-and add a BUILD_BUG_ON() to make sure that introducing a new
-SECURITY_FS_USE_* forces a review of the logic.
+So use NAPI_POLL_WEIGHT to fix it.
 
-Fixes: d5f3a5f6e7e7 ("selinux: add security in-core xattr support for pstore and debugfs")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c |   40 +++++++++++++++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -471,16 +471,10 @@ static int may_context_mount_inode_relab
- 	return rc;
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index f77578a5ea9d..24a815997ec5 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -28,9 +28,6 @@
  
--static int selinux_is_sblabel_mnt(struct super_block *sb)
-+static int selinux_is_genfs_special_handling(struct super_block *sb)
- {
--	struct superblock_security_struct *sbsec = sb->s_security;
+ #define SERVICE_TIMER_HZ (1 * HZ)
+ 
+-#define NIC_TX_CLEAN_MAX_NUM 256
+-#define NIC_RX_CLEAN_MAX_NUM 64
 -
--	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
--		sbsec->behavior == SECURITY_FS_USE_TRANS ||
--		sbsec->behavior == SECURITY_FS_USE_TASK ||
--		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
--		/* Special handling. Genfs but also in-core setxattr handler */
--		!strcmp(sb->s_type->name, "sysfs") ||
-+	/* Special handling. Genfs but also in-core setxattr handler */
-+	return	!strcmp(sb->s_type->name, "sysfs") ||
- 		!strcmp(sb->s_type->name, "pstore") ||
- 		!strcmp(sb->s_type->name, "debugfs") ||
- 		!strcmp(sb->s_type->name, "tracefs") ||
-@@ -490,6 +484,34 @@ static int selinux_is_sblabel_mnt(struct
- 		  !strcmp(sb->s_type->name, "cgroup2")));
- }
+ #define RCB_IRQ_NOT_INITED 0
+ #define RCB_IRQ_INITED 1
+ #define HNS_BUFFER_SIZE_2048 2048
+@@ -1822,7 +1819,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_tx_fini_pro_v2;
  
-+static int selinux_is_sblabel_mnt(struct super_block *sb)
-+{
-+	struct superblock_security_struct *sbsec = sb->s_security;
-+
-+	/*
-+	 * IMPORTANT: Double-check logic in this function when adding a new
-+	 * SECURITY_FS_USE_* definition!
-+	 */
-+	BUILD_BUG_ON(SECURITY_FS_USE_MAX != 7);
-+
-+	switch (sbsec->behavior) {
-+	case SECURITY_FS_USE_XATTR:
-+	case SECURITY_FS_USE_TRANS:
-+	case SECURITY_FS_USE_TASK:
-+	case SECURITY_FS_USE_NATIVE:
-+		return 1;
-+
-+	case SECURITY_FS_USE_GENFS:
-+		return selinux_is_genfs_special_handling(sb);
-+
-+	/* Never allow relabeling on context mounts */
-+	case SECURITY_FS_USE_MNTPOINT:
-+	case SECURITY_FS_USE_NONE:
-+	default:
-+		return 0;
-+	}
-+}
-+
- static int sb_finish_set_opts(struct super_block *sb)
- {
- 	struct superblock_security_struct *sbsec = sb->s_security;
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_TX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 	for (i = h->q_num; i < h->q_num * 2; i++) {
+@@ -1835,7 +1832,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_rx_fini_pro_v2;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_RX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
