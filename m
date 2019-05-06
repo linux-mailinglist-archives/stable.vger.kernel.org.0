@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8CDD14DCD
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8363C14E20
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbfEFOz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43072 "EHLO mail.kernel.org"
+        id S1728639AbfEFOnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:43:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727188AbfEFOpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:53 -0400
+        id S1728620AbfEFOnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:43:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C33A2053B;
-        Mon,  6 May 2019 14:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B05C21479;
+        Mon,  6 May 2019 14:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153953;
-        bh=UukgufM9/vhDOz0WdQ0i3a4zD1CH0CaTiYFaHkKz0a0=;
+        s=default; t=1557153802;
+        bh=PfLeZyYVsYOyH47/cY4Cr0MKkIiL4NuQjQGlWyG1dHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqRHk5pzU1/0oRxA1xWoRtIJR59vmOW+t2rSsmjnp2qKNaghmtrKWc0p2b1GEHC/R
-         9bms3BFw8L2+NIqQCoAtIe5BbeUUf2FJYuEwj1VAvaZ7vSaU35mzv7h7nncGdaoe45
-         VosjWsVorUVSOlznIQASShhsjxjH7j6nd2zCPKqI=
+        b=GFQtgGG2FAF+7nyxhVOCya3xEM6hBYWtIWhTreX/1hLSnox/aVekFGpeFaCbmCBaq
+         /VSOi+L5KpqclcEQ9PUgWo1/U12zEFUMOJvDn22/dWnAif5eaWBSoplpxCCyd9XuYn
+         kff9P+ajxbQ/EsrWZXxcp8n9ga0WlQqm9J3CK5mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 59/75] Bluetooth: btusb: request wake pin with NOAUTOEN
+        stable@vger.kernel.org,
+        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 94/99] clk: x86: Add system specific quirk to mark clocks as critical
 Date:   Mon,  6 May 2019 16:33:07 +0200
-Message-Id: <20190506143058.626686512@linuxfoundation.org>
+Message-Id: <20190506143102.369504329@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: David Müller <dave.mueller@gmx.ch>
 
-commit 771acc7e4a6e5dba779cb1a7fd851a164bc81033 upstream.
+commit 7c2e07130090ae001a97a6b65597830d6815e93e upstream.
 
-Badly-designed systems might have (for example) active-high wake pins
-that default to high (e.g., because of external pull ups) until they
-have an active firmware which starts driving it low.  This can cause an
-interrupt storm in the time between request_irq() and disable_irq().
+Since commit 648e921888ad ("clk: x86: Stop marking clocks as
+CLK_IS_CRITICAL"), the pmc_plt_clocks of the Bay Trail SoC are
+unconditionally gated off. Unfortunately this will break systems where these
+clocks are used for external purposes beyond the kernel's knowledge. Fix it
+by implementing a system specific quirk to mark the necessary pmc_plt_clks as
+critical.
 
-We don't support shared interrupts here, so let's just pre-configure the
-interrupt to avoid auto-enabling it.
-
-Fixes: fd913ef7ce61 ("Bluetooth: btusb: Add out-of-band wakeup support")
-Fixes: 5364a0b4f4be ("arm64: dts: rockchip: move QCA6174A wakeup pin into its USB node")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Signed-off-by: David Müller <dave.mueller@gmx.ch>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/btusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/x86/clk-pmc-atom.c                 |   14 +++++++++++---
+ drivers/platform/x86/pmc_atom.c                |   21 +++++++++++++++++++++
+ include/linux/platform_data/x86/clk-pmc-atom.h |    3 +++
+ 3 files changed, 35 insertions(+), 3 deletions(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2893,6 +2893,7 @@ static int btusb_config_oob_wake(struct
- 		return 0;
- 	}
+--- a/drivers/clk/x86/clk-pmc-atom.c
++++ b/drivers/clk/x86/clk-pmc-atom.c
+@@ -165,7 +165,7 @@ static const struct clk_ops plt_clk_ops
+ };
  
-+	irq_set_status_flags(irq, IRQ_NOAUTOEN);
- 	ret = devm_request_irq(&hdev->dev, irq, btusb_oob_wake_handler,
- 			       0, "OOB Wake-on-BT", data);
+ static struct clk_plt *plt_clk_register(struct platform_device *pdev, int id,
+-					void __iomem *base,
++					const struct pmc_clk_data *pmc_data,
+ 					const char **parent_names,
+ 					int num_parents)
+ {
+@@ -184,9 +184,17 @@ static struct clk_plt *plt_clk_register(
+ 	init.num_parents = num_parents;
+ 
+ 	pclk->hw.init = &init;
+-	pclk->reg = base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
++	pclk->reg = pmc_data->base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
+ 	spin_lock_init(&pclk->lock);
+ 
++	/*
++	 * On some systems, the pmc_plt_clocks already enabled by the
++	 * firmware are being marked as critical to avoid them being
++	 * gated by the clock framework.
++	 */
++	if (pmc_data->critical && plt_clk_is_enabled(&pclk->hw))
++		init.flags |= CLK_IS_CRITICAL;
++
+ 	ret = devm_clk_hw_register(&pdev->dev, &pclk->hw);
  	if (ret) {
-@@ -2907,7 +2908,6 @@ static int btusb_config_oob_wake(struct
- 	}
+ 		pclk = ERR_PTR(ret);
+@@ -332,7 +340,7 @@ static int plt_clk_probe(struct platform
+ 		return PTR_ERR(parent_names);
  
- 	data->oob_wake_irq = irq;
--	disable_irq(irq);
- 	bt_dev_info(hdev, "OOB Wake-on-BT configured at IRQ %u", irq);
- 	return 0;
+ 	for (i = 0; i < PMC_CLK_NUM; i++) {
+-		data->clks[i] = plt_clk_register(pdev, i, pmc_data->base,
++		data->clks[i] = plt_clk_register(pdev, i, pmc_data,
+ 						 parent_names, data->nparents);
+ 		if (IS_ERR(data->clks[i])) {
+ 			err = PTR_ERR(data->clks[i]);
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
++#include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/platform_data/x86/clk-pmc-atom.h>
+@@ -391,11 +392,27 @@ static int pmc_dbgfs_register(struct pmc
  }
+ #endif /* CONFIG_DEBUG_FS */
+ 
++/*
++ * Some systems need one or more of their pmc_plt_clks to be
++ * marked as critical.
++ */
++static const struct dmi_system_id critclk_systems[] __initconst = {
++	{
++		.ident = "MPL CEC1x",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
++		},
++	},
++	{ /*sentinel*/ }
++};
++
+ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ 			  const struct pmc_data *pmc_data)
+ {
+ 	struct platform_device *clkdev;
+ 	struct pmc_clk_data *clk_data;
++	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
+ 
+ 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
+ 	if (!clk_data)
+@@ -403,6 +420,10 @@ static int pmc_setup_clks(struct pci_dev
+ 
+ 	clk_data->base = pmc_regmap; /* offset is added by client */
+ 	clk_data->clks = pmc_data->clks;
++	if (d) {
++		clk_data->critical = true;
++		pr_info("%s critclks quirk enabled\n", d->ident);
++	}
+ 
+ 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
+ 					       PLATFORM_DEVID_NONE,
+--- a/include/linux/platform_data/x86/clk-pmc-atom.h
++++ b/include/linux/platform_data/x86/clk-pmc-atom.h
+@@ -35,10 +35,13 @@ struct pmc_clk {
+  *
+  * @base:	PMC clock register base offset
+  * @clks:	pointer to set of registered clocks, typically 0..5
++ * @critical:	flag to indicate if firmware enabled pmc_plt_clks
++ *		should be marked as critial or not
+  */
+ struct pmc_clk_data {
+ 	void __iomem *base;
+ 	const struct pmc_clk *clks;
++	bool critical;
+ };
+ 
+ #endif /* __PLATFORM_DATA_X86_CLK_PMC_ATOM_H */
 
 
