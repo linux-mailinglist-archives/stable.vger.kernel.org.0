@@ -2,45 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BEB156A4
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 01:53:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F39156BD
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 01:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726529AbfEFXxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 19:53:14 -0400
-Received: from mga09.intel.com ([134.134.136.24]:15870 "EHLO mga09.intel.com"
+        id S1726533AbfEFXyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 19:54:12 -0400
+Received: from mga14.intel.com ([192.55.52.115]:53355 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726128AbfEFXxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 19:53:13 -0400
+        id S1726438AbfEFXyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 19:54:12 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 May 2019 16:53:12 -0700
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 May 2019 16:54:11 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.60,439,1549958400"; 
-   d="scan'208";a="140720507"
+   d="scan'208";a="149329913"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga008.jf.intel.com with ESMTP; 06 May 2019 16:53:13 -0700
-Subject: [PATCH v8 00/12] mm: Sub-section memory hotplug support
+  by fmsmga007.fm.intel.com with ESMTP; 06 May 2019 16:54:11 -0700
+Subject: [PATCH v8 11/12] libnvdimm/pfn: Fix fsdax-mode namespace info-block
+ zero-fields
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     akpm@linux-foundation.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Jeff Moyer <jmoyer@redhat.com>, Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org,
-        =?utf-8?b?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>,
-        linux-nvdimm@lists.01.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, osalvador@suse.de, mhocko@suse.com
-Date:   Mon, 06 May 2019 16:39:26 -0700
-Message-ID: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
+Cc:     stable@vger.kernel.org, linux-nvdimm@lists.01.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        osalvador@suse.de, mhocko@suse.com
+Date:   Mon, 06 May 2019 16:40:24 -0700
+Message-ID: <155718602469.130019.1073417828141766553.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -50,164 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Changes since v7 [1]:
+At namespace creation time there is the potential for the "expected to
+be zero" fields of a 'pfn' info-block to be filled with indeterminate
+data. While the kernel buffer is zeroed on allocation it is immediately
+overwritten by nd_pfn_validate() filling it with the current contents of
+the on-media info-block location. For fields like, 'flags' and the
+'padding' it potentially means that future implementations can not rely
+on those fields being zero.
 
-- Make subsection helpers pfn based rather than physical-address based
-  (Oscar and Pavel)
+In preparation to stop using the 'start_pad' and 'end_trunc' fields for
+section alignment, arrange for fields that are not explicitly
+initialized to be guaranteed zero. Bump the minor version to indicate it
+is safe to assume the 'padding' and 'flags' are zero. Otherwise, this
+corruption is expected to benign since all other critical fields are
+explicitly initialized.
 
-- Make subsection bitmap definition scalable for different section and
-  sub-section sizes across architectures. As a result:
-
-      unsigned long map_active
-
-  ...is converted to:
-
-      DECLARE_BITMAP(subsection_map, SUBSECTIONS_PER_SECTION)
-
-  ...and the helpers are renamed with a 'subsection' prefix. (Pavel)
-
-- New in this version is a touch of arch/powerpc/include/asm/sparsemem.h
-  in "[PATCH v8 01/12] mm/sparsemem: Introduce struct mem_section_usage"
-  to define ARCH_SUBSECTION_SHIFT.
-
-- Drop "mm/sparsemem: Introduce common definitions for the size and mask
-  of a section" in favor of Robin's "mm/memremap: Rename and consolidate
-  SECTION_SIZE" (Pavel)
-
-- Collect some more Reviewed-by tags. Patches that still lack review
-  tags: 1, 3, 9 - 12
-
-[1]: https://lore.kernel.org/lkml/155677652226.2336373.8700273400832001094.stgit@dwillia2-desk3.amr.corp.intel.com/
-
+Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
-[merge logistics]
+ drivers/nvdimm/dax_devs.c |    2 +-
+ drivers/nvdimm/pfn.h      |    1 +
+ drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
-Hi Andrew,
+diff --git a/drivers/nvdimm/dax_devs.c b/drivers/nvdimm/dax_devs.c
+index 0453f49dc708..326f02ffca81 100644
+--- a/drivers/nvdimm/dax_devs.c
++++ b/drivers/nvdimm/dax_devs.c
+@@ -126,7 +126,7 @@ int nd_dax_probe(struct device *dev, struct nd_namespace_common *ndns)
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!dax_dev)
+ 		return -ENOMEM;
+-	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn->pfn_sb = pfn_sb;
+ 	rc = nd_pfn_validate(nd_pfn, DAX_SIG);
+ 	dev_dbg(dev, "dax: %s\n", rc == 0 ? dev_name(dax_dev) : "<none>");
+diff --git a/drivers/nvdimm/pfn.h b/drivers/nvdimm/pfn.h
+index dde9853453d3..e901e3a3b04c 100644
+--- a/drivers/nvdimm/pfn.h
++++ b/drivers/nvdimm/pfn.h
+@@ -36,6 +36,7 @@ struct nd_pfn_sb {
+ 	__le32 end_trunc;
+ 	/* minor-version-2 record the base alignment of the mapping */
+ 	__le32 align;
++	/* minor-version-3 guarantee the padding and flags are zero */
+ 	u8 padding[4000];
+ 	__le64 checksum;
+ };
+diff --git a/drivers/nvdimm/pfn_devs.c b/drivers/nvdimm/pfn_devs.c
+index 01f40672507f..a2406253eb70 100644
+--- a/drivers/nvdimm/pfn_devs.c
++++ b/drivers/nvdimm/pfn_devs.c
+@@ -420,6 +420,15 @@ static int nd_pfn_clear_memmap_errors(struct nd_pfn *nd_pfn)
+ 	return 0;
+ }
+ 
++/**
++ * nd_pfn_validate - read and validate info-block
++ * @nd_pfn: fsdax namespace runtime state / properties
++ * @sig: 'devdax' or 'fsdax' signature
++ *
++ * Upon return the info-block buffer contents (->pfn_sb) are
++ * indeterminate when validation fails, and a coherent info-block
++ * otherwise.
++ */
+ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
+ {
+ 	u64 checksum, offset;
+@@ -565,7 +574,7 @@ int nd_pfn_probe(struct device *dev, struct nd_namespace_common *ndns)
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!pfn_dev)
+ 		return -ENOMEM;
+-	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn = to_nd_pfn(pfn_dev);
+ 	nd_pfn->pfn_sb = pfn_sb;
+ 	rc = nd_pfn_validate(nd_pfn, PFN_SIG);
+@@ -702,7 +711,7 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
+ 	u64 checksum;
+ 	int rc;
+ 
+-	pfn_sb = devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	if (!pfn_sb)
+ 		return -ENOMEM;
+ 
+@@ -711,11 +720,14 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
+ 		sig = DAX_SIG;
+ 	else
+ 		sig = PFN_SIG;
++
+ 	rc = nd_pfn_validate(nd_pfn, sig);
+ 	if (rc != -ENODEV)
+ 		return rc;
+ 
+ 	/* no info block, do init */;
++	memset(pfn_sb, 0, sizeof(*pfn_sb));
++
+ 	nd_region = to_nd_region(nd_pfn->dev.parent);
+ 	if (nd_region->ro) {
+ 		dev_info(&nd_pfn->dev,
+@@ -768,7 +780,7 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
+ 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
+ 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
+ 	pfn_sb->version_major = cpu_to_le16(1);
+-	pfn_sb->version_minor = cpu_to_le16(2);
++	pfn_sb->version_minor = cpu_to_le16(3);
+ 	pfn_sb->start_pad = cpu_to_le32(start_pad);
+ 	pfn_sb->end_trunc = cpu_to_le32(end_trunc);
+ 	pfn_sb->align = cpu_to_le32(nd_pfn->align);
 
-These are too late for v5.2, I'm posting this v8 during the merge window
-to maintain the review momentum. 
-
----
-[cover letter]
-
-The memory hotplug section is an arbitrary / convenient unit for memory
-hotplug. 'Section-size' units have bled into the user interface
-('memblock' sysfs) and can not be changed without breaking existing
-userspace. The section-size constraint, while mostly benign for typical
-memory hotplug, has and continues to wreak havoc with 'device-memory'
-use cases, persistent memory (pmem) in particular. Recall that pmem uses
-devm_memremap_pages(), and subsequently arch_add_memory(), to allocate a
-'struct page' memmap for pmem. However, it does not use the 'bottom
-half' of memory hotplug, i.e. never marks pmem pages online and never
-exposes the userspace memblock interface for pmem. This leaves an
-opening to redress the section-size constraint.
-
-To date, the libnvdimm subsystem has attempted to inject padding to
-satisfy the internal constraints of arch_add_memory(). Beyond
-complicating the code, leading to bugs [2], wasting memory, and limiting
-configuration flexibility, the padding hack is broken when the platform
-changes this physical memory alignment of pmem from one boot to the
-next. Device failure (intermittent or permanent) and physical
-reconfiguration are events that can cause the platform firmware to
-change the physical placement of pmem on a subsequent boot, and device
-failure is an everyday event in a data-center.
-
-It turns out that sections are only a hard requirement of the
-user-facing interface for memory hotplug and with a bit more
-infrastructure sub-section arch_add_memory() support can be added for
-kernel internal usages like devm_memremap_pages(). Here is an analysis
-of the current design assumptions in the current code and how they are
-addressed in the new implementation:
-
-Current design assumptions:
-
-- Sections that describe boot memory (early sections) are never
-  unplugged / removed.
-
-- pfn_valid(), in the CONFIG_SPARSEMEM_VMEMMAP=y, case devolves to a
-  valid_section() check
-
-- __add_pages() and helper routines assume all operations occur in
-  PAGES_PER_SECTION units.
-
-- The memblock sysfs interface only comprehends full sections
-
-New design assumptions:
-
-- Sections are instrumented with a sub-section bitmask to track (on x86)
-  individual 2MB sub-divisions of a 128MB section.
-
-- Partially populated early sections can be extended with additional
-  sub-sections, and those sub-sections can be removed with
-  arch_remove_memory(). With this in place we no longer lose usable memory
-  capacity to padding.
-
-- pfn_valid() is updated to look deeper than valid_section() to also check the
-  active-sub-section mask. This indication is in the same cacheline as
-  the valid_section() so the performance impact is expected to be
-  negligible. So far the lkp robot has not reported any regressions.
-
-- Outside of the core vmemmap population routines which are replaced,
-  other helper routines like shrink_{zone,pgdat}_span() are updated to
-  handle the smaller granularity. Core memory hotplug routines that deal
-  with online memory are not touched.
-
-- The existing memblock sysfs user api guarantees / assumptions are
-  not touched since this capability is limited to !online
-  !memblock-sysfs-accessible sections.
-
-Meanwhile the issue reports continue to roll in from users that do not
-understand when and how the 128MB constraint will bite them. The current
-implementation relied on being able to support at least one misaligned
-namespace, but that immediately falls over on any moderately complex
-namespace creation attempt. Beyond the initial problem of 'System RAM'
-colliding with pmem, and the unsolvable problem of physical alignment
-changes, Linux is now being exposed to platforms that collide pmem
-ranges with other pmem ranges by default [3]. In short,
-devm_memremap_pages() has pushed the venerable section-size constraint
-past the breaking point, and the simplicity of section-aligned
-arch_add_memory() is no longer tenable.
-
-These patches are exposed to the kbuild robot on my libnvdimm-pending
-branch [4], and a preview of the unit test for this functionality is
-available on the 'subsection-pending' branch of ndctl [5].
-
-[2]: https://lore.kernel.org/r/155000671719.348031.2347363160141119237.stgit@dwillia2-desk3.amr.corp.intel.com
-[3]: https://github.com/pmem/ndctl/issues/76
-[4]: https://git.kernel.org/pub/scm/linux/kernel/git/djbw/nvdimm.git/log/?h=libnvdimm-pending
-[5]: https://github.com/pmem/ndctl/commit/7c59b4867e1c
-
----
-
-Dan Williams (11):
-      mm/sparsemem: Introduce struct mem_section_usage
-      mm/sparsemem: Add helpers track active portions of a section at boot
-      mm/hotplug: Prepare shrink_{zone,pgdat}_span for sub-section removal
-      mm/sparsemem: Convert kmalloc_section_memmap() to populate_section_memmap()
-      mm/hotplug: Kill is_dev_zone() usage in __remove_pages()
-      mm: Kill is_dev_zone() helper
-      mm/sparsemem: Prepare for sub-section ranges
-      mm/sparsemem: Support sub-section hotplug
-      mm/devm_memremap_pages: Enable sub-section remap
-      libnvdimm/pfn: Fix fsdax-mode namespace info-block zero-fields
-      libnvdimm/pfn: Stop padding pmem namespaces to section alignment
-
-Robin Murphy (1):
-      mm/memremap: Rename and consolidate SECTION_SIZE
-
-
- arch/powerpc/include/asm/sparsemem.h |    3 
- arch/x86/mm/init_64.c                |    4 
- drivers/nvdimm/dax_devs.c            |    2 
- drivers/nvdimm/pfn.h                 |   15 -
- drivers/nvdimm/pfn_devs.c            |   95 +++------
- include/linux/memory_hotplug.h       |    7 -
- include/linux/mm.h                   |    4 
- include/linux/mmzone.h               |   93 +++++++--
- kernel/memremap.c                    |   63 ++----
- mm/hmm.c                             |    2 
- mm/memory_hotplug.c                  |  172 +++++++++-------
- mm/page_alloc.c                      |    8 -
- mm/sparse-vmemmap.c                  |   21 +-
- mm/sparse.c                          |  369 +++++++++++++++++++++++-----------
- 14 files changed, 511 insertions(+), 347 deletions(-)
