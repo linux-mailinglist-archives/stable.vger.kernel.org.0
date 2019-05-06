@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C51C14E6B
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6586A14D91
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbfEFPAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:00:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37314 "EHLO mail.kernel.org"
+        id S1728468AbfEFOro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:47:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728463AbfEFOm2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:28 -0400
+        id S1727976AbfEFOrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:47:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 243E821019;
-        Mon,  6 May 2019 14:42:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4FE720578;
+        Mon,  6 May 2019 14:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153747;
-        bh=wdJHCb6eLGgZW6ZWOF9BARQq6nr5/scEFc8SspQFYfc=;
+        s=default; t=1557154062;
+        bh=Nq5g+FcXcN8sgE2vPPqNBhPp7NQ0UqVZLrGtpsz1Z/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcEbNVtvv7f1S584nh7JjlvtZ5xX3jk2ehYijcyTZyxdyA6rkeoN75ZxJVuwUU842
-         vi29bHAMb9f//tJfNJ7uRsrO6sRefR4N1VCw1ybQcMH00+uEW2q8S/XsPxyWhmS5x/
-         3cwZiDuVslM0PrjOvJkEqG1HjbmoLNl57ftBGc7w=
+        b=fbPrj21wxJ8HhX0oG/ftApsmfkDlkU8Jgm4Y6DD4krHsQ57iKxbWI6ZFQmV3Qn0Ee
+         Uf5gzhVlathHlAuTB2XNPl7ye7+ZwpW4jQ9+BhDs2Yk1oBiDg9vQD76gplievKUyHI
+         oT3lV3vvUOianDX12LT8ZeMTi3OBY+PU+6tnFroA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David E. Box" <david.e.box@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 81/99] platform/x86: intel_pmc_core: Fix PCH IP name
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 23/62] USB: w1 ds2490: Fix bug caused by improper use of altsetting array
 Date:   Mon,  6 May 2019 16:32:54 +0200
-Message-Id: <20190506143101.396567680@linuxfoundation.org>
+Message-Id: <20190506143053.056065786@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit d6827015e671cd17871c9b7a0fabe06c044f7470 upstream.
+commit c114944d7d67f24e71562fcfc18d550ab787e4d4 upstream.
 
-For Cannonlake and Icelake, the IP name for Res_6 should be SPF i.e.
-South Port F. No functional change is intended other than just renaming
-the IP appropriately.
+The syzkaller USB fuzzer spotted a slab-out-of-bounds bug in the
+ds2490 driver.  This bug is caused by improper use of the altsetting
+array in the usb_interface structure (the array's entries are not
+always stored in numerical order), combined with a naive assumption
+that all interfaces probed by the driver will have the expected number
+of altsettings.
 
-Cc: "David E. Box" <david.e.box@intel.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Fixes: 291101f6a735 ("platform/x86: intel_pmc_core: Add CannonLake PCH support")
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+The bug can be fixed by replacing references to the possibly
+non-existent intf->altsetting[alt] entry with the guaranteed-to-exist
+intf->cur_altsetting entry.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_pmc_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/masters/ds2490.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/intel_pmc_core.c
-+++ b/drivers/platform/x86/intel_pmc_core.c
-@@ -185,7 +185,7 @@ static const struct pmc_bit_map cnp_pfea
- 	{"CNVI",                BIT(3)},
- 	{"UFS0",                BIT(4)},
- 	{"EMMC",                BIT(5)},
--	{"Res_6",               BIT(6)},
-+	{"SPF",			BIT(6)},
- 	{"SBR6",                BIT(7)},
+--- a/drivers/w1/masters/ds2490.c
++++ b/drivers/w1/masters/ds2490.c
+@@ -1039,15 +1039,15 @@ static int ds_probe(struct usb_interface
+ 	/* alternative 3, 1ms interrupt (greatly speeds search), 64 byte bulk */
+ 	alt = 3;
+ 	err = usb_set_interface(dev->udev,
+-		intf->altsetting[alt].desc.bInterfaceNumber, alt);
++		intf->cur_altsetting->desc.bInterfaceNumber, alt);
+ 	if (err) {
+ 		dev_err(&dev->udev->dev, "Failed to set alternative setting %d "
+ 			"for %d interface: err=%d.\n", alt,
+-			intf->altsetting[alt].desc.bInterfaceNumber, err);
++			intf->cur_altsetting->desc.bInterfaceNumber, err);
+ 		goto err_out_clear;
+ 	}
  
- 	{"SBR7",                BIT(0)},
+-	iface_desc = &intf->altsetting[alt];
++	iface_desc = intf->cur_altsetting;
+ 	if (iface_desc->desc.bNumEndpoints != NUM_EP-1) {
+ 		pr_info("Num endpoints=%d. It is not DS9490R.\n",
+ 			iface_desc->desc.bNumEndpoints);
 
 
