@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8234814EF3
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D592214C8B
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbfEFOhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
+        id S1728237AbfEFOlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726308AbfEFOhX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:37:23 -0400
+        id S1728229AbfEFOlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A4AF20449;
-        Mon,  6 May 2019 14:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 822622087F;
+        Mon,  6 May 2019 14:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153442;
-        bh=EJNks6oQRfwFiHCaA3iNcKyx/VTPfSwq9cHjpSIFI2w=;
+        s=default; t=1557153683;
+        bh=tVT4BUfcBUytwcxsLLXjx+9CLdXeN8ftHXA5BRVr70w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUHeg1FnBKMjtA00yc1qo7zw4Na+g4hsDJOMzmPbgY+2lco9OdiavKwJp4ZwvZ/Vh
-         izHdYZOw3bVdFupkxENoNtWUvSuAiKnuWQd0+hzYasc5l/mIlIdMeohpWSUWRJ413H
-         W+t4Y3QyNw5vEp7gZ6EVr9kuCDGxGWDTdtcpOTUk=
+        b=GI0xKHyRV7O15aO4Dau4GSFQnJ2NlC5w5EwwRKkwSijvQmiI9oTJ9UPrX6Tp3Su3s
+         cIOPCPCGwG6OP50pUHXvelQlMo7JpoVAOyj9K3J2NC1DkbVbgBrAu+NLrt1X//m2Tm
+         R9NFqV7Y54D4hBrCGLLD38B/wg6L1WiI309+O7Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.0 091/122] staging: iio: adt7316: fix the dac write calculation
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 56/99] net: hns: Use NAPI_POLL_WEIGHT for hns driver
 Date:   Mon,  6 May 2019 16:32:29 +0200
-Message-Id: <20190506143102.862115202@linuxfoundation.org>
+Message-Id: <20190506143059.143338658@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Fertic <jeremyfertic@gmail.com>
+[ Upstream commit acb1ce15a61154aa501891d67ebf79bc9ea26818 ]
 
-commit 78accaea117c1ae878774974fab91ac4a0b0e2b0 upstream.
+When the HNS driver loaded, always have an error print:
+"netif_napi_add() called with weight 256"
 
-The lsb calculation is not masking the correct bits from the user input.
-Subtract 1 from (1 << offset) to correctly set up the mask to be applied
-to user input.
+This is because the kernel checks the NAPI polling weights
+requested by drivers and it prints an error message if a driver
+requests a weight bigger than 64.
 
-The lsb register stores its value starting at the bit 7 position.
-adt7316_store_DAC() currently assumes the value is at the other end of the
-register. Shift the lsb value before storing it in a new variable lsb_reg,
-and write this variable to the lsb register.
+So use NAPI_POLL_WEIGHT to fix it.
 
-Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
-Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/iio/addac/adt7316.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/iio/addac/adt7316.c
-+++ b/drivers/staging/iio/addac/adt7316.c
-@@ -1442,7 +1442,7 @@ static ssize_t adt7316_show_DAC(struct a
- static ssize_t adt7316_store_DAC(struct adt7316_chip_info *chip,
- 				 int channel, const char *buf, size_t len)
- {
--	u8 msb, lsb, offset;
-+	u8 msb, lsb, lsb_reg, offset;
- 	u16 data;
- 	int ret;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index 3a6e5cc76c5b..1c70f9aa0aa7 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -29,9 +29,6 @@
  
-@@ -1460,9 +1460,13 @@ static ssize_t adt7316_store_DAC(struct
- 		return -EINVAL;
+ #define SERVICE_TIMER_HZ (1 * HZ)
  
- 	if (chip->dac_bits > 8) {
--		lsb = data & (1 << offset);
-+		lsb = data & ((1 << offset) - 1);
-+		if (chip->dac_bits == 12)
-+			lsb_reg = lsb << ADT7316_DA_12_BIT_LSB_SHIFT;
-+		else
-+			lsb_reg = lsb << ADT7316_DA_10_BIT_LSB_SHIFT;
- 		ret = chip->bus.write(chip->bus.client,
--			ADT7316_DA_DATA_BASE + channel * 2, lsb);
-+			ADT7316_DA_DATA_BASE + channel * 2, lsb_reg);
- 		if (ret)
- 			return -EIO;
+-#define NIC_TX_CLEAN_MAX_NUM 256
+-#define NIC_RX_CLEAN_MAX_NUM 64
+-
+ #define RCB_IRQ_NOT_INITED 0
+ #define RCB_IRQ_INITED 1
+ #define HNS_BUFFER_SIZE_2048 2048
+@@ -2151,7 +2148,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_tx_fini_pro_v2;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_TX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
  	}
+ 	for (i = h->q_num; i < h->q_num * 2; i++) {
+@@ -2164,7 +2161,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_rx_fini_pro_v2;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_RX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
