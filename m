@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D12C414F29
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0AA614E50
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726489AbfEFOgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
+        id S1726999AbfEFOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727073AbfEFOgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:36:01 -0400
+        id S1727521AbfEFOl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B414214AE;
-        Mon,  6 May 2019 14:35:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFC8B2087F;
+        Mon,  6 May 2019 14:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153360;
-        bh=+e1npYX2hzN0yu/0Pk81Mb6G/TcQHqkXK7Xqe5KdvZ4=;
+        s=default; t=1557153688;
+        bh=kPIx78UKGeevXeuIY4XNKWk19EnjuZBB5YUFR6JPu5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugGyTS04idOsANf5ziMBw2iLxtmf1YGJrLAGtJ5qx9vV4hLka8H052u5aTGB0rYFj
-         i1AECH2gwvusl37KPNncbSf56aPm5fGIgl8Wf+DfLvICZKAaNq7p2x2QQAaEtMtAiw
-         qgnFi69TPeisK6QY7CzVdqv2H6O+DWeQM0NvddTY=
+        b=I0yEWRRlJcaKQJwObC56xvucumkkr0H9dwLIGs/r5DI91joAH4VwVTernmvF1uSom
+         lRi5MiRJCIcJB+coY9seYZ38bdmCggfJhJBQ6Hg2gi+MBtu27qGGsNu2cAuClrrY4n
+         2UuaSYawdPvgqDDxVuhUAfz5TNKnlJRkJlqGuLZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 060/122] rtc: da9063: set uie_unsupported when relevant
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/99] rtc: sh: Fix invalid alarm warning for non-enabled alarm
 Date:   Mon,  6 May 2019 16:31:58 +0200
-Message-Id: <20190506143100.390537986@linuxfoundation.org>
+Message-Id: <20190506143056.229673527@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
+[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
 
-The DA9063AD doesn't support alarms on any seconds and its granularity is
-the minute. Set uie_unsupported in that case.
+When no alarm has been programmed on RSK-RZA1, an error message is
+printed during boot:
 
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+
+sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
+field that is not enabled.  __rtc_read_alarm() validates the received
+alarm values, and fills in missing fields when needed.
+While 0xff is handled fine for the year, month, and day fields, and
+corrected as considered being out-of-range, this is not the case for the
+hour, minute, and second fields, where -1 is expected for missing
+fields.
+
+Fix this by returning -1 instead, as this value is handled fine for all
+fields.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-da9063.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/rtc/rtc-sh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index b4e054c64bad..69b54e5556c0 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
- 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
- 	rtc->rtc_sync = false;
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index 51ba414798a8..3d7414e5ed35 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -377,7 +377,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
+ {
+ 	unsigned int byte;
+-	int value = 0xff;	/* return 0xff for ignored values */
++	int value = -1;			/* return -1 for ignored values */
  
-+	/*
-+	 * TODO: some models have alarms on a minute boundary but still support
-+	 * real hardware interrupts. Add this once the core supports it.
-+	 */
-+	if (config->rtc_data_start != RTC_SEC)
-+		rtc->rtc_dev->uie_unsupported = 1;
-+
- 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
- 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
- 					da9063_alarm_event,
+ 	byte = readb(rtc->regbase + reg_off);
+ 	if (byte & AR_ENB) {
 -- 
 2.20.1
 
