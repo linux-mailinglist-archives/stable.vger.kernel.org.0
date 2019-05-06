@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F3014E4C
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6460814F05
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728219AbfEFOlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
+        id S1726352AbfEFPG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:06:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727733AbfEFOlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:41:21 -0400
+        id S1726909AbfEFOhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3D4A21479;
-        Mon,  6 May 2019 14:41:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D8A8206A3;
+        Mon,  6 May 2019 14:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153680;
-        bh=RjMAvqx838rODCCwYMizeMBm2qO3TPGCYP0XQqTViGo=;
+        s=default; t=1557153440;
+        bh=2Gd0bH3/tO40zPJAXXvIBjHGlAEcOp4BKYcLxoT5HSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9y0EEEsfUlzQKVnMw0Z+pW9FIEudeUEPlisQXm9tOLEzIgAihUwG1L3hWWIJkaEn
-         +0y7yyMx9utTQp7F0E60NtzFBfY2db5LT5eJvtS9uIBPD0Ho+aUBVZI/791mMQoWy1
-         i63fZ5JYhCLgliAjw0a0iq1Kvh7i2LEOgnSHsZ4Q=
+        b=gWTNROQ1tiN2IuxGE4aCLhHnSLc8eL/S0Kark59XNnDsep9IlRV0oCIkuop2Sjx/G
+         1FaVKD4Tm9dPkI7I0okknJaYxlHgUcZJYgxNIbno7HQt2phPUKEhxgR1qzlxF2P1a3
+         gHnZ/znWAPkADp47JeEDo+hk0xVxoxq585Wu78io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liubin Shu <shuliubin@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Yonglong Liu <liuyonglong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/99] net: hns: fix KASAN: use-after-free in hns_nic_net_xmit_hw()
+        stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.0 090/122] staging: iio: adt7316: fix handling of dac high resolution option
 Date:   Mon,  6 May 2019 16:32:28 +0200
-Message-Id: <20190506143059.065077774@linuxfoundation.org>
+Message-Id: <20190506143102.784111183@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3a39a12ad364a9acd1038ba8da67cd8430f30de4 ]
+From: Jeremy Fertic <jeremyfertic@gmail.com>
 
-This patch is trying to fix the issue due to:
-[27237.844750] BUG: KASAN: use-after-free in hns_nic_net_xmit_hw+0x708/0xa18[hns_enet_drv]
+commit 76b7fe8d6c4daf4db672eb953c892c6f6572a282 upstream.
 
-After hnae_queue_xmit() in hns_nic_net_xmit_hw(), can be
-interrupted by interruptions, and than call hns_nic_tx_poll_one()
-to handle the new packets, and free the skb. So, when turn back to
-hns_nic_net_xmit_hw(), calling skb->len will cause use-after-free.
+The adt7316/7 and adt7516/7 have the option to output voltage proportional
+to temperature on dac a and/or dac b. The default dac resolution in this
+mode is 8 bits with the dac high resolution option enabling 10 bits. None
+of these settings affect dacs c and d. Remove the "1 (12 bits)" output from
+the show function since that is not an option for this mode. Return
+"1 (10 bits)" if the device is one of the above mentioned chips and the dac
+high resolution mode is enabled.
 
-This patch update tx ring statistics in hns_nic_tx_poll_one() to
-fix the bug.
+In the store function, the driver currently allows the user to write to the
+ADT7316_DA_HIGH_RESOLUTION bit regardless of the device in use. Add a check
+to return an error in the case of an adt7318 or adt7519. Remove the else
+statement that clears the ADT7316_DA_HIGH_RESOLUTION bit. Instead, clear it
+before conditionally enabling it, depending on user input. This matches the
+typical pattern in the driver when an attribute is a boolean.
 
-Signed-off-by: Liubin Shu <shuliubin@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
+Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/iio/addac/adt7316.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-index cc84133c184d..3a6e5cc76c5b 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -376,8 +376,6 @@ netdev_tx_t hns_nic_net_xmit_hw(struct net_device *ndev,
- 	wmb(); /* commit all data before submit */
- 	assert(skb->queue_mapping < priv->ae_handle->q_num);
- 	hnae_queue_xmit(priv->ae_handle->qs[skb->queue_mapping], buf_num);
--	ring->stats.tx_pkts++;
--	ring->stats.tx_bytes += skb->len;
+--- a/drivers/staging/iio/addac/adt7316.c
++++ b/drivers/staging/iio/addac/adt7316.c
+@@ -634,9 +634,7 @@ static ssize_t adt7316_show_da_high_reso
+ 	struct adt7316_chip_info *chip = iio_priv(dev_info);
  
- 	return NETDEV_TX_OK;
- 
-@@ -999,6 +997,9 @@ static int hns_nic_tx_poll_one(struct hns_nic_ring_data *ring_data,
- 		/* issue prefetch for next Tx descriptor */
- 		prefetch(&ring->desc_cb[ring->next_to_clean]);
+ 	if (chip->config3 & ADT7316_DA_HIGH_RESOLUTION) {
+-		if (chip->id == ID_ADT7316 || chip->id == ID_ADT7516)
+-			return sprintf(buf, "1 (12 bits)\n");
+-		if (chip->id == ID_ADT7317 || chip->id == ID_ADT7517)
++		if (chip->id != ID_ADT7318 && chip->id != ID_ADT7519)
+ 			return sprintf(buf, "1 (10 bits)\n");
  	}
-+	/* update tx ring statistics. */
-+	ring->stats.tx_pkts += pkts;
-+	ring->stats.tx_bytes += bytes;
  
- 	NETIF_TX_UNLOCK(ring);
+@@ -653,10 +651,12 @@ static ssize_t adt7316_store_da_high_res
+ 	u8 config3;
+ 	int ret;
  
--- 
-2.20.1
-
++	if (chip->id == ID_ADT7318 || chip->id == ID_ADT7519)
++		return -EPERM;
++
++	config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
+ 	if (buf[0] == '1')
+-		config3 = chip->config3 | ADT7316_DA_HIGH_RESOLUTION;
+-	else
+-		config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
++		config3 |= ADT7316_DA_HIGH_RESOLUTION;
+ 
+ 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG3, config3);
+ 	if (ret)
 
 
