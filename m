@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 336D514D46
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A419514DBE
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728813AbfEFOto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
+        id S1728614AbfEFOqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:46:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728589AbfEFOtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:42 -0400
+        id S1728809AbfEFOqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:46:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D9132053B;
-        Mon,  6 May 2019 14:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A76ED214C6;
+        Mon,  6 May 2019 14:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154181;
-        bh=xNJS3Z9UgUqOenpoe5QyhRpsXLh5282+tmmL3AgQYPA=;
+        s=default; t=1557153972;
+        bh=aiLjpeAoWNOBxt8nJ1mTSVl7fDXJwwZi5qiMMPi0HfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dz6cmQ3YAAIH3ImWFeeSu/15qpAVHwn+F2W0U0NZIIJ/Hx9ZH+6thw0XRO2HTWzZ
-         G9Ed0xnXAZu+cAqDSjdbdIYKdLsGf0KRNgoeHVQ00l+OAeS7oIBEmRw/iyox9RwlrR
-         v3669pSwlJAy2R9w0gpRAeq1QBQr4XgKIhlDO3MY=
+        b=TSWk26VbvMBE9maZls5DwVO1ttONkTC73zQcXtvN7C+Umf/tz2Ed2d8/gmA+Inx24
+         c8xbxX9/0QXgdIdfdUxzmP/R0qujqR5VQ7DnNzHIw7bG48GfDkGDOjXxgSYBT2k+Fn
+         8jeeZO0ossFsfTNcqmedlafzXj0pHUCedWWKABX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/62] rtc: da9063: set uie_unsupported when relevant
+        stable@vger.kernel.org, Daniel Jurgens <danielj@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 65/75] IB/core: Unregister notifier before freeing MAD security
 Date:   Mon,  6 May 2019 16:33:13 +0200
-Message-Id: <20190506143054.796343514@linuxfoundation.org>
+Message-Id: <20190506143059.149974388@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
+From: Daniel Jurgens <danielj@mellanox.com>
 
-The DA9063AD doesn't support alarms on any seconds and its granularity is
-the minute. Set uie_unsupported in that case.
+commit d60667fc398ed34b3c7456b020481c55c760e503 upstream.
 
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If the notifier runs after the security context is freed an access of
+freed memory can occur.
+
+Fixes: 47a2b338fe63 ("IB/core: Enforce security on management datagrams")
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/rtc/rtc-da9063.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/infiniband/core/security.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index f85cae240f12..7e92e491c2e7 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
- 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
- 	rtc->rtc_sync = false;
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -732,9 +732,10 @@ void ib_mad_agent_security_cleanup(struc
+ 	if (!rdma_protocol_ib(agent->device, agent->port_num))
+ 		return;
  
-+	/*
-+	 * TODO: some models have alarms on a minute boundary but still support
-+	 * real hardware interrupts. Add this once the core supports it.
-+	 */
-+	if (config->rtc_data_start != RTC_SEC)
-+		rtc->rtc_dev->uie_unsupported = 1;
+-	security_ib_free_security(agent->security);
+ 	if (agent->lsm_nb_reg)
+ 		unregister_lsm_notifier(&agent->lsm_nb);
 +
- 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
- 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
- 					da9063_alarm_event,
--- 
-2.20.1
-
++	security_ib_free_security(agent->security);
+ }
+ 
+ int ib_mad_enforce_security(struct ib_mad_agent_private *map, u16 pkey_index)
 
 
