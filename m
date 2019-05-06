@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBB114C29
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 575EC14C72
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbfEFOhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:37:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57656 "EHLO mail.kernel.org"
+        id S1727379AbfEFOkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726821AbfEFOhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:37:05 -0400
+        id S1728052AbfEFOkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3A70204EC;
-        Mon,  6 May 2019 14:37:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 397E6206A3;
+        Mon,  6 May 2019 14:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153424;
-        bh=glLK+raQEfAk5jr74YgUHbUWQ+yroWY8+n58sJG65A4=;
+        s=default; t=1557153640;
+        bh=kE/1oxJYgmNTL8Ovm9139oKe/JLOIehv6BCJ+0rIqKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4gmM8ITZ6GSL1093eAJHQ8ZZOLE9EGQwk+ilWk0WgkqoYv8DAdiQIuavJ7jyIhsQ
-         idnUDw4xTOV49/mfb4j3cJa617MoLEdPSkp/easNKtW0OzPvpACsQLUEy9+QtSosZo
-         7leNDAdexQDOCvjfUMSLXh1xKxuUMLnfAG+pVBZ4=
+        b=tQn86XPxl/DcEu1vLLVUp3OEqYESBX8pfsC803Zy70aNFjBDaitrneZoYA94jHnzP
+         UEkJS+vfB8LfwSid0puvuaF6lOeJIgNVk56tqQ4DNYVKgSdwVZNbdpvw4BKv2Lhj4P
+         AS/vhL14k0C4Ti6PkfKvKcpZUNdlkBu1IQCCFUy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yufen Yu <yuyufen@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 076/122] hugetlbfs: fix memory leak for resv_map
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 41/99] net: stmmac: dont overwrite discard_frame status
 Date:   Mon,  6 May 2019 16:32:14 +0200
-Message-Id: <20190506143101.684861447@linuxfoundation.org>
+Message-Id: <20190506143057.683729949@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
+[ Upstream commit 1b746ce8b397e58f9e40ce5c63b7198de6930482 ]
 
-When mknod is used to create a block special file in hugetlbfs, it will
-allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
-inode->i_mapping->private_data will point the newly allocated resv_map.
-However, when the device special file is opened bd_acquire() will set
-inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
-allocated resv_map is lost and the structure is leaked.
+If we have error bits set, the discard_frame status will get overwritten
+by checksum bit checks, which might set the status back to good one.
+Fix by checking the COE status only if the frame is good.
 
-Programs to reproduce:
-        mount -t hugetlbfs nodev hugetlbfs
-        mknod hugetlbfs/dev b 0 0
-        exec 30<> hugetlbfs/dev
-        umount hugetlbfs/
-
-resv_map structures are only needed for inodes which can have associated
-page allocations.  To fix the leak, only allocate resv_map for those
-inodes which could possibly be associated with page allocations.
-
-Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Suggested-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/enh_desc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index a7fa037b876b..a3a3d256fb0e 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -741,11 +741,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 					umode_t mode, dev_t dev)
- {
- 	struct inode *inode;
--	struct resv_map *resv_map;
-+	struct resv_map *resv_map = NULL;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
+index e8855e6adb48..c42ef6c729c0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
+@@ -231,9 +231,10 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
+ 	 * It doesn't match with the information reported into the databook.
+ 	 * At any rate, we need to understand if the CSUM hw computation is ok
+ 	 * and report this info to the upper layers. */
+-	ret = enh_desc_coe_rdes0(!!(rdes0 & RDES0_IPC_CSUM_ERROR),
+-				 !!(rdes0 & RDES0_FRAME_TYPE),
+-				 !!(rdes0 & ERDES0_RX_MAC_ADDR));
++	if (likely(ret == good_frame))
++		ret = enh_desc_coe_rdes0(!!(rdes0 & RDES0_IPC_CSUM_ERROR),
++					 !!(rdes0 & RDES0_FRAME_TYPE),
++					 !!(rdes0 & ERDES0_RX_MAC_ADDR));
  
--	resv_map = resv_map_alloc();
--	if (!resv_map)
--		return NULL;
-+	/*
-+	 * Reserve maps are only needed for inodes that can have associated
-+	 * page allocations.
-+	 */
-+	if (S_ISREG(mode) || S_ISLNK(mode)) {
-+		resv_map = resv_map_alloc();
-+		if (!resv_map)
-+			return NULL;
-+	}
- 
- 	inode = new_inode(sb);
- 	if (inode) {
-@@ -780,8 +786,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 			break;
- 		}
- 		lockdep_annotate_inode_mutex_key(inode);
--	} else
--		kref_put(&resv_map->refs, resv_map_release);
-+	} else {
-+		if (resv_map)
-+			kref_put(&resv_map->refs, resv_map_release);
-+	}
- 
- 	return inode;
- }
+ 	if (unlikely(rdes0 & RDES0_DRIBBLING))
+ 		x->dribbling_bit++;
 -- 
 2.20.1
 
