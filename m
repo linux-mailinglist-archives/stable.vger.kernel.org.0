@@ -2,36 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A27E14DB5
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E072B14CEF
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbfEFOpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42878 "EHLO mail.kernel.org"
+        id S1728756AbfEFOpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:45:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbfEFOps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:48 -0400
+        id S1728337AbfEFOpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:45:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FFD121019;
-        Mon,  6 May 2019 14:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAA13214AF;
+        Mon,  6 May 2019 14:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153947;
-        bh=VKIaQHqILKktV1uilDIzU4auAHkCA0xrJuZDJAa28PY=;
+        s=default; t=1557153950;
+        bh=K/eYivXf82GFX2kf6Z4VYFuRzs72z3s89WK5qdBB9is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7grC+xeCog9BxJW7MMCrL0p14trNyFvqoccpxTcFr9HQxvZgzq64ndDJBC37ht82
-         ZhqH63MBcdTKcs1C+/xXuva46vf2vWQNvsIRb3LyorcNShTHlx/uKG5BEDlPsiRFIY
-         x00nEA1S79VmUZvjBfSLl5xQRO88DwHM+CJLKN4g=
+        b=ktRqy5sFYHa93Ew22k/Cjknha2jsNvey29yCiHiC8zZVvAm6jFe/VFALyMbc2JuGl
+         Md+7EvcX9QqZfXftLo9tkF4SVluhYU0fSxFk3ufxULIuwcRlSb8ETGU8wI2zh94gDW
+         sBZ4T5p5/2XYUcSE+a5inMXLzvlRXZr3t9p2g+VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 57/75] ARM: iop: dont use using 64-bit DMA masks
-Date:   Mon,  6 May 2019 16:33:05 +0200
-Message-Id: <20190506143058.420952736@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, Pu Wen <puwen@hygon.cn>,
+        Stephane Eranian <eranian@google.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        linux-perf-users@vger.kernel.org, Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 58/75] perf/x86/amd: Update generic hardware cache events for Family 17h
+Date:   Mon,  6 May 2019 16:33:06 +0200
+Message-Id: <20190506143058.514793645@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
 References: <20190506143053.287515952@linuxfoundation.org>
@@ -44,152 +58,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2125801ccce19249708ca3245d48998e70569ab8 ]
+From: Kim Phillips <kim.phillips@amd.com>
 
-clang warns about statically defined DMA masks from the DMA_BIT_MASK
-macro with length 64:
+commit 0e3b74e26280f2cf8753717a950b97d424da6046 upstream.
 
- arch/arm/mach-iop13xx/setup.c:303:35: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
- static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
-                                  ^~~~~~~~~~~~~~~~
- include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
- #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                      ^ ~~~
+Add a new amd_hw_cache_event_ids_f17h assignment structure set
+for AMD families 17h and above, since a lot has changed.  Specifically:
 
-The ones in iop shouldn't really be 64 bit masks, so changing them
-to what the driver can support avoids the warning.
+L1 Data Cache
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Olof Johansson <olof@lixom.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The data cache access counter remains the same on Family 17h.
+
+For DC misses, PMCx041's definition changes with Family 17h,
+so instead we use the L2 cache accesses from L1 data cache
+misses counter (PMCx060,umask=0xc8).
+
+For DC hardware prefetch events, Family 17h breaks compatibility
+for PMCx067 "Data Prefetcher", so instead, we use PMCx05a "Hardware
+Prefetch DC Fills."
+
+L1 Instruction Cache
+
+PMCs 0x80 and 0x81 (32-byte IC fetches and misses) are backward
+compatible on Family 17h.
+
+For prefetches, we remove the erroneous PMCx04B assignment which
+counts how many software data cache prefetch load instructions were
+dispatched.
+
+LL - Last Level Cache
+
+Removing PMCs 7D, 7E, and 7F assignments, as they do not exist
+on Family 17h, where the last level cache is L3.  L3 counters
+can be accessed using the existing AMD Uncore driver.
+
+Data TLB
+
+On Intel machines, data TLB accesses ("dTLB-loads") are assigned
+to counters that count load/store instructions retired.  This
+is inconsistent with instruction TLB accesses, where Intel
+implementations report iTLB misses that hit in the STLB.
+
+Ideally, dTLB-loads would count higher level dTLB misses that hit
+in lower level TLBs, and dTLB-load-misses would report those
+that also missed in those lower-level TLBs, therefore causing
+a page table walk.  That would be consistent with instruction
+TLB operation, remove the redundancy between dTLB-loads and
+L1-dcache-loads, and prevent perf from producing artificially
+low percentage ratios, i.e. the "0.01%" below:
+
+        42,550,869      L1-dcache-loads
+        41,591,860      dTLB-loads
+             4,802      dTLB-load-misses          #    0.01% of all dTLB cache hits
+         7,283,682      L1-dcache-stores
+         7,912,392      dTLB-stores
+               310      dTLB-store-misses
+
+On AMD Families prior to 17h, the "Data Cache Accesses" counter is
+used, which is slightly better than load/store instructions retired,
+but still counts in terms of individual load/store operations
+instead of TLB operations.
+
+So, for AMD Families 17h and higher, this patch assigns "dTLB-loads"
+to a counter for L1 dTLB misses that hit in the L2 dTLB, and
+"dTLB-load-misses" to a counter for L1 DTLB misses that caused
+L2 DTLB misses and therefore also caused page table walks.  This
+results in a much more accurate view of data TLB performance:
+
+        60,961,781      L1-dcache-loads
+             4,601      dTLB-loads
+               963      dTLB-load-misses          #   20.93% of all dTLB cache hits
+
+Note that for all AMD families, data loads and stores are combined
+in a single accesses counter, so no 'L1-dcache-stores' are reported
+separately, and stores are counted with loads in 'L1-dcache-loads'.
+
+Also note that the "% of all dTLB cache hits" string is misleading
+because (a) "dTLB cache": although TLBs can be considered caches for
+page tables, in this context, it can be misinterpreted as data cache
+hits because the figures are similar (at least on Intel), and (b) not
+all those loads (technically accesses) technically "hit" at that
+hardware level.  "% of all dTLB accesses" would be more clear/accurate.
+
+Instruction TLB
+
+On Intel machines, 'iTLB-loads' measure iTLB misses that hit in the
+STLB, and 'iTLB-load-misses' measure iTLB misses that also missed in
+the STLB and completed a page table walk.
+
+For AMD Family 17h and above, for 'iTLB-loads' we replace the
+erroneous instruction cache fetches counter with PMCx084
+"L1 ITLB Miss, L2 ITLB Hit".
+
+For 'iTLB-load-misses' we still use PMCx085 "L1 ITLB Miss,
+L2 ITLB Miss", but set a 0xff umask because without it the event
+does not get counted.
+
+Branch Predictor (BPU)
+
+PMCs 0xc2 and 0xc3 continue to be valid across all AMD Families.
+
+Node Level Events
+
+Family 17h does not have a PMCx0e9 counter, and corresponding counters
+have not been made available publicly, so for now, we mark them as
+unsupported for Families 17h and above.
+
+Reference:
+
+  "Open-Source Register Reference For AMD Family 17h Processors Models 00h-2Fh"
+  Released 7/17/2018, Publication #56255, Revision 3.03:
+  https://www.amd.com/system/files/TechDocs/56255_OSRR.pdf
+
+[ mingo: tidied up the line breaks. ]
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Martin Liška <mliska@suse.cz>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pu Wen <puwen@hygon.cn>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-perf-users@vger.kernel.org
+Fixes: e40ed1542dd7 ("perf/x86: Add perf support for AMD family-17h processors")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/mach-iop13xx/setup.c |  8 ++++----
- arch/arm/mach-iop13xx/tpmi.c  | 10 +++++-----
- arch/arm/plat-iop/adma.c      |  6 +++---
- 3 files changed, 12 insertions(+), 12 deletions(-)
+ arch/x86/events/amd/core.c |  111 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 108 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-iop13xx/setup.c b/arch/arm/mach-iop13xx/setup.c
-index 53c316f7301e..fe4932fda01d 100644
---- a/arch/arm/mach-iop13xx/setup.c
-+++ b/arch/arm/mach-iop13xx/setup.c
-@@ -300,7 +300,7 @@ static struct resource iop13xx_adma_2_resources[] = {
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -116,6 +116,110 @@ static __initconst const u64 amd_hw_cach
+  },
+ };
+ 
++static __initconst const u64 amd_hw_cache_event_ids_f17h
++				[PERF_COUNT_HW_CACHE_MAX]
++				[PERF_COUNT_HW_CACHE_OP_MAX]
++				[PERF_COUNT_HW_CACHE_RESULT_MAX] = {
++[C(L1D)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0040, /* Data Cache Accesses */
++		[C(RESULT_MISS)]   = 0xc860, /* L2$ access from DC Miss */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0xff5a, /* h/w prefetch DC Fills */
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(L1I)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0080, /* Instruction cache fetches  */
++		[C(RESULT_MISS)]   = 0x0081, /* Instruction cache misses   */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(LL)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(DTLB)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0xff45, /* All L2 DTLB accesses */
++		[C(RESULT_MISS)]   = 0xf045, /* L2 DTLB misses (PT walks) */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(ITLB)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0084, /* L1 ITLB misses, L2 ITLB hits */
++		[C(RESULT_MISS)]   = 0xff85, /* L1 ITLB misses, L2 misses */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++[C(BPU)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x00c2, /* Retired Branch Instr.      */
++		[C(RESULT_MISS)]   = 0x00c3, /* Retired Mispredicted BI    */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++[C(NODE)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++};
++
+ /*
+  * AMD Performance Monitor K7 and later, up to and including Family 16h:
+  */
+@@ -861,9 +965,10 @@ __init int amd_pmu_init(void)
+ 		x86_pmu.amd_nb_constraints = 0;
  	}
- };
  
--static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
-+static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(32);
- static struct iop_adma_platform_data iop13xx_adma_0_data = {
- 	.hw_id = 0,
- 	.pool_size = PAGE_SIZE,
-@@ -324,7 +324,7 @@ static struct platform_device iop13xx_adma_0_channel = {
- 	.resource = iop13xx_adma_0_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_0_data,
- 	},
- };
-@@ -336,7 +336,7 @@ static struct platform_device iop13xx_adma_1_channel = {
- 	.resource = iop13xx_adma_1_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_1_data,
- 	},
- };
-@@ -348,7 +348,7 @@ static struct platform_device iop13xx_adma_2_channel = {
- 	.resource = iop13xx_adma_2_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_2_data,
- 	},
- };
-diff --git a/arch/arm/mach-iop13xx/tpmi.c b/arch/arm/mach-iop13xx/tpmi.c
-index db511ec2b1df..116feb6b261e 100644
---- a/arch/arm/mach-iop13xx/tpmi.c
-+++ b/arch/arm/mach-iop13xx/tpmi.c
-@@ -152,7 +152,7 @@ static struct resource iop13xx_tpmi_3_resources[] = {
- 	}
- };
+-	/* Events are common for all AMDs */
+-	memcpy(hw_cache_event_ids, amd_hw_cache_event_ids,
+-	       sizeof(hw_cache_event_ids));
++	if (boot_cpu_data.x86 >= 0x17)
++		memcpy(hw_cache_event_ids, amd_hw_cache_event_ids_f17h, sizeof(hw_cache_event_ids));
++	else
++		memcpy(hw_cache_event_ids, amd_hw_cache_event_ids, sizeof(hw_cache_event_ids));
  
--u64 iop13xx_tpmi_mask = DMA_BIT_MASK(64);
-+u64 iop13xx_tpmi_mask = DMA_BIT_MASK(32);
- static struct platform_device iop13xx_tpmi_0_device = {
- 	.name = "iop-tpmi",
- 	.id = 0,
-@@ -160,7 +160,7 @@ static struct platform_device iop13xx_tpmi_0_device = {
- 	.resource = iop13xx_tpmi_0_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -171,7 +171,7 @@ static struct platform_device iop13xx_tpmi_1_device = {
- 	.resource = iop13xx_tpmi_1_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -182,7 +182,7 @@ static struct platform_device iop13xx_tpmi_2_device = {
- 	.resource = iop13xx_tpmi_2_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -193,7 +193,7 @@ static struct platform_device iop13xx_tpmi_3_device = {
- 	.resource = iop13xx_tpmi_3_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-diff --git a/arch/arm/plat-iop/adma.c b/arch/arm/plat-iop/adma.c
-index a4d1f8de3b5b..d9612221e484 100644
---- a/arch/arm/plat-iop/adma.c
-+++ b/arch/arm/plat-iop/adma.c
-@@ -143,7 +143,7 @@ struct platform_device iop3xx_dma_0_channel = {
- 	.resource = iop3xx_dma_0_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_dma_0_data,
- 	},
- };
-@@ -155,7 +155,7 @@ struct platform_device iop3xx_dma_1_channel = {
- 	.resource = iop3xx_dma_1_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_dma_1_data,
- 	},
- };
-@@ -167,7 +167,7 @@ struct platform_device iop3xx_aau_channel = {
- 	.resource = iop3xx_aau_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_aau_data,
- 	},
- };
--- 
-2.20.1
-
+ 	return 0;
+ }
 
 
