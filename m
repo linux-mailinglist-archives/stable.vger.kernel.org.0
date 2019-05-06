@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A86B14E31
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A40F14DD2
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728070AbfEFOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S1726767AbfEFOpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728562AbfEFOmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:53 -0400
+        id S1728337AbfEFOpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:45:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AFD6214AF;
-        Mon,  6 May 2019 14:42:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B048214AF;
+        Mon,  6 May 2019 14:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153772;
-        bh=SRRqCJo0hq0gYG/h+nc4kI10RcYxBBhCIlBn60wjp1k=;
+        s=default; t=1557153940;
+        bh=YFjcCRz1LcmuYwDUcw7LQBICT55MkdrKd0g0k9SqRv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+NTWgWv3FBT7MCj3+TsbjMtQDr7W1ovRSxQrP0frSJYH2iEzkelENuYvmL3aBlhA
-         CEwTA1iEaoirP19pkAyJlb6U7P1AxP1uk9dcAd3lHriU/PfeTJNNn3wqK1mnEn6iyl
-         yz+p60lPhe6MMXNM9ADhtHJPQCsl1IfbvrIgUZaU=
+        b=oWcmln2UoKWzABiGWx9mFNe9wVW7FAEU/8BJJX+snpTnFxc8iuMHCA/692lT2Qav3
+         6aPgUcEvdzfRBMt2H9CzQjadIDE1A3+m0o+0HONzlrQr5wZKwZXooxO3MzHONyhKjr
+         cYgUFVsat1cKR/ayxV/GpCD8ZoGZSPFKhN9+7g5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, BMK <bmktuwien@gmail.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 89/99] selinux: avoid silent denials in permissive mode under RCU walk
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/75] sh: fix multiple function definition build errors
 Date:   Mon,  6 May 2019 16:33:02 +0200
-Message-Id: <20190506143101.982018344@linuxfoundation.org>
+Message-Id: <20190506143058.139297460@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
 
-commit 3a28cff3bd4bf43f02be0c4e7933aebf3dc8197e upstream.
+Many of the sh CPU-types have their own plat_irq_setup() and
+arch_init_clk_ops() functions, so these same (empty) functions in
+arch/sh/boards/of-generic.c are not needed and cause build errors.
 
-commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
-results in no audit messages at all if in permissive mode because the
-cache is updated during the rcu walk and thus no denial occurs on
-the subsequent ref walk.  Fix this by not updating the cache when
-performing a non-blocking permission check.  This only affects search
-and symlink read checks during rcu walk.
+If there is some case where these empty functions are needed, they can
+be retained by marking them as "__weak" while at the same time making
+builds that do not need them succeed.
 
-Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
-Reported-by: BMK <bmktuwien@gmail.com>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes these build errors:
 
+arch/sh/boards/of-generic.o: In function `plat_irq_setup':
+(.init.text+0x134): multiple definition of `plat_irq_setup'
+arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
+arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
+(.init.text+0x118): multiple definition of `arch_init_clk_ops'
+arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
+
+Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c         |   23 +++++++++++++++++++++--
- security/selinux/hooks.c       |    4 +++-
- security/selinux/include/avc.h |    1 +
- 3 files changed, 25 insertions(+), 3 deletions(-)
+ arch/sh/boards/of-generic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -838,6 +838,7 @@ out:
-  * @ssid,@tsid,@tclass : identifier of an AVC entry
-  * @seqno : sequence number when decision was made
-  * @xpd: extended_perms_decision to be added to the node
-+ * @flags: the AVC_* flags, e.g. AVC_NONBLOCKING, AVC_EXTENDED_PERMS, or 0.
-  *
-  * if a valid AVC entry doesn't exist,this function returns -ENOENT.
-  * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
-@@ -856,6 +857,23 @@ static int avc_update_node(struct selinu
- 	struct hlist_head *head;
- 	spinlock_t *lock;
+diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
+index 4feb7c86f4ac..5e83ea12303b 100644
+--- a/arch/sh/boards/of-generic.c
++++ b/arch/sh/boards/of-generic.c
+@@ -180,10 +180,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
  
-+	/*
-+	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
-+	 * then we must not add permissions to a cache entry
-+	 * because we cannot safely audit the denial.  Otherwise,
-+	 * during the subsequent blocking retry (e.g. VFS ref walk), we
-+	 * will find the permissions already granted in the cache entry
-+	 * and won't audit anything at all, leading to silent denials in
-+	 * permissive mode that only appear when in enforcing mode.
-+	 *
-+	 * See the corresponding handling in slow_avc_audit(), and the
-+	 * logic in selinux_inode_follow_link and selinux_inode_permission
-+	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
-+	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
-+	 */
-+	if (flags & AVC_NONBLOCKING)
-+		return 0;
-+
- 	node = avc_alloc_node(avc);
- 	if (!node) {
- 		rc = -ENOMEM;
-@@ -1115,7 +1133,7 @@ decision:
-  * @tsid: target security identifier
-  * @tclass: target security class
-  * @requested: requested permissions, interpreted based on @tclass
-- * @flags:  AVC_STRICT or 0
-+ * @flags:  AVC_STRICT, AVC_NONBLOCKING, or 0
-  * @avd: access vector decisions
-  *
-  * Check the AVC to determine whether the @requested permissions are granted
-@@ -1199,7 +1217,8 @@ int avc_has_perm_flags(struct selinux_st
- 	struct av_decision avd;
- 	int rc, rc2;
+ struct sh_clk_ops;
  
--	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested, 0,
-+	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
-+				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
- 				  &avd);
+-void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
++void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
+ {
+ }
  
- 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3199,7 +3199,9 @@ static int selinux_inode_permission(stru
- 		return PTR_ERR(isec);
- 
- 	rc = avc_has_perm_noaudit(&selinux_state,
--				  sid, isec->sid, isec->sclass, perms, 0, &avd);
-+				  sid, isec->sid, isec->sclass, perms,
-+				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
-+				  &avd);
- 	audited = avc_audit_required(perms, &avd, rc,
- 				     from_access ? FILE__AUDIT_ACCESS : 0,
- 				     &denied);
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -142,6 +142,7 @@ static inline int avc_audit(struct selin
- 
- #define AVC_STRICT 1 /* Ignore permissive mode. */
- #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
-+#define AVC_NONBLOCKING    4	/* non blocking */
- int avc_has_perm_noaudit(struct selinux_state *state,
- 			 u32 ssid, u32 tsid,
- 			 u16 tclass, u32 requested,
+-void __init plat_irq_setup(void)
++void __init __weak plat_irq_setup(void)
+ {
+ }
+-- 
+2.20.1
+
 
 
