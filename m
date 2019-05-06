@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C50B214DF4
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2849014EC2
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726728AbfEFO4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41454 "EHLO mail.kernel.org"
+        id S1726337AbfEFPE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728466AbfEFOo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:57 -0400
+        id S1727704AbfEFOjA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F7C12087F;
-        Mon,  6 May 2019 14:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C73B020449;
+        Mon,  6 May 2019 14:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153896;
-        bh=RlmniEJwBXOW+NjN3pyjmupFRydJ9KjlAVSH+e0+/Do=;
+        s=default; t=1557153540;
+        bh=uKMG32aR6XD0AtLePyWTs52oPupPMpoNb530NBGu0Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAqJ48Qm5OInN9+OP/4VUlhW68/37tAQz/IDAaGgatjPI4mFKQZw67HkV1bri1V30
-         eTaSny+mWKnNjQDsnF82g25wSe/KmLDa4V1fw8t46VNn7SXf2SZNO21ZnteP3WY2I6
-         sfPcfrnab+e0wgs7r00BXmanWRt7UkG40hHMA3XQ=
+        b=VEdqUyTLWucGBa4/M1hZICJmJvDzA8VoGfhoIkt1VniFvpoipCRJvnXT1riFBmKN4
+         4qYrR6gqegzotFfJFsLVT894UUsmHx1ie/CQaAAgZUm5UHFMosFJOQHZ4IAdmBADUd
+         B0wiHTptupJgIcwHTelO4zjMu7vVLfbmGk5wULtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/75] net: stmmac: ratelimit RX error logs
+        stable@vger.kernel.org, Daniel Jurgens <danielj@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.0 106/122] IB/core: Unregister notifier before freeing MAD security
 Date:   Mon,  6 May 2019 16:32:44 +0200
-Message-Id: <20190506143056.491057244@linuxfoundation.org>
+Message-Id: <20190506143104.143017284@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 972c9be784e077bc56472c78243e0326e525b689 ]
+From: Daniel Jurgens <danielj@mellanox.com>
 
-Ratelimit RX error logs.
+commit d60667fc398ed34b3c7456b020481c55c760e503 upstream.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If the notifier runs after the security context is freed an access of
+freed memory can occur.
+
+Fixes: 47a2b338fe63 ("IB/core: Enforce security on management datagrams")
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/infiniband/core/security.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index ecf3f8c1bc0e..0f85e540001f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3413,9 +3413,10 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 			 *  ignored
- 			 */
- 			if (frame_len > priv->dma_buf_sz) {
--				netdev_err(priv->dev,
--					   "len %d larger than size (%d)\n",
--					   frame_len, priv->dma_buf_sz);
-+				if (net_ratelimit())
-+					netdev_err(priv->dev,
-+						   "len %d larger than size (%d)\n",
-+						   frame_len, priv->dma_buf_sz);
- 				priv->dev->stats.rx_length_errors++;
- 				break;
- 			}
-@@ -3473,9 +3474,10 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 			} else {
- 				skb = rx_q->rx_skbuff[entry];
- 				if (unlikely(!skb)) {
--					netdev_err(priv->dev,
--						   "%s: Inconsistent Rx chain\n",
--						   priv->dev->name);
-+					if (net_ratelimit())
-+						netdev_err(priv->dev,
-+							   "%s: Inconsistent Rx chain\n",
-+							   priv->dev->name);
- 					priv->dev->stats.rx_dropped++;
- 					break;
- 				}
--- 
-2.20.1
-
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -727,9 +727,10 @@ void ib_mad_agent_security_cleanup(struc
+ 	if (!rdma_protocol_ib(agent->device, agent->port_num))
+ 		return;
+ 
+-	security_ib_free_security(agent->security);
+ 	if (agent->lsm_nb_reg)
+ 		unregister_lsm_notifier(&agent->lsm_nb);
++
++	security_ib_free_security(agent->security);
+ }
+ 
+ int ib_mad_enforce_security(struct ib_mad_agent_private *map, u16 pkey_index)
 
 
