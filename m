@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D03214D6A
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A86B14E31
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728728AbfEFOsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
+        id S1728070AbfEFOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729416AbfEFOsE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:48:04 -0400
+        id S1728562AbfEFOmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 702772053B;
-        Mon,  6 May 2019 14:48:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AFD6214AF;
+        Mon,  6 May 2019 14:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154083;
-        bh=d5H7LD/60AOvjT9IW8lrl/lZYPLcTuJ6p9oJaAylqqQ=;
+        s=default; t=1557153772;
+        bh=SRRqCJo0hq0gYG/h+nc4kI10RcYxBBhCIlBn60wjp1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aH6OLn1xWYvwRdJxeIPpuSGWymwWFgkIgicqgNLKwKhN5pmw9LMvuPcba2vdCtbmv
-         IvMkFf0YoPCLjag7dqmLmn3pX/S77Kt1n9SjRYwG551e962YUKa1s5MfTzogSpf6rs
-         z9cyhOGQDnIIKxk5EBmWSjlWLZWKw5zI5nNROG7E=
+        b=V+NTWgWv3FBT7MCj3+TsbjMtQDr7W1ovRSxQrP0frSJYH2iEzkelENuYvmL3aBlhA
+         CEwTA1iEaoirP19pkAyJlb6U7P1AxP1uk9dcAd3lHriU/PfeTJNNn3wqK1mnEn6iyl
+         yz+p60lPhe6MMXNM9ADhtHJPQCsl1IfbvrIgUZaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 30/62] rtc: sh: Fix invalid alarm warning for non-enabled alarm
-Date:   Mon,  6 May 2019 16:33:01 +0200
-Message-Id: <20190506143053.662813531@linuxfoundation.org>
+        stable@vger.kernel.org, BMK <bmktuwien@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 89/99] selinux: avoid silent denials in permissive mode under RCU walk
+Date:   Mon,  6 May 2019 16:33:02 +0200
+Message-Id: <20190506143101.982018344@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
-When no alarm has been programmed on RSK-RZA1, an error message is
-printed during boot:
+commit 3a28cff3bd4bf43f02be0c4e7933aebf3dc8197e upstream.
 
-    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+results in no audit messages at all if in permissive mode because the
+cache is updated during the rcu walk and thus no denial occurs on
+the subsequent ref walk.  Fix this by not updating the cache when
+performing a non-blocking permission check.  This only affects search
+and symlink read checks during rcu walk.
 
-sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
-field that is not enabled.  __rtc_read_alarm() validates the received
-alarm values, and fills in missing fields when needed.
-While 0xff is handled fine for the year, month, and day fields, and
-corrected as considered being out-of-range, this is not the case for the
-hour, minute, and second fields, where -1 is expected for missing
-fields.
+Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+Reported-by: BMK <bmktuwien@gmail.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this by returning -1 instead, as this value is handled fine for all
-fields.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/avc.c         |   23 +++++++++++++++++++++--
+ security/selinux/hooks.c       |    4 +++-
+ security/selinux/include/avc.h |    1 +
+ 3 files changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 17b6235d67a5..600fb7f93939 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -454,7 +454,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
- {
- 	unsigned int byte;
--	int value = 0xff;	/* return 0xff for ignored values */
-+	int value = -1;			/* return -1 for ignored values */
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -838,6 +838,7 @@ out:
+  * @ssid,@tsid,@tclass : identifier of an AVC entry
+  * @seqno : sequence number when decision was made
+  * @xpd: extended_perms_decision to be added to the node
++ * @flags: the AVC_* flags, e.g. AVC_NONBLOCKING, AVC_EXTENDED_PERMS, or 0.
+  *
+  * if a valid AVC entry doesn't exist,this function returns -ENOENT.
+  * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
+@@ -856,6 +857,23 @@ static int avc_update_node(struct selinu
+ 	struct hlist_head *head;
+ 	spinlock_t *lock;
  
- 	byte = readb(rtc->regbase + reg_off);
- 	if (byte & AR_ENB) {
--- 
-2.20.1
-
++	/*
++	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
++	 * then we must not add permissions to a cache entry
++	 * because we cannot safely audit the denial.  Otherwise,
++	 * during the subsequent blocking retry (e.g. VFS ref walk), we
++	 * will find the permissions already granted in the cache entry
++	 * and won't audit anything at all, leading to silent denials in
++	 * permissive mode that only appear when in enforcing mode.
++	 *
++	 * See the corresponding handling in slow_avc_audit(), and the
++	 * logic in selinux_inode_follow_link and selinux_inode_permission
++	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
++	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
++	 */
++	if (flags & AVC_NONBLOCKING)
++		return 0;
++
+ 	node = avc_alloc_node(avc);
+ 	if (!node) {
+ 		rc = -ENOMEM;
+@@ -1115,7 +1133,7 @@ decision:
+  * @tsid: target security identifier
+  * @tclass: target security class
+  * @requested: requested permissions, interpreted based on @tclass
+- * @flags:  AVC_STRICT or 0
++ * @flags:  AVC_STRICT, AVC_NONBLOCKING, or 0
+  * @avd: access vector decisions
+  *
+  * Check the AVC to determine whether the @requested permissions are granted
+@@ -1199,7 +1217,8 @@ int avc_has_perm_flags(struct selinux_st
+ 	struct av_decision avd;
+ 	int rc, rc2;
+ 
+-	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested, 0,
++	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
+ 				  &avd);
+ 
+ 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3199,7 +3199,9 @@ static int selinux_inode_permission(stru
+ 		return PTR_ERR(isec);
+ 
+ 	rc = avc_has_perm_noaudit(&selinux_state,
+-				  sid, isec->sid, isec->sclass, perms, 0, &avd);
++				  sid, isec->sid, isec->sclass, perms,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
++				  &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+ 				     from_access ? FILE__AUDIT_ACCESS : 0,
+ 				     &denied);
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -142,6 +142,7 @@ static inline int avc_audit(struct selin
+ 
+ #define AVC_STRICT 1 /* Ignore permissive mode. */
+ #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
++#define AVC_NONBLOCKING    4	/* non blocking */
+ int avc_has_perm_noaudit(struct selinux_state *state,
+ 			 u32 ssid, u32 tsid,
+ 			 u16 tclass, u32 requested,
 
 
