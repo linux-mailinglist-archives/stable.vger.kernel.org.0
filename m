@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9ED14E0E
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AFC714EEA
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726409AbfEFO6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
+        id S1727500AbfEFOiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:38:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728296AbfEFOnv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:51 -0400
+        id S1726763AbfEFOiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:38:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EADF2053B;
-        Mon,  6 May 2019 14:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC05A20449;
+        Mon,  6 May 2019 14:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153831;
-        bh=4xYcLi0v/90g60aYbXadPiz+Amu7KqdU99q7SC1Cxl4=;
+        s=default; t=1557153479;
+        bh=rEm2d+rE//eA2HfU9xmNjevBJckJH0LXE+I4TksLyH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UU9tnve7tTnDWVa4fU3NNQCnkLufrFWzRQt8vpf4TdgY1HXPxAxm16gEM4OkF+Vvm
-         +LNp9Ir5Y3e9Y7FcjsUVyrkUIpN+v9gNSBvHjGi7RpffW8VyEnvkOuWnGL/op2DtkD
-         LWTL5uhD2pJtSV5hS8v2dPsE9rUBzi/cuf6dGvss=
+        b=gvGDsR9+i+gDtlsO0cv4GKtZFNLMzitAEeFve46TL5cMrR33fkC6Os10wO3UeFp4e
+         5F4ET4wp8HfZBqyleLNmLfnE0GBoKF5L4/aOF6KaEy9JwM1BqXs/sxhJqdGwft4yRT
+         mwVrralIc+pj5zObpggSfvykR50d3MPzdnbxMKog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nick Terrell <terrelln@fb.com>, Chris Mason <clm@fb.com>,
-        Yury Norov <ynorov@caviumnetworks.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Luis R . Rodriguez" <mcgrof@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        Jeff Layton <jlayton@redhat.com>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        Kostya Serebryany <kcc@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 13/75] kasan: prevent compiler from optimizing away memset in tests
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, Pu Wen <puwen@hygon.cn>,
+        Stephane Eranian <eranian@google.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        linux-perf-users@vger.kernel.org, Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.0 083/122] perf/x86/amd: Update generic hardware cache events for Family 17h
 Date:   Mon,  6 May 2019 16:32:21 +0200
-Message-Id: <20190506143054.399239912@linuxfoundation.org>
+Message-Id: <20190506143102.230524633@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,51 +58,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 69ca372c100fba99c78ef826a1795aa86e4f01a8 upstream.
+commit 0e3b74e26280f2cf8753717a950b97d424da6046 upstream.
 
-A compiler can optimize away memset calls by replacing them with mov
-instructions.  There are KASAN tests that specifically test that KASAN
-correctly handles memset calls so we don't want this optimization to
-happen.
+Add a new amd_hw_cache_event_ids_f17h assignment structure set
+for AMD families 17h and above, since a lot has changed.  Specifically:
 
-The solution is to add -fno-builtin flag to test_kasan.ko
+L1 Data Cache
 
-Link: http://lkml.kernel.org/r/105ec9a308b2abedb1a0d1fdced0c22d765e4732.1519924383.git.andreyknvl@google.com
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Chris Mason <clm@fb.com>
-Cc: Yury Norov <ynorov@caviumnetworks.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Luis R . Rodriguez" <mcgrof@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: Jeff Layton <jlayton@redhat.com>
-Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>
-Cc: Kostya Serebryany <kcc@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+The data cache access counter remains the same on Family 17h.
+
+For DC misses, PMCx041's definition changes with Family 17h,
+so instead we use the L2 cache accesses from L1 data cache
+misses counter (PMCx060,umask=0xc8).
+
+For DC hardware prefetch events, Family 17h breaks compatibility
+for PMCx067 "Data Prefetcher", so instead, we use PMCx05a "Hardware
+Prefetch DC Fills."
+
+L1 Instruction Cache
+
+PMCs 0x80 and 0x81 (32-byte IC fetches and misses) are backward
+compatible on Family 17h.
+
+For prefetches, we remove the erroneous PMCx04B assignment which
+counts how many software data cache prefetch load instructions were
+dispatched.
+
+LL - Last Level Cache
+
+Removing PMCs 7D, 7E, and 7F assignments, as they do not exist
+on Family 17h, where the last level cache is L3.  L3 counters
+can be accessed using the existing AMD Uncore driver.
+
+Data TLB
+
+On Intel machines, data TLB accesses ("dTLB-loads") are assigned
+to counters that count load/store instructions retired.  This
+is inconsistent with instruction TLB accesses, where Intel
+implementations report iTLB misses that hit in the STLB.
+
+Ideally, dTLB-loads would count higher level dTLB misses that hit
+in lower level TLBs, and dTLB-load-misses would report those
+that also missed in those lower-level TLBs, therefore causing
+a page table walk.  That would be consistent with instruction
+TLB operation, remove the redundancy between dTLB-loads and
+L1-dcache-loads, and prevent perf from producing artificially
+low percentage ratios, i.e. the "0.01%" below:
+
+        42,550,869      L1-dcache-loads
+        41,591,860      dTLB-loads
+             4,802      dTLB-load-misses          #    0.01% of all dTLB cache hits
+         7,283,682      L1-dcache-stores
+         7,912,392      dTLB-stores
+               310      dTLB-store-misses
+
+On AMD Families prior to 17h, the "Data Cache Accesses" counter is
+used, which is slightly better than load/store instructions retired,
+but still counts in terms of individual load/store operations
+instead of TLB operations.
+
+So, for AMD Families 17h and higher, this patch assigns "dTLB-loads"
+to a counter for L1 dTLB misses that hit in the L2 dTLB, and
+"dTLB-load-misses" to a counter for L1 DTLB misses that caused
+L2 DTLB misses and therefore also caused page table walks.  This
+results in a much more accurate view of data TLB performance:
+
+        60,961,781      L1-dcache-loads
+             4,601      dTLB-loads
+               963      dTLB-load-misses          #   20.93% of all dTLB cache hits
+
+Note that for all AMD families, data loads and stores are combined
+in a single accesses counter, so no 'L1-dcache-stores' are reported
+separately, and stores are counted with loads in 'L1-dcache-loads'.
+
+Also note that the "% of all dTLB cache hits" string is misleading
+because (a) "dTLB cache": although TLBs can be considered caches for
+page tables, in this context, it can be misinterpreted as data cache
+hits because the figures are similar (at least on Intel), and (b) not
+all those loads (technically accesses) technically "hit" at that
+hardware level.  "% of all dTLB accesses" would be more clear/accurate.
+
+Instruction TLB
+
+On Intel machines, 'iTLB-loads' measure iTLB misses that hit in the
+STLB, and 'iTLB-load-misses' measure iTLB misses that also missed in
+the STLB and completed a page table walk.
+
+For AMD Family 17h and above, for 'iTLB-loads' we replace the
+erroneous instruction cache fetches counter with PMCx084
+"L1 ITLB Miss, L2 ITLB Hit".
+
+For 'iTLB-load-misses' we still use PMCx085 "L1 ITLB Miss,
+L2 ITLB Miss", but set a 0xff umask because without it the event
+does not get counted.
+
+Branch Predictor (BPU)
+
+PMCs 0xc2 and 0xc3 continue to be valid across all AMD Families.
+
+Node Level Events
+
+Family 17h does not have a PMCx0e9 counter, and corresponding counters
+have not been made available publicly, so for now, we mark them as
+unsupported for Families 17h and above.
+
+Reference:
+
+  "Open-Source Register Reference For AMD Family 17h Processors Models 00h-2Fh"
+  Released 7/17/2018, Publication #56255, Revision 3.03:
+  https://www.amd.com/system/files/TechDocs/56255_OSRR.pdf
+
+[ mingo: tidied up the line breaks. ]
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Martin Liška <mliska@suse.cz>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pu Wen <puwen@hygon.cn>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-perf-users@vger.kernel.org
+Fixes: e40ed1542dd7 ("perf/x86: Add perf support for AMD family-17h processors")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/amd/core.c |  111 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 108 insertions(+), 3 deletions(-)
 
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_TEST_FIRMWARE) += test_firm
- obj-$(CONFIG_TEST_SYSCTL) += test_sysctl.o
- obj-$(CONFIG_TEST_HASH) += test_hash.o test_siphash.o
- obj-$(CONFIG_TEST_KASAN) += test_kasan.o
-+CFLAGS_test_kasan.o += -fno-builtin
- obj-$(CONFIG_TEST_KSTRTOX) += test-kstrtox.o
- obj-$(CONFIG_TEST_LIST_SORT) += test_list_sort.o
- obj-$(CONFIG_TEST_LKM) += test_module.o
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -116,6 +116,110 @@ static __initconst const u64 amd_hw_cach
+  },
+ };
+ 
++static __initconst const u64 amd_hw_cache_event_ids_f17h
++				[PERF_COUNT_HW_CACHE_MAX]
++				[PERF_COUNT_HW_CACHE_OP_MAX]
++				[PERF_COUNT_HW_CACHE_RESULT_MAX] = {
++[C(L1D)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0040, /* Data Cache Accesses */
++		[C(RESULT_MISS)]   = 0xc860, /* L2$ access from DC Miss */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0xff5a, /* h/w prefetch DC Fills */
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(L1I)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0080, /* Instruction cache fetches  */
++		[C(RESULT_MISS)]   = 0x0081, /* Instruction cache misses   */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(LL)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(DTLB)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0xff45, /* All L2 DTLB accesses */
++		[C(RESULT_MISS)]   = 0xf045, /* L2 DTLB misses (PT walks) */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++},
++[C(ITLB)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x0084, /* L1 ITLB misses, L2 ITLB hits */
++		[C(RESULT_MISS)]   = 0xff85, /* L1 ITLB misses, L2 misses */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++[C(BPU)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0x00c2, /* Retired Branch Instr.      */
++		[C(RESULT_MISS)]   = 0x00c3, /* Retired Mispredicted BI    */
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++[C(NODE)] = {
++	[C(OP_READ)] = {
++		[C(RESULT_ACCESS)] = 0,
++		[C(RESULT_MISS)]   = 0,
++	},
++	[C(OP_WRITE)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++	[C(OP_PREFETCH)] = {
++		[C(RESULT_ACCESS)] = -1,
++		[C(RESULT_MISS)]   = -1,
++	},
++},
++};
++
+ /*
+  * AMD Performance Monitor K7 and later, up to and including Family 16h:
+  */
+@@ -865,9 +969,10 @@ __init int amd_pmu_init(void)
+ 		x86_pmu.amd_nb_constraints = 0;
+ 	}
+ 
+-	/* Events are common for all AMDs */
+-	memcpy(hw_cache_event_ids, amd_hw_cache_event_ids,
+-	       sizeof(hw_cache_event_ids));
++	if (boot_cpu_data.x86 >= 0x17)
++		memcpy(hw_cache_event_ids, amd_hw_cache_event_ids_f17h, sizeof(hw_cache_event_ids));
++	else
++		memcpy(hw_cache_event_ids, amd_hw_cache_event_ids, sizeof(hw_cache_event_ids));
+ 
+ 	return 0;
+ }
 
 
