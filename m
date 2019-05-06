@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC1714F2C
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0AA14F34
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbfEFOgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:36:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56352 "EHLO mail.kernel.org"
+        id S1727194AbfEFOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726564AbfEFOgG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:36:06 -0400
+        id S1727188AbfEFOgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:36:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4696E204EC;
-        Mon,  6 May 2019 14:36:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1A7320B7C;
+        Mon,  6 May 2019 14:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153365;
-        bh=nD6+/xIy6pqXa9KgPPOcUQnBHoKVtX0H5oZGvLHkLbA=;
+        s=default; t=1557153395;
+        bh=IVWKTLJ67r9Fag+JPkcDnWfalbUx2MqvHhQKGS417+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pW3pc+4vMvOfaIrFt7+lxOTvyYxsijmb0GhnS8bUCdynji2vHcXyeDIbUY25qdCkU
-         Zg+irWttomtxWvKoY6wfCLK1RzS6S3t+AVKWin6PAU5cL8bmEapPS4GbmjTePuh3IK
-         hQhYR63lhLqhGg1aovl42ybA580VrVoZ9CwY/IfQ=
+        b=KSs5uvnop+wqNCPv0ikPOBax8gsYE8Uf1HOAAGNx3gk19fbLczSxnhDoh3J0OzUe3
+         B6tqJX8Rcg2uQ7RlyDf47I0JGmJXfox0mBWZ+znKAwMLmZvG0rj6OK3MBYyKNlJF2e
+         9LQQFuakGAtSu65Nu8lpAZpaezPoBCa2Nie4AV8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 044/122] HID: quirks: Fix keyboard + touchpad on Lenovo Miix 630
-Date:   Mon,  6 May 2019 16:31:42 +0200
-Message-Id: <20190506143058.868183112@linuxfoundation.org>
+Subject: [PATCH 5.0 045/122] net: hns3: fix compile error
+Date:   Mon,  6 May 2019 16:31:43 +0200
+Message-Id: <20190506143058.973350300@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -44,45 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2bafa1e9625400bec4c840a168d70ba52607a58d ]
+[ Upstream commit 669efc76b317b3aa550ffbf0b79d064cb00a5f96 ]
 
-Similar to commit edfc3722cfef ("HID: quirks: Fix keyboard + touchpad on
-Toshiba Click Mini not working"), the Lenovo Miix 630 has a combo
-keyboard/touchpad device with vid:pid of 04F3:0400, which is shared with
-Elan touchpads.  The combo on the Miix 630 has an ACPI id of QTEC0001,
-which is not claimed by the elan_i2c driver, so key on that similar to
-what was done for the Toshiba Click Mini.
+Currently, the rules for configuring search paths in Kbuild have
+changed, this will lead some erros when compiling hns3 with the
+following command:
 
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+make O=DIR M=drivers/net/ethernet/hisilicon/hns3
+
+drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c:11:10:
+fatal error: hnae3.h: No such file or directory
+
+This patch fix it by adding $(srctree)/ prefix to the serach paths.
+
+Signed-off-by: Xi Wang <wangxi11@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-quirks.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 94088c0ed68a..e24790c988c0 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -744,7 +744,6 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
-@@ -1025,6 +1024,10 @@ bool hid_ignore(struct hid_device *hdev)
- 		if (hdev->product == 0x0401 &&
- 		    strncmp(hdev->name, "ELAN0800", 8) != 0)
- 			return true;
-+		/* Same with product id 0x0400 */
-+		if (hdev->product == 0x0400 &&
-+		    strncmp(hdev->name, "QTEC0001", 8) != 0)
-+			return true;
- 		break;
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
+index fffe8c1c45d3..0fb61d440d3b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the HISILICON network device drivers.
+ #
  
+-ccflags-y := -Idrivers/net/ethernet/hisilicon/hns3
++ccflags-y := -I $(srctree)/drivers/net/ethernet/hisilicon/hns3
+ 
+ obj-$(CONFIG_HNS3_HCLGE) += hclge.o
+ hclge-objs = hclge_main.o hclge_cmd.o hclge_mdio.o hclge_tm.o hclge_mbx.o hclge_err.o  hclge_debugfs.o
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile b/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
+index fb93bbd35845..6193f8fa7cf3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the HISILICON network device drivers.
+ #
+ 
+-ccflags-y := -Idrivers/net/ethernet/hisilicon/hns3
++ccflags-y := -I $(srctree)/drivers/net/ethernet/hisilicon/hns3
+ 
+ obj-$(CONFIG_HNS3_HCLGEVF) += hclgevf.o
+ hclgevf-objs = hclgevf_main.o hclgevf_cmd.o hclgevf_mbx.o
+\ No newline at end of file
 -- 
 2.20.1
 
