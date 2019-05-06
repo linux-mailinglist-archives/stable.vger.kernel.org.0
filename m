@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C382E14DE9
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E178E14E96
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbfEFOpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S1727281AbfEFOjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:39:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbfEFOpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:02 -0400
+        id S1727737AbfEFOjH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DD0720449;
-        Mon,  6 May 2019 14:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26B4421479;
+        Mon,  6 May 2019 14:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153902;
-        bh=JK/v2MkIjQROkV0ZWEqSRpWKOhdaWykh5GI1KeZuzys=;
+        s=default; t=1557153545;
+        bh=drJzGQRvPDLu2T3YjTdevjln3E4+BxvfPv+TvbHmfis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGrPAsEJAcPtgOd+/YzjHKXWbsQMoJtA/CKT4ms0BnPiYRT4nyQAVwGD5c62GBkJY
-         UJzJ5WxZFggu26vuItCpQzC2PIUE35X4jHzDWKx1OHroGhzgem9jrBesbFg5pN+gMt
-         O8RfoX5HHbDeBph1U/8FqJeT0tasHt6ffAjwieW0=
+        b=llPeup/CoeZED2Akx9I3RG1E6uFw0QV4Ri2ce778xy8JFGflDm6Tg5IWWNnSRzx22
+         /InYdGaVQrtvKD0TyH4yOrffxBed1KbVo1oCLW2MJdgj6RfXmeiGuHhwOeKiWYYinb
+         RLdItlN788UKIXr2iYmOI2SL+gImvBmHiDotL6WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/75] net: stmmac: fix dropping of multi-descriptor RX frames
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Yuval Avnery <yuvalav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.0 108/122] IB/core: Destroy QP if XRC QP fails
 Date:   Mon,  6 May 2019 16:32:46 +0200
-Message-Id: <20190506143056.677620529@linuxfoundation.org>
+Message-Id: <20190506143104.265363973@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ac0c24fe1c256af6644caf3d311029440ec2fbd ]
+From: Yuval Avnery <yuvalav@mellanox.com>
 
-Packets without the last descriptor set should be dropped early. If we
-receive a frame larger than the DMA buffer, the HW will continue using the
-next descriptor. Driver mistakes these as individual frames, and sometimes
-a truncated frame (without the LD set) may look like a valid packet.
+commit 535005ca8e5e71918d64074032f4b9d4fef8981e upstream.
 
-This fixes a strange issue where the system replies to 4098-byte ping
-although the MTU/DMA buffer size is set to 4096, and yet at the same
-time it's logging an oversized packet.
+The open-coded variant missed destroy of SELinux created QP, reuse already
+existing ib_detroy_qp() call and use this opportunity to clean
+ib_create_qp() from double prints and unclear exit paths.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Parav Pandit <parav@mellanox.com>
+Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
+Signed-off-by: Yuval Avnery <yuvalav@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/enh_desc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/infiniband/core/verbs.c |   41 +++++++++++++++++++++++-----------------
+ 1 file changed, 24 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-index cdfe9a350ac0..f2150efddc88 100644
---- a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-@@ -201,6 +201,11 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
- 	if (unlikely(rdes0 & RDES0_OWN))
- 		return dma_own;
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -1106,8 +1106,8 @@ struct ib_qp *ib_open_qp(struct ib_xrcd
+ }
+ EXPORT_SYMBOL(ib_open_qp);
  
-+	if (unlikely(!(rdes0 & RDES0_LAST_DESCRIPTOR))) {
-+		stats->rx_length_errors++;
-+		return discard_frame;
-+	}
+-static struct ib_qp *ib_create_xrc_qp(struct ib_qp *qp,
+-		struct ib_qp_init_attr *qp_init_attr)
++static struct ib_qp *create_xrc_qp(struct ib_qp *qp,
++				   struct ib_qp_init_attr *qp_init_attr)
+ {
+ 	struct ib_qp *real_qp = qp;
+ 
+@@ -1122,10 +1122,10 @@ static struct ib_qp *ib_create_xrc_qp(st
+ 
+ 	qp = __ib_open_qp(real_qp, qp_init_attr->event_handler,
+ 			  qp_init_attr->qp_context);
+-	if (!IS_ERR(qp))
+-		__ib_insert_xrcd_qp(qp_init_attr->xrcd, real_qp);
+-	else
+-		real_qp->device->ops.destroy_qp(real_qp);
++	if (IS_ERR(qp))
++		return qp;
 +
- 	if (unlikely(rdes0 & RDES0_ERROR_SUMMARY)) {
- 		if (unlikely(rdes0 & RDES0_DESCRIPTOR_ERROR)) {
- 			x->rx_desc++;
--- 
-2.20.1
-
++	__ib_insert_xrcd_qp(qp_init_attr->xrcd, real_qp);
+ 	return qp;
+ }
+ 
+@@ -1156,10 +1156,8 @@ struct ib_qp *ib_create_qp(struct ib_pd
+ 		return qp;
+ 
+ 	ret = ib_create_qp_security(qp, device);
+-	if (ret) {
+-		ib_destroy_qp(qp);
+-		return ERR_PTR(ret);
+-	}
++	if (ret)
++		goto err;
+ 
+ 	qp->real_qp    = qp;
+ 	qp->qp_type    = qp_init_attr->qp_type;
+@@ -1172,8 +1170,15 @@ struct ib_qp *ib_create_qp(struct ib_pd
+ 	INIT_LIST_HEAD(&qp->sig_mrs);
+ 	qp->port = 0;
+ 
+-	if (qp_init_attr->qp_type == IB_QPT_XRC_TGT)
+-		return ib_create_xrc_qp(qp, qp_init_attr);
++	if (qp_init_attr->qp_type == IB_QPT_XRC_TGT) {
++		struct ib_qp *xrc_qp = create_xrc_qp(qp, qp_init_attr);
++
++		if (IS_ERR(xrc_qp)) {
++			ret = PTR_ERR(xrc_qp);
++			goto err;
++		}
++		return xrc_qp;
++	}
+ 
+ 	qp->event_handler = qp_init_attr->event_handler;
+ 	qp->qp_context = qp_init_attr->qp_context;
+@@ -1200,11 +1205,8 @@ struct ib_qp *ib_create_qp(struct ib_pd
+ 
+ 	if (qp_init_attr->cap.max_rdma_ctxs) {
+ 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
+-		if (ret) {
+-			pr_err("failed to init MR pool ret= %d\n", ret);
+-			ib_destroy_qp(qp);
+-			return ERR_PTR(ret);
+-		}
++		if (ret)
++			goto err;
+ 	}
+ 
+ 	/*
+@@ -1217,6 +1219,11 @@ struct ib_qp *ib_create_qp(struct ib_pd
+ 				 device->attrs.max_sge_rd);
+ 
+ 	return qp;
++
++err:
++	ib_destroy_qp(qp);
++	return ERR_PTR(ret);
++
+ }
+ EXPORT_SYMBOL(ib_create_qp);
+ 
 
 
