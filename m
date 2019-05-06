@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F2A14CE6
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBB114C29
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726495AbfEFOpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42084 "EHLO mail.kernel.org"
+        id S1726853AbfEFOhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728939AbfEFOpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:21 -0400
+        id S1726821AbfEFOhF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2946C2087F;
-        Mon,  6 May 2019 14:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3A70204EC;
+        Mon,  6 May 2019 14:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153920;
-        bh=xtUdkNT/I6ZoDVHE1IWYKYHYiIpasaIIC4p+C1QzlGs=;
+        s=default; t=1557153424;
+        bh=glLK+raQEfAk5jr74YgUHbUWQ+yroWY8+n58sJG65A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2HjSUAJxn5fOuEKH9e4zs8eFTXv9QAeOoJOg1mwoVL3jn0yrzuKJsG9eWSqGMoDG
-         8Rcp46M5UVLMBeX/K8II5ny2YZfeQ0Dgd1bUJVU5HkYIEUtpvzue2ZPdCUdYp9RUMW
-         RDkPHu3dSbSd/43nfbARywieQZqosNuBVQ1J0N1Q=
+        b=T4gmM8ITZ6GSL1093eAJHQ8ZZOLE9EGQwk+ilWk0WgkqoYv8DAdiQIuavJ7jyIhsQ
+         idnUDw4xTOV49/mfb4j3cJa617MoLEdPSkp/easNKtW0OzPvpACsQLUEy9+QtSosZo
+         7leNDAdexQDOCvjfUMSLXh1xKxuUMLnfAG+pVBZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 06/75] packet: validate msg_namelen in send directly
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 076/122] hugetlbfs: fix memory leak for resv_map
 Date:   Mon,  6 May 2019 16:32:14 +0200
-Message-Id: <20190506143053.811171616@linuxfoundation.org>
+Message-Id: <20190506143101.684861447@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
 
-[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
+When mknod is used to create a block special file in hugetlbfs, it will
+allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
+inode->i_mapping->private_data will point the newly allocated resv_map.
+However, when the device special file is opened bd_acquire() will set
+inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
+allocated resv_map is lost and the structure is leaked.
 
-Packet sockets in datagram mode take a destination address. Verify its
-length before passing to dev_hard_header.
+Programs to reproduce:
+        mount -t hugetlbfs nodev hugetlbfs
+        mknod hugetlbfs/dev b 0 0
+        exec 30<> hugetlbfs/dev
+        umount hugetlbfs/
 
-Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
-established behavior. Directly compare msg_namelen to dev->addr_len.
+resv_map structures are only needed for inodes which can have associated
+page allocations.  To fix the leak, only allocate resv_map for those
+inodes which could possibly be associated with page allocations.
 
-Change v1->v2: initialize addr in all paths
-
-Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Suggested-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- net/packet/af_packet.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ fs/hugetlbfs/inode.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2641,8 +2641,8 @@ static int tpacket_snd(struct packet_soc
- 	void *ph;
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
- 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
-+	unsigned char *addr = NULL;
- 	int tp_len, size_max;
--	unsigned char *addr;
- 	void *data;
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
-@@ -2653,7 +2653,6 @@ static int tpacket_snd(struct packet_soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2663,10 +2662,13 @@ static int tpacket_snd(struct packet_soc
- 						sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_put;
-+		if (po->sk.sk_socket->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_put;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index a7fa037b876b..a3a3d256fb0e 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -741,11 +741,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 					umode_t mode, dev_t dev)
+ {
+ 	struct inode *inode;
+-	struct resv_map *resv_map;
++	struct resv_map *resv_map = NULL;
  
- 	err = -ENXIO;
-@@ -2838,7 +2840,7 @@ static int packet_snd(struct socket *soc
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	__be16 proto;
--	unsigned char *addr;
-+	unsigned char *addr = NULL;
- 	int err, reserve = 0;
- 	struct sockcm_cookie sockc;
- 	struct virtio_net_hdr vnet_hdr = { 0 };
-@@ -2855,7 +2857,6 @@ static int packet_snd(struct socket *soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2863,10 +2864,13 @@ static int packet_snd(struct socket *soc
- 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_unlock;
-+		if (sock->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_unlock;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+-	resv_map = resv_map_alloc();
+-	if (!resv_map)
+-		return NULL;
++	/*
++	 * Reserve maps are only needed for inodes that can have associated
++	 * page allocations.
++	 */
++	if (S_ISREG(mode) || S_ISLNK(mode)) {
++		resv_map = resv_map_alloc();
++		if (!resv_map)
++			return NULL;
++	}
  
- 	err = -ENXIO;
+ 	inode = new_inode(sb);
+ 	if (inode) {
+@@ -780,8 +786,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 			break;
+ 		}
+ 		lockdep_annotate_inode_mutex_key(inode);
+-	} else
+-		kref_put(&resv_map->refs, resv_map_release);
++	} else {
++		if (resv_map)
++			kref_put(&resv_map->refs, resv_map_release);
++	}
+ 
+ 	return inode;
+ }
+-- 
+2.20.1
+
 
 
