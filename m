@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1250B14DF0
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91A614E7E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbfEFOol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:44:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41006 "EHLO mail.kernel.org"
+        id S1727152AbfEFPCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbfEFOoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:39 -0400
+        id S1728033AbfEFOka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:40:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC31214AE;
-        Mon,  6 May 2019 14:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88E5D20449;
+        Mon,  6 May 2019 14:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153878;
-        bh=FwKT+klbAU6IuKJGLc8X7ttbHeesRLveH+crazINx7U=;
+        s=default; t=1557153629;
+        bh=LBNIA2N01xiX+SJu8EL/hWKIx+7oFO08rvmKtjuiILA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj1T8EbeBwfPGVKwZ9NtOgF3WcmTozFs85XrCnLK0XzDFKWOz1uCnMz3HvLLxN4vv
-         qGhLSruarbl4DNc6p8yusmKI7cRrujRHX9IYLWe8vtgyZhtEh9tFSKMp7lEn/9LdZe
-         MEG7uGUP3HzCNEJpCQG5E55TIenR0bqTBen4zWUQ=
+        b=O9gOaF5qpEzUzPbHH2dRpTtzctfzvy+bPqNKQ9WGysUwwDBWSdLRkXZjmcVXJo21z
+         TxgDRFG5OwDkJxNHfjI8bBeP3Gm4hZ8FQl0ax9MUV2m4kp0xxB+bij5gvG5m4ag4Y4
+         RavyUelcdA5URolK8e9qHxylNTeGLClqbZ+D3cGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 03/75] ipv6/flowlabel: wait rcu grace period before put_pid()
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 38/99] net: stmmac: use correct DMA buffer size in the RX descriptor
 Date:   Mon,  6 May 2019 16:32:11 +0200
-Message-Id: <20190506143053.574284681@linuxfoundation.org>
+Message-Id: <20190506143057.399914447@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,151 +44,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit 583e6361414903c5206258a30e5bd88cb03c0254 ]
 
-[ Upstream commit 6c0afef5fb0c27758f4d52b2210c61b6bd8b4470 ]
+We always program the maximum DMA buffer size into the receive descriptor,
+although the allocated size may be less. E.g. with the default MTU size
+we allocate only 1536 bytes. If somebody sends us a bigger frame, then
+memory may get corrupted.
 
-syzbot was able to catch a use-after-free read in pid_nr_ns() [1]
+Fix by using exact buffer sizes.
 
-ip6fl_seq_show() seems to use RCU protection, dereferencing fl->owner.pid
-but fl_free() releases fl->owner.pid before rcu grace period is started.
-
-[1]
-
-BUG: KASAN: use-after-free in pid_nr_ns+0x128/0x140 kernel/pid.c:407
-Read of size 4 at addr ffff888094012a04 by task syz-executor.0/18087
-
-CPU: 0 PID: 18087 Comm: syz-executor.0 Not tainted 5.1.0-rc6+ #89
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
- kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
- __asan_report_load4_noabort+0x14/0x20 mm/kasan/generic_report.c:131
- pid_nr_ns+0x128/0x140 kernel/pid.c:407
- ip6fl_seq_show+0x2f8/0x4f0 net/ipv6/ip6_flowlabel.c:794
- seq_read+0xad3/0x1130 fs/seq_file.c:268
- proc_reg_read+0x1fe/0x2c0 fs/proc/inode.c:227
- do_loop_readv_writev fs/read_write.c:701 [inline]
- do_loop_readv_writev fs/read_write.c:688 [inline]
- do_iter_read+0x4a9/0x660 fs/read_write.c:922
- vfs_readv+0xf0/0x160 fs/read_write.c:984
- kernel_readv fs/splice.c:358 [inline]
- default_file_splice_read+0x475/0x890 fs/splice.c:413
- do_splice_to+0x12a/0x190 fs/splice.c:876
- splice_direct_to_actor+0x2d2/0x970 fs/splice.c:953
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1062
- do_sendfile+0x597/0xd00 fs/read_write.c:1443
- __do_sys_sendfile64 fs/read_write.c:1498 [inline]
- __se_sys_sendfile64 fs/read_write.c:1490 [inline]
- __x64_sys_sendfile64+0x15a/0x220 fs/read_write.c:1490
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x458da9
-Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f300d24bc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000458da9
-RDX: 00000000200000c0 RSI: 0000000000000008 RDI: 0000000000000007
-RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 000000000000005a R11: 0000000000000246 R12: 00007f300d24c6d4
-R13: 00000000004c5fa3 R14: 00000000004da748 R15: 00000000ffffffff
-
-Allocated by task 17543:
- save_stack+0x45/0xd0 mm/kasan/common.c:75
- set_track mm/kasan/common.c:87 [inline]
- __kasan_kmalloc mm/kasan/common.c:497 [inline]
- __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
- kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
- slab_post_alloc_hook mm/slab.h:437 [inline]
- slab_alloc mm/slab.c:3393 [inline]
- kmem_cache_alloc+0x11a/0x6f0 mm/slab.c:3555
- alloc_pid+0x55/0x8f0 kernel/pid.c:168
- copy_process.part.0+0x3b08/0x7980 kernel/fork.c:1932
- copy_process kernel/fork.c:1709 [inline]
- _do_fork+0x257/0xfd0 kernel/fork.c:2226
- __do_sys_clone kernel/fork.c:2333 [inline]
- __se_sys_clone kernel/fork.c:2327 [inline]
- __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 7789:
- save_stack+0x45/0xd0 mm/kasan/common.c:75
- set_track mm/kasan/common.c:87 [inline]
- __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
- __cache_free mm/slab.c:3499 [inline]
- kmem_cache_free+0x86/0x260 mm/slab.c:3765
- put_pid.part.0+0x111/0x150 kernel/pid.c:111
- put_pid+0x20/0x30 kernel/pid.c:105
- fl_free+0xbe/0xe0 net/ipv6/ip6_flowlabel.c:102
- ip6_fl_gc+0x295/0x3e0 net/ipv6/ip6_flowlabel.c:152
- call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
- expire_timers kernel/time/timer.c:1362 [inline]
- __run_timers kernel/time/timer.c:1681 [inline]
- __run_timers kernel/time/timer.c:1649 [inline]
- run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
- __do_softirq+0x266/0x95a kernel/softirq.c:293
-
-The buggy address belongs to the object at ffff888094012a00
- which belongs to the cache pid_2 of size 88
-The buggy address is located 4 bytes inside of
- 88-byte region [ffff888094012a00, ffff888094012a58)
-The buggy address belongs to the page:
-page:ffffea0002500480 count:1 mapcount:0 mapping:ffff88809a483080 index:0xffff888094012980
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea00018a3508 ffffea0002524a88 ffff88809a483080
-raw: ffff888094012980 ffff888094012000 000000010000001b 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff888094012900: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
- ffff888094012980: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
->ffff888094012a00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
-                   ^
- ffff888094012a80: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
- ffff888094012b00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
-
-Fixes: 4f82f45730c6 ("net ip6 flowlabel: Make owner a union of struct pid * and kuid_t")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_flowlabel.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ .../net/ethernet/stmicro/stmmac/descs_com.h   | 22 ++++++++++++-------
+ .../ethernet/stmicro/stmmac/dwmac4_descs.c    |  2 +-
+ .../ethernet/stmicro/stmmac/dwxgmac2_descs.c  |  2 +-
+ .../net/ethernet/stmicro/stmmac/enh_desc.c    | 10 ++++++---
+ drivers/net/ethernet/stmicro/stmmac/hwif.h    |  2 +-
+ .../net/ethernet/stmicro/stmmac/norm_desc.c   | 10 ++++++---
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c |  6 +++--
+ 7 files changed, 35 insertions(+), 19 deletions(-)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -94,15 +94,21 @@ static struct ip6_flowlabel *fl_lookup(s
- 	return fl;
- }
+diff --git a/drivers/net/ethernet/stmicro/stmmac/descs_com.h b/drivers/net/ethernet/stmicro/stmmac/descs_com.h
+index 40d6356a7e73..3dfb07a78952 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/descs_com.h
++++ b/drivers/net/ethernet/stmicro/stmmac/descs_com.h
+@@ -29,11 +29,13 @@
+ /* Specific functions used for Ring mode */
  
-+static void fl_free_rcu(struct rcu_head *head)
-+{
-+	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
-+
-+	if (fl->share == IPV6_FL_S_PROCESS)
-+		put_pid(fl->owner.pid);
-+	kfree(fl->opt);
-+	kfree(fl);
-+}
-+
- 
- static void fl_free(struct ip6_flowlabel *fl)
+ /* Enhanced descriptors */
+-static inline void ehn_desc_rx_set_on_ring(struct dma_desc *p, int end)
++static inline void ehn_desc_rx_set_on_ring(struct dma_desc *p, int end,
++					   int bfsize)
  {
--	if (fl) {
--		if (fl->share == IPV6_FL_S_PROCESS)
--			put_pid(fl->owner.pid);
--		kfree(fl->opt);
--		kfree_rcu(fl, rcu);
--	}
-+	if (fl)
-+		call_rcu(&fl->rcu, fl_free_rcu);
+-	p->des1 |= cpu_to_le32((BUF_SIZE_8KiB
+-			<< ERDES1_BUFFER2_SIZE_SHIFT)
+-		   & ERDES1_BUFFER2_SIZE_MASK);
++	if (bfsize == BUF_SIZE_16KiB)
++		p->des1 |= cpu_to_le32((BUF_SIZE_8KiB
++				<< ERDES1_BUFFER2_SIZE_SHIFT)
++			   & ERDES1_BUFFER2_SIZE_MASK);
+ 
+ 	if (end)
+ 		p->des1 |= cpu_to_le32(ERDES1_END_RING);
+@@ -59,11 +61,15 @@ static inline void enh_set_tx_desc_len_on_ring(struct dma_desc *p, int len)
  }
  
- static void fl_release(struct ip6_flowlabel *fl)
+ /* Normal descriptors */
+-static inline void ndesc_rx_set_on_ring(struct dma_desc *p, int end)
++static inline void ndesc_rx_set_on_ring(struct dma_desc *p, int end, int bfsize)
+ {
+-	p->des1 |= cpu_to_le32(((BUF_SIZE_2KiB - 1)
+-				<< RDES1_BUFFER2_SIZE_SHIFT)
+-		    & RDES1_BUFFER2_SIZE_MASK);
++	if (bfsize >= BUF_SIZE_2KiB) {
++		int bfsize2;
++
++		bfsize2 = min(bfsize - BUF_SIZE_2KiB + 1, BUF_SIZE_2KiB - 1);
++		p->des1 |= cpu_to_le32((bfsize2 << RDES1_BUFFER2_SIZE_SHIFT)
++			    & RDES1_BUFFER2_SIZE_MASK);
++	}
+ 
+ 	if (end)
+ 		p->des1 |= cpu_to_le32(RDES1_END_RING);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+index 736e29635b77..313a58b68fee 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+@@ -296,7 +296,7 @@ static int dwmac4_wrback_get_rx_timestamp_status(void *desc, void *next_desc,
+ }
+ 
+ static void dwmac4_rd_init_rx_desc(struct dma_desc *p, int disable_rx_ic,
+-				   int mode, int end)
++				   int mode, int end, int bfsize)
+ {
+ 	dwmac4_set_rx_owner(p, disable_rx_ic);
+ }
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c
+index 1d858fdec997..98fa471da7c0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c
+@@ -123,7 +123,7 @@ static int dwxgmac2_get_rx_timestamp_status(void *desc, void *next_desc,
+ }
+ 
+ static void dwxgmac2_init_rx_desc(struct dma_desc *p, int disable_rx_ic,
+-				  int mode, int end)
++				  int mode, int end, int bfsize)
+ {
+ 	dwxgmac2_set_rx_owner(p, disable_rx_ic);
+ }
+diff --git a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
+index 5ef91a790f9d..e8855e6adb48 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
+@@ -259,15 +259,19 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
+ }
+ 
+ static void enh_desc_init_rx_desc(struct dma_desc *p, int disable_rx_ic,
+-				  int mode, int end)
++				  int mode, int end, int bfsize)
+ {
++	int bfsize1;
++
+ 	p->des0 |= cpu_to_le32(RDES0_OWN);
+-	p->des1 |= cpu_to_le32(BUF_SIZE_8KiB & ERDES1_BUFFER1_SIZE_MASK);
++
++	bfsize1 = min(bfsize, BUF_SIZE_8KiB);
++	p->des1 |= cpu_to_le32(bfsize1 & ERDES1_BUFFER1_SIZE_MASK);
+ 
+ 	if (mode == STMMAC_CHAIN_MODE)
+ 		ehn_desc_rx_set_on_chain(p);
+ 	else
+-		ehn_desc_rx_set_on_ring(p, end);
++		ehn_desc_rx_set_on_ring(p, end, bfsize);
+ 
+ 	if (disable_rx_ic)
+ 		p->des1 |= cpu_to_le32(ERDES1_DISABLE_IC);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/hwif.h b/drivers/net/ethernet/stmicro/stmmac/hwif.h
+index 92b8944f26e3..5bb00234d961 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/hwif.h
++++ b/drivers/net/ethernet/stmicro/stmmac/hwif.h
+@@ -33,7 +33,7 @@ struct dma_extended_desc;
+ struct stmmac_desc_ops {
+ 	/* DMA RX descriptor ring initialization */
+ 	void (*init_rx_desc)(struct dma_desc *p, int disable_rx_ic, int mode,
+-			int end);
++			int end, int bfsize);
+ 	/* DMA TX descriptor ring initialization */
+ 	void (*init_tx_desc)(struct dma_desc *p, int mode, int end);
+ 	/* Invoked by the xmit function to prepare the tx descriptor */
+diff --git a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
+index de65bb29feba..c55a9815b394 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
+@@ -135,15 +135,19 @@ static int ndesc_get_rx_status(void *data, struct stmmac_extra_stats *x,
+ }
+ 
+ static void ndesc_init_rx_desc(struct dma_desc *p, int disable_rx_ic, int mode,
+-			       int end)
++			       int end, int bfsize)
+ {
++	int bfsize1;
++
+ 	p->des0 |= cpu_to_le32(RDES0_OWN);
+-	p->des1 |= cpu_to_le32((BUF_SIZE_2KiB - 1) & RDES1_BUFFER1_SIZE_MASK);
++
++	bfsize1 = min(bfsize, BUF_SIZE_2KiB - 1);
++	p->des1 |= cpu_to_le32(bfsize & RDES1_BUFFER1_SIZE_MASK);
+ 
+ 	if (mode == STMMAC_CHAIN_MODE)
+ 		ndesc_rx_set_on_chain(p, end);
+ 	else
+-		ndesc_rx_set_on_ring(p, end);
++		ndesc_rx_set_on_ring(p, end, bfsize);
+ 
+ 	if (disable_rx_ic)
+ 		p->des1 |= cpu_to_le32(RDES1_DISABLE_IC);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 39c105092214..b44ca0c90c5c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1111,11 +1111,13 @@ static void stmmac_clear_rx_descriptors(struct stmmac_priv *priv, u32 queue)
+ 		if (priv->extend_desc)
+ 			stmmac_init_rx_desc(priv, &rx_q->dma_erx[i].basic,
+ 					priv->use_riwt, priv->mode,
+-					(i == DMA_RX_SIZE - 1));
++					(i == DMA_RX_SIZE - 1),
++					priv->dma_buf_sz);
+ 		else
+ 			stmmac_init_rx_desc(priv, &rx_q->dma_rx[i],
+ 					priv->use_riwt, priv->mode,
+-					(i == DMA_RX_SIZE - 1));
++					(i == DMA_RX_SIZE - 1),
++					priv->dma_buf_sz);
+ }
+ 
+ /**
+-- 
+2.20.1
+
 
 
