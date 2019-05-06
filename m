@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AF0D14E58
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C9A14DF7
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfEFOlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36146 "EHLO mail.kernel.org"
+        id S1727400AbfEFO4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:56:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726763AbfEFOlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:41:49 -0400
+        id S1728851AbfEFOoq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:44:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6EA214C6;
-        Mon,  6 May 2019 14:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0874214C6;
+        Mon,  6 May 2019 14:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153708;
-        bh=QoyRgNmTdAJPWL9A22hSP/JtEszVw69vNRYFpH7L4QA=;
+        s=default; t=1557153886;
+        bh=AvJIEhlcW/PNkCt7Wv2OLvO+rCk11nMG+gk94PHYdJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hz1ViMNKWr3bHcSw39EYLOSwHa5NHY3dl7U+nJ7lSuc8TN2pi8zU4Qt1EXGrA97CV
-         XKA4Umm4FB9RnCVLNIy2/gh4tYw9mTZY+MNU0QNJQODkBwaDBYmSJ9lwNNeOwLeqm2
-         MzWN3aJIJ1BgfBH1GfWdGXOuHJj4bL8/dimjWz84=
+        b=OpbMgUhU/ySrwca+zt45aUmqeHVQXRkaK47FcXc0MwKbCGnxYLDXgRyKXlHwiBr3y
+         SJ6Z1Qmp8IzzFXr7mUKHHa7lu43PfVZdUFubs74Phx1I9UKL9qyVMRkJnbPPeH0cdY
+         SYf6HZjGczESiAn1SbG6PP6a2Ju9v0gN1/xjE+Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 67/99] ARM: orion: dont use using 64-bit DMA masks
+Subject: [PATCH 4.14 32/75] ARM: dts: rockchip: Fix gpu opp node names for rk3288
 Date:   Mon,  6 May 2019 16:32:40 +0200
-Message-Id: <20190506143100.235774561@linuxfoundation.org>
+Message-Id: <20190506143056.105285763@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cd92d74d67c811dc22544430b9ac3029f5bd64c5 ]
+[ Upstream commit d040e4e8deeaa8257d6aa260e29ad69832b5d630 ]
 
-clang warns about statically defined DMA masks from the DMA_BIT_MASK
-macro with length 64:
+The device tree compiler yells like this:
+  Warning (unit_address_vs_reg):
+  /gpu-opp-table/opp@100000000:
+  node has a unit name, but no reg property
 
-arch/arm/plat-orion/common.c:625:29: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-                .coherent_dma_mask      = DMA_BIT_MASK(64),
-                                          ^~~~~~~~~~~~~~~~
-include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
- #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+Let's match the cpu opp node names and use a dash.
 
-The ones in orion shouldn't really be 64 bit masks, so changing them
-to what the driver can support avoids the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/plat-orion/common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/plat-orion/common.c b/arch/arm/plat-orion/common.c
-index a2399fd66e97..1e970873439c 100644
---- a/arch/arm/plat-orion/common.c
-+++ b/arch/arm/plat-orion/common.c
-@@ -622,7 +622,7 @@ static struct platform_device orion_xor0_shared = {
- 	.resource	= orion_xor0_shared_resources,
- 	.dev            = {
- 		.dma_mask               = &orion_xor_dmamask,
--		.coherent_dma_mask      = DMA_BIT_MASK(64),
-+		.coherent_dma_mask      = DMA_BIT_MASK(32),
- 		.platform_data          = &orion_xor0_pdata,
- 	},
- };
-@@ -683,7 +683,7 @@ static struct platform_device orion_xor1_shared = {
- 	.resource	= orion_xor1_shared_resources,
- 	.dev            = {
- 		.dma_mask               = &orion_xor_dmamask,
--		.coherent_dma_mask      = DMA_BIT_MASK(64),
-+		.coherent_dma_mask      = DMA_BIT_MASK(32),
- 		.platform_data          = &orion_xor1_pdata,
- 	},
- };
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index f7a951afd281..5a7888581eea 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1181,27 +1181,27 @@
+ 	gpu_opp_table: gpu-opp-table {
+ 		compatible = "operating-points-v2";
+ 
+-		opp@100000000 {
++		opp-100000000 {
+ 			opp-hz = /bits/ 64 <100000000>;
+ 			opp-microvolt = <950000>;
+ 		};
+-		opp@200000000 {
++		opp-200000000 {
+ 			opp-hz = /bits/ 64 <200000000>;
+ 			opp-microvolt = <950000>;
+ 		};
+-		opp@300000000 {
++		opp-300000000 {
+ 			opp-hz = /bits/ 64 <300000000>;
+ 			opp-microvolt = <1000000>;
+ 		};
+-		opp@400000000 {
++		opp-400000000 {
+ 			opp-hz = /bits/ 64 <400000000>;
+ 			opp-microvolt = <1100000>;
+ 		};
+-		opp@500000000 {
++		opp-500000000 {
+ 			opp-hz = /bits/ 64 <500000000>;
+ 			opp-microvolt = <1200000>;
+ 		};
+-		opp@600000000 {
++		opp-600000000 {
+ 			opp-hz = /bits/ 64 <600000000>;
+ 			opp-microvolt = <1250000>;
+ 		};
 -- 
 2.20.1
 
