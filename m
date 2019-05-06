@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BFA14ECA
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C621114DAD
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727632AbfEFOih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59720 "EHLO mail.kernel.org"
+        id S1728954AbfEFOqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727640AbfEFOif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:38:35 -0400
+        id S1728408AbfEFOqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:46:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B26B6214C6;
-        Mon,  6 May 2019 14:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 677C32053B;
+        Mon,  6 May 2019 14:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153514;
-        bh=6UwhSJvLPHakxy/CgvdRH79bYTbwDNT2blP4FrTN36Y=;
+        s=default; t=1557154006;
+        bh=EBWVdMCzEwKEHSELCT87BNA4jcDi3i7WepKdSep1mQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxkiASgatAa4BnOnlR/IxQfv+qnghI93PJ4fJku6yEZnh2t+/taljSYfeaJf9PsFH
-         HHsho1TeBfdhuSPy0xDB+n0CmME4WEuLRdP9uu+15vAJIGGAZO/wsgkXstxNF84xN4
-         Z8vLlRoWAyAVic7596XJhHuWpcOHkgs3TFoOfD24=
+        b=bwHQCX6NTr0Pyv547jeDLZ4E5yIv3lwUNl91583fZFT424rgMK5vvcN/es811/Aiw
+         jz5YxP/P50ZoHK1MnUJvhV64Ew3wFWQgxxDORrG/LIhLMkkkBrE3yIAvfZpTBZTAB8
+         OyE+T/MtnMGNYpI4EVHf5jGxd4gw0zfN5KUSMyeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Garnier <thgarnie@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, frank.ramsay@hpe.com,
-        herbert@gondor.apana.org.au, kirill@shutemov.name,
-        mike.travis@hpe.com, x86-ml <x86@kernel.org>,
-        yamada.masahiro@socionext.com
-Subject: [PATCH 5.0 118/122] x86/mm/KASLR: Fix the size of the direct mapping section
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 48/75] net: hns: Use NAPI_POLL_WEIGHT for hns driver
 Date:   Mon,  6 May 2019 16:32:56 +0200
-Message-Id: <20190506143104.973518031@linuxfoundation.org>
+Message-Id: <20190506143057.571060089@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baoquan He <bhe@redhat.com>
+[ Upstream commit acb1ce15a61154aa501891d67ebf79bc9ea26818 ]
 
-commit ec3937107ab43f3e8b2bc9dad95710043c462ff7 upstream.
+When the HNS driver loaded, always have an error print:
+"netif_napi_add() called with weight 256"
 
-kernel_randomize_memory() uses __PHYSICAL_MASK_SHIFT to calculate
-the maximum amount of system RAM supported. The size of the direct
-mapping section is obtained from the smaller one of the below two
-values:
+This is because the kernel checks the NAPI polling weights
+requested by drivers and it prints an error message if a driver
+requests a weight bigger than 64.
 
-  (actual system RAM size + padding size) vs (max system RAM size supported)
+So use NAPI_POLL_WEIGHT to fix it.
 
-This calculation is wrong since commit
-
-  b83ce5ee9147 ("x86/mm/64: Make __PHYSICAL_MASK_SHIFT always 52").
-
-In it, __PHYSICAL_MASK_SHIFT was changed to be 52, regardless of whether
-the kernel is using 4-level or 5-level page tables. Thus, it will always
-use 4 PB as the maximum amount of system RAM, even in 4-level paging
-mode where it should actually be 64 TB.
-
-Thus, the size of the direct mapping section will always
-be the sum of the actual system RAM size plus the padding size.
-
-Even when the amount of system RAM is 64 TB, the following layout will
-still be used. Obviously KALSR will be weakened significantly.
-
-   |____|_______actual RAM_______|_padding_|______the rest_______|
-   0            64TB                                            ~120TB
-
-Instead, it should be like this:
-
-   |____|_______actual RAM_______|_________the rest______________|
-   0            64TB                                            ~120TB
-
-The size of padding region is controlled by
-CONFIG_RANDOMIZE_MEMORY_PHYSICAL_PADDING, which is 10 TB by default.
-
-The above issue only exists when
-CONFIG_RANDOMIZE_MEMORY_PHYSICAL_PADDING is set to a non-zero value,
-which is the case when CONFIG_MEMORY_HOTPLUG is enabled. Otherwise,
-using __PHYSICAL_MASK_SHIFT doesn't affect KASLR.
-
-Fix it by replacing __PHYSICAL_MASK_SHIFT with MAX_PHYSMEM_BITS.
-
- [ bp: Massage commit message. ]
-
-Fixes: b83ce5ee9147 ("x86/mm/64: Make __PHYSICAL_MASK_SHIFT always 52")
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Garnier <thgarnie@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: frank.ramsay@hpe.com
-Cc: herbert@gondor.apana.org.au
-Cc: kirill@shutemov.name
-Cc: mike.travis@hpe.com
-Cc: thgarnie@google.com
-Cc: x86-ml <x86@kernel.org>
-Cc: yamada.masahiro@socionext.com
-Link: https://lkml.kernel.org/r/20190417083536.GE7065@MiWiFi-R3L-srv
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/kaslr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/arch/x86/mm/kaslr.c
-+++ b/arch/x86/mm/kaslr.c
-@@ -94,7 +94,7 @@ void __init kernel_randomize_memory(void
- 	if (!kaslr_memory_enabled())
- 		return;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index 15739eae3da1..8fd040817804 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -29,9 +29,6 @@
  
--	kaslr_regions[0].size_tb = 1 << (__PHYSICAL_MASK_SHIFT - TB_SHIFT);
-+	kaslr_regions[0].size_tb = 1 << (MAX_PHYSMEM_BITS - TB_SHIFT);
- 	kaslr_regions[1].size_tb = VMALLOC_SIZE_TB;
+ #define SERVICE_TIMER_HZ (1 * HZ)
  
- 	/*
+-#define NIC_TX_CLEAN_MAX_NUM 256
+-#define NIC_RX_CLEAN_MAX_NUM 64
+-
+ #define RCB_IRQ_NOT_INITED 0
+ #define RCB_IRQ_INITED 1
+ #define HNS_BUFFER_SIZE_2048 2048
+@@ -2270,7 +2267,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_tx_fini_pro_v2;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_TX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 	for (i = h->q_num; i < h->q_num * 2; i++) {
+@@ -2283,7 +2280,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 			hns_nic_rx_fini_pro_v2;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_RX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
