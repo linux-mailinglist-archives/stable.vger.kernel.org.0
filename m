@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B453E14C3F
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D12E14CC4
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbfEFOiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
+        id S1728022AbfEFOnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:43:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727474AbfEFOh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:37:58 -0400
+        id S1727165AbfEFOnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:43:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6054021734;
-        Mon,  6 May 2019 14:37:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F017921479;
+        Mon,  6 May 2019 14:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153476;
-        bh=v+x9zbaX8I7S2E9tF99gONXtzW+BSXndNx3Mzug7VKQ=;
+        s=default; t=1557153828;
+        bh=eWrxKa5mruWpD72si73uMiQaXjLDj/Ihgq8FAilg64g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uup7meum9uvZAVaqhpkhTqoa1eFTGanf70MTWrFwZRc1OAFPUyzpsPlOHnDY1ge6m
-         SQ8QZC07iZN9PBiFdEHREuePpGt5wHVLqoSBe6UOdo11EGglIlZ0rwaKi63W/c6Z0v
-         oWCtDxA4Q15/Ul27gbZHtAyT8VFmTSrY8+8uF9SU=
+        b=ayp0yk7PkP7ShVWzh8BmbrBmqeP3iisEHiT7Q6zv/badwGUNLw3QCySqdC3A6WVf7
+         VvzCXAwyWB5h/+9WCSrmAqUxwGLGHLIaFZ85cTdt7RxaBBKzTKIF02dm9g4/dUHOVx
+         UqSj1jFftoW6nHgeoVNeQQ4XfLKY2rp+kjsZuGkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 082/122] ARM: iop: dont use using 64-bit DMA masks
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@google.com>
+Subject: [PATCH 4.14 12/75] kasan: remove redundant initialization of variable real_size
 Date:   Mon,  6 May 2019 16:32:20 +0200
-Message-Id: <20190506143102.156699261@linuxfoundation.org>
+Message-Id: <20190506143054.307788749@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,152 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2125801ccce19249708ca3245d48998e70569ab8 ]
+From: Colin Ian King <colin.king@canonical.com>
 
-clang warns about statically defined DMA masks from the DMA_BIT_MASK
-macro with length 64:
+commit 48c232395431c23d35cf3b4c5a090bd793316578 upstream.
 
- arch/arm/mach-iop13xx/setup.c:303:35: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
- static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
-                                  ^~~~~~~~~~~~~~~~
- include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
- #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                      ^ ~~~
+Variable real_size is initialized with a value that is never read, it is
+re-assigned a new value later on, hence the initialization is redundant
+and can be removed.
 
-The ones in iop shouldn't really be 64 bit masks, so changing them
-to what the driver can support avoids the warning.
+Cleans up clang warning:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Olof Johansson <olof@lixom.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+  lib/test_kasan.c:422:21: warning: Value stored to 'real_size' during its initialization is never read
+
+Link: http://lkml.kernel.org/r/20180206144950.32457-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/mach-iop13xx/setup.c |  8 ++++----
- arch/arm/mach-iop13xx/tpmi.c  | 10 +++++-----
- arch/arm/plat-iop/adma.c      |  6 +++---
- 3 files changed, 12 insertions(+), 12 deletions(-)
+ lib/test_kasan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-iop13xx/setup.c b/arch/arm/mach-iop13xx/setup.c
-index 53c316f7301e..fe4932fda01d 100644
---- a/arch/arm/mach-iop13xx/setup.c
-+++ b/arch/arm/mach-iop13xx/setup.c
-@@ -300,7 +300,7 @@ static struct resource iop13xx_adma_2_resources[] = {
- 	}
- };
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -389,7 +389,7 @@ static noinline void __init kasan_stack_
+ static noinline void __init ksize_unpoisons_memory(void)
+ {
+ 	char *ptr;
+-	size_t size = 123, real_size = size;
++	size_t size = 123, real_size;
  
--static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
-+static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(32);
- static struct iop_adma_platform_data iop13xx_adma_0_data = {
- 	.hw_id = 0,
- 	.pool_size = PAGE_SIZE,
-@@ -324,7 +324,7 @@ static struct platform_device iop13xx_adma_0_channel = {
- 	.resource = iop13xx_adma_0_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_0_data,
- 	},
- };
-@@ -336,7 +336,7 @@ static struct platform_device iop13xx_adma_1_channel = {
- 	.resource = iop13xx_adma_1_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_1_data,
- 	},
- };
-@@ -348,7 +348,7 @@ static struct platform_device iop13xx_adma_2_channel = {
- 	.resource = iop13xx_adma_2_resources,
- 	.dev = {
- 		.dma_mask = &iop13xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop13xx_adma_2_data,
- 	},
- };
-diff --git a/arch/arm/mach-iop13xx/tpmi.c b/arch/arm/mach-iop13xx/tpmi.c
-index db511ec2b1df..116feb6b261e 100644
---- a/arch/arm/mach-iop13xx/tpmi.c
-+++ b/arch/arm/mach-iop13xx/tpmi.c
-@@ -152,7 +152,7 @@ static struct resource iop13xx_tpmi_3_resources[] = {
- 	}
- };
- 
--u64 iop13xx_tpmi_mask = DMA_BIT_MASK(64);
-+u64 iop13xx_tpmi_mask = DMA_BIT_MASK(32);
- static struct platform_device iop13xx_tpmi_0_device = {
- 	.name = "iop-tpmi",
- 	.id = 0,
-@@ -160,7 +160,7 @@ static struct platform_device iop13xx_tpmi_0_device = {
- 	.resource = iop13xx_tpmi_0_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -171,7 +171,7 @@ static struct platform_device iop13xx_tpmi_1_device = {
- 	.resource = iop13xx_tpmi_1_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -182,7 +182,7 @@ static struct platform_device iop13xx_tpmi_2_device = {
- 	.resource = iop13xx_tpmi_2_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-@@ -193,7 +193,7 @@ static struct platform_device iop13xx_tpmi_3_device = {
- 	.resource = iop13xx_tpmi_3_resources,
- 	.dev = {
- 		.dma_mask          = &iop13xx_tpmi_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 	},
- };
- 
-diff --git a/arch/arm/plat-iop/adma.c b/arch/arm/plat-iop/adma.c
-index a4d1f8de3b5b..d9612221e484 100644
---- a/arch/arm/plat-iop/adma.c
-+++ b/arch/arm/plat-iop/adma.c
-@@ -143,7 +143,7 @@ struct platform_device iop3xx_dma_0_channel = {
- 	.resource = iop3xx_dma_0_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_dma_0_data,
- 	},
- };
-@@ -155,7 +155,7 @@ struct platform_device iop3xx_dma_1_channel = {
- 	.resource = iop3xx_dma_1_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_dma_1_data,
- 	},
- };
-@@ -167,7 +167,7 @@ struct platform_device iop3xx_aau_channel = {
- 	.resource = iop3xx_aau_resources,
- 	.dev = {
- 		.dma_mask = &iop3xx_adma_dmamask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
-+		.coherent_dma_mask = DMA_BIT_MASK(32),
- 		.platform_data = (void *) &iop3xx_aau_data,
- 	},
- };
--- 
-2.20.1
-
+ 	pr_info("ksize() unpoisons the whole allocated chunk\n");
+ 	ptr = kmalloc(size, GFP_KERNEL);
 
 
