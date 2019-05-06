@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E178E14E96
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602E014E5E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727281AbfEFOjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60442 "EHLO mail.kernel.org"
+        id S1727925AbfEFOmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727737AbfEFOjH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:39:07 -0400
+        id S1726959AbfEFOmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B4421479;
-        Mon,  6 May 2019 14:39:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 970B221479;
+        Mon,  6 May 2019 14:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153545;
-        bh=drJzGQRvPDLu2T3YjTdevjln3E4+BxvfPv+TvbHmfis=;
+        s=default; t=1557153724;
+        bh=385CK5g0kpK3lqPM3QqwDpj3sUCE0y8wLuVdT640+NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llPeup/CoeZED2Akx9I3RG1E6uFw0QV4Ri2ce778xy8JFGflDm6Tg5IWWNnSRzx22
-         /InYdGaVQrtvKD0TyH4yOrffxBed1KbVo1oCLW2MJdgj6RfXmeiGuHhwOeKiWYYinb
-         RLdItlN788UKIXr2iYmOI2SL+gImvBmHiDotL6WE=
+        b=FdjBNjfmVbrEl1QKBRQs5k0uBD5y63PfTzjTj+k9zuub/hIUpUZjD1iGK5e8YGJzR
+         vGrBjThXoNBkZXEn8kNU1uEluBbEd20nI21Si2TXSBYDeXm/XB8qaAGykyfUNlyavU
+         2F9vF5umbKvEFwbSx3Ea33msRnXHWGRdE8GQp+gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Yuval Avnery <yuvalav@mellanox.com>,
-        Daniel Jurgens <danielj@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.0 108/122] IB/core: Destroy QP if XRC QP fails
+        stable@vger.kernel.org, Jeffrey Hugo <jhugo@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 73/99] clk: qcom: Add missing freq for usb30_master_clk on 8998
 Date:   Mon,  6 May 2019 16:32:46 +0200
-Message-Id: <20190506143104.265363973@linuxfoundation.org>
+Message-Id: <20190506143100.745505322@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,111 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuval Avnery <yuvalav@mellanox.com>
+From: Jeffrey Hugo <jhugo@codeaurora.org>
 
-commit 535005ca8e5e71918d64074032f4b9d4fef8981e upstream.
+commit 0c8ff62504e3a667387e87889a259632c3199a86 upstream.
 
-The open-coded variant missed destroy of SELinux created QP, reuse already
-existing ib_detroy_qp() call and use this opportunity to clean
-ib_create_qp() from double prints and unclear exit paths.
+The usb30_master_clk supports a 60Mhz frequency, but that is missing from
+the table of supported frequencies.  Add it.
 
-Reported-by: Parav Pandit <parav@mellanox.com>
-Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
-Signed-off-by: Yuval Avnery <yuvalav@mellanox.com>
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: b5f5f525c547 (clk: qcom: Add MSM8998 Global Clock Control (GCC) driver)
+Signed-off-by: Jeffrey Hugo <jhugo@codeaurora.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/verbs.c |   41 +++++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 17 deletions(-)
+ drivers/clk/qcom/gcc-msm8998.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -1106,8 +1106,8 @@ struct ib_qp *ib_open_qp(struct ib_xrcd
- }
- EXPORT_SYMBOL(ib_open_qp);
+--- a/drivers/clk/qcom/gcc-msm8998.c
++++ b/drivers/clk/qcom/gcc-msm8998.c
+@@ -1101,6 +1101,7 @@ static struct clk_rcg2 ufs_axi_clk_src =
  
--static struct ib_qp *ib_create_xrc_qp(struct ib_qp *qp,
--		struct ib_qp_init_attr *qp_init_attr)
-+static struct ib_qp *create_xrc_qp(struct ib_qp *qp,
-+				   struct ib_qp_init_attr *qp_init_attr)
- {
- 	struct ib_qp *real_qp = qp;
- 
-@@ -1122,10 +1122,10 @@ static struct ib_qp *ib_create_xrc_qp(st
- 
- 	qp = __ib_open_qp(real_qp, qp_init_attr->event_handler,
- 			  qp_init_attr->qp_context);
--	if (!IS_ERR(qp))
--		__ib_insert_xrcd_qp(qp_init_attr->xrcd, real_qp);
--	else
--		real_qp->device->ops.destroy_qp(real_qp);
-+	if (IS_ERR(qp))
-+		return qp;
-+
-+	__ib_insert_xrcd_qp(qp_init_attr->xrcd, real_qp);
- 	return qp;
- }
- 
-@@ -1156,10 +1156,8 @@ struct ib_qp *ib_create_qp(struct ib_pd
- 		return qp;
- 
- 	ret = ib_create_qp_security(qp, device);
--	if (ret) {
--		ib_destroy_qp(qp);
--		return ERR_PTR(ret);
--	}
-+	if (ret)
-+		goto err;
- 
- 	qp->real_qp    = qp;
- 	qp->qp_type    = qp_init_attr->qp_type;
-@@ -1172,8 +1170,15 @@ struct ib_qp *ib_create_qp(struct ib_pd
- 	INIT_LIST_HEAD(&qp->sig_mrs);
- 	qp->port = 0;
- 
--	if (qp_init_attr->qp_type == IB_QPT_XRC_TGT)
--		return ib_create_xrc_qp(qp, qp_init_attr);
-+	if (qp_init_attr->qp_type == IB_QPT_XRC_TGT) {
-+		struct ib_qp *xrc_qp = create_xrc_qp(qp, qp_init_attr);
-+
-+		if (IS_ERR(xrc_qp)) {
-+			ret = PTR_ERR(xrc_qp);
-+			goto err;
-+		}
-+		return xrc_qp;
-+	}
- 
- 	qp->event_handler = qp_init_attr->event_handler;
- 	qp->qp_context = qp_init_attr->qp_context;
-@@ -1200,11 +1205,8 @@ struct ib_qp *ib_create_qp(struct ib_pd
- 
- 	if (qp_init_attr->cap.max_rdma_ctxs) {
- 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
--		if (ret) {
--			pr_err("failed to init MR pool ret= %d\n", ret);
--			ib_destroy_qp(qp);
--			return ERR_PTR(ret);
--		}
-+		if (ret)
-+			goto err;
- 	}
- 
- 	/*
-@@ -1217,6 +1219,11 @@ struct ib_qp *ib_create_qp(struct ib_pd
- 				 device->attrs.max_sge_rd);
- 
- 	return qp;
-+
-+err:
-+	ib_destroy_qp(qp);
-+	return ERR_PTR(ret);
-+
- }
- EXPORT_SYMBOL(ib_create_qp);
- 
+ static const struct freq_tbl ftbl_usb30_master_clk_src[] = {
+ 	F(19200000, P_XO, 1, 0, 0),
++	F(60000000, P_GPLL0_OUT_MAIN, 10, 0, 0),
+ 	F(120000000, P_GPLL0_OUT_MAIN, 5, 0, 0),
+ 	F(150000000, P_GPLL0_OUT_MAIN, 4, 0, 0),
+ 	{ }
 
 
