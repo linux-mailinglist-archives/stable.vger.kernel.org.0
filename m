@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4180814CB3
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE34714C35
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728590AbfEFOnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
+        id S1726352AbfEFOhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727803AbfEFOm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:58 -0400
+        id S1726312AbfEFOhj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A44D92053B;
-        Mon,  6 May 2019 14:42:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B236521655;
+        Mon,  6 May 2019 14:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153777;
-        bh=dHv1sTr8OrIWKxnzeyKDgdjsfkIxGaEwHW++mE54M7I=;
+        s=default; t=1557153458;
+        bh=04rM0I+qMJMAKWuL5WnxMkTzXm+eljTfA/ntXWA47nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1i1b+NFGQj4wmwNnUDxX5kM1gkwntJuaYrtW5dEq05597HJvIuR2JGzegRCERKRCn
-         aGQ42P0mEIBemgJBD/FRsfg7uuqyZdgSXdHHI3MBwALt7AV2HsU9yqco0G7GaJ1t58
-         k+CW+TIZk8n49SeNR7poPJD/XJOuemOuMEGGza4k=
+        b=HBh5hlK9VG/lKzFtol2QbJdWRGQ4NWp0+LGSJ7hYNz+H7DaY1Lek07q83Zk+8dX7a
+         Np7MMDMh8IkaFcz6iCJs6ELqwFIfA8cC6UW5Mr8L3aYxwccbzSErMmy5oqDBm0Uq3k
+         AXnoNHy2AA1Ta4ccPzLq7cpkBAplxTmchhDMoMh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cfir Cohen <cfir@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 61/99] KVM: SVM: prevent DBG_DECRYPT and DBG_ENCRYPT overflow
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.0 096/122] ASoC: sunxi: sun50i-codec-analog: Rename hpvcc regulator supply to cpvdd
 Date:   Mon,  6 May 2019 16:32:34 +0200
-Message-Id: <20190506143059.604447144@linuxfoundation.org>
+Message-Id: <20190506143103.415299937@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b86bc2858b389255cd44555ce4b1e427b2b770c0 ]
+From: Chen-Yu Tsai <wens@csie.org>
 
-This ensures that the address and length provided to DBG_DECRYPT and
-DBG_ENCRYPT do not cause an overflow.
+commit 5fd812e6f5ae0376134234ceb70e8de541ccb10d upstream.
 
-At the same time, pass the actual number of pages pinned in memory to
-sev_unpin_memory() as a cleanup.
+The A64 datasheet lists the supply rail for the headphone amp's charge
+pump as "CPVDD". cpvdd-supply is the name of the property for this power
+rail specified in the device tree bindings. "HPVCC" was the name used in
+the A33 datasheet for the same function.
 
-Reported-by: Cfir Cohen <cfir@google.com>
-Signed-off-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Rename the supply so it matches the datasheet, bindings, and the subject
+from the original commit.
+
+Fixes: ca0412a05756 ("ASoC: sunxi: sun50i-codec-analog: Add support for cpvdd regulator supply")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kvm/svm.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ sound/soc/sunxi/sun50i-codec-analog.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 813cb60eb401..8dd9208ae4de 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -6789,7 +6789,8 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
- 	struct page **src_p, **dst_p;
- 	struct kvm_sev_dbg debug;
- 	unsigned long n;
--	int ret, size;
-+	unsigned int size;
-+	int ret;
+--- a/sound/soc/sunxi/sun50i-codec-analog.c
++++ b/sound/soc/sunxi/sun50i-codec-analog.c
+@@ -274,7 +274,7 @@ static const struct snd_soc_dapm_widget
+ 	 * stream widgets at the card level.
+ 	 */
  
- 	if (!sev_guest(kvm))
- 		return -ENOTTY;
-@@ -6797,6 +6798,11 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
- 	if (copy_from_user(&debug, (void __user *)(uintptr_t)argp->data, sizeof(debug)))
- 		return -EFAULT;
+-	SND_SOC_DAPM_REGULATOR_SUPPLY("hpvcc", 0, 0),
++	SND_SOC_DAPM_REGULATOR_SUPPLY("cpvdd", 0, 0),
+ 	SND_SOC_DAPM_MUX("Headphone Source Playback Route",
+ 			 SND_SOC_NOPM, 0, 0, sun50i_codec_hp_src),
+ 	SND_SOC_DAPM_OUT_DRV("Headphone Amp", SUN50I_ADDA_HP_CTRL,
+@@ -362,7 +362,7 @@ static const struct snd_soc_dapm_route s
+ 	{ "Headphone Source Playback Route", "Mixer", "Left Mixer" },
+ 	{ "Headphone Source Playback Route", "Mixer", "Right Mixer" },
+ 	{ "Headphone Amp", NULL, "Headphone Source Playback Route" },
+-	{ "Headphone Amp", NULL, "hpvcc" },
++	{ "Headphone Amp", NULL, "cpvdd" },
+ 	{ "HP", NULL, "Headphone Amp" },
  
-+	if (!debug.len || debug.src_uaddr + debug.len < debug.src_uaddr)
-+		return -EINVAL;
-+	if (!debug.dst_uaddr)
-+		return -EINVAL;
-+
- 	vaddr = debug.src_uaddr;
- 	size = debug.len;
- 	vaddr_end = vaddr + size;
-@@ -6847,8 +6853,8 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
- 						     dst_vaddr,
- 						     len, &argp->error);
- 
--		sev_unpin_memory(kvm, src_p, 1);
--		sev_unpin_memory(kvm, dst_p, 1);
-+		sev_unpin_memory(kvm, src_p, n);
-+		sev_unpin_memory(kvm, dst_p, n);
- 
- 		if (ret)
- 			goto err;
--- 
-2.20.1
-
+ 	/* Microphone Routes */
 
 
