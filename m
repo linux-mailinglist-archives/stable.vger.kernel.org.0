@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8416E14E56
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 695F214C34
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727076AbfEFOls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:41:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36070 "EHLO mail.kernel.org"
+        id S1726933AbfEFOhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:37:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727832AbfEFOlq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:41:46 -0400
+        id S1727407AbfEFOhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CFB021019;
-        Mon,  6 May 2019 14:41:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEEBC206A3;
+        Mon,  6 May 2019 14:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153705;
-        bh=iQRuPbmdXIi0lGoFvr2R2Tz7DVczw5Bk8bNILLR9LVo=;
+        s=default; t=1557153450;
+        bh=CKsQSdAvYcNcqiJXrGe17uJIj296AwqzVPBLKuA2Mws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyGoFdoSn0gCj/MNM0KyLdr373ccNhxYGhV6RsbMszw5vANzCuOfLBcVVcMCe+YYK
-         W0UTrB8YBavW2GbjevEpPagzJEmNMskEbrsn94G2MWX5facsdhFlZQN/2vZk1QA01p
-         k2SE1TH3bCmgWCZVWMDFYPXmFepzI0gegJAAaSZg=
+        b=cV9XKcYBwS5NmQ0ch18bpTIkPdqWW5wnxzOH0aAhu/WjQusVcewvXWmplRPUKrsCJ
+         BoPrStoqgJqbxf3hZvj6xxgk3Fr/bribO2lmsqpNkEkBJiUEcT3WKulMAf72upr4IF
+         uAGVChnGe1MLvy2mdkjRt1JVBdi50/1qle7xIxkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/99] net: hns: fix ICMP6 neighbor solicitation messages discard problem
-Date:   Mon,  6 May 2019 16:32:31 +0200
-Message-Id: <20190506143059.319853587@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.0 094/122] ASoC: Intel: bytcr_rt5651: Revert "Fix DMIC map headsetmic mapping"
+Date:   Mon,  6 May 2019 16:32:32 +0200
+Message-Id: <20190506143103.246989208@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f058e46855dcbc28edb2ed4736f38a71fd19cadb ]
+From: Hans de Goede <hdegoede@redhat.com>
 
-ICMP6 neighbor solicitation messages will be discard by the Hip06
-chips, because of not setting forwarding pool. Enable promisc mode
-has the same problem.
+commit aee48a9ffa5a128bf4e433c57c39e015ea5b0208 upstream.
 
-This patch fix the wrong forwarding table configs for the multicast
-vague matching when enable promisc mode, and add forwarding pool
-for the forwarding table.
+Commit 37c7401e8c1f ("ASoC: Intel: bytcr_rt5651: Fix DMIC map
+headsetmic mapping"), changed the headsetmic mapping from IN3P to IN2P,
+this was based on the observation that all bytcr_rt5651 devices I have
+access to (7 devices) where all using IN3P for the headsetmic. This was
+an attempt to unifify / simplify the mapping, but it was wrong.
 
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+None of those devices was actually using a digital internal mic. Now I've
+access to a Point of View TAB-P1006W-232 (v1.0) tabler, which does use a
+DMIC and it does have its headsetmic connected to IN2P, showing that the
+original mapping was correct, so this commit reverts the change changing
+the mapping back to IN2P.
+
+Fixes: 37c7401e8c1f ("ASoC: Intel: bytcr_rt5651: Fix DMIC map ... mapping")
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../ethernet/hisilicon/hns/hns_dsaf_main.c    | 33 +++++++++++++++----
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5651.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
-index b8155f5e71b4..fdff5526d2e8 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
-@@ -2750,6 +2750,17 @@ int hns_dsaf_get_regs_count(void)
- 	return DSAF_DUMP_REGS_NUM;
- }
+--- a/sound/soc/intel/boards/bytcr_rt5651.c
++++ b/sound/soc/intel/boards/bytcr_rt5651.c
+@@ -266,7 +266,7 @@ static const struct snd_soc_dapm_route b
+ static const struct snd_soc_dapm_route byt_rt5651_intmic_dmic_map[] = {
+ 	{"DMIC L1", NULL, "Internal Mic"},
+ 	{"DMIC R1", NULL, "Internal Mic"},
+-	{"IN3P", NULL, "Headset Mic"},
++	{"IN2P", NULL, "Headset Mic"},
+ };
  
-+static int hns_dsaf_get_port_id(u8 port)
-+{
-+	if (port < DSAF_SERVICE_NW_NUM)
-+		return port;
-+
-+	if (port >= DSAF_BASE_INNER_PORT_NUM)
-+		return port - DSAF_BASE_INNER_PORT_NUM + DSAF_SERVICE_NW_NUM;
-+
-+	return -EINVAL;
-+}
-+
- static void set_promisc_tcam_enable(struct dsaf_device *dsaf_dev, u32 port)
- {
- 	struct dsaf_tbl_tcam_ucast_cfg tbl_tcam_ucast = {0, 1, 0, 0, 0x80};
-@@ -2815,23 +2826,33 @@ static void set_promisc_tcam_enable(struct dsaf_device *dsaf_dev, u32 port)
- 	memset(&temp_key, 0x0, sizeof(temp_key));
- 	mask_entry.addr[0] = 0x01;
- 	hns_dsaf_set_mac_key(dsaf_dev, &mask_key, mask_entry.in_vlan_id,
--			     port, mask_entry.addr);
-+			     0xf, mask_entry.addr);
- 	tbl_tcam_mcast.tbl_mcast_item_vld = 1;
- 	tbl_tcam_mcast.tbl_mcast_old_en = 0;
- 
--	if (port < DSAF_SERVICE_NW_NUM) {
--		mskid = port;
--	} else if (port >= DSAF_BASE_INNER_PORT_NUM) {
--		mskid = port - DSAF_BASE_INNER_PORT_NUM + DSAF_SERVICE_NW_NUM;
--	} else {
-+	/* set MAC port to handle multicast */
-+	mskid = hns_dsaf_get_port_id(port);
-+	if (mskid == -EINVAL) {
- 		dev_err(dsaf_dev->dev, "%s,pnum(%d)error,key(%#x:%#x)\n",
- 			dsaf_dev->ae_dev.name, port,
- 			mask_key.high.val, mask_key.low.val);
- 		return;
- 	}
-+	dsaf_set_bit(tbl_tcam_mcast.tbl_mcast_port_msk[mskid / 32],
-+		     mskid % 32, 1);
- 
-+	/* set pool bit map to handle multicast */
-+	mskid = hns_dsaf_get_port_id(port_num);
-+	if (mskid == -EINVAL) {
-+		dev_err(dsaf_dev->dev,
-+			"%s, pool bit map pnum(%d)error,key(%#x:%#x)\n",
-+			dsaf_dev->ae_dev.name, port_num,
-+			mask_key.high.val, mask_key.low.val);
-+		return;
-+	}
- 	dsaf_set_bit(tbl_tcam_mcast.tbl_mcast_port_msk[mskid / 32],
- 		     mskid % 32, 1);
-+
- 	memcpy(&temp_key, &mask_key, sizeof(mask_key));
- 	hns_dsaf_tcam_mc_cfg_vague(dsaf_dev, entry_index, &tbl_tcam_data_mc,
- 				   (struct dsaf_tbl_tcam_data *)(&mask_key),
--- 
-2.20.1
-
+ static const struct snd_soc_dapm_route byt_rt5651_intmic_in1_map[] = {
 
 
