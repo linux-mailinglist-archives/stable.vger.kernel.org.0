@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8160114CD6
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD6E14D72
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728568AbfEFOom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:44:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41062 "EHLO mail.kernel.org"
+        id S1729027AbfEFOsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728571AbfEFOol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:41 -0400
+        id S1728367AbfEFOsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C60D214C6;
-        Mon,  6 May 2019 14:44:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B99C72053B;
+        Mon,  6 May 2019 14:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153880;
-        bh=ttUIcJbXRDl/zoJuI+vglxrDAbedDZMDmHggSG76Jfo=;
+        s=default; t=1557154109;
+        bh=nbI5ePKhv8cFWSMceQ/hjDVXYk8xugU+JZQZBEFbqSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2be2xJbeV8QwyA9N81kmV+1B2uLvza4n2AMwzxIxW4VVHnxgczFraxKvtnQX+94DU
-         olNJ5x5fYpV8X+oAfiJ+9J5PttVb6+cm8ksXDFHcmqlpBQIxJvJLpS7avuFkMD1oCp
-         lJvpAShwoUDenJgkbs/m7CSBp8THdw5I4qyEoEcE=
+        b=Tg4eV/a3QqUY//BqjWX/ywr7XZYd1vIyEh60BOCWxwN65N1ncD5yfrdBdEf5Nhxrq
+         fv6WSwqRvI34LXmLwsl46YZLM3y1FgupQccBdoRVUHht/Wx+ppLTi8y3YqmYcaQi5z
+         tZ7wleAvCQORrCrClEhu6RG9cBfytMHBsfeoHsCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/75] batman-adv: Reduce tt_local hash refcnt only for removed entry
-Date:   Mon,  6 May 2019 16:32:38 +0200
-Message-Id: <20190506143055.909815509@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Bauer <scott.bauer@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Andrey Konovalov <andreyknvl@google.com>
+Subject: [PATCH 4.9 08/62] x86/suspend: fix false positive KASAN warning on suspend/resume
+Date:   Mon,  6 May 2019 16:32:39 +0200
+Message-Id: <20190506143051.808617470@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +47,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d65b9accab4a7ed5038f6df403fbd5e298398c7 ]
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-The batadv_hash_remove is a function which searches the hashtable for an
-entry using a needle, a hashtable bucket selection function and a compare
-function. It will lock the bucket list and delete an entry when the compare
-function matches it with the needle. It returns the pointer to the
-hlist_node which matches or NULL when no entry matches the needle.
+commit b53f40db59b27b62bc294c30506b02a0cae47e0b upstream.
 
-The batadv_tt_local_remove is not itself protected in anyway to avoid that
-any other function is modifying the hashtable between the search for the
-entry and the call to batadv_hash_remove. It can therefore happen that the
-entry either doesn't exist anymore or an entry was deleted which is not the
-same object as the needle. In such an situation, the reference counter (for
-the reference stored in the hashtable) must not be reduced for the needle.
-Instead the reference counter of the actually removed entry has to be
-reduced.
+Resuming from a suspend operation is showing a KASAN false positive
+warning:
 
-Otherwise the reference counter will underflow and the object might be
-freed before all its references were dropped. The kref helpers reported
-this problem as:
+  BUG: KASAN: stack-out-of-bounds in unwind_get_return_address+0x11d/0x130 at addr ffff8803867d7878
+  Read of size 8 by task pm-suspend/7774
+  page:ffffea000e19f5c0 count:0 mapcount:0 mapping:          (null) index:0x0
+  flags: 0x2ffff0000000000()
+  page dumped because: kasan: bad access detected
+  CPU: 0 PID: 7774 Comm: pm-suspend Tainted: G    B           4.9.0-rc7+ #8
+  Hardware name: Gigabyte Technology Co., Ltd. Z170X-UD5/Z170X-UD5-CF, BIOS F5 03/07/2016
+  Call Trace:
+    dump_stack+0x63/0x82
+    kasan_report_error+0x4b4/0x4e0
+    ? acpi_hw_read_port+0xd0/0x1ea
+    ? kfree_const+0x22/0x30
+    ? acpi_hw_validate_io_request+0x1a6/0x1a6
+    __asan_report_load8_noabort+0x61/0x70
+    ? unwind_get_return_address+0x11d/0x130
+    unwind_get_return_address+0x11d/0x130
+    ? unwind_next_frame+0x97/0xf0
+    __save_stack_trace+0x92/0x100
+    save_stack_trace+0x1b/0x20
+    save_stack+0x46/0xd0
+    ? save_stack_trace+0x1b/0x20
+    ? save_stack+0x46/0xd0
+    ? kasan_kmalloc+0xad/0xe0
+    ? kasan_slab_alloc+0x12/0x20
+    ? acpi_hw_read+0x2b6/0x3aa
+    ? acpi_hw_validate_register+0x20b/0x20b
+    ? acpi_hw_write_port+0x72/0xc7
+    ? acpi_hw_write+0x11f/0x15f
+    ? acpi_hw_read_multiple+0x19f/0x19f
+    ? memcpy+0x45/0x50
+    ? acpi_hw_write_port+0x72/0xc7
+    ? acpi_hw_write+0x11f/0x15f
+    ? acpi_hw_read_multiple+0x19f/0x19f
+    ? kasan_unpoison_shadow+0x36/0x50
+    kasan_kmalloc+0xad/0xe0
+    kasan_slab_alloc+0x12/0x20
+    kmem_cache_alloc_trace+0xbc/0x1e0
+    ? acpi_get_sleep_type_data+0x9a/0x578
+    acpi_get_sleep_type_data+0x9a/0x578
+    acpi_hw_legacy_wake_prep+0x88/0x22c
+    ? acpi_hw_legacy_sleep+0x3c7/0x3c7
+    ? acpi_write_bit_register+0x28d/0x2d3
+    ? acpi_read_bit_register+0x19b/0x19b
+    acpi_hw_sleep_dispatch+0xb5/0xba
+    acpi_leave_sleep_state_prep+0x17/0x19
+    acpi_suspend_enter+0x154/0x1e0
+    ? trace_suspend_resume+0xe8/0xe8
+    suspend_devices_and_enter+0xb09/0xdb0
+    ? printk+0xa8/0xd8
+    ? arch_suspend_enable_irqs+0x20/0x20
+    ? try_to_freeze_tasks+0x295/0x600
+    pm_suspend+0x6c9/0x780
+    ? finish_wait+0x1f0/0x1f0
+    ? suspend_devices_and_enter+0xdb0/0xdb0
+    state_store+0xa2/0x120
+    ? kobj_attr_show+0x60/0x60
+    kobj_attr_store+0x36/0x70
+    sysfs_kf_write+0x131/0x200
+    kernfs_fop_write+0x295/0x3f0
+    __vfs_write+0xef/0x760
+    ? handle_mm_fault+0x1346/0x35e0
+    ? do_iter_readv_writev+0x660/0x660
+    ? __pmd_alloc+0x310/0x310
+    ? do_lock_file_wait+0x1e0/0x1e0
+    ? apparmor_file_permission+0x18/0x20
+    ? security_file_permission+0x73/0x1c0
+    ? rw_verify_area+0xbd/0x2b0
+    vfs_write+0x149/0x4a0
+    SyS_write+0xd9/0x1c0
+    ? SyS_read+0x1c0/0x1c0
+    entry_SYSCALL_64_fastpath+0x1e/0xad
+  Memory state around the buggy address:
+   ffff8803867d7700: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffff8803867d7780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffff8803867d7800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f4
+                                                                  ^
+   ffff8803867d7880: f3 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+   ffff8803867d7900: 00 00 00 f1 f1 f1 f1 04 f4 f4 f4 f3 f3 f3 f3 00
 
-  refcount_t: underflow; use-after-free.
+KASAN instrumentation poisons the stack when entering a function and
+unpoisons it when exiting the function.  However, in the suspend path,
+some functions never return, so their stack never gets unpoisoned,
+resulting in stale KASAN shadow data which can cause later false
+positive warnings like the one above.
 
-Fixes: ef72706a0543 ("batman-adv: protect tt_local_entry from concurrent delete events")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Scott Bauer <scott.bauer@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/batman-adv/translation-table.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ arch/x86/kernel/acpi/wakeup_64.S |    9 +++++++++
+ mm/kasan/kasan.c                 |    9 ++++++++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index 9da3455847ff..6c3e446abeed 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -1313,9 +1313,10 @@ u16 batadv_tt_local_remove(struct batadv_priv *bat_priv, const u8 *addr,
- 			   unsigned short vid, const char *message,
- 			   bool roaming)
+--- a/arch/x86/kernel/acpi/wakeup_64.S
++++ b/arch/x86/kernel/acpi/wakeup_64.S
+@@ -109,6 +109,15 @@ ENTRY(do_suspend_lowlevel)
+ 	movq	pt_regs_r14(%rax), %r14
+ 	movq	pt_regs_r15(%rax), %r15
+ 
++#ifdef CONFIG_KASAN
++	/*
++	 * The suspend path may have poisoned some areas deeper in the stack,
++	 * which we now need to unpoison.
++	 */
++	movq	%rsp, %rdi
++	call	kasan_unpoison_task_stack_below
++#endif
++
+ 	xorl	%eax, %eax
+ 	addq	$8, %rsp
+ 	FRAME_END
+--- a/mm/kasan/kasan.c
++++ b/mm/kasan/kasan.c
+@@ -80,7 +80,14 @@ void kasan_unpoison_task_stack(struct ta
+ /* Unpoison the stack for the current task beyond a watermark sp value. */
+ asmlinkage void kasan_unpoison_task_stack_below(const void *watermark)
  {
-+	struct batadv_tt_local_entry *tt_removed_entry;
- 	struct batadv_tt_local_entry *tt_local_entry;
- 	u16 flags, curr_flags = BATADV_NO_FLAGS;
--	void *tt_entry_exists;
-+	struct hlist_node *tt_removed_node;
+-	__kasan_unpoison_stack(current, watermark);
++	/*
++	 * Calculate the task stack base address.  Avoid using 'current'
++	 * because this function is called by early resume code which hasn't
++	 * yet set up the percpu register (%gs).
++	 */
++	void *base = (void *)((unsigned long)watermark & ~(THREAD_SIZE - 1));
++
++	kasan_unpoison_shadow(base, watermark - base);
+ }
  
- 	tt_local_entry = batadv_tt_local_hash_find(bat_priv, addr, vid);
- 	if (!tt_local_entry)
-@@ -1344,15 +1345,18 @@ u16 batadv_tt_local_remove(struct batadv_priv *bat_priv, const u8 *addr,
- 	 */
- 	batadv_tt_local_event(bat_priv, tt_local_entry, BATADV_TT_CLIENT_DEL);
- 
--	tt_entry_exists = batadv_hash_remove(bat_priv->tt.local_hash,
-+	tt_removed_node = batadv_hash_remove(bat_priv->tt.local_hash,
- 					     batadv_compare_tt,
- 					     batadv_choose_tt,
- 					     &tt_local_entry->common);
--	if (!tt_entry_exists)
-+	if (!tt_removed_node)
- 		goto out;
- 
--	/* extra call to free the local tt entry */
--	batadv_tt_local_entry_put(tt_local_entry);
-+	/* drop reference of remove hash entry */
-+	tt_removed_entry = hlist_entry(tt_removed_node,
-+				       struct batadv_tt_local_entry,
-+				       common.hash_entry);
-+	batadv_tt_local_entry_put(tt_removed_entry);
- 
- out:
- 	if (tt_local_entry)
--- 
-2.20.1
-
+ /*
 
 
