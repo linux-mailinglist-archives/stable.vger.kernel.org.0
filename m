@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9645E14D32
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE1914D36
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbfEFOtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
+        id S1726551AbfEFOtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:49:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728377AbfEFOtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:12 -0400
+        id S1729386AbfEFOtP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:49:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9139B205ED;
-        Mon,  6 May 2019 14:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2464D20C01;
+        Mon,  6 May 2019 14:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154152;
-        bh=YA3JNiVBYcitVvsZftvYLsftHrvJTf3e/D8Iz/Bsv4Q=;
+        s=default; t=1557154154;
+        bh=TQGe9TxHu3D7KOn2jkfNTb1T1IjtARppxziVDR57G04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rn3hnmb+b9/GRFwQHMViINRrMfVdMR8fbMfD/O1R9qvyS61mYT1WrtbbVuGlIccAZ
-         /SmWADAkqJsjdIf837C0y87Y15z9Az/OU557aSWWIuCB4FA7T7GW7iatAii7uVa2pt
-         tvHSiNT5JCvmhy/PY8E8raqMeuTq8/qnJpgYZP2Y=
+        b=R0BxFVXOkdJBF0dsRCg7QfZcjjqshVSO7AbHdGBhoLTyTKLHbxWHhs2V1hPVINA7M
+         CRnwdI8/XbzRCdig1nypXrxWMYQ04I0X4T9JhFBLl0derYqm1WdN3Ri6JmMrY+Wf+y
+         HywyptGbC9IFCAuyplb8WuAfvorJgFeuGc6eYStc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 56/62] staging: iio: adt7316: fix the dac read calculation
-Date:   Mon,  6 May 2019 16:33:27 +0200
-Message-Id: <20190506143056.239253328@linuxfoundation.org>
+Subject: [PATCH 4.9 57/62] staging: iio: adt7316: fix the dac write calculation
+Date:   Mon,  6 May 2019 16:33:28 +0200
+Message-Id: <20190506143056.333792235@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
 References: <20190506143051.102535767@linuxfoundation.org>
@@ -45,13 +45,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeremy Fertic <jeremyfertic@gmail.com>
 
-commit 45130fb030aec26ac28b4bb23344901df3ec3b7f upstream.
+commit 78accaea117c1ae878774974fab91ac4a0b0e2b0 upstream.
 
-The calculation of the current dac value is using the wrong bits of the
-dac lsb register. Create two macros to shift the lsb register value into
-lsb position, depending on whether the dac is 10 or 12 bit. Initialize
-data to 0 so, with an 8 bit dac, the msb register value can be bitwise
-ORed with data.
+The lsb calculation is not masking the correct bits from the user input.
+Subtract 1 from (1 << offset) to correctly set up the mask to be applied
+to user input.
+
+The lsb register stores its value starting at the bit 7 position.
+adt7316_store_DAC() currently assumes the value is at the other end of the
+register. Shift the lsb value before storing it in a new variable lsb_reg,
+and write this variable to the lsb register.
 
 Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
 Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
@@ -59,41 +62,35 @@ Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/addac/adt7316.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/staging/iio/addac/adt7316.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 --- a/drivers/staging/iio/addac/adt7316.c
 +++ b/drivers/staging/iio/addac/adt7316.c
-@@ -47,6 +47,8 @@
- #define ADT7516_MSB_AIN3		0xA
- #define ADT7516_MSB_AIN4		0xB
- #define ADT7316_DA_DATA_BASE		0x10
-+#define ADT7316_DA_10_BIT_LSB_SHIFT	6
-+#define ADT7316_DA_12_BIT_LSB_SHIFT	4
- #define ADT7316_DA_MSB_DATA_REGS	4
- #define ADT7316_LSB_DAC_A		0x10
- #define ADT7316_MSB_DAC_A		0x11
-@@ -1411,7 +1413,7 @@ static IIO_DEVICE_ATTR(ex_analog_temp_of
- static ssize_t adt7316_show_DAC(struct adt7316_chip_info *chip,
- 		int channel, char *buf)
+@@ -1450,7 +1450,7 @@ static ssize_t adt7316_show_DAC(struct a
+ static ssize_t adt7316_store_DAC(struct adt7316_chip_info *chip,
+ 		int channel, const char *buf, size_t len)
  {
--	u16 data;
-+	u16 data = 0;
- 	u8 msb, lsb, offset;
+-	u8 msb, lsb, offset;
++	u8 msb, lsb, lsb_reg, offset;
+ 	u16 data;
  	int ret;
  
-@@ -1436,7 +1438,11 @@ static ssize_t adt7316_show_DAC(struct a
- 	if (ret)
- 		return -EIO;
+@@ -1468,9 +1468,13 @@ static ssize_t adt7316_store_DAC(struct
+ 		return -EINVAL;
  
--	data = (msb << offset) + (lsb & ((1 << offset) - 1));
-+	if (chip->dac_bits == 12)
-+		data = lsb >> ADT7316_DA_12_BIT_LSB_SHIFT;
-+	else if (chip->dac_bits == 10)
-+		data = lsb >> ADT7316_DA_10_BIT_LSB_SHIFT;
-+	data |= msb << offset;
- 
- 	return sprintf(buf, "%d\n", data);
- }
+ 	if (chip->dac_bits > 8) {
+-		lsb = data & (1 << offset);
++		lsb = data & ((1 << offset) - 1);
++		if (chip->dac_bits == 12)
++			lsb_reg = lsb << ADT7316_DA_12_BIT_LSB_SHIFT;
++		else
++			lsb_reg = lsb << ADT7316_DA_10_BIT_LSB_SHIFT;
+ 		ret = chip->bus.write(chip->bus.client,
+-			ADT7316_DA_DATA_BASE + channel * 2, lsb);
++			ADT7316_DA_DATA_BASE + channel * 2, lsb_reg);
+ 		if (ret)
+ 			return -EIO;
+ 	}
 
 
