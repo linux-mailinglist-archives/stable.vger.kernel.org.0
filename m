@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C25314EC5
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E633A14E5B
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbfEFOi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60290 "EHLO mail.kernel.org"
+        id S1728380AbfEFOmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726679AbfEFOi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:38:58 -0400
+        id S1728369AbfEFOl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24C0421479;
-        Mon,  6 May 2019 14:38:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69BD521479;
+        Mon,  6 May 2019 14:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153537;
-        bh=c/XoGLNUgHSYgn/xU/oltXrqsx3cVeB7liKulxGLQy0=;
+        s=default; t=1557153718;
+        bh=XHfRqNPamAIh+JBrPyP1AVVMI9BBXbcniQkJsMVsSHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4nsZ6lgaKdjuBM+wSLReSN2Moq74huEotWjn1yXD9jG/euHmhJFNIr/OcXKNoXr/
-         1LHW2u40KjoPhJjg83PDJRyUjxc9hzRmKn9FqbcfWd2XPzPegoVf/iFx2VjcqBVR44
-         5Ak9akEhMlEwUu3G1EMGldoG08WcBgtmEb6dISFQ=
+        b=id0u6tFkxAx06jhSzr3fwtHpExRzjmu1WsOuTziCbzF40TAnQHXVRDTnDKU7N8O1R
+         Kqr5GCBlXOTlPoyRMyfGFTGAWgPSS7yXRCpmYLYM4OqwsFuQi4lYzPA3Y4CIzPhecl
+         utSqsKjmyIuRw9DNLEJ95Xy+nHWfRphmhZhgbooA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David E. Box" <david.e.box@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.0 105/122] platform/x86: intel_pmc_core: Handle CFL regmap properly
-Date:   Mon,  6 May 2019 16:32:43 +0200
-Message-Id: <20190506143104.089681384@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 71/99] Bluetooth: btusb: request wake pin with NOAUTOEN
+Date:   Mon,  6 May 2019 16:32:44 +0200
+Message-Id: <20190506143100.581802215@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit e50af8332785355de3cb40d9f5e8c45dbfc86f53 upstream.
+commit 771acc7e4a6e5dba779cb1a7fd851a164bc81033 upstream.
 
-Only Coffeelake should use Cannonlake regmap other than Cannonlake
-platform. This allows Coffeelake special handling only when there is no
-matching PCI device and default reg map selected as per CPUID is for
-Sunrisepoint PCH. This change is needed to enable support for newer SoCs
-such as Icelake.
+Badly-designed systems might have (for example) active-high wake pins
+that default to high (e.g., because of external pull ups) until they
+have an active firmware which starts driving it low.  This can cause an
+interrupt storm in the time between request_irq() and disable_irq().
 
-Cc: "David E. Box" <david.e.box@intel.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Fixes: 661405bd817b ("platform/x86: intel_pmc_core: Special case for Coffeelake")
-Acked-by: "David E. Box" <david.e.box@linux.intel.com>
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+We don't support shared interrupts here, so let's just pre-configure the
+interrupt to avoid auto-enabling it.
+
+Fixes: fd913ef7ce61 ("Bluetooth: btusb: Add out-of-band wakeup support")
+Fixes: 5364a0b4f4be ("arm64: dts: rockchip: move QCA6174A wakeup pin into its USB node")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_pmc_core.c |    2 +-
+ drivers/bluetooth/btusb.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/intel_pmc_core.c
-+++ b/drivers/platform/x86/intel_pmc_core.c
-@@ -802,7 +802,7 @@ static int __init pmc_core_probe(void)
- 	 * Sunrisepoint PCH regmap can't be used. Use Cannonlake PCH regmap
- 	 * in this case.
- 	 */
--	if (!pci_dev_present(pmc_pci_ids))
-+	if (pmcdev->map == &spt_reg_map && !pci_dev_present(pmc_pci_ids))
- 		pmcdev->map = &cnp_reg_map;
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2888,6 +2888,7 @@ static int btusb_config_oob_wake(struct
+ 		return 0;
+ 	}
  
- 	if (lpit_read_residency_count_address(&slp_s0_addr))
++	irq_set_status_flags(irq, IRQ_NOAUTOEN);
+ 	ret = devm_request_irq(&hdev->dev, irq, btusb_oob_wake_handler,
+ 			       0, "OOB Wake-on-BT", data);
+ 	if (ret) {
+@@ -2902,7 +2903,6 @@ static int btusb_config_oob_wake(struct
+ 	}
+ 
+ 	data->oob_wake_irq = irq;
+-	disable_irq(irq);
+ 	bt_dev_info(hdev, "OOB Wake-on-BT configured at IRQ %u", irq);
+ 	return 0;
+ }
 
 
