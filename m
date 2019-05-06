@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1CF14DEE
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946F314CB6
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfEFOoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:44:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40858 "EHLO mail.kernel.org"
+        id S1726308AbfEFOnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727806AbfEFOod (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:33 -0400
+        id S1727549AbfEFOnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:43:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A073C214AE;
-        Mon,  6 May 2019 14:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0DBF216C4;
+        Mon,  6 May 2019 14:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153873;
-        bh=g3iyfsYRe4fyFJrL7Ypiv0BDUlg0xHMK1ccf3NZbu3o=;
+        s=default; t=1557153782;
+        bh=JfTKtXFNOHSrgjA7GMHgaGf6E7mV96kS+hHxxaVNAnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/Y75ykF+tVGYhJh7L+f5lan2nbgZFg1r25akFg9MMX+YWwz3Dfb69jrTX9XY4i7Z
-         fAdVPkgtqHWfix/8/gTfv4mNroyV10hM51PwHZVOyQfsd7BPNoD/eIaDKW7VcXk1Ko
-         kJQghMCl76CCFI2eoYyDcAXtaFA3xhw3IvehcA2I=
+        b=mEo6Uv+vhhP+yv1H/k/i8WnEh+YCekL5mVDU5LnMR/zrWMjprMbZuYSMMpox7+9Lu
+         7CCM2mLalWgYtCGVBgpr466I19rZqOXca+Q9XLtA8DhutBzPm4s+S4acFXFFJuInOL
+         EZiX4B1KiocoTE/Y8i/6b2K6Cz9RhHqvjkd6K97M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/75] rtc: sh: Fix invalid alarm warning for non-enabled alarm
+Subject: [PATCH 4.19 63/99] hugetlbfs: fix memory leak for resv_map
 Date:   Mon,  6 May 2019 16:32:36 +0200
-Message-Id: <20190506143055.746685012@linuxfoundation.org>
+Message-Id: <20190506143059.813682386@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
+[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
 
-When no alarm has been programmed on RSK-RZA1, an error message is
-printed during boot:
+When mknod is used to create a block special file in hugetlbfs, it will
+allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
+inode->i_mapping->private_data will point the newly allocated resv_map.
+However, when the device special file is opened bd_acquire() will set
+inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
+allocated resv_map is lost and the structure is leaked.
 
-    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+Programs to reproduce:
+        mount -t hugetlbfs nodev hugetlbfs
+        mknod hugetlbfs/dev b 0 0
+        exec 30<> hugetlbfs/dev
+        umount hugetlbfs/
 
-sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
-field that is not enabled.  __rtc_read_alarm() validates the received
-alarm values, and fills in missing fields when needed.
-While 0xff is handled fine for the year, month, and day fields, and
-corrected as considered being out-of-range, this is not the case for the
-hour, minute, and second fields, where -1 is expected for missing
-fields.
+resv_map structures are only needed for inodes which can have associated
+page allocations.  To fix the leak, only allocate resv_map for those
+inodes which could possibly be associated with page allocations.
 
-Fix this by returning -1 instead, as this value is handled fine for all
-fields.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Suggested-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 6c2d3989f967..9b6a927149a4 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -462,7 +462,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index a7fa037b876b..a3a3d256fb0e 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -741,11 +741,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 					umode_t mode, dev_t dev)
  {
- 	unsigned int byte;
--	int value = 0xff;	/* return 0xff for ignored values */
-+	int value = -1;			/* return -1 for ignored values */
+ 	struct inode *inode;
+-	struct resv_map *resv_map;
++	struct resv_map *resv_map = NULL;
  
- 	byte = readb(rtc->regbase + reg_off);
- 	if (byte & AR_ENB) {
+-	resv_map = resv_map_alloc();
+-	if (!resv_map)
+-		return NULL;
++	/*
++	 * Reserve maps are only needed for inodes that can have associated
++	 * page allocations.
++	 */
++	if (S_ISREG(mode) || S_ISLNK(mode)) {
++		resv_map = resv_map_alloc();
++		if (!resv_map)
++			return NULL;
++	}
+ 
+ 	inode = new_inode(sb);
+ 	if (inode) {
+@@ -780,8 +786,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 			break;
+ 		}
+ 		lockdep_annotate_inode_mutex_key(inode);
+-	} else
+-		kref_put(&resv_map->refs, resv_map_release);
++	} else {
++		if (resv_map)
++			kref_put(&resv_map->refs, resv_map_release);
++	}
+ 
+ 	return inode;
+ }
 -- 
 2.20.1
 
