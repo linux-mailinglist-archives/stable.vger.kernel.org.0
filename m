@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1EE14D79
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26DA514D7E
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729068AbfEFOtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49998 "EHLO mail.kernel.org"
+        id S1728860AbfEFOvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:51:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729069AbfEFOtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:05 -0400
+        id S1729129AbfEFOtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:49:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 713D621019;
-        Mon,  6 May 2019 14:48:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F92D214C6;
+        Mon,  6 May 2019 14:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154138;
-        bh=Kt6zibHm4bJov755b+lhAMEphIGRS+hCf29jdsAGEx4=;
+        s=default; t=1557154141;
+        bh=VKIaQHqILKktV1uilDIzU4auAHkCA0xrJuZDJAa28PY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWBW2KFinWxRDdsrqcaMzXHPQMz1UtBPScAXhBDHAuDIoirXKztQpjuA/tS4dMHaG
-         nAZDxK2Hfag8+AHPGHcOKaVNeO7jlE8oaVldqReuXrJdGPCSi+8RgPN0kgpz/MBKV5
-         ovNzFYi0ZiSk44aBzeUF/wcTgItWOWHy+gICqA3E=
+        b=wyT4Xa4hBK3QW5M8N3m9hCZV4CCkfLoN5yDmjr4+tnc7tBR2e6kJiABlVnuzXd1OB
+         Wx2VqMuH0DlRGsnY5x8LKHE6mhv3PErI4JUcX9cFAjB/Dkp5yKo8KiiUR71/JIRfWh
+         8mBTiU4+no84R/SmjrK5Ld9uOL30EN84NwnKzHR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Olof Johansson <olof@lixom.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 52/62] ARM: orion: dont use using 64-bit DMA masks
-Date:   Mon,  6 May 2019 16:33:23 +0200
-Message-Id: <20190506143055.830370773@linuxfoundation.org>
+Subject: [PATCH 4.9 53/62] ARM: iop: dont use using 64-bit DMA masks
+Date:   Mon,  6 May 2019 16:33:24 +0200
+Message-Id: <20190506143055.916911177@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
 References: <20190506143051.102535767@linuxfoundation.org>
@@ -44,47 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cd92d74d67c811dc22544430b9ac3029f5bd64c5 ]
+[ Upstream commit 2125801ccce19249708ca3245d48998e70569ab8 ]
 
 clang warns about statically defined DMA masks from the DMA_BIT_MASK
 macro with length 64:
 
-arch/arm/plat-orion/common.c:625:29: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-                .coherent_dma_mask      = DMA_BIT_MASK(64),
-                                          ^~~~~~~~~~~~~~~~
-include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
+ arch/arm/mach-iop13xx/setup.c:303:35: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
+ static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
+                                  ^~~~~~~~~~~~~~~~
+ include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
  #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+                                                      ^ ~~~
 
-The ones in orion shouldn't really be 64 bit masks, so changing them
+The ones in iop shouldn't really be 64 bit masks, so changing them
 to what the driver can support avoids the warning.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/plat-orion/common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-iop13xx/setup.c |  8 ++++----
+ arch/arm/mach-iop13xx/tpmi.c  | 10 +++++-----
+ arch/arm/plat-iop/adma.c      |  6 +++---
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/plat-orion/common.c b/arch/arm/plat-orion/common.c
-index 272f49b2c68f..bb29e6ebdc0d 100644
---- a/arch/arm/plat-orion/common.c
-+++ b/arch/arm/plat-orion/common.c
-@@ -605,7 +605,7 @@ static struct platform_device orion_xor0_shared = {
- 	.resource	= orion_xor0_shared_resources,
- 	.dev            = {
- 		.dma_mask               = &orion_xor_dmamask,
--		.coherent_dma_mask      = DMA_BIT_MASK(64),
-+		.coherent_dma_mask      = DMA_BIT_MASK(32),
- 		.platform_data          = &orion_xor0_pdata,
+diff --git a/arch/arm/mach-iop13xx/setup.c b/arch/arm/mach-iop13xx/setup.c
+index 53c316f7301e..fe4932fda01d 100644
+--- a/arch/arm/mach-iop13xx/setup.c
++++ b/arch/arm/mach-iop13xx/setup.c
+@@ -300,7 +300,7 @@ static struct resource iop13xx_adma_2_resources[] = {
+ 	}
+ };
+ 
+-static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
++static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(32);
+ static struct iop_adma_platform_data iop13xx_adma_0_data = {
+ 	.hw_id = 0,
+ 	.pool_size = PAGE_SIZE,
+@@ -324,7 +324,7 @@ static struct platform_device iop13xx_adma_0_channel = {
+ 	.resource = iop13xx_adma_0_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_0_data,
  	},
  };
-@@ -666,7 +666,7 @@ static struct platform_device orion_xor1_shared = {
- 	.resource	= orion_xor1_shared_resources,
- 	.dev            = {
- 		.dma_mask               = &orion_xor_dmamask,
--		.coherent_dma_mask      = DMA_BIT_MASK(64),
-+		.coherent_dma_mask      = DMA_BIT_MASK(32),
- 		.platform_data          = &orion_xor1_pdata,
+@@ -336,7 +336,7 @@ static struct platform_device iop13xx_adma_1_channel = {
+ 	.resource = iop13xx_adma_1_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_1_data,
+ 	},
+ };
+@@ -348,7 +348,7 @@ static struct platform_device iop13xx_adma_2_channel = {
+ 	.resource = iop13xx_adma_2_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_2_data,
+ 	},
+ };
+diff --git a/arch/arm/mach-iop13xx/tpmi.c b/arch/arm/mach-iop13xx/tpmi.c
+index db511ec2b1df..116feb6b261e 100644
+--- a/arch/arm/mach-iop13xx/tpmi.c
++++ b/arch/arm/mach-iop13xx/tpmi.c
+@@ -152,7 +152,7 @@ static struct resource iop13xx_tpmi_3_resources[] = {
+ 	}
+ };
+ 
+-u64 iop13xx_tpmi_mask = DMA_BIT_MASK(64);
++u64 iop13xx_tpmi_mask = DMA_BIT_MASK(32);
+ static struct platform_device iop13xx_tpmi_0_device = {
+ 	.name = "iop-tpmi",
+ 	.id = 0,
+@@ -160,7 +160,7 @@ static struct platform_device iop13xx_tpmi_0_device = {
+ 	.resource = iop13xx_tpmi_0_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+@@ -171,7 +171,7 @@ static struct platform_device iop13xx_tpmi_1_device = {
+ 	.resource = iop13xx_tpmi_1_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+@@ -182,7 +182,7 @@ static struct platform_device iop13xx_tpmi_2_device = {
+ 	.resource = iop13xx_tpmi_2_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+@@ -193,7 +193,7 @@ static struct platform_device iop13xx_tpmi_3_device = {
+ 	.resource = iop13xx_tpmi_3_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+diff --git a/arch/arm/plat-iop/adma.c b/arch/arm/plat-iop/adma.c
+index a4d1f8de3b5b..d9612221e484 100644
+--- a/arch/arm/plat-iop/adma.c
++++ b/arch/arm/plat-iop/adma.c
+@@ -143,7 +143,7 @@ struct platform_device iop3xx_dma_0_channel = {
+ 	.resource = iop3xx_dma_0_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_dma_0_data,
+ 	},
+ };
+@@ -155,7 +155,7 @@ struct platform_device iop3xx_dma_1_channel = {
+ 	.resource = iop3xx_dma_1_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_dma_1_data,
+ 	},
+ };
+@@ -167,7 +167,7 @@ struct platform_device iop3xx_aau_channel = {
+ 	.resource = iop3xx_aau_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_aau_data,
  	},
  };
 -- 
