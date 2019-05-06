@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6056A14F68
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9B814EAA
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbfEFOfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
+        id S1727077AbfEFOjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726804AbfEFOfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:35:04 -0400
+        id S1726935AbfEFOjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A94B204EC;
-        Mon,  6 May 2019 14:35:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C369B206A3;
+        Mon,  6 May 2019 14:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153303;
-        bh=c8WHNkHhCAP4uPgTZXAo+bwacVqNawGUyMttFTKJmYs=;
+        s=default; t=1557153583;
+        bh=YfW38Wj8yAMLTXOz0TwUClnEogQ6Up7uCe3W6uiivCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhjzXViUarTK+jYWypA0RlebQaErLQxcbH3ledLsuzWUqugjfweAPQbJ3Gei1aiYC
-         NX5V5p+DdYyoruiuUANi3n6gawtvY2xHBMielSuYsHk1IVBy2KmroGoBJmUK6Qhhd5
-         5O+fbqDSLx0Y53IIyE581taL4YSQEGvwDVvAfUc0=
+        b=jQgFPs0+3Pu9OrwMBcsQeR3AvvUN7W59f1illEcJxGWCzw0YKHQpyklnClL09hMK4
+         a31Z/NJE1CitvCFW6S64L8ypIuZLe/0fFVjcvYbw+brUOD2YsU3zcrDzXG2BDjtm2Z
+         dkHKXOQ2lgrij7ECQgyTvXxcuo4GofwQHLcb+B9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 038/122] ARM: dts: Fix dcan clkctrl clock for am3
+        stable@vger.kernel.org,
+        syzbot+4ece1a28b8f4730547c9@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 03/99] mac80211: dont attempt to rename ERR_PTR() debugfs dirs
 Date:   Mon,  6 May 2019 16:31:36 +0200
-Message-Id: <20190506143058.314174893@linuxfoundation.org>
+Message-Id: <20190506143054.184704313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7d56bedb2730dc2ea8abf0fd7240ee99ecfee3c9 ]
+From: Johannes Berg <johannes.berg@intel.com>
 
-We must not use legacy clock defines for dts clckctrl clocks as the offsets
-will be wrong.
+commit 517879147493a5e1df6b89a50f708f1133fcaddb upstream.
 
-Fixes: 87fc89ced3a7 ("ARM: dts: am335x: Move l4 child devices to probe them with ti-sysc")
-Cc: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+We need to dereference the directory to get its parent to
+be able to rename it, so it's clearly not safe to try to
+do this with ERR_PTR() pointers. Skip in this case.
+
+It seems that this is most likely what was causing the
+report by syzbot, but I'm not entirely sure as it didn't
+come with a reproducer this time.
+
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+4ece1a28b8f4730547c9@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/am33xx-l4.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/debugfs_netdev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index 7b818d9d2eab..8396faa9ac28 100644
---- a/arch/arm/boot/dts/am33xx-l4.dtsi
-+++ b/arch/arm/boot/dts/am33xx-l4.dtsi
-@@ -1763,7 +1763,7 @@
- 			reg = <0xcc000 0x4>;
- 			reg-names = "rev";
- 			/* Domains (P, C): per_pwrdm, l4ls_clkdm */
--			clocks = <&l4ls_clkctrl AM3_D_CAN0_CLKCTRL 0>;
-+			clocks = <&l4ls_clkctrl AM3_L4LS_D_CAN0_CLKCTRL 0>;
- 			clock-names = "fck";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -1786,7 +1786,7 @@
- 			reg = <0xd0000 0x4>;
- 			reg-names = "rev";
- 			/* Domains (P, C): per_pwrdm, l4ls_clkdm */
--			clocks = <&l4ls_clkctrl AM3_D_CAN1_CLKCTRL 0>;
-+			clocks = <&l4ls_clkctrl AM3_L4LS_D_CAN1_CLKCTRL 0>;
- 			clock-names = "fck";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
--- 
-2.20.1
-
+--- a/net/mac80211/debugfs_netdev.c
++++ b/net/mac80211/debugfs_netdev.c
+@@ -838,7 +838,7 @@ void ieee80211_debugfs_rename_netdev(str
+ 
+ 	dir = sdata->vif.debugfs_dir;
+ 
+-	if (!dir)
++	if (IS_ERR_OR_NULL(dir))
+ 		return;
+ 
+ 	sprintf(buf, "netdev:%s", sdata->name);
 
 
