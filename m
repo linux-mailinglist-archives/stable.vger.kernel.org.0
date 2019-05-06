@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B8E14D2B
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4935F14D2D
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729506AbfEFOsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49288 "EHLO mail.kernel.org"
+        id S1729015AbfEFOsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbfEFOsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:48:40 -0400
+        id S1729508AbfEFOsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:48:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49FC521479;
-        Mon,  6 May 2019 14:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3D93216B7;
+        Mon,  6 May 2019 14:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154119;
-        bh=hSHwWBXW4YBNguDCFJYBmCnTIW3L4jc32t+K31/Y2Dw=;
+        s=default; t=1557154122;
+        bh=cwAnhsjms5JETVrm8lBnIu77/bq24kiXauUNJlo/6dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=saiTm7ncKBVCplSOK5jGklWM6Fj8ziG0/Az33HBo1cmqfbCxzAdzY/sfVigyzLtX6
-         UDiBJt+p7PXvKAADQnF3SmUYXpDMrotnW1wPmj8L7l2FYb3fc7Ke01ytGMk3gxLJa0
-         JKD7FJV3P6B68Zb+6WAx/REJ/NFGg+EWYf5L1cB4=
+        b=Tq9bb0NuKroikxPBcGMse/5Igze2MiMaWh8K/yZ9b2NsbuEU+b1RpfQSJdlVBOBxd
+         74kJUE3BDe6UPNvoxM4d5glvchjRXRujSKf3qpUGzk9Y2CnEx/Rp3LgINPB38UFOB9
+         bRH65aTQGqUoNo/tmMWhbB//jtipN0HnAgUQum2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Long Li <longli@microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Liubin Shu <shuliubin@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/62] scsi: storvsc: Fix calculation of sub-channel count
-Date:   Mon,  6 May 2019 16:33:16 +0200
-Message-Id: <20190506143055.120157738@linuxfoundation.org>
+Subject: [PATCH 4.9 46/62] net: hns: fix KASAN: use-after-free in hns_nic_net_xmit_hw()
+Date:   Mon,  6 May 2019 16:33:17 +0200
+Message-Id: <20190506143055.229546324@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
 References: <20190506143051.102535767@linuxfoundation.org>
@@ -46,56 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 382e06d11e075a40b4094b6ef809f8d4bcc7ab2a ]
+[ Upstream commit 3a39a12ad364a9acd1038ba8da67cd8430f30de4 ]
 
-When the number of sub-channels offered by Hyper-V is >= the number of CPUs
-in the VM, calculate the correct number of sub-channels.  The current code
-produces one too many.
+This patch is trying to fix the issue due to:
+[27237.844750] BUG: KASAN: use-after-free in hns_nic_net_xmit_hw+0x708/0xa18[hns_enet_drv]
 
-This scenario arises only when the number of CPUs is artificially
-restricted (for example, with maxcpus=<n> on the kernel boot line), because
-Hyper-V normally offers a sub-channel count < number of CPUs.  While the
-current code doesn't break, the extra sub-channel is unbalanced across the
-CPUs (for example, a total of 5 channels on a VM with 4 CPUs).
+After hnae_queue_xmit() in hns_nic_net_xmit_hw(), can be
+interrupted by interruptions, and than call hns_nic_tx_poll_one()
+to handle the new packets, and free the skb. So, when turn back to
+hns_nic_net_xmit_hw(), calling skb->len will cause use-after-free.
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Long Li <longli@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch update tx ring statistics in hns_nic_tx_poll_one() to
+fix the bug.
+
+Signed-off-by: Liubin Shu <shuliubin@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index d92b2808d191..6df34d68737f 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -641,13 +641,22 @@ static void handle_sc_creation(struct vmbus_channel *new_sc)
- static void  handle_multichannel_storage(struct hv_device *device, int max_chns)
- {
- 	struct storvsc_device *stor_device;
--	int num_cpus = num_online_cpus();
- 	int num_sc;
- 	struct storvsc_cmd_request *request;
- 	struct vstor_packet *vstor_packet;
- 	int ret, t;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index ad8681cf5ef0..f77578a5ea9d 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -375,8 +375,6 @@ netdev_tx_t hns_nic_net_xmit_hw(struct net_device *ndev,
+ 	wmb(); /* commit all data before submit */
+ 	assert(skb->queue_mapping < priv->ae_handle->q_num);
+ 	hnae_queue_xmit(priv->ae_handle->qs[skb->queue_mapping], buf_num);
+-	ring->stats.tx_pkts++;
+-	ring->stats.tx_bytes += skb->len;
  
--	num_sc = ((max_chns > num_cpus) ? num_cpus : max_chns);
-+	/*
-+	 * If the number of CPUs is artificially restricted, such as
-+	 * with maxcpus=1 on the kernel boot line, Hyper-V could offer
-+	 * sub-channels >= the number of CPUs. These sub-channels
-+	 * should not be created. The primary channel is already created
-+	 * and assigned to one CPU, so check against # CPUs - 1.
-+	 */
-+	num_sc = min((int)(num_online_cpus() - 1), max_chns);
-+	if (!num_sc)
-+		return;
-+
- 	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
- 		return;
+ 	return NETDEV_TX_OK;
+ 
+@@ -916,6 +914,9 @@ static int hns_nic_tx_poll_one(struct hns_nic_ring_data *ring_data,
+ 		/* issue prefetch for next Tx descriptor */
+ 		prefetch(&ring->desc_cb[ring->next_to_clean]);
+ 	}
++	/* update tx ring statistics. */
++	ring->stats.tx_pkts += pkts;
++	ring->stats.tx_bytes += bytes;
+ 
+ 	NETIF_TX_UNLOCK(ndev);
+ 
 -- 
 2.20.1
 
