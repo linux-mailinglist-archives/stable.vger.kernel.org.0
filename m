@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0AA14F34
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5FE14EBF
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727194AbfEFOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57010 "EHLO mail.kernel.org"
+        id S1727532AbfEFPEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:04:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727188AbfEFOgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:36:36 -0400
+        id S1726997AbfEFOjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1A7320B7C;
-        Mon,  6 May 2019 14:36:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFD9C21479;
+        Mon,  6 May 2019 14:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153395;
-        bh=IVWKTLJ67r9Fag+JPkcDnWfalbUx2MqvHhQKGS417+s=;
+        s=default; t=1557153553;
+        bh=SsqbmMywSBVKwpFvFFFQV1gHcQwfUpjDQfe4U40oK1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSs5uvnop+wqNCPv0ikPOBax8gsYE8Uf1HOAAGNx3gk19fbLczSxnhDoh3J0OzUe3
-         B6tqJX8Rcg2uQ7RlyDf47I0JGmJXfox0mBWZ+znKAwMLmZvG0rj6OK3MBYyKNlJF2e
-         9LQQFuakGAtSu65Nu8lpAZpaezPoBCa2Nie4AV8k=
+        b=Gpb8Oxldlr/F7jD0qhMe5BIgzDUm3uUputVqanId6ehR7vkNG2qiqCU3mZVs8A+Ph
+         dPNZT7ZwGrMZB4yy5YFhA4Edknkb2EAR9WAH/vyTwyR5tzIXrbnfDUkOWiIvAkXm42
+         gR0R7GSGHaoEQV62KHTkLYU7f4+OGGURob1qOIOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 045/122] net: hns3: fix compile error
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 10/99] ALSA: hda/realtek - Add new Dell platform for headset mode
 Date:   Mon,  6 May 2019 16:31:43 +0200
-Message-Id: <20190506143058.973350300@linuxfoundation.org>
+Message-Id: <20190506143054.785244490@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 669efc76b317b3aa550ffbf0b79d064cb00a5f96 ]
+From: Kailang Yang <kailang@realtek.com>
 
-Currently, the rules for configuring search paths in Kbuild have
-changed, this will lead some erros when compiling hns3 with the
-following command:
+commit 0a29c57b76624723b6b00c027e0e992d130ace49 upstream.
 
-make O=DIR M=drivers/net/ethernet/hisilicon/hns3
+Add two Dell platform for headset mode.
 
-drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c:11:10:
-fatal error: hnae3.h: No such file or directory
+[ Note: this is a further correction / addition of the previous
+  pin-based quirks for Dell machines; another entry for ALC236 with
+  the d-mic pin 0x12 and an entry for ALC295 -- tiwai ]
 
-This patch fix it by adding $(srctree)/ prefix to the serach paths.
+Fixes: b26e36b7ef36 ("ALSA: hda/realtek - add two more pin configuration sets to quirk table")
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Xi Wang <wangxi11@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile | 2 +-
- drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
-index fffe8c1c45d3..0fb61d440d3b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for the HISILICON network device drivers.
- #
- 
--ccflags-y := -Idrivers/net/ethernet/hisilicon/hns3
-+ccflags-y := -I $(srctree)/drivers/net/ethernet/hisilicon/hns3
- 
- obj-$(CONFIG_HNS3_HCLGE) += hclge.o
- hclge-objs = hclge_main.o hclge_cmd.o hclge_mdio.o hclge_tm.o hclge_mbx.o hclge_err.o  hclge_debugfs.o
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile b/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
-index fb93bbd35845..6193f8fa7cf3 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for the HISILICON network device drivers.
- #
- 
--ccflags-y := -Idrivers/net/ethernet/hisilicon/hns3
-+ccflags-y := -I $(srctree)/drivers/net/ethernet/hisilicon/hns3
- 
- obj-$(CONFIG_HNS3_HCLGEVF) += hclgevf.o
- hclgevf-objs = hclgevf_main.o hclgevf_cmd.o hclgevf_mbx.o
-\ No newline at end of file
--- 
-2.20.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7172,6 +7172,10 @@ static const struct snd_hda_pin_quirk al
+ 		{0x21, 0x02211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 		{0x21, 0x02211020}),
++	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
++		{0x12, 0x40000000},
++		{0x14, 0x90170110},
++		{0x21, 0x02211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1028, "Dell", ALC255_FIXUP_DELL2_MIC_NO_PRESENCE,
+ 		{0x14, 0x90170110},
+ 		{0x21, 0x02211020}),
+@@ -7446,6 +7450,9 @@ static const struct snd_hda_pin_quirk al
+ 		{0x17, 0x90170110},
+ 		{0x21, 0x04211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
++		{0x14, 0x90170110},
++		{0x21, 0x04211020}),
++	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 		ALC295_STANDARD_PINS,
+ 		{0x17, 0x21014020},
+ 		{0x18, 0x21a19030}),
 
 
