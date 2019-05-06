@@ -2,117 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E46FC149A1
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 14:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D06F149E1
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 14:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbfEFMe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 08:34:58 -0400
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:39718 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725852AbfEFMe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 08:34:57 -0400
-Received: by mail-wr1-f42.google.com with SMTP id v10so4758625wrt.6
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 05:34:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vgex8qbr4QYXSHfW6OrtmKUdrxdG62gaRmMHUu2MsEs=;
-        b=jJnt58Uevc+qceQA7wblCujNPNKMhsM5CnsWphF7Drd23ByXlsT39vZkrJimW3oE2b
-         fgD8c9HWLnLFB4F7aDygCOvyls7nwCW1ZrDC4MxKJ3XVjXiRqZu0CkcqU/hUdu18CGhD
-         xa6AOzwRCabvPHwOT/S5IZROjWm2m3imWJhuxeTXKXWEAPTnWHnMkrqBKZvl3edwDlwX
-         g3k2sVkpxrmH9MfTHwKeW5Q88LK4hcVwd0MsuJQuvRwkUzRsCU/xpr5FhhpiT2SPRU5L
-         tmQxij095b6btdnjZqg3SHjZRfpZej1i9dQoKKKqP7Mebgnm3noLdACt+Bz4CQsya5qb
-         W1Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vgex8qbr4QYXSHfW6OrtmKUdrxdG62gaRmMHUu2MsEs=;
-        b=t7KWuuENRJgj5P0q/gWWQJ+OK0xo27Gd2YPqXfgO/9l6J30pfY+kVNinZXBDout9b0
-         sV0bUIK+1zgFfDksyyKhKqxe3nHJeKfNdPiilltvtRFZkErtdWwWa2CsrReucah0WN6B
-         lN4IbeuGOVWpRJX05O+XdGk37dlj9qi9AWW5dNa04vv5SxVaBEhssZvxsMypecc4ZHJd
-         lwpLXocWTCtXsba+1FQAujiFM+JRf1rltjqKGUC/XsFfdaAutxfJbtXH+W4VsvHblgr1
-         qiLWx29m1WyqUPRjQDsCXIBwBEmW0iS5esbtYVfVmDeO9g5FtIjRLqiBFmjMmhueiYTd
-         JggA==
-X-Gm-Message-State: APjAAAXdGUEzMOP6ggAFswrYRoSteKtvpDdjbLoacB23OCThJI4+il5t
-        xxhqeQxsQwVny1uacMMDjvtKKAezBYtEYA==
-X-Google-Smtp-Source: APXvYqw0pNqWYDGoWjgaIbBhuAW5J8QbrgNt89lPYpcSseWX1ALFtiV2gvRAdFaoJVZYuFK7oXJfJA==
-X-Received: by 2002:adf:800e:: with SMTP id 14mr18377805wrk.303.1557146095978;
-        Mon, 06 May 2019 05:34:55 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s124sm16080671wmf.42.2019.05.06.05.34.55
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 May 2019 05:34:55 -0700 (PDT)
-Message-ID: <5cd029ef.1c69fb81.fb56c.650a@mx.google.com>
-Date:   Mon, 06 May 2019 05:34:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726319AbfEFMgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 08:36:44 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:43237 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726220AbfEFMgo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 08:36:44 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 6F2EE40A;
+        Mon,  6 May 2019 08:36:42 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 06 May 2019 08:36:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=Q
+        rHTMAg8l2luUxoU0HaOEPpd4SLXQqYaEWda/xLtjEc=; b=mW5eH1+0qnIzchmjU
+        4kWB+MjS2mH5JGOGGaW3vGO+e1ioZERgfvL2mFMxYRrv3DKlrBhrx3ky20Dqsnmv
+        S3VrUFhSxjOEfARGg9aoPVUo1mnfTjj1nIB5fms43V5ok+YNO5S6SMWdrSDhxYhd
+        j8pF4pnMIBTSeDRClK/QeUa63x9A5mRqAQDw+GZDldayRzeG3mw4p4/hZzYhFETZ
+        XCxyF7wCZTSLp0m1BcTWaAn7Yg1UtKHqiS1d5sqfyThr4ansCB2dTnEDCspTWDk0
+        8pbpLH6/rxl7QmbSGgMbixXEvkVoMHYSh3TVuyO6unn3yeulnyHkOS81q6xs+0Fm
+        HWmEw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=QrHTMAg8l2luUxoU0HaOEPpd4SLXQqYaEWda/xLtj
+        Ec=; b=uSmNwr0u68Jurz8HFKa7LpMpTKfUZBeB7jcXDNScGSSZfkliMsOUjl8Ku
+        9ELRoc/HQ3GySAymP3PP/Po0ByI98uPiMrIRhUj4dvOBpufTEjb2DXSvdxibS+iA
+        GkA87ORuKuisFyfb1btRZctp4ByvEj6WXwO2C9ynd8ippssmxZbTlL45pWGFIHaY
+        CHkuk/5Z2REqZzM2cwt9ynP4Kcjq/JS6SolYaeuCNL4iv58zy9x+auNRDTlkBxT0
+        tg9rti4+xSw5f29OIxG6P/MpjIX8OKy8gTzL2TpKlcooNXeu+f2kDzmxceWrxRgf
+        qI7vX+SM+cVXl3icVoPzXgYJUD7VA==
+X-ME-Sender: <xms:WSrQXBoe1hLSYdYnF7qba38RNx9iIjkZMhmJkkiHR2m8GA2nrLrObQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrjeejgdehjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghdpghhithhhuhgsrdgtohhmnecukfhppeekfedrkeeirdekledruddtjeenucfr
+    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsth
+    gvrhfuihiivgeptd
+X-ME-Proxy: <xmx:WSrQXI42Lb9SDZOZsCx0QjZGLtJQ67BPFDWXQ7QcjfoxhxPxOP1Z-Q>
+    <xmx:WSrQXP5tv0xFi-ym-56gcMwSFl6Tx1bvIvH1LZyJKath6cEeMmCcCg>
+    <xmx:WSrQXFH_xIiEv4yR9D_0IPmhzyQs44OyCwXuXMsBuVkV-TtFzoH5kg>
+    <xmx:WirQXP9V8vltoNTcXbbXPI75fCvV97X4P2TWVOlDqM9WENtAyW9T0A>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 18BEE103CF;
+        Mon,  6 May 2019 08:36:40 -0400 (EDT)
+Date:   Mon, 6 May 2019 14:36:37 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Veronika Kabatova <vkabatov@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        CKI Project <cki-project@redhat.com>
+Subject: Re: =?utf-8?B?4p2OIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.0
+Message-ID: <20190506123637.GC26360@kroah.com>
+References: <cki.7E6F9B004D.B5E2BOYZ3L@redhat.com>
+ <190144458.18224981.1557141968068.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.116-59-g3411f7e68071
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 122 boots: 1 failed,
- 118 passed with 1 offline, 1 untried/unknown,
- 1 conflict (v4.14.116-59-g3411f7e68071)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <190144458.18224981.1557141968068.JavaMail.zimbra@redhat.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 122 boots: 1 failed, 118 passed with 1 offline=
-, 1 untried/unknown, 1 conflict (v4.14.116-59-g3411f7e68071)
+On Mon, May 06, 2019 at 07:26:08AM -0400, Veronika Kabatova wrote:
+> 
+> 
+> ----- Original Message -----
+> > From: "CKI Project" <cki-project@redhat.com>
+> > To: "Linux Stable maillist" <stable@vger.kernel.org>
+> > Cc: "Memory Management" <mm-qe@redhat.com>, "Jan Stancek" <jstancek@redhat.com>
+> > Sent: Monday, May 6, 2019 1:16:03 PM
+> > Subject: ❎ FAIL: Stable queue: queue-5.0
+> > 
+> > Hello,
+> > 
+> > We ran automated tests on a patchset that was proposed for merging into this
+> > kernel tree. The patches were applied to:
+> > 
+> >        Kernel repo:
+> >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+> >             Commit: e5b9547b1aa3 - Linux 5.0.13
+> > 
+> > The results of these automated tests are provided below.
+> > 
+> >     Overall result: FAILED (see details below)
+> >              Merge: OK
+> >            Compile: OK
+> >              Tests: FAILED
+> > 
+> 
+> Hi,
+> 
+> we have recently started seeing an mtest06 LTP failure on aarch64. The failure
+> is reproducible, as you can see in both reports. Jan Stancek took care of
+> debugging it (we weren't sure if it's a test or kernel problem at first) and
+> thinks it's a kernel issue.
+> 
+> You can find his findings and failure log here for more info:
+> 
+> https://github.com/linux-test-project/ltp/issues/528
+> https://lore.kernel.org/linux-mm/1817839533.20996552.1557065445233.JavaMail.zimbra@redhat.com/T/#u
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.116-59-g3411f7e68071/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.116-59-g3411f7e68071/
+Thanks for the link, hopefully we can get this resolved in Linus's tree
+and then we can backport the needed fix here as well.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.116-59-g3411f7e68071
-Git Commit: 3411f7e68071605c59387e65eda0d685e9561931
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 65 unique boards, 24 SoC families, 14 builds out of 201
+thanks,
 
-Boot Regressions Detected:
-
-arm:
-
-    exynos_defconfig:
-        gcc-7:
-          exynos5800-peach-pi:
-              lab-collabora: new failure (last pass: v4.14.116-25-g653fd35b=
-a15e)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-7:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-7
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    exynos_defconfig:
-        exynos5800-peach-pi:
-            lab-baylibre-seattle: PASS (gcc-7)
-            lab-collabora: FAIL (gcc-7)
-
----
-For more info write to <info@kernelci.org>
+greg k-h
