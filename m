@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4878B14F26
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4D114C90
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726492AbfEFOfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
+        id S1728299AbfEFOln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726460AbfEFOfp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:35:45 -0400
+        id S1727832AbfEFOln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EAC020C01;
-        Mon,  6 May 2019 14:35:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C528520C01;
+        Mon,  6 May 2019 14:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153344;
-        bh=fswLb29KFSWxhWuB7kR8SScaaOcEFb4ErFrPM2jSrw0=;
+        s=default; t=1557153702;
+        bh=qH/V5U6geHfVfZ2F0E2UNIsWNssJW+kuSQOBNqbi2HA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2CdfFK5UDttxSrm7ro3JGe+RdTZ7FsyS7RXPs1RHreu+G4PJVFOMjBZJuhKrNRoH
-         IMKTJShqK7vRO+gjkIca0FW1oTyTMzyqV4Y+tk5+dJeP2Sem5TtgwTXr7F4dGqEL/6
-         vpvJ/JYkvintNPpk9TZWvZledO7uZY6RGHenVceU=
+        b=1I+JB++m46OLxqP7oQoXxrc2rP7Ol6eq8MEzM/Bt9hSdPPPXODvC9OE5Fx5p5Up/L
+         3PGkr2NwxZBSKf2ZbmBeSpgGi7jZzZw2/j6YwP0czehPdpUfvwkiJ6CP2GU2PybTMm
+         VJV6GURGxjvj0ORwmZkVkJFulJpi4Jd7fK5Z1/lE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 054/122] net: stmmac: fix dropping of multi-descriptor RX frames
-Date:   Mon,  6 May 2019 16:31:52 +0200
-Message-Id: <20190506143059.782324555@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/99] efi: Fix debugobjects warning on efi_rts_work
+Date:   Mon,  6 May 2019 16:31:53 +0200
+Message-Id: <20190506143055.740457435@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ac0c24fe1c256af6644caf3d311029440ec2fbd ]
+[ Upstream commit ef1491e791308317bb9851a0ad380c4a68b58d54 ]
 
-Packets without the last descriptor set should be dropped early. If we
-receive a frame larger than the DMA buffer, the HW will continue using the
-next descriptor. Driver mistakes these as individual frames, and sometimes
-a truncated frame (without the LD set) may look like a valid packet.
+The following commit:
 
-This fixes a strange issue where the system replies to 4098-byte ping
-although the MTU/DMA buffer size is set to 4096, and yet at the same
-time it's logging an oversized packet.
+  9dbbedaa6171 ("efi: Make efi_rts_work accessible to efi page fault handler")
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+converted 'efi_rts_work' from an auto variable to a global variable.
+However, when submitting the work, INIT_WORK_ONSTACK() was still used,
+causing the following complaint from debugobjects:
+
+  ODEBUG: object 00000000ed27b500 is NOT on stack 00000000c7d38760, but annotated.
+
+Change the macro to just INIT_WORK() to eliminate the warning.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Fixes: 9dbbedaa6171 ("efi: Make efi_rts_work accessible to efi page fault handler")
+Link: http://lkml.kernel.org/r/20181114175544.12860-2-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/enh_desc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/firmware/efi/runtime-wrappers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-index c42ef6c729c0..5202d6ad7919 100644
---- a/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/enh_desc.c
-@@ -201,6 +201,11 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
- 	if (unlikely(rdes0 & RDES0_OWN))
- 		return dma_own;
- 
-+	if (unlikely(!(rdes0 & RDES0_LAST_DESCRIPTOR))) {
-+		stats->rx_length_errors++;
-+		return discard_frame;
-+	}
-+
- 	if (unlikely(rdes0 & RDES0_ERROR_SUMMARY)) {
- 		if (unlikely(rdes0 & RDES0_DESCRIPTOR_ERROR)) {
- 			x->rx_desc++;
+diff --git a/drivers/firmware/efi/runtime-wrappers.c b/drivers/firmware/efi/runtime-wrappers.c
+index b0aeffd4e269..1606abead22c 100644
+--- a/drivers/firmware/efi/runtime-wrappers.c
++++ b/drivers/firmware/efi/runtime-wrappers.c
+@@ -95,7 +95,7 @@ struct efi_runtime_work {
+ 	efi_rts_work.status = EFI_ABORTED;				\
+ 									\
+ 	init_completion(&efi_rts_work.efi_rts_comp);			\
+-	INIT_WORK_ONSTACK(&efi_rts_work.work, efi_call_rts);		\
++	INIT_WORK(&efi_rts_work.work, efi_call_rts);			\
+ 	efi_rts_work.arg1 = _arg1;					\
+ 	efi_rts_work.arg2 = _arg2;					\
+ 	efi_rts_work.arg3 = _arg3;					\
 -- 
 2.20.1
 
