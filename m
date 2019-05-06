@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C24A14D99
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A1014E64
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbfEFOxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
+        id S1727664AbfEFOmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbfEFOrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:47:35 -0400
+        id S1728455AbfEFOmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38C5F205ED;
-        Mon,  6 May 2019 14:47:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 480BA206A3;
+        Mon,  6 May 2019 14:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154054;
-        bh=3MntDR9kUmhFdar+ptPW4odvKho86UrhSYTPEEofWs8=;
+        s=default; t=1557153739;
+        bh=xSz8PAtxbg/b8WWsiwj6z+jzziMbtzYGN/lj9e3URj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SXarBdFxdIo/o9j8G+V+X09jdgtlAtDDK9YsqM61n2sQ32hadTMh+pWXij92TLkO
-         zbscBVeSVAEAdywCFhnNjC30TUhYx5q+Zmfs2ru8SZ/4T0NNBPj4T+r3ypEhjpFX3F
-         9f05rIqdbQkMxq9i761qXkBACHp7lTKlq9pCdKVQ=
+        b=AWZ2HJQ613BHEqVC2UYJc7u7Brb1CSmST/MJQpUZPseTKkHxLpHKs4bZL9b/m0sXn
+         VGip6J9WBRF8wbeSHe/P8XJM5E3lxDv/otYFQocPRpwbCDHa0ijYAxy9lGoojCX7H6
+         YppcTQeb3eeELnTR8JYQB5ECM3TWy3pK608e8veE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>
-Subject: [PATCH 4.9 20/62] arm64: mm: dont print out page table entries on EL0 faults
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 78/99] ASoC: Intel: bytcr_rt5651: Revert "Fix DMIC map headsetmic mapping"
 Date:   Mon,  6 May 2019 16:32:51 +0200
-Message-Id: <20190506143052.802065560@linuxfoundation.org>
+Message-Id: <20190506143101.173629211@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristina Martsenko <kristina.martsenko@arm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit bf396c09c2447a787d02af34cf167e953f85fa42 upstream.
+commit aee48a9ffa5a128bf4e433c57c39e015ea5b0208 upstream.
 
-When we take a fault from EL0 that can't be handled, we print out the
-page table entries associated with the faulting address. This allows
-userspace to print out any current page table entries, including kernel
-(TTBR1) entries. Exposing kernel mappings like this could pose a
-security risk, so don't print out page table information on EL0 faults.
-(But still print it out for EL1 faults.) This also follows the same
-behaviour as x86, printing out page table entries on kernel mode faults
-but not user mode faults.
+Commit 37c7401e8c1f ("ASoC: Intel: bytcr_rt5651: Fix DMIC map
+headsetmic mapping"), changed the headsetmic mapping from IN3P to IN2P,
+this was based on the observation that all bytcr_rt5651 devices I have
+access to (7 devices) where all using IN3P for the headsetmic. This was
+an attempt to unifify / simplify the mapping, but it was wrong.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+None of those devices was actually using a digital internal mic. Now I've
+access to a Point of View TAB-P1006W-232 (v1.0) tabler, which does use a
+DMIC and it does have its headsetmic connected to IN2P, showing that the
+original mapping was correct, so this commit reverts the change changing
+the mapping back to IN2P.
+
+Fixes: 37c7401e8c1f ("ASoC: Intel: bytcr_rt5651: Fix DMIC map ... mapping")
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/mm/fault.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5651.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -231,7 +231,6 @@ static void __do_user_fault(struct task_
- 		pr_info("%s[%d]: unhandled %s (%d) at 0x%08lx, esr 0x%03x\n",
- 			tsk->comm, task_pid_nr(tsk), inf->name, sig,
- 			addr, esr);
--		show_pte(addr);
- 		show_regs(regs);
- 	}
+--- a/sound/soc/intel/boards/bytcr_rt5651.c
++++ b/sound/soc/intel/boards/bytcr_rt5651.c
+@@ -267,7 +267,7 @@ static const struct snd_soc_dapm_route b
+ static const struct snd_soc_dapm_route byt_rt5651_intmic_dmic_map[] = {
+ 	{"DMIC L1", NULL, "Internal Mic"},
+ 	{"DMIC R1", NULL, "Internal Mic"},
+-	{"IN3P", NULL, "Headset Mic"},
++	{"IN2P", NULL, "Headset Mic"},
+ };
  
+ static const struct snd_soc_dapm_route byt_rt5651_intmic_in1_map[] = {
 
 
