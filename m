@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0737E14D35
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28DC14D53
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727802AbfEFOtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50656 "EHLO mail.kernel.org"
+        id S1726756AbfEFOu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728377AbfEFOtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:18 -0400
+        id S1729560AbfEFOtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:49:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEC90205ED;
-        Mon,  6 May 2019 14:49:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52EBF20C01;
+        Mon,  6 May 2019 14:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154157;
-        bh=RyF1wlVi21/bLL3I5s5Ar3Bqp+a2A4TvDOvYubn9KjA=;
+        s=default; t=1557154159;
+        bh=hNMILTvkYrpnJHXR3XQLza2zTz1EDv6P8yTCQHmpAkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hURBCsDNwJPZoXtInqypMndYLEN1oppDcGE3ybjhakgKwb45MI6x+GmJ1favVQe8W
-         xwci8GQrY/LXPxc7l031+DYOQJ1krJ7FXsTsnCxRqVNqh130A3QhkVoM112yko+GDO
-         frBwraktxyDUjPMTS42Yh11An3HXXgE5+f+rUB0k=
+        b=vSAy3gXkS5S7z4M80/12lowEW3JGKh1rqXSCIKHcVsTAToW5JBEdxHa9eJhS6Tyj/
+         TAL6QWQIKt5bpQrb3mOe/FI869h79VT15a5TEOJGEIyER2u6dc2BFZB4gZEx2b0ZiI
+         BwMnoLPUzXAR4CGKINi5RC3lAm4HK0n+zfB2RmD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
-        Mike Christie <mchristi@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 58/62] scsi: RDMA/srpt: Fix a credit leak for aborted commands
-Date:   Mon,  6 May 2019 16:33:29 +0200
-Message-Id: <20190506143056.425837830@linuxfoundation.org>
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 59/62] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
+Date:   Mon,  6 May 2019 16:33:30 +0200
+Message-Id: <20190506143056.523415973@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
 References: <20190506143051.102535767@linuxfoundation.org>
@@ -49,49 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Anson Huang <anson.huang@nxp.com>
 
-commit 40ca8757291ca7a8775498112d320205b2a2e571 upstream.
+commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 upstream.
 
-Make sure that the next time a response is sent to the initiator that the
-credit it had allocated for the aborted request gets freed.
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
 
-Cc: Doug Ledford <dledford@redhat.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: Mike Christie <mchristi@redhat.com>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Fixes: 131e6abc674e ("target: Add TFO->abort_task for aborted task resources release") # v3.15
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/input/keyboard/snvs_pwrkey.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -2368,8 +2368,19 @@ static void srpt_queue_tm_rsp(struct se_
- 	srpt_queue_response(cmd);
- }
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -156,6 +156,9 @@ static int imx_snvs_pwrkey_probe(struct
+ 		return error;
+ 	}
  
-+/*
-+ * This function is called for aborted commands if no response is sent to the
-+ * initiator. Make sure that the credits freed by aborting a command are
-+ * returned to the initiator the next time a response is sent by incrementing
-+ * ch->req_lim_delta.
-+ */
- static void srpt_aborted_task(struct se_cmd *cmd)
- {
-+	struct srpt_send_ioctx *ioctx = container_of(cmd,
-+				struct srpt_send_ioctx, cmd);
-+	struct srpt_rdma_ch *ch = ioctx->ch;
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
 +
-+	atomic_inc(&ch->req_lim_delta);
- }
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -171,9 +174,6 @@ static int imx_snvs_pwrkey_probe(struct
+ 		return error;
+ 	}
  
- static int srpt_queue_status(struct se_cmd *cmd)
+-	pdata->input = input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
 
 
