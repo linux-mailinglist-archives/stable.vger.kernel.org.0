@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C520D14EFA
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB1914EF0
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbfEFPGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
+        id S1726733AbfEFOhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:37:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbfEFOhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:37:33 -0400
+        id S1726418AbfEFOhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A6E206A3;
-        Mon,  6 May 2019 14:37:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC446204EC;
+        Mon,  6 May 2019 14:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153452;
-        bh=ploqfepncoVXrCe87IV0KnwkIwovppJmkPjVgS6u8tw=;
+        s=default; t=1557153466;
+        bh=7OxJbkyPyhXvXcm9b2wqW0qcqTSUjNm69XWQPModrrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXOr6AhtrsnQi0FxlRLrUMM5IXm4o6FKZsE/DMtbGyFVlQ1VX6jR/EV1NYxn0gFbL
-         H29W38aNWzPld+ZpgwPZS1Nj5n3l8dtlCTDEAe2tPdmn1Y6a2HQnGRc0cDyWGRWZLj
-         KGDSdwL7R3anZZNPao4xSF0VLwHZ3usbh52lNRMc=
+        b=RfFhi8niW4jC0Q+yX3cg5HBf2uFgbjmx5rwIWMeNARXFB/irLNlgirrqa/DsKUj5A
+         2gCGHVUfrPvshuMpIAeup1QsngerCF3O5nwM3tYCtslDU69/6nXycWRStP8OGzIQlb
+         T9d8VSnNkaF3+oikMh0rEH7kDw5N9aU30mWFiUdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, John Pittman <jpittman@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 077/122] sh: fix multiple function definition build errors
-Date:   Mon,  6 May 2019 16:32:15 +0200
-Message-Id: <20190506143101.753765207@linuxfoundation.org>
+Subject: [PATCH 5.0 078/122] null_blk: prevent crash from bad home_node value
+Date:   Mon,  6 May 2019 16:32:16 +0200
+Message-Id: <20190506143101.836774644@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -49,55 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
+[ Upstream commit 7ff684a683d777c4956fce93e60accbab2bd7696 ]
 
-Many of the sh CPU-types have their own plat_irq_setup() and
-arch_init_clk_ops() functions, so these same (empty) functions in
-arch/sh/boards/of-generic.c are not needed and cause build errors.
+At module load, if the selected home_node value is greater than
+the available numa nodes, the system will crash in
+__alloc_pages_nodemask() due to a bad paging request.  Prevent this
+user error crash by detecting the bad value, logging an error, and
+setting g_home_node back to the default of NUMA_NO_NODE.
 
-If there is some case where these empty functions are needed, they can
-be retained by marking them as "__weak" while at the same time making
-builds that do not need them succeed.
-
-Fixes these build errors:
-
-arch/sh/boards/of-generic.o: In function `plat_irq_setup':
-(.init.text+0x134): multiple definition of `plat_irq_setup'
-arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
-arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
-(.init.text+0x118): multiple definition of `arch_init_clk_ops'
-arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
-
-Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: John Pittman <jpittman@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/sh/boards/of-generic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/null_blk_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
-index 958f46da3a79..d91065e81a4e 100644
---- a/arch/sh/boards/of-generic.c
-+++ b/arch/sh/boards/of-generic.c
-@@ -164,10 +164,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
+diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
+index 62c9654b9ce8..fd7a9be54595 100644
+--- a/drivers/block/null_blk_main.c
++++ b/drivers/block/null_blk_main.c
+@@ -1749,6 +1749,11 @@ static int __init null_init(void)
+ 		return -EINVAL;
+ 	}
  
- struct sh_clk_ops;
- 
--void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
-+void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
- {
- }
- 
--void __init plat_irq_setup(void)
-+void __init __weak plat_irq_setup(void)
- {
- }
++	if (g_home_node != NUMA_NO_NODE && g_home_node >= nr_online_nodes) {
++		pr_err("null_blk: invalid home_node value\n");
++		g_home_node = NUMA_NO_NODE;
++	}
++
+ 	if (g_queue_mode == NULL_Q_RQ) {
+ 		pr_err("null_blk: legacy IO path no longer available\n");
+ 		return -EINVAL;
 -- 
 2.20.1
 
