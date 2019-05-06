@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA3314D7A
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2FF14DA9
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727018AbfEFOtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
+        id S1727489AbfEFOqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729574AbfEFOtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:05 -0400
+        id S1729177AbfEFOqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E757216B7;
-        Mon,  6 May 2019 14:48:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEE0220C01;
+        Mon,  6 May 2019 14:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154133;
-        bh=mD1NqaD5euBlUloinWF4XRlqylg13UT0Nd0kdHVl4MM=;
+        s=default; t=1557153996;
+        bh=BEmpdl3QLKjnFxAoy5mwhcZC6waPtqWdaqaKJlGL7jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=15HpYY/UBMKWha1pj33H8J/FyrtX6+QlsyyIimLHpxuJCgAiyTEMWGNS7uSmbP5b/
-         FdoFnfPsAW3WdBU5vf4YjOHuSHFAEl4eJuViinMGE/oLkcf73ZKZrJEPjJjwlVAVcH
-         dXR/TqsYI24d4QI4DXPcEziXTMH94mcONXmMf75s=
+        b=WKEtBWSVKsMtpiZEPONfbT2tiDPXqEWoK4AuKAHJhDMvWN7+eTdTd+MsDOgx6HEBZ
+         Bp59B1tga3U2VBRH0Zgps7iM8qh71WbWwXjtpRv2wj/6tG2OGmS6vkeZNb9enzn6FL
+         wBNb127M0u4xXbRYByX/aNq1CPmWBtrpsfRF+jFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/62] sh: fix multiple function definition build errors
+        stable@vger.kernel.org,
+        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.14 73/75] clk: x86: Add system specific quirk to mark clocks as critical
 Date:   Mon,  6 May 2019 16:33:21 +0200
-Message-Id: <20190506143055.605073394@linuxfoundation.org>
+Message-Id: <20190506143059.946722014@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,57 +46,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
+From: David Müller <dave.mueller@gmx.ch>
 
-Many of the sh CPU-types have their own plat_irq_setup() and
-arch_init_clk_ops() functions, so these same (empty) functions in
-arch/sh/boards/of-generic.c are not needed and cause build errors.
+commit 7c2e07130090ae001a97a6b65597830d6815e93e upstream.
 
-If there is some case where these empty functions are needed, they can
-be retained by marking them as "__weak" while at the same time making
-builds that do not need them succeed.
+Since commit 648e921888ad ("clk: x86: Stop marking clocks as
+CLK_IS_CRITICAL"), the pmc_plt_clocks of the Bay Trail SoC are
+unconditionally gated off. Unfortunately this will break systems where these
+clocks are used for external purposes beyond the kernel's knowledge. Fix it
+by implementing a system specific quirk to mark the necessary pmc_plt_clks as
+critical.
 
-Fixes these build errors:
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Signed-off-by: David Müller <dave.mueller@gmx.ch>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-arch/sh/boards/of-generic.o: In function `plat_irq_setup':
-(.init.text+0x134): multiple definition of `plat_irq_setup'
-arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
-arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
-(.init.text+0x118): multiple definition of `arch_init_clk_ops'
-arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
-
-Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/boards/of-generic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/x86/clk-pmc-atom.c                 |   14 +++++++++++---
+ drivers/platform/x86/pmc_atom.c                |   21 +++++++++++++++++++++
+ include/linux/platform_data/x86/clk-pmc-atom.h |    3 +++
+ 3 files changed, 35 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
-index 1fb6d5714bae..fd00566677c9 100644
---- a/arch/sh/boards/of-generic.c
-+++ b/arch/sh/boards/of-generic.c
-@@ -180,10 +180,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
+--- a/drivers/clk/x86/clk-pmc-atom.c
++++ b/drivers/clk/x86/clk-pmc-atom.c
+@@ -165,7 +165,7 @@ static const struct clk_ops plt_clk_ops
+ };
  
- struct sh_clk_ops;
- 
--void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
-+void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
+ static struct clk_plt *plt_clk_register(struct platform_device *pdev, int id,
+-					void __iomem *base,
++					const struct pmc_clk_data *pmc_data,
+ 					const char **parent_names,
+ 					int num_parents)
  {
- }
+@@ -184,9 +184,17 @@ static struct clk_plt *plt_clk_register(
+ 	init.num_parents = num_parents;
  
--void __init plat_irq_setup(void)
-+void __init __weak plat_irq_setup(void)
- {
+ 	pclk->hw.init = &init;
+-	pclk->reg = base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
++	pclk->reg = pmc_data->base + PMC_CLK_CTL_OFFSET + id * PMC_CLK_CTL_SIZE;
+ 	spin_lock_init(&pclk->lock);
+ 
++	/*
++	 * On some systems, the pmc_plt_clocks already enabled by the
++	 * firmware are being marked as critical to avoid them being
++	 * gated by the clock framework.
++	 */
++	if (pmc_data->critical && plt_clk_is_enabled(&pclk->hw))
++		init.flags |= CLK_IS_CRITICAL;
++
+ 	ret = devm_clk_hw_register(&pdev->dev, &pclk->hw);
+ 	if (ret) {
+ 		pclk = ERR_PTR(ret);
+@@ -332,7 +340,7 @@ static int plt_clk_probe(struct platform
+ 		return PTR_ERR(parent_names);
+ 
+ 	for (i = 0; i < PMC_CLK_NUM; i++) {
+-		data->clks[i] = plt_clk_register(pdev, i, pmc_data->base,
++		data->clks[i] = plt_clk_register(pdev, i, pmc_data,
+ 						 parent_names, data->nparents);
+ 		if (IS_ERR(data->clks[i])) {
+ 			err = PTR_ERR(data->clks[i]);
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
++#include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/platform_data/x86/clk-pmc-atom.h>
+@@ -421,11 +422,27 @@ static int pmc_dbgfs_register(struct pmc
  }
--- 
-2.20.1
-
+ #endif /* CONFIG_DEBUG_FS */
+ 
++/*
++ * Some systems need one or more of their pmc_plt_clks to be
++ * marked as critical.
++ */
++static const struct dmi_system_id critclk_systems[] __initconst = {
++	{
++		.ident = "MPL CEC1x",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
++		},
++	},
++	{ /*sentinel*/ }
++};
++
+ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
+ 			  const struct pmc_data *pmc_data)
+ {
+ 	struct platform_device *clkdev;
+ 	struct pmc_clk_data *clk_data;
++	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
+ 
+ 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
+ 	if (!clk_data)
+@@ -433,6 +450,10 @@ static int pmc_setup_clks(struct pci_dev
+ 
+ 	clk_data->base = pmc_regmap; /* offset is added by client */
+ 	clk_data->clks = pmc_data->clks;
++	if (d) {
++		clk_data->critical = true;
++		pr_info("%s critclks quirk enabled\n", d->ident);
++	}
+ 
+ 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
+ 					       PLATFORM_DEVID_NONE,
+--- a/include/linux/platform_data/x86/clk-pmc-atom.h
++++ b/include/linux/platform_data/x86/clk-pmc-atom.h
+@@ -35,10 +35,13 @@ struct pmc_clk {
+  *
+  * @base:	PMC clock register base offset
+  * @clks:	pointer to set of registered clocks, typically 0..5
++ * @critical:	flag to indicate if firmware enabled pmc_plt_clks
++ *		should be marked as critial or not
+  */
+ struct pmc_clk_data {
+ 	void __iomem *base;
+ 	const struct pmc_clk *clks;
++	bool critical;
+ };
+ 
+ #endif /* __PLATFORM_DATA_X86_CLK_PMC_ATOM_H */
 
 
