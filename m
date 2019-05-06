@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 284CE14E07
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F3014E4C
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726940AbfEFO6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:58:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
+        id S1728219AbfEFOlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728081AbfEFOoI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:08 -0400
+        id S1727733AbfEFOlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA58920449;
-        Mon,  6 May 2019 14:44:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3D4A21479;
+        Mon,  6 May 2019 14:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153847;
-        bh=N9J1O/dinkSCatUPCOSKp6J9RJCLyqj8e+wbFW+y2hU=;
+        s=default; t=1557153680;
+        bh=RjMAvqx838rODCCwYMizeMBm2qO3TPGCYP0XQqTViGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aH24t3smp9HE9oNkBHig2RkZKXCOOBtvkKbvWxrq2wwbteF4sGTMiOfmQM6OKy/Db
-         QmIvz8ARbESxIfUNBV8AwEMh32+rsY9pJIP/oJTIKf2yCp3wt9vZU4+Ea7pCnNjOEu
-         gstGKlYaqrpUyPK6O43xEqKreFkLOxpYSg2UjBdQ=
+        b=i9y0EEEsfUlzQKVnMw0Z+pW9FIEudeUEPlisQXm9tOLEzIgAihUwG1L3hWWIJkaEn
+         +0y7yyMx9utTQp7F0E60NtzFBfY2db5LT5eJvtS9uIBPD0Ho+aUBVZI/791mMQoWy1
+         i63fZ5JYhCLgliAjw0a0iq1Kvh7i2LEOgnSHsZ4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 19/75] USB: yurex: Fix protection fault after device removal
-Date:   Mon,  6 May 2019 16:32:27 +0200
-Message-Id: <20190506143054.895240578@linuxfoundation.org>
+        stable@vger.kernel.org, Liubin Shu <shuliubin@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 55/99] net: hns: fix KASAN: use-after-free in hns_nic_net_xmit_hw()
+Date:   Mon,  6 May 2019 16:32:28 +0200
+Message-Id: <20190506143059.065077774@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+[ Upstream commit 3a39a12ad364a9acd1038ba8da67cd8430f30de4 ]
 
-commit ef61eb43ada6c1d6b94668f0f514e4c268093ff3 upstream.
+This patch is trying to fix the issue due to:
+[27237.844750] BUG: KASAN: use-after-free in hns_nic_net_xmit_hw+0x708/0xa18[hns_enet_drv]
 
-The syzkaller USB fuzzer found a general-protection-fault bug in the
-yurex driver.  The fault occurs when a device has been unplugged; the
-driver's interrupt-URB handler logs an error message referring to the
-device by name, after the device has been unregistered and its name
-deallocated.
+After hnae_queue_xmit() in hns_nic_net_xmit_hw(), can be
+interrupted by interruptions, and than call hns_nic_tx_poll_one()
+to handle the new packets, and free the skb. So, when turn back to
+hns_nic_net_xmit_hw(), calling skb->len will cause use-after-free.
 
-This problem is caused by the fact that the interrupt URB isn't
-cancelled until the driver's private data structure is released, which
-can happen long after the device is gone.  The cure is to make sure
-that the interrupt URB is killed before yurex_disconnect() returns;
-this is exactly the sort of thing that usb_poison_urb() was meant for.
+This patch update tx ring statistics in hns_nic_tx_poll_one() to
+fix the bug.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Liubin Shu <shuliubin@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/yurex.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -318,6 +318,7 @@ static void yurex_disconnect(struct usb_
- 	usb_deregister_dev(interface, &yurex_class);
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index cc84133c184d..3a6e5cc76c5b 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -376,8 +376,6 @@ netdev_tx_t hns_nic_net_xmit_hw(struct net_device *ndev,
+ 	wmb(); /* commit all data before submit */
+ 	assert(skb->queue_mapping < priv->ae_handle->q_num);
+ 	hnae_queue_xmit(priv->ae_handle->qs[skb->queue_mapping], buf_num);
+-	ring->stats.tx_pkts++;
+-	ring->stats.tx_bytes += skb->len;
  
- 	/* prevent more I/O from starting */
-+	usb_poison_urb(dev->urb);
- 	mutex_lock(&dev->io_mutex);
- 	dev->interface = NULL;
- 	mutex_unlock(&dev->io_mutex);
+ 	return NETDEV_TX_OK;
+ 
+@@ -999,6 +997,9 @@ static int hns_nic_tx_poll_one(struct hns_nic_ring_data *ring_data,
+ 		/* issue prefetch for next Tx descriptor */
+ 		prefetch(&ring->desc_cb[ring->next_to_clean]);
+ 	}
++	/* update tx ring statistics. */
++	ring->stats.tx_pkts += pkts;
++	ring->stats.tx_bytes += bytes;
+ 
+ 	NETIF_TX_UNLOCK(ring);
+ 
+-- 
+2.20.1
+
 
 
