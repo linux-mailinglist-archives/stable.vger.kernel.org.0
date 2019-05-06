@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45ADA14F24
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6485314EB2
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726457AbfEFOfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55818 "EHLO mail.kernel.org"
+        id S1727525AbfEFPDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:03:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726983AbfEFOfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:35:40 -0400
+        id S1726921AbfEFOjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA17A214AE;
-        Mon,  6 May 2019 14:35:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D2B420449;
+        Mon,  6 May 2019 14:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153339;
-        bh=aBS23To4zgYe4FkCBU84AS1SB4OpLcZTHtMQFMMKQ1M=;
+        s=default; t=1557153572;
+        bh=LOD1V+6gL9WXMN4zviTvrNZvb9jMmiuHBYDaYzfhRek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egEzfc61qeUVUhX1Xl1gkOoOH6jsuIUHLc84ivWpVps70IuPF6ZLjdmWSxqrHpZXZ
-         wcsgT18HipuvrZ6UGUM8Z/vpOHfmZI5lzD53cUGhiXGZSG9fWHlSUkFoyWEi4IDsTN
-         W/wkdfyRd2p7La3VzAZ7+IRxAI4rqzzw2F8/IeQA=
+        b=iKe/uUfMvchltE1WK3EfMFpKbKCG9q/poYt7wPd59nN9hAd5bLwehScCAZFkyHeEI
+         D+Iy8VvlspI8BRybzNt/gRTO0v1UnCWgIIivmoYaNB14MVWvGexI5H1lM+Bpd+UODD
+         9hR6avPTnZ+sDMLhg7MGJ0aGxP2knzCidtC5zB0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 052/122] net: stmmac: dont stop NAPI processing when dropping a packet
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+b75b85111c10b8d680f1@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 17/99] USB: core: Fix unterminated string returned by usb_string()
 Date:   Mon,  6 May 2019 16:31:50 +0200
-Message-Id: <20190506143059.586115083@linuxfoundation.org>
+Message-Id: <20190506143055.445051058@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 07b3975352374c3f5ebb4a42ef0b253fe370542d ]
+From: Alan Stern <stern@rowland.harvard.edu>
 
-Currently, if we drop a packet, we exit from NAPI loop before the budget
-is consumed. In some situations this will make the RX processing stall
-e.g. when flood pinging the system with oversized packets, as the
-errorneous packets are not dropped efficiently.
+commit c01c348ecdc66085e44912c97368809612231520 upstream.
 
-If we drop a packet, we should just continue to the next one as long as
-the budget allows.
+Some drivers (such as the vub300 MMC driver) expect usb_string() to
+return a properly NUL-terminated string, even when an error occurs.
+(In fact, vub300's probe routine doesn't bother to check the return
+code from usb_string().)  When the driver goes on to use an
+unterminated string, it leads to kernel errors such as
+stack-out-of-bounds, as found by the syzkaller USB fuzzer.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+An out-of-range string index argument is not at all unlikely, given
+that some devices don't provide string descriptors and therefore list
+0 as the value for their string indexes.  This patch makes
+usb_string() return a properly terminated empty string along with the
+-EINVAL error code when an out-of-range index is encountered.
+
+And since a USB string index is a single-byte value, indexes >= 256
+are just as invalid as values of 0 or below.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: syzbot+b75b85111c10b8d680f1@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/core/message.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 0ccf91a08290..f0e0593e54f3 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3328,9 +3328,8 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- {
- 	struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
- 	struct stmmac_channel *ch = &priv->channel[queue];
--	unsigned int entry = rx_q->cur_rx;
-+	unsigned int next_entry = rx_q->cur_rx;
- 	int coe = priv->hw->rx_csum;
--	unsigned int next_entry;
- 	unsigned int count = 0;
- 	bool xmac;
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -820,9 +820,11 @@ int usb_string(struct usb_device *dev, i
  
-@@ -3348,10 +3347,12 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 		stmmac_display_ring(priv, rx_head, DMA_RX_SIZE, true);
- 	}
- 	while (count < limit) {
--		int status;
-+		int entry, status;
- 		struct dma_desc *p;
- 		struct dma_desc *np;
- 
-+		entry = next_entry;
-+
- 		if (priv->extend_desc)
- 			p = (struct dma_desc *)(rx_q->dma_erx + entry);
- 		else
-@@ -3412,7 +3413,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 						   "len %d larger than size (%d)\n",
- 						   frame_len, priv->dma_buf_sz);
- 				priv->dev->stats.rx_length_errors++;
--				break;
-+				continue;
- 			}
- 
- 			/* ACS is set; GMAC core strips PAD/FCS for IEEE 802.3
-@@ -3447,7 +3448,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 						dev_warn(priv->device,
- 							 "packet dropped\n");
- 					priv->dev->stats.rx_dropped++;
--					break;
-+					continue;
- 				}
- 
- 				dma_sync_single_for_cpu(priv->device,
-@@ -3472,7 +3473,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 							   "%s: Inconsistent Rx chain\n",
- 							   priv->dev->name);
- 					priv->dev->stats.rx_dropped++;
--					break;
-+					continue;
- 				}
- 				prefetch(skb->data - NET_IP_ALIGN);
- 				rx_q->rx_skbuff[entry] = NULL;
-@@ -3507,7 +3508,6 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 			priv->dev->stats.rx_packets++;
- 			priv->dev->stats.rx_bytes += frame_len;
- 		}
--		entry = next_entry;
- 	}
- 
- 	stmmac_rx_refill(priv, queue);
--- 
-2.20.1
-
+ 	if (dev->state == USB_STATE_SUSPENDED)
+ 		return -EHOSTUNREACH;
+-	if (size <= 0 || !buf || !index)
++	if (size <= 0 || !buf)
+ 		return -EINVAL;
+ 	buf[0] = 0;
++	if (index <= 0 || index >= 256)
++		return -EINVAL;
+ 	tbuf = kmalloc(256, GFP_NOIO);
+ 	if (!tbuf)
+ 		return -ENOMEM;
 
 
