@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D90114D0F
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31FFB14DD7
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728369AbfEFOra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:47:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46704 "EHLO mail.kernel.org"
+        id S1728925AbfEFOpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbfEFOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:47:29 -0400
+        id S1728920AbfEFOpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:45:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03FCD2087F;
-        Mon,  6 May 2019 14:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D934B2087F;
+        Mon,  6 May 2019 14:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154048;
-        bh=DosLYsdqqwnMkYfm9X+s9Msj92hI9YNM9I/2sCXWpPs=;
+        s=default; t=1557153915;
+        bh=xNJS3Z9UgUqOenpoe5QyhRpsXLh5282+tmmL3AgQYPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVo2hrr2zwpZg0P0kBGUkkVHI+b156Idwx/bl1KZAmX93dyToc5zEORYzG9Y4dPxm
-         dZMkZW4yZPcd3aYaUGLtFsyPHQaBxMYylWQYbJ3G0AoYGggPefUVyswee2zlEmtVo6
-         HZsX/wJF0KmUva2uddeMkbm4g20le2Va50nGCk/I=
+        b=KCCjt+JRRStYYXM6dbNyWF6kuoPvTHU7yRhPqjOo4SmA3JXGwJsNRnjzlQDScY5v0
+         INnmowW0t1sy0ZmSQquRZlB0qVnmsTp+lv8HMMsQ5clyF5lh+ULahOPNV8RpE5C+W3
+         oHqDZl9ZTHTEdRk/oOEJv39tg7jHbpcUDNiKNGoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>
-Subject: [PATCH 4.9 19/62] arm64: mm: print out correct page table entries
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 42/75] rtc: da9063: set uie_unsupported when relevant
 Date:   Mon,  6 May 2019 16:32:50 +0200
-Message-Id: <20190506143052.725394517@linuxfoundation.org>
+Message-Id: <20190506143057.019504365@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,134 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristina Martsenko <kristina.martsenko@arm.com>
+[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
 
-commit 67ce16ec15ce9d97d3d85e72beabbc5d7017193e upstream.
+The DA9063AD doesn't support alarms on any seconds and its granularity is
+the minute. Set uie_unsupported in that case.
 
-When we take a fault that can't be handled, we print out the page table
-entries associated with the faulting address. In some cases we currently
-print out the wrong entries. For a faulting TTBR1 address, we sometimes
-print out TTBR0 table entries instead, and for a faulting TTBR0 address
-we sometimes print out TTBR1 table entries. Fix this by choosing the
-tables based on the faulting address.
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
-[will: zero-extend addrs to 64-bit, don't walk swapper w/ TTBR0 addr]
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/system_misc.h |    2 -
- arch/arm64/mm/fault.c                |   36 ++++++++++++++++++++++++-----------
- 2 files changed, 26 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-da9063.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm64/include/asm/system_misc.h
-+++ b/arch/arm64/include/asm/system_misc.h
-@@ -40,7 +40,7 @@ void hook_debug_fault_code(int nr, int (
- 			   int sig, int code, const char *name);
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index f85cae240f12..7e92e491c2e7 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
+ 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+ 	rtc->rtc_sync = false;
  
- struct mm_struct;
--extern void show_pte(struct mm_struct *mm, unsigned long addr);
-+extern void show_pte(unsigned long addr);
- extern void __show_regs(struct pt_regs *);
- 
- extern void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -79,18 +79,33 @@ static inline int notify_page_fault(stru
- #endif
- 
- /*
-- * Dump out the page tables associated with 'addr' in mm 'mm'.
-+ * Dump out the page tables associated with 'addr' in the currently active mm.
-  */
--void show_pte(struct mm_struct *mm, unsigned long addr)
-+void show_pte(unsigned long addr)
- {
-+	struct mm_struct *mm;
- 	pgd_t *pgd;
- 
--	if (!mm)
-+	if (addr < TASK_SIZE) {
-+		/* TTBR0 */
-+		mm = current->active_mm;
-+		if (mm == &init_mm) {
-+			pr_alert("[%016lx] user address but active_mm is swapper\n",
-+				 addr);
-+			return;
-+		}
-+	} else if (addr >= VA_START) {
-+		/* TTBR1 */
- 		mm = &init_mm;
-+	} else {
-+		pr_alert("[%016lx] address between user and kernel address ranges\n",
-+			 addr);
-+		return;
-+	}
- 
- 	pr_alert("pgd = %p\n", mm->pgd);
- 	pgd = pgd_offset(mm, addr);
--	pr_alert("[%08lx] *pgd=%016llx", addr, pgd_val(*pgd));
-+	pr_alert("[%016lx] *pgd=%016llx", addr, pgd_val(*pgd));
- 
- 	do {
- 		pud_t *pud;
-@@ -176,8 +191,8 @@ static bool is_el1_instruction_abort(uns
- /*
-  * The kernel tried to access some page that wasn't present.
-  */
--static void __do_kernel_fault(struct mm_struct *mm, unsigned long addr,
--			      unsigned int esr, struct pt_regs *regs)
-+static void __do_kernel_fault(unsigned long addr, unsigned int esr,
-+			      struct pt_regs *regs)
- {
- 	/*
- 	 * Are we prepared to handle this kernel fault?
-@@ -194,7 +209,7 @@ static void __do_kernel_fault(struct mm_
- 		 (addr < PAGE_SIZE) ? "NULL pointer dereference" :
- 		 "paging request", addr);
- 
--	show_pte(mm, addr);
-+	show_pte(addr);
- 	die("Oops", regs, esr);
- 	bust_spinlocks(0);
- 	do_exit(SIGKILL);
-@@ -216,7 +231,7 @@ static void __do_user_fault(struct task_
- 		pr_info("%s[%d]: unhandled %s (%d) at 0x%08lx, esr 0x%03x\n",
- 			tsk->comm, task_pid_nr(tsk), inf->name, sig,
- 			addr, esr);
--		show_pte(tsk->mm, addr);
-+		show_pte(addr);
- 		show_regs(regs);
- 	}
- 
-@@ -232,7 +247,6 @@ static void __do_user_fault(struct task_
- static void do_bad_area(unsigned long addr, unsigned int esr, struct pt_regs *regs)
- {
- 	struct task_struct *tsk = current;
--	struct mm_struct *mm = tsk->active_mm;
- 	const struct fault_info *inf;
- 
- 	/*
-@@ -243,7 +257,7 @@ static void do_bad_area(unsigned long ad
- 		inf = esr_to_fault_info(esr);
- 		__do_user_fault(tsk, addr, esr, inf->sig, inf->code, regs);
- 	} else
--		__do_kernel_fault(mm, addr, esr, regs);
-+		__do_kernel_fault(addr, esr, regs);
- }
- 
- #define VM_FAULT_BADMAP		0x010000
-@@ -454,7 +468,7 @@ retry:
- 	return 0;
- 
- no_context:
--	__do_kernel_fault(mm, addr, esr, regs);
-+	__do_kernel_fault(addr, esr, regs);
- 	return 0;
- }
- 
++	/*
++	 * TODO: some models have alarms on a minute boundary but still support
++	 * real hardware interrupts. Add this once the core supports it.
++	 */
++	if (config->rtc_data_start != RTC_SEC)
++		rtc->rtc_dev->uie_unsupported = 1;
++
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
+-- 
+2.20.1
+
 
 
