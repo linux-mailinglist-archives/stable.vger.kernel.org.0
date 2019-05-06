@@ -2,23 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C75155CA
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 23:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84611155E9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 00:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726046AbfEFVpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 17:45:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725994AbfEFVpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 17:45:16 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0F90206BF;
-        Mon,  6 May 2019 21:45:12 +0000 (UTC)
-Date:   Mon, 6 May 2019 17:45:11 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        id S1726095AbfEFWHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 18:07:23 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:36969 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbfEFWHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 18:07:23 -0400
+Received: by mail-lf1-f68.google.com with SMTP id h126so10277217lfh.4
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 15:07:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KnC6sHzJKQT/H/efllpurOKq1DqCgmhhrIn+ALVg0f8=;
+        b=UuWTDsQLlvb0PtcfEid4ABezWzyagSu44050e/2j488U+99fI3xCIqtuQS8vXMHPrQ
+         xvVSucwGErlEAEYFFWNYIWMj4gj1EPGneYgBBhuklMQ9H4OeRQjj1yrsseBu+AGIqRuC
+         1DBfQJo9MbI0m5IyIe848iiX0VPuZXVlACZoY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KnC6sHzJKQT/H/efllpurOKq1DqCgmhhrIn+ALVg0f8=;
+        b=pRKdCDKbL9KWBHoHP1znM12QQgiNm8fmGuww+fAiWZU8VWYUVgDenDEQThDSVGOBat
+         Hszecqk7S49vrM4xH3axP4j8dMf9tXnPJNc8M3gy7/9GSFQb2nrIflLKzheoZ+6YvQaA
+         vqXG6lvt4R3hI5s7e0xGTCC567LHfweQNxNz2HoFSDU+sS+LrClnzZCvkiVhmNwUkIkU
+         U1HlohKJUFVBCkHBbh7De+T5kq+5yGTwL02qyo17CRqNYzj6d6E7KsadBZmcEAzMnnlz
+         19rlBB+/9JB/FiFJUS4lVKa8piEhNfrxXv7ARJnASsl1Obp9ZOEANScy0aP8g5xDy5CS
+         9QoA==
+X-Gm-Message-State: APjAAAXoZy8xJ3HIjkOnGZPAh0o3NAEfmllK7OZ/soF3CKzL4GHo5Ygc
+        BmJ3vRZEJpUGIf0EcRPAFIxQ7idJmZU=
+X-Google-Smtp-Source: APXvYqxDDZ2DTZUZy8If5gWYhgLwc+8MJUs7AHJK/85l+2wQE9WEq/IrNfPb0VfrgFHYq5fRgLVRGA==
+X-Received: by 2002:ac2:5609:: with SMTP id v9mr13881937lfd.159.1557180439906;
+        Mon, 06 May 2019 15:07:19 -0700 (PDT)
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com. [209.85.167.48])
+        by smtp.gmail.com with ESMTPSA id k4sm2980174lja.18.2019.05.06.15.07.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 May 2019 15:07:19 -0700 (PDT)
+Received: by mail-lf1-f48.google.com with SMTP id y19so2713837lfy.5
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 15:07:16 -0700 (PDT)
+X-Received: by 2002:a19:4f54:: with SMTP id a20mr14066761lfk.136.1557180433906;
+ Mon, 06 May 2019 15:07:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <20190502185225.0cdfc8bc@gandalf.local.home> <20190502193129.664c5b2e@gandalf.local.home>
+ <20190502195052.0af473cf@gandalf.local.home> <20190503092959.GB2623@hirez.programming.kicks-ass.net>
+ <20190503092247.20cc1ff0@gandalf.local.home> <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
+ <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
+ <20190506081951.GJ2606@hirez.programming.kicks-ass.net> <20190506095631.6f71ad7c@gandalf.local.home>
+ <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
+ <20190506130643.62c35eeb@gandalf.local.home> <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
+ <20190506145745.17c59596@gandalf.local.home> <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
+ <20190506162915.380993f9@gandalf.local.home> <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
+ <20190506174511.2f8b696b@gandalf.local.home>
+In-Reply-To: <20190506174511.2f8b696b@gandalf.local.home>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 6 May 2019 15:06:57 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
+Message-ID: <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Andy Lutomirski <luto@amacapital.net>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
@@ -48,202 +94,69 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
         Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190506174511.2f8b696b@gandalf.local.home>
-In-Reply-To: <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
-        <20190502185225.0cdfc8bc@gandalf.local.home>
-        <20190502193129.664c5b2e@gandalf.local.home>
-        <20190502195052.0af473cf@gandalf.local.home>
-        <20190503092959.GB2623@hirez.programming.kicks-ass.net>
-        <20190503092247.20cc1ff0@gandalf.local.home>
-        <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
-        <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
-        <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
-        <20190506095631.6f71ad7c@gandalf.local.home>
-        <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
-        <20190506130643.62c35eeb@gandalf.local.home>
-        <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
-        <20190506145745.17c59596@gandalf.local.home>
-        <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-        <20190506162915.380993f9@gandalf.local.home>
-        <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 6 May 2019 13:42:12 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+On Mon, May 6, 2019 at 2:45 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> To do that we would need to rewrite the logic to update each of those
+> 40,000 calls one at a time, or group them together to what gets
+> changed.
 
-> On Mon, May 6, 2019 at 1:29 PM Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > Because that call to ftrace_stub is also dynamic.  
-> 
-> You're missing the point.
-> 
-> We are rewriting a single "cal" instruction to point to something.
-> 
-> The "int3" emulation should call THE SAME THING.
-> 
-> Right now it doesn't.
+Stephen, YOU ARE NOT LISTENING.
 
-To do that we would need to rewrite the logic to update each of those
-40,000 calls one at a time, or group them together to what gets
-changed. As each function can call a different trampoline. One of the
-custom trampolines associated with a ftrace_ops, or the list one when a
-function has more than one ftrace_ops attached to it.
+You are already fixing the value of the call in the instruction as
+part of the instruction rewriting.
 
-The ftrace code does this in batches:
+When you do things like this:
 
- 1) Add int3 to all functions being affected (could be 40,000 of
-    them) (sync the cores)
+        unsigned long ip = (unsigned long)(&ftrace_call);
+        unsigned char *new;
+        int ret;
 
- (Now all those functions are going through the int3 handler)
+        new = ftrace_call_replace(ip, (unsigned long)func);
+        ret = update_ftrace_func(ip, new);
 
- 2) Modify the address of those call sites (sync the cores)
+you have already decided to rewrite the instruction with one single
+fixed call target: "func".
 
- (Still going through the int3 handlers)
+I'm just saying that you should ALWAYS use the same call target in the
+int3 emulation.
 
- 3) Remove the int3
+Instead, you hardcode something else than what you are AT THE SAME
+TIME rewriting the instruction with.
 
-Now each of those functions are calling something, and they may not all
-be the same thing they are calling.
+See what I'm saying?
 
-> 
-> > Part of the code will change it to call the function needed directly.
-> >
-> > struct ftrace_ops my_ops {
-> >         .func = my_handler
-> > };
-> >
-> >         register_ftrace_function(&my_ops);
-> >
-> > Will change "call ftrace_stub" into "call my_handler"  
-> 
-> But that's not what you're actually *doing*.
-> 
-> Instead, you're now _emulating_ calling ftrace_regs_caller, which will
-> call that ftrace_stub, which in turn will try to update the call site.
+You already save off the "ip" of the instruction you modify in
+update_ftrace_func(). I'm just saying that you should *also* save off
+the actual target of the call, and use *THAT*.
 
-The call site gets updated before the loop gets called (at least it
-should, I have to go and look at the code, but I'm 99% that it does).
-There should not be a breakpoint on the call to ftrace_stub when we add
-breakpoints to the functions that call the ftrace_regs_caller.
+So that the int3 emulation and the instruction rewriting *match*.
 
-> 
-> But that's insane. It's insane because
-> 
->  - it's not even what your call rewriting is doing Why aren't you just
-> doing the emulation using the *SAME* target that you're rewriting the
-> actual call instruction with?
-> 
->  - even if ftrace_regs_caller ends up being that same function, you'd
-> be better off just passing the "struct pt_regs" that you *ALREADY
-> HAVE* directly to ftrace_stub in the int3 handler, rather than create
-> *another* pt_regs stack
+What you do now makes no sense. You're modifing the code with one
+thing (the "func" argument in update_ftrace_func), so if your
+modification completed, that's what you'll actually *run*. But you're
+then _emulating_ doing somethiing completely different, not using
+"func" at all there.
 
-Are you saying to call the ftrace_ops handlers from int3 directly?
+So let me say one more time: how can it *possibly* make sense to
+emulate something else than you are changing the instruction to read?
 
+Are you finally understanding what craziness I'm talking about?
 
-> 
-> See? In that second case, why don't you just use "int3_emulate_call()"
-> to do the reguired 'struct pt_regs' updates, and then call
-> ftrace_stub() *with* that fixed-up pt_regs thing?
-> 
-> In other words, I think you should always do "int3_emulate_call()"
-> with the *exact* same address that the instruction you are rewriting
-> is using. There's no "three different cases". The only possible cases
-> are "am I rewriting a jump" or "am I rewriting a call".
-> 
-> There is no "am I rewriting a call to one address, and then emulating
-> it with a call to another address" case that makes sense.
-> 
-> What *can* make sense is "Oh, I'm emulating a call, but I know that
-> call will be rewritten, so let me emulate the call and then
-> short-circuit the emulation immediately".
-> 
-> But that is not what the ftrace code is doing. The ftrace code is
-> doing something odd and insane.
-> 
-> And no, your "explanation" makes no sense. Because it doesn't actually
-> touch on the fundamental insanity.
+Stop with the "there could be thousands of targets" arguyment. The
+"call" instruction THAT YOU ARE REWRITING has exactly one target.
+There aren't 40,000 of them. x86 does not have that kind of "call"
+instruction that randomly calls 40k different functions. You are
+replacing FIVE BYTES of memory, and the emulation you do should
+emulate those FIVE BYTES.
 
-Also, talking with Peter about the ftrace_32.S version of
-ftrace_regs_caller, makes Peter's patch sound even better.
+See?
 
-The "ftrace_regs_caller" was created to allow kprobes to use the
-function tracer when a probe was added to the start of a function
-(which is a common occurrence). That is, kprobes uses int3 to inject a
-handler pretty much anywhere in the code. kprobes can even be used for
-dynamic trace events.
+Why are you emulating something different than what you are rewriting?
 
-Now we found that if we use function tracing, it's faster to do the
-call then to take the int3 hit. So kprobes knows of ftrace, and will
-register a callback if it happens to be placed on a fentry call site.
-
-Thus, Masami asked me to create a way to have ftrace be able to
-simulate an int3. As kprobe handlers can do pretty much anything (bpf
-uses them), I had to make that call from ftrace look like a real int3
-just happened.
-
-As ftrace_caller, is optimized for fast function tracing, I needed to
-make another trampoline for the slower "emulate int3" operation, and
-that was the birth of ftrace_regs_caller. For x86_64, it was really
-straight forward and I had that done rather quickly. For i386, it was
-much more difficult, and that was because of not having regs->sp on the
-stack. I had to play this game to be able to pass in a pt_regs that
-would be the same regardless if it was called by ftrace or an int3.
-
-The problem was the call to ftrace_regs_caller would place the return
-code on the stack, but I had to move it, because the kprobes handlers,
-expected &regs->sp to point to the location of the stack just before
-the call was hit!  This means, regs->flags was were the return code
-was.
-
-When we enter ftrace_regs_caller from the function being traced, the
-top of the stack has the return code. But then we needed to do this:
-
-	pushl	$__KERNEL_CS
-	pushl	4(%esp)				/* Save the return ip */
-	pushl	$0				/* Load 0 into orig_ax */
-	pushl	%gs
-	pushl	%fs
-	pushl	%es
-	pushl	%ds
-	pushl	%eax
-
-The above push regs->cs, regs->ip (the return code), then regs->gs...
-to regs->ax, where now I finally have saved a scratch register to use.
-
-
-	/* Get flags and place them into the return ip slot */
-	pushf
-	popl	%eax
-	movl	%eax, 8*4(%esp)
-
-I would then save flags into %eax and move it to where the return
-address was placed by the call to this trampoline.
-
-At the end, I had to undo this song and dance as well:
-
-	/* restore flags */
-	push	14*4(%esp)
-	popf
-
-	/* Move return ip back to its original location */
-	movl	12*4(%esp), %eax
-	movl	%eax, 14*4(%esp)
-
-
-If we go with Peter's patch, I can make this code much more sane, and
-not have to worry about having &regs->sp be at the top of the stack. I
-could simply, just push everything in the order of pt_regs and call the
-handler.
-
--- Steve
+                    Linus
