@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 603F414C61
+	by mail.lfdr.de (Postfix) with ESMTP id DDAA114C62
 	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:39:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727442AbfEFOjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:39:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33006 "EHLO mail.kernel.org"
+        id S1727914AbfEFOjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:39:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727134AbfEFOjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:39:52 -0400
+        id S1727911AbfEFOjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:39:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2F0520449;
-        Mon,  6 May 2019 14:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D19020449;
+        Mon,  6 May 2019 14:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153592;
-        bh=7TPRLxLTFcgyHj50Btjvh0KiUBOEcT8EwlzWkavrPqo=;
+        s=default; t=1557153594;
+        bh=WUgK1XaP9CKxLVpil8QiQgTYWULgkduitlNHJqWTq7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zt5v4qELT4G11414VtmfEYkDGpTLhU2BAiKHd7s0dbLaFBz+qCURiab5jwggIVjXY
-         q4nlZNnrJf3b6dE4YnGH3UyC2tXjVQiuKgu5jyS2rV5HlP+xLVPp9+JyC8CRLbD4Dh
-         31Ifx/DVXvy9IZUiKvBHnzOWxDEdKG1S8tFdtpi0=
+        b=DdkijRLpNdfRRdXftbLVYf0VulmVJzzuy2OYVRhZMb1KZJ4eJ45W3KXfmPcI8L/03
+         2xosVCFzAbjhaQHWalZ8QCSIHyeJRBiXjWFWNKQPqg5qToPu7veKHl1JpDIT2V2cxV
+         o7eBgapDaGGDBsu6WZso+cw9tUcq4BLj4gAkFv1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Charles Keepax <ckeepax@opensource.cirrus.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4.19 06/99] i2c: Remove unnecessary call to irq_find_mapping
-Date:   Mon,  6 May 2019 16:31:39 +0200
-Message-Id: <20190506143054.443262341@linuxfoundation.org>
+Subject: [PATCH 4.19 07/99] i2c: Clear client->irq in i2c_device_remove
+Date:   Mon,  6 May 2019 16:31:40 +0200
+Message-Id: <20190506143054.531634333@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
 References: <20190506143053.899356316@linuxfoundation.org>
@@ -47,11 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit b9bb3fdf4e870fb655064f5c3c81c1fee7fd89ce upstream.
+commit 6f108dd70d3010c391c1e9f56f3f20d1f9e75450 upstream.
 
-irq_create_mapping calls irq_find_mapping internally and will use the
-found mapping if one exists, so there is no need to manually call this
-from i2c_smbus_host_notify_to_irq.
+The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
+i2c_device_remove does not clear this. When rebinding an I2C device,
+whos IRQ provider has also been rebound this means that an IRQ mapping
+will never be created, causing the I2C device to fail to acquire its
+IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
+forcing i2c_device_probe to lookup the mapping again.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -59,22 +62,19 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/i2c-core-base.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/i2c/i2c-core-base.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -306,10 +306,7 @@ static int i2c_smbus_host_notify_to_irq(
- 	if (client->flags & I2C_CLIENT_TEN)
- 		return -EINVAL;
+@@ -430,6 +430,8 @@ static int i2c_device_remove(struct devi
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
  
--	irq = irq_find_mapping(adap->host_notify_domain, client->addr);
--	if (!irq)
--		irq = irq_create_mapping(adap->host_notify_domain,
--					 client->addr);
-+	irq = irq_create_mapping(adap->host_notify_domain, client->addr);
- 
- 	return irq > 0 ? irq : -ENXIO;
++	client->irq = 0;
++
+ 	return status;
  }
+ 
 
 
