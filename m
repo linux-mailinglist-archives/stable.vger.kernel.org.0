@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DEA14DDC
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C520D14EFA
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbfEFOp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:45:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42168 "EHLO mail.kernel.org"
+        id S1726379AbfEFPGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:06:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728947AbfEFOpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:45:23 -0400
+        id S1726302AbfEFOhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:37:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD6CC20C01;
-        Mon,  6 May 2019 14:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73A6E206A3;
+        Mon,  6 May 2019 14:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153923;
-        bh=EfC+rTvkvgtF2c64+touIRCbnSPbW/2Jv0J9DZubt30=;
+        s=default; t=1557153452;
+        bh=ploqfepncoVXrCe87IV0KnwkIwovppJmkPjVgS6u8tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPr2jM9JVGZZRLPxwDNFfsF3u7idB1HcaIEXxMrjjdz032LWi/72WpDHuPKOAdSY7
-         1ZgCwKh/U7IYFJqzQ38+iSPbtW6I8qGTnbOF5IqrUwmujHZty2libDkZooWOq00zjl
-         z+VYdNsWEGT6667zcG7w9Rdv+xIFZZJVZKo/YjPc=
+        b=TXOr6AhtrsnQi0FxlRLrUMM5IXm4o6FKZsE/DMtbGyFVlQ1VX6jR/EV1NYxn0gFbL
+         H29W38aNWzPld+ZpgwPZS1Nj5n3l8dtlCTDEAe2tPdmn1Y6a2HQnGRc0cDyWGRWZLj
+         KGDSdwL7R3anZZNPao4xSF0VLwHZ3usbh52lNRMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 07/75] bnxt_en: Improve multicast address setup logic.
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 077/122] sh: fix multiple function definition build errors
 Date:   Mon,  6 May 2019 16:32:15 +0200
-Message-Id: <20190506143053.900726965@linuxfoundation.org>
+Message-Id: <20190506143101.753765207@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+[ Upstream commit acaf892ecbf5be7710ae05a61fd43c668f68ad95 ]
 
-[ Upstream commit b4e30e8e7ea1d1e35ffd64ca46f7d9a7f227b4bf ]
+Many of the sh CPU-types have their own plat_irq_setup() and
+arch_init_clk_ops() functions, so these same (empty) functions in
+arch/sh/boards/of-generic.c are not needed and cause build errors.
 
-The driver builds a list of multicast addresses and sends it to the
-firmware when the driver's ndo_set_rx_mode() is called.  In rare
-cases, the firmware can fail this call if internal resources to
-add multicast addresses are exhausted.  In that case, we should
-try the call again by setting the ALL_MCAST flag which is more
-guaranteed to succeed.
+If there is some case where these empty functions are needed, they can
+be retained by marking them as "__weak" while at the same time making
+builds that do not need them succeed.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes these build errors:
+
+arch/sh/boards/of-generic.o: In function `plat_irq_setup':
+(.init.text+0x134): multiple definition of `plat_irq_setup'
+arch/sh/kernel/cpu/sh2/setup-sh7619.o:(.init.text+0x30): first defined here
+arch/sh/boards/of-generic.o: In function `arch_init_clk_ops':
+(.init.text+0x118): multiple definition of `arch_init_clk_ops'
+arch/sh/kernel/cpu/sh2/clock-sh7619.o:(.init.text+0x0): first defined here
+
+Link: http://lkml.kernel.org/r/9ee4e0c5-f100-86a2-bd4d-1d3287ceab31@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/sh/boards/of-generic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6768,8 +6768,15 @@ static int bnxt_cfg_rx_mode(struct bnxt
+diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
+index 958f46da3a79..d91065e81a4e 100644
+--- a/arch/sh/boards/of-generic.c
++++ b/arch/sh/boards/of-generic.c
+@@ -164,10 +164,10 @@ static struct sh_machine_vector __initmv sh_of_generic_mv = {
  
- skip_uc:
- 	rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
-+	if (rc && vnic->mc_list_count) {
-+		netdev_info(bp->dev, "Failed setting MC filters rc: %d, turning on ALL_MCAST mode\n",
-+			    rc);
-+		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
-+		vnic->mc_list_count = 0;
-+		rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
-+	}
- 	if (rc)
--		netdev_err(bp->dev, "HWRM cfa l2 rx mask failure rc: %x\n",
-+		netdev_err(bp->dev, "HWRM cfa l2 rx mask failure rc: %d\n",
- 			   rc);
+ struct sh_clk_ops;
  
- 	return rc;
+-void __init arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
++void __init __weak arch_init_clk_ops(struct sh_clk_ops **ops, int idx)
+ {
+ }
+ 
+-void __init plat_irq_setup(void)
++void __init __weak plat_irq_setup(void)
+ {
+ }
+-- 
+2.20.1
+
 
 
