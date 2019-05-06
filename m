@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C035314D3B
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22FC14D3D
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726985AbfEFOt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
+        id S1728976AbfEFOta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:49:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbfEFOtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:25 -0400
+        id S1729188AbfEFOt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:49:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 935612053B;
-        Mon,  6 May 2019 14:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C8B1216C8;
+        Mon,  6 May 2019 14:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154165;
-        bh=/bA49ZbnmE/CpHWtCL8vSGJJdaufceFH3QoHWjIVC40=;
+        s=default; t=1557154167;
+        bh=TuVGRc68xIZZTSO2/CHG8WH11dqToIKgEEmX1gid7eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqxTW7IIQU2ZYv3Stin9+b3HuUDsQW0s7FQZhNKKQ9bZt7qTL5YoQAF7Y1qPLy77t
-         BfEXluGCmGwRFgjCbLEGFMh+APe2gmgwLGMxWuO+6erPCqGAgcVemjcbWHBo8DJpqM
-         SflWp/o0emsEqh6zX8ejKu5fCt0Q6ydy4jJ/MocI=
+        b=AGy+GswJESYASoDHMtc+kIUU+6fjWwd92/YgOlupbQdJLbk/3nd5NtbwblqQX651W
+         xfg+eyKjbRALlWXuOOscjXkkmnq1AbjcgjscNjfe9Fjt7EjvWZ09IE2d/Xwh6KHgSQ
+         H89wixfBlUY1x1xJWv5qLdMvs5kSZyfL1Q4J5vpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@redhat.com>, Pu Wen <puwen@hygon.cn>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.9 61/62] x86/mce: Improve error message when kernel cannot recover, p2
-Date:   Mon,  6 May 2019 16:33:32 +0200
-Message-Id: <20190506143056.720671871@linuxfoundation.org>
+        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.9 62/62] media: v4l2: i2c: ov7670: Fix PLL bypass register values
+Date:   Mon,  6 May 2019 16:33:33 +0200
+Message-Id: <20190506143056.814272949@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
 References: <20190506143051.102535767@linuxfoundation.org>
@@ -45,50 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-commit 41f035a86b5b72a4f947c38e94239d20d595352a upstream.
+commit 61da76beef1e4f0b6ba7be4f8d0cf0dac7ce1f55 upstream.
 
-In
+The following commits:
+commit f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
+commit 04ee6d92047e ("[media] media: ov7670: add possibility to bypass pll for ov7675")
+introduced the ability to bypass PLL multiplier and use input clock (xvclk)
+as pixel clock output frequency for ov7675 sensor.
 
-  c7d606f560e4 ("x86/mce: Improve error message when kernel cannot recover")
+PLL is bypassed using register DBLV[7:6], according to ov7670 and ov7675
+sensor manuals. Macros used to set DBLV register seem wrong in the
+driver, as their values do not match what reported in the datasheet.
 
-a case was added for a machine check caused by a DATA access to poison
-memory from the kernel. A case should have been added also for an
-uncorrectable error during an instruction fetch in the kernel.
+Fix by changing DBLV_* macros to use bits [7:6] and set bits [3:0] to
+default 0x0a reserved value (according to datasheets).
 
-Add that extra case so the error message now reads:
+While at there, remove a write to DBLV register in
+"ov7675_set_framerate()" that over-writes the previous one to the same
+register that takes "info->pll_bypass" flag into account instead of setting PLL
+multiplier to 4x unconditionally.
 
-  mce: [Hardware Error]: Machine check: Instruction fetch error in kernel
+And, while at there, since "info->pll_bypass" is only used in
+set/get_framerate() functions used by ov7675 only, it is not necessary
+to check for the device id at probe time to make sure that when using
+ov7670 "info->pll_bypass" is set to false.
 
-Fixes: c7d606f560e4 ("x86/mce: Improve error message when kernel cannot recover")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Pu Wen <puwen@hygon.cn>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190225205940.15226-1-tony.luck@intel.com
+Fixes: f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mcheck/mce-severity.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/i2c/ov7670.c |   16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce-severity.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce-severity.c
-@@ -148,6 +148,11 @@ static struct severity {
- 		SER, MASK(MCI_STATUS_OVER|MCI_UC_SAR|MCI_ADDR|MCACOD, MCI_UC_SAR|MCI_ADDR|MCACOD_DATA),
- 		KERNEL
- 		),
-+	MCESEV(
-+		PANIC, "Instruction fetch error in kernel",
-+		SER, MASK(MCI_STATUS_OVER|MCI_UC_SAR|MCI_ADDR|MCACOD, MCI_UC_SAR|MCI_ADDR|MCACOD_INSTR),
-+		KERNEL
-+		),
- #endif
- 	MCESEV(
- 		PANIC, "Action required: unknown MCACOD",
+--- a/drivers/media/i2c/ov7670.c
++++ b/drivers/media/i2c/ov7670.c
+@@ -155,10 +155,10 @@ MODULE_PARM_DESC(debug, "Debug level (0-
+ #define REG_GFIX	0x69	/* Fix gain control */
+ 
+ #define REG_DBLV	0x6b	/* PLL control an debugging */
+-#define   DBLV_BYPASS	  0x00	  /* Bypass PLL */
+-#define   DBLV_X4	  0x01	  /* clock x4 */
+-#define   DBLV_X6	  0x10	  /* clock x6 */
+-#define   DBLV_X8	  0x11	  /* clock x8 */
++#define   DBLV_BYPASS	  0x0a	  /* Bypass PLL */
++#define   DBLV_X4	  0x4a	  /* clock x4 */
++#define   DBLV_X6	  0x8a	  /* clock x6 */
++#define   DBLV_X8	  0xca	  /* clock x8 */
+ 
+ #define REG_REG76	0x76	/* OV's name */
+ #define   R76_BLKPCOR	  0x80	  /* Black pixel correction enable */
+@@ -833,7 +833,7 @@ static int ov7675_set_framerate(struct v
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return ov7670_write(sd, REG_DBLV, DBLV_X4);
++	return 0;
+ }
+ 
+ static void ov7670_get_framerate_legacy(struct v4l2_subdev *sd,
+@@ -1578,11 +1578,7 @@ static int ov7670_probe(struct i2c_clien
+ 		if (config->clock_speed)
+ 			info->clock_speed = config->clock_speed;
+ 
+-		/*
+-		 * It should be allowed for ov7670 too when it is migrated to
+-		 * the new frame rate formula.
+-		 */
+-		if (config->pll_bypass && id->driver_data != MODEL_OV7670)
++		if (config->pll_bypass)
+ 			info->pll_bypass = true;
+ 
+ 		if (config->pclk_hb_disable)
 
 
