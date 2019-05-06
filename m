@@ -2,211 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C0215612
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 00:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BEB156A4
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 01:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726312AbfEFWjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 18:39:02 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:45945 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726218AbfEFWjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 18:39:01 -0400
-Received: by mail-lf1-f67.google.com with SMTP id n22so2788904lfe.12
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 15:39:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Dxftzvjm/ITflLxpaon8lNkVkwZKAv6W1SNUZkWADvU=;
-        b=QpAj51Mi2Y8qwLgnhbcKf/qXqptSySRdePaWjhEzne8z6S13GHE8jO+Y+Tb25ZwGd3
-         i5iKwHdDqjZwGz2dkYEWWbrQUc5rqB0zVWEJXtAV3RZHsD4AYRss4H5uvz/lIp09NGTU
-         y1PP7SzMglvop+x+MQmaR/R6GmlqoGbadW9GY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Dxftzvjm/ITflLxpaon8lNkVkwZKAv6W1SNUZkWADvU=;
-        b=d1GSidZ7bwmhR24dcE4OjwHVZo5RABS+tOUiYFPwmu4vZdCfZyNhk9ruqNXwvwjgxQ
-         THxRKmOU7IWU+blbJhtmfACzhq3M7TDfCE7VamghdSDkcJbx6/o5/1TfEJGLUNG6desk
-         7JE6qxiOgKA9Z1Zd4zel4TCCI/OZ5T5z+Y9m4Z8aJ915vX3+kv1wUJQ5EKcS2wB/bR5+
-         MLZnsspYAHp5wGlY0CVshhx7NDwpTnbvBi4yzMpOYtK8N5AbItj6f2AXDb7uptnP76fz
-         +fSmJPsmELNJrqyZZXFU4AI6ETpOBZSgf3UPEFEzakMAFEq1Yy9ghhHm66c0n28d+yg8
-         2jjg==
-X-Gm-Message-State: APjAAAUtwgYZZZJPNMBJ+rhpsbkAGVSJBX+I13VKvhVUAR/Hkmoq3rZF
-        CZK6x6dKNBRAS7yCj0YDHE8bLRZcaJk=
-X-Google-Smtp-Source: APXvYqz8Yx5tlU46HO81xRLR2U965tnPvg34pS22w0aPR2/7jPt+p74OOsWykCnV9oRkgC5y4wMVJg==
-X-Received: by 2002:a19:ec07:: with SMTP id b7mr8387453lfa.62.1557182339022;
-        Mon, 06 May 2019 15:38:59 -0700 (PDT)
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
-        by smtp.gmail.com with ESMTPSA id q9sm2826534lfn.88.2019.05.06.15.38.58
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 May 2019 15:38:58 -0700 (PDT)
-Received: by mail-lf1-f49.google.com with SMTP id y19so2757882lfy.5
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 15:38:58 -0700 (PDT)
-X-Received: by 2002:a19:ca02:: with SMTP id a2mr14261445lfg.88.1557181933876;
- Mon, 06 May 2019 15:32:13 -0700 (PDT)
+        id S1726529AbfEFXxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 19:53:14 -0400
+Received: from mga09.intel.com ([134.134.136.24]:15870 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726128AbfEFXxN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 19:53:13 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 May 2019 16:53:12 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.60,439,1549958400"; 
+   d="scan'208";a="140720507"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga008.jf.intel.com with ESMTP; 06 May 2019 16:53:13 -0700
+Subject: [PATCH v8 00/12] mm: Sub-section memory hotplug support
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     akpm@linux-foundation.org
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jane Chu <jane.chu@oracle.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Toshi Kani <toshi.kani@hpe.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Jeff Moyer <jmoyer@redhat.com>, Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org,
+        =?utf-8?b?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>,
+        linux-nvdimm@lists.01.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, osalvador@suse.de, mhocko@suse.com
+Date:   Mon, 06 May 2019 16:39:26 -0700
+Message-ID: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
- <20190502185225.0cdfc8bc@gandalf.local.home> <20190502193129.664c5b2e@gandalf.local.home>
- <20190502195052.0af473cf@gandalf.local.home> <20190503092959.GB2623@hirez.programming.kicks-ass.net>
- <20190503092247.20cc1ff0@gandalf.local.home> <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
- <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
- <20190506081951.GJ2606@hirez.programming.kicks-ass.net> <20190506095631.6f71ad7c@gandalf.local.home>
- <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
- <20190506130643.62c35eeb@gandalf.local.home> <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
- <20190506145745.17c59596@gandalf.local.home> <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
- <20190506162915.380993f9@gandalf.local.home> <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
- <20190506174511.2f8b696b@gandalf.local.home> <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
-In-Reply-To: <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 6 May 2019 15:31:57 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wje38dbYFGNw0y==zd7Zo_4s2WOQjWaBDyr24RCdK2EPQ@mail.gmail.com>
-Message-ID: <CAHk-=wje38dbYFGNw0y==zd7Zo_4s2WOQjWaBDyr24RCdK2EPQ@mail.gmail.com>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 6, 2019 at 3:06 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> Why are you emulating something different than what you are rewriting?
+Changes since v7 [1]:
 
-Side note: I'm also finding another bug on the ftrace side, which is a
-simple race condition.
+- Make subsection helpers pfn based rather than physical-address based
+  (Oscar and Pavel)
 
-In particular, the logic with 'modifying_ftrace_code' is fundamentally racy.
+- Make subsection bitmap definition scalable for different section and
+  sub-section sizes across architectures. As a result:
 
-What can happen is that on one CPU we rewrite one instruction:
+      unsigned long map_active
 
-        ftrace_update_func = ip;
-        /* Make sure the breakpoints see the ftrace_update_func update */
-        smp_wmb();
+  ...is converted to:
 
-        /* See comment above by declaration of modifying_ftrace_code */
-        atomic_inc(&modifying_ftrace_code);
+      DECLARE_BITMAP(subsection_map, SUBSECTIONS_PER_SECTION)
 
-        ret = ftrace_modify_code(ip, old, new);
+  ...and the helpers are renamed with a 'subsection' prefix. (Pavel)
 
-        atomic_dec(&modifying_ftrace_code);
+- New in this version is a touch of arch/powerpc/include/asm/sparsemem.h
+  in "[PATCH v8 01/12] mm/sparsemem: Introduce struct mem_section_usage"
+  to define ARCH_SUBSECTION_SHIFT.
 
-   but then another CPU hits the 'int3' while the modification is
-going on, and takes the fault.
+- Drop "mm/sparsemem: Introduce common definitions for the size and mask
+  of a section" in favor of Robin's "mm/memremap: Rename and consolidate
+  SECTION_SIZE" (Pavel)
 
-The fault handler does that
+- Collect some more Reviewed-by tags. Patches that still lack review
+  tags: 1, 3, 9 - 12
 
-        if (unlikely(atomic_read(&modifying_ftrace_code))..
+[1]: https://lore.kernel.org/lkml/155677652226.2336373.8700273400832001094.stgit@dwillia2-desk3.amr.corp.intel.com/
 
-and sees that "yes, it's in the middle of modifying the ftrace code",
-and calls ftrace_int3_handler().  All good and "obviously correct" so
-far, no?
+---
+[merge logistics]
 
-HOWEVER. It's actually buggy. Because in the meantime, the CPU that
-was rewriting instructions has finished, and decrements the
-modifying_ftrace_code, which doesn't hurt us (because we already saw
-that the int3 was due to the modification.
+Hi Andrew,
 
-BUT! There are two different races here:
+These are too late for v5.2, I'm posting this v8 during the merge window
+to maintain the review momentum. 
 
- (a) maybe the fault handling was slow, and we saw the 'int3' and took
-the fault, but the modifying CPU had already finished, so that
-atomic_read(&modifying_ftrace_code) didn't actually trigger at all.
+---
+[cover letter]
 
- (b) maybe the int3-faulting CPU *did* see the proper value of
-modifying_ftrace_code, but the modifying CPU went on and started
-*another* modification, and has changed ftrace_update_func in the
-meantime, so now the int3 handling is looking at the wrong values!
+The memory hotplug section is an arbitrary / convenient unit for memory
+hotplug. 'Section-size' units have bled into the user interface
+('memblock' sysfs) and can not be changed without breaking existing
+userspace. The section-size constraint, while mostly benign for typical
+memory hotplug, has and continues to wreak havoc with 'device-memory'
+use cases, persistent memory (pmem) in particular. Recall that pmem uses
+devm_memremap_pages(), and subsequently arch_add_memory(), to allocate a
+'struct page' memmap for pmem. However, it does not use the 'bottom
+half' of memory hotplug, i.e. never marks pmem pages online and never
+exposes the userspace memblock interface for pmem. This leaves an
+opening to redress the section-size constraint.
 
-In the case of (a), we'll die with an oops due to the inexplicable
-'int3' we hit. And in the case of (b) we'll be fixing up using the
-wrong address.
+To date, the libnvdimm subsystem has attempted to inject padding to
+satisfy the internal constraints of arch_add_memory(). Beyond
+complicating the code, leading to bugs [2], wasting memory, and limiting
+configuration flexibility, the padding hack is broken when the platform
+changes this physical memory alignment of pmem from one boot to the
+next. Device failure (intermittent or permanent) and physical
+reconfiguration are events that can cause the platform firmware to
+change the physical placement of pmem on a subsequent boot, and device
+failure is an everyday event in a data-center.
 
-Things like this is why I'm wondering how much of the problems are due
-to the entry code, and how much of it is due to simply races and
-timing differences?
+It turns out that sections are only a hard requirement of the
+user-facing interface for memory hotplug and with a bit more
+infrastructure sub-section arch_add_memory() support can be added for
+kernel internal usages like devm_memremap_pages(). Here is an analysis
+of the current design assumptions in the current code and how they are
+addressed in the new implementation:
 
-Again, I don't actually know the ftrace code, and maybe I'm missing
-something, but this really looks like _another_ fundamental bug.
+Current design assumptions:
 
-The way to handle that modifying_ftrace_code thing is most likely by
-using a sequence counter. For example, one way to actually do some
-thing like this might be
+- Sections that describe boot memory (early sections) are never
+  unplugged / removed.
 
-        ftrace_update_func = ip;
-        ftrace_update_target = func;
-        smp_wmb();
-        atomic_inc(&modifying_ftrace_head);
+- pfn_valid(), in the CONFIG_SPARSEMEM_VMEMMAP=y, case devolves to a
+  valid_section() check
 
-        ret = ftrace_modify_code(ip, old, new);
+- __add_pages() and helper routines assume all operations occur in
+  PAGES_PER_SECTION units.
 
-        atomic_inc(&modifying_ftrace_tail);
-        smp_wmb();
+- The memblock sysfs interface only comprehends full sections
 
-and now the int3 code could do something like
+New design assumptions:
 
-        int head, tail;
+- Sections are instrumented with a sub-section bitmask to track (on x86)
+  individual 2MB sub-divisions of a 128MB section.
 
-        head = atomic_read(&modifying_ftrace_head);
-        smp_rmb();
-        tail = atomic_read(&modifying_ftrace_tail);
+- Partially populated early sections can be extended with additional
+  sub-sections, and those sub-sections can be removed with
+  arch_remove_memory(). With this in place we no longer lose usable memory
+  capacity to padding.
 
-        /* Are we still in the process of modification? */
-        if (unlikely(head != tail+1))
-                return 0;
+- pfn_valid() is updated to look deeper than valid_section() to also check the
+  active-sub-section mask. This indication is in the same cacheline as
+  the valid_section() so the performance impact is expected to be
+  negligible. So far the lkp robot has not reported any regressions.
 
-        ip = ftrace_update_func;
-        func = ftrace_update_target;
-        smp_rmb();
-        /* Need to re-check that the above two values are consistent
-and we didn't exit */
-        if (atomic_read(&modifying_ftrace_tail) != tail)
-                return 0;
+- Outside of the core vmemmap population routines which are replaced,
+  other helper routines like shrink_{zone,pgdat}_span() are updated to
+  handle the smaller granularity. Core memory hotplug routines that deal
+  with online memory are not touched.
 
-        *pregs int3_emulate_call(regs, ip, func);
-        return 1;
+- The existing memblock sysfs user api guarantees / assumptions are
+  not touched since this capability is limited to !online
+  !memblock-sysfs-accessible sections.
 
-although it probably really would be better to use a seqcount instead
-of writing it out like the above.
+Meanwhile the issue reports continue to roll in from users that do not
+understand when and how the 128MB constraint will bite them. The current
+implementation relied on being able to support at least one misaligned
+namespace, but that immediately falls over on any moderately complex
+namespace creation attempt. Beyond the initial problem of 'System RAM'
+colliding with pmem, and the unsolvable problem of physical alignment
+changes, Linux is now being exposed to platforms that collide pmem
+ranges with other pmem ranges by default [3]. In short,
+devm_memremap_pages() has pushed the venerable section-size constraint
+past the breaking point, and the simplicity of section-aligned
+arch_add_memory() is no longer tenable.
 
-NOTE! The above only fixes the (b) race. The (a) race is probably best
-handled by actually checking if the 'int3' instruction is still there
-before dying.
+These patches are exposed to the kbuild robot on my libnvdimm-pending
+branch [4], and a preview of the unit test for this functionality is
+available on the 'subsection-pending' branch of ndctl [5].
 
-Again, maybe there's something I'm missing, but having looked at that
-patch now what feels like a million times, I'm finding more worrisome
-things in the ftrace code than in the kernel entry code..
+[2]: https://lore.kernel.org/r/155000671719.348031.2347363160141119237.stgit@dwillia2-desk3.amr.corp.intel.com
+[3]: https://github.com/pmem/ndctl/issues/76
+[4]: https://git.kernel.org/pub/scm/linux/kernel/git/djbw/nvdimm.git/log/?h=libnvdimm-pending
+[5]: https://github.com/pmem/ndctl/commit/7c59b4867e1c
 
-                 Linus
+---
+
+Dan Williams (11):
+      mm/sparsemem: Introduce struct mem_section_usage
+      mm/sparsemem: Add helpers track active portions of a section at boot
+      mm/hotplug: Prepare shrink_{zone,pgdat}_span for sub-section removal
+      mm/sparsemem: Convert kmalloc_section_memmap() to populate_section_memmap()
+      mm/hotplug: Kill is_dev_zone() usage in __remove_pages()
+      mm: Kill is_dev_zone() helper
+      mm/sparsemem: Prepare for sub-section ranges
+      mm/sparsemem: Support sub-section hotplug
+      mm/devm_memremap_pages: Enable sub-section remap
+      libnvdimm/pfn: Fix fsdax-mode namespace info-block zero-fields
+      libnvdimm/pfn: Stop padding pmem namespaces to section alignment
+
+Robin Murphy (1):
+      mm/memremap: Rename and consolidate SECTION_SIZE
+
+
+ arch/powerpc/include/asm/sparsemem.h |    3 
+ arch/x86/mm/init_64.c                |    4 
+ drivers/nvdimm/dax_devs.c            |    2 
+ drivers/nvdimm/pfn.h                 |   15 -
+ drivers/nvdimm/pfn_devs.c            |   95 +++------
+ include/linux/memory_hotplug.h       |    7 -
+ include/linux/mm.h                   |    4 
+ include/linux/mmzone.h               |   93 +++++++--
+ kernel/memremap.c                    |   63 ++----
+ mm/hmm.c                             |    2 
+ mm/memory_hotplug.c                  |  172 +++++++++-------
+ mm/page_alloc.c                      |    8 -
+ mm/sparse-vmemmap.c                  |   21 +-
+ mm/sparse.c                          |  369 +++++++++++++++++++++++-----------
+ 14 files changed, 511 insertions(+), 347 deletions(-)
