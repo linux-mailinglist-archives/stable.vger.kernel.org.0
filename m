@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C4314F3B
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4030E14DDF
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbfEFPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
+        id S1728045AbfEFOpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:45:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727408AbfEFPHx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 11:07:53 -0400
+        id S1726767AbfEFOpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:45:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0B362087F;
-        Mon,  6 May 2019 15:07:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED5D720C01;
+        Mon,  6 May 2019 14:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557155272;
-        bh=7TSZU9uuESChnQZl6Z/mt6OaAgpomEHBrYCg3HwUwV8=;
+        s=default; t=1557153937;
+        bh=Gfz5SuMiQYFQ9FCIzFIRVKwRpwoXaR0bKvkx1HYVjfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQUY8HkKXayixjYnRbS9dY8i7ZdNI6za/pRKKe7+29ahKIigUPaDsIHmQ4++ZH6pa
-         mlMIavWY+0fbxaErrFzK6pDeOam67+pFZL6++5LRMmjhhxCfFBRxv3LBj3zHdqHiK7
-         F1Ft80nYnBGwsJidolvupoO4ozQXDLgMo+hq2FZk=
+        b=O7Gk+dA2S9ot67QaC0yNsLCB//3+frclxJC/9+wjmArFIQajO+nch2sbkQqtJMdFI
+         F0ww9saJ65q15P8SSaqIHRNKVvAG30mxXIgiumRkouTxAQFhkZPvSuUMAkijTR2tN8
+         gsz7G2+e91x0yFZJ1J36XIRlIrIEY+wBAtvWPIL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "he, bo" <bo.he@intel.com>,
-        "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/62] HID: debug: fix race condition with between rdesc_show() and device removal
-Date:   Mon,  6 May 2019 16:33:00 +0200
-Message-Id: <20190506143053.575546010@linuxfoundation.org>
+Subject: [PATCH 4.14 53/75] hugetlbfs: fix memory leak for resv_map
+Date:   Mon,  6 May 2019 16:33:01 +0200
+Message-Id: <20190506143058.043892554@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
+[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
 
-There is a race condition that could happen if hid_debug_rdesc_show()
-is running while hdev is in the process of going away (device removal,
-system suspend, etc) which could result in NULL pointer dereference:
+When mknod is used to create a block special file in hugetlbfs, it will
+allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
+inode->i_mapping->private_data will point the newly allocated resv_map.
+However, when the device special file is opened bd_acquire() will set
+inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
+allocated resv_map is lost and the structure is leaked.
 
-	 BUG: unable to handle kernel paging request at 0000000783316040
-	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
-	 RIP: 0010:hid_dump_device+0x9b/0x160
-	 Call Trace:
-	  hid_debug_rdesc_show+0x72/0x1d0
-	  seq_read+0xe0/0x410
-	  full_proxy_read+0x5f/0x90
-	  __vfs_read+0x3a/0x170
-	  vfs_read+0xa0/0x150
-	  ksys_read+0x58/0xc0
-	  __x64_sys_read+0x1a/0x20
-	  do_syscall_64+0x55/0x110
-	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Programs to reproduce:
+        mount -t hugetlbfs nodev hugetlbfs
+        mknod hugetlbfs/dev b 0 0
+        exec 30<> hugetlbfs/dev
+        umount hugetlbfs/
 
-Grab driver_input_lock to make sure the input device exists throughout the
-whole process of dumping the rdesc.
+resv_map structures are only needed for inodes which can have associated
+page allocations.  To fix the leak, only allocate resv_map for those
+inodes which could possibly be associated with page allocations.
 
-[jkosina@suse.cz: update changelog a bit]
-Signed-off-by: he, bo <bo.he@intel.com>
-Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Suggested-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/hugetlbfs/inode.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index d7179dd3c9ef..3cafa1d28fed 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -1058,10 +1058,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
- 	seq_printf(f, "\n\n");
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index eb6f3de29f69..dd28a9b287da 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -730,11 +730,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 					umode_t mode, dev_t dev)
+ {
+ 	struct inode *inode;
+-	struct resv_map *resv_map;
++	struct resv_map *resv_map = NULL;
  
- 	/* dump parsed data and input mappings */
-+	if (down_interruptible(&hdev->driver_input_lock))
-+		return 0;
-+
- 	hid_dump_device(hdev, f);
- 	seq_printf(f, "\n");
- 	hid_dump_input_mapping(hdev, f);
+-	resv_map = resv_map_alloc();
+-	if (!resv_map)
+-		return NULL;
++	/*
++	 * Reserve maps are only needed for inodes that can have associated
++	 * page allocations.
++	 */
++	if (S_ISREG(mode) || S_ISLNK(mode)) {
++		resv_map = resv_map_alloc();
++		if (!resv_map)
++			return NULL;
++	}
  
-+	up(&hdev->driver_input_lock);
-+
- 	return 0;
+ 	inode = new_inode(sb);
+ 	if (inode) {
+@@ -766,8 +772,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 			break;
+ 		}
+ 		lockdep_annotate_inode_mutex_key(inode);
+-	} else
+-		kref_put(&resv_map->refs, resv_map_release);
++	} else {
++		if (resv_map)
++			kref_put(&resv_map->refs, resv_map_release);
++	}
+ 
+ 	return inode;
  }
- 
 -- 
 2.20.1
 
