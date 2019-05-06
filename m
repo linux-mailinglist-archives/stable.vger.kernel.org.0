@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D562814E5F
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66CA14D0C
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfEFOmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36708 "EHLO mail.kernel.org"
+        id S1728770AbfEFOrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728407AbfEFOmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:07 -0400
+        id S1728776AbfEFOrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:47:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E52A206A3;
-        Mon,  6 May 2019 14:42:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F32620578;
+        Mon,  6 May 2019 14:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153726;
-        bh=eyFQyilBY65uHC4KqCfyG7XQzSgs6BspptZVvJr2wYE=;
+        s=default; t=1557154040;
+        bh=b4htW5DfEGMi9hOIptOK6giroC6eysaZT+46tVecKns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJJCDNEF0YmTQPhsf7pXhMj9PndiyLKtI+Fm4lNkbHtqTQeOFXs8E9HvJf+BNf09/
-         OICN1pLLpdmyyRHapXWbi2+k9Mtf2UGCOUxMaaVgxxuRb+2f+qFyWluf/qN/t+/Mua
-         zZsaLxj2w+8xB4vwSu/uQ1Uba/mTrbWSo0Jn1Q4M=
+        b=ILPYOUYghjZetxqdqVBkkiadkrYrlgCvca2jvlZ+RgFTViY+LMoCdflUUztKENw/p
+         J+eH91KDQQLDMMPPNITvoMo82/h+vZxRVeUCIW9eMVYAxfKW6Br+QSzvZqgG7yGvQ2
+         +FokOwJnEjnSfo2LYgMKChi1w3UHeqBuZRXgxJNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 74/99] staging: iio: adt7316: allow adt751x to use internal vref for all dacs
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@google.com>
+Subject: [PATCH 4.9 16/62] kasan: remove redundant initialization of variable real_size
 Date:   Mon,  6 May 2019 16:32:47 +0200
-Message-Id: <20190506143100.836033993@linuxfoundation.org>
+Message-Id: <20190506143052.471187212@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Fertic <jeremyfertic@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 10bfe7cc1739c22f0aa296b39e53f61e9e3f4d99 upstream.
+commit 48c232395431c23d35cf3b4c5a090bd793316578 upstream.
 
-With adt7516/7/9, internal vref is available for dacs a and b, dacs c and
-d, or all dacs. The driver doesn't currently support internal vref for all
-dacs. Change the else if to an if so both bits are checked rather than
-just one or the other.
+Variable real_size is initialized with a value that is never read, it is
+re-assigned a new value later on, hence the initialization is redundant
+and can be removed.
 
-Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
-Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cleans up clang warning:
+
+  lib/test_kasan.c:422:21: warning: Value stored to 'real_size' during its initialization is never read
+
+Link: http://lkml.kernel.org/r/20180206144950.32457-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/addac/adt7316.c |    2 +-
+ lib/test_kasan.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/iio/addac/adt7316.c
-+++ b/drivers/staging/iio/addac/adt7316.c
-@@ -1086,7 +1086,7 @@ static ssize_t adt7316_store_DAC_interna
- 		ldac_config = chip->ldac_config & (~ADT7516_DAC_IN_VREF_MASK);
- 		if (data & 0x1)
- 			ldac_config |= ADT7516_DAC_AB_IN_VREF;
--		else if (data & 0x2)
-+		if (data & 0x2)
- 			ldac_config |= ADT7516_DAC_CD_IN_VREF;
- 	} else {
- 		ret = kstrtou8(buf, 16, &data);
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -355,7 +355,7 @@ static noinline void __init kasan_stack_
+ static noinline void __init ksize_unpoisons_memory(void)
+ {
+ 	char *ptr;
+-	size_t size = 123, real_size = size;
++	size_t size = 123, real_size;
+ 
+ 	pr_info("ksize() unpoisons the whole allocated chunk\n");
+ 	ptr = kmalloc(size, GFP_KERNEL);
 
 
