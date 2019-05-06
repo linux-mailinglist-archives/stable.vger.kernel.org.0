@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2864114DEC
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4180814CB3
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728803AbfEFOo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
+        id S1728590AbfEFOnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728549AbfEFOo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:44:29 -0400
+        id S1727803AbfEFOm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4DFB214AE;
-        Mon,  6 May 2019 14:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A44D92053B;
+        Mon,  6 May 2019 14:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153868;
-        bh=U06b+7SMOd1T5Eb9THRyiS8fJZVFDZ3S6Ub8K/YqRqM=;
+        s=default; t=1557153777;
+        bh=dHv1sTr8OrIWKxnzeyKDgdjsfkIxGaEwHW++mE54M7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ti6udXuktaYYjtz9e4jEHIVz1N3Ce0x2wMDrhIfgJGOXZ3f4BIJUq5zIyFWOSlFF5
-         Cy1YQzrK72mZIkM62AcXu29TEaDSPsYdpslYUPIOSJKe2dDO47W1r3C4Fz5ZJejH6h
-         e1l5QaqZn1zvYeAWk9na0wxHZEC3OmmDw+V3JbvA=
+        b=1i1b+NFGQj4wmwNnUDxX5kM1gkwntJuaYrtW5dEq05597HJvIuR2JGzegRCERKRCn
+         aGQ42P0mEIBemgJBD/FRsfg7uuqyZdgSXdHHI3MBwALt7AV2HsU9yqco0G7GaJ1t58
+         k+CW+TIZk8n49SeNR7poPJD/XJOuemOuMEGGza4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/75] HID: logitech: check the return value of create_singlethread_workqueue
+        stable@vger.kernel.org, Cfir Cohen <cfir@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 61/99] KVM: SVM: prevent DBG_DECRYPT and DBG_ENCRYPT overflow
 Date:   Mon,  6 May 2019 16:32:34 +0200
-Message-Id: <20190506143055.544147223@linuxfoundation.org>
+Message-Id: <20190506143059.604447144@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6c44b15e1c9076d925d5236ddadf1318b0a25ce2 ]
+[ Upstream commit b86bc2858b389255cd44555ce4b1e427b2b770c0 ]
 
-create_singlethread_workqueue may fail and return NULL. The fix checks if it is
-NULL to avoid NULL pointer dereference.  Also, the fix moves the call of
-create_singlethread_workqueue earlier to avoid resource-release issues.
+This ensures that the address and length provided to DBG_DECRYPT and
+DBG_ENCRYPT do not cause an overflow.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+At the same time, pass the actual number of pages pinned in memory to
+sev_unpin_memory() as a cleanup.
+
+Reported-by: Cfir Cohen <cfir@google.com>
+Signed-off-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 614054af904a..b83d4173fc7f 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 		kfree(data);
- 		return -ENOMEM;
- 	}
-+	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-+	if (!data->wq) {
-+		kfree(data->effect_ids);
-+		kfree(data);
-+		return -ENOMEM;
-+	}
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 813cb60eb401..8dd9208ae4de 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -6789,7 +6789,8 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
+ 	struct page **src_p, **dst_p;
+ 	struct kvm_sev_dbg debug;
+ 	unsigned long n;
+-	int ret, size;
++	unsigned int size;
++	int ret;
+ 
+ 	if (!sev_guest(kvm))
+ 		return -ENOTTY;
+@@ -6797,6 +6798,11 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
+ 	if (copy_from_user(&debug, (void __user *)(uintptr_t)argp->data, sizeof(debug)))
+ 		return -EFAULT;
+ 
++	if (!debug.len || debug.src_uaddr + debug.len < debug.src_uaddr)
++		return -EINVAL;
++	if (!debug.dst_uaddr)
++		return -EINVAL;
 +
- 	data->hidpp = hidpp;
- 	data->feature_index = feature_index;
- 	data->version = version;
-@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	/* ignore boost value at response.fap.params[2] */
+ 	vaddr = debug.src_uaddr;
+ 	size = debug.len;
+ 	vaddr_end = vaddr + size;
+@@ -6847,8 +6853,8 @@ static int sev_dbg_crypt(struct kvm *kvm, struct kvm_sev_cmd *argp, bool dec)
+ 						     dst_vaddr,
+ 						     len, &argp->error);
  
- 	/* init the hardware command queue */
--	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
- 	atomic_set(&data->workqueue_size, 0);
+-		sev_unpin_memory(kvm, src_p, 1);
+-		sev_unpin_memory(kvm, dst_p, 1);
++		sev_unpin_memory(kvm, src_p, n);
++		sev_unpin_memory(kvm, dst_p, n);
  
- 	/* initialize with zero autocenter to get wheel in usable state */
+ 		if (ret)
+ 			goto err;
 -- 
 2.20.1
 
