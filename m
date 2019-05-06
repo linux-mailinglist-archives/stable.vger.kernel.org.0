@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB9014D69
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1A814F3A
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbfEFOsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47896 "EHLO mail.kernel.org"
+        id S1727501AbfEFPHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729411AbfEFOsC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:48:02 -0400
+        id S1727115AbfEFPHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 11:07:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B934A214C6;
-        Mon,  6 May 2019 14:48:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 481C32087F;
+        Mon,  6 May 2019 15:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154081;
-        bh=FwKT+klbAU6IuKJGLc8X7ttbHeesRLveH+crazINx7U=;
+        s=default; t=1557155269;
+        bh=gIPycv8dbcn1JC3zOTMxaLgrxP4VVdplls7mNHRinzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erM0YoQvgxeDg01ClsybMJP6o5o4iNVIMOo2r9fyffCBpcZx1v7zacM51jSubD+8k
-         y8QO3eK5/nug+MlMzOV5XNs8e5pfQsFTMxpOAsFFzA+4odhNWjAYgS1784nGZ8BSv0
-         VY5itYmDTlDTh7WFOXLLziarxOkWzjG6Pem7hCNI=
+        b=jCmNzWNUc7uzzPuR3VCjw7I+hd7jaBr3SQCi0A2xFTJ/rkb3IompkjPx1exqOKJ+p
+         B9XzLXU2O+gwVOaHef6MkuHM1bY1Jwe/48WGeAZzPOynr+BKp/OBEB3lzw1Hoabevb
+         BOvaQmHciqG5rJU6YpTP6lVl4OLQWHXF2BwUo4Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 03/62] ipv6/flowlabel: wait rcu grace period before put_pid()
-Date:   Mon,  6 May 2019 16:32:34 +0200
-Message-Id: <20190506143051.397032869@linuxfoundation.org>
+        stable@vger.kernel.org, "he, bo" <bo.he@intel.com>,
+        "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/75] HID: debug: fix race condition with between rdesc_show() and device removal
+Date:   Mon,  6 May 2019 16:32:35 +0200
+Message-Id: <20190506143055.631670523@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,151 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
 
-[ Upstream commit 6c0afef5fb0c27758f4d52b2210c61b6bd8b4470 ]
+There is a race condition that could happen if hid_debug_rdesc_show()
+is running while hdev is in the process of going away (device removal,
+system suspend, etc) which could result in NULL pointer dereference:
 
-syzbot was able to catch a use-after-free read in pid_nr_ns() [1]
+	 BUG: unable to handle kernel paging request at 0000000783316040
+	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
+	 RIP: 0010:hid_dump_device+0x9b/0x160
+	 Call Trace:
+	  hid_debug_rdesc_show+0x72/0x1d0
+	  seq_read+0xe0/0x410
+	  full_proxy_read+0x5f/0x90
+	  __vfs_read+0x3a/0x170
+	  vfs_read+0xa0/0x150
+	  ksys_read+0x58/0xc0
+	  __x64_sys_read+0x1a/0x20
+	  do_syscall_64+0x55/0x110
+	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-ip6fl_seq_show() seems to use RCU protection, dereferencing fl->owner.pid
-but fl_free() releases fl->owner.pid before rcu grace period is started.
+Grab driver_input_lock to make sure the input device exists throughout the
+whole process of dumping the rdesc.
 
-[1]
-
-BUG: KASAN: use-after-free in pid_nr_ns+0x128/0x140 kernel/pid.c:407
-Read of size 4 at addr ffff888094012a04 by task syz-executor.0/18087
-
-CPU: 0 PID: 18087 Comm: syz-executor.0 Not tainted 5.1.0-rc6+ #89
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
- kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
- __asan_report_load4_noabort+0x14/0x20 mm/kasan/generic_report.c:131
- pid_nr_ns+0x128/0x140 kernel/pid.c:407
- ip6fl_seq_show+0x2f8/0x4f0 net/ipv6/ip6_flowlabel.c:794
- seq_read+0xad3/0x1130 fs/seq_file.c:268
- proc_reg_read+0x1fe/0x2c0 fs/proc/inode.c:227
- do_loop_readv_writev fs/read_write.c:701 [inline]
- do_loop_readv_writev fs/read_write.c:688 [inline]
- do_iter_read+0x4a9/0x660 fs/read_write.c:922
- vfs_readv+0xf0/0x160 fs/read_write.c:984
- kernel_readv fs/splice.c:358 [inline]
- default_file_splice_read+0x475/0x890 fs/splice.c:413
- do_splice_to+0x12a/0x190 fs/splice.c:876
- splice_direct_to_actor+0x2d2/0x970 fs/splice.c:953
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1062
- do_sendfile+0x597/0xd00 fs/read_write.c:1443
- __do_sys_sendfile64 fs/read_write.c:1498 [inline]
- __se_sys_sendfile64 fs/read_write.c:1490 [inline]
- __x64_sys_sendfile64+0x15a/0x220 fs/read_write.c:1490
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x458da9
-Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f300d24bc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000458da9
-RDX: 00000000200000c0 RSI: 0000000000000008 RDI: 0000000000000007
-RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 000000000000005a R11: 0000000000000246 R12: 00007f300d24c6d4
-R13: 00000000004c5fa3 R14: 00000000004da748 R15: 00000000ffffffff
-
-Allocated by task 17543:
- save_stack+0x45/0xd0 mm/kasan/common.c:75
- set_track mm/kasan/common.c:87 [inline]
- __kasan_kmalloc mm/kasan/common.c:497 [inline]
- __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
- kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
- slab_post_alloc_hook mm/slab.h:437 [inline]
- slab_alloc mm/slab.c:3393 [inline]
- kmem_cache_alloc+0x11a/0x6f0 mm/slab.c:3555
- alloc_pid+0x55/0x8f0 kernel/pid.c:168
- copy_process.part.0+0x3b08/0x7980 kernel/fork.c:1932
- copy_process kernel/fork.c:1709 [inline]
- _do_fork+0x257/0xfd0 kernel/fork.c:2226
- __do_sys_clone kernel/fork.c:2333 [inline]
- __se_sys_clone kernel/fork.c:2327 [inline]
- __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 7789:
- save_stack+0x45/0xd0 mm/kasan/common.c:75
- set_track mm/kasan/common.c:87 [inline]
- __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
- __cache_free mm/slab.c:3499 [inline]
- kmem_cache_free+0x86/0x260 mm/slab.c:3765
- put_pid.part.0+0x111/0x150 kernel/pid.c:111
- put_pid+0x20/0x30 kernel/pid.c:105
- fl_free+0xbe/0xe0 net/ipv6/ip6_flowlabel.c:102
- ip6_fl_gc+0x295/0x3e0 net/ipv6/ip6_flowlabel.c:152
- call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
- expire_timers kernel/time/timer.c:1362 [inline]
- __run_timers kernel/time/timer.c:1681 [inline]
- __run_timers kernel/time/timer.c:1649 [inline]
- run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
- __do_softirq+0x266/0x95a kernel/softirq.c:293
-
-The buggy address belongs to the object at ffff888094012a00
- which belongs to the cache pid_2 of size 88
-The buggy address is located 4 bytes inside of
- 88-byte region [ffff888094012a00, ffff888094012a58)
-The buggy address belongs to the page:
-page:ffffea0002500480 count:1 mapcount:0 mapping:ffff88809a483080 index:0xffff888094012980
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea00018a3508 ffffea0002524a88 ffff88809a483080
-raw: ffff888094012980 ffff888094012000 000000010000001b 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff888094012900: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
- ffff888094012980: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
->ffff888094012a00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
-                   ^
- ffff888094012a80: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
- ffff888094012b00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
-
-Fixes: 4f82f45730c6 ("net ip6 flowlabel: Make owner a union of struct pid * and kuid_t")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[jkosina@suse.cz: update changelog a bit]
+Signed-off-by: he, bo <bo.he@intel.com>
+Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_flowlabel.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/hid/hid-debug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -94,15 +94,21 @@ static struct ip6_flowlabel *fl_lookup(s
- 	return fl;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index a90967cd4987..a0bcbb633b67 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+ 	seq_printf(f, "\n\n");
+ 
+ 	/* dump parsed data and input mappings */
++	if (down_interruptible(&hdev->driver_input_lock))
++		return 0;
++
+ 	hid_dump_device(hdev, f);
+ 	seq_printf(f, "\n");
+ 	hid_dump_input_mapping(hdev, f);
+ 
++	up(&hdev->driver_input_lock);
++
+ 	return 0;
  }
  
-+static void fl_free_rcu(struct rcu_head *head)
-+{
-+	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
-+
-+	if (fl->share == IPV6_FL_S_PROCESS)
-+		put_pid(fl->owner.pid);
-+	kfree(fl->opt);
-+	kfree(fl);
-+}
-+
- 
- static void fl_free(struct ip6_flowlabel *fl)
- {
--	if (fl) {
--		if (fl->share == IPV6_FL_S_PROCESS)
--			put_pid(fl->owner.pid);
--		kfree(fl->opt);
--		kfree_rcu(fl, rcu);
--	}
-+	if (fl)
-+		call_rcu(&fl->rcu, fl_free_rcu);
- }
- 
- static void fl_release(struct ip6_flowlabel *fl)
+-- 
+2.20.1
+
 
 
