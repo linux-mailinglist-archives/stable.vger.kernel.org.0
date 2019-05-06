@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3594714E0A
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97AB14E46
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727487AbfEFO6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39912 "EHLO mail.kernel.org"
+        id S1726810AbfEFOlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728243AbfEFOn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:56 -0400
+        id S1727160AbfEFOlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:41:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D818A20449;
-        Mon,  6 May 2019 14:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC5020449;
+        Mon,  6 May 2019 14:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153836;
-        bh=BCJyrJQC8pq+NG1HUdcgLrXOxTCc40nsDQ/UkAV12WQ=;
+        s=default; t=1557153666;
+        bh=UBYKuLsospr/zmWzsA2yY1uhFNal94oqsxalEMlrnfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsHUEMNb/LyOhV+nzrNVBm4TZhnaHzYl3lhUav/kUEuCV4edB0QixqVnXEFSjqye2
-         2c5C8KNM8m4dy5Up4bBMg/mYl8q/GiefjappX9QRx1pM7Cbx2mK4kUcOoSHA+5QlYt
-         9ESbv85Dgw7KGHFYzXNihBqCWyghDnTOOWq9wIZU=
+        b=DgNqBEQPVWxu6a59KMJ5FzRcy/zRjsr3fkX3VVNQ/TdGpXTPwuZJ80pucjDlGg8Dr
+         JpOpTIIfR0aKD+ZIgXaqYO0X4IiDgs4XbfJns4jVD5Ww9kqNy3PW7Fh+bArKh3Zl73
+         Lfmwb2kTA/cjN4YuohDXvy3dCUYuVtngHDwUPOLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 4.14 15/75] arm64: only advance singlestep for user instruction traps
+        stable@vger.kernel.org, Louis Taylor <louis@kragniz.eu>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 50/99] vfio/pci: use correct format characters
 Date:   Mon,  6 May 2019 16:32:23 +0200
-Message-Id: <20190506143054.566908300@linuxfoundation.org>
+Message-Id: <20190506143058.607139543@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+[ Upstream commit 426b046b748d1f47e096e05bdcc6fb4172791307 ]
 
-commit 9478f1927e6ef9ef5e1ad761af1c98aa8e40b7f5 upstream.
+When compiling with -Wformat, clang emits the following warnings:
 
-Our arm64_skip_faulting_instruction() helper advances the userspace
-singlestep state machine, but this is also called by the kernel BRK
-handler, as used for WARN*().
+drivers/vfio/pci/vfio_pci.c:1601:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
 
-Thus, if we happen to hit a WARN*() while the user singlestep state
-machine is in the active-no-pending state, we'll advance to the
-active-pending state without having executed a user instruction, and
-will take a step exception earlier than expected when we return to
-userspace.
+drivers/vfio/pci/vfio_pci.c:1601:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
 
-Let's fix this by only advancing the state machine when skipping a user
-instruction.
+drivers/vfio/pci/vfio_pci.c:1601:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/vfio/pci/vfio_pci.c:1601:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
 
+drivers/vfio/pci/vfio_pci.c:1605:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
+The types of these arguments are unconditionally defined, so this patch
+updates the format character to the correct ones for unsigned ints.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Signed-off-by: Louis Taylor <louis@kragniz.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/traps.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -304,7 +304,8 @@ void arm64_skip_faulting_instruction(str
- 	 * If we were single stepping, we want to get the step exception after
- 	 * we return from the trap.
- 	 */
--	user_fastforward_single_step(current);
-+	if (user_mode(regs))
-+		user_fastforward_single_step(current);
- }
- 
- static LIST_HEAD(undef_hook);
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index cddb453a1ba5..6cf00d9f512b 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1443,11 +1443,11 @@ static void __init vfio_pci_fill_ids(void)
+ 		rc = pci_add_dynid(&vfio_pci_driver, vendor, device,
+ 				   subvendor, subdevice, class, class_mask, 0);
+ 		if (rc)
+-			pr_warn("failed to add dynamic id [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x (%d)\n",
++			pr_warn("failed to add dynamic id [%04x:%04x[%04x:%04x]] class %#08x/%08x (%d)\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask, rc);
+ 		else
+-			pr_info("add [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x\n",
++			pr_info("add [%04x:%04x[%04x:%04x]] class %#08x/%08x\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask);
+ 	}
+-- 
+2.20.1
+
 
 
