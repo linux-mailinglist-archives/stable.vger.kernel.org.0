@@ -2,102 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C24614FA3
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B5314FC4
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726597AbfEFPM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
+        id S1726371AbfEFPOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:14:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38530 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727082AbfEFPMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 11:12:55 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726322AbfEFPOj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 11:14:39 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3E9521479;
-        Mon,  6 May 2019 15:12:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557155574;
-        bh=t8vKwFlI0bJLS5h2dD31IGjB9vHPflvMjtuqWataVgE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zp/FHHK69KnVw6FJoIY0+qmT20u56Ud5KTj1UbT0/sgJtv+vuS7wCrfY7+pCgNGiX
-         wS4WWPW4HlweOLnXiKhTgbevvWyzvsWh63LhEZit/dYUO3WOym8435ft6j7T06kMcu
-         tXz3VBexFyPWtE4sp3vLnUDqvjr/z+3Y+tgLeAUs=
-Date:   Mon, 6 May 2019 17:10:26 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
+        by mx1.redhat.com (Postfix) with ESMTPS id C23E6307D942;
+        Mon,  6 May 2019 15:14:38 +0000 (UTC)
+Received: from treble (ovpn-122-172.rdu2.redhat.com [10.10.122.172])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 433C65F9D6;
+        Mon,  6 May 2019 15:14:30 +0000 (UTC)
+Date:   Mon, 6 May 2019 10:14:28 -0500
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.9 09/62] kasan: turn on
- -fsanitize-address-use-after-scope
-Message-ID: <20190506151026.GA12193@kroah.com>
-References: <20190506143051.102535767@linuxfoundation.org>
- <20190506143051.888762392@linuxfoundation.org>
- <6636d7cf-03fe-e253-f981-e07d75858b33@virtuozzo.com>
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+Message-ID: <20190506151428.r6fhirmoz5nrmiu5@treble>
+References: <20190501202830.347656894@goodmis.org>
+ <20190501203152.397154664@goodmis.org>
+ <20190501232412.1196ef18@oasis.local.home>
+ <20190502162133.GX2623@hirez.programming.kicks-ass.net>
+ <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <6636d7cf-03fe-e253-f981-e07d75858b33@virtuozzo.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <CAHk-=wijZ-MD4g3zMJ9W2r=h8LUWneiu29OWuxZEoSfAF=0bhQ@mail.gmail.com>
+User-Agent: NeoMutt/20180716
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Mon, 06 May 2019 15:14:39 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 06, 2019 at 05:55:54PM +0300, Andrey Ryabinin wrote:
+On Thu, May 02, 2019 at 11:02:40AM -0700, Linus Torvalds wrote:
+> On Thu, May 2, 2019 at 9:21 AM Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > TL;DR, on x86_32 kernel->kernel IRET frames are only 3 entries and do
+> > not include ESP/SS, so not only wasn't regs->sp setup, if you changed it
+> > it wouldn't be effective and corrupt random stack state.
 > 
+> Indeed, the 32-bit case for same-RPL exceptions/iret is entirely
+> different, and I'd forgotten about that.
 > 
-> On 5/6/19 5:32 PM, Greg Kroah-Hartman wrote:
-> > From: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> > 
-> > commit c5caf21ab0cf884ef15b25af234f620e4a233139 upstream.
-> > 
-> > In the upcoming gcc7 release, the -fsanitize=kernel-address option at
-> > first implied new -fsanitize-address-use-after-scope option.  This would
-> > cause link errors on older kernels because they don't have two new
-> > functions required for use-after-scope support.  Therefore, gcc7 changed
-> > default to -fno-sanitize-address-use-after-scope.
-> > 
-> > Now the kernel has everything required for that feature since commit
-> > 828347f8f9a5 ("kasan: support use-after-scope detection").  So, to make it
-> > work, we just have to enable use-after-scope in CFLAGS.
-> > 
-> > Link: http://lkml.kernel.org/r/1481207977-28654-1-git-send-email-aryabinin@virtuozzo.com
-> > Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> > Acked-by: Dmitry Vyukov <dvyukov@google.com>
-> > Cc: Alexander Potapenko <glider@google.com>
-> > Cc: Andrey Konovalov <andreyknvl@google.com>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > ---
-> >  scripts/Makefile.kasan |    2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > --- a/scripts/Makefile.kasan
-> > +++ b/scripts/Makefile.kasan
-> > @@ -29,6 +29,8 @@ else
-> >      endif
-> >  endif
-> >  
-> > +CFLAGS_KASAN += $(call cc-option, -fsanitize-address-use-after-scope)
-> > +
-> >  CFLAGS_KASAN_NOSANITIZE := -fno-builtin
-> >  
-> >  endif
-> > 
-> > 
+> And honestly, this makes the 32-bit case much worse. Now the entry
+> stack modifications of int3 suddenly affect not just the entry, but
+> every exit too.
 > 
-> This shouldn't be in the -stable.
+> This is _exactly_ the kind of subtle kernel entry/exit code I wanted
+> us to avoid.
 
-Why not?  Does no one use gcc7 with this kernel and kasan?
+I actually love this patch (absent the bugs).  This is already something
+that has been sorely needed for years.
 
-thanks,
+The "struct pt_regs is incomplete on x86-32" thing is a monstrosity
+which has long been a source of confusion and bugs.  Sure, this patch
+adds some complexity to the entry code, but on the other hand it
+actually makes it possible to use pt_regs sanely: regs->sp is no longer
+uninitialized.  So a class of (very non-obvious) bugs is eliminated.
 
-greg k-h
+I don't think it would make sense to make this change for int3 only,
+because the benefits are global.
+
+-- 
+Josh
