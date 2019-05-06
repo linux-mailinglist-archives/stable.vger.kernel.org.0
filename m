@@ -2,141 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 490E5154A6
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 21:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7448D154D6
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 22:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfEFTwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 15:52:41 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:37500 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726241AbfEFTwl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 15:52:41 -0400
-Received: by mail-lj1-f193.google.com with SMTP id 132so4454910ljj.4
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 12:52:39 -0700 (PDT)
+        id S1726347AbfEFUUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 16:20:09 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:56240 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726287AbfEFUUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 May 2019 16:20:09 -0400
+Received: by mail-wm1-f67.google.com with SMTP id y2so17077084wmi.5
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 13:20:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=v4kkKa3SRWQVadtU9idY39CCQftkxcpIoOM0XAJqBTM=;
-        b=cdF+EPKS6Ge2/s30X7OzfVs/i8EBdXNa487B1p2vGBTd+n7CgEMvurpKHpXcLVem3u
-         rzevt8MxZIrbBVHT/2blPyzn4vnzFxGcHXwbP4Rlh59f3LBxbz5pPdNbdmV6lS7efsQa
-         93j00k6IAskp5TeuRRIvJP0yqXdlZxHNFN5Nw=
+        bh=5KVj2cIFo4sf42IOvLasjrLGxhKPAN71ZeOyGOXbgEg=;
+        b=cmUNiJ98WYG7sItDJoJr3sz3tx87o4/cseKFyRTB6KPblTqcD6p2X4Cl9Dt7uhRrbX
+         hwg3vsZ07HYU/TiXZVulJMltTrF/i8J+DlWJ8kYkqKoW3peDCioHiWUYbjftKe6qPglk
+         +yDK+zpMcVMUEQBzOIhOI3WfpIT6a5+4NO1/0EUR7vAT5tyU2DdWvP3oWcTcWKXeX+YG
+         C6Q7Hq5oLAY6JvccnQw8frAjd7/cZts981BUwUlJrmEuKmxiAeJ9UADewVtE7o06DJu9
+         8etmdNoNdE/3u5DC1DPp9fes9/FTjtks4PT0YKvOg69TSeWpiw1vKegIHhwPwDgriAPk
+         EYsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=v4kkKa3SRWQVadtU9idY39CCQftkxcpIoOM0XAJqBTM=;
-        b=LAPxfytWLICTe5wJ2v5pDJmFGmNKFcxHTAg7yus9r3us9DRyQE6Tc0VsggByNKgXzk
-         1gsDUUz+qqgyHqwcOwe/1bP0OovH4iht3ewqTltqsRGBaLn6W0ytamqxEAVTxCXYf18t
-         +yha2EAGEX3Xxb5oqjReCScO9r6fV0+07UDqXOWEcDbxeZPUEfDHVVbZKcPQh4OOMqJv
-         b9MmalR9ZafKBLzLtxk/7pHvY44MRctjAhmGW5lUgk88fFrw3J9qH6TYzECiQZMnjxam
-         0OfNsFDjGCUzeVWdgG5oi+7F12T0F3lqMHBjE66sCFEbMnfq1EcytaFoq4MiVGtnE0Rj
-         nnsw==
-X-Gm-Message-State: APjAAAXSnDbcHGhlz9mP3Qq+p8vzQ8QYjOeRIEqzUsQwpeh5Ajqzq2zE
-        52Ql2d212RhX3rBHlZFID6VZAay1XGU=
-X-Google-Smtp-Source: APXvYqyGEoRt72u0aKkiU9xa0u57H884m7YcBQQmyZyj+gyW5bVGDUlABT58/IK4ScxqIbBcQhF5PQ==
-X-Received: by 2002:a2e:3a0a:: with SMTP id h10mr12726777lja.1.1557172358496;
-        Mon, 06 May 2019 12:52:38 -0700 (PDT)
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
-        by smtp.gmail.com with ESMTPSA id n18sm1512254ljj.95.2019.05.06.12.52.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 May 2019 12:52:38 -0700 (PDT)
-Received: by mail-lf1-f49.google.com with SMTP id u27so9783873lfg.10
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 12:52:38 -0700 (PDT)
-X-Received: by 2002:ac2:43cf:: with SMTP id u15mr13815824lfl.67.1557171988295;
- Mon, 06 May 2019 12:46:28 -0700 (PDT)
+        bh=5KVj2cIFo4sf42IOvLasjrLGxhKPAN71ZeOyGOXbgEg=;
+        b=Mbm1FxYmxQQvMeLYnbr9cehGPPsIxYT4jsczweH4T6TNld8oz/yZcCYJOKTBVvxU3q
+         fDDGJcUWLddto/mvh9HIFBIB5gWWontMB1anQH/WFzI9mrae0iP558vwV3wKQbEdR0EY
+         Kp/R05a93I6P8mQgyUvGtzlV9nDX65rchb8iOun/gtVa0nZq4zO8OVhozFwhwk7lSjRJ
+         Nz1tw5PWM5hvFczl1kDuY/dU1H7VRHy7146UXWOUwAV4h2S+r0QDGbqz2u0RyteF9SBe
+         WodXrRsd3ZAcU0TCG4jy161YgzNxtOKggrAdJ0XY63U3CLIrSAo6myEfbm0ZLDc2Ab2O
+         C+Tg==
+X-Gm-Message-State: APjAAAXTsOV1kZXjLmb3yH6vki5CwZm3rW3WdfoKNDtc9Hato6sE1nJ7
+        aEv/4F+dYSt9iKmo5DeL24BY1MZHD0zhZUSn0KnYsg==
+X-Google-Smtp-Source: APXvYqw6YN+mxes4KsRlBEwg0TxslCYp4jV8sOumNLnEbdftzDK/6jIQfDvI0cZj8kywJzf8b7wnJVv8SPDDt1cLFo8=
+X-Received: by 2002:a05:600c:2248:: with SMTP id a8mr18696267wmm.75.1557174006447;
+ Mon, 06 May 2019 13:20:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
- <CAHk-=wi6A9tgw=kkPh5Ywqt687VvsVEjYXVkAnq0jpt0u0tk6g@mail.gmail.com>
- <20190502202146.GZ2623@hirez.programming.kicks-ass.net> <20190502185225.0cdfc8bc@gandalf.local.home>
- <20190502193129.664c5b2e@gandalf.local.home> <20190502195052.0af473cf@gandalf.local.home>
- <20190503092959.GB2623@hirez.programming.kicks-ass.net> <20190503092247.20cc1ff0@gandalf.local.home>
- <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net> <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
- <20190506081951.GJ2606@hirez.programming.kicks-ass.net> <20190506095631.6f71ad7c@gandalf.local.home>
- <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
- <20190506130643.62c35eeb@gandalf.local.home> <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
- <20190506145745.17c59596@gandalf.local.home>
-In-Reply-To: <20190506145745.17c59596@gandalf.local.home>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 6 May 2019 12:46:11 -0700
-X-Gmail-Original-Message-ID: <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-Message-ID: <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <20190501003001.186239-1-jemoreira@google.com> <20190501190831.GF22391@stefanha-x1.localdomain>
+ <20190502082045.u3xypjbac5npbhtc@steredhat.homenet.telecomitalia.it>
+In-Reply-To: <20190502082045.u3xypjbac5npbhtc@steredhat.homenet.telecomitalia.it>
+From:   Jorge Moreira Broche <jemoreira@google.com>
+Date:   Mon, 6 May 2019 13:19:55 -0700
+Message-ID: <CAJi--POaVsfprbp5na5BvR=VNONKGfFya_BnmTzzcWmOQ1DM2Q@mail.gmail.com>
+Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
+ registering the driver
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 6, 2019 at 11:57 AM Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Wed, May 01, 2019 at 03:08:31PM -0400, Stefan Hajnoczi wrote:
+> > On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
+> > > Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> > > accessed (while handling interrupts) before they are initialized.
+> > >
+> > >
+> > > [    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
+> > > [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+> > > [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+> > > [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+> > > [    4.211379] Modules linked in:
+> > > [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
+> > > [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+> > > [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+> > > [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+> > > [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+> > > [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+> > > [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
+> > > [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
+> > > [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
+> > > [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
+> > > [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
+> > > [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
+> > > [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
+> > > [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > > [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > > [    4.211379] Call Trace:
+> > > [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+> > > [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+> > > [    4.211379]  ? detach_buf+0x1b5/0x210
+> > > [    4.211379]  virtio_transport_rx_work+0xb7/0x140
+> > > [    4.211379]  process_one_work+0x1ef/0x480
+> > > [    4.211379]  worker_thread+0x312/0x460
+> > > [    4.211379]  kthread+0x132/0x140
+> > > [    4.211379]  ? process_one_work+0x480/0x480
+> > > [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+> > > [    4.211379]  ret_from_fork+0x35/0x40
+> > > [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+> > > [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+> > > [    4.211379] CR2: ffffffffffffffe8
+> > > [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+> > > [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+> > > [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> > > [    4.211379] Rebooting in 5 seconds..
+> > >
+> > > Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+> > > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > > Cc: "David S. Miller" <davem@davemloft.net>
+> > > Cc: kvm@vger.kernel.org
+> > > Cc: virtualization@lists.linux-foundation.org
+> > > Cc: netdev@vger.kernel.org
+> > > Cc: kernel-team@android.com
+> > > Cc: stable@vger.kernel.org [4.9+]
+> > > Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> > > ---
+> > >  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+> > >  1 file changed, 6 insertions(+), 7 deletions(-)
+> > >
+> > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > > index 15eb5d3d4750..96ab344f17bb 100644
+> > > --- a/net/vmw_vsock/virtio_transport.c
+> > > +++ b/net/vmw_vsock/virtio_transport.c
+> > > @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+> > >     if (!virtio_vsock_workqueue)
+> > >             return -ENOMEM;
+> > >
+> > > -   ret = register_virtio_driver(&virtio_vsock_driver);
+> > > +   ret = vsock_core_init(&virtio_transport.transport);
+> >
+> > Have you checked that all transport callbacks are safe even if another
+> > CPU calls them while virtio_vsock_probe() is executing on another CPU?
+> >
 >
-> You should have waited another week to open that merge window ;-)
+> I have the same doubt.
+>
+> What do you think to take the 'the_virtio_vsock_mutex' in the
+> virtio_vsock_init(), keeping the previous order?
+>
+> This should prevent this issue because the virtio_vsock_probe() remains
+> blocked in the mutex until the end of vsock_core_init().
+>
+> Cheers,
+> Stefano
 
-Hmm. I'm looking at it while the test builds happen, and since I don't
-see what's wrong in the low-level entry code, I'm looking at the
-ftrace code instead.
+Hi Stefan, Stefano,
+Sorry for the late reply.
 
-What's going on here?
+@Stefan
+The order of vsock_core_exit() does not need to be changed to fix the
+bug I found, but not changing it means the exit function is not
+symmetric to the init function.
 
-               *pregs = int3_emulate_call(regs, (unsigned
-long)ftrace_regs_caller);
+@Stefano
+Taking the mutex from virtio_vsock_init() could work too (I haven't
+tried it yet), but it's unnecessary, all that needs to be done is
+properly initialize vsock_core before attempting to use it.
 
-that line makes no sense. Why would we emulate a call to
-ftrace_regs_caller()? That function sets up a pt_regs, and then calls
-ftrace_stub().
-
-But we *have* pt_regs here already with the right values. Why isn't
-this just a direct call to ftrace_stub() from within the int3 handler?
-
-And the thing is, calling ftrace_regs_caller() looks wrong, because
-that's not what happens for *real* mcount handling, which uses that
-"create_trampoline()" to create the thing we're supposed to really
-use?
-
-Anyway, I simply don't understand the code, so I'm confused. But why
-is the int3 emulation creating a call that doesn't seem to match what
-the instruction that we're actually rewriting is supposed to do?
-
-IOW, it looks to me like ftrace_int3_handler() is actually emulating
-something different than what ftrace_modify_code() is actually
-modifying the code to do!
-
-Since the only caller of ftrace_modify_code() is update_ftrace_func(),
-why is that function not just saving the target and we'd emulate the
-call to that? Using anything else looks crazy?
-
-But as mentioned, I just don't understand the ftrace logic. It looks
-insane to me, and much more likely to be buggy than the very simple
-entry code.
-
-             Linus
+I would prefer to change the order in virtio_vsock_init, while leaving
+virtio_vsock_exit unchanged, but I'll leave the final decision to you
+since I am not very familiar with the inner workings of these modules.
