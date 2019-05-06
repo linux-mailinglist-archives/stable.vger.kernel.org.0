@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D8FC14F77
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60E014BE5
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:34:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbfEFOeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:34:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
+        id S1726473AbfEFOeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbfEFOd6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:33:58 -0400
+        id S1726094AbfEFOeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:34:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99B39204EC;
-        Mon,  6 May 2019 14:33:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E2D9204EC;
+        Mon,  6 May 2019 14:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153238;
-        bh=9UwnwSLSRzGF+aoCsEt4MidaK9aiEQCsI0f/H/t9rQY=;
+        s=default; t=1557153240;
+        bh=7ZemQmt0cOHyrYretRO4V8+S59a+oJa/34ZCLJ348R4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nW5ksmu2PXH8RacVVnh2vOMwh1hf1HpKEubxtW4DCgpCoW1ngaZ/huCAXkWOCxJvH
-         yxQSVZWtukFKfNKvTckzv23zt6aueSE8tg+2czVsdKPBZlUTy0JyAWn4MzI9hlEK/6
-         /NWqPYU+pg8TnjAQB6DW+bNKcIZ09j/K5MpGA0M8=
+        b=HmvWzvGU1oHBCftzHw5pSyFL9JhDRuo9yPnlADw72TCtAXgUqOVqGt7PpYqTmjy2E
+         OAIvaP+MV35XHIpUd4Gf8wY7Q7nwsKIGv/jXX43/M9BxuIr/qMkWK3R/1tou2SuUUl
+         SCSYPIPIKoeJednK+4tlfTr0p+/WTqM03OXr4q/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
-Subject: [PATCH 5.0 014/122] USB: yurex: Fix protection fault after device removal
-Date:   Mon,  6 May 2019 16:31:12 +0200
-Message-Id: <20190506143056.014215892@linuxfoundation.org>
+        syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+Subject: [PATCH 5.0 015/122] USB: w1 ds2490: Fix bug caused by improper use of altsetting array
+Date:   Mon,  6 May 2019 16:31:13 +0200
+Message-Id: <20190506143056.112875886@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -45,38 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alan Stern <stern@rowland.harvard.edu>
 
-commit ef61eb43ada6c1d6b94668f0f514e4c268093ff3 upstream.
+commit c114944d7d67f24e71562fcfc18d550ab787e4d4 upstream.
 
-The syzkaller USB fuzzer found a general-protection-fault bug in the
-yurex driver.  The fault occurs when a device has been unplugged; the
-driver's interrupt-URB handler logs an error message referring to the
-device by name, after the device has been unregistered and its name
-deallocated.
+The syzkaller USB fuzzer spotted a slab-out-of-bounds bug in the
+ds2490 driver.  This bug is caused by improper use of the altsetting
+array in the usb_interface structure (the array's entries are not
+always stored in numerical order), combined with a naive assumption
+that all interfaces probed by the driver will have the expected number
+of altsettings.
 
-This problem is caused by the fact that the interrupt URB isn't
-cancelled until the driver's private data structure is released, which
-can happen long after the device is gone.  The cure is to make sure
-that the interrupt URB is killed before yurex_disconnect() returns;
-this is exactly the sort of thing that usb_poison_urb() was meant for.
+The bug can be fixed by replacing references to the possibly
+non-existent intf->altsetting[alt] entry with the guaranteed-to-exist
+intf->cur_altsetting entry.
 
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
 CC: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/yurex.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/w1/masters/ds2490.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -314,6 +314,7 @@ static void yurex_disconnect(struct usb_
- 	usb_deregister_dev(interface, &yurex_class);
+--- a/drivers/w1/masters/ds2490.c
++++ b/drivers/w1/masters/ds2490.c
+@@ -1016,15 +1016,15 @@ static int ds_probe(struct usb_interface
+ 	/* alternative 3, 1ms interrupt (greatly speeds search), 64 byte bulk */
+ 	alt = 3;
+ 	err = usb_set_interface(dev->udev,
+-		intf->altsetting[alt].desc.bInterfaceNumber, alt);
++		intf->cur_altsetting->desc.bInterfaceNumber, alt);
+ 	if (err) {
+ 		dev_err(&dev->udev->dev, "Failed to set alternative setting %d "
+ 			"for %d interface: err=%d.\n", alt,
+-			intf->altsetting[alt].desc.bInterfaceNumber, err);
++			intf->cur_altsetting->desc.bInterfaceNumber, err);
+ 		goto err_out_clear;
+ 	}
  
- 	/* prevent more I/O from starting */
-+	usb_poison_urb(dev->urb);
- 	mutex_lock(&dev->io_mutex);
- 	dev->interface = NULL;
- 	mutex_unlock(&dev->io_mutex);
+-	iface_desc = &intf->altsetting[alt];
++	iface_desc = intf->cur_altsetting;
+ 	if (iface_desc->desc.bNumEndpoints != NUM_EP-1) {
+ 		pr_info("Num endpoints=%d. It is not DS9490R.\n",
+ 			iface_desc->desc.bNumEndpoints);
 
 
