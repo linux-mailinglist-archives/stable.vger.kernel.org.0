@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B942C14DB1
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C4314F3B
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729222AbfEFOrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45454 "EHLO mail.kernel.org"
+        id S1727115AbfEFPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 11:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728064AbfEFOq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:46:58 -0400
+        id S1727408AbfEFPHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 11:07:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA3982053B;
-        Mon,  6 May 2019 14:46:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B362087F;
+        Mon,  6 May 2019 15:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154017;
-        bh=9XJoIW3im0c4o9kP86IKLI5/0HF/dfsUCxOv8kUS0xA=;
+        s=default; t=1557155272;
+        bh=7TSZU9uuESChnQZl6Z/mt6OaAgpomEHBrYCg3HwUwV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/TmI0SpcsMfzwpocrXAwZDZtN7agpHYMy07YaR8HZ9TSQ1r6qpqPFL1YQB29MUPV
-         ew0k/Jh58iiGNN1ItN/m8kEyy6rImKkJ9OnMjOEnZGCCr2BLKGMTBieKiEuKD0COz+
-         HaCwquvEeYc6tfeH1W81sEb5n/u5hIjESDN6YTm0=
+        b=QQUY8HkKXayixjYnRbS9dY8i7ZdNI6za/pRKKe7+29ahKIigUPaDsIHmQ4++ZH6pa
+         mlMIavWY+0fbxaErrFzK6pDeOam67+pFZL6++5LRMmjhhxCfFBRxv3LBj3zHdqHiK7
+         F1Ft80nYnBGwsJidolvupoO4ozQXDLgMo+hq2FZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Qian Cai <cai@lca.pw>, Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Avi Kivity <avi@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim Krcmar <rkrcmar@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 52/75] kmemleak: powerpc: skip scanning holes in the .bss section
+        stable@vger.kernel.org, "he, bo" <bo.he@intel.com>,
+        "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 29/62] HID: debug: fix race condition with between rdesc_show() and device removal
 Date:   Mon,  6 May 2019 16:33:00 +0200
-Message-Id: <20190506143057.956132371@linuxfoundation.org>
+Message-Id: <20190506143053.575546010@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
-References: <20190506143053.287515952@linuxfoundation.org>
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+References: <20190506143051.102535767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,104 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 298a32b132087550d3fa80641ca58323c5dfd4d9 ]
+[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
 
-Commit 2d4f567103ff ("KVM: PPC: Introduce kvm_tmp framework") adds
-kvm_tmp[] into the .bss section and then free the rest of unused spaces
-back to the page allocator.
+There is a race condition that could happen if hid_debug_rdesc_show()
+is running while hdev is in the process of going away (device removal,
+system suspend, etc) which could result in NULL pointer dereference:
 
-kernel_init
-  kvm_guest_init
-    kvm_free_tmp
-      free_reserved_area
-        free_unref_page
-          free_unref_page_prepare
+	 BUG: unable to handle kernel paging request at 0000000783316040
+	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
+	 RIP: 0010:hid_dump_device+0x9b/0x160
+	 Call Trace:
+	  hid_debug_rdesc_show+0x72/0x1d0
+	  seq_read+0xe0/0x410
+	  full_proxy_read+0x5f/0x90
+	  __vfs_read+0x3a/0x170
+	  vfs_read+0xa0/0x150
+	  ksys_read+0x58/0xc0
+	  __x64_sys_read+0x1a/0x20
+	  do_syscall_64+0x55/0x110
+	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-With DEBUG_PAGEALLOC=y, it will unmap those pages from kernel.  As the
-result, kmemleak scan will trigger a panic when it scans the .bss
-section with unmapped pages.
+Grab driver_input_lock to make sure the input device exists throughout the
+whole process of dumping the rdesc.
 
-This patch creates dedicated kmemleak objects for the .data, .bss and
-potentially .data..ro_after_init sections to allow partial freeing via
-the kmemleak_free_part() in the powerpc kvm_free_tmp() function.
-
-Link: http://lkml.kernel.org/r/20190321171917.62049-1-catalin.marinas@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Reported-by: Qian Cai <cai@lca.pw>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Tested-by: Qian Cai <cai@lca.pw>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Avi Kivity <avi@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krcmar <rkrcmar@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[jkosina@suse.cz: update changelog a bit]
+Signed-off-by: he, bo <bo.he@intel.com>
+Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/kvm.c |  7 +++++++
- mm/kmemleak.c             | 16 +++++++++++-----
- 2 files changed, 18 insertions(+), 5 deletions(-)
+ drivers/hid/hid-debug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/kernel/kvm.c b/arch/powerpc/kernel/kvm.c
-index 9ad37f827a97..7b59cc853abf 100644
---- a/arch/powerpc/kernel/kvm.c
-+++ b/arch/powerpc/kernel/kvm.c
-@@ -22,6 +22,7 @@
- #include <linux/kvm_host.h>
- #include <linux/init.h>
- #include <linux/export.h>
-+#include <linux/kmemleak.h>
- #include <linux/kvm_para.h>
- #include <linux/slab.h>
- #include <linux/of.h>
-@@ -712,6 +713,12 @@ static void kvm_use_magic_page(void)
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index d7179dd3c9ef..3cafa1d28fed 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1058,10 +1058,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+ 	seq_printf(f, "\n\n");
  
- static __init void kvm_free_tmp(void)
- {
-+	/*
-+	 * Inform kmemleak about the hole in the .bss section since the
-+	 * corresponding pages will be unmapped with DEBUG_PAGEALLOC=y.
-+	 */
-+	kmemleak_free_part(&kvm_tmp[kvm_tmp_index],
-+			   ARRAY_SIZE(kvm_tmp) - kvm_tmp_index);
- 	free_reserved_area(&kvm_tmp[kvm_tmp_index],
- 			   &kvm_tmp[ARRAY_SIZE(kvm_tmp)], -1, NULL);
- }
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index d9e0be2a8189..337be9aacb7a 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1492,11 +1492,6 @@ static void kmemleak_scan(void)
- 	}
- 	rcu_read_unlock();
- 
--	/* data/bss scanning */
--	scan_large_block(_sdata, _edata);
--	scan_large_block(__bss_start, __bss_stop);
--	scan_large_block(__start_ro_after_init, __end_ro_after_init);
--
- #ifdef CONFIG_SMP
- 	/* per-cpu sections scanning */
- 	for_each_possible_cpu(i)
-@@ -2027,6 +2022,17 @@ void __init kmemleak_init(void)
- 	}
- 	local_irq_restore(flags);
- 
-+	/* register the data/bss sections */
-+	create_object((unsigned long)_sdata, _edata - _sdata,
-+		      KMEMLEAK_GREY, GFP_ATOMIC);
-+	create_object((unsigned long)__bss_start, __bss_stop - __bss_start,
-+		      KMEMLEAK_GREY, GFP_ATOMIC);
-+	/* only register .data..ro_after_init if not within .data */
-+	if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
-+		create_object((unsigned long)__start_ro_after_init,
-+			      __end_ro_after_init - __start_ro_after_init,
-+			      KMEMLEAK_GREY, GFP_ATOMIC);
+ 	/* dump parsed data and input mappings */
++	if (down_interruptible(&hdev->driver_input_lock))
++		return 0;
 +
- 	/*
- 	 * This is the point where tracking allocations is safe. Automatic
- 	 * scanning is started during the late initcall. Add the early logged
+ 	hid_dump_device(hdev, f);
+ 	seq_printf(f, "\n");
+ 	hid_dump_input_mapping(hdev, f);
+ 
++	up(&hdev->driver_input_lock);
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
