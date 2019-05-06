@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 028A914D41
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E571314E24
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbfEFOtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51340 "EHLO mail.kernel.org"
+        id S1727964AbfEFO6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728996AbfEFOte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:49:34 -0400
+        id S1728664AbfEFOna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:43:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 943D620C01;
-        Mon,  6 May 2019 14:49:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48C3021019;
+        Mon,  6 May 2019 14:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154174;
-        bh=cG4eyvIm3aEMvOrch0WPnjdSg7uiNgxHqGSDdESzVdk=;
+        s=default; t=1557153809;
+        bh=e5OyHT0kIM9tCgtPrUtYgCVbFfRiUBN5ta8F6o2joag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBam7aFTLxRraYqQTFGHKY4D9oDbF0G+pR6HQ0vBiF5xuQIjRADjtbgq1lSkPZ30H
-         E3qURpN/tJ+V5qhpyGIF+RTSyAGsS4CJ4xM/y/QbeZItmg9fw+P+2KWD7dv1JMGq+x
-         34FGtdQeCEokSDAgCKjWfd46R3WJNXNMYQmGY+dk=
+        b=KsXscSj2T+78rgDrhkSbhQBmaYtlD0fV2A8EwBUJPJoBr1xTSBlyE06fg+EZQq8TX
+         vBrwFoCEkYw/BrUS2U3S2E4RziqOlSjH4ZJGf16caBuPYe/o7Hcbzl4c2Y+owAvQbz
+         U8iFyNjj7AIdRqgZ0lapmDT7MrAG/w3yyDrmKLpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/62] net: stmmac: dont log oversized frames
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nadav Amit <namit@vmware.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 97/99] x86/mm/tlb: Revert "x86/mm: Align TLB invalidation info"
 Date:   Mon,  6 May 2019 16:33:10 +0200
-Message-Id: <20190506143054.515453885@linuxfoundation.org>
+Message-Id: <20190506143102.620292973@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 057a0c5642a2ff2db7c421cdcde34294a23bf37b ]
+From: Peter Zijlstra <peterz@infradead.org>
 
-This is log is harmful as it can trigger multiple times per packet. Delete
-it.
+commit 780e0106d468a2962b16b52fdf42898f2639e0a0 upstream.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Revert the following commit:
+
+  515ab7c41306: ("x86/mm: Align TLB invalidation info")
+
+I found out (the hard way) that under some .config options (notably L1_CACHE_SHIFT=7)
+and compiler combinations this on-stack alignment leads to a 320 byte
+stack usage, which then triggers a KASAN stack warning elsewhere.
+
+Using 320 bytes of stack space for a 40 byte structure is ludicrous and
+clearly not right.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Nadav Amit <namit@vmware.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 515ab7c41306 ("x86/mm: Align TLB invalidation info")
+Link: http://lkml.kernel.org/r/20190416080335.GM7905@worktop.programming.kicks-ass.net
+[ Minor changelog edits. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/norm_desc.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/mm/tlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-index fd78406e2e9a..01f8f2e94c0f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-@@ -95,8 +95,6 @@ static int ndesc_get_rx_status(void *data, struct stmmac_extra_stats *x,
- 		return dma_own;
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -694,7 +694,7 @@ void flush_tlb_mm_range(struct mm_struct
+ {
+ 	int cpu;
  
- 	if (unlikely(!(rdes0 & RDES0_LAST_DESCRIPTOR))) {
--		pr_warn("%s: Oversized frame spanned multiple buffers\n",
--			__func__);
- 		stats->rx_length_errors++;
- 		return discard_frame;
- 	}
--- 
-2.20.1
-
+-	struct flush_tlb_info info __aligned(SMP_CACHE_BYTES) = {
++	struct flush_tlb_info info = {
+ 		.mm = mm,
+ 	};
+ 
 
 
