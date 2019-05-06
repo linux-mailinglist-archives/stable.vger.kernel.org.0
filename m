@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6460814F05
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3654814E02
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726352AbfEFPG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:06:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
+        id S1726790AbfEFOoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726909AbfEFOhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:37:20 -0400
+        id S1727944AbfEFOoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:44:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D8A8206A3;
-        Mon,  6 May 2019 14:37:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63A5620449;
+        Mon,  6 May 2019 14:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153440;
-        bh=2Gd0bH3/tO40zPJAXXvIBjHGlAEcOp4BKYcLxoT5HSc=;
+        s=default; t=1557153852;
+        bh=ji2Fkc2JCt0iE1AsuDOUcQhSeTai/544j7ODEE/aw8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWTNROQ1tiN2IuxGE4aCLhHnSLc8eL/S0Kark59XNnDsep9IlRV0oCIkuop2Sjx/G
-         1FaVKD4Tm9dPkI7I0okknJaYxlHgUcZJYgxNIbno7HQt2phPUKEhxgR1qzlxF2P1a3
-         gHnZ/znWAPkADp47JeEDo+hk0xVxoxq585Wu78io=
+        b=p3V5ymTqeKrKOhs59BB93WWDWtHWXtPpoCJrISyBJ7l0x2qU14iEbVxS4wVqg+VTA
+         q81Dr1y80N6X8jMMTyAPIH7qcdfJNoMJzPSGawd5FJ5lvk85pz0iR4ha2U8Y1GbL5B
+         xmqFuAy7lLwZa5XpIryjKlqM9etRiXptbDhorYK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.0 090/122] staging: iio: adt7316: fix handling of dac high resolution option
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 20/75] USB: w1 ds2490: Fix bug caused by improper use of altsetting array
 Date:   Mon,  6 May 2019 16:32:28 +0200
-Message-Id: <20190506143102.784111183@linuxfoundation.org>
+Message-Id: <20190506143054.983786741@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Fertic <jeremyfertic@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 76b7fe8d6c4daf4db672eb953c892c6f6572a282 upstream.
+commit c114944d7d67f24e71562fcfc18d550ab787e4d4 upstream.
 
-The adt7316/7 and adt7516/7 have the option to output voltage proportional
-to temperature on dac a and/or dac b. The default dac resolution in this
-mode is 8 bits with the dac high resolution option enabling 10 bits. None
-of these settings affect dacs c and d. Remove the "1 (12 bits)" output from
-the show function since that is not an option for this mode. Return
-"1 (10 bits)" if the device is one of the above mentioned chips and the dac
-high resolution mode is enabled.
+The syzkaller USB fuzzer spotted a slab-out-of-bounds bug in the
+ds2490 driver.  This bug is caused by improper use of the altsetting
+array in the usb_interface structure (the array's entries are not
+always stored in numerical order), combined with a naive assumption
+that all interfaces probed by the driver will have the expected number
+of altsettings.
 
-In the store function, the driver currently allows the user to write to the
-ADT7316_DA_HIGH_RESOLUTION bit regardless of the device in use. Add a check
-to return an error in the case of an adt7318 or adt7519. Remove the else
-statement that clears the ADT7316_DA_HIGH_RESOLUTION bit. Instead, clear it
-before conditionally enabling it, depending on user input. This matches the
-typical pattern in the driver when an attribute is a boolean.
+The bug can be fixed by replacing references to the possibly
+non-existent intf->altsetting[alt] entry with the guaranteed-to-exist
+intf->cur_altsetting entry.
 
-Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
-Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/addac/adt7316.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/w1/masters/ds2490.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/iio/addac/adt7316.c
-+++ b/drivers/staging/iio/addac/adt7316.c
-@@ -634,9 +634,7 @@ static ssize_t adt7316_show_da_high_reso
- 	struct adt7316_chip_info *chip = iio_priv(dev_info);
- 
- 	if (chip->config3 & ADT7316_DA_HIGH_RESOLUTION) {
--		if (chip->id == ID_ADT7316 || chip->id == ID_ADT7516)
--			return sprintf(buf, "1 (12 bits)\n");
--		if (chip->id == ID_ADT7317 || chip->id == ID_ADT7517)
-+		if (chip->id != ID_ADT7318 && chip->id != ID_ADT7519)
- 			return sprintf(buf, "1 (10 bits)\n");
+--- a/drivers/w1/masters/ds2490.c
++++ b/drivers/w1/masters/ds2490.c
+@@ -1018,15 +1018,15 @@ static int ds_probe(struct usb_interface
+ 	/* alternative 3, 1ms interrupt (greatly speeds search), 64 byte bulk */
+ 	alt = 3;
+ 	err = usb_set_interface(dev->udev,
+-		intf->altsetting[alt].desc.bInterfaceNumber, alt);
++		intf->cur_altsetting->desc.bInterfaceNumber, alt);
+ 	if (err) {
+ 		dev_err(&dev->udev->dev, "Failed to set alternative setting %d "
+ 			"for %d interface: err=%d.\n", alt,
+-			intf->altsetting[alt].desc.bInterfaceNumber, err);
++			intf->cur_altsetting->desc.bInterfaceNumber, err);
+ 		goto err_out_clear;
  	}
  
-@@ -653,10 +651,12 @@ static ssize_t adt7316_store_da_high_res
- 	u8 config3;
- 	int ret;
- 
-+	if (chip->id == ID_ADT7318 || chip->id == ID_ADT7519)
-+		return -EPERM;
-+
-+	config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
- 	if (buf[0] == '1')
--		config3 = chip->config3 | ADT7316_DA_HIGH_RESOLUTION;
--	else
--		config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
-+		config3 |= ADT7316_DA_HIGH_RESOLUTION;
- 
- 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG3, config3);
- 	if (ret)
+-	iface_desc = &intf->altsetting[alt];
++	iface_desc = intf->cur_altsetting;
+ 	if (iface_desc->desc.bNumEndpoints != NUM_EP-1) {
+ 		pr_info("Num endpoints=%d. It is not DS9490R.\n",
+ 			iface_desc->desc.bNumEndpoints);
 
 
