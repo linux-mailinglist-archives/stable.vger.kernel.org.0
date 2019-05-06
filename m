@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B003A14C4E
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCFE14CAF
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727176AbfEFOis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60094 "EHLO mail.kernel.org"
+        id S1727737AbfEFOmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726679AbfEFOir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:38:47 -0400
+        id S1727799AbfEFOmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C787421479;
-        Mon,  6 May 2019 14:38:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 417DD20C01;
+        Mon,  6 May 2019 14:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153527;
-        bh=uu0EMjhOToFcA+5jmlzRFDtcC1h61DsUoHuGmibseAg=;
+        s=default; t=1557153765;
+        bh=b1+zedKg8zdeP7otKTiu/0hB8d4eiwI693m/aSnw4sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tp2THbaIpJ25MmAB23bkb5Pw68P4/cqFLSqA1uMvJCRn3DUnE11F8Y3UsS2rxTmRA
-         Z+nyOT88PMqkGLh16CfPpDtDbw9YWeT3+2nPZunF2NiXYyGnB4TXu7OyCaUYMp1bio
-         g83MRQkszaV5IeRNP/FUR4LliwUh58APw7DvQzb4=
+        b=tjyAIhkommLJaSRaw1xxvtR5nHIq4KQbw9+gx8S6UwTYCIXC4W2Yn2fo/zpL9Y/js
+         Wu+7DuNwtimQSi1TFnstDMEthKgf2uv+dS2ht8qvjlamO1UWATqriYfj+qf+B2iz61
+         a0cMakTw2fJgkhfOtjQj98rCUs3+mzvJErGoUR3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.0 122/122] media: v4l2: i2c: ov7670: Fix PLL bypass register values
+        stable@vger.kernel.org, Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 87/99] Input: stmfts - acknowledge that setting brightness is a blocking call
 Date:   Mon,  6 May 2019 16:33:00 +0200
-Message-Id: <20190506143105.263885603@linuxfoundation.org>
+Message-Id: <20190506143101.843299779@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 61da76beef1e4f0b6ba7be4f8d0cf0dac7ce1f55 upstream.
+commit 937c4e552fd1174784045684740edfcea536159d upstream.
 
-The following commits:
-commit f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
-commit 04ee6d92047e ("[media] media: ov7670: add possibility to bypass pll for ov7675")
-introduced the ability to bypass PLL multiplier and use input clock (xvclk)
-as pixel clock output frequency for ov7675 sensor.
+We need to turn regulators on and off when switching brightness, and
+that may block, therefore we have to set stmfts_brightness_set() as
+LED's brightness_set_blocking() method.
 
-PLL is bypassed using register DBLV[7:6], according to ov7670 and ov7675
-sensor manuals. Macros used to set DBLV register seem wrong in the
-driver, as their values do not match what reported in the datasheet.
-
-Fix by changing DBLV_* macros to use bits [7:6] and set bits [3:0] to
-default 0x0a reserved value (according to datasheets).
-
-While at there, remove a write to DBLV register in
-"ov7675_set_framerate()" that over-writes the previous one to the same
-register that takes "info->pll_bypass" flag into account instead of setting PLL
-multiplier to 4x unconditionally.
-
-And, while at there, since "info->pll_bypass" is only used in
-set/get_framerate() functions used by ov7675 only, it is not necessary
-to check for the device id at probe time to make sure that when using
-ov7670 "info->pll_bypass" is set to false.
-
-Fixes: f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
-
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
+Acked-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/ov7670.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/stmfts.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
---- a/drivers/media/i2c/ov7670.c
-+++ b/drivers/media/i2c/ov7670.c
-@@ -160,10 +160,10 @@ MODULE_PARM_DESC(debug, "Debug level (0-
- #define REG_GFIX	0x69	/* Fix gain control */
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -106,27 +106,29 @@ struct stmfts_data {
+ 	bool running;
+ };
  
- #define REG_DBLV	0x6b	/* PLL control an debugging */
--#define   DBLV_BYPASS	  0x00	  /* Bypass PLL */
--#define   DBLV_X4	  0x01	  /* clock x4 */
--#define   DBLV_X6	  0x10	  /* clock x6 */
--#define   DBLV_X8	  0x11	  /* clock x8 */
-+#define   DBLV_BYPASS	  0x0a	  /* Bypass PLL */
-+#define   DBLV_X4	  0x4a	  /* clock x4 */
-+#define   DBLV_X6	  0x8a	  /* clock x6 */
-+#define   DBLV_X8	  0xca	  /* clock x8 */
+-static void stmfts_brightness_set(struct led_classdev *led_cdev,
++static int stmfts_brightness_set(struct led_classdev *led_cdev,
+ 					enum led_brightness value)
+ {
+ 	struct stmfts_data *sdata = container_of(led_cdev,
+ 					struct stmfts_data, led_cdev);
+ 	int err;
  
- #define REG_SCALING_XSC	0x70	/* Test pattern and horizontal scale factor */
- #define   TEST_PATTTERN_0 0x80
-@@ -863,7 +863,7 @@ static int ov7675_set_framerate(struct v
- 	if (ret < 0)
- 		return ret;
+-	if (value == sdata->led_status || !sdata->ledvdd)
+-		return;
+-
+-	if (!value) {
+-		regulator_disable(sdata->ledvdd);
+-	} else {
+-		err = regulator_enable(sdata->ledvdd);
+-		if (err)
+-			dev_warn(&sdata->client->dev,
+-				 "failed to disable ledvdd regulator: %d\n",
+-				 err);
++	if (value != sdata->led_status && sdata->ledvdd) {
++		if (!value) {
++			regulator_disable(sdata->ledvdd);
++		} else {
++			err = regulator_enable(sdata->ledvdd);
++			if (err) {
++				dev_warn(&sdata->client->dev,
++					 "failed to disable ledvdd regulator: %d\n",
++					 err);
++				return err;
++			}
++		}
++		sdata->led_status = value;
+ 	}
  
--	return ov7670_write(sd, REG_DBLV, DBLV_X4);
+-	sdata->led_status = value;
 +	return 0;
  }
  
- static void ov7670_get_framerate_legacy(struct v4l2_subdev *sd,
-@@ -1801,11 +1801,7 @@ static int ov7670_probe(struct i2c_clien
- 		if (config->clock_speed)
- 			info->clock_speed = config->clock_speed;
+ static enum led_brightness stmfts_brightness_get(struct led_classdev *led_cdev)
+@@ -608,7 +610,7 @@ static int stmfts_enable_led(struct stmf
+ 	sdata->led_cdev.name = STMFTS_DEV_NAME;
+ 	sdata->led_cdev.max_brightness = LED_ON;
+ 	sdata->led_cdev.brightness = LED_OFF;
+-	sdata->led_cdev.brightness_set = stmfts_brightness_set;
++	sdata->led_cdev.brightness_set_blocking = stmfts_brightness_set;
+ 	sdata->led_cdev.brightness_get = stmfts_brightness_get;
  
--		/*
--		 * It should be allowed for ov7670 too when it is migrated to
--		 * the new frame rate formula.
--		 */
--		if (config->pll_bypass && id->driver_data != MODEL_OV7670)
-+		if (config->pll_bypass)
- 			info->pll_bypass = true;
- 
- 		if (config->pclk_hb_disable)
+ 	err = devm_led_classdev_register(&sdata->client->dev, &sdata->led_cdev);
 
 
