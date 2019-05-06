@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F3D14E6D
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9189A14D01
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbfEFPAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
+        id S1726762AbfEFOrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727684AbfEFOmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:42:17 -0400
+        id S1728284AbfEFOrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:47:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A80C021019;
-        Mon,  6 May 2019 14:42:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85A0E20449;
+        Mon,  6 May 2019 14:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153737;
-        bh=NPJ3DpwJTS2Oi6ThWQAWVDa3v0iLtAEYsoJkBu8Lgrs=;
+        s=default; t=1557154020;
+        bh=xXVhw4rYzZVrdJBk2BB/nhSxbQrOB/KgHjTaiF1hqVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFsMehdv5qjdgdIhvqPn2QeuCXe1bKRMKMlvcOPQ8Shc0w/BXvPjeHNMk8OjJo8Xy
-         aOcMUnsisFtO8s1Pqzk5uq+NZz0QIkgQvU3jFab2b4mSKj/eNhWtbBdrcgtCiaI9x/
-         CsoXMKMvDqo7yzgzFf9kX1x2Y/vVIey2LMda04NY=
+        b=FvbLtCCz47y5Z39k8LJBgmOHieQOcNghNOvLchRBNVixXSjE1CWiA19aVOF2Prg6d
+         c1o0ZECqu3XIYrJtcSeFgvUpRECDRx2Vq8Cutrxt/Wm7kJT0vZM67HR1azzGMETRaN
+         EHnJfEcuZVhOm6ES6S56APQaa5/842113raGIUcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
-        Mike Christie <mchristi@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 77/99] scsi: RDMA/srpt: Fix a credit leak for aborted commands
-Date:   Mon,  6 May 2019 16:32:50 +0200
-Message-Id: <20190506143101.095873136@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 43/75] HID: input: add mapping for Assistant key
+Date:   Mon,  6 May 2019 16:32:51 +0200
+Message-Id: <20190506143057.123087897@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
+References: <20190506143053.287515952@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,49 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+[ Upstream commit ce856634af8cda3490947df8ac1ef5843e6356af ]
 
-commit 40ca8757291ca7a8775498112d320205b2a2e571 upstream.
+According to HUTRR89 usage 0x1cb from the consumer page was assigned to
+allow launching desktop-aware assistant application, so let's add the
+mapping.
 
-Make sure that the next time a response is sent to the initiator that the
-credit it had allocated for the aborted request gets freed.
-
-Cc: Doug Ledford <dledford@redhat.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: Mike Christie <mchristi@redhat.com>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Fixes: 131e6abc674e ("target: Add TFO->abort_task for aborted task resources release") # v3.15
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -2793,8 +2793,19 @@ static void srpt_queue_tm_rsp(struct se_
- 	srpt_queue_response(cmd);
- }
- 
-+/*
-+ * This function is called for aborted commands if no response is sent to the
-+ * initiator. Make sure that the credits freed by aborting a command are
-+ * returned to the initiator the next time a response is sent by incrementing
-+ * ch->req_lim_delta.
-+ */
- static void srpt_aborted_task(struct se_cmd *cmd)
- {
-+	struct srpt_send_ioctx *ioctx = container_of(cmd,
-+				struct srpt_send_ioctx, cmd);
-+	struct srpt_rdma_ch *ch = ioctx->ch;
-+
-+	atomic_inc(&ch->req_lim_delta);
- }
- 
- static int srpt_queue_status(struct se_cmd *cmd)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d146a9b545ee..1aa7d268686b 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -973,6 +973,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
+ 		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
+ 		case 0x1bd: map_key_clear(KEY_INFO);		break;
++		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
+ 		case 0x201: map_key_clear(KEY_NEW);		break;
+ 		case 0x202: map_key_clear(KEY_OPEN);		break;
+ 		case 0x203: map_key_clear(KEY_CLOSE);		break;
+-- 
+2.20.1
+
 
 
