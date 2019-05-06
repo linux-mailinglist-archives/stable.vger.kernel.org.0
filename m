@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF25114F06
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D2014F5F
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727395AbfEFPHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 11:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37692 "EHLO mail.kernel.org"
+        id S1726700AbfEFOei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726909AbfEFPHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 11:07:04 -0400
+        id S1726699AbfEFOeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:34:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E07B42054F;
-        Mon,  6 May 2019 15:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F6921019;
+        Mon,  6 May 2019 14:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557155223;
-        bh=B2nWR6WrKtnSORYpw4xwpJdjE5H+1A10CRTXv2nIBbg=;
+        s=default; t=1557153277;
+        bh=mM1dMY4wEQFHJP5ZF0f4aj7mhZdeDuWVVaAbt1qSCq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1noX/yNHihKbTSqpEpmUXiUSJ+aswhCvmWCtdsmfBKEmUp/ep338Sc3GIpI+GB3E
-         R3GYZhA5LAIvZUD4A0dGKuPZTeevYbgeMP+oO4c5qCq/uRBelQkZsczRLZnxFJzBVw
-         MMzN8ZigAtxg93/RZE9BwUV/MwaKzgg5ufGJoOe4=
+        b=ggR59tEC3sACZyIHZclP7J5neyG2FuBnOcCVioA+wdct/6pGh971kZ4J2cgHjnyL1
+         tAc443aVQmLp9e4o+zobno9cMK52EdHgRZKvm4d+B6OZlk5/vSGxNX4f0IftHFGNOO
+         L44hXNNR9kPZ5njuwjj9ZTdkgfu7zY7yYrFO/JYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "he, bo" <bo.he@intel.com>,
-        "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Evan Green <evgreen@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 5.0 028/122] HID: debug: fix race condition with between rdesc_show() and device removal
-Date:   Mon,  6 May 2019 16:31:26 +0200
-Message-Id: <20190506143057.281139555@linuxfoundation.org>
+Subject: [PATCH 5.0 029/122] rtc: cros-ec: Fail suspend/resume if wake IRQ cant be configured
+Date:   Mon,  6 May 2019 16:31:27 +0200
+Message-Id: <20190506143057.381838909@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -44,58 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
+[ Upstream commit d6752e185c3168771787a02dc6a55f32260943cc ]
 
-There is a race condition that could happen if hid_debug_rdesc_show()
-is running while hdev is in the process of going away (device removal,
-system suspend, etc) which could result in NULL pointer dereference:
+If we encounter a failure during suspend where this RTC was programmed
+to wakeup the system from suspend, but that wakeup couldn't be
+configured because the system didn't support wakeup interrupts, we'll
+run into the following warning:
 
-	 BUG: unable to handle kernel paging request at 0000000783316040
-	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
-	 RIP: 0010:hid_dump_device+0x9b/0x160
-	 Call Trace:
-	  hid_debug_rdesc_show+0x72/0x1d0
-	  seq_read+0xe0/0x410
-	  full_proxy_read+0x5f/0x90
-	  __vfs_read+0x3a/0x170
-	  vfs_read+0xa0/0x150
-	  ksys_read+0x58/0xc0
-	  __x64_sys_read+0x1a/0x20
-	  do_syscall_64+0x55/0x110
-	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	Unbalanced IRQ 166 wake disable
+	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
 
-Grab driver_input_lock to make sure the input device exists throughout the
-whole process of dumping the rdesc.
+This happens because the suspend process isn't aborted when the RTC
+fails to configure the wakeup IRQ. Instead, we continue suspending the
+system and then another suspend callback fails the suspend process and
+"unwinds" the previously suspended drivers by calling their resume
+callbacks. When we get back to resuming this RTC driver, we'll call
+disable_irq_wake() on an IRQ that hasn't been configured for wake.
 
-[jkosina@suse.cz: update changelog a bit]
-Signed-off-by: he, bo <bo.he@intel.com>
-Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Let's just fail suspend/resume here if we can't configure the system to
+wake and the user has chosen to wakeup with this device. This fixes this
+warning and makes the code more robust in case there are systems out
+there that can't wakeup from suspend on this line but the user has
+chosen to do so.
+
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Acked-By: Benson Leung <bleung@chromium.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-cros-ec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index ac9fda1b5a72..1384e57182af 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
- 	seq_printf(f, "\n\n");
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index e5444296075e..4d6bf9304ceb 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -298,7 +298,7 @@ static int cros_ec_rtc_suspend(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
  
- 	/* dump parsed data and input mappings */
-+	if (down_interruptible(&hdev->driver_input_lock))
-+		return 0;
-+
- 	hid_dump_device(hdev, f);
- 	seq_printf(f, "\n");
- 	hid_dump_input_mapping(hdev, f);
+ 	if (device_may_wakeup(dev))
+-		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return enable_irq_wake(cros_ec_rtc->cros_ec->irq);
  
-+	up(&hdev->driver_input_lock);
-+
  	return 0;
  }
+@@ -309,7 +309,7 @@ static int cros_ec_rtc_resume(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
  
+ 	if (device_may_wakeup(dev))
+-		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return disable_irq_wake(cros_ec_rtc->cros_ec->irq);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
