@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7AFB14BF0
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 043DD14F7A
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:11:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbfEFOe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:34:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54102 "EHLO mail.kernel.org"
+        id S1726362AbfEFOds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726583AbfEFOe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:34:28 -0400
+        id S1726220AbfEFOdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:33:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE6A921479;
-        Mon,  6 May 2019 14:34:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60B54204EC;
+        Mon,  6 May 2019 14:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153267;
-        bh=S7KL2fzn3VLP6vF6fSXi55MGPnGuWGW66kDHCMAmqCU=;
+        s=default; t=1557153226;
+        bh=XViI8siM9t8Km8JK78U5QE8Ny1YHZh50Bn88VtjLptA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzBx7ksCv4tMQ+lcJwkELalGLQZLxWt+NPoeKU5IB/e6MkdRBdb/cF/OqzKtS2VUD
-         YaJpaq+g+MfVaGYB+xn0TTPwYx79xVijEhW0LpvxHiohYQ/ZTlXpFUZgNFU+HddGvc
-         4aHE38o8ZuXY513em6ICdzGWd1irH+RrR1y0hQmU=
+        b=Dc0chQWNqmJ4N03Kmtsn5AlIHU2Si2oKC8QQ3UvQlknnrQT/YnOMNqVop8vCqpyO+
+         Ijc9oZS4OF49UHcKSihQ1i65JZZIcTu+cqEU3M9cg/b7TFpg6uwMaQOMR9v9s2xTfN
+         zFe+9mytNnUth4D1W1pXjyqSxh/NlC4Dmq8VbXek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 5.0 009/122] i2c: imx: correct the method of getting private data in notifier_call
-Date:   Mon,  6 May 2019 16:31:07 +0200
-Message-Id: <20190506143055.540883968@linuxfoundation.org>
+        stable@vger.kernel.org, Keijo Vaara <ferdasyn@rocketmail.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.0 010/122] i2c: Prevent runtime suspend of adapter when Host Notify is required
+Date:   Mon,  6 May 2019 16:31:08 +0200
+Message-Id: <20190506143055.639569756@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
 References: <20190506143054.670334917@linuxfoundation.org>
@@ -44,84 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <anson.huang@nxp.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-commit d386bb9042f4629bf62cdc5952ea8aab225f24a7 upstream.
+commit 72bfcee11cf89509795c56b0e40a3785ab00bbdd upstream.
 
-The way of getting private imx_i2c_struct in i2c_imx_clk_notifier_call()
-is incorrect, should use clk_change_nb element to get correct address
-and avoid below kernel dump during POST_RATE_CHANGE notify by clk
-framework:
+Multiple users have reported their Synaptics touchpad has stopped
+working between v4.20.1 and v4.20.2 when using SMBus interface.
 
-Unable to handle kernel paging request at virtual address 03ef1488
-pgd = (ptrval)
-[03ef1488] *pgd=00000000
-Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Workqueue: events reduce_bus_freq_handler
-PC is at i2c_imx_set_clk+0x10/0xb8
-LR is at i2c_imx_clk_notifier_call+0x20/0x28
-pc : [<806a893c>]    lr : [<806a8a04>]    psr: a0080013
-sp : bf399dd8  ip : bf3432ac  fp : bf7c1dc0
-r10: 00000002  r9 : 00000000  r8 : 00000000
-r7 : 03ef1480  r6 : bf399e50  r5 : ffffffff  r4 : 00000000
-r3 : bf025300  r2 : bf399e50  r1 : 00b71b00  r0 : bf399be8
-Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c5387d  Table: 4e03004a  DAC: 00000051
-Process kworker/2:1 (pid: 38, stack limit = 0x(ptrval))
-Stack: (0xbf399dd8 to 0xbf39a000)
-9dc0:                                                       806a89e4 00000000
-9de0: ffffffff bf399e50 00000002 806a8a04 806a89e4 80142900 ffffffff 00000000
-9e00: bf34ef18 bf34ef04 00000000 ffffffff bf399e50 80142d84 00000000 bf399e6c
-9e20: bf34ef00 80f214c4 bf025300 00000002 80f08d08 bf017480 00000000 80142df0
-9e40: 00000000 80166ed8 80c27638 8045de58 bf352340 03ef1480 00b71b00 0f82e242
-9e60: bf025300 00000002 03ef1480 80f60e5c 00000001 8045edf0 00000002 8045eb08
-9e80: bf025300 00000002 03ef1480 8045ee10 03ef1480 8045eb08 bf01be40 00000002
-9ea0: 03ef1480 8045ee10 07de2900 8045eb08 bf01b780 00000002 07de2900 8045ee10
-9ec0: 80c27898 bf399ee4 bf020a80 00000002 1f78a400 8045ee10 80f60e5c 80460514
-9ee0: 80f60e5c bf01b600 bf01b480 80460460 0f82e242 bf383a80 bf383a00 80f60e5c
-9f00: 00000000 bf7c1dc0 80f60e70 80460564 80f60df0 80f60d24 80f60df0 8011e72c
-9f20: 00000000 80f60df0 80f60e6c bf7c4f00 00000000 8011e7ac bf274000 8013bd84
-9f40: bf7c1dd8 80f03d00 bf274000 bf7c1dc0 bf274014 bf7c1dd8 80f03d00 bf398000
-9f60: 00000008 8013bfb4 00000000 bf25d100 bf25d0c0 00000000 bf274000 8013bf88
-9f80: bf25d11c bf0cfebc 00000000 8014140c bf25d0c0 801412ec 00000000 00000000
-9fa0: 00000000 00000000 00000000 801010e8 00000000 00000000 00000000 00000000
-9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-9fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
-[<806a893c>] (i2c_imx_set_clk) from [<806a8a04>] (i2c_imx_clk_notifier_call+0x20/0x28)
-[<806a8a04>] (i2c_imx_clk_notifier_call) from [<80142900>] (notifier_call_chain+0x44/0x84)
-[<80142900>] (notifier_call_chain) from [<80142d84>] (__srcu_notifier_call_chain+0x44/0x98)
-[<80142d84>] (__srcu_notifier_call_chain) from [<80142df0>] (srcu_notifier_call_chain+0x18/0x20)
-[<80142df0>] (srcu_notifier_call_chain) from [<8045de58>] (__clk_notify+0x78/0xa4)
-[<8045de58>] (__clk_notify) from [<8045edf0>] (__clk_recalc_rates+0x60/0xb4)
-[<8045edf0>] (__clk_recalc_rates) from [<8045ee10>] (__clk_recalc_rates+0x80/0xb4)
-Code: e92d40f8 e5903298 e59072a0 e1530001 (e5975008)
----[ end trace fc7f5514b97b6cbb ]---
+The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
+runtime PM without callback functions") that fixed the runtime PM for
+i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
+for SMBus communication and testing showed they are able to get back
+working by preventing the runtime suspend of adapter.
 
-Fixes: 90ad2cbe88c2 ("i2c: imx: use clk notifier for rate changes")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Normally when i2c-i801 SMBus adapter transmits with the client it resumes
+before operation and autosuspends after.
+
+However, if client requires SMBus Host Notify protocol, what those
+Synaptics touchpads do, then the host adapter must not go to runtime
+suspend since then it cannot process incoming SMBus Host Notify commands
+the client may send.
+
+Fix this by keeping I2C/SMBus adapter active in case client requires
+Host Notify.
+
+Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203297
+Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functions")
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Keijo Vaara <ferdasyn@rocketmail.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-base.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -510,9 +510,9 @@ static int i2c_imx_clk_notifier_call(str
- 				     unsigned long action, void *data)
- {
- 	struct clk_notifier_data *ndata = data;
--	struct imx_i2c_struct *i2c_imx = container_of(&ndata->clk,
-+	struct imx_i2c_struct *i2c_imx = container_of(nb,
- 						      struct imx_i2c_struct,
--						      clk);
-+						      clk_change_nb);
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -327,6 +327,8 @@ static int i2c_device_probe(struct devic
  
- 	if (action & POST_RATE_CHANGE)
- 		i2c_imx_set_clk(i2c_imx, ndata->new_rate);
+ 		if (client->flags & I2C_CLIENT_HOST_NOTIFY) {
+ 			dev_dbg(dev, "Using Host Notify IRQ\n");
++			/* Keep adapter active when Host Notify is required */
++			pm_runtime_get_sync(&client->adapter->dev);
+ 			irq = i2c_smbus_host_notify_to_irq(client);
+ 		} else if (dev->of_node) {
+ 			irq = of_irq_get_byname(dev->of_node, "irq");
+@@ -431,6 +433,8 @@ static int i2c_device_remove(struct devi
+ 	device_init_wakeup(&client->dev, false);
+ 
+ 	client->irq = client->init_irq;
++	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
++		pm_runtime_put(&client->adapter->dev);
+ 
+ 	return status;
+ }
 
 
