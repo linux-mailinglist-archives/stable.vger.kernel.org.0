@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8EC214E13
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29DBC14CC2
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728721AbfEFO61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39516 "EHLO mail.kernel.org"
+        id S1726744AbfEFOnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728274AbfEFOnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:43:43 -0400
+        id S1727165AbfEFOnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:43:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 854EF20C01;
-        Mon,  6 May 2019 14:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4002C2053B;
+        Mon,  6 May 2019 14:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153823;
-        bh=KUEH6n6tIVRg9TM72JkEB1mrfrwDfxGW5TqkVC7Y+UI=;
+        s=default; t=1557153825;
+        bh=GZicRqNn9ZT6vSMW7WqJ1/0qLzAwOZIQY7Zcggs9lfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZK+ZPutqZ+g2qYLsJ85u5WJBaqEzuKb4MBO3U7tdNrjJIQuI10pFmVIxCOI7ftPAg
-         vh8R9ycPT/i1nCJKZogehIHobySnLb6dLnLsbWucejn0tf1RquJs6ODhhMgPf+KPBi
-         b/Dfb4vWjmtSvQp5flsMizgr3uUvZqxlvuusexTw=
+        b=aWyvoDEtxto4VSQ+75ViLTALJpBX+X616tysj2rtEVB9PZFoPXKF/YzpOEFxGwg72
+         eRDybwljM31fNFtkzybdtFHMU7fL/NTc5xWd3VVEiLTqa8BHbiGD/p22YcaoT8RUa6
+         Z3JLSeVl0NEd6zdOdh1b/z5dkPoICYgwJhExUpWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/75] net: phy: marvell: Fix buffer overrun with stats counters
-Date:   Mon,  6 May 2019 16:32:18 +0200
-Message-Id: <20190506143054.147779434@linuxfoundation.org>
+Subject: [PATCH 4.14 11/75] net: dsa: bcm_sf2: fix buffer overflow doing set_rxnfc
+Date:   Mon,  6 May 2019 16:32:19 +0200
+Message-Id: <20190506143054.230811036@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190506143053.287515952@linuxfoundation.org>
 References: <20190506143053.287515952@linuxfoundation.org>
@@ -44,51 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fdfdf86720a34527f777cbe0d8599bf0528fa146 ]
+[ Upstream commit f949a12fd697479f68d99dc65e9bbab68ee49043 ]
 
-marvell_get_sset_count() returns how many statistics counters there
-are. If the PHY supports fibre, there are 3, otherwise two.
+The "fs->location" is a u32 that comes from the user in ethtool_set_rxnfc().
+We can't pass unclamped values to test_bit() or it results in an out of
+bounds access beyond the end of the bitmap.
 
-marvell_get_strings() does not make this distinction, and always
-returns 3 strings. This then often results in writing past the end
-of the buffer for the strings.
-
-Fixes: 2170fef78a40 ("Marvell phy: add field to get errors from fiber link.")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 7318166cacad ("net: dsa: bcm_sf2: Add support for ethtool::rxnfc")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/marvell.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/dsa/bcm_sf2_cfp.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -1497,9 +1497,10 @@ static int marvell_get_sset_count(struct
+--- a/drivers/net/dsa/bcm_sf2_cfp.c
++++ b/drivers/net/dsa/bcm_sf2_cfp.c
+@@ -130,6 +130,9 @@ static int bcm_sf2_cfp_rule_set(struct d
+ 	    (fs->m_ext.vlan_etype || fs->m_ext.data[1]))
+ 		return -EINVAL;
  
- static void marvell_get_strings(struct phy_device *phydev, u8 *data)
- {
-+	int count = marvell_get_sset_count(phydev);
- 	int i;
++	if (fs->location != RX_CLS_LOC_ANY && fs->location >= CFP_NUM_RULES)
++		return -EINVAL;
++
+ 	if (fs->location != RX_CLS_LOC_ANY &&
+ 	    test_bit(fs->location, priv->cfp.used))
+ 		return -EBUSY;
+@@ -330,6 +333,9 @@ static int bcm_sf2_cfp_rule_del(struct b
+ 	int ret;
+ 	u32 reg;
  
--	for (i = 0; i < ARRAY_SIZE(marvell_hw_stats); i++) {
-+	for (i = 0; i < count; i++) {
- 		memcpy(data + i * ETH_GSTRING_LEN,
- 		       marvell_hw_stats[i].string, ETH_GSTRING_LEN);
- 	}
-@@ -1536,9 +1537,10 @@ static u64 marvell_get_stat(struct phy_d
- static void marvell_get_stats(struct phy_device *phydev,
- 			      struct ethtool_stats *stats, u64 *data)
- {
-+	int count = marvell_get_sset_count(phydev);
- 	int i;
- 
--	for (i = 0; i < ARRAY_SIZE(marvell_hw_stats); i++)
-+	for (i = 0; i < count; i++)
- 		data[i] = marvell_get_stat(phydev, i);
- }
- 
++	if (loc >= CFP_NUM_RULES)
++		return -EINVAL;
++
+ 	/* Refuse deletion of unused rules, and the default reserved rule */
+ 	if (!test_bit(loc, priv->cfp.used) || loc == 0)
+ 		return -EINVAL;
 
 
