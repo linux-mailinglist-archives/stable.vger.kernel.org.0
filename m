@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4585314E87
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD38214F2D
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727343AbfEFOkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S1727110AbfEFOgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727960AbfEFOkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:40:08 -0400
+        id S1727127AbfEFOgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:36:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83D7F206A3;
-        Mon,  6 May 2019 14:40:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6896E20C01;
+        Mon,  6 May 2019 14:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557153608;
-        bh=Afgh+Sq4msLI6Zaus7cWnd3enu133AWvkvtE359K/r8=;
+        s=default; t=1557153375;
+        bh=nGmKw7oEcz7t/3WCPMGsy5WKp48TzXsV/M5wENwuxF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTMwTkponJe0s9yJRsSgftimH6NHX1O3KCZeL293FWaLJIosau7dEwE9Zya9S9dqF
-         TcYtbgFV5nesJKB0UcBwly7Yz5JnvWv+H/T2Hk5MIr0MXQFL9KF7g5vKl5nAxv0Of5
-         zuIB0gXVBPnMZLE0gHsl1yL+i2+Fgwl8eqR7WB7M=
+        b=epVBLkrigMyU8yd/rTfWbJCp237oS4STsAq4ZX5V8ZENfpdf4SG5DA82CT59ptYT9
+         OSeLHIrs1vIZNlmmhIWt1/xVWEcQiSFh/dGrsBJqCDGzvd2u4ZWQKJILrnMcWSHedf
+         rg/E02vx2jUYUO/H1LBQ7Q7xG5pTSwN9RzszJbqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/99] ARM: dts: rockchip: Fix gpu opp node names for rk3288
+        stable@vger.kernel.org, Mukesh Ojha <mojha@codeaurora.org>,
+        Peng Hao <peng.hao2@zte.com.cn>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 065/122] arm/mach-at91/pm : fix possible object reference leak
 Date:   Mon,  6 May 2019 16:32:03 +0200
-Message-Id: <20190506143056.687902514@linuxfoundation.org>
+Message-Id: <20190506143100.794247114@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
-References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+References: <20190506143054.670334917@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d040e4e8deeaa8257d6aa260e29ad69832b5d630 ]
+[ Upstream commit ba5e60c9b75dec92d4c695b928f69300b17d7686 ]
 
-The device tree compiler yells like this:
-  Warning (unit_address_vs_reg):
-  /gpu-opp-table/opp@100000000:
-  node has a unit name, but no reg property
+of_find_device_by_node() takes a reference to the struct device
+when it finds a match via get_device. When returning error we should
+call put_device.
 
-Let's match the cpu opp node names and use a dash.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Peng Hao <peng.hao2@zte.com.cn>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/mach-at91/pm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index e6a36a792bae..c706adf4aed2 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -1261,27 +1261,27 @@
- 	gpu_opp_table: gpu-opp-table {
- 		compatible = "operating-points-v2";
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 51e808adb00c..2a757dcaa1a5 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -591,13 +591,13 @@ static int __init at91_pm_backup_init(void)
  
--		opp@100000000 {
-+		opp-100000000 {
- 			opp-hz = /bits/ 64 <100000000>;
- 			opp-microvolt = <950000>;
- 		};
--		opp@200000000 {
-+		opp-200000000 {
- 			opp-hz = /bits/ 64 <200000000>;
- 			opp-microvolt = <950000>;
- 		};
--		opp@300000000 {
-+		opp-300000000 {
- 			opp-hz = /bits/ 64 <300000000>;
- 			opp-microvolt = <1000000>;
- 		};
--		opp@400000000 {
-+		opp-400000000 {
- 			opp-hz = /bits/ 64 <400000000>;
- 			opp-microvolt = <1100000>;
- 		};
--		opp@500000000 {
-+		opp-500000000 {
- 			opp-hz = /bits/ 64 <500000000>;
- 			opp-microvolt = <1200000>;
- 		};
--		opp@600000000 {
-+		opp-600000000 {
- 			opp-hz = /bits/ 64 <600000000>;
- 			opp-microvolt = <1250000>;
- 		};
+ 	np = of_find_compatible_node(NULL, NULL, "atmel,sama5d2-securam");
+ 	if (!np)
+-		goto securam_fail;
++		goto securam_fail_no_ref_dev;
+ 
+ 	pdev = of_find_device_by_node(np);
+ 	of_node_put(np);
+ 	if (!pdev) {
+ 		pr_warn("%s: failed to find securam device!\n", __func__);
+-		goto securam_fail;
++		goto securam_fail_no_ref_dev;
+ 	}
+ 
+ 	sram_pool = gen_pool_get(&pdev->dev, NULL);
+@@ -620,6 +620,8 @@ static int __init at91_pm_backup_init(void)
+ 	return 0;
+ 
+ securam_fail:
++	put_device(&pdev->dev);
++securam_fail_no_ref_dev:
+ 	iounmap(pm_data.sfrbu);
+ 	pm_data.sfrbu = NULL;
+ 	return ret;
 -- 
 2.20.1
 
