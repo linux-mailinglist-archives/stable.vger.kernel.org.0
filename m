@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD3A14DA7
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16DD14E63
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 17:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727274AbfEFOyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:54:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45640 "EHLO mail.kernel.org"
+        id S1728425AbfEFOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729228AbfEFOrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:47:04 -0400
+        id S1728438AbfEFOmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2345420449;
-        Mon,  6 May 2019 14:47:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1466521655;
+        Mon,  6 May 2019 14:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154022;
-        bh=3JVlmMrmZ8inwgitDqC6YIIsyrdFyhAUdtAx4FXiL2w=;
+        s=default; t=1557153734;
+        bh=dYAR+56rfCQTG+8PwkjszVHZrJs3ahZJ1jkOKhVtUmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+kUS72Oup49jzQMGYYrsr7nsI5qHJf+kiLfyIhidqA9+PZIYwkaAj9c05PLh3Vrg
-         KhbVwkYOoKMAr9j1sxKRqZLYOqG6Ip9B7WGcAbokhPfM4kheHX3qE1p+ejKPg16rU+
-         eugao9BwJu2/hOX6vLU/aObI4XlYrhBhT7HrDdmo=
+        b=ud0eZPkpY8vp/UPTsn/G9I4JiFTAo8XkvVtzrPVvNPnCpWilf56TlMcm9EoPooYtz
+         BPcUaWZK4+qWl8rlKexa7qwmn2kYalSaUyho+VnFvyDpVbcAsSGj+z7pN1KoaHbmV/
+         YM0qhN+dQ9hgs/O3WfERnlkqfUGUvnRODr5+nrDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christo Gouws <gouws.christo@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 01/62] ALSA: line6: use dynamic buffers
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 59/99] net: hns: Fix WARNING when remove HNS driver with SMMU enabled
 Date:   Mon,  6 May 2019 16:32:32 +0200
-Message-Id: <20190506143051.233540661@linuxfoundation.org>
+Message-Id: <20190506143059.406126696@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,298 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ Upstream commit 8601a99d7c0256b7a7fdd1ab14cf6c1f1dfcadc6 ]
 
-commit e5c812e84f0dece3400d5caf42522287e6ef139f upstream.
+When enable SMMU, remove HNS driver will cause a WARNING:
 
-The line6 driver uses a lot of USB buffers off of the stack, which is
-not allowed on many systems, causing the driver to crash on some of
-them.  Fix this up by dynamically allocating the buffers with kmalloc()
-which allows for proper DMA-able memory.
+[  141.924177] WARNING: CPU: 36 PID: 2708 at drivers/iommu/dma-iommu.c:443 __iommu_dma_unmap+0xc0/0xc8
+[  141.954673] Modules linked in: hns_enet_drv(-)
+[  141.963615] CPU: 36 PID: 2708 Comm: rmmod Tainted: G        W         5.0.0-rc1-28723-gb729c57de95c-dirty #32
+[  141.983593] Hardware name: Huawei D05/D05, BIOS Hisilicon D05 UEFI Nemo 1.8 RC0 08/31/2017
+[  142.000244] pstate: 60000005 (nZCv daif -PAN -UAO)
+[  142.009886] pc : __iommu_dma_unmap+0xc0/0xc8
+[  142.018476] lr : __iommu_dma_unmap+0xc0/0xc8
+[  142.027066] sp : ffff000013533b90
+[  142.033728] x29: ffff000013533b90 x28: ffff8013e6983600
+[  142.044420] x27: 0000000000000000 x26: 0000000000000000
+[  142.055113] x25: 0000000056000000 x24: 0000000000000015
+[  142.065806] x23: 0000000000000028 x22: ffff8013e66eee68
+[  142.076499] x21: ffff8013db919800 x20: 0000ffffefbff000
+[  142.087192] x19: 0000000000001000 x18: 0000000000000007
+[  142.097885] x17: 000000000000000e x16: 0000000000000001
+[  142.108578] x15: 0000000000000019 x14: 363139343a70616d
+[  142.119270] x13: 6e75656761705f67 x12: 0000000000000000
+[  142.129963] x11: 00000000ffffffff x10: 0000000000000006
+[  142.140656] x9 : 1346c1aa88093500 x8 : ffff0000114de4e0
+[  142.151349] x7 : 6662666578303d72 x6 : ffff0000105ffec8
+[  142.162042] x5 : 0000000000000000 x4 : 0000000000000000
+[  142.172734] x3 : 00000000ffffffff x2 : ffff0000114de500
+[  142.183427] x1 : 0000000000000000 x0 : 0000000000000035
+[  142.194120] Call trace:
+[  142.199030]  __iommu_dma_unmap+0xc0/0xc8
+[  142.206920]  iommu_dma_unmap_page+0x20/0x28
+[  142.215335]  __iommu_unmap_page+0x40/0x60
+[  142.223399]  hnae_unmap_buffer+0x110/0x134
+[  142.231639]  hnae_free_desc+0x6c/0x10c
+[  142.239177]  hnae_fini_ring+0x14/0x34
+[  142.246540]  hnae_fini_queue+0x2c/0x40
+[  142.254080]  hnae_put_handle+0x38/0xcc
+[  142.261619]  hns_nic_dev_remove+0x54/0xfc [hns_enet_drv]
+[  142.272312]  platform_drv_remove+0x24/0x64
+[  142.280552]  device_release_driver_internal+0x17c/0x20c
+[  142.291070]  driver_detach+0x4c/0x90
+[  142.298259]  bus_remove_driver+0x5c/0xd8
+[  142.306148]  driver_unregister+0x2c/0x54
+[  142.314037]  platform_driver_unregister+0x10/0x18
+[  142.323505]  hns_nic_dev_driver_exit+0x14/0xf0c [hns_enet_drv]
+[  142.335248]  __arm64_sys_delete_module+0x214/0x25c
+[  142.344891]  el0_svc_common+0xb0/0x10c
+[  142.352430]  el0_svc_handler+0x24/0x80
+[  142.359968]  el0_svc+0x8/0x7c0
+[  142.366104] ---[ end trace 60ad1cd58e63c407 ]---
 
-Reported-by: Christo Gouws <gouws.christo@gmail.com>
-Reported-by: Alan Stern <stern@rowland.harvard.edu>
-Tested-by: Christo Gouws <gouws.christo@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The tx ring buffer map when xmit and unmap when xmit done. So in
+hnae_init_ring() did not map tx ring buffer, but in hnae_fini_ring()
+have a unmap operation for tx ring buffer, which is already unmapped
+when xmit done, than cause this WARNING.
 
+The hnae_alloc_buffers() is called in hnae_init_ring(),
+so the hnae_free_buffers() should be in hnae_fini_ring(), not in
+hnae_free_desc().
+
+In hnae_fini_ring(), adds a check is_rx_ring() as in hnae_init_ring().
+When the ring buffer is tx ring, adds a piece of code to ensure that
+the tx ring is unmap.
+
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/line6/driver.c   |   60 ++++++++++++++++++++++++++-------------------
- sound/usb/line6/podhd.c    |   21 +++++++++------
- sound/usb/line6/toneport.c |   24 +++++++++++++-----
- 3 files changed, 65 insertions(+), 40 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hnae.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -337,12 +337,16 @@ int line6_read_data(struct usb_line6 *li
+diff --git a/drivers/net/ethernet/hisilicon/hns/hnae.c b/drivers/net/ethernet/hisilicon/hns/hnae.c
+index 79d03f8ee7b1..c7fa97a7e1f4 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hnae.c
++++ b/drivers/net/ethernet/hisilicon/hns/hnae.c
+@@ -150,7 +150,6 @@ static int hnae_alloc_buffers(struct hnae_ring *ring)
+ /* free desc along with its attached buffer */
+ static void hnae_free_desc(struct hnae_ring *ring)
  {
- 	struct usb_device *usbdev = line6->usbdev;
- 	int ret;
--	unsigned char len;
-+	unsigned char *len;
- 	unsigned count;
- 
- 	if (address > 0xffff || datalen > 0xff)
- 		return -EINVAL;
- 
-+	len = kmalloc(sizeof(*len), GFP_KERNEL);
-+	if (!len)
-+		return -ENOMEM;
-+
- 	/* query the serial number: */
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-@@ -351,7 +355,7 @@ int line6_read_data(struct usb_line6 *li
- 
- 	if (ret < 0) {
- 		dev_err(line6->ifcdev, "read request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	/* Wait for data length. We'll get 0xff until length arrives. */
-@@ -361,28 +365,29 @@ int line6_read_data(struct usb_line6 *li
- 		ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
- 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
- 				      USB_DIR_IN,
--				      0x0012, 0x0000, &len, 1,
-+				      0x0012, 0x0000, len, 1,
- 				      LINE6_TIMEOUT * HZ);
- 		if (ret < 0) {
- 			dev_err(line6->ifcdev,
- 				"receive length failed (error %d)\n", ret);
--			return ret;
-+			goto exit;
- 		}
- 
--		if (len != 0xff)
-+		if (*len != 0xff)
- 			break;
- 	}
- 
--	if (len == 0xff) {
-+	ret = -EIO;
-+	if (*len == 0xff) {
- 		dev_err(line6->ifcdev, "read failed after %d retries\n",
- 			count);
--		return -EIO;
--	} else if (len != datalen) {
-+		goto exit;
-+	} else if (*len != datalen) {
- 		/* should be equal or something went wrong */
- 		dev_err(line6->ifcdev,
- 			"length mismatch (expected %d, got %d)\n",
--			(int)datalen, (int)len);
--		return -EIO;
-+			(int)datalen, (int)*len);
-+		goto exit;
- 	}
- 
- 	/* receive the result: */
-@@ -391,12 +396,12 @@ int line6_read_data(struct usb_line6 *li
- 			      0x0013, 0x0000, data, datalen,
- 			      LINE6_TIMEOUT * HZ);
- 
--	if (ret < 0) {
-+	if (ret < 0)
- 		dev_err(line6->ifcdev, "read failed (error %d)\n", ret);
--		return ret;
--	}
- 
--	return 0;
-+exit:
-+	kfree(len);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(line6_read_data);
- 
-@@ -408,12 +413,16 @@ int line6_write_data(struct usb_line6 *l
+-	hnae_free_buffers(ring);
+ 	dma_unmap_single(ring_to_dev(ring), ring->desc_dma_addr,
+ 			 ring->desc_num * sizeof(ring->desc[0]),
+ 			 ring_to_dma_dir(ring));
+@@ -183,6 +182,9 @@ static int hnae_alloc_desc(struct hnae_ring *ring)
+ /* fini ring, also free the buffer for the ring */
+ static void hnae_fini_ring(struct hnae_ring *ring)
  {
- 	struct usb_device *usbdev = line6->usbdev;
- 	int ret;
--	unsigned char status;
-+	unsigned char *status;
- 	int count;
- 
- 	if (address > 0xffff || datalen > 0xffff)
- 		return -EINVAL;
- 
-+	status = kmalloc(sizeof(*status), GFP_KERNEL);
-+	if (!status)
-+		return -ENOMEM;
++	if (is_rx_ring(ring))
++		hnae_free_buffers(ring);
 +
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0), 0x67,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 			      0x0022, address, data, datalen,
-@@ -422,7 +431,7 @@ int line6_write_data(struct usb_line6 *l
- 	if (ret < 0) {
- 		dev_err(line6->ifcdev,
- 			"write request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	for (count = 0; count < LINE6_READ_WRITE_MAX_RETRIES; count++) {
-@@ -433,28 +442,29 @@ int line6_write_data(struct usb_line6 *l
- 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
- 				      USB_DIR_IN,
- 				      0x0012, 0x0000,
--				      &status, 1, LINE6_TIMEOUT * HZ);
-+				      status, 1, LINE6_TIMEOUT * HZ);
- 
- 		if (ret < 0) {
- 			dev_err(line6->ifcdev,
- 				"receiving status failed (error %d)\n", ret);
--			return ret;
-+			goto exit;
- 		}
- 
--		if (status != 0xff)
-+		if (*status != 0xff)
- 			break;
- 	}
- 
--	if (status == 0xff) {
-+	if (*status == 0xff) {
- 		dev_err(line6->ifcdev, "write failed after %d retries\n",
- 			count);
--		return -EIO;
--	} else if (status != 0) {
-+		ret = -EIO;
-+	} else if (*status != 0) {
- 		dev_err(line6->ifcdev, "write failed (error %d)\n", ret);
--		return -EIO;
-+		ret = -EIO;
- 	}
--
--	return 0;
-+exit:
-+	kfree(status);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(line6_write_data);
- 
---- a/sound/usb/line6/podhd.c
-+++ b/sound/usb/line6/podhd.c
-@@ -221,28 +221,32 @@ static void podhd_startup_start_workqueu
- static int podhd_dev_start(struct usb_line6_podhd *pod)
- {
- 	int ret;
--	u8 init_bytes[8];
-+	u8 *init_bytes;
- 	int i;
- 	struct usb_device *usbdev = pod->line6.usbdev;
- 
-+	init_bytes = kmalloc(8, GFP_KERNEL);
-+	if (!init_bytes)
-+		return -ENOMEM;
-+
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
- 					0x67, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					0x11, 0,
- 					NULL, 0, LINE6_TIMEOUT * HZ);
- 	if (ret < 0) {
- 		dev_err(pod->line6.ifcdev, "read request failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	/* NOTE: looks like some kind of ping message */
- 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
- 					USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
- 					0x11, 0x0,
--					&init_bytes, 3, LINE6_TIMEOUT * HZ);
-+					init_bytes, 3, LINE6_TIMEOUT * HZ);
- 	if (ret < 0) {
- 		dev_err(pod->line6.ifcdev,
- 			"receive length failed (error %d)\n", ret);
--		return ret;
-+		goto exit;
- 	}
- 
- 	pod->firmware_version =
-@@ -251,7 +255,7 @@ static int podhd_dev_start(struct usb_li
- 	for (i = 0; i <= 16; i++) {
- 		ret = line6_read_data(&pod->line6, 0xf000 + 0x08 * i, init_bytes, 8);
- 		if (ret < 0)
--			return ret;
-+			goto exit;
- 	}
- 
- 	ret = usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-@@ -259,10 +263,9 @@ static int podhd_dev_start(struct usb_li
- 					USB_TYPE_STANDARD | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					1, 0,
- 					NULL, 0, LINE6_TIMEOUT * HZ);
--	if (ret < 0)
--		return ret;
--
--	return 0;
-+exit:
-+	kfree(init_bytes);
-+	return ret;
- }
- 
- static void podhd_startup_workqueue(struct work_struct *work)
---- a/sound/usb/line6/toneport.c
-+++ b/sound/usb/line6/toneport.c
-@@ -365,15 +365,20 @@ static bool toneport_has_source_select(s
- /*
- 	Setup Toneport device.
- */
--static void toneport_setup(struct usb_line6_toneport *toneport)
-+static int toneport_setup(struct usb_line6_toneport *toneport)
- {
--	int ticks;
-+	int *ticks;
- 	struct usb_line6 *line6 = &toneport->line6;
- 	struct usb_device *usbdev = line6->usbdev;
- 
-+	ticks = kmalloc(sizeof(*ticks), GFP_KERNEL);
-+	if (!ticks)
-+		return -ENOMEM;
-+
- 	/* sync time on device with host: */
--	ticks = (int)get_seconds();
--	line6_write_data(line6, 0x80c6, &ticks, 4);
-+	*ticks = (int)get_seconds();
-+	line6_write_data(line6, 0x80c6, ticks, 4);
-+	kfree(ticks);
- 
- 	/* enable device: */
- 	toneport_send_cmd(usbdev, 0x0301, 0x0000);
-@@ -388,6 +393,7 @@ static void toneport_setup(struct usb_li
- 		toneport_update_led(toneport);
- 
- 	mod_timer(&toneport->timer, jiffies + TONEPORT_PCM_DELAY * HZ);
-+	return 0;
- }
- 
- /*
-@@ -451,7 +457,9 @@ static int toneport_init(struct usb_line
- 			return err;
- 	}
- 
--	toneport_setup(toneport);
-+	err = toneport_setup(toneport);
-+	if (err)
-+		return err;
- 
- 	/* register audio system: */
- 	return snd_card_register(line6->card);
-@@ -463,7 +471,11 @@ static int toneport_init(struct usb_line
- */
- static int toneport_reset_resume(struct usb_interface *interface)
- {
--	toneport_setup(usb_get_intfdata(interface));
-+	int err;
-+
-+	err = toneport_setup(usb_get_intfdata(interface));
-+	if (err)
-+		return err;
- 	return line6_resume(interface);
- }
- #endif
+ 	hnae_free_desc(ring);
+ 	kfree(ring->desc_cb);
+ 	ring->desc_cb = NULL;
+-- 
+2.20.1
+
 
 
