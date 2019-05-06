@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F1D14D90
-	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0023714CA7
+	for <lists+stable@lfdr.de>; Mon,  6 May 2019 16:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbfEFOrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 10:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47252 "EHLO mail.kernel.org"
+        id S1727480AbfEFOmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 10:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728858AbfEFOrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 10:47:45 -0400
+        id S1726761AbfEFOma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 10:42:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E16120578;
-        Mon,  6 May 2019 14:47:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4C4920449;
+        Mon,  6 May 2019 14:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557154065;
-        bh=VpXZ2qRJDONYeoNioZ39WcxB9mBuRiXlSs2Ja4DeRZI=;
+        s=default; t=1557153750;
+        bh=UaMv/+/IrZ2+xZVxw/x43g3nED7ocOW0JouwMEKT7+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMX9A+XYjnJZ23dZBaELbqhk9Vwqbzb/0VYGU+JSiQvCkJt3iWTQwvPIe20c73c2D
-         HE3OIkvoQOIb0aqeCELkJH/ktyVJiz/DaFfJv5B/jTXGvQ1ONjKfr4DME/Ti1JCH0c
-         Aw5Sn8nqD47/ghpiYfeTD9PA+/NUhNVTac737nxc=
+        b=PVDTl1MM5jE5Ux7YjTyQI1m/knINokqhpvO5Oobvab8u/CFeT39Vi8DSnjXA1Yucq
+         z5qL9JphbSxF8U3Q1960wUeuFaZ757Ki1fMPxR/m0u5Ucc9bHYDxPBXcLP5JA4Wzrv
+         LJvbRojqq3QzjC7crGwZt9ympRWZZcnuFucmX0Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malte Leip <malte@leip.net>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.9 24/62] usb: usbip: fix isoc packet num validation in get_pipe
+        stable@vger.kernel.org, "David E. Box" <david.e.box@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 82/99] platform/x86: intel_pmc_core: Handle CFL regmap properly
 Date:   Mon,  6 May 2019 16:32:55 +0200
-Message-Id: <20190506143053.143577311@linuxfoundation.org>
+Message-Id: <20190506143101.471445067@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
-References: <20190506143051.102535767@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+References: <20190506143053.899356316@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malte Leip <malte@leip.net>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
 
-commit c409ca3be3c6ff3a1eeb303b191184e80d412862 upstream.
+commit e50af8332785355de3cb40d9f5e8c45dbfc86f53 upstream.
 
-Change the validation of number_of_packets in get_pipe to compare the
-number of packets to a fixed maximum number of packets allowed, set to
-be 1024. This number was chosen due to it being used by other drivers as
-well, for example drivers/usb/host/uhci-q.c
+Only Coffeelake should use Cannonlake regmap other than Cannonlake
+platform. This allows Coffeelake special handling only when there is no
+matching PCI device and default reg map selected as per CPUID is for
+Sunrisepoint PCH. This change is needed to enable support for newer SoCs
+such as Icelake.
 
-Background/reason:
-The get_pipe function in stub_rx.c validates the number of packets in
-isochronous mode and aborts with an error if that number is too large,
-in order to prevent malicious input from possibly triggering large
-memory allocations. This was previously done by checking whether
-pdu->u.cmd_submit.number_of_packets is bigger than the number of packets
-that would be needed for pdu->u.cmd_submit.transfer_buffer_length bytes
-if all except possibly the last packet had maximum length, given by
-usb_endpoint_maxp(epd) *  usb_endpoint_maxp_mult(epd). This leads to an
-error if URBs with packets shorter than the maximum possible length are
-submitted, which is allowed according to
-Documentation/driver-api/usb/URB.rst and occurs for example with the
-snd-usb-audio driver.
-
-Fixes: c6688ef9f297 ("usbip: fix stub_rx: harden CMD_SUBMIT path to handle malicious input")
-Signed-off-by: Malte Leip <malte@leip.net>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: "David E. Box" <david.e.box@intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Fixes: 661405bd817b ("platform/x86: intel_pmc_core: Special case for Coffeelake")
+Acked-by: "David E. Box" <david.e.box@linux.intel.com>
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usbip/stub_rx.c      |   12 +++---------
- drivers/usb/usbip/usbip_common.h |    7 +++++++
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/platform/x86/intel_pmc_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/stub_rx.c
-+++ b/drivers/usb/usbip/stub_rx.c
-@@ -383,16 +383,10 @@ static int get_pipe(struct stub_device *
- 	}
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -682,7 +682,7 @@ static int __init pmc_core_probe(void)
+ 	 * Sunrisepoint PCH regmap can't be used. Use Cannonlake PCH regmap
+ 	 * in this case.
+ 	 */
+-	if (!pci_dev_present(pmc_pci_ids))
++	if (pmcdev->map == &spt_reg_map && !pci_dev_present(pmc_pci_ids))
+ 		pmcdev->map = &cnp_reg_map;
  
- 	if (usb_endpoint_xfer_isoc(epd)) {
--		/* validate packet size and number of packets */
--		unsigned int maxp, packets, bytes;
--
--		maxp = usb_endpoint_maxp(epd);
--		maxp *= usb_endpoint_maxp_mult(epd);
--		bytes = pdu->u.cmd_submit.transfer_buffer_length;
--		packets = DIV_ROUND_UP(bytes, maxp);
--
-+		/* validate number of packets */
- 		if (pdu->u.cmd_submit.number_of_packets < 0 ||
--		    pdu->u.cmd_submit.number_of_packets > packets) {
-+		    pdu->u.cmd_submit.number_of_packets >
-+		    USBIP_MAX_ISO_PACKETS) {
- 			dev_err(&sdev->udev->dev,
- 				"CMD_SUBMIT: isoc invalid num packets %d\n",
- 				pdu->u.cmd_submit.number_of_packets);
---- a/drivers/usb/usbip/usbip_common.h
-+++ b/drivers/usb/usbip/usbip_common.h
-@@ -136,6 +136,13 @@ extern struct device_attribute dev_attr_
- #define USBIP_DIR_OUT	0x00
- #define USBIP_DIR_IN	0x01
- 
-+/*
-+ * Arbitrary limit for the maximum number of isochronous packets in an URB,
-+ * compare for example the uhci_submit_isochronous function in
-+ * drivers/usb/host/uhci-q.c
-+ */
-+#define USBIP_MAX_ISO_PACKETS 1024
-+
- /**
-  * struct usbip_header_basic - data pertinent to every request
-  * @command: the usbip request type
+ 	if (lpit_read_residency_count_address(&slp_s0_addr))
 
 
