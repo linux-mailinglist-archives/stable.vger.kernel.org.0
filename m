@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC48615AD9
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B6C159D9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729117AbfEGFk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:40:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59938 "EHLO mail.kernel.org"
+        id S1729121AbfEGFka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728815AbfEGFk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:28 -0400
+        id S1728313AbfEGFk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA37F20578;
-        Tue,  7 May 2019 05:40:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F12FB20675;
+        Tue,  7 May 2019 05:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207627;
-        bh=LGzObGokrlcpndo+Xd3FLjJsgma1ax2TrDl2dePaN0E=;
+        s=default; t=1557207628;
+        bh=VRtGhhfvENSk8MY3OOpOVHVA92UpWAu95L5vA/T4aGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmY5Cu/dHCGaxx2NHFy4eCS/mux3F+jv0Dhj2hAoH7gX1gI5rHHmSz1yb6XFwenQc
-         C+CnXmSHNiEiA1m8UKTWIyruWYiNHZvTqd1Uqj2Z2ZGJbEdjGZb/RVV3hMY1ZXUjfN
-         8XR1Jo0ToV2wbUi8JPKUWK1gEL2YwAEWzo+fIbLc=
+        b=EfCLMjBfimSrl+6hRlsICl8+sTs8uGacnlQdSRvhKdM+kULeMJPYCeSKk9B/mrneO
+         58eD0ZUs6jH6A1HILb2cd0797yM9+lNvWmyQzGmdMusVQSMUtD2TcxREZWKy2WgWVB
+         fwbeSCFremyK7eijYM+Y4RbYeOLLhoocs8CAcMA0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>, Joel Stanley <joel@jms.id.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 65/95] powerpc: remove old GCC version checks
-Date:   Tue,  7 May 2019 01:37:54 -0400
-Message-Id: <20190507053826.31622-65-sashal@kernel.org>
+        linux-leds@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 66/95] leds: pwm: silently error out on EPROBE_DEFER
+Date:   Tue,  7 May 2019 01:37:55 -0400
+Message-Id: <20190507053826.31622-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,63 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit f2910f0e6835339e6ce82cef22fa15718b7e3bfa ]
+[ Upstream commit 9aec30371fb095a0c9415f3f0146ae269c3713d8 ]
 
-GCC 4.6 is the minimum supported now.
+When probing, if we fail to get the pwm due to probe deferal, we shouldn't
+print an error message. Just be silent in this case.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/powerpc/Makefile | 31 ++-----------------------------
- 1 file changed, 2 insertions(+), 29 deletions(-)
+ drivers/leds/leds-pwm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 7452e50f4d1f..0f04c878113e 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -396,36 +396,9 @@ archprepare: checkbin
- # to stdout and these checks are run even on install targets.
- TOUT	:= .tmp_gas_check
+diff --git a/drivers/leds/leds-pwm.c b/drivers/leds/leds-pwm.c
+index 8d456dc6c5bf..83f9bbe57e02 100644
+--- a/drivers/leds/leds-pwm.c
++++ b/drivers/leds/leds-pwm.c
+@@ -101,8 +101,9 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
+ 		led_data->pwm = devm_pwm_get(dev, led->name);
+ 	if (IS_ERR(led_data->pwm)) {
+ 		ret = PTR_ERR(led_data->pwm);
+-		dev_err(dev, "unable to request PWM for %s: %d\n",
+-			led->name, ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(dev, "unable to request PWM for %s: %d\n",
++				led->name, ret);
+ 		return ret;
+ 	}
  
--# Check gcc and binutils versions:
--# - gcc-3.4 and binutils-2.14 are a fatal combination
--# - Require gcc 4.0 or above on 64-bit
--# - gcc-4.2.0 has issues compiling modules on 64-bit
-+# Check toolchain versions:
-+# - gcc-4.6 is the minimum kernel-wide version so nothing required.
- checkbin:
--	@if test "$(cc-name)" != "clang" \
--	    && test "$(cc-version)" = "0304" ; then \
--		if ! /bin/echo mftb 5 | $(AS) -v -mppc -many -o $(TOUT) >/dev/null 2>&1 ; then \
--			echo -n '*** ${VERSION}.${PATCHLEVEL} kernels no longer build '; \
--			echo 'correctly with gcc-3.4 and your version of binutils.'; \
--			echo '*** Please upgrade your binutils or downgrade your gcc'; \
--			false; \
--		fi ; \
--	fi
--	@if test "$(cc-name)" != "clang" \
--	    && test "$(cc-version)" -lt "0400" \
--	    && test "x${CONFIG_PPC64}" = "xy" ; then \
--                echo -n "Sorry, GCC v4.0 or above is required to build " ; \
--                echo "the 64-bit powerpc kernel." ; \
--                false ; \
--        fi
--	@if test "$(cc-name)" != "clang" \
--	    && test "$(cc-fullversion)" = "040200" \
--	    && test "x${CONFIG_MODULES}${CONFIG_PPC64}" = "xyy" ; then \
--		echo -n '*** GCC-4.2.0 cannot compile the 64-bit powerpc ' ; \
--		echo 'kernel with modules enabled.' ; \
--		echo -n '*** Please use a different GCC version or ' ; \
--		echo 'disable kernel modules' ; \
--		false ; \
--	fi
- 	@if test "x${CONFIG_CPU_LITTLE_ENDIAN}" = "xy" \
- 	    && $(LD) --version | head -1 | grep ' 2\.24$$' >/dev/null ; then \
- 		echo -n '*** binutils 2.24 miscompiles weak symbols ' ; \
 -- 
 2.20.1
 
