@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C06415B85
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E723A15B7B
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728641AbfEGFiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:38:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        id S1727853AbfEGFyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:54:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728624AbfEGFiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:38:22 -0400
+        id S1728650AbfEGFiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:38:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 861EA20B7C;
-        Tue,  7 May 2019 05:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE51320578;
+        Tue,  7 May 2019 05:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207501;
-        bh=kxTii2ZzhW44xrLVe3drDnbmjm4vKaWPoTd0ghA4gcc=;
+        s=default; t=1557207504;
+        bh=0qLDQG2dEzKFI0K8asHKsuplvGA4JtTtp2n0OVKYdXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HL2h/Iqvi6kOpfdIzPQMhipmJjwW0DmkwTwEmtVIBSPEUFvp4+WHYPAaeg3xpZkrp
-         PjktYzIN7yxIHqsxIuxBng15J0lAB7VnO2s+H1V0XISsWztFQYf4jc/7gcliOW2s+l
-         9ZXmLl/OxickfVPRAqbBA8m6oF/eQHWTH46JJZjU=
+        b=b+iVx1/lzQAbDVHsK4jnSqbGWF1y9vRFWTu3vC6QTM38RBANWnt8JQMau0IOeCiXi
+         cgrXTif8Wj30OwZbP24zC91MBstSdE2kdTro8P0pN86PcgxBEOoLCnbxb/Bom2Lhfr
+         37E9H2pRI8aTwmFjw+osh7L2lG5SzaVWYMXbmA6A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 80/81] nfc: nci: Potential off by one in ->pipes[] array
-Date:   Tue,  7 May 2019 01:35:51 -0400
-Message-Id: <20190507053554.30848-80-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrea Righi <righi.andrea@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH AUTOSEL 4.19 81/81] x86/kprobes: Avoid kretprobe recursion bug
+Date:   Tue,  7 May 2019 01:35:52 -0400
+Message-Id: <20190507053554.30848-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,42 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 6491d698396fd5da4941980a35ca7c162a672016 ]
+[ Upstream commit b191fa96ea6dc00d331dcc28c1f7db5e075693a0 ]
 
-This is similar to commit e285d5bfb7e9 ("NFC: Fix the number of pipes")
-where we changed NFC_HCI_MAX_PIPES from 127 to 128.
+Avoid kretprobe recursion loop bg by setting a dummy
+kprobes to current_kprobe per-CPU variable.
 
-As the comment next to the define explains, the pipe identifier is 7
-bits long.  The highest possible pipe is 127, but the number of possible
-pipes is 128.  As the code is now, then there is potential for an
-out of bounds array access:
+This bug has been introduced with the asm-coded trampoline
+code, since previously it used another kprobe for hooking
+the function return placeholder (which only has a nop) and
+trampoline handler was called from that kprobe.
 
-    net/nfc/nci/hci.c:297 nci_hci_cmd_received() warn: array off by one?
-    'ndev->hci_dev->pipes[pipe]' '0-127 == 127'
+This revives the old lost kprobe again.
 
-Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With this fix, we don't see deadlock anymore.
+
+And you can see that all inner-called kretprobe are skipped.
+
+  event_1                                  235               0
+  event_2                                19375           19612
+
+The 1st column is recorded count and the 2nd is missed count.
+Above shows (event_1 rec) + (event_2 rec) ~= (event_2 missed)
+(some difference are here because the counter is racy)
+
+Reported-by: Andrea Righi <righi.andrea@gmail.com>
+Tested-by: Andrea Righi <righi.andrea@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Fixes: c9becf58d935 ("[PATCH] kretprobe: kretprobe-booster")
+Link: http://lkml.kernel.org/r/155094064889.6137.972160690963039.stgit@devbox
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- include/net/nfc/nci_core.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/kprobes/core.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
-index 87499b6b35d6..df5c69db68af 100644
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -166,7 +166,7 @@ struct nci_conn_info {
-  * According to specification 102 622 chapter 4.4 Pipes,
-  * the pipe identifier is 7 bits long.
-  */
--#define NCI_HCI_MAX_PIPES          127
-+#define NCI_HCI_MAX_PIPES          128
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index acb901b43ce4..544bc2dfe408 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -749,11 +749,16 @@ asm(
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
+ STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
  
- struct nci_hci_gate {
- 	u8 gate;
++static struct kprobe kretprobe_kprobe = {
++	.addr = (void *)kretprobe_trampoline,
++};
++
+ /*
+  * Called from kretprobe_trampoline
+  */
+ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ {
++	struct kprobe_ctlblk *kcb;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head, empty_rp;
+ 	struct hlist_node *tmp;
+@@ -763,6 +768,17 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 	void *frame_pointer;
+ 	bool skipped = false;
+ 
++	preempt_disable();
++
++	/*
++	 * Set a dummy kprobe for avoiding kretprobe recursion.
++	 * Since kretprobe never run in kprobe handler, kprobe must not
++	 * be running at this point.
++	 */
++	kcb = get_kprobe_ctlblk();
++	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
++	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+ 	/* fixup registers */
+@@ -838,10 +854,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 		orig_ret_address = (unsigned long)ri->ret_addr;
+ 		if (ri->rp && ri->rp->handler) {
+ 			__this_cpu_write(current_kprobe, &ri->rp->kp);
+-			get_kprobe_ctlblk()->kprobe_status = KPROBE_HIT_ACTIVE;
+ 			ri->ret_addr = correct_ret_addr;
+ 			ri->rp->handler(ri, regs);
+-			__this_cpu_write(current_kprobe, NULL);
++			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
+ 		}
+ 
+ 		recycle_rp_inst(ri, &empty_rp);
+@@ -857,6 +872,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 
+ 	kretprobe_hash_unlock(current, &flags);
+ 
++	__this_cpu_write(current_kprobe, NULL);
++	preempt_enable();
++
+ 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+ 		hlist_del(&ri->hlist);
+ 		kfree(ri);
 -- 
 2.20.1
 
