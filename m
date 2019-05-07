@@ -2,128 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDBC16A3B
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0526516A60
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726921AbfEGSdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 14:33:18 -0400
-Received: from mga02.intel.com ([134.134.136.20]:54079 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726321AbfEGSdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 14:33:18 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 May 2019 11:33:17 -0700
-X-ExtLoop1: 1
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga002.jf.intel.com with SMTP; 07 May 2019 11:33:15 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 07 May 2019 21:33:13 +0300
-Date:   Tue, 7 May 2019 21:33:13 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [PATCH 1/2] drm/i915: Fix fastset vs. pfit on/off on HSW EDP
- transcoder
-Message-ID: <20190507183313.GS24299@intel.com>
-References: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
+        id S1727274AbfEGSiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 14:38:14 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32956 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726634AbfEGSiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:38:14 -0400
+Received: from [167.98.27.226] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hO4ye-0007Da-Sv; Tue, 07 May 2019 19:38:08 +0100
+Received: from ben by deadeye with local (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hO4ye-0003xw-Fr; Tue, 07 May 2019 19:38:08 +0100
+Message-ID: <55c963dce43d8cf614a5401a23750d3b30399e45.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 23/99] tty/ldsem: Wake up readers after timed out
+ down_write()
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Dmitry Safonov <0x7f454c46@gmail.com>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Denis Kirjanov <kda@linux-powerpc.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        kernel test robot <rong.a.chen@intel.com>,
+        Dmitry Safonov <dima@arista.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Date:   Tue, 07 May 2019 19:38:03 +0100
+In-Reply-To: <2aa7996d-708a-b6b9-3197-94814b708881@gmail.com>
+References: <lsq.1554212307.17110877@decadent.org.uk>
+         <lsq.1554212307.770456214@decadent.org.uk>
+         <CAJwJo6ahUWWSMWfM+qk109YfzJAB0HBMKcrVFqK2wzdBv_OtGQ@mail.gmail.com>
+         <0fb333560ad4ed9d5c8bc0f71a46fee5b448f9e6.camel@decadent.org.uk>
+         <2aa7996d-708a-b6b9-3197-94814b708881@gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-fyFX1eJkFug4YCxhk3cw"
+User-Agent: Evolution 3.30.5-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 167.98.27.226
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 25, 2019 at 07:29:05PM +0300, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> On HSW the pipe A panel fitter lives inside the display power well,
-> and the input MUX for the EDP transcoder needs to be configured
-> appropriately to route the data through the power well as needed.
-> Changing the MUX setting is not allowed while the pipe is active,
-> so we need to force a full modeset whenever we need to change it.
-> 
-> Currently we may end up doing a fastset which won't change the
-> MUX settings, but it will drop the power well reference, and that
-> kills the pipe.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Probably
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=104838
+--=-fyFX1eJkFug4YCxhk3cw
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-and maybe
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108672
+On Tue, 2019-04-02 at 15:39 +0100, Dmitry Safonov wrote:
+> On 4/2/19 3:32 PM, Ben Hutchings wrote:
+> > On Tue, 2019-04-02 at 15:22 +0100, Dmitry Safonov wrote:
+[...]
+> > > - "tty: Hold tty_ldisc_lock() during tty_reopen()" commit 83d817f4107=
+0
+> > >   with follow-up fixup "tty: Don't hold ldisc lock in tty_reopen() if
+> > > ldisc present"
+> > >   commit d3736d82e816
+> > [...]
+> >=20
+> > I will include these in a later update, unless you think they are
+> > really urgent and should be added to this one.
+>=20
+> Well, I thought worth to mention those patches, but in reality haven't
+> checked if they are applicable to v3.16.
+> It's just I remember "tty: Hold tty_ldisc_lock() during tty_reopen()"
+> was the main fix in the set, as many people suffered from issue under
+> it, so I thought strange that only a side-patch (which can lead to soft
+> lockup, so probably also important) is ported. But I managed to forget
+> that the code has changes since v3.16.
 
-> ---
->  drivers/gpu/drm/i915/intel_display.c  |  9 +++++++++
->  drivers/gpu/drm/i915/intel_pipe_crc.c | 13 ++++++++++---
->  2 files changed, 19 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-> index c67f165b466c..691c9a929164 100644
-> --- a/drivers/gpu/drm/i915/intel_display.c
-> +++ b/drivers/gpu/drm/i915/intel_display.c
-> @@ -12133,6 +12133,7 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
->  			  struct intel_crtc_state *pipe_config,
->  			  bool adjust)
->  {
-> +	struct intel_crtc *crtc = to_intel_crtc(current_config->base.crtc);
->  	bool ret = true;
->  	bool fixup_inherited = adjust &&
->  		(current_config->base.mode.private_flags & I915_MODE_FLAG_INHERITED) &&
-> @@ -12354,6 +12355,14 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
->  		PIPE_CONF_CHECK_X(gmch_pfit.pgm_ratios);
->  	PIPE_CONF_CHECK_X(gmch_pfit.lvds_border_bits);
->  
-> +	/*
-> +	 * Changing the EDP transcoder input mux
-> +	 * (A_ONOFF vs. A_ON) requires a full modeset.
-> +	 */
-> +	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A &&
-> +	    current_config->cpu_transcoder == TRANSCODER_EDP)
-> +		PIPE_CONF_CHECK_BOOL(pch_pfit.enabled);
-> +
->  	if (!adjust) {
->  		PIPE_CONF_CHECK_I(pipe_src_w);
->  		PIPE_CONF_CHECK_I(pipe_src_h);
-> diff --git a/drivers/gpu/drm/i915/intel_pipe_crc.c b/drivers/gpu/drm/i915/intel_pipe_crc.c
-> index e94b5b1bc1b7..e7c7be4911c1 100644
-> --- a/drivers/gpu/drm/i915/intel_pipe_crc.c
-> +++ b/drivers/gpu/drm/i915/intel_pipe_crc.c
-> @@ -311,10 +311,17 @@ intel_crtc_crc_setup_workarounds(struct intel_crtc *crtc, bool enable)
->  	pipe_config->base.mode_changed = pipe_config->has_psr;
->  	pipe_config->crc_enabled = enable;
->  
-> -	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A) {
-> +	if (IS_HASWELL(dev_priv) &&
-> +	    pipe_config->base.active && crtc->pipe == PIPE_A &&
-> +	    pipe_config->cpu_transcoder == TRANSCODER_EDP) {
-> +		bool old_need_power_well = pipe_config->pch_pfit.enabled ||
-> +			pipe_config->pch_pfit.force_thru;
-> +		bool new_need_power_well = pipe_config->pch_pfit.enabled ||
-> +			enable;
-> +
->  		pipe_config->pch_pfit.force_thru = enable;
-> -		if (pipe_config->cpu_transcoder == TRANSCODER_EDP &&
-> -		    pipe_config->pch_pfit.enabled != enable)
-> +
-> +		if (old_need_power_well != new_need_power_well)
->  			pipe_config->base.connectors_changed = true;
->  	}
->  
-> -- 
-> 2.21.0
+I couldn't see how to apply these to 3.16, so you will need to send me
+backports if they are needed.  They are also missing from 3.18 and 4.4.
 
--- 
-Ville Syrjälä
-Intel
+Ben.
+
+--=20
+Ben Hutchings
+Teamwork is essential - it allows you to blame someone else.
+
+
+
+--=-fyFX1eJkFug4YCxhk3cw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAlzR0IsACgkQ57/I7JWG
+EQndXBAAhp51IeuLn3MOsPrqYMJqn/E9ATZ/IK7LgZxrPNX5Pses/FdLwbn7pA+k
+JZgIdVeqqNcOn0hLC/63loyJkwi2cEfdfRcymCILgcJM72SJ4TdOEkY/BB7aUj9g
+x+/8yPm2w8HvIe/jFdkpFdfeKS7mtSaL+xJhIqmlS5xHMJKctujUV1Jo3wX94yDz
++JgfwStnJWme8N4hf/3Hcw3vipl6p6qBskeyds7tKhilDxCqRvJzeGs/Ah9VEJkX
+oATVckH7gK0bzvHXv/lyE2g1w1Fyc2QybylCzKMSBU28oIAXIsV2kk4/MRr7MuRZ
+p7n5pB9ZGYMzT4e4ZPFFq6fX6EdJunpQM6zKFZcLYCKC2YR6ry4rCtYREufWQ/yC
+KMq55Fy0+d+EI3i/o2UeA8nJQAESMoDkC/I5q7cRbx+Lui8GP9CqYSXLbxsNWEM0
+nzUVV93/xB5pgV8LYN01rvCSueQ5iiRMU8sebKiF3j1kUtzAVOeF4xM6VZXpmXf5
+7tNqv3vNo3ynBeJiYPFn++izsnvMmDw9ATHqYDJJccxD0MB4hP75Yot8507akslq
+1Xb5rih26+hAi6uZ55rFll4K2vy9A5oGUWL+v0HFh6XxctbHtw6yUundKRvn2RSz
+1p0LhZvtRSM6PX3k5G2XZHhSr8drtmnDGEsgsKvIEqivRRs3tcA=
+=6x9T
+-----END PGP SIGNATURE-----
+
+--=-fyFX1eJkFug4YCxhk3cw--
