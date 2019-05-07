@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61AF61592A
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F356215C8D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbfEGFea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54474 "EHLO mail.kernel.org"
+        id S1726939AbfEGFef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:34:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727549AbfEGFea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:30 -0400
+        id S1727558AbfEGFeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FA1F20B7C;
-        Tue,  7 May 2019 05:34:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7758B2087F;
+        Tue,  7 May 2019 05:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207268;
-        bh=cF+M6FD8Iz2s2miyLBUM8Qq9nDVrWzhHWzqergH38pU=;
+        s=default; t=1557207271;
+        bh=Nn5AKjwbyyKxt2/OxRqIHa1NJ6FZcLAmngoexODc1M0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vMs5Zc3ntBnTlGTHx0RUmW1IPHZE3DWzxDEkjL63S3CwzDzTVaXZtJ+CU7MOzPJ0
-         EqbgR65VW5Ov4lY5hVyJxyhLaEm6PTiXYtdmmsU2sM+3lqW/cFiczwAtI9u2W0mAXh
-         EINJDr5QtuQyc1I+l9SdUTzx5L4UhpvddeHQbEWw=
+        b=uJyNplFHZ5Ady6rByIgATYSGS8a6SCT2Zae0O/yP67r0mpmk2/7+eikJpOJwPqIA8
+         IC1KJFqkF/g0v8srDPuZMM0OukuWOkjImwkMQGQBgx+6V4V/PzgUiMEhmcEPmhA2ob
+         NgMdVvu4RwacGm5oemp4SRs9joBaw38EP67LOk6w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <groeck@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk@armlinux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 59/99] init: initialize jump labels before command line option parsing
-Date:   Tue,  7 May 2019 01:31:53 -0400
-Message-Id: <20190507053235.29900-59-sashal@kernel.org>
+Cc:     Jonas Karlman <jonas@kwiboo.se>, Heiko Stueber <heiko@sntech.de>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.0 60/99] drm: bridge: dw-hdmi: Fix overflow workaround for Rockchip SoCs
+Date:   Tue,  7 May 2019 01:31:54 -0400
+Message-Id: <20190507053235.29900-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -50,79 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit 6041186a32585fc7a1d0f6cfe2f138b05fdc3c82 ]
+[ Upstream commit d15d9fd02575ecfada92d42f655940c4f10af842 ]
 
-When a module option, or core kernel argument, toggles a static-key it
-requires jump labels to be initialized early.  While x86, PowerPC, and
-ARM64 arrange for jump_label_init() to be called before parse_args(),
-ARM does not.
+The Rockchip RK3288 SoC (v2.00a) and RK3328/RK3399 SoCs (v2.11a) have
+also been identified as needing this workaround with a single iteration.
 
-  Kernel command line: rdinit=/sbin/init page_alloc.shuffle=1 panic=-1 console=ttyAMA0,115200 page_alloc.shuffle=1
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at ./include/linux/jump_label.h:303
-  page_alloc_shuffle+0x12c/0x1ac
-  static_key_enable(): static key 'page_alloc_shuffle_key+0x0/0x4' used
-  before call to jump_label_init()
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper Not tainted
-  5.1.0-rc4-next-20190410-00003-g3367c36ce744 #1
-  Hardware name: ARM Integrator/CP (Device Tree)
-  [<c0011c68>] (unwind_backtrace) from [<c000ec48>] (show_stack+0x10/0x18)
-  [<c000ec48>] (show_stack) from [<c07e9710>] (dump_stack+0x18/0x24)
-  [<c07e9710>] (dump_stack) from [<c001bb1c>] (__warn+0xe0/0x108)
-  [<c001bb1c>] (__warn) from [<c001bb88>] (warn_slowpath_fmt+0x44/0x6c)
-  [<c001bb88>] (warn_slowpath_fmt) from [<c0b0c4a8>]
-  (page_alloc_shuffle+0x12c/0x1ac)
-  [<c0b0c4a8>] (page_alloc_shuffle) from [<c0b0c550>] (shuffle_store+0x28/0x48)
-  [<c0b0c550>] (shuffle_store) from [<c003e6a0>] (parse_args+0x1f4/0x350)
-  [<c003e6a0>] (parse_args) from [<c0ac3c00>] (start_kernel+0x1c0/0x488)
-
-Move the fallback call to jump_label_init() to occur before
-parse_args().
-
-The redundant calls to jump_label_init() in other archs are left intact
-in case they have static key toggling use cases that are even earlier
-than option parsing.
-
-Link: http://lkml.kernel.org/r/155544804466.1032396.13418949511615676665.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Guenter Roeck <groeck@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Russell King <rmk@armlinux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: be41fc55f1aa ("drm: bridge: dw-hdmi: Handle overflow workaround based on device version")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Tested-by: Heiko Stueber <heiko@sntech.de>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/AM3PR03MB0966818FAAAE6192FF4ED11AAC7D0@AM3PR03MB0966.eurprd03.prod.outlook.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/init/main.c b/init/main.c
-index c86a1c8f19f4..7ae824545265 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -574,6 +574,8 @@ asmlinkage __visible void __init start_kernel(void)
- 	page_alloc_init();
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index 64c3cf027518..14223c0ee784 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -1655,6 +1655,8 @@ static void dw_hdmi_clear_overflow(struct dw_hdmi *hdmi)
+ 	 * iteration for others.
+ 	 * The Amlogic Meson GX SoCs (v2.01a) have been identified as needing
+ 	 * the workaround with a single iteration.
++	 * The Rockchip RK3288 SoC (v2.00a) and RK3328/RK3399 SoCs (v2.11a) have
++	 * been identified as needing the workaround with a single iteration.
+ 	 */
  
- 	pr_notice("Kernel command line: %s\n", boot_command_line);
-+	/* parameters may set static keys */
-+	jump_label_init();
- 	parse_early_param();
- 	after_dashes = parse_args("Booting kernel",
- 				  static_command_line, __start___param,
-@@ -583,8 +585,6 @@ asmlinkage __visible void __init start_kernel(void)
- 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
- 			   NULL, set_init_arg);
- 
--	jump_label_init();
--
- 	/*
- 	 * These use large bootmem allocations and must precede
- 	 * kmem_cache_init()
+ 	switch (hdmi->version) {
+@@ -1663,7 +1665,9 @@ static void dw_hdmi_clear_overflow(struct dw_hdmi *hdmi)
+ 		break;
+ 	case 0x131a:
+ 	case 0x132a:
++	case 0x200a:
+ 	case 0x201a:
++	case 0x211a:
+ 	case 0x212a:
+ 		count = 1;
+ 		break;
 -- 
 2.20.1
 
