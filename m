@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA92A15B32
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9229415B2B
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbfEGFwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59124 "EHLO mail.kernel.org"
+        id S1728883AbfEGFjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:39:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728872AbfEGFj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:29 -0400
+        id S1728878AbfEGFja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB9B12173B;
-        Tue,  7 May 2019 05:39:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4D8E20675;
+        Tue,  7 May 2019 05:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207568;
-        bh=nFYURFvuVpxQr6PZfuvJhJPBqwO7DVZfkSLmcBK9RhA=;
+        s=default; t=1557207569;
+        bh=UVLSvQxN4WWGLFkoue/+SE3gKBycu2NyT5o8Z1iqWxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yt+zQlppAv87d2kOnr6B10znPN/5jgNBeh00Y6NNy064O+WPuEI1q9/XE+BJInv1z
-         RVydpuOEUqvX2UZQl7sZ3fjUeqlfZr4/2VvqTET6T00Q7bOj47Pwq5qKwVq5B/u8qx
-         MEJj0QMLhqdQnQ4a26b8xbhfwvnsxRMnskckihEo=
+        b=ShsIBruDJVIMP9fkDV4UgGKYVoFLyiFNmW72SPKWhZx81pZQlqs8JAxNPHGhb1KkF
+         LWI7n4+3SC6V6KH6a9zb2T/iibBwj2VohjW2dE6iUgq3UqQAxZGWnS5MQasp0dWiqA
+         86YaAAh8ysliCwZGN1lQ3pruypFtG3/z7ekGu33U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 31/95] drm/imx: don't skip DP channel disable for background plane
-Date:   Tue,  7 May 2019 01:37:20 -0400
-Message-Id: <20190507053826.31622-31-sashal@kernel.org>
+Cc:     Daniel Gomez <dagmcr@gmail.com>,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 32/95] spi: Micrel eth switch: declare missing of table
+Date:   Tue,  7 May 2019 01:37:21 -0400
+Message-Id: <20190507053826.31622-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,32 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Daniel Gomez <dagmcr@gmail.com>
 
-[ Upstream commit 7bcde275eb1d0ac8793c77c7e666a886eb16633d ]
+[ Upstream commit 2f23a2a768bee7ad2ff1e9527c3f7e279e794a46 ]
 
-In order to make sure that the plane color space gets reset correctly.
+Add missing <of_device_id> table for SPI driver relying on SPI
+device match since compatible is in a DT binding or in a DTS.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Before this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
+
+After this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
+alias:          of:N*T*Cmicrel,ksz8795C*
+alias:          of:N*T*Cmicrel,ksz8795
+alias:          of:N*T*Cmicrel,ksz8864C*
+alias:          of:N*T*Cmicrel,ksz8864
+alias:          of:N*T*Cmicrel,ks8995C*
+alias:          of:N*T*Cmicrel,ks8995
+
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/ipuv3-crtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/spi_ks8995.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
-index d976391dfa31..957fbf8c55eb 100644
---- a/drivers/gpu/drm/imx/ipuv3-crtc.c
-+++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
-@@ -79,7 +79,7 @@ static void ipu_crtc_disable_planes(struct ipu_crtc *ipu_crtc,
- 	if (disable_partial)
- 		ipu_plane_disable(ipu_crtc->plane[1], true);
- 	if (disable_full)
--		ipu_plane_disable(ipu_crtc->plane[0], false);
-+		ipu_plane_disable(ipu_crtc->plane[0], true);
- }
+diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
+index 1e2d4f1179da..45df03673e01 100644
+--- a/drivers/net/phy/spi_ks8995.c
++++ b/drivers/net/phy/spi_ks8995.c
+@@ -162,6 +162,14 @@ static const struct spi_device_id ks8995_id[] = {
+ };
+ MODULE_DEVICE_TABLE(spi, ks8995_id);
  
- static void ipu_crtc_atomic_disable(struct drm_crtc *crtc,
++static const struct of_device_id ks8895_spi_of_match[] = {
++        { .compatible = "micrel,ks8995" },
++        { .compatible = "micrel,ksz8864" },
++        { .compatible = "micrel,ksz8795" },
++        { },
++ };
++MODULE_DEVICE_TABLE(of, ks8895_spi_of_match);
++
+ static inline u8 get_chip_id(u8 val)
+ {
+ 	return (val >> ID1_CHIPID_S) & ID1_CHIPID_M;
+@@ -529,6 +537,7 @@ static int ks8995_remove(struct spi_device *spi)
+ static struct spi_driver ks8995_driver = {
+ 	.driver = {
+ 		.name	    = "spi-ks8995",
++		.of_match_table = of_match_ptr(ks8895_spi_of_match),
+ 	},
+ 	.probe	  = ks8995_probe,
+ 	.remove	  = ks8995_remove,
 -- 
 2.20.1
 
