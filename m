@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EADD615BEE
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD5215BF0
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727537AbfEGFg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
+        id S1728488AbfEGF7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:59:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727382AbfEGFgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:53 -0400
+        id S1727377AbfEGFg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C23CC214C6;
-        Tue,  7 May 2019 05:36:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D7620B7C;
+        Tue,  7 May 2019 05:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207412;
-        bh=5DznuNw7z9PLodnnVnROMbB57oFbzwhOIyEtlUp36dI=;
+        s=default; t=1557207415;
+        bh=XxO6TjRIcp5X5OiMe4gAGo/n1EizSuDR1wlTAcNzDT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tugsefIhg0d8tgBLPaFGKJqyt669v7FaCiuKL0vnlz6MN7QFyTfvyOdkGIkPNoepj
-         vRgu3xgzG1IT1cCwVOWWQoX3pRMFViv7DCnjkzlEN4Q205DIidWiwOwP7w7Xy47rQa
-         wfeB/HX9qE+bGzACuXhjeCUJyWSrEFHagL1jH/oY=
+        b=oQuIYJIE3sl3rQBRvlowqbrI+1FmBxAEa14nGeXURY+f3/3hE1Nv9hWbHAsvZH1H2
+         DCDUe+ODYxF+aUUfJuy/Ltwqe8izOa1CjUsKHs6LMBWjP/Zz+hB4g111LZB+z7V+U9
+         lg0jUN5JqyxgOQ0XvsYL8cp0F701Rrv+5/8qqO4k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
-        Christian Rund <Christian.Rund@de.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 29/81] s390/pkey: add one more argument space for debug feature entry
-Date:   Tue,  7 May 2019 01:35:00 -0400
-Message-Id: <20190507053554.30848-29-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 30/81] x86/build/lto: Fix truncated .bss with -fdata-sections
+Date:   Tue,  7 May 2019 01:35:01 -0400
+Message-Id: <20190507053554.30848-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,43 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 6b1f16ba730d4c0cda1247568c3a1bf4fa3a2f2f ]
+[ Upstream commit 6a03469a1edc94da52b65478f1e00837add869a3 ]
 
-The debug feature entries have been used with up to 5 arguents
-(including the pointer to the format string) but there was only
-space reserved for 4 arguemnts. So now the registration does
-reserve space for 5 times a long value.
+With CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y, we compile the kernel with
+-fdata-sections, which also splits the .bss section.
 
-This fixes a sometime appearing weired value as the last
-value of an debug feature entry like this:
+The new section, with a new .bss.* name, which pattern gets missed by the
+main x86 linker script which only expects the '.bss' name. This results
+in the discarding of the second part and a too small, truncated .bss
+section and an unhappy, non-working kernel.
 
-... pkey_sec2protkey zcrypt_send_cprb (cardnr=10 domain=12)
-   failed with errno -2143346254
+Use the common BSS_MAIN macro in the linker script to properly capture
+and merge all the generated BSS sections.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reported-by: Christian Rund <Christian.Rund@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20190415164956.124067-1-samitolvanen@google.com
+[ Extended the changelog. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/pkey_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index 1b4001e0285f..b16344479959 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -45,7 +45,8 @@ static debug_info_t *debug_info;
- 
- static void __init pkey_debug_init(void)
- {
--	debug_info = debug_register("pkey", 1, 1, 4 * sizeof(long));
-+	/* 5 arguments per dbf entry (including the format string ptr) */
-+	debug_info = debug_register("pkey", 1, 1, 5 * sizeof(long));
- 	debug_register_view(debug_info, &debug_sprintf_view);
- 	debug_set_level(debug_info, 3);
- }
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index c63bab98780c..85e6d5620188 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -372,7 +372,7 @@ SECTIONS
+ 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {
+ 		__bss_start = .;
+ 		*(.bss..page_aligned)
+-		*(.bss)
++		*(BSS_MAIN)
+ 		BSS_DECRYPTED
+ 		. = ALIGN(PAGE_SIZE);
+ 		__bss_stop = .;
 -- 
 2.20.1
 
