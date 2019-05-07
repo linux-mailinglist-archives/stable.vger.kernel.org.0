@@ -2,156 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEF7169A9
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA54169AB
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726835AbfEGR4g convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 7 May 2019 13:56:36 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58302 "EHLO mx1.redhat.com"
+        id S1726335AbfEGR5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 13:57:10 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49604 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726797AbfEGR4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 13:56:35 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        id S1726797AbfEGR5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 13:57:10 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 12F64307D95F;
-        Tue,  7 May 2019 17:56:35 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 07539600D4;
-        Tue,  7 May 2019 17:56:35 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id E82A418089CA;
-        Tue,  7 May 2019 17:56:34 +0000 (UTC)
-Date:   Tue, 7 May 2019 13:56:34 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Message-ID: <870847532.18462136.1557251794376.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20190507170150.GA1468@kroah.com>
-References: <cki.8007596684.1FGCVHW930@redhat.com> <20190507170150.GA1468@kroah.com>
-Subject: =?utf-8?Q?Re:_=E2=9C=85_PASS:_Stable_queue:_queue-5.0?=
+        by mx1.redhat.com (Postfix) with ESMTPS id 3D7013001821;
+        Tue,  7 May 2019 17:57:09 +0000 (UTC)
+Received: from treble (ovpn-123-166.rdu2.redhat.com [10.10.123.166])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7588B60BF4;
+        Tue,  7 May 2019 17:56:58 +0000 (UTC)
+Date:   Tue, 7 May 2019 12:56:55 -0500
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [RFC][PATCH 1/3] x86_64: Add gap to int3 to allow for call
+ emulation
+Message-ID: <20190507175655.u3kcvedpfao4rchj@treble>
+References: <20190507174227.673261270@goodmis.org>
+ <20190507174400.064350937@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [10.40.205.155, 10.4.195.12]
-Thread-Topic: =?utf-8?B?4pyFIFBBU1M6?= Stable queue: queue-5.0
-Thread-Index: hm67ak3FTs1sb6ptSraC29PExGEcSg==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Tue, 07 May 2019 17:56:35 +0000 (UTC)
+Content-Disposition: inline
+In-Reply-To: <20190507174400.064350937@goodmis.org>
+User-Agent: NeoMutt/20180716
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 07 May 2019 17:57:09 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
------ Original Message -----
-> From: "Greg KH" <gregkh@linuxfoundation.org>
-> To: "CKI Project" <cki-project@redhat.com>
-> Cc: "Linux Stable maillist" <stable@vger.kernel.org>
-> Sent: Tuesday, May 7, 2019 7:01:50 PM
-> Subject: Re: ✅ PASS: Stable queue: queue-5.0
+On Tue, May 07, 2019 at 01:42:28PM -0400, Steven Rostedt wrote:
+> From: Josh Poimboeuf <jpoimboe@redhat.com>
 > 
-> On Tue, May 07, 2019 at 11:21:07AM -0400, CKI Project wrote:
-> >   x86_64:
-> >      ✅ Boot test [0]
-> >      ✅ LTP lite [2]
-> >      ✅ Loopdev Sanity [3]
-> >      ✅ AMTU (Abstract Machine Test Utility) [4]
-> >      ✅ Ethernet drivers sanity [5]
-> >      ✅ httpd: mod_ssl smoke sanity [6]
-> >      ✅ iotop: sanity [7]
-> >      ✅ tuned: tune-processes-through-perf [8]
-> >      ✅ Usex - version 1.9-29 [9]
-> >      ✅ lvm thinp sanity [10]
-> >      ✅ Boot test [0]
-> >      ✅ xfstests: xfs [1]
-> >      🚧 ✅ audit: audit testsuite test [12]
-> >      🚧 ✅ stress: stress-ng [13]
-> >      🚧 ✅ selinux-policy: serge-testsuite [11]
+> To allow an int3 handler to emulate a call instruction, it must be able to
+> push a return address onto the stack. Add a gap to the stack to allow the
+> int3 handler to push the return address and change the return from int3 to
+> jump straight to the emulated called function target.
 > 
-> Just a question, what is the number in the [] above?
+> Link: http://lkml.kernel.org/r/20181130183917.hxmti5josgq4clti@treble
+> Link: http://lkml.kernel.org/r/20190502162133.GX2623@hirez.programming.kicks-ass.net
 > 
-> The number of tests run?  And if so:
->       ✅ Boot test [0]
-> is listed twice, with no tests run?  Doesn't booting count? :)
+> [
+>   Note, this is needed to allow Live Kernel Patching to not miss calling a
+>   patched function when tracing is enabled. -- Steven Rostedt
+> ]
 > 
-> Also, "LTP lite", isn't that a lot more than just 2 tests that are part
-> of that?  Any chance you can add more LTP tests, much like Linaro has?
-> I think their list of LTP tests they are running is somewhere.
+> Cc: stable@vger.kernel.org
+> Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> ---
+>  arch/x86/entry/entry_64.S | 18 ++++++++++++++++--
+>  1 file changed, 16 insertions(+), 2 deletions(-)
 > 
-> >   Test source:
-> >     [0]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-> >     [1]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-> >     [2]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-> >     [3]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-> >     [4]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-> >     [5]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-> >     [6]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-> >     [7]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-> >     [8]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-> >     [9]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-> >     [10]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-> >     [11]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-> >     [12]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-> >     [13]:
-> >     https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-> 
-> Ah crap, it's a footnote, nevermind on most of what I wrote above :)
-> 
-> But why is booting happening twice?
-> 
+> diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+> index 1f0efdb7b629..00df6b135ab1 100644
+> --- a/arch/x86/entry/entry_64.S
+> +++ b/arch/x86/entry/entry_64.S
+> @@ -879,7 +879,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work_interrupt		smp_irq_work_interrupt
+>   * @paranoid == 2 is special: the stub will never switch stacks.  This is for
+>   * #DF: if the thread stack is somehow unusable, we'll still get a useful OOPS.
+>   */
+> -.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
+> +.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1 create_gap=0
+>  ENTRY(\sym)
+>  	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+>  
+> @@ -899,6 +899,20 @@ ENTRY(\sym)
+>  	jnz	.Lfrom_usermode_switch_stack_\@
+>  	.endif
+>  
+> +	.if \create_gap == 1
+> +	/*
+> +	 * If coming from kernel space, create a 6-word gap to allow the static
+> +	 * call #BP handler to emulate a call instruction.
 
-Hi,
+Might as well refer to it as the int3 handler, since that's what the
+rest of the code calls it.  Also, no static calls yet :-)  So:
 
-in some cases we are running multiple recipes in a single test job, to
-get out the results faster. Each recipe is started by a "boot test" since
-that's responsible for installing and booting the kernel being tested. The
-report joins all recipes for given architecture, hence that one test is
-shown there multiple times. I agree that we should make this more clear
-and separate the report parts per recipes but we didn't have time for it
-yet, sorry. I notified people about the problem and we'll prioritize :)
+s/static call #BP handler/int3 handler/
 
-> And I see you are running xfstests, which is great, but does it really
-> all "pass"?  What type of filesystem image are you running it on.
-> 
-
-Here you can find the list of subtests that's being run [0] and a list of
-excluded ones from them [1]. This is just a reduced test set as some of the
-tests were triggering fake failures or taking too long to run as a part of
-CI. The lists may change in the future of course.
-
-We set up two separate xfs partitions for the testing. The machine should
-have at least 50G of space available for this.
-
-
-Hope this explains everything and sorry for the recipe confusion. Let us
-know if you have anything else!
-
-
-Veronika
-CKI Project
-
-
-[0] https://github.com/CKI-project/tests-beaker/blob/master/filesystems/xfs/xfstests/RUNTESTS
-[1] https://github.com/CKI-project/tests-beaker/blob/master/filesystems/xfs/xfstests/known_issues
-
-> thanks,
-> 
-> greg k-h
-> 
-> 
+-- 
+Josh
