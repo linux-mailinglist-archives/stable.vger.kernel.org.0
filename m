@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C03F15AED
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9556D15AF3
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728489AbfEGFkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
+        id S1729070AbfEGFkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729054AbfEGFkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:14 -0400
+        id S1729038AbfEGFkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 362F7216C8;
-        Tue,  7 May 2019 05:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5008C2087F;
+        Tue,  7 May 2019 05:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207613;
-        bh=SIb/1gjRI1WaMCeRFJQ+4i7vI4IVNO/tAt0IJhTH+wQ=;
+        s=default; t=1557207615;
+        bh=N8ajWXn71Lm1wn4HdOG/RTY7uqgJZAxINuEKsuT+bp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GG1/P5qdJPBQScvB3puVKT/2ipSxiCMuJY2LRMeozmjXqrb7144JTkINhyM07v8qq
-         KduMxjl2JNpYvdv9AwAtDrUpCcP67qR/C3TLB9slo/FN/U4U0by6p7mIg0GM3ylSxM
-         YgKepnC8eBoNX3FzIeblRcJSOBtaRWfzmXP7PEZc=
+        b=fGk611XQmEx0iAM+/5I9S3xzt9MCqL5QTv2Mj76tmzEiz11U1vI1OJ8gwPg/u5lRw
+         eVna28ECrwuxN0mdAPQ0jCANDSzomy97ZiItb//b+58wtEwUriBnWw5EDI5WWdr2/3
+         sTpqS4H1M4AeMFTbANsQbJylA9OW4CPdFxwZhVQ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lubomir Rintel <lkundrak@v3.sk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 57/95] staging: olpc_dcon: add a missing dependency
-Date:   Tue,  7 May 2019 01:37:46 -0400
-Message-Id: <20190507053826.31622-57-sashal@kernel.org>
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 58/95] net: stmmac: Move debugfs init/exit to ->probe()/->remove()
+Date:   Tue,  7 May 2019 01:37:47 -0400
+Message-Id: <20190507053826.31622-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,35 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 33f49571d75024b1044cd02689ad2bdb4924cc80 ]
+[ Upstream commit 5f2b8b62786853341a20d4cd4948f9cbca3db002 ]
 
-  WARNING: unmet direct dependencies detected for BACKLIGHT_CLASS_DEVICE
-    Depends on [n]: HAS_IOMEM [=y] && BACKLIGHT_LCD_SUPPORT [=n]
-    Selected by [y]:
-    - FB_OLPC_DCON [=y] && STAGING [=y] && X86 [=y] && OLPC [=y] && FB [=y]
-                        && I2C [=y] && (GPIO_CS5535 [=n] || GPIO_CS5535 [=n]=n)
+Setting up and tearing down debugfs is current unbalanced, as seen by
+this error during resume from suspend:
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    [  752.134067] dwc-eth-dwmac 2490000.ethernet eth0: ERROR failed to create debugfs directory
+    [  752.134347] dwc-eth-dwmac 2490000.ethernet eth0: stmmac_hw_setup: failed debugFS registration
+
+The imbalance happens because the driver creates the debugfs hierarchy
+when the device is opened and tears it down when the device is closed.
+There's little gain in that, and it could be argued that it is even
+surprising because it's not usually done for other devices. Fix the
+imbalance by moving the debugfs creation and teardown to the driver's
+->probe() and ->remove() implementations instead.
+
+Note that the ring descriptors cannot be read while the interface is
+down, so make sure to return an empty file when the descriptors_status
+debugfs file is read.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Acked-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/staging/olpc_dcon/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 23 +++++++++++--------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/olpc_dcon/Kconfig b/drivers/staging/olpc_dcon/Kconfig
-index d277f048789e..8c6cc61d634b 100644
---- a/drivers/staging/olpc_dcon/Kconfig
-+++ b/drivers/staging/olpc_dcon/Kconfig
-@@ -2,6 +2,7 @@ config FB_OLPC_DCON
- 	tristate "One Laptop Per Child Display CONtroller support"
- 	depends on OLPC && FB
- 	depends on I2C
-+	depends on BACKLIGHT_LCD_SUPPORT
- 	depends on (GPIO_CS5535 || GPIO_CS5535=n)
- 	select BACKLIGHT_CLASS_DEVICE
- 	---help---
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index ecf3f8c1bc0e..3389545353a7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2530,12 +2530,6 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+ 			netdev_warn(priv->dev, "PTP init failed\n");
+ 	}
+ 
+-#ifdef CONFIG_DEBUG_FS
+-	ret = stmmac_init_fs(dev);
+-	if (ret < 0)
+-		netdev_warn(priv->dev, "%s: failed debugFS registration\n",
+-			    __func__);
+-#endif
+ 	priv->tx_lpi_timer = STMMAC_DEFAULT_TWT_LS;
+ 
+ 	if ((priv->use_riwt) && (priv->hw->dma->rx_watchdog)) {
+@@ -2729,10 +2723,6 @@ static int stmmac_release(struct net_device *dev)
+ 
+ 	netif_carrier_off(dev);
+ 
+-#ifdef CONFIG_DEBUG_FS
+-	stmmac_exit_fs(dev);
+-#endif
+-
+ 	stmmac_release_ptp(priv);
+ 
+ 	return 0;
+@@ -3837,6 +3827,9 @@ static int stmmac_sysfs_ring_read(struct seq_file *seq, void *v)
+ 	u32 tx_count = priv->plat->tx_queues_to_use;
+ 	u32 queue;
+ 
++	if ((dev->flags & IFF_UP) == 0)
++		return 0;
++
+ 	for (queue = 0; queue < rx_count; queue++) {
+ 		struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
+ 
+@@ -4308,6 +4301,13 @@ int stmmac_dvr_probe(struct device *device,
+ 		goto error_netdev_register;
+ 	}
+ 
++#ifdef CONFIG_DEBUG_FS
++	ret = stmmac_init_fs(ndev);
++	if (ret < 0)
++		netdev_warn(priv->dev, "%s: failed debugFS registration\n",
++			    __func__);
++#endif
++
+ 	return ret;
+ 
+ error_netdev_register:
+@@ -4341,6 +4341,9 @@ int stmmac_dvr_remove(struct device *dev)
+ 
+ 	netdev_info(priv->dev, "%s: removing driver", __func__);
+ 
++#ifdef CONFIG_DEBUG_FS
++	stmmac_exit_fs(ndev);
++#endif
+ 	stmmac_stop_all_dma(priv);
+ 
+ 	priv->hw->mac->set_mac(priv->ioaddr, false);
 -- 
 2.20.1
 
