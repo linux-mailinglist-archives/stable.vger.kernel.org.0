@@ -2,52 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C40BC15AB1
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DF015ABE
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728601AbfEGFlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60530 "EHLO mail.kernel.org"
+        id S1728563AbfEGFrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:47:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728620AbfEGFlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:41:05 -0400
+        id S1725926AbfEGFlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:41:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAA9520675;
-        Tue,  7 May 2019 05:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E77A205ED;
+        Tue,  7 May 2019 05:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207663;
-        bh=9x7eHrXpvak8eqL0Qp4voPwED6YGX3O6T9ioe5rx+54=;
+        s=default; t=1557207666;
+        bh=2TFotMoJogSz8cQ3D94lytrYGs0Rm9Nw/CN5qSOhZb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9HV1FzmubExhSyFYjap0PLcTfvGhuDAQ7drpaIRIOcNy7Rm59V5kfHd+W+cTBTYK
-         Lm6sRH41iG7N/hBjLy7U0GpYdmBMfh9fVZadDz/dH8julqnDXGdyviWLnZv5WBMxO3
-         6B/Ob8x6c3/sS39w+v8sbdYPWpPzVPAOoKe7TQS8=
+        b=KlibZBCjGXCiAQMN7k8jLO1P42YBSm6W9M9i/ST6071ICpgJMfBoWtQ4BmUcT+NTl
+         PKIUTVA/ldry5bza0s38snUXrfuXSVox99PFDP914tgjYYHxiDx3nsPKeJxCaaboii
+         DrWRqRlSYHQZF87Gmpoozv206Aa2scijs7ZcJn/M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Rik van Riel <riel@surriel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        kvm ML <kvm@vger.kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>, x86-ml <x86@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH AUTOSEL 4.14 84/95] x86/fpu: Don't export __kernel_fpu_{begin,end}()
-Date:   Tue,  7 May 2019 01:38:13 -0400
-Message-Id: <20190507053826.31622-84-sashal@kernel.org>
+Cc:     Jun Xiao <xiaojun2@hisilicon.com>,
+        Yonglong Liu <liuyonglong@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 85/95] net: hns: Fix WARNING when hns modules installed
+Date:   Tue,  7 May 2019 01:38:14 -0400
+Message-Id: <20190507053826.31622-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,133 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Jun Xiao <xiaojun2@hisilicon.com>
 
-[ Upstream commit 12209993e98c5fa1855c467f22a24e3d5b8be205 ]
+[ Upstream commit c77804be53369dd4c15bfc376cf9b45948194cab ]
 
-There is one user of __kernel_fpu_begin() and before invoking it,
-it invokes preempt_disable(). So it could invoke kernel_fpu_begin()
-right away. The 32bit version of arch_efi_call_virt_setup() and
-arch_efi_call_virt_teardown() does this already.
+Commit 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko
+after rmmod.") add phy_stop in hns_nic_init_phy(), In the branch of "net",
+this method is effective, but in the branch of "net-next", it will cause
+a WARNING when hns modules loaded, reference to commit 2b3e88ea6528 ("net:
+phy: improve phy state checking"):
 
-The comment above *kernel_fpu*() claims that before invoking
-__kernel_fpu_begin() preemption should be disabled and that KVM is a
-good example of doing it. Well, KVM doesn't do that since commit
+[10.092168] ------------[ cut here ]------------
+[10.092171] called from state READY
+[10.092189] WARNING: CPU: 4 PID: 1 at ../drivers/net/phy/phy.c:854
+                phy_stop+0x90/0xb0
+[10.092192] Modules linked in:
+[10.092197] CPU: 4 PID:1 Comm:swapper/0 Not tainted 4.20.0-rc7-next-20181220 #1
+[10.092200] Hardware name: Huawei TaiShan 2280 /D05, BIOS Hisilicon D05 UEFI
+                16.12 Release 05/15/2017
+[10.092202] pstate: 60000005 (nZCv daif -PAN -UAO)
+[10.092205] pc : phy_stop+0x90/0xb0
+[10.092208] lr : phy_stop+0x90/0xb0
+[10.092209] sp : ffff00001159ba90
+[10.092212] x29: ffff00001159ba90 x28: 0000000000000007
+[10.092215] x27: ffff000011180068 x26: ffff0000110a5620
+[10.092218] x25: ffff0000113b6000 x24: ffff842f96dac000
+[10.092221] x23: 0000000000000000 x22: 0000000000000000
+[10.092223] x21: ffff841fb8425e18 x20: ffff801fb3a56438
+[10.092226] x19: ffff801fb3a56000 x18: ffffffffffffffff
+[10.092228] x17: 0000000000000000 x16: 0000000000000000
+[10.092231] x15: ffff00001122d6c8 x14: ffff00009159b7b7
+[10.092234] x13: ffff00001159b7c5 x12: ffff000011245000
+[10.092236] x11: 0000000005f5e0ff x10: ffff00001159b750
+[10.092239] x9 : 00000000ffffffd0 x8 : 0000000000000465
+[10.092242] x7 : ffff0000112457f8 x6 : ffff0000113bd7ce
+[10.092245] x5 : 0000000000000000 x4 : 0000000000000000
+[10.092247] x3 : 00000000ffffffff x2 : ffff000011245828
+[10.092250] x1 : 4b5860bd05871300 x0 : 0000000000000000
+[10.092253] Call trace:
+[10.092255]  phy_stop+0x90/0xb0
+[10.092260]  hns_nic_init_phy+0xf8/0x110
+[10.092262]  hns_nic_try_get_ae+0x4c/0x3b0
+[10.092264]  hns_nic_dev_probe+0x1fc/0x480
+[10.092268]  platform_drv_probe+0x50/0xa0
+[10.092271]  really_probe+0x1f4/0x298
+[10.092273]  driver_probe_device+0x58/0x108
+[10.092275]  __driver_attach+0xdc/0xe0
+[10.092278]  bus_for_each_dev+0x74/0xc8
+[10.092280]  driver_attach+0x20/0x28
+[10.092283]  bus_add_driver+0x1b8/0x228
+[10.092285]  driver_register+0x60/0x110
+[10.092288]  __platform_driver_register+0x40/0x48
+[10.092292]  hns_nic_dev_driver_init+0x18/0x20
+[10.092296]  do_one_initcall+0x5c/0x180
+[10.092299]  kernel_init_freeable+0x198/0x240
+[10.092303]  kernel_init+0x10/0x108
+[10.092306]  ret_from_fork+0x10/0x18
+[10.092308] ---[ end trace 1396dd0278e397eb ]---
 
-  f775b13eedee2 ("x86,kvm: move qemu/guest FPU switching out to vcpu_run")
+This WARNING occurred because of calling phy_stop before phy_start.
 
-so it is not an example anymore.
+The root cause of the problem in commit '308c6cafde01' is:
 
-With EFI gone as the last user of __kernel_fpu_{begin|end}(), both can
-be made static and not exported anymore.
+Reference to hns_nic_init_phy, the flag phydev->supported is changed after
+phy_connect_direct. The flag phydev->supported is 0x6ff when hns modules is
+loaded, so will not change Fiber Port power(Reference to marvell.c), which
+is power on at default.
+Then the flag phydev->supported is changed to 0x6f, so Fiber Port power is
+off when removing hns modules.
+When hns modules installed again, the flag phydev->supported is default
+value 0x6ff, so will not change Fiber Port power(now is off), causing mac
+link not up problem.
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: kvm ML <kvm@vger.kernel.org>
-Cc: linux-efi <linux-efi@vger.kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20181129150210.2k4mawt37ow6c2vq@linutronix.de
+So the solution is change phy flags before phy_connect_direct.
+
+Fixes: 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko after rmmod.")
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/include/asm/efi.h     |  6 ++----
- arch/x86/include/asm/fpu/api.h | 15 +++++----------
- arch/x86/kernel/fpu/core.c     |  6 ++----
- 3 files changed, 9 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/include/asm/efi.h b/arch/x86/include/asm/efi.h
-index a399c1ebf6f0..96fd0251f8f5 100644
---- a/arch/x86/include/asm/efi.h
-+++ b/arch/x86/include/asm/efi.h
-@@ -82,8 +82,7 @@ struct efi_scratch {
- #define arch_efi_call_virt_setup()					\
- ({									\
- 	efi_sync_low_kernel_mappings();					\
--	preempt_disable();						\
--	__kernel_fpu_begin();						\
-+	kernel_fpu_begin();						\
- 	firmware_restrict_branch_speculation_start();			\
- 									\
- 	if (efi_scratch.use_pgd) {					\
-@@ -104,8 +103,7 @@ struct efi_scratch {
- 	}								\
- 									\
- 	firmware_restrict_branch_speculation_end();			\
--	__kernel_fpu_end();						\
--	preempt_enable();						\
-+	kernel_fpu_end();						\
- })
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index d30c28fba249..7f14f06e868a 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -1269,6 +1269,12 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
+ 	if (!h->phy_dev)
+ 		return 0;
  
- extern void __iomem *__init efi_ioremap(unsigned long addr, unsigned long size,
-diff --git a/arch/x86/include/asm/fpu/api.h b/arch/x86/include/asm/fpu/api.h
-index a9caac9d4a72..b56d504af654 100644
---- a/arch/x86/include/asm/fpu/api.h
-+++ b/arch/x86/include/asm/fpu/api.h
-@@ -12,17 +12,12 @@
- #define _ASM_X86_FPU_API_H
++	phy_dev->supported &= h->if_support;
++	phy_dev->advertising = phy_dev->supported;
++
++	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
++		phy_dev->autoneg = false;
++
+ 	if (h->phy_if != PHY_INTERFACE_MODE_XGMII) {
+ 		phy_dev->dev_flags = 0;
  
- /*
-- * Careful: __kernel_fpu_begin/end() must be called with preempt disabled
-- * and they don't touch the preempt state on their own.
-- * If you enable preemption after __kernel_fpu_begin(), preempt notifier
-- * should call the __kernel_fpu_end() to prevent the kernel/user FPU
-- * state from getting corrupted. KVM for example uses this model.
-- *
-- * All other cases use kernel_fpu_begin/end() which disable preemption
-- * during kernel FPU usage.
-+ * Use kernel_fpu_begin/end() if you intend to use FPU in kernel context. It
-+ * disables preemption so be careful if you intend to use it for long periods
-+ * of time.
-+ * If you intend to use the FPU in softirq you need to check first with
-+ * irq_fpu_usable() if it is possible.
-  */
--extern void __kernel_fpu_begin(void);
--extern void __kernel_fpu_end(void);
- extern void kernel_fpu_begin(void);
- extern void kernel_fpu_end(void);
- extern bool irq_fpu_usable(void);
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 2ea85b32421a..2e5003fef51a 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -93,7 +93,7 @@ bool irq_fpu_usable(void)
+@@ -1280,15 +1286,6 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
+ 	if (unlikely(ret))
+ 		return -ENODEV;
+ 
+-	phy_dev->supported &= h->if_support;
+-	phy_dev->advertising = phy_dev->supported;
+-
+-	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
+-		phy_dev->autoneg = false;
+-
+-	if (h->phy_if == PHY_INTERFACE_MODE_SGMII)
+-		phy_stop(phy_dev);
+-
+ 	return 0;
  }
- EXPORT_SYMBOL(irq_fpu_usable);
  
--void __kernel_fpu_begin(void)
-+static void __kernel_fpu_begin(void)
- {
- 	struct fpu *fpu = &current->thread.fpu;
- 
-@@ -111,9 +111,8 @@ void __kernel_fpu_begin(void)
- 		__cpu_invalidate_fpregs_state();
- 	}
- }
--EXPORT_SYMBOL(__kernel_fpu_begin);
- 
--void __kernel_fpu_end(void)
-+static void __kernel_fpu_end(void)
- {
- 	struct fpu *fpu = &current->thread.fpu;
- 
-@@ -122,7 +121,6 @@ void __kernel_fpu_end(void)
- 
- 	kernel_fpu_enable();
- }
--EXPORT_SYMBOL(__kernel_fpu_end);
- 
- void kernel_fpu_begin(void)
- {
 -- 
 2.20.1
 
