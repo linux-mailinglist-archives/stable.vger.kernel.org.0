@@ -2,32 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92DE716987
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 487B616991
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbfEGRpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 13:45:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726699AbfEGRpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 13:45:16 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D85A205C9;
-        Tue,  7 May 2019 17:45:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557251115;
-        bh=mE/YighewZji2jdALogvRxl+gKJULhzu19FRdUZqyHQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sY8/+8XQ92ZXJgN8PAqu8UrV/K07qeZA1yYTfgXcoC/e6WoGCQKN8S+/hRLPmUZhS
-         0aJgZ3eezGGEiPFqd+8x7IGAN0cHy4GBimd72MOJC7icpy9MMCykrksZnR+0EeWn0k
-         KT9xDdfYUnnWMNzK2P2eNli9huwC2R6ijAa7gcb4=
-Date:   Tue, 7 May 2019 13:45:14 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Michal Hocko <mhocko@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        id S1726509AbfEGRvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 13:51:36 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59226 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726448AbfEGRvg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 13:51:36 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 26A7EAEF5;
+        Tue,  7 May 2019 17:51:35 +0000 (UTC)
+Date:   Tue, 7 May 2019 19:51:33 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
         Alexander Duyck <alexander.duyck@gmail.com>,
         LKML <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>,
@@ -44,7 +36,7 @@ Cc:     Michal Hocko <mhocko@kernel.org>,
         linux-mm <linux-mm@kvack.org>
 Subject: Re: [PATCH AUTOSEL 4.14 62/95] mm, memory_hotplug: initialize struct
  pages for the full memory section
-Message-ID: <20190507174514.GI1747@sasha-vm>
+Message-ID: <20190507175133.GV31017@dhcp22.suse.cz>
 References: <20190507053826.31622-1-sashal@kernel.org>
  <20190507053826.31622-62-sashal@kernel.org>
  <CAKgT0Uc8ywg8zrqyM9G+Ws==+yOfxbk6FOMHstO8qsizt8mqXA@mail.gmail.com>
@@ -54,38 +46,36 @@ References: <20190507053826.31622-1-sashal@kernel.org>
  <20190507171806.GG1747@sasha-vm>
  <20190507173224.GS31017@dhcp22.suse.cz>
  <20190507173655.GA1403@bombadil.infradead.org>
+ <CAHk-=wjFkwKpRGP-MJA6mM6ZOu0aiqtvmqxKR78HHXVd_SwpUg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190507173655.GA1403@bombadil.infradead.org>
+In-Reply-To: <CAHk-=wjFkwKpRGP-MJA6mM6ZOu0aiqtvmqxKR78HHXVd_SwpUg@mail.gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 10:36:55AM -0700, Matthew Wilcox wrote:
->On Tue, May 07, 2019 at 07:32:24PM +0200, Michal Hocko wrote:
->> On Tue 07-05-19 13:18:06, Sasha Levin wrote:
->> > Michal, is there a testcase I can plug into kselftests to make sure we
->> > got this right (and don't regress)? We care a lot about memory hotplug
->> > working right.
->>
->> As said in other email. The memory hotplug tends to work usually. It
->> takes unexpected memory layouts which trigger corner cases. This makes
->> testing really hard.
->
->Can we do something with qemu?  Is it flexible enough to hotplug memory
->at the right boundaries?
+On Tue 07-05-19 10:43:31, Linus Torvalds wrote:
+> On Tue, May 7, 2019 at 10:36 AM Matthew Wilcox <willy@infradead.org> wrote:
+> >
+> > Can we do something with qemu?  Is it flexible enough to hotplug memory
+> > at the right boundaries?
+> 
+> It's not just the actual hotplugged memory, it's things like how the
+> e820 tables were laid out for the _regular_ non-hotplug stuff too,
+> iirc to get the cases where something didn't work out.
+> 
+> I'm sure it *could* be emulated, and I'm sure some hotplug (and page
+> poison errors etc) testing in qemu would be lovely and presumably some
+> people do it, but all the cases so far have been about odd small
+> special cases that people didn't think of and didn't hit. I'm not sure
+> the qemu testing would think of them either..
 
-That was my thinking too. qemu should be able to reproduce all these
-"unexpected" memory layouts we've had issue with so far and at the very
-least make sure we don't regress on those.
-
-We're going to have (quite a) large amount of systems with "weird"
-memory layouts that do memory hotplug quite frequently in production, so
-this whole "tends to work usually" thing kinda scares me.
-
---
-Thanks,
-Sasha
+Yes, this is exactly my point. It would be great to have those odd small
+special cases that we have met already available though. For a
+regression testing for them at least.
+-- 
+Michal Hocko
+SUSE Labs
