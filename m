@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4931515C43
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 636E315C3F
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726622AbfEGGCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55706 "EHLO mail.kernel.org"
+        id S1727874AbfEGFfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726650AbfEGFfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:41 -0400
+        id S1727357AbfEGFfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E85EB2087F;
-        Tue,  7 May 2019 05:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 862E620989;
+        Tue,  7 May 2019 05:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207340;
-        bh=BS8bQZGoB7uxBqsmLwt1/UFGaXwyTwZEytlGNIEdKnU=;
+        s=default; t=1557207344;
+        bh=To6ntoFPkk+7s1H59Tx1g2okEXT3UKCDKafe5bRRc3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTyCt+hhs6WDmtMI27GEtirrF94M2dzJBG21bV7pKRoMyZwvzfdt0IrdEKf7521xO
-         LsWbUzjZ/+5pBbKmUYxrzFTErGpOfV5rvoDAtwpz+74akzA+kQa2pTXPy/IJFpOH9J
-         MdZtf/xco6k/fMksoHQil6jQtOxk9plagM56F9Tg=
+        b=xI6kGt/V77e2f4im+fnYM32aEqZ5pJSTbNy/szYMHZIsDO2DtRZT412tVUBBwv3Qo
+         Izwzvpd18q7CoCp8vdZSuYvwkrnIMX1UzSGi1YBzwmfTHpbXF/bgrJcdQSOcUeg/2t
+         bqpBAEPdGlRtQrDknltbwawxN0LgUBRQw0coEmgY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 95/99] mm/page_alloc.c: avoid potential NULL pointer dereference
-Date:   Tue,  7 May 2019 01:32:29 -0400
-Message-Id: <20190507053235.29900-95-sashal@kernel.org>
+Cc:     Willem de Bruijn <willemb@google.com>, Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 96/99] bpf: only test gso type on gso packets
+Date:   Tue,  7 May 2019 01:32:30 -0400
+Message-Id: <20190507053235.29900-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -45,41 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 8139ad043d632c0e9e12d760068a7a8e91659aa1 ]
+[ Upstream commit 4c3024debf62de4c6ac6d3cb4c0063be21d4f652 ]
 
-ac.preferred_zoneref->zone passed to alloc_flags_nofragment() can be NULL.
-'zone' pointer unconditionally derefernced in alloc_flags_nofragment().
-Bail out on NULL zone to avoid potential crash.  Currently we don't see
-any crashes only because alloc_flags_nofragment() has another bug which
-allows compiler to optimize away all accesses to 'zone'.
+BPF can adjust gso only for tcp bytestreams. Fail on other gso types.
 
-Link: http://lkml.kernel.org/r/20190423120806.3503-1-aryabinin@virtuozzo.com
-Fixes: 6bb154504f8b ("mm, page_alloc: spread allocations across zones before introducing fragmentation")
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But only on gso packets. It does not touch this field if !gso_size.
+
+Fixes: b90efd225874 ("bpf: only adjust gso_size on bytestream protocols")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- mm/page_alloc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/skbuff.h | 4 ++--
+ net/core/filter.c      | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index eedb57f9b40b..d59be95ba45c 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3385,6 +3385,9 @@ alloc_flags_nofragment(struct zone *zone, gfp_t gfp_mask)
- 		alloc_flags |= ALLOC_KSWAPD;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index bdb9563c64a0..b8679dcba96f 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -4212,10 +4212,10 @@ static inline bool skb_is_gso_sctp(const struct sk_buff *skb)
+ 	return skb_shinfo(skb)->gso_type & SKB_GSO_SCTP;
+ }
  
- #ifdef CONFIG_ZONE_DMA32
-+	if (!zone)
-+		return alloc_flags;
-+
- 	if (zone_idx(zone) != ZONE_NORMAL)
- 		goto out;
++/* Note: Should be called only if skb_is_gso(skb) is true */
+ static inline bool skb_is_gso_tcp(const struct sk_buff *skb)
+ {
+-	return skb_is_gso(skb) &&
+-	       skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6);
++	return skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6);
+ }
  
+ static inline void skb_gso_reset(struct sk_buff *skb)
+diff --git a/net/core/filter.c b/net/core/filter.c
+index f7d0004fc160..ff07996515f2 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2789,7 +2789,7 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
+ 	u32 off = skb_mac_header_len(skb);
+ 	int ret;
+ 
+-	if (!skb_is_gso_tcp(skb))
++	if (skb_is_gso(skb) && !skb_is_gso_tcp(skb))
+ 		return -ENOTSUPP;
+ 
+ 	ret = skb_cow(skb, len_diff);
+@@ -2830,7 +2830,7 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
+ 	u32 off = skb_mac_header_len(skb);
+ 	int ret;
+ 
+-	if (!skb_is_gso_tcp(skb))
++	if (skb_is_gso(skb) && !skb_is_gso_tcp(skb))
+ 		return -ENOTSUPP;
+ 
+ 	ret = skb_unclone(skb, GFP_ATOMIC);
+@@ -2955,7 +2955,7 @@ static int bpf_skb_net_grow(struct sk_buff *skb, u32 len_diff)
+ 	u32 off = skb_mac_header_len(skb) + bpf_skb_net_base_len(skb);
+ 	int ret;
+ 
+-	if (!skb_is_gso_tcp(skb))
++	if (skb_is_gso(skb) && !skb_is_gso_tcp(skb))
+ 		return -ENOTSUPP;
+ 
+ 	ret = skb_cow(skb, len_diff);
+@@ -2984,7 +2984,7 @@ static int bpf_skb_net_shrink(struct sk_buff *skb, u32 len_diff)
+ 	u32 off = skb_mac_header_len(skb) + bpf_skb_net_base_len(skb);
+ 	int ret;
+ 
+-	if (!skb_is_gso_tcp(skb))
++	if (skb_is_gso(skb) && !skb_is_gso_tcp(skb))
+ 		return -ENOTSUPP;
+ 
+ 	ret = skb_unclone(skb, GFP_ATOMIC);
 -- 
 2.20.1
 
