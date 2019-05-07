@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E0315C46
+	by mail.lfdr.de (Postfix) with ESMTP id A339615C47
 	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727823AbfEGFfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:35:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55522 "EHLO mail.kernel.org"
+        id S1727826AbfEGFfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:35:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbfEGFfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:30 -0400
+        id S1727276AbfEGFfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEE5D21479;
-        Tue,  7 May 2019 05:35:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2EDD214AE;
+        Tue,  7 May 2019 05:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207329;
-        bh=OosPjHvwTCDcCL493e4pcMMUYIpLbbZEJQKoS+xNTRo=;
+        s=default; t=1557207330;
+        bh=mfgA1AuaX10R2u6azGrWCWNVloqUtLhMbn73+xrO3Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwKijU3Pf5dYBugLjQtVmhaC0kckoLmEjG7Natr5QDl6DX6Me4xs+RzowTsK4iUcN
-         mbGZAyRVnPpx/GDF99g7qg/AS0dgTzuI4M+oKw0WsOqZEmpWlM6Lqi+RbEx2cEu+YI
-         mVKXcOg1SJhcXAZovcVuaRc+m/57qvo+dcYU9/o0=
+        b=SgsBV5ntmD6YRYy0DsZrp5Jz5q724SMQmzC+J240+HdvUloD21Pm4m4OTkhEiJKfn
+         3vdanpXLnR+GTq84q0dvK4ejeSRKVaBvQTOncXotnB2JLxU2wbqRi0czZ60qVFQbFX
+         oER0D7FRg0ve4uFvVn50r7PKRIYTVQka/B/OKWxs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pan Bian <bianpan2016@163.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 89/99] Input: synaptics-rmi4 - fix possible double free
-Date:   Tue,  7 May 2019 01:32:23 -0400
-Message-Id: <20190507053235.29900-89-sashal@kernel.org>
+Cc:     Miaohe Lin <linmiaohe@huawei.com>,
+        Hui Wang <wanghui104@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 90/99] net: vrf: Fix operation not supported when set vrf mac
+Date:   Tue,  7 May 2019 01:32:24 -0400
+Message-Id: <20190507053235.29900-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -43,45 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit bce1a78423961fce676ac65540a31b6ffd179e6d ]
+[ Upstream commit 6819e3f6d83a24777813b0d031ebe0861694db5a ]
 
-The RMI4 function structure has been released in rmi_register_function
-if error occurs. However, it will be released again in the function
-rmi_create_function, which may result in a double-free bug.
+Vrf device is not able to change mac address now because lack of
+ndo_set_mac_address. Complete this in case some apps need to do
+this.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Hui Wang <wanghui104@huawei.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/rmi4/rmi_driver.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/vrf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index fc3ab93b7aea..7fb358f96195 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -860,7 +860,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index cd15c32b2e43..9ee4d7402ca2 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -875,6 +875,7 @@ static const struct net_device_ops vrf_netdev_ops = {
+ 	.ndo_init		= vrf_dev_init,
+ 	.ndo_uninit		= vrf_dev_uninit,
+ 	.ndo_start_xmit		= vrf_xmit,
++	.ndo_set_mac_address	= eth_mac_addr,
+ 	.ndo_get_stats64	= vrf_get_stats64,
+ 	.ndo_add_slave		= vrf_add_slave,
+ 	.ndo_del_slave		= vrf_del_slave,
+@@ -1274,6 +1275,7 @@ static void vrf_setup(struct net_device *dev)
+ 	/* default to no qdisc; user can add if desired */
+ 	dev->priv_flags |= IFF_NO_QUEUE;
+ 	dev->priv_flags |= IFF_NO_RX_HANDLER;
++	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
  
- 	error = rmi_register_function(fn);
- 	if (error)
--		goto err_put_fn;
-+		return error;
- 
- 	if (pdt->function_number == 0x01)
- 		data->f01_container = fn;
-@@ -870,10 +870,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return RMI_SCAN_CONTINUE;
--
--err_put_fn:
--	put_device(&fn->dev);
--	return error;
- }
- 
- void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
+ 	/* VRF devices do not care about MTU, but if the MTU is set
+ 	 * too low then the ipv4 and ipv6 protocols are disabled
 -- 
 2.20.1
 
