@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8249A15B22
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE9015B12
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbfEGFvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59330 "EHLO mail.kernel.org"
+        id S1728952AbfEGFjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbfEGFjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:49 -0400
+        id S1728940AbfEGFjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2908420675;
-        Tue,  7 May 2019 05:39:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 874D8214AE;
+        Tue,  7 May 2019 05:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207589;
-        bh=sz3G/G7S59Ufj57jzQemIJTIAXrIRuQ6U/WPK+vEEH4=;
+        s=default; t=1557207590;
+        bh=I7g2P9K7D4dU1UxT9helvGgvqlFPJNb06UB/OqUI2Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Satpoahixke2p4Zp9JZVVKOWs1CcyW3t1DJSB83E+AzV9BpY82ddC0SbXxJsNH21G
-         LbRoRAhgwY/SEtYNk74AdND7XsGRzdRSsFsP/GyGtKbaRSZw/ISkTQHIosKCp0+zCQ
-         YpZNaL8fZ/Ybg5gI0j2k1eplXFWNBAz+fiSv5iZo=
+        b=b/W9O7Rt4ArS5XZQhIgTrZWaaZ8ezaybfLqm0jpQp6lBFa70RCkKptsv6UMSvCEmP
+         OMtReh/AemwnHC79bshbWmCBwBtsU3XG9tZ8uPPMmwfB6p57WRj/1B7R3H/gVTiTAc
+         NBj9S18PuvOotJNME8GNMPGqJV2nEQAjV7YQ5edQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Schmauss <erik.schmauss@intel.com>,
-        Jean-Marc Lenoir <archlinux@jihemel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        Seth Howell <seth.howell@intel.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 4.14 39/95] ACPICA: AML interpreter: add region addresses in global list during initialization
-Date:   Tue,  7 May 2019 01:37:28 -0400
-Message-Id: <20190507053826.31622-39-sashal@kernel.org>
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 40/95] IB/rxe: Revise the ib_wr_opcode enum
+Date:   Tue,  7 May 2019 01:37:29 -0400
+Message-Id: <20190507053826.31622-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -45,47 +44,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Schmauss <erik.schmauss@intel.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 4abb951b73ff0a8a979113ef185651aa3c8da19b ]
+[ Upstream commit 9a59739bd01f77db6fbe2955a4fce165f0f43568 ]
 
-The table load process omitted adding the operation region address
-range to the global list. This omission is problematic because the OS
-queries the global list to check for address range conflicts before
-deciding which drivers to load. This commit may result in warning
-messages that look like the following:
+This enum has become part of the uABI, as both RXE and the
+ib_uverbs_post_send() command expect userspace to supply values from this
+enum. So it should be properly placed in include/uapi/rdma.
 
-[    7.871761] ACPI Warning: system_IO range 0x00000428-0x0000042F conflicts with op_region 0x00000400-0x0000047F (\PMIO) (20180531/utaddress-213)
-[    7.871769] ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+In userspace this enum is called 'enum ibv_wr_opcode' as part of
+libibverbs.h. That enum defines different values for IB_WR_LOCAL_INV,
+IB_WR_SEND_WITH_INV, and IB_WR_LSO. These were introduced (incorrectly, it
+turns out) into libiberbs in 2015.
 
-However, these messages do not signify regressions. It is a result of
-properly adding address ranges within the global address list.
+The kernel has changed its mind on the numbering for several of the IB_WC
+values over the years, but has remained stable on IB_WR_LOCAL_INV and
+below.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=200011
-Tested-by: Jean-Marc Lenoir <archlinux@jihemel.com>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Based on this we can conclude that there is no real user space user of the
+values beyond IB_WR_ATOMIC_FETCH_AND_ADD, as they have never worked via
+rdma-core. This is confirmed by inspection, only rxe uses the kernel enum
+and implements the latter operations. rxe has clearly never worked with
+these attributes from userspace. Other drivers that support these opcodes
+implement the functionality without calling out to the kernel.
+
+To make IB_WR_SEND_WITH_INV and related work for RXE in userspace we
+choose to renumber the IB_WR enum in the kernel to match the uABI that
+userspace has bee using since before Soft RoCE was merged. This is an
+overall simpler configuration for the whole software stack, and obviously
+can't break anything existing.
+
+Reported-by: Seth Howell <seth.howell@intel.com>
+Tested-by: Seth Howell <seth.howell@intel.com>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/acpi/acpica/dsopcode.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/rdma/ib_verbs.h           | 34 ++++++++++++++++++-------------
+ include/uapi/rdma/ib_user_verbs.h | 20 +++++++++++++++++-
+ 2 files changed, 39 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/acpi/acpica/dsopcode.c b/drivers/acpi/acpica/dsopcode.c
-index 0336df7ac47d..e8070f6ca835 100644
---- a/drivers/acpi/acpica/dsopcode.c
-+++ b/drivers/acpi/acpica/dsopcode.c
-@@ -451,6 +451,10 @@ acpi_ds_eval_region_operands(struct acpi_walk_state *walk_state,
- 			  ACPI_FORMAT_UINT64(obj_desc->region.address),
- 			  obj_desc->region.length));
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 5a24b4c700e5..9e76b2410d03 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1251,21 +1251,27 @@ struct ib_qp_attr {
+ };
  
-+	status = acpi_ut_add_address_range(obj_desc->region.space_id,
-+					   obj_desc->region.address,
-+					   obj_desc->region.length, node);
+ enum ib_wr_opcode {
+-	IB_WR_RDMA_WRITE,
+-	IB_WR_RDMA_WRITE_WITH_IMM,
+-	IB_WR_SEND,
+-	IB_WR_SEND_WITH_IMM,
+-	IB_WR_RDMA_READ,
+-	IB_WR_ATOMIC_CMP_AND_SWP,
+-	IB_WR_ATOMIC_FETCH_AND_ADD,
+-	IB_WR_LSO,
+-	IB_WR_SEND_WITH_INV,
+-	IB_WR_RDMA_READ_WITH_INV,
+-	IB_WR_LOCAL_INV,
+-	IB_WR_REG_MR,
+-	IB_WR_MASKED_ATOMIC_CMP_AND_SWP,
+-	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD,
++	/* These are shared with userspace */
++	IB_WR_RDMA_WRITE = IB_UVERBS_WR_RDMA_WRITE,
++	IB_WR_RDMA_WRITE_WITH_IMM = IB_UVERBS_WR_RDMA_WRITE_WITH_IMM,
++	IB_WR_SEND = IB_UVERBS_WR_SEND,
++	IB_WR_SEND_WITH_IMM = IB_UVERBS_WR_SEND_WITH_IMM,
++	IB_WR_RDMA_READ = IB_UVERBS_WR_RDMA_READ,
++	IB_WR_ATOMIC_CMP_AND_SWP = IB_UVERBS_WR_ATOMIC_CMP_AND_SWP,
++	IB_WR_ATOMIC_FETCH_AND_ADD = IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD,
++	IB_WR_LSO = IB_UVERBS_WR_TSO,
++	IB_WR_SEND_WITH_INV = IB_UVERBS_WR_SEND_WITH_INV,
++	IB_WR_RDMA_READ_WITH_INV = IB_UVERBS_WR_RDMA_READ_WITH_INV,
++	IB_WR_LOCAL_INV = IB_UVERBS_WR_LOCAL_INV,
++	IB_WR_MASKED_ATOMIC_CMP_AND_SWP =
++		IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP,
++	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD =
++		IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD,
 +
- 	/* Now the address and length are valid for this opregion */
++	/* These are kernel only and can not be issued by userspace */
++	IB_WR_REG_MR = 0x20,
+ 	IB_WR_REG_SIG_MR,
++
+ 	/* reserve values for low level drivers' internal use.
+ 	 * These values will not be used at all in the ib core layer.
+ 	 */
+diff --git a/include/uapi/rdma/ib_user_verbs.h b/include/uapi/rdma/ib_user_verbs.h
+index e0e83a105953..e11b4def8630 100644
+--- a/include/uapi/rdma/ib_user_verbs.h
++++ b/include/uapi/rdma/ib_user_verbs.h
+@@ -751,10 +751,28 @@ struct ib_uverbs_sge {
+ 	__u32 lkey;
+ };
  
- 	obj_desc->region.flags |= AOPOBJ_DATA_VALID;
++enum ib_uverbs_wr_opcode {
++	IB_UVERBS_WR_RDMA_WRITE = 0,
++	IB_UVERBS_WR_RDMA_WRITE_WITH_IMM = 1,
++	IB_UVERBS_WR_SEND = 2,
++	IB_UVERBS_WR_SEND_WITH_IMM = 3,
++	IB_UVERBS_WR_RDMA_READ = 4,
++	IB_UVERBS_WR_ATOMIC_CMP_AND_SWP = 5,
++	IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD = 6,
++	IB_UVERBS_WR_LOCAL_INV = 7,
++	IB_UVERBS_WR_BIND_MW = 8,
++	IB_UVERBS_WR_SEND_WITH_INV = 9,
++	IB_UVERBS_WR_TSO = 10,
++	IB_UVERBS_WR_RDMA_READ_WITH_INV = 11,
++	IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP = 12,
++	IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD = 13,
++	/* Review enum ib_wr_opcode before modifying this */
++};
++
+ struct ib_uverbs_send_wr {
+ 	__u64 wr_id;
+ 	__u32 num_sge;
+-	__u32 opcode;
++	__u32 opcode;		/* see enum ib_uverbs_wr_opcode */
+ 	__u32 send_flags;
+ 	union {
+ 		__u32 imm_data;
 -- 
 2.20.1
 
