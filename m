@@ -2,120 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1CB16908
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A64B71691D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726476AbfEGRWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 13:22:41 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:37477 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726406AbfEGRWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 13:22:40 -0400
-Received: by mail-lj1-f196.google.com with SMTP id 132so7315917ljj.4;
-        Tue, 07 May 2019 10:22:39 -0700 (PDT)
+        id S1726473AbfEGRZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 13:25:52 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:39160 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726335AbfEGRZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 13:25:52 -0400
+Received: by mail-io1-f66.google.com with SMTP id m7so12617391ioa.6;
+        Tue, 07 May 2019 10:25:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=6PNDzrjcpUnF2ox8n27775TY/wH+ql2a/Pdl5jrIFYE=;
-        b=USDDugBCti1omKMaJ+lePP2NJJOBT+kdaOAPkCwlDm/xFScLP7RKjwiA4OVbkYYsZ/
-         rB+Cets8kTZOPyUTpYJGf13gmuMdIiBUUEomgjZBYMULBx4mW2MUDtSxtls7yQyxm/x8
-         IIfFFtxJI7iSASALqypt4rmoNTeF92lJlKkPM/ZriDb/pe6763gpQmp430bcDrFSZ26o
-         5OKhmwk6QGhLN14rcQWGDs5vmrc/gzH3GEIrOW2WyF2KVb8j6l1R5LFP3ACxgI/lZ482
-         QkE2DO+hGaLN7KG1YZfEFY+DjuuHBGirKhCKJ3ZMHY4qhEH+I/zIASL3Uoep0lLI+vUX
-         6esA==
+         :cc;
+        bh=WNM91LsYQ4Jk8pRE5BfQ7giBI1LrDmHfewasLQMdhYY=;
+        b=UZLkwKDWZ/r8H5KY8fg/33/rzkBhC8rortcsHyxbj/uQouwgh3b3DDS9g6ykPyPpra
+         aDFzXyc8EsTaiUrLSUywp2Yuj8/azQ3kmxsbvf9f9iz42l/apPGiv/stQXD171MNZbYn
+         aRXTbtthM9+AmPyJkKyuAPS+nYUn2CxFBzMWFfHOlfh5rZShAl0z41ZRJvNYhzQ0JQ7E
+         0PCQV+Un+PumHBZJ97r58/YpwZoXwUAMeMes+m0CWSTL0lPWYuLDXvxyxMScNSDkh9fh
+         hr44kb4EK8811jwNm9b66Xz40Gv0a/IVVN4xSeKvHy7gCqQVZG9izL1k/slGn4/i7p4h
+         frFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6PNDzrjcpUnF2ox8n27775TY/wH+ql2a/Pdl5jrIFYE=;
-        b=KKViP/R+zaePeWKhUo/nLYpB28w3yBR9AhhZgVKJ2D1nE4c5AffFO0tkm0RGhf7CFZ
-         v9EtPNE0YUi3Anukh9eiGpFxYd2vKiFiyJiE8xoiAlJoTRtLES3zrFkyCxiirOP/IB2Q
-         WeLMQ8sGp/ZSGJt2+ONhYqi3it7QdKzlfDsWWHj2Ajpc7RLmaFNMmZ9/TlESyT4Ydb9i
-         0UVaWjnc+vSLtXrW+KPscG85MLkmw7vjDg/n8Tu5BIHQ7TP2304Coxx9gZV07+gdUoC2
-         WH1k8z2RvzB5uTad2bEKQ1B6HgIowXOqDfinnpPmvToFsy4QbvU3wIpl2IAltXI1i31r
-         jr3Q==
-X-Gm-Message-State: APjAAAXLxZQR0/EAoff1LSvoa3zLZuma7trPNJSetP4knFs92+nDZ/bz
-        7/Naa5d/cxXijwRsNxkC1pBlo3i6KLioetsJGto=
-X-Google-Smtp-Source: APXvYqwSZNtebCFzz431MrdMsGtiBpuF+nfLHauiIB2m9pngsg+jgTHyuxkhtVAXHTIHSYaJBzcdpPG+xOfr+/dpSJY=
-X-Received: by 2002:a2e:5301:: with SMTP id h1mr17664822ljb.196.1557249758675;
- Tue, 07 May 2019 10:22:38 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=WNM91LsYQ4Jk8pRE5BfQ7giBI1LrDmHfewasLQMdhYY=;
+        b=cc0pQUdbgUf0oPdcaPnzzScRoU65qVjz4TZ+Km+6VGOAe3qwmw6aY2sOuTcBl++BgI
+         KehnLFNWWcixcOMuNbQ1nd4HMGIReUQpwPpapUvg5OENSetuTMY33+JoUTo8Kfz71NIq
+         SJOBmGWFaoJ8ZAiP3KbGG5XXWO4iTVVOQgdZb4jD+eh4Ri+RXtdfAM5P37gHecKbrb4T
+         nOQcLup7ZV3Y9/PJgWaLbNciPK3BBcNP9dtIJcr8z7OLeBmssTYmESM88SnuUlPcamg7
+         WlbK+AJiVTwTVb7uZ4VaStw+lKG9m5RHCpeE9F4JunTYEg/iw/bxED/FccQ2mLQ2s+W6
+         vLTA==
+X-Gm-Message-State: APjAAAXUufpViBkfUHoVGymIj9pz7zLCMmAs1Xw0kw90Lqnjlf9UCd3g
+        HONy0VwH+emevV3+xhZC2oC161z3ifCDrLrgSpk=
+X-Google-Smtp-Source: APXvYqw+NPyrJL89GMAhzIt3t6zWXwhaYY9Oqkc/vWNxkqLzU5VEltblOOYuAi3nSrx7h8Vv8xifBDFUb2XsSSe0CzY=
+X-Received: by 2002:a6b:6e0f:: with SMTP id d15mr794901ioh.116.1557249951555;
+ Tue, 07 May 2019 10:25:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190502193129.664c5b2e@gandalf.local.home> <20190502195052.0af473cf@gandalf.local.home>
- <20190503092959.GB2623@hirez.programming.kicks-ass.net> <20190503092247.20cc1ff0@gandalf.local.home>
- <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net> <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
- <20190506081951.GJ2606@hirez.programming.kicks-ass.net> <20190507085753.GO2606@hirez.programming.kicks-ass.net>
- <20190507092731.GH2650@hirez.programming.kicks-ass.net> <20190507082716.73cd5a01@gandalf.local.home>
- <20190507124131.GO2623@hirez.programming.kicks-ass.net> <20190507085417.381d96d0@gandalf.local.home>
-In-Reply-To: <20190507085417.381d96d0@gandalf.local.home>
-From:   Masami Hiramatsu <masami.hiramatsu@gmail.com>
-Date:   Wed, 8 May 2019 02:22:26 +0900
-Message-ID: <CADyE4xHw_eikPhgsVuOwpi34vF22_i0MhVaQac0bVvKZ6hLqdw@mail.gmail.com>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
+References: <20190507053826.31622-1-sashal@kernel.org> <20190507053826.31622-71-sashal@kernel.org>
+In-Reply-To: <20190507053826.31622-71-sashal@kernel.org>
+From:   Alexander Duyck <alexander.duyck@gmail.com>
+Date:   Tue, 7 May 2019 10:25:40 -0700
+Message-ID: <CAKgT0Uf89zkZDU5d5GO-i4B4igASXWqUioWCpoTsY92V4gEWjg@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.14 71/95] Revert "mm, memory_hotplug: initialize
+ struct pages for the full memory section"
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Michal Hocko <mhocko@suse.com>,
+        Robert Shteynfeld <robert.shteynfeld@gmail.com>,
+        stable@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        linux-mm <linux-mm@kvack.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2019=E5=B9=B45=E6=9C=887=E6=97=A5(=E7=81=AB) 21:54 Steven Rostedt <rostedt@=
-goodmis.org>:
+On Mon, May 6, 2019 at 10:40 PM Sasha Levin <sashal@kernel.org> wrote:
 >
-> On Tue, 7 May 2019 14:41:31 +0200
-> Peter Zijlstra <peterz@infradead.org> wrote:
+> From: Michal Hocko <mhocko@suse.com>
 >
-> > > Kprobes sets the FTRACE_OPS_FL_IPMODIFY flag, thus
-> > > they can never be put at the same location that is being live patched=
-.
-> >
-> > OK, so do we want to allow kprobes that also modify regs->sp ? Because
-> > then we need to change these trampolines a bit.
-> >
-> > I'd prefer not to allow kprobes this.
+> [ Upstream commit 4aa9fc2a435abe95a1e8d7f8c7b3d6356514b37a ]
 >
-> I believe no kprobe changes sp, because it would have had the same
-> issues we are trying to solve now. And even though we are changing
-> things to allow it, it's not a regression to keep kprobes from doing it.
+> This reverts commit 2830bf6f05fb3e05bc4743274b806c821807a684.
+>
+> The underlying assumption that one sparse section belongs into a single
+> numa node doesn't hold really. Robert Shteynfeld has reported a boot
+> failure. The boot log was not captured but his memory layout is as
+> follows:
+>
+>   Early memory node ranges
+>     node   1: [mem 0x0000000000001000-0x0000000000090fff]
+>     node   1: [mem 0x0000000000100000-0x00000000dbdf8fff]
+>     node   1: [mem 0x0000000100000000-0x0000001423ffffff]
+>     node   0: [mem 0x0000001424000000-0x0000002023ffffff]
+>
+> This means that node0 starts in the middle of a memory section which is
+> also in node1.  memmap_init_zone tries to initialize padding of a
+> section even when it is outside of the given pfn range because there are
+> code paths (e.g.  memory hotplug) which assume that the full worth of
+> memory section is always initialized.
+>
+> In this particular case, though, such a range is already intialized and
+> most likely already managed by the page allocator.  Scribbling over
+> those pages corrupts the internal state and likely blows up when any of
+> those pages gets used.
+>
+> Reported-by: Robert Shteynfeld <robert.shteynfeld@gmail.com>
+> Fixes: 2830bf6f05fb ("mm, memory_hotplug: initialize struct pages for the full memory section")
+> Cc: stable@kernel.org
+> Signed-off-by: Michal Hocko <mhocko@suse.com>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+> ---
+>  mm/page_alloc.c | 12 ------------
+>  1 file changed, 12 deletions(-)
 
-No, kprobes doesn't allow to change sp. At this moment we can't change
-"&regs->sp" since it is just a value :)
-kprobes user (e.g. function fault-injection) will change regs->ip,
-that is why kprobes sets IPMODIFY flag.
+So it looks like you already had the revert of the earlier patch I
+pointed out enqueued as well. So you can probably at a minimum just
+drop this patch and the earlier patch that this reverts.
 
-Thank you,
+Thanks.
 
---=20
-Masami Hiramatsu
-mailto:masami.hiramatsu@gmail.com
+- Alex
