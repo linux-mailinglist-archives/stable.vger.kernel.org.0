@@ -2,96 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8502168A1
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C05168A7
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 19:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbfEGRBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 13:01:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57840 "EHLO mail.kernel.org"
+        id S1727330AbfEGRCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 13:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725859AbfEGRBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 13:01:53 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1727179AbfEGRCK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 13:02:10 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6B5F205C9;
-        Tue,  7 May 2019 17:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3030A205C9;
+        Tue,  7 May 2019 17:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557248513;
-        bh=WQuq1jvxK0s1ov9koPWdbhKUNJ7dunud4KoGyCrvQvM=;
+        s=default; t=1557248529;
+        bh=+dH1dylfToIztT6tIsED1NzXkgisvmtolImG8/gDIeU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MZTrkO2Fx+EiwYrE8AxYp5XJkiYUp+6OPqt1TOJguRR99g3bek/bVRpKhiHtS8dhC
-         PeCZd1SpdI/bJFaSiaDlv+F288uEIKn75XbWXX/EuQ9A4WbXyJ5s/qfe+SIatuoGBT
-         f12f5UqAreXKpaT2h73xnyvYdAwvIK2h/VpFX4FA=
-Date:   Tue, 7 May 2019 19:01:50 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4pyFIFBBU1M=?= =?utf-8?Q?=3A?= Stable queue: queue-5.0
-Message-ID: <20190507170150.GA1468@kroah.com>
-References: <cki.8007596684.1FGCVHW930@redhat.com>
+        b=g67/5rAMyjMObT6TuHwzVVr5fhZH+BNj5IA+NG26oX7D7N4Az/RLsgF1Jc+jUk5c+
+         WAC9pINLyovaABMYNG69uAcI1Z1rL/PoxWrlPNd8yFEF2xS7eu0xqXW/90vGKpIwKR
+         2kZ9uGjgtwHlfzPHAQvgsHdgIpxzJRUuhzepGMCc=
+Date:   Tue, 7 May 2019 13:02:08 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Alexander Duyck <alexander.duyck@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Pasha Tatashin <Pavel.Tatashin@microsoft.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        linux-mm <linux-mm@kvack.org>
+Subject: Re: [PATCH AUTOSEL 4.14 62/95] mm, memory_hotplug: initialize struct
+ pages for the full memory section
+Message-ID: <20190507170208.GF1747@sasha-vm>
+References: <20190507053826.31622-1-sashal@kernel.org>
+ <20190507053826.31622-62-sashal@kernel.org>
+ <CAKgT0Uc8ywg8zrqyM9G+Ws==+yOfxbk6FOMHstO8qsizt8mqXA@mail.gmail.com>
+ <CAHk-=win03Q09XEpYmk51VTdoQJTitrr8ON9vgajrLxV8QHk2A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cki.8007596684.1FGCVHW930@redhat.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <CAHk-=win03Q09XEpYmk51VTdoQJTitrr8ON9vgajrLxV8QHk2A@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 11:21:07AM -0400, CKI Project wrote:
->   x86_64:
->      ✅ Boot test [0]
->      ✅ LTP lite [2]
->      ✅ Loopdev Sanity [3]
->      ✅ AMTU (Abstract Machine Test Utility) [4]
->      ✅ Ethernet drivers sanity [5]
->      ✅ httpd: mod_ssl smoke sanity [6]
->      ✅ iotop: sanity [7]
->      ✅ tuned: tune-processes-through-perf [8]
->      ✅ Usex - version 1.9-29 [9]
->      ✅ lvm thinp sanity [10]
->      ✅ Boot test [0]
->      ✅ xfstests: xfs [1]
->      🚧 ✅ audit: audit testsuite test [12]
->      🚧 ✅ stress: stress-ng [13]
->      🚧 ✅ selinux-policy: serge-testsuite [11]
+On Tue, May 07, 2019 at 09:50:50AM -0700, Linus Torvalds wrote:
+>On Tue, May 7, 2019 at 9:31 AM Alexander Duyck
+><alexander.duyck@gmail.com> wrote:
+>>
+>> Wasn't this patch reverted in Linus's tree for causing a regression on
+>> some platforms? If so I'm not sure we should pull this in as a
+>> candidate for stable should we, or am I missing something?
+>
+>Good catch. It was reverted in commit 4aa9fc2a435a ("Revert "mm,
+>memory_hotplug: initialize struct pages for the full memory
+>section"").
+>
+>We ended up with efad4e475c31 ("mm, memory_hotplug:
+>is_mem_section_removable do not pass the end of a zone") instead (and
+>possibly others - this was just from looking for commit messages that
+>mentioned that reverted commit).
 
-Just a question, what is the number in the [] above?
+I got it wrong then. I'll fix it up and get efad4e475c31 in instead.
+Thanks!
 
-The number of tests run?  And if so:
-      ✅ Boot test [0]
-is listed twice, with no tests run?  Doesn't booting count? :)
-
-Also, "LTP lite", isn't that a lot more than just 2 tests that are part
-of that?  Any chance you can add more LTP tests, much like Linaro has?
-I think their list of LTP tests they are running is somewhere.
-
->   Test source:
->     [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
->     [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
->     [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
->     [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
->     [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
->     [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
->     [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
->     [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
->     [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
->     [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
->     [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
->     [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
->     [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
->     [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Ah crap, it's a footnote, nevermind on most of what I wrote above :)
-
-But why is booting happening twice?
-
-And I see you are running xfstests, which is great, but does it really
-all "pass"?  What type of filesystem image are you running it on.
-
-thanks,
-
-greg k-h
+--
+Thanks,
+Sasha
