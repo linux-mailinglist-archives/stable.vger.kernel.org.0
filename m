@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5437515B58
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35A615B57
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728523AbfEGFxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58640 "EHLO mail.kernel.org"
+        id S1727442AbfEGFxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:53:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728776AbfEGFjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:00 -0400
+        id S1728778AbfEGFjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C9AA20B7C;
-        Tue,  7 May 2019 05:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5511E214AE;
+        Tue,  7 May 2019 05:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207539;
-        bh=VeL7eWZ/KTeVds8NVn2cnNB6k9YhBV736Kwbc/WeVak=;
+        s=default; t=1557207541;
+        bh=D5S8q1JhlojjmzlW2IhGvT70HSUlLGiMCLraMDkM/Jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qamWtCf+Vc2lKuv5RVFxXovEL7StD5NXELu9spx09JOAQ32J58YrxvGWPaVQDj8kh
-         OU29d7pby02n1fNYBqkFHBZCQkkcmvaiwkoQzVOe+T5mYbH0xkFLV68/YxjNYxnYNg
-         re3d2uKBhfx8hoFAW8x8ROD2/mQk8sFYpJWA5I8E=
+        b=MwsKX9xT5w39WxsUZoRGDWxUCKurTBG/f/9kNf0Jkyq1ABlfSGQu+7tz43/tJBrxL
+         NHWhhUz3XRw3cx7WhKDlt622hnA9/h9wsp7cnFOOvuFcNZ3/JfrP74sk/XTcnFSA3q
+         7GxqUDHJNL00VBEmY0lDRv9wkENKQj7xePwiWldQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 18/95] KVM: fix spectrev1 gadgets
-Date:   Tue,  7 May 2019 01:37:07 -0400
-Message-Id: <20190507053826.31622-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 19/95] KVM: x86: avoid misreporting level-triggered irqs as edge-triggered in tracing
+Date:   Tue,  7 May 2019 01:37:08 -0400
+Message-Id: <20190507053826.31622-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -42,133 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 1d487e9bf8ba66a7174c56a0029c54b1eca8f99c ]
+[ Upstream commit 7a223e06b1a411cef6c4cd7a9b9a33c8d225b10e ]
 
-These were found with smatch, and then generalized when applicable.
+In __apic_accept_irq() interface trig_mode is int and actually on some code
+paths it is set above u8:
 
+kvm_apic_set_irq() extracts it from 'struct kvm_lapic_irq' where trig_mode
+is u16. This is done on purpose as e.g. kvm_set_msi_irq() sets it to
+(1 << 15) & e->msi.data
+
+kvm_apic_local_deliver sets it to reg & (1 << 15).
+
+Fix the immediate issue by making 'tm' into u16. We may also want to adjust
+__apic_accept_irq() interface and use proper sizes for vector, level,
+trig_mode but this is not urgent.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c     |  4 +++-
- include/linux/kvm_host.h | 10 ++++++----
- virt/kvm/irqchip.c       |  5 +++--
- virt/kvm/kvm_main.c      |  6 ++++--
- 4 files changed, 16 insertions(+), 9 deletions(-)
+ arch/x86/kvm/trace.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index f7c34184342a..053e4937af0c 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -133,6 +133,7 @@ static inline bool kvm_apic_map_get_logical_dest(struct kvm_apic_map *map,
- 		if (offset <= max_apic_id) {
- 			u8 cluster_size = min(max_apic_id - offset + 1, 16U);
+diff --git a/arch/x86/kvm/trace.h b/arch/x86/kvm/trace.h
+index 9807c314c478..3bf41413ab15 100644
+--- a/arch/x86/kvm/trace.h
++++ b/arch/x86/kvm/trace.h
+@@ -438,13 +438,13 @@ TRACE_EVENT(kvm_apic_ipi,
+ );
  
-+			offset = array_index_nospec(offset, map->max_apic_id + 1);
- 			*cluster = &map->phys_map[offset];
- 			*mask = dest_id & (0xffff >> (16 - cluster_size));
- 		} else {
-@@ -829,7 +830,8 @@ static inline bool kvm_apic_map_get_dest_lapic(struct kvm *kvm,
- 		if (irq->dest_id > map->max_apic_id) {
- 			*bitmap = 0;
- 		} else {
--			*dst = &map->phys_map[irq->dest_id];
-+			u32 dest_id = array_index_nospec(irq->dest_id, map->max_apic_id + 1);
-+			*dst = &map->phys_map[dest_id];
- 			*bitmap = 1;
- 		}
- 		return true;
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 753c16633bac..026615e242d8 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -27,6 +27,7 @@
- #include <linux/irqbypass.h>
- #include <linux/swait.h>
- #include <linux/refcount.h>
-+#include <linux/nospec.h>
- #include <asm/signal.h>
+ TRACE_EVENT(kvm_apic_accept_irq,
+-	    TP_PROTO(__u32 apicid, __u16 dm, __u8 tm, __u8 vec),
++	    TP_PROTO(__u32 apicid, __u16 dm, __u16 tm, __u8 vec),
+ 	    TP_ARGS(apicid, dm, tm, vec),
  
- #include <linux/kvm.h>
-@@ -483,10 +484,10 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
+ 	TP_STRUCT__entry(
+ 		__field(	__u32,		apicid		)
+ 		__field(	__u16,		dm		)
+-		__field(	__u8,		tm		)
++		__field(	__u16,		tm		)
+ 		__field(	__u8,		vec		)
+ 	),
  
- static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
- {
--	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
--	 * the caller has read kvm->online_vcpus before (as is the case
--	 * for kvm_for_each_vcpu, for example).
--	 */
-+	int num_vcpus = atomic_read(&kvm->online_vcpus);
-+	i = array_index_nospec(i, num_vcpus);
-+
-+	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  */
- 	smp_rmb();
- 	return kvm->vcpus[i];
- }
-@@ -570,6 +571,7 @@ void kvm_put_kvm(struct kvm *kvm);
- 
- static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
- {
-+	as_id = array_index_nospec(as_id, KVM_ADDRESS_SPACE_NUM);
- 	return srcu_dereference_check(kvm->memslots[as_id], &kvm->srcu,
- 			lockdep_is_held(&kvm->slots_lock) ||
- 			!refcount_read(&kvm->users_count));
-diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
-index b1286c4e0712..0bd0683640bd 100644
---- a/virt/kvm/irqchip.c
-+++ b/virt/kvm/irqchip.c
-@@ -144,18 +144,19 @@ static int setup_routing_entry(struct kvm *kvm,
- {
- 	struct kvm_kernel_irq_routing_entry *ei;
- 	int r;
-+	u32 gsi = array_index_nospec(ue->gsi, KVM_MAX_IRQ_ROUTES);
- 
- 	/*
- 	 * Do not allow GSI to be mapped to the same irqchip more than once.
- 	 * Allow only one to one mapping between GSI and non-irqchip routing.
- 	 */
--	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
-+	hlist_for_each_entry(ei, &rt->map[gsi], link)
- 		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
- 			return -EINVAL;
- 
--	e->gsi = ue->gsi;
-+	e->gsi = gsi;
- 	e->type = ue->type;
- 	r = kvm_set_routing_entry(kvm, e, ue);
- 	if (r)
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index a373c60ef1c0..b91716b1b428 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2886,12 +2886,14 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	struct kvm_device_ops *ops = NULL;
- 	struct kvm_device *dev;
- 	bool test = cd->flags & KVM_CREATE_DEVICE_TEST;
-+	int type;
- 	int ret;
- 
- 	if (cd->type >= ARRAY_SIZE(kvm_device_ops_table))
- 		return -ENODEV;
- 
--	ops = kvm_device_ops_table[cd->type];
-+	type = array_index_nospec(cd->type, ARRAY_SIZE(kvm_device_ops_table));
-+	ops = kvm_device_ops_table[type];
- 	if (ops == NULL)
- 		return -ENODEV;
- 
-@@ -2906,7 +2908,7 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	dev->kvm = kvm;
- 
- 	mutex_lock(&kvm->lock);
--	ret = ops->create(dev, cd->type);
-+	ret = ops->create(dev, type);
- 	if (ret < 0) {
- 		mutex_unlock(&kvm->lock);
- 		kfree(dev);
 -- 
 2.20.1
 
