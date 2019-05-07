@@ -2,146 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA2916A36
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDBC16A3B
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbfEGScf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 14:32:35 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:52634 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1727259AbfEGScf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:32:35 -0400
-Received: (qmail 6882 invoked by uid 2102); 7 May 2019 14:32:34 -0400
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 7 May 2019 14:32:34 -0400
-Date:   Tue, 7 May 2019 14:32:34 -0400 (EDT)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To:     Sasha Levin <sashal@kernel.org>
-cc:     mchehab@kernel.org, <andreyknvl@google.com>,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH] media: usb: siano: Fix general protection fault in smsusb
-In-Reply-To: <20190507174759.835F020675@mail.kernel.org>
-Message-ID: <Pine.LNX.4.44L0.1905071430420.1632-200000@iolanthe.rowland.org>
+        id S1726921AbfEGSdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 14:33:18 -0400
+Received: from mga02.intel.com ([134.134.136.20]:54079 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726321AbfEGSdS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 14:33:18 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 May 2019 11:33:17 -0700
+X-ExtLoop1: 1
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga002.jf.intel.com with SMTP; 07 May 2019 11:33:15 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Tue, 07 May 2019 21:33:13 +0300
+Date:   Tue, 7 May 2019 21:33:13 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: Re: [PATCH 1/2] drm/i915: Fix fastset vs. pfit on/off on HSW EDP
+ transcoder
+Message-ID: <20190507183313.GS24299@intel.com>
+References: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1559625215-94944122-1557253954=:1632"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----1559625215-94944122-1557253954=:1632
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-On Tue, 7 May 2019, Sasha Levin wrote:
-
-> Hi,
+On Thu, Apr 25, 2019 at 07:29:05PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> [This is an automated email]
+> On HSW the pipe A panel fitter lives inside the display power well,
+> and the input MUX for the EDP transcoder needs to be configured
+> appropriately to route the data through the power well as needed.
+> Changing the MUX setting is not allowed while the pipe is active,
+> so we need to force a full modeset whenever we need to change it.
 > 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
+> Currently we may end up doing a fastset which won't change the
+> MUX settings, but it will drop the power well reference, and that
+> kills the pipe.
 > 
-> The bot has tested the following trees: v5.0.13, v4.19.40, v4.14.116, v4.9.173, v4.4.179, v3.18.139.
-> 
-> v5.0.13: Build OK!
-> v4.19.40: Build OK!
-> v4.14.116: Build OK!
-> v4.9.173: Build OK!
-> v4.4.179: Build OK!
-> v3.18.139: Failed to apply! Possible dependencies:
->     0dd5f20cb35b ("[media] siano: get rid of sms_info()")
->     46b1e21fe50f ("[media] siano: add support for the media controller at USB driver")
->     5e022d1aa0be ("[media] siano: use pr_* print functions")
-> 
-> 
-> How should we proceed with this patch?
-> 
-> --
-> Thanks,
-> Sasha
+> Cc: stable@vger.kernel.org
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Attached is a version of the patch which has been back-ported to 
-3.18.x.
+Probably
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=104838
 
-Alan Stern
+and maybe
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108672
 
----1559625215-94944122-1557253954=:1632
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="smsusb-fix-3.18.x"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44L0.1905071432340.1632@iolanthe.rowland.org>
-Content-Description: 
-Content-Disposition: attachment; filename="smsusb-fix-3.18.x"
+> ---
+>  drivers/gpu/drm/i915/intel_display.c  |  9 +++++++++
+>  drivers/gpu/drm/i915/intel_pipe_crc.c | 13 ++++++++++---
+>  2 files changed, 19 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+> index c67f165b466c..691c9a929164 100644
+> --- a/drivers/gpu/drm/i915/intel_display.c
+> +++ b/drivers/gpu/drm/i915/intel_display.c
+> @@ -12133,6 +12133,7 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+>  			  struct intel_crtc_state *pipe_config,
+>  			  bool adjust)
+>  {
+> +	struct intel_crtc *crtc = to_intel_crtc(current_config->base.crtc);
+>  	bool ret = true;
+>  	bool fixup_inherited = adjust &&
+>  		(current_config->base.mode.private_flags & I915_MODE_FLAG_INHERITED) &&
+> @@ -12354,6 +12355,14 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+>  		PIPE_CONF_CHECK_X(gmch_pfit.pgm_ratios);
+>  	PIPE_CONF_CHECK_X(gmch_pfit.lvds_border_bits);
+>  
+> +	/*
+> +	 * Changing the EDP transcoder input mux
+> +	 * (A_ONOFF vs. A_ON) requires a full modeset.
+> +	 */
+> +	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A &&
+> +	    current_config->cpu_transcoder == TRANSCODER_EDP)
+> +		PIPE_CONF_CHECK_BOOL(pch_pfit.enabled);
+> +
+>  	if (!adjust) {
+>  		PIPE_CONF_CHECK_I(pipe_src_w);
+>  		PIPE_CONF_CHECK_I(pipe_src_h);
+> diff --git a/drivers/gpu/drm/i915/intel_pipe_crc.c b/drivers/gpu/drm/i915/intel_pipe_crc.c
+> index e94b5b1bc1b7..e7c7be4911c1 100644
+> --- a/drivers/gpu/drm/i915/intel_pipe_crc.c
+> +++ b/drivers/gpu/drm/i915/intel_pipe_crc.c
+> @@ -311,10 +311,17 @@ intel_crtc_crc_setup_workarounds(struct intel_crtc *crtc, bool enable)
+>  	pipe_config->base.mode_changed = pipe_config->has_psr;
+>  	pipe_config->crc_enabled = enable;
+>  
+> -	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A) {
+> +	if (IS_HASWELL(dev_priv) &&
+> +	    pipe_config->base.active && crtc->pipe == PIPE_A &&
+> +	    pipe_config->cpu_transcoder == TRANSCODER_EDP) {
+> +		bool old_need_power_well = pipe_config->pch_pfit.enabled ||
+> +			pipe_config->pch_pfit.force_thru;
+> +		bool new_need_power_well = pipe_config->pch_pfit.enabled ||
+> +			enable;
+> +
+>  		pipe_config->pch_pfit.force_thru = enable;
+> -		if (pipe_config->cpu_transcoder == TRANSCODER_EDP &&
+> -		    pipe_config->pch_pfit.enabled != enable)
+> +
+> +		if (old_need_power_well != new_need_power_well)
+>  			pipe_config->base.connectors_changed = true;
+>  	}
+>  
+> -- 
+> 2.21.0
 
-VGhlIHN5emthbGxlciBVU0IgZnV6emVyIGZvdW5kIGEgZ2VuZXJhbC1wcm90
-ZWN0aW9uLWZhdWx0IGJ1ZyBpbiB0aGUNCnNtc3VzYiBwYXJ0IG9mIHRoZSBT
-aWFubyBEVkIgZHJpdmVyLiAgVGhlIGZhdWx0IG9jY3VycyBkdXJpbmcgcHJv
-YmUNCmJlY2F1c2UgdGhlIGRyaXZlciBhc3N1bWVzIHdpdGhvdXQgY2hlY2tp
-bmcgdGhhdCB0aGUgZGV2aWNlIGhhcyBib3RoDQpJTiBhbmQgT1VUIGVuZHBv
-aW50cyBhbmQgdGhlIElOIGVuZHBvaW50IGlzIGVwMS4NCg0KQnkgc2xpZ2h0
-bHkgcmVhcnJhbmdpbmcgdGhlIGRyaXZlcidzIGluaXRpYWxpemF0aW9uIGNv
-ZGUsIHdlIGNhbiBtYWtlDQp0aGUgYXBwcm9wcmlhdGUgY2hlY2tzIGVhcmx5
-IG9uIGFuZCB0aHVzIGF2b2lkIHRoZSBwcm9ibGVtLiAgSWYgdGhlDQpleHBl
-Y3RlZCBlbmRwb2ludHMgYXJlbid0IHByZXNlbnQsIHRoZSBuZXcgY29kZSBz
-YWZlbHkgcmV0dXJucyAtRU5PREVWDQpmcm9tIHRoZSBwcm9iZSByb3V0aW5l
-Lg0KDQpTaWduZWQtb2ZmLWJ5OiBBbGFuIFN0ZXJuIDxzdGVybkByb3dsYW5k
-LmhhcnZhcmQuZWR1Pg0KUmVwb3J0ZWQtYW5kLXRlc3RlZC1ieTogc3l6Ym90
-KzUzZjAyOWRiNzFjMTlhNDczMjVhQHN5emthbGxlci5hcHBzcG90bWFpbC5j
-b20NCkNDOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NCg0KLS0tDQoNCg0K
-IGRyaXZlcnMvbWVkaWEvdXNiL3NpYW5vL3Ntc3VzYi5jIHwgICAzMyArKysr
-KysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0NCiAxIGZpbGUgY2hhbmdl
-ZCwgMjAgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pDQoNCkluZGV4
-OiB1c2ItZGV2ZWwvZHJpdmVycy9tZWRpYS91c2Ivc2lhbm8vc21zdXNiLmMN
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSB1c2ItZGV2ZWwub3JpZy9k
-cml2ZXJzL21lZGlhL3VzYi9zaWFuby9zbXN1c2IuYw0KKysrIHVzYi1kZXZl
-bC9kcml2ZXJzL21lZGlhL3VzYi9zaWFuby9zbXN1c2IuYw0KQEAgLTQwMCw2
-ICs0MDAsNyBAQCBzdGF0aWMgaW50IHNtc3VzYl9pbml0X2RldmljZShzdHJ1
-Y3QgdXNiDQogCXN0cnVjdCBzbXNkZXZpY2VfcGFyYW1zX3QgcGFyYW1zOw0K
-IAlzdHJ1Y3Qgc21zdXNiX2RldmljZV90ICpkZXY7DQogCWludCBpLCByYzsN
-CisJaW50IGluX21heHA7DQogDQogCS8qIGNyZWF0ZSBkZXZpY2Ugb2JqZWN0
-ICovDQogCWRldiA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBzbXN1c2JfZGV2
-aWNlX3QpLCBHRlBfS0VSTkVMKTsNCkBAIC00MTEsNiArNDEyLDI0IEBAIHN0
-YXRpYyBpbnQgc21zdXNiX2luaXRfZGV2aWNlKHN0cnVjdCB1c2INCiAJZGV2
-LT51ZGV2ID0gaW50ZXJmYWNlX3RvX3VzYmRldihpbnRmKTsNCiAJZGV2LT5z
-dGF0ZSA9IFNNU1VTQl9ESVNDT05ORUNURUQ7DQogDQorCWZvciAoaSA9IDA7
-IGkgPCBpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZGVzYy5iTnVtRW5kcG9pbnRz
-OyBpKyspIHsNCisJCXN0cnVjdCB1c2JfZW5kcG9pbnRfZGVzY3JpcHRvciAq
-ZGVzYyA9DQorCQkJCSZpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZW5kcG9pbnRb
-aV0uZGVzYzsNCisNCisJCWlmIChkZXNjLT5iRW5kcG9pbnRBZGRyZXNzICYg
-VVNCX0RJUl9JTikgew0KKwkJCWRldi0+aW5fZXAgPSBkZXNjLT5iRW5kcG9p
-bnRBZGRyZXNzOw0KKwkJCWluX21heHAgPSB1c2JfZW5kcG9pbnRfbWF4cChk
-ZXNjKTsNCisJCX0gZWxzZSB7DQorCQkJZGV2LT5vdXRfZXAgPSBkZXNjLT5i
-RW5kcG9pbnRBZGRyZXNzOw0KKwkJfQ0KKwl9DQorDQorCXNtc19pbmZvKCJp
-bl9lcCA9ICUwMngsIG91dF9lcCA9ICUwMngiLCBkZXYtPmluX2VwLCBkZXYt
-Pm91dF9lcCk7DQorCWlmICghZGV2LT5pbl9lcCB8fCAhZGV2LT5vdXRfZXAp
-IHsJLyogTWlzc2luZyBlbmRwb2ludHM/ICovDQorCQlzbXN1c2JfdGVybV9k
-ZXZpY2UoaW50Zik7DQorCQlyZXR1cm4gLUVOT0RFVjsNCisJfQ0KKw0KIAlw
-YXJhbXMuZGV2aWNlX3R5cGUgPSBzbXNfZ2V0X2JvYXJkKGJvYXJkX2lkKS0+
-dHlwZTsNCiANCiAJc3dpdGNoIChwYXJhbXMuZGV2aWNlX3R5cGUpIHsNCkBA
-IC00MjUsMjQgKzQ0NCwxMiBAQCBzdGF0aWMgaW50IHNtc3VzYl9pbml0X2Rl
-dmljZShzdHJ1Y3QgdXNiDQogCQkvKiBmYWxsLXRocnUgKi8NCiAJZGVmYXVs
-dDoNCiAJCWRldi0+YnVmZmVyX3NpemUgPSBVU0IyX0JVRkZFUl9TSVpFOw0K
-LQkJZGV2LT5yZXNwb25zZV9hbGlnbm1lbnQgPQ0KLQkJICAgIGxlMTZfdG9f
-Y3B1KGRldi0+dWRldi0+ZXBfaW5bMV0tPmRlc2Mud01heFBhY2tldFNpemUp
-IC0NCi0JCSAgICBzaXplb2Yoc3RydWN0IHNtc19tc2dfaGRyKTsNCisJCWRl
-di0+cmVzcG9uc2VfYWxpZ25tZW50ID0gaW5fbWF4cCAtIHNpemVvZihzdHJ1
-Y3Qgc21zX21zZ19oZHIpOw0KIA0KIAkJcGFyYW1zLmZsYWdzIHw9IFNNU19E
-RVZJQ0VfRkFNSUxZMjsNCiAJCWJyZWFrOw0KIAl9DQogDQotCWZvciAoaSA9
-IDA7IGkgPCBpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZGVzYy5iTnVtRW5kcG9p
-bnRzOyBpKyspIHsNCi0JCWlmIChpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZW5k
-cG9pbnRbaV0uZGVzYy4gYkVuZHBvaW50QWRkcmVzcyAmIFVTQl9ESVJfSU4p
-DQotCQkJZGV2LT5pbl9lcCA9IGludGYtPmN1cl9hbHRzZXR0aW5nLT5lbmRw
-b2ludFtpXS5kZXNjLmJFbmRwb2ludEFkZHJlc3M7DQotCQllbHNlDQotCQkJ
-ZGV2LT5vdXRfZXAgPSBpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZW5kcG9pbnRb
-aV0uZGVzYy5iRW5kcG9pbnRBZGRyZXNzOw0KLQl9DQotDQotCXNtc19pbmZv
-KCJpbl9lcCA9ICUwMngsIG91dF9lcCA9ICUwMngiLA0KLQkJZGV2LT5pbl9l
-cCwgZGV2LT5vdXRfZXApOw0KLQ0KIAlwYXJhbXMuZGV2aWNlID0gJmRldi0+
-dWRldi0+ZGV2Ow0KIAlwYXJhbXMuYnVmZmVyX3NpemUgPSBkZXYtPmJ1ZmZl
-cl9zaXplOw0KIAlwYXJhbXMubnVtX2J1ZmZlcnMgPSBNQVhfQlVGRkVSUzsN
-Cg==
----1559625215-94944122-1557253954=:1632--
+-- 
+Ville Syrjälä
+Intel
