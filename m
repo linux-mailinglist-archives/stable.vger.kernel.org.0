@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD6015C74
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A12E15C76
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727605AbfEGFeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54850 "EHLO mail.kernel.org"
+        id S1726768AbfEGFex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:34:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726766AbfEGFet (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:49 -0400
+        id S1726766AbfEGFew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BC492087F;
-        Tue,  7 May 2019 05:34:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC811206A3;
+        Tue,  7 May 2019 05:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207288;
-        bh=4rqMIbNH1T94Qkf3TchZX3oe9AtHP7DZlNSvOzIFhGk=;
+        s=default; t=1557207291;
+        bh=ZEgr+sO4pZ5gKqJA/qqY4qBYHUQCPBImcbjTEFSmK+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOAeMg31beYg+y44eKhK7bOitJOTBQbNh2lfW+V7phcA2gV0V15AyCQ5tUFwzJCC0
-         12bHL4DryJSnsTHu/xzZf7ZHGayKRGF+9Cqe9yi4F2OR/cPyhxaoNlPIBGuNu6qzgr
-         nGUG7gCEmXajLJvVGrh/1o8PrDzarQ9At9VZv4p4=
+        b=GjWcgAgUIKFuDyjmtG766z56ccxdVRD8wBOSzOa+I4G5x6AfafU4lQ0BSdZ8c3I6W
+         IY0MMpS17sfD3fWAq1y+oMc0KghiajwAcAzBxD686H0nnspodnsqDw2+lzSO3dWqtB
+         Jo8pnaollClU2SDR8Jkz2mcUEN3bLYVQYXsn5nZk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 65/99] netfilter: nat: fix icmp id randomization
-Date:   Tue,  7 May 2019 01:31:59 -0400
-Message-Id: <20190507053235.29900-65-sashal@kernel.org>
+Cc:     =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
+        John Crispin <john@phrozen.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 66/99] MIPS: perf: ath79: Fix perfcount IRQ assignment
+Date:   Tue,  7 May 2019 01:32:00 -0400
+Message-Id: <20190507053235.29900-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,174 +51,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Petr Štetiar <ynezz@true.cz>
 
-[ Upstream commit 5bdac418f33f60b07a34e01e722889140ee8fac9 ]
+[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
 
-Sven Auhagen reported that a 2nd ping request will fail if 'fully-random'
-mode is used.
+Currently it's not possible to use perf on ath79 due to genirq flags
+mismatch happening on static virtual IRQ 13 which is used for
+performance counters hardware IRQ 5.
 
-Reason is that if no proto information is given, min/max are both 0,
-so we set the icmp id to 0 instead of chosing a random value between
-0 and 65535.
+On TP-Link Archer C7v5:
 
-Update test case as well to catch this, without fix this yields:
-[..]
-ERROR: cannot ping ns1 from ns2 with ip masquerade fully-random (attempt 2)
-ERROR: cannot ping ns1 from ns2 with ipv6 masquerade fully-random (attempt 2)
+           CPU0
+  2:          0      MIPS   2  ath9k
+  4:        318      MIPS   4  19000000.eth
+  7:      55034      MIPS   7  timer
+  8:       1236      MISC   3  ttyS0
+ 12:          0      INTC   1  ehci_hcd:usb1
+ 13:          0  gpio-ath79   2  keys
+ 14:          0  gpio-ath79   5  keys
+ 15:         31  AR724X PCI    1  ath10k_pci
 
-... becaus 2nd ping clashes with existing 'id 0' icmp conntrack and gets
-dropped.
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
 
-Fixes: 203f2e78200c27e ("netfilter: nat: remove l4proto->unique_tuple")
-Reported-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+On TP-Link Archer C7v4:
+
+         CPU0
+  4:          0      MIPS   4  19000000.eth
+  5:       7135      MIPS   5  1a000000.eth
+  7:      98379      MIPS   7  timer
+  8:         30      MISC   3  ttyS0
+ 12:      90028      INTC   0  ath9k
+ 13:       5520      INTC   1  ehci_hcd:usb1
+ 14:       4623      INTC   2  ehci_hcd:usb2
+ 15:      32844  AR724X PCI    1  ath10k_pci
+ 16:          0  gpio-ath79  16  keys
+ 23:          0  gpio-ath79  23  keys
+
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
+
+This problem is happening, because currently statically assigned virtual
+IRQ 13 for performance counters is not claimed during the initialization
+of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
+this interrupt isn't available for further use.
+
+So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
+
+Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Acked-by: John Crispin <john@phrozen.org>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_nat_core.c                  | 11 ++++--
- tools/testing/selftests/netfilter/nft_nat.sh | 36 +++++++++++++++-----
- 2 files changed, 35 insertions(+), 12 deletions(-)
+ arch/mips/ath79/setup.c          |  6 ------
+ drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nf_nat_core.c b/net/netfilter/nf_nat_core.c
-index d159e9e7835b..ade527565127 100644
---- a/net/netfilter/nf_nat_core.c
-+++ b/net/netfilter/nf_nat_core.c
-@@ -358,9 +358,14 @@ static void nf_nat_l4proto_unique_tuple(struct nf_conntrack_tuple *tuple,
- 	case IPPROTO_ICMPV6:
- 		/* id is same for either direction... */
- 		keyptr = &tuple->src.u.icmp.id;
--		min = range->min_proto.icmp.id;
--		range_size = ntohs(range->max_proto.icmp.id) -
--			     ntohs(range->min_proto.icmp.id) + 1;
-+		if (!(range->flags & NF_NAT_RANGE_PROTO_SPECIFIED)) {
-+			min = 0;
-+			range_size = 65536;
-+		} else {
-+			min = ntohs(range->min_proto.icmp.id);
-+			range_size = ntohs(range->max_proto.icmp.id) -
-+				     ntohs(range->min_proto.icmp.id) + 1;
-+		}
- 		goto find_free_id;
- #if IS_ENABLED(CONFIG_NF_CT_PROTO_GRE)
- 	case IPPROTO_GRE:
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index 8ec76681605c..3194007cf8d1 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -321,6 +321,7 @@ EOF
+diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
+index 9728abcb18fa..c04ae685003f 100644
+--- a/arch/mips/ath79/setup.c
++++ b/arch/mips/ath79/setup.c
+@@ -211,12 +211,6 @@ const char *get_system_type(void)
+ 	return ath79_sys_type;
+ }
  
- test_masquerade6()
+-int get_c0_perfcount_int(void)
+-{
+-	return ATH79_MISC_IRQ(5);
+-}
+-EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+-
+ unsigned int get_c0_compare_int(void)
  {
-+	local natflags=$1
- 	local lret=0
+ 	return CP0_LEGACY_COMPARE_IRQ;
+diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
+index aa7290784636..0390603170b4 100644
+--- a/drivers/irqchip/irq-ath79-misc.c
++++ b/drivers/irqchip/irq-ath79-misc.c
+@@ -22,6 +22,15 @@
+ #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
  
- 	ip netns exec ns0 sysctl net.ipv6.conf.all.forwarding=1 > /dev/null
-@@ -354,13 +355,13 @@ ip netns exec ns0 nft -f - <<EOF
- table ip6 nat {
- 	chain postrouting {
- 		type nat hook postrouting priority 0; policy accept;
--		meta oif veth0 masquerade
-+		meta oif veth0 masquerade $natflags
- 	}
- }
- EOF
- 	ip netns exec ns2 ping -q -c 1 dead:1::99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerading"
-+		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerade $natflags"
- 		lret=1
- 	fi
- 
-@@ -397,19 +398,26 @@ EOF
- 		fi
- 	done
- 
-+	ip netns exec ns2 ping -q -c 1 dead:1::99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerade $natflags (attempt 2)"
-+		lret=1
-+	fi
+ #define ATH79_MISC_IRQ_COUNT			32
++#define ATH79_MISC_PERF_IRQ			5
 +
- 	ip netns exec ns0 nft flush chain ip6 nat postrouting
- 	if [ $? -ne 0 ]; then
- 		echo "ERROR: Could not flush ip6 nat postrouting" 1>&2
- 		lret=1
- 	fi
++static int ath79_perfcount_irq;
++
++int get_c0_perfcount_int(void)
++{
++	return ath79_perfcount_irq;
++}
++EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
  
--	test $lret -eq 0 && echo "PASS: IPv6 masquerade for ns2"
-+	test $lret -eq 0 && echo "PASS: IPv6 masquerade $natflags for ns2"
- 
- 	return $lret
- }
- 
- test_masquerade()
+ static void ath79_misc_irq_handler(struct irq_desc *desc)
  {
-+	local natflags=$1
- 	local lret=0
+@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
+ {
+ 	void __iomem *base = domain->host_data;
  
- 	ip netns exec ns0 sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
-@@ -417,7 +425,7 @@ test_masquerade()
- 
- 	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: canot ping ns1 from ns2"
-+		echo "ERROR: cannot ping ns1 from ns2 $natflags"
- 		lret=1
- 	fi
- 
-@@ -443,13 +451,13 @@ ip netns exec ns0 nft -f - <<EOF
- table ip nat {
- 	chain postrouting {
- 		type nat hook postrouting priority 0; policy accept;
--		meta oif veth0 masquerade
-+		meta oif veth0 masquerade $natflags
- 	}
- }
- EOF
- 	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: cannot ping ns1 from ns2 with active ip masquerading"
-+		echo "ERROR: cannot ping ns1 from ns2 with active ip masquere $natflags"
- 		lret=1
- 	fi
- 
-@@ -485,13 +493,19 @@ EOF
- 		fi
- 	done
- 
-+	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping ns1 from ns2 with active ip masquerade $natflags (attempt 2)"
-+		lret=1
-+	fi
++	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
 +
- 	ip netns exec ns0 nft flush chain ip nat postrouting
- 	if [ $? -ne 0 ]; then
- 		echo "ERROR: Could not flush nat postrouting" 1>&2
- 		lret=1
- 	fi
- 
--	test $lret -eq 0 && echo "PASS: IP masquerade for ns2"
-+	test $lret -eq 0 && echo "PASS: IP masquerade $natflags for ns2"
- 
- 	return $lret
- }
-@@ -750,8 +764,12 @@ test_local_dnat
- test_local_dnat6
- 
- reset_counters
--test_masquerade
--test_masquerade6
-+test_masquerade ""
-+test_masquerade6 ""
-+
-+reset_counters
-+test_masquerade "fully-random"
-+test_masquerade6 "fully-random"
- 
- reset_counters
- test_redirect
+ 	/* Disable and clear all interrupts */
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
 -- 
 2.20.1
 
