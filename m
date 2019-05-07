@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 349B31595D
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CE515C2E
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727411AbfEGFgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56018 "EHLO mail.kernel.org"
+        id S1726870AbfEGGBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbfEGFgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:01 -0400
+        id S1726767AbfEGFgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A01320C01;
-        Tue,  7 May 2019 05:36:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A392420B7C;
+        Tue,  7 May 2019 05:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207361;
-        bh=LtL9Lu69IYXxNadhHHE5MxBPom1bl3355HqXQ65dbeo=;
+        s=default; t=1557207362;
+        bh=B/gkt7iNSmPmscq9jO/iJBG7GmmIjSdgYLzaZQRpVmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBaj3iFv5R5jHiuapVqsVfFWm28B48nuAeb0O1k8DUAFfjMkhCpmPcDUTtdKKpyfs
-         c9/ShQ+nsTOckmkvMxTDJAIgaJJE87TMvr/aJg8nvQBSlyeaV0+YOlnt+24DFyuwrk
-         nownXvOlqbQGWan/COoUzcpIK6SGhI6ZEvnejW8A=
+        b=2eFw6OY7htbyuF6kXuXcMlHCKY2VYGGSwXXA13vZUeb6EcqvAsW9unn6AFWuygK3p
+         Z0p7GPNBaq/Hb5QAuSJTyd0Z4wr8sAdNRlxJ0bC9hcs7S+3mkcm7GjS+TBvGhafYnO
+         zj/hovWJ09kQljXGkazMylYaXBlwG/qmG3N3WlUs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/81] iio: adc: xilinx: prevent touching unclocked h/w on remove
-Date:   Tue,  7 May 2019 01:34:34 -0400
-Message-Id: <20190507053554.30848-3-sashal@kernel.org>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 04/81] acpi/nfit: Always dump _DSM output payload
+Date:   Tue,  7 May 2019 01:34:35 -0400
+Message-Id: <20190507053554.30848-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,39 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 2e4b88f73966adead360e47621df0183586fac32 ]
+[ Upstream commit 351f339faa308c1c1461314a18c832239a841ca0 ]
 
-In remove, the clock is disabled before canceling the
-delayed work. This means that the delayed work may be
-touching unclocked hardware.
+The dynamic-debug statements for command payload output only get emitted
+when the command is not ND_CMD_CALL. Move the output payload dumping
+ahead of the early return path for ND_CMD_CALL.
 
-Fix by disabling the clock after the delayed work is
-fully canceled. This is consistent with the probe error
-path order.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 31eca76ba2fc9 ("...whitelisted dimm command marshaling mechanism")
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/xilinx-xadc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/nfit/core.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 15e1a103f37d..1ae86e7359f7 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1320,8 +1320,8 @@ static int xadc_remove(struct platform_device *pdev)
- 		iio_triggered_buffer_cleanup(indio_dev);
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 925dbc751322..8340c81b258b 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -542,6 +542,12 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		goto out;
  	}
- 	free_irq(xadc->irq, indio_dev);
--	clk_disable_unprepare(xadc->clk);
- 	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
-+	clk_disable_unprepare(xadc->clk);
- 	kfree(xadc->data);
- 	kfree(indio_dev->channels);
  
++	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
++			cmd_name, out_obj->buffer.length);
++	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
++			out_obj->buffer.pointer,
++			min_t(u32, 128, out_obj->buffer.length), true);
++
+ 	if (call_pkg) {
+ 		call_pkg->nd_fw_size = out_obj->buffer.length;
+ 		memcpy(call_pkg->nd_payload + call_pkg->nd_size_in,
+@@ -560,12 +566,6 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		return 0;
+ 	}
+ 
+-	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
+-			cmd_name, out_obj->buffer.length);
+-	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
+-			out_obj->buffer.pointer,
+-			min_t(u32, 128, out_obj->buffer.length), true);
+-
+ 	for (i = 0, offset = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i, buf,
+ 				(u32 *) out_obj->buffer.pointer,
 -- 
 2.20.1
 
