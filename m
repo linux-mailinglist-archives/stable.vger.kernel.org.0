@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9F815CB0
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:06:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C4015CB5
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726415AbfEGFd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53790 "EHLO mail.kernel.org"
+        id S1726865AbfEGGGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727370AbfEGFd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:56 -0400
+        id S1726427AbfEGFd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B7120989;
-        Tue,  7 May 2019 05:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52EAD214AE;
+        Tue,  7 May 2019 05:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207234;
-        bh=Edc69vRC5mKYb7QKWb3pJxpjsre7QfXtcHWI1l4CcIw=;
+        s=default; t=1557207237;
+        bh=03GaiAtYzY09njXPIqenCXIBIX9FGb+c3b6xKyYkjRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVmCHkM7X4+AQwCt6a7cg8kE+ZLM/q6NsgD2AOfwDXzC6W7qW70rsehaE09jiIlSU
-         xC8q/16GxP/Nq0SOCWfM5t0GFH96U/NQjpqQAeIPRZoB7aD8UIvNS8EIM05wZ2ATjK
-         w/IW+PIfy0uEC3o9KjhrVBAOwGvj10fLiylvimxI=
+        b=w2gcApx2NM3iSQV/DVtvZwGi59OZZN1yWU8+8z8SGrkfIiKEj+KLgSC34WE10Nco1
+         85plcTIuKicIfdY39qTYUcs6ObvcrVRQTYeSZEypNUDw3+Sn1cINIPD2MW44qhbl+c
+         bJuRYtTaGJX771FRSNdjCC+8yAqEVsLHWSZD9pN4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Xose Vazquez Perez <xose.vazquez@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
+Cc:     Jian-Hong Pan <jian-hong@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
         Peter Zijlstra <peterz@infradead.org>,
-        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux@endlessm.com,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 41/99] x86/mm: Prevent bogus warnings with "noexec=off"
-Date:   Tue,  7 May 2019 01:31:35 -0400
-Message-Id: <20190507053235.29900-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 42/99] x86/reboot, efi: Use EFI reboot for Acer TravelMate X514-51T
+Date:   Tue,  7 May 2019 01:31:36 -0400
+Message-Id: <20190507053235.29900-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -50,78 +50,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-[ Upstream commit 510bb96fe5b3480b4b22d815786377e54cb701e7 ]
+[ Upstream commit 0082517fa4bce073e7cf542633439f26538a14cc ]
 
-Xose Vazquez Perez reported boot warnings when NX is disabled on the kernel command line.
+Upon reboot, the Acer TravelMate X514-51T laptop appears to complete the
+shutdown process, but then it hangs in BIOS POST with a black screen.
 
-__early_set_fixmap() triggers this warning:
+The problem is intermittent - at some points it has appeared related to
+Secure Boot settings or different kernel builds, but ultimately we have
+not been able to identify the exact conditions that trigger the issue to
+come and go.
 
-  attempted to set unsupported pgprot:    8000000000000163
-			       bits:      8000000000000000
-			       supported: 7fffffffffffffff
+Besides, the EFI mode cannot be disabled in the BIOS of this model.
 
-  WARNING: CPU: 0 PID: 0 at arch/x86/include/asm/pgtable.h:537
-			    __early_set_fixmap+0xa2/0xff
+However, after extensive testing, we observe that using the EFI reboot
+method reliably avoids the issue in all cases.
 
-because it uses __default_kernel_pte_mask to mask out unsupported bits.
+So add a boot time quirk to use EFI reboot on such systems.
 
-Use __supported_pte_mask instead.
-
-Disabling NX on the command line also triggers the NX warning in the page
-table mapping check:
-
-  WARNING: CPU: 1 PID: 1 at arch/x86/mm/dump_pagetables.c:262 note_page+0x2ae/0x650
-  ....
-
-Make the warning depend on NX set in __supported_pte_mask.
-
-Reported-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Tested-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Lutomirski <luto@kernel.org>
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=203119
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1904151037530.1729@nanos.tec.linutronix.de
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux@endlessm.com
+Link: http://lkml.kernel.org/r/20190412080152.3718-1-jian-hong@endlessm.com
+[ Fix !CONFIG_EFI build failure, clarify the code and the changelog a bit. ]
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/dump_pagetables.c | 3 ++-
- arch/x86/mm/ioremap.c         | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/reboot.c | 21 +++++++++++++++++++++
+ include/linux/efi.h      |  7 ++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/dump_pagetables.c b/arch/x86/mm/dump_pagetables.c
-index e3cdc85ce5b6..84304626b1cb 100644
---- a/arch/x86/mm/dump_pagetables.c
-+++ b/arch/x86/mm/dump_pagetables.c
-@@ -259,7 +259,8 @@ static void note_wx(struct pg_state *st)
- #endif
- 	/* Account the WX pages */
- 	st->wx_pages += npages;
--	WARN_ONCE(1, "x86/mm: Found insecure W+X mapping at address %pS\n",
-+	WARN_ONCE(__supported_pte_mask & _PAGE_NX,
-+		  "x86/mm: Found insecure W+X mapping at address %pS\n",
- 		  (void *)st->start_address);
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 725624b6c0c0..8fd3cedd9acc 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -81,6 +81,19 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
+ 	return 0;
  }
  
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index 5378d10f1d31..3b76fe954978 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -825,7 +825,7 @@ void __init __early_set_fixmap(enum fixed_addresses idx,
- 	pte = early_ioremap_pte(addr);
++/*
++ * Some machines don't handle the default ACPI reboot method and
++ * require the EFI reboot method:
++ */
++static int __init set_efi_reboot(const struct dmi_system_id *d)
++{
++	if (reboot_type != BOOT_EFI && !efi_runtime_disabled()) {
++		reboot_type = BOOT_EFI;
++		pr_info("%s series board detected. Selecting EFI-method for reboot.\n", d->ident);
++	}
++	return 0;
++}
++
+ void __noreturn machine_real_restart(unsigned int type)
+ {
+ 	local_irq_disable();
+@@ -166,6 +179,14 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA110"),
+ 		},
+ 	},
++	{	/* Handle reboot issue on Acer TravelMate X514-51T */
++		.callback = set_efi_reboot,
++		.ident = "Acer TravelMate X514-51T",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate X514-51T"),
++		},
++	},
  
- 	/* Sanitize 'prot' against any unsupported bits: */
--	pgprot_val(flags) &= __default_kernel_pte_mask;
-+	pgprot_val(flags) &= __supported_pte_mask;
+ 	/* Apple */
+ 	{	/* Handle problems with rebooting on Apple MacBook5 */
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index a86485ac7c87..de05a4302529 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1598,7 +1598,12 @@ efi_status_t efi_setup_gop(efi_system_table_t *sys_table_arg,
+ 			   struct screen_info *si, efi_guid_t *proto,
+ 			   unsigned long size);
  
- 	if (pgprot_val(flags))
- 		set_pte(pte, pfn_pte(phys >> PAGE_SHIFT, flags));
+-bool efi_runtime_disabled(void);
++#ifdef CONFIG_EFI
++extern bool efi_runtime_disabled(void);
++#else
++static inline bool efi_runtime_disabled(void) { return true; }
++#endif
++
+ extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
+ 
+ enum efi_secureboot_mode {
 -- 
 2.20.1
 
