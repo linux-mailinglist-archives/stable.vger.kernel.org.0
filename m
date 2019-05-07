@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D820515C08
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B9F15C02
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726949AbfEGGAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:00:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
+        id S1726958AbfEGFgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728097AbfEGFg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:29 -0400
+        id S1726666AbfEGFgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4417420989;
-        Tue,  7 May 2019 05:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6D3D20989;
+        Tue,  7 May 2019 05:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207387;
-        bh=07ezoWhYpZHYmDgI6PuPhh2G7jw9bKMuMBXHQEJETHQ=;
+        s=default; t=1557207396;
+        bh=vZ7fddoN+6y18PR0+sMC9+VC7G8zQx2whTfDrhw4ZHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpsOP6NXDt8FB0jJEfaimhLvH6HivuzTFCms2Qry3/fVf6efPyUGXjQN/tP3cxsqO
-         Plh47GkAtG1o8QQF9SAjerznTNHGicHAdPi+143A31wyWsNv1P0blwDNUlcbwh/xbH
-         MnZ56qG8GHkwUZyHpTze3YlrV8nZPg/Ah5GMSjKo=
+        b=DVelqyRnJJGRfVddOkWoohK3WxdPRTWt/nL+byB28+pPb13PddhCOe51dhakmwTSh
+         v2lfExPnblu7kiOuJB6ZQngo1TZ/5ah1RZeDBCZ/CaB3qfgg6Hc5ggNE/uAZ0Zc3Bs
+         mD1OnCJk78RrF+MvHnalEzGVxSifho8v0rWaTOMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/81] s390/3270: fix lockdep false positive on view->lock
-Date:   Tue,  7 May 2019 01:34:50 -0400
-Message-Id: <20190507053554.30848-19-sashal@kernel.org>
+Cc:     Martin Leung <martin.leung@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 20/81] drm/amd/display: extending AUX SW Timeout
+Date:   Tue,  7 May 2019 01:34:51 -0400
+Message-Id: <20190507053554.30848-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -42,122 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Martin Leung <martin.leung@amd.com>
 
-[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
+[ Upstream commit f4bbebf8e7eb4d294b040ab2d2ba71e70e69b930 ]
 
-The spinlock in the raw3270_view structure is used by con3270, tty3270
-and fs3270 in different ways. For con3270 the lock can be acquired in
-irq context, for tty3270 and fs3270 the highest context is bh.
+[Why]
+AUX takes longer to reply when using active DP-DVI dongle on some asics
+resulting in up to 2000+ us edid read (timeout).
 
-Lockdep sees the view->lock as a single class and if the 3270 driver
-is used for the console the following message is generated:
+[How]
+1. Adjust AUX poll to match spec
+2. Extend the SW timeout. This does not affect normal
+operation since we exit the loop as soon as AUX acks.
 
-WARNING: inconsistent lock state
-5.1.0-rc3-05157-g5c168033979d #12 Not tainted
---------------------------------
-inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
-(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
-
-Introduce a lockdep subclass for the view lock to distinguish bh from
-irq locks.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
+Signed-off-by: Martin Leung <martin.leung@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Joshua Aberback <Joshua.Aberback@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/char/con3270.c | 2 +-
- drivers/s390/char/fs3270.c  | 3 ++-
- drivers/s390/char/raw3270.c | 3 ++-
- drivers/s390/char/raw3270.h | 4 +++-
- drivers/s390/char/tty3270.c | 3 ++-
- 5 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dce/dce_aux.c | 9 ++++++---
+ drivers/gpu/drm/amd/display/dc/dce/dce_aux.h | 6 +++---
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index fd2146bcc0ad..e17364e13d2f 100644
---- a/drivers/s390/char/con3270.c
-+++ b/drivers/s390/char/con3270.c
-@@ -629,7 +629,7 @@ con3270_init(void)
- 		     (void (*)(unsigned long)) con3270_read_tasklet,
- 		     (unsigned long) condev->read);
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+index 3f5b2e6f7553..df936edac5c7 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+@@ -189,6 +189,12 @@ static void submit_channel_request(
+ 				1,
+ 				0);
+ 	}
++
++	REG_UPDATE(AUX_INTERRUPT_CONTROL, AUX_SW_DONE_ACK, 1);
++
++	REG_WAIT(AUX_SW_STATUS, AUX_SW_DONE, 0,
++				10, aux110->timeout_period/10);
++
+ 	/* set the delay and the number of bytes to write */
  
--	raw3270_add_view(&condev->view, &con3270_fn, 1);
-+	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
+ 	/* The length include
+@@ -241,9 +247,6 @@ static void submit_channel_request(
+ 		}
+ 	}
  
- 	INIT_LIST_HEAD(&condev->freemem);
- 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
-diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
-index 16a4e8528bbc..2f9905ee047c 100644
---- a/drivers/s390/char/fs3270.c
-+++ b/drivers/s390/char/fs3270.c
-@@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
+-	REG_UPDATE(AUX_INTERRUPT_CONTROL, AUX_SW_DONE_ACK, 1);
+-	REG_WAIT(AUX_SW_STATUS, AUX_SW_DONE, 0,
+-				10, aux110->timeout_period/10);
+ 	REG_UPDATE(AUX_SW_CONTROL, AUX_SW_GO, 1);
+ }
  
- 	init_waitqueue_head(&fp->wait);
- 	fp->fs_pid = get_pid(task_pid(current));
--	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
-+	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		fs3270_free_view(&fp->view);
- 		goto out;
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index f8cd2935fbfd..63a41b168761 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -920,7 +920,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
-  * Add view to device with minor "minor".
-  */
- int
--raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
-+raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
- {
- 	unsigned long flags;
- 	struct raw3270 *rp;
-@@ -942,6 +942,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
- 		view->cols = rp->cols;
- 		view->ascebc = rp->ascebc;
- 		spin_lock_init(&view->lock);
-+		lockdep_set_subclass(&view->lock, subclass);
- 		list_add(&view->list, &rp->view_list);
- 		rc = 0;
- 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
-diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
-index 114ca7cbf889..3afaa35f7351 100644
---- a/drivers/s390/char/raw3270.h
-+++ b/drivers/s390/char/raw3270.h
-@@ -150,6 +150,8 @@ struct raw3270_fn {
- struct raw3270_view {
- 	struct list_head list;
- 	spinlock_t lock;
-+#define RAW3270_VIEW_LOCK_IRQ	0
-+#define RAW3270_VIEW_LOCK_BH	1
- 	atomic_t ref_count;
- 	struct raw3270 *dev;
- 	struct raw3270_fn *fn;
-@@ -158,7 +160,7 @@ struct raw3270_view {
- 	unsigned char *ascebc;		/* ascii -> ebcdic table */
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
+index f7caab85dc80..2c6f50b4245a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
+@@ -69,11 +69,11 @@ enum {	/* This is the timeout as defined in DP 1.2a,
+ 	 * at most within ~240usec. That means,
+ 	 * increasing this timeout will not affect normal operation,
+ 	 * and we'll timeout after
+-	 * SW_AUX_TIMEOUT_PERIOD_MULTIPLIER * AUX_TIMEOUT_PERIOD = 1600usec.
++	 * SW_AUX_TIMEOUT_PERIOD_MULTIPLIER * AUX_TIMEOUT_PERIOD = 2400usec.
+ 	 * This timeout is especially important for
+-	 * resume from S3 and CTS.
++	 * converters, resume from S3, and CTS.
+ 	 */
+-	SW_AUX_TIMEOUT_PERIOD_MULTIPLIER = 4
++	SW_AUX_TIMEOUT_PERIOD_MULTIPLIER = 6
  };
- 
--int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
-+int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
- int raw3270_activate_view(struct raw3270_view *);
- void raw3270_del_view(struct raw3270_view *);
- void raw3270_deactivate_view(struct raw3270_view *);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 5b8af2782282..81067f5bb178 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -980,7 +980,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return PTR_ERR(tp);
- 
- 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
--			      tty->index + RAW3270_FIRSTMINOR);
-+			      tty->index + RAW3270_FIRSTMINOR,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		tty3270_free_view(tp);
- 		return rc;
+ struct aux_engine_dce110 {
+ 	struct aux_engine base;
 -- 
 2.20.1
 
