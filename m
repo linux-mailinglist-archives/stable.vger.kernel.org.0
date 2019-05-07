@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8887715C93
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A68315928
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727465AbfEGFeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
+        id S1726591AbfEGFeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:34:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727463AbfEGFeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:16 -0400
+        id S1727478AbfEGFeS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9756F214AE;
-        Tue,  7 May 2019 05:34:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A44420989;
+        Tue,  7 May 2019 05:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207255;
-        bh=8If1ZSFDD8ATOuEzgwtSrP/RY94IbKV/uKjfPG1Za4E=;
+        s=default; t=1557207257;
+        bh=b5n7aL0jy61kZcvf177QrIp1CQWhvFLaSUq005Z4tgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Za4B1ZENIiIkiUToDijIuaxypmuXXnx/UwGpX27PDUBPri76D5iNSV0qVUozLDZEy
-         8dqyJElmUGVpkN4vjn6GAwDVa6qc96BOYAKfj9OWlkLXLzjgpyFffgsFxW2TDhKJpk
-         UL127iw0xOXBeGh+hDbZrUxzwdtnd3pYUEzaWHuM=
+        b=oZAYMyC6xI9WaR18EHD2hOW7nsOYMiBhbqALkyYbT/L5mg2OjdYlpX3ZUgwPSDCmd
+         XTezQtRJUcjMOVGDHHVSUTI8vpjskPOohz4cwSLwh1IimTEqTYCA3AJzm7EUNxmRGB
+         RWB9GJG6e8yEFZQUUqLTqKfOV5RKQfuaiYQb7BCc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+Cc:     Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@suse.de>,
+        Thomas Garnier <thgarnie@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 53/99] perf tools: Fix map reference counting
-Date:   Tue,  7 May 2019 01:31:47 -0400
-Message-Id: <20190507053235.29900-53-sashal@kernel.org>
+        Thomas Gleixner <tglx@linutronix.de>, frank.ramsay@hpe.com,
+        herbert@gondor.apana.org.au, kirill@shutemov.name,
+        mike.travis@hpe.com, x86-ml <x86@kernel.org>,
+        yamada.masahiro@socionext.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 54/99] x86/mm/KASLR: Fix the size of the direct mapping section
+Date:   Tue,  7 May 2019 01:31:48 -0400
+Message-Id: <20190507053235.29900-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -52,75 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Baoquan He <bhe@redhat.com>
 
-[ Upstream commit b9abbdfa88024d52c8084d8f46ea4f161606c692 ]
+[ Upstream commit ec3937107ab43f3e8b2bc9dad95710043c462ff7 ]
 
-By calling maps__insert() we assume to get 2 references on the map,
-which we relese within maps__remove call.
+kernel_randomize_memory() uses __PHYSICAL_MASK_SHIFT to calculate
+the maximum amount of system RAM supported. The size of the direct
+mapping section is obtained from the smaller one of the below two
+values:
 
-However if there's already same map name, we currently don't bump the
-reference and can crash, like:
+  (actual system RAM size + padding size) vs (max system RAM size supported)
 
-  Program received signal SIGABRT, Aborted.
-  0x00007ffff75e60f5 in raise () from /lib64/libc.so.6
+This calculation is wrong since commit
 
-  (gdb) bt
-  #0  0x00007ffff75e60f5 in raise () from /lib64/libc.so.6
-  #1  0x00007ffff75d0895 in abort () from /lib64/libc.so.6
-  #2  0x00007ffff75d0769 in __assert_fail_base.cold () from /lib64/libc.so.6
-  #3  0x00007ffff75de596 in __assert_fail () from /lib64/libc.so.6
-  #4  0x00000000004fc006 in refcount_sub_and_test (i=1, r=0x1224e88) at tools/include/linux/refcount.h:131
-  #5  refcount_dec_and_test (r=0x1224e88) at tools/include/linux/refcount.h:148
-  #6  map__put (map=0x1224df0) at util/map.c:299
-  #7  0x00000000004fdb95 in __maps__remove (map=0x1224df0, maps=0xb17d80) at util/map.c:953
-  #8  maps__remove (maps=0xb17d80, map=0x1224df0) at util/map.c:959
-  #9  0x00000000004f7d8a in map_groups__remove (map=<optimized out>, mg=<optimized out>) at util/map_groups.h:65
-  #10 machine__process_ksymbol_unregister (sample=<optimized out>, event=0x7ffff7279670, machine=<optimized out>) at util/machine.c:728
-  #11 machine__process_ksymbol (machine=<optimized out>, event=0x7ffff7279670, sample=<optimized out>) at util/machine.c:741
-  #12 0x00000000004fffbb in perf_session__deliver_event (session=0xb11390, event=0x7ffff7279670, tool=0x7fffffffc7b0, file_offset=13936) at util/session.c:1362
-  #13 0x00000000005039bb in do_flush (show_progress=false, oe=0xb17e80) at util/ordered-events.c:243
-  #14 __ordered_events__flush (oe=0xb17e80, how=OE_FLUSH__ROUND, timestamp=<optimized out>) at util/ordered-events.c:322
-  #15 0x00000000005005e4 in perf_session__process_user_event (session=session@entry=0xb11390, event=event@entry=0x7ffff72a4af8,
-  ...
+  b83ce5ee9147 ("x86/mm/64: Make __PHYSICAL_MASK_SHIFT always 52").
 
-Add the map to the list and getting the reference event if we find the
-map with same name.
+In it, __PHYSICAL_MASK_SHIFT was changed to be 52, regardless of whether
+the kernel is using 4-level or 5-level page tables. Thus, it will always
+use 4 PB as the maximum amount of system RAM, even in 4-level paging
+mode where it should actually be 64 TB.
 
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Thus, the size of the direct mapping section will always
+be the sum of the actual system RAM size plus the padding size.
+
+Even when the amount of system RAM is 64 TB, the following layout will
+still be used. Obviously KALSR will be weakened significantly.
+
+   |____|_______actual RAM_______|_padding_|______the rest_______|
+   0            64TB                                            ~120TB
+
+Instead, it should be like this:
+
+   |____|_______actual RAM_______|_________the rest______________|
+   0            64TB                                            ~120TB
+
+The size of padding region is controlled by
+CONFIG_RANDOMIZE_MEMORY_PHYSICAL_PADDING, which is 10 TB by default.
+
+The above issue only exists when
+CONFIG_RANDOMIZE_MEMORY_PHYSICAL_PADDING is set to a non-zero value,
+which is the case when CONFIG_MEMORY_HOTPLUG is enabled. Otherwise,
+using __PHYSICAL_MASK_SHIFT doesn't affect KASLR.
+
+Fix it by replacing __PHYSICAL_MASK_SHIFT with MAX_PHYSMEM_BITS.
+
+ [ bp: Massage commit message. ]
+
+Fixes: b83ce5ee9147 ("x86/mm/64: Make __PHYSICAL_MASK_SHIFT always 52")
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thomas Garnier <thgarnie@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Fixes: 1e6285699b30 ("perf symbols: Fix slowness due to -ffunction-section")
-Link: http://lkml.kernel.org/r/20190416160127.30203-10-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: frank.ramsay@hpe.com
+Cc: herbert@gondor.apana.org.au
+Cc: kirill@shutemov.name
+Cc: mike.travis@hpe.com
+Cc: thgarnie@google.com
+Cc: x86-ml <x86@kernel.org>
+Cc: yamada.masahiro@socionext.com
+Link: https://lkml.kernel.org/r/20190417083536.GE7065@MiWiFi-R3L-srv
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/mm/kaslr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index 2b37f56f0549..e33f20d16c8d 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -904,10 +904,8 @@ static void __maps__insert_name(struct maps *maps, struct map *map)
- 		rc = strcmp(m->dso->short_name, map->dso->short_name);
- 		if (rc < 0)
- 			p = &(*p)->rb_left;
--		else if (rc  > 0)
--			p = &(*p)->rb_right;
- 		else
--			return;
-+			p = &(*p)->rb_right;
- 	}
- 	rb_link_node(&map->rb_node_name, parent, p);
- 	rb_insert_color(&map->rb_node_name, &maps->names);
+diff --git a/arch/x86/mm/kaslr.c b/arch/x86/mm/kaslr.c
+index 3f452ffed7e9..d669c5e797e0 100644
+--- a/arch/x86/mm/kaslr.c
++++ b/arch/x86/mm/kaslr.c
+@@ -94,7 +94,7 @@ void __init kernel_randomize_memory(void)
+ 	if (!kaslr_memory_enabled())
+ 		return;
+ 
+-	kaslr_regions[0].size_tb = 1 << (__PHYSICAL_MASK_SHIFT - TB_SHIFT);
++	kaslr_regions[0].size_tb = 1 << (MAX_PHYSMEM_BITS - TB_SHIFT);
+ 	kaslr_regions[1].size_tb = VMALLOC_SIZE_TB;
+ 
+ 	/*
 -- 
 2.20.1
 
