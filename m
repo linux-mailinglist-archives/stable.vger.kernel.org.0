@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A12E15C76
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7453815C7D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbfEGFex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
+        id S1727032AbfEGGEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726766AbfEGFew (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:52 -0400
+        id S1726698AbfEGFex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC811206A3;
-        Tue,  7 May 2019 05:34:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92CD82087F;
+        Tue,  7 May 2019 05:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207291;
-        bh=ZEgr+sO4pZ5gKqJA/qqY4qBYHUQCPBImcbjTEFSmK+c=;
+        s=default; t=1557207292;
+        bh=a4H5CULv39sp8KR00NtKyYMyaXkXDngsu3n7oRSTwMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjWcgAgUIKFuDyjmtG766z56ccxdVRD8wBOSzOa+I4G5x6AfafU4lQ0BSdZ8c3I6W
-         IY0MMpS17sfD3fWAq1y+oMc0KghiajwAcAzBxD686H0nnspodnsqDw2+lzSO3dWqtB
-         Jo8pnaollClU2SDR8Jkz2mcUEN3bLYVQYXsn5nZk=
+        b=Mj2DNQ9TRAVzZLRKTVKps2X1+PN/phXjR0cf/tkd3BjRK9bvjwJM3oAh9ibZ2eEHO
+         aZ8Rxim8lHmZmUrqL9zqNWbsx/iJ7nbDNwD6q907K+O5t9UTLXzRaMOvIMpMsXULYz
+         oJOL0pcUs/iMgiB2cO08Z/iPf8CyvXoCncVHLNN4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        John Crispin <john@phrozen.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 66/99] MIPS: perf: ath79: Fix perfcount IRQ assignment
-Date:   Tue,  7 May 2019 01:32:00 -0400
-Message-Id: <20190507053235.29900-66-sashal@kernel.org>
+Cc:     Guy Levi <guyle@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 67/99] IB/mlx5: Fix scatter to CQE in DCT QP creation
+Date:   Tue,  7 May 2019 01:32:01 -0400
+Message-Id: <20190507053235.29900-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,115 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Štetiar <ynezz@true.cz>
+From: Guy Levi <guyle@mellanox.com>
 
-[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
+[ Upstream commit 7249c8ea227a582c14f63e9e8853eb7369122f10 ]
 
-Currently it's not possible to use perf on ath79 due to genirq flags
-mismatch happening on static virtual IRQ 13 which is used for
-performance counters hardware IRQ 5.
+When scatter to CQE is enabled on a DCT QP it corrupts the mailbox command
+since it tried to treat it as as QP create mailbox command instead of a
+DCT create command.
 
-On TP-Link Archer C7v5:
+The corrupted mailbox command causes userspace to malfunction as the
+device doesn't create the QP as expected.
 
-           CPU0
-  2:          0      MIPS   2  ath9k
-  4:        318      MIPS   4  19000000.eth
-  7:      55034      MIPS   7  timer
-  8:       1236      MISC   3  ttyS0
- 12:          0      INTC   1  ehci_hcd:usb1
- 13:          0  gpio-ath79   2  keys
- 14:          0  gpio-ath79   5  keys
- 15:         31  AR724X PCI    1  ath10k_pci
+A new mlx5 capability is exposed to user-space which ensures that it will
+not enable the feature on DCT without this fix in the kernel.
 
- $ perf top
- genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
-
-On TP-Link Archer C7v4:
-
-         CPU0
-  4:          0      MIPS   4  19000000.eth
-  5:       7135      MIPS   5  1a000000.eth
-  7:      98379      MIPS   7  timer
-  8:         30      MISC   3  ttyS0
- 12:      90028      INTC   0  ath9k
- 13:       5520      INTC   1  ehci_hcd:usb1
- 14:       4623      INTC   2  ehci_hcd:usb2
- 15:      32844  AR724X PCI    1  ath10k_pci
- 16:          0  gpio-ath79  16  keys
- 23:          0  gpio-ath79  23  keys
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
-
-This problem is happening, because currently statically assigned virtual
-IRQ 13 for performance counters is not claimed during the initialization
-of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
-this interrupt isn't available for further use.
-
-So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
-
-Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Acked-by: John Crispin <john@phrozen.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jason Cooper <jason@lakedaemon.net>
+Fixes: 5d6ff1babe78 ("IB/mlx5: Support scatter to CQE for DC transport type")
+Signed-off-by: Guy Levi <guyle@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ath79/setup.c          |  6 ------
- drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c |  2 ++
+ drivers/infiniband/hw/mlx5/qp.c   | 11 +++++++----
+ include/uapi/rdma/mlx5-abi.h      |  1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
-index 9728abcb18fa..c04ae685003f 100644
---- a/arch/mips/ath79/setup.c
-+++ b/arch/mips/ath79/setup.c
-@@ -211,12 +211,6 @@ const char *get_system_type(void)
- 	return ath79_sys_type;
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 497181f5ba09..c6bdd0d16c4b 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1025,6 +1025,8 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 		if (MLX5_CAP_GEN(mdev, qp_packet_based))
+ 			resp.flags |=
+ 				MLX5_IB_QUERY_DEV_RESP_PACKET_BASED_CREDIT_MODE;
++
++		resp.flags |= MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT;
+ 	}
+ 
+ 	if (field_avail(typeof(resp), sw_parsing_caps,
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 7db778d96ef5..afc88e6e172e 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -1724,13 +1724,16 @@ static void configure_responder_scat_cqe(struct ib_qp_init_attr *init_attr,
+ 
+ 	rcqe_sz = mlx5_ib_get_cqe_size(init_attr->recv_cq);
+ 
+-	if (rcqe_sz == 128) {
+-		MLX5_SET(qpc, qpc, cs_res, MLX5_RES_SCAT_DATA64_CQE);
++	if (init_attr->qp_type == MLX5_IB_QPT_DCT) {
++		if (rcqe_sz == 128)
++			MLX5_SET(dctc, qpc, cs_res, MLX5_RES_SCAT_DATA64_CQE);
++
+ 		return;
+ 	}
+ 
+-	if (init_attr->qp_type != MLX5_IB_QPT_DCT)
+-		MLX5_SET(qpc, qpc, cs_res, MLX5_RES_SCAT_DATA32_CQE);
++	MLX5_SET(qpc, qpc, cs_res,
++		 rcqe_sz == 128 ? MLX5_RES_SCAT_DATA64_CQE :
++				  MLX5_RES_SCAT_DATA32_CQE);
  }
  
--int get_c0_perfcount_int(void)
--{
--	return ATH79_MISC_IRQ(5);
--}
--EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
--
- unsigned int get_c0_compare_int(void)
- {
- 	return CP0_LEGACY_COMPARE_IRQ;
-diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
-index aa7290784636..0390603170b4 100644
---- a/drivers/irqchip/irq-ath79-misc.c
-+++ b/drivers/irqchip/irq-ath79-misc.c
-@@ -22,6 +22,15 @@
- #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
+ static void configure_requester_scat_cqe(struct mlx5_ib_dev *dev,
+diff --git a/include/uapi/rdma/mlx5-abi.h b/include/uapi/rdma/mlx5-abi.h
+index 87b3198f4b5d..f4d4010b7e3e 100644
+--- a/include/uapi/rdma/mlx5-abi.h
++++ b/include/uapi/rdma/mlx5-abi.h
+@@ -238,6 +238,7 @@ enum mlx5_ib_query_dev_resp_flags {
+ 	MLX5_IB_QUERY_DEV_RESP_FLAGS_CQE_128B_COMP = 1 << 0,
+ 	MLX5_IB_QUERY_DEV_RESP_FLAGS_CQE_128B_PAD  = 1 << 1,
+ 	MLX5_IB_QUERY_DEV_RESP_PACKET_BASED_CREDIT_MODE = 1 << 2,
++	MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT = 1 << 3,
+ };
  
- #define ATH79_MISC_IRQ_COUNT			32
-+#define ATH79_MISC_PERF_IRQ			5
-+
-+static int ath79_perfcount_irq;
-+
-+int get_c0_perfcount_int(void)
-+{
-+	return ath79_perfcount_irq;
-+}
-+EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
- 
- static void ath79_misc_irq_handler(struct irq_desc *desc)
- {
-@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
- {
- 	void __iomem *base = domain->host_data;
- 
-+	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
-+
- 	/* Disable and clear all interrupts */
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
+ enum mlx5_ib_tunnel_offloads {
 -- 
 2.20.1
 
