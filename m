@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D256B15C42
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4931515C43
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbfEGFfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55658 "EHLO mail.kernel.org"
+        id S1726622AbfEGGCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727367AbfEGFfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:38 -0400
+        id S1726650AbfEGFfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FB0E206A3;
-        Tue,  7 May 2019 05:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E85EB2087F;
+        Tue,  7 May 2019 05:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207337;
-        bh=wob8WZPaNjCLnvlLrtC58ILBzzqC6eYuSMmdNm1osRk=;
+        s=default; t=1557207340;
+        bh=BS8bQZGoB7uxBqsmLwt1/UFGaXwyTwZEytlGNIEdKnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3SFayp4me1ZN7/DHCZcyWEcfPN+4w06BRNHA5plTneWWD6TCMIOzxqUi/DWpjmmy
-         R1I1YWn8B34LEOQueY96KRwb8QbMB6LmlJfS7YP1297NrGLiM4IlKmJx68Z6YqsM/o
-         QXr+rwgVW9S4biLxO0HgpGt8qa0JsPpyflwl6vf0=
+        b=iTyCt+hhs6WDmtMI27GEtirrF94M2dzJBG21bV7pKRoMyZwvzfdt0IrdEKf7521xO
+         LsWbUzjZ/+5pBbKmUYxrzFTErGpOfV5rvoDAtwpz+74akzA+kQa2pTXPy/IJFpOH9J
+         MdZtf/xco6k/fMksoHQil6jQtOxk9plagM56F9Tg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Pankaj Gupta <pagupta@redhat.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>,
-        Mathieu Malaterre <malat@debian.org>,
+Cc:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 94/99] mm/memory_hotplug.c: drop memory device reference after find_memory_block()
-Date:   Tue,  7 May 2019 01:32:28 -0400
-Message-Id: <20190507053235.29900-94-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 95/99] mm/page_alloc.c: avoid potential NULL pointer dereference
+Date:   Tue,  7 May 2019 01:32:29 -0400
+Message-Id: <20190507053235.29900-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -51,48 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-[ Upstream commit 89c02e69fc5245f8a2f34b58b42d43a737af1a5e ]
+[ Upstream commit 8139ad043d632c0e9e12d760068a7a8e91659aa1 ]
 
-Right now we are using find_memory_block() to get the node id for the
-pfn range to online.  We are missing to drop a reference to the memory
-block device.  While the device still gets unregistered via
-device_unregister(), resulting in no user visible problem, the device is
-never released via device_release(), resulting in a memory leak.  Fix
-that by properly using a put_device().
+ac.preferred_zoneref->zone passed to alloc_flags_nofragment() can be NULL.
+'zone' pointer unconditionally derefernced in alloc_flags_nofragment().
+Bail out on NULL zone to avoid potential crash.  Currently we don't see
+any crashes only because alloc_flags_nofragment() has another bug which
+allows compiler to optimize away all accesses to 'zone'.
 
-Link: http://lkml.kernel.org/r/20190411110955.1430-1-david@redhat.com
-Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Pankaj Gupta <pagupta@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Arun KS <arunks@codeaurora.org>
-Cc: Mathieu Malaterre <malat@debian.org>
+Link: http://lkml.kernel.org/r/20190423120806.3503-1-aryabinin@virtuozzo.com
+Fixes: 6bb154504f8b ("mm, page_alloc: spread allocations across zones before introducing fragmentation")
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory_hotplug.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/page_alloc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 11593a03c051..7493f50ee880 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -858,6 +858,7 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
- 	 */
- 	mem = find_memory_block(__pfn_to_section(pfn));
- 	nid = mem->nid;
-+	put_device(&mem->dev);
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index eedb57f9b40b..d59be95ba45c 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3385,6 +3385,9 @@ alloc_flags_nofragment(struct zone *zone, gfp_t gfp_mask)
+ 		alloc_flags |= ALLOC_KSWAPD;
  
- 	/* associate pfn range with the zone */
- 	zone = move_pfn_range(online_type, nid, pfn, nr_pages);
+ #ifdef CONFIG_ZONE_DMA32
++	if (!zone)
++		return alloc_flags;
++
+ 	if (zone_idx(zone) != ZONE_NORMAL)
+ 		goto out;
+ 
 -- 
 2.20.1
 
