@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB4A15CE3
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDE415CDE
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbfEGGHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53134 "EHLO mail.kernel.org"
+        id S1726735AbfEGFdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:33:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726709AbfEGFdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:02 -0400
+        id S1726699AbfEGFdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C565220B7C;
-        Tue,  7 May 2019 05:33:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30A4620C01;
+        Tue,  7 May 2019 05:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207181;
-        bh=hRM3CkHZWwGltvoZR4cm9RhCs5oGf7nToMlyJYFNVc0=;
+        s=default; t=1557207183;
+        bh=ReXJ0NNW2i0g/7KpHfVhmvHLLii7VyQOjxovKlHUoO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZboXMsyULpAOhFtrIvvWM3d+xrXjs7QD+GWWXRRrWwIb953ve3nzqsrQlBI6D1poV
-         C3jo5KB12IYKu4TKvG+GN/tZICsghNsRMWMSEPo0mqck9jPYhT2g0/CHYzoBQ+H5kV
-         e5UW/RBeuDxajF3Ke0geBEG1bfFMEqRYCpg0FCm4=
+        b=DU127+6EB9SESNtcSOwdMJmA286FFgAiUTOQvGdzoFZLYe36+nmWuLbvglNVJaNDF
+         7ZTi2f/4L3IDlBw0LHH52sRH8iOr8FGmJnTO+v4M10p4RUah1Nd8ogTopY9N+/3Krg
+         Z2J/Lk5/FcnJCuqlIZnGtaMIYRA/WUZvRka7OIeE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
+Cc:     Dave Jiang <dave.jiang@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.0 18/99] libnvdimm/pmem: fix a possible OOB access when read and write pmem
-Date:   Tue,  7 May 2019 01:31:12 -0400
-Message-Id: <20190507053235.29900-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 19/99] tools/testing/nvdimm: Retain security state after overwrite
+Date:   Tue,  7 May 2019 01:31:13 -0400
+Message-Id: <20190507053235.29900-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -46,63 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
+[ Upstream commit 2170a0d53bee1a6c1a4ebd042f99d85aafc6c0ea ]
 
-If offset is not zero and length is bigger than PAGE_SIZE,
-this will cause to out of boundary access to a page memory
+Overwrite retains the security state after completion of operation.  Fix
+nfit_test to reflect this so that the kernel can test the behavior it is
+more likely to see in practice.
 
-Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
-Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Fixes: 926f74802cb1 ("tools/testing/nvdimm: Add overwrite support for nfit_test")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/nvdimm/test/nfit.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index bc2f700feef8..0279eb1da3ef 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
- 
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		memcpy_flushcache(pmem_addr, mem + off, chunk);
- 		kunmap_atomic(mem);
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
+diff --git a/tools/testing/nvdimm/test/nfit.c b/tools/testing/nvdimm/test/nfit.c
+index cad719876ef4..85ffdcfa596b 100644
+--- a/tools/testing/nvdimm/test/nfit.c
++++ b/tools/testing/nvdimm/test/nfit.c
+@@ -146,6 +146,7 @@ static int dimm_fail_cmd_code[ARRAY_SIZE(handle)];
+ struct nfit_test_sec {
+ 	u8 state;
+ 	u8 ext_state;
++	u8 old_state;
+ 	u8 passphrase[32];
+ 	u8 master_passphrase[32];
+ 	u64 overwrite_end_time;
+@@ -1100,7 +1101,7 @@ static int nd_intel_test_cmd_overwrite(struct nfit_test *t,
+ 		return 0;
  	}
- }
  
-@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
+-	memset(sec->passphrase, 0, ND_INTEL_PASSPHRASE_SIZE);
++	sec->old_state = sec->state;
+ 	sec->state = ND_INTEL_SEC_STATE_OVERWRITE;
+ 	dev_dbg(dev, "overwrite progressing.\n");
+ 	sec->overwrite_end_time = get_jiffies_64() + 5 * HZ;
+@@ -1122,7 +1123,8 @@ static int nd_intel_test_cmd_query_overwrite(struct nfit_test *t,
  
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
- 		kunmap_atomic(mem);
- 		if (rem)
-@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
- 	}
- 	return BLK_STS_OK;
- }
+ 	if (time_is_before_jiffies64(sec->overwrite_end_time)) {
+ 		sec->overwrite_end_time = 0;
+-		sec->state = 0;
++		sec->state = sec->old_state;
++		sec->old_state = 0;
+ 		sec->ext_state = ND_INTEL_SEC_ESTATE_ENABLED;
+ 		dev_dbg(dev, "overwrite is complete\n");
+ 	} else
 -- 
 2.20.1
 
