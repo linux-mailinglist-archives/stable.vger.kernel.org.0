@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0443515BC5
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB4D15BC0
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727827AbfEGF5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57370 "EHLO mail.kernel.org"
+        id S1728526AbfEGF5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbfEGFhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:37 -0400
+        id S1727876AbfEGFhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C91E205ED;
-        Tue,  7 May 2019 05:37:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3EB720675;
+        Tue,  7 May 2019 05:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207456;
-        bh=/e5Rzz7OTo+vD5sjMdOifrw51uY0wJXphwAgI/IDy5g=;
+        s=default; t=1557207457;
+        bh=1a82mOvcxiOhSPOIhzwEn0QxH4OostE6OsD7NBGsYhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5KM7+jtqYMcvBqPzUif11sopmHYnUuUjikwTyKUi8eZkz2RdavfvZMhTscg0lqez
-         K/Eh3yiYk39h/Hy8btsf93Ss95h8BOjKm6EXTmpOxt3le8B33e92uL6ooO3d6DpIBo
-         Zf0tcx127WEgKJby3viBgtQqNsr7rbHPpFS3S3bg=
+        b=XMZHawQtnVp0yjXAK0/wtZBl+tLVnqLdcuZ1xSSk8fLwT0Zhz8u1hKNis3xAKdcdy
+         /JODburk/crQgfTpLsetHbrfi431vQFg99oKRXWdvh/AzXa2EwJhXjctZo2In+phwg
+         vEtwjBxXbWNb2W2GMaOpwq/E3OWL0HCWgzLUHM7A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrei Vagin <avagin@gmail.com>, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Jonathan Marek <jonathan@marek.ca>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 52/81] netfilter: fix nf_l4proto_log_invalid to log invalid packets
-Date:   Tue,  7 May 2019 01:35:23 -0400
-Message-Id: <20190507053554.30848-52-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 53/81] gpu: ipu-v3: dp: fix CSC handling
+Date:   Tue,  7 May 2019 01:35:24 -0400
+Message-Id: <20190507053554.30848-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -45,37 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit d48668052b2603b6262459625c86108c493588dd ]
+[ Upstream commit d4fad0a426c6e26f48c9a7cdd21a7fe9c198d645 ]
 
-It doesn't log a packet if sysctl_log_invalid isn't equal to protonum
-OR sysctl_log_invalid isn't equal to IPPROTO_RAW. This sentence is
-always true. I believe we need to replace OR to AND.
+Initialize the flow input colorspaces to unknown and reset to that value
+when the channel gets disabled. This avoids the state getting mixed up
+with a previous mode.
 
-Cc: Florian Westphal <fw@strlen.de>
-Fixes: c4f3db1595827 ("netfilter: conntrack: add and use nf_l4proto_log_invalid")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Also keep the CSC settings for the background flow intact when disabling
+the foreground flow.
+
+Root-caused-by: Jonathan Marek <jonathan@marek.ca>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/ipu-v3/ipu-dp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto.c b/net/netfilter/nf_conntrack_proto.c
-index 51c5d7eec0a3..e903ef9b96cf 100644
---- a/net/netfilter/nf_conntrack_proto.c
-+++ b/net/netfilter/nf_conntrack_proto.c
-@@ -86,7 +86,7 @@ void nf_l4proto_log_invalid(const struct sk_buff *skb,
- 	struct va_format vaf;
- 	va_list args;
+diff --git a/drivers/gpu/ipu-v3/ipu-dp.c b/drivers/gpu/ipu-v3/ipu-dp.c
+index 9b2b3fa479c4..5e44ff1f2085 100644
+--- a/drivers/gpu/ipu-v3/ipu-dp.c
++++ b/drivers/gpu/ipu-v3/ipu-dp.c
+@@ -195,7 +195,8 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
+ 		ipu_dp_csc_init(flow, flow->foreground.in_cs, flow->out_cs,
+ 				DP_COM_CONF_CSC_DEF_BOTH);
+ 	} else {
+-		if (flow->foreground.in_cs == flow->out_cs)
++		if (flow->foreground.in_cs == IPUV3_COLORSPACE_UNKNOWN ||
++		    flow->foreground.in_cs == flow->out_cs)
+ 			/*
+ 			 * foreground identical to output, apply color
+ 			 * conversion on background
+@@ -261,6 +262,8 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
+ 	struct ipu_dp_priv *priv = flow->priv;
+ 	u32 reg, csc;
  
--	if (net->ct.sysctl_log_invalid != protonum ||
-+	if (net->ct.sysctl_log_invalid != protonum &&
- 	    net->ct.sysctl_log_invalid != IPPROTO_RAW)
++	dp->in_cs = IPUV3_COLORSPACE_UNKNOWN;
++
+ 	if (!dp->foreground)
  		return;
  
+@@ -268,8 +271,9 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
+ 
+ 	reg = readl(flow->base + DP_COM_CONF);
+ 	csc = reg & DP_COM_CONF_CSC_DEF_MASK;
+-	if (csc == DP_COM_CONF_CSC_DEF_FG)
+-		reg &= ~DP_COM_CONF_CSC_DEF_MASK;
++	reg &= ~DP_COM_CONF_CSC_DEF_MASK;
++	if (csc == DP_COM_CONF_CSC_DEF_BOTH || csc == DP_COM_CONF_CSC_DEF_BG)
++		reg |= DP_COM_CONF_CSC_DEF_BG;
+ 
+ 	reg &= ~DP_COM_CONF_FG_EN;
+ 	writel(reg, flow->base + DP_COM_CONF);
+@@ -347,6 +351,8 @@ int ipu_dp_init(struct ipu_soc *ipu, struct device *dev, unsigned long base)
+ 	mutex_init(&priv->mutex);
+ 
+ 	for (i = 0; i < IPUV3_NUM_FLOWS; i++) {
++		priv->flow[i].background.in_cs = IPUV3_COLORSPACE_UNKNOWN;
++		priv->flow[i].foreground.in_cs = IPUV3_COLORSPACE_UNKNOWN;
+ 		priv->flow[i].foreground.foreground = true;
+ 		priv->flow[i].base = priv->base + ipu_dp_flow_base[i];
+ 		priv->flow[i].priv = priv;
 -- 
 2.20.1
 
