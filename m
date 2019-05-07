@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF67715AAB
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609EE15AAC
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbfEGFkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:40:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60208 "EHLO mail.kernel.org"
+        id S1728901AbfEGFkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729211AbfEGFks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:48 -0400
+        id S1727816AbfEGFky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAD41205ED;
-        Tue,  7 May 2019 05:40:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A193220675;
+        Tue,  7 May 2019 05:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207647;
-        bh=RigganWX4DUWno7wtAZgPTbcGgZR+KOR1pXcA44Ef6o=;
+        s=default; t=1557207653;
+        bh=I/7qwQJi9eNs7sZgcU2qsbD0KksYe1e3yrEbFP9W2bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kh9FG/qwVqu591wUlHDIqR6BoGjZj0jjvJS2lSepx3Bp4CK6AYrZ7WdeBGGuknmJF
-         VwlplFsZTlPxnALWTg7zb/A4O4eSANgTOTdto47403ldtgW4FgtdiPo3OTZRbV0yR/
-         Jz9eGWhtRcDll+pVrDIxyCoOnZ9RW60LPRL3brPo=
+        b=MBuDvZuGAsxNGDwQbZg437UrehPkg5WTbH56LqAy0OKsavzul0oqDB/vTD0/yl7fG
+         LnoCUbEfCiVlemeWrhUGY0snDGcSL+gevqy2kTfyTqwYXv4Qfa9aRw5+tsyFY1+3/4
+         y2IvKBsqCGmsYWnl9pZPIbW3NfUEo1n5Ayc9FIR8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Schmauss <erik.schmauss@intel.com>,
-        Michael J Gruber <mjg@fedoraproject.org>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <alexander.levin@microsoft.com>,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 4.14 78/95] ACPICA: Namespace: remove address node from global list after method termination
-Date:   Tue,  7 May 2019 01:38:07 -0400
-Message-Id: <20190507053826.31622-78-sashal@kernel.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH AUTOSEL 4.14 79/95] x86/asm: Remove dead __GNUC__ conditionals
+Date:   Tue,  7 May 2019 01:38:08 -0400
+Message-Id: <20190507053826.31622-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -46,64 +49,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Schmauss <erik.schmauss@intel.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit c5781ffbbd4f742a58263458145fe7f0ac01d9e0 ]
+[ Upstream commit 88ca66d8540ca26119b1428cddb96b37925bdf01 ]
 
-ACPICA commit b233720031a480abd438f2e9c643080929d144c3
+The minimum supported gcc version is >= 4.6, so these can be removed.
 
-ASL operation_regions declare a range of addresses that it uses. In a
-perfect world, the range of addresses should be used exclusively by
-the AML interpreter. The OS can use this information to decide which
-drivers to load so that the AML interpreter and device drivers use
-different regions of memory.
-
-During table load, the address information is added to a global
-address range list. Each node in this list contains an address range
-as well as a namespace node of the operation_region. This list is
-deleted at ACPI shutdown.
-
-Unfortunately, ASL operation_regions can be declared inside of control
-methods. Although this is not recommended, modern firmware contains
-such code. New module level code changes unintentionally removed the
-functionality of adding and removing nodes to the global address
-range list.
-
-A few months ago, support for adding addresses has been re-
-implemented. However, the removal of the address range list was
-missed and resulted in some systems to crash due to the address list
-containing bogus namespace nodes from operation_regions declared in
-control methods. In order to fix the crash, this change removes
-dynamic operation_regions after control method termination.
-
-Link: https://github.com/acpica/acpica/commit/b2337200
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202475
-Fixes: 4abb951b73ff ("ACPICA: AML interpreter: add region addresses in global list during initialization")
-Reported-by: Michael J Gruber <mjg@fedoraproject.org>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190111084931.24601-1-linux@rasmusvillemoes.dk
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/acpi/acpica/nsobject.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/include/asm/bitops.h    |  6 ------
+ arch/x86/include/asm/string_32.h | 20 --------------------
+ arch/x86/include/asm/string_64.h | 15 ---------------
+ 3 files changed, 41 deletions(-)
 
-diff --git a/drivers/acpi/acpica/nsobject.c b/drivers/acpi/acpica/nsobject.c
-index 707b2aa501e1..099be6424255 100644
---- a/drivers/acpi/acpica/nsobject.c
-+++ b/drivers/acpi/acpica/nsobject.c
-@@ -222,6 +222,10 @@ void acpi_ns_detach_object(struct acpi_namespace_node *node)
- 		}
- 	}
+diff --git a/arch/x86/include/asm/bitops.h b/arch/x86/include/asm/bitops.h
+index 3fa039855b8f..e0964200c37f 100644
+--- a/arch/x86/include/asm/bitops.h
++++ b/arch/x86/include/asm/bitops.h
+@@ -36,13 +36,7 @@
+  * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
+  */
  
-+	if (obj_desc->common.type == ACPI_TYPE_REGION) {
-+		acpi_ut_remove_address_range(obj_desc->region.space_id, node);
-+	}
-+
- 	/* Clear the Node entry in all cases */
+-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 1)
+-/* Technically wrong, but this avoids compilation errors on some gcc
+-   versions. */
+-#define BITOP_ADDR(x) "=m" (*(volatile long *) (x))
+-#else
+ #define BITOP_ADDR(x) "+m" (*(volatile long *) (x))
+-#endif
  
- 	node->object = NULL;
+ #define ADDR				BITOP_ADDR(addr)
+ 
+diff --git a/arch/x86/include/asm/string_32.h b/arch/x86/include/asm/string_32.h
+index 55d392c6bd29..2fd165f1cffa 100644
+--- a/arch/x86/include/asm/string_32.h
++++ b/arch/x86/include/asm/string_32.h
+@@ -179,14 +179,7 @@ static inline void *__memcpy3d(void *to, const void *from, size_t len)
+  *	No 3D Now!
+  */
+ 
+-#if (__GNUC__ >= 4)
+ #define memcpy(t, f, n) __builtin_memcpy(t, f, n)
+-#else
+-#define memcpy(t, f, n)				\
+-	(__builtin_constant_p((n))		\
+-	 ? __constant_memcpy((t), (f), (n))	\
+-	 : __memcpy((t), (f), (n)))
+-#endif
+ 
+ #endif
+ #endif /* !CONFIG_FORTIFY_SOURCE */
+@@ -282,12 +275,7 @@ void *__constant_c_and_count_memset(void *s, unsigned long pattern,
+ 
+ 	{
+ 		int d0, d1;
+-#if __GNUC__ == 4 && __GNUC_MINOR__ == 0
+-		/* Workaround for broken gcc 4.0 */
+-		register unsigned long eax asm("%eax") = pattern;
+-#else
+ 		unsigned long eax = pattern;
+-#endif
+ 
+ 		switch (count % 4) {
+ 		case 0:
+@@ -321,15 +309,7 @@ void *__constant_c_and_count_memset(void *s, unsigned long pattern,
+ #define __HAVE_ARCH_MEMSET
+ extern void *memset(void *, int, size_t);
+ #ifndef CONFIG_FORTIFY_SOURCE
+-#if (__GNUC__ >= 4)
+ #define memset(s, c, count) __builtin_memset(s, c, count)
+-#else
+-#define memset(s, c, count)						\
+-	(__builtin_constant_p(c)					\
+-	 ? __constant_c_x_memset((s), (0x01010101UL * (unsigned char)(c)), \
+-				 (count))				\
+-	 : __memset((s), (c), (count)))
+-#endif
+ #endif /* !CONFIG_FORTIFY_SOURCE */
+ 
+ #define __HAVE_ARCH_MEMSET16
+diff --git a/arch/x86/include/asm/string_64.h b/arch/x86/include/asm/string_64.h
+index 533f74c300c2..aae9bd798bf0 100644
+--- a/arch/x86/include/asm/string_64.h
++++ b/arch/x86/include/asm/string_64.h
+@@ -32,21 +32,6 @@ static __always_inline void *__inline_memcpy(void *to, const void *from, size_t
+ extern void *memcpy(void *to, const void *from, size_t len);
+ extern void *__memcpy(void *to, const void *from, size_t len);
+ 
+-#ifndef CONFIG_FORTIFY_SOURCE
+-#if (__GNUC__ == 4 && __GNUC_MINOR__ < 3) || __GNUC__ < 4
+-#define memcpy(dst, src, len)					\
+-({								\
+-	size_t __len = (len);					\
+-	void *__ret;						\
+-	if (__builtin_constant_p(len) && __len >= 64)		\
+-		__ret = __memcpy((dst), (src), __len);		\
+-	else							\
+-		__ret = __builtin_memcpy((dst), (src), __len);	\
+-	__ret;							\
+-})
+-#endif
+-#endif /* !CONFIG_FORTIFY_SOURCE */
+-
+ #define __HAVE_ARCH_MEMSET
+ void *memset(void *s, int c, size_t n);
+ void *__memset(void *s, int c, size_t n);
 -- 
 2.20.1
 
