@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6437615BE5
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790AB1597D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728477AbfEGF62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
+        id S1728257AbfEGFhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728262AbfEGFhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:08 -0400
+        id S1727651AbfEGFhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 962A52087F;
-        Tue,  7 May 2019 05:37:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 985FE20B7C;
+        Tue,  7 May 2019 05:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207427;
-        bh=wbY17iC+YFYv7hcWzcyg95eJdFrNRIjFZv1JtEP1hZU=;
+        s=default; t=1557207428;
+        bh=tARrl+dlCeMWwd6+nJw4vqRjGE7VzfnCPt7TdhVL47o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PM0raNILrCXWIPqhaRNXYi23oi8UoE5DAjCZ6BSBtItNIt2PvuYK/3vYeiknRzgO+
-         7pDYEVHBxaWRWGd6b5gbq2y5HJl856vnW7zUuAh/0Fk90gT8N4wokiPCgGy3Q/XpE4
-         cHHqL7o2fD+QiK0D9so4y0L2AhWcX/lGH179TrG0=
+        b=c4gbq5IPnNr0m429qYkJy+i2DNLNq542pzOJQMqHGCUoWv/XBV8YFkqpM+vCLSzHt
+         4qegXFtxnBhZT7MllaFJ5d9w6I8x7Jtw1WjJhoZcMJ7SjbZHaoTYXgOI6KY+VKdqXu
+         LCWkR9ItanqlcSnUBmm5P0Z97XI7wa0vnTbEAtyY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Camuso <tcamuso@redhat.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 37/81] ipmi: ipmi_si_hardcode.c: init si_type array to fix a crash
-Date:   Tue,  7 May 2019 01:35:08 -0400
-Message-Id: <20190507053554.30848-37-sashal@kernel.org>
+Cc:     Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 38/81] ocelot: Don't sleep in atomic context (irqs_disabled())
+Date:   Tue,  7 May 2019 01:35:09 -0400
+Message-Id: <20190507053554.30848-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -43,48 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Camuso <tcamuso@redhat.com>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-[ Upstream commit a885bcfd152f97b25005298ab2d6b741aed9b49c ]
+[ Upstream commit a8fd48b50deaa20808bbf0f6685f6f1acba6a64c ]
 
-The intended behavior of function ipmi_hardcode_init_one() is to default
-to kcs interface when no type argument is presented when initializing
-ipmi with hard coded addresses.
+Preemption disabled at:
+ [<ffff000008cabd54>] dev_set_rx_mode+0x1c/0x38
+ Call trace:
+ [<ffff00000808a5c0>] dump_backtrace+0x0/0x3d0
+ [<ffff00000808a9a4>] show_stack+0x14/0x20
+ [<ffff000008e6c0c0>] dump_stack+0xac/0xe4
+ [<ffff0000080fe76c>] ___might_sleep+0x164/0x238
+ [<ffff0000080fe890>] __might_sleep+0x50/0x88
+ [<ffff0000082261e4>] kmem_cache_alloc+0x17c/0x1d0
+ [<ffff000000ea0ae8>] ocelot_set_rx_mode+0x108/0x188 [mscc_ocelot_common]
+ [<ffff000008cabcf0>] __dev_set_rx_mode+0x58/0xa0
+ [<ffff000008cabd5c>] dev_set_rx_mode+0x24/0x38
 
-However, the array of char pointers allocated on the stack by function
-ipmi_hardcode_init() was not inited to zeroes, so it contained stack
-debris.
+Fixes: a556c76adc05 ("net: mscc: Add initial Ocelot switch support")
 
-Consequently, passing the cruft stored in this array to function
-ipmi_hardcode_init_one() caused a crash when it was unable to detect
-that the char * being passed was nonsense and tried to access the
-address specified by the bogus pointer.
-
-The fix is simply to initialize the si_type array to zeroes, so if
-there were no type argument given to at the command line, function
-ipmi_hardcode_init_one() could properly default to the kcs interface.
-
-Signed-off-by: Tony Camuso <tcamuso@redhat.com>
-Message-Id: <1554837603-40299-1-git-send-email-tcamuso@redhat.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_si_hardcode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mscc/ocelot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/ipmi/ipmi_si_hardcode.c b/drivers/char/ipmi/ipmi_si_hardcode.c
-index 9ae2405c28bb..0c28e872ad3a 100644
---- a/drivers/char/ipmi/ipmi_si_hardcode.c
-+++ b/drivers/char/ipmi/ipmi_si_hardcode.c
-@@ -200,6 +200,8 @@ void __init ipmi_hardcode_init(void)
- 	char *str;
- 	char *si_type[SI_MAX_PARMS];
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index 0bdd3c400c92..10291198decd 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -605,7 +605,7 @@ static int ocelot_mact_mc_add(struct ocelot_port *port,
+ 			      struct netdev_hw_addr *hw_addr)
+ {
+ 	struct ocelot *ocelot = port->ocelot;
+-	struct netdev_hw_addr *ha = kzalloc(sizeof(*ha), GFP_KERNEL);
++	struct netdev_hw_addr *ha = kzalloc(sizeof(*ha), GFP_ATOMIC);
  
-+	memset(si_type, 0, sizeof(si_type));
-+
- 	/* Parse out the si_type string into its components. */
- 	str = si_type_str;
- 	if (*str != '\0') {
+ 	if (!ha)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
