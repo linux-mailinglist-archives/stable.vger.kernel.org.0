@@ -2,88 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E4C167D7
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 18:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0B4167E9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 18:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbfEGQ1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 12:27:02 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:41425 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726369AbfEGQ1C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 12:27:02 -0400
-Received: by mail-wr1-f67.google.com with SMTP id d12so2743737wrm.8
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 09:27:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=+52L+u62TNY6YACkEbpqwAKBYstdSnWBCEy5H39fP9o=;
-        b=T5uTiFkzwuZSXQ02GknS7agw9Ku/tQEoGwLeFinH5mNT1fMvJDMVLkzT8O+CgKhwoC
-         3WtRaCG5dFDw/DsRA2wYElIOQpNdRteMRAdcjmlg5Kx0oqzO3AjtY1x7CEBbDI8+NtRS
-         BC75bFRU0DDJ6jc+ijZvIEMhB/jEabEdEufZ0dzER+7fK4A/Yre5hBWrMKOBNLuNT3Cs
-         8ksgArUeilUyIwFvKpCpfSD+ccghy8pmynk54I6FMHtIfUCztd8i1aO/vmoGWxdugFM2
-         9psx2iCxH2tXK2IV/ixDhfN1XUkuPTskpKYioe1D9tuRe7IgKFcjYCkGRxvRxcA2h7wI
-         ZAUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=+52L+u62TNY6YACkEbpqwAKBYstdSnWBCEy5H39fP9o=;
-        b=e4D8vXhLaZIFT5Y2JoblcDxGkUL0h65s35rQcXIysv80SGwGwxvFNGi61sDTeA1Of5
-         f02AMA9JDL8c+m0i6Hokiefto7LGSA8+J4ct5wVn5uX+xoEgjVq21Etqw3X512uL3Oop
-         aAyiFT6RQHD8n8Xjt8DQLwVCxEoMagI39fF9TXn1U9X0APBkGj8jVXJqNJA/sIAB7vRs
-         zAcMWrhDwlHn8vtF3B9XkAEV74iykGNmS6kNNKSViInuZA17UPBXVZNQGWGPrmerOsR7
-         zjFtb7qoaz63siMnlgNuLcU8NTKCrzPsNEm3OlmL8YE5cCkNuIgBu/6qQc85IBPd0q/0
-         ELJQ==
-X-Gm-Message-State: APjAAAUX0xnEOgL4hIKWyOKmtUhGAYbydttWGrr0gHy0ufgezwBramaz
-        rA89StTpUiSyean8ekrF1NIgTF2s/etwaQ==
-X-Google-Smtp-Source: APXvYqywW2jCRYjL716MqhbCVN/FuKaYokKrqE12i9/pioB1hY60FONsczBqbn6v4W/1x/U92Fk7kw==
-X-Received: by 2002:a5d:4711:: with SMTP id y17mr24826288wrq.122.1557246421070;
-        Tue, 07 May 2019 09:27:01 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v189sm23678819wma.3.2019.05.07.09.26.59
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 09:27:00 -0700 (PDT)
-Message-ID: <5cd1b1d4.1c69fb81.5d408.0a4f@mx.google.com>
-Date:   Tue, 07 May 2019 09:27:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726888AbfEGQ3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 12:29:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46612 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726801AbfEGQ3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 12:29:45 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04D8D205C9;
+        Tue,  7 May 2019 16:29:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557246584;
+        bh=HydT7mdg9YKE0YlCquV+jJBxsbV6UX7TylyFZiB787c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LrnMyRwMwRudUklA0mNBpQhSPIbk8Ay3W6bMnDCplhfOXhHVlWsu/KgILCn1MWHOu
+         7kWlnFV5M2vFJG1btZnYN6qbtuBKcl7ZNBkd+FmuScm50o32qbacxlLrbR7LIDQiqh
+         Z17WhDYrHB+lXwryq9robNVX9U2qqfrZUl3WB8d4=
+Date:   Tue, 7 May 2019 12:29:42 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amir Goldstein <amir73il@gmail.com>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.14 50/95] fsnotify: generalize handling of
+ extra event flags
+Message-ID: <20190507162942.GD1747@sasha-vm>
+References: <20190507053826.31622-1-sashal@kernel.org>
+ <20190507053826.31622-50-sashal@kernel.org>
+ <20190507132330.GB4635@quack2.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.13-123-g5b4a1a11a18c
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-References: <20190506143054.670334917@linuxfoundation.org>
-Subject: Re: [PATCH 5.0 000/122] 5.0.14-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190507132330.GB4635@quack2.suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 56 boots: 0 failed, 56 passed (v5.0.13-123-g5b4=
-a1a11a18c)
+On Tue, May 07, 2019 at 03:23:30PM +0200, Jan Kara wrote:
+>On Tue 07-05-19 01:37:39, Sasha Levin wrote:
+>> From: Amir Goldstein <amir73il@gmail.com>
+>>
+>> [ Upstream commit 007d1e8395eaa59b0e7ad9eb2b53a40859446a88 ]
+>>
+>> FS_EVENT_ON_CHILD gets a special treatment in fsnotify() because it is
+>> not a flag specifying an event type, but rather an extra flags that may
+>> be reported along with another event and control the handling of the
+>> event by the backend.
+>>
+>> FS_ISDIR is also an "extra flag" and not an "event type" and therefore
+>> desrves the same treatment. With inotify/dnotify backends it was never
+>> possible to set FS_ISDIR in mark masks, so it did not matter.
+>> With fanotify backend, mark adding code jumps through hoops to avoid
+>> setting the FS_ISDIR in the commulative object mask.
+>>
+>> Separate the constant ALL_FSNOTIFY_EVENTS to ALL_FSNOTIFY_FLAGS and
+>> ALL_FSNOTIFY_EVENTS, so the latter can be used to test for specific
+>> event types.
+>>
+>> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+>> Signed-off-by: Jan Kara <jack@suse.cz>
+>> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+>
+>Sasha, why did you select this patch? It is just a cleanup with no user
+>visible effect and was done mostly to simplify implementing following
+>features...
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.13-123-g5b4a1a11a18c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.13-123-g5b4a1a11a18c/
+Sigh, my script picked up the patch after this one (by mistake). I've
+dropped that one but missed this one twice(!). Thanks for the heads-up,
+I'll drop it.
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.13-123-g5b4a1a11a18c
-Git Commit: 5b4a1a11a18cf15168a00c41c55384b2558cdee0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 25 unique boards, 11 SoC families, 10 builds out of 208
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
