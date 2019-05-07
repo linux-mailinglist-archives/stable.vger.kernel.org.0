@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C13915919
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66E915CC9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727281AbfEGFdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53550 "EHLO mail.kernel.org"
+        id S1727052AbfEGGGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727274AbfEGFdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:38 -0400
+        id S1726947AbfEGFdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E570214AE;
-        Tue,  7 May 2019 05:33:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C035F20C01;
+        Tue,  7 May 2019 05:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207217;
-        bh=H3FJUbZ8cdQuU5fVYR4pxnXg5jHeMXkwhuk8K7uyOic=;
+        s=default; t=1557207219;
+        bh=70TvJEmu8OvJflZWtXYL2j9zSm78Falniq/Upr9UmP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQLBGeUguDKGPoftDKpLGakbUU38h/ljoJ5P0Y9iBjQqoYddI/5OLrwHG+c9GWYWc
-         9UmQFXwVkE9NpJ1kOlmD1morZ9j2lhX4AbFB3jb50xZkB05hW8SZjVS4gjLPGhwe5s
-         bSWSx4JZUcCQBUd0O4mv3l+GzuI4HrPhr1YcMo2o=
+        b=JCR+6p+WrVtBRY8/bv88sRfLYsXqCCyit1/5UD+ZDZSHPBdzA0X+KPXQRomQz9T6y
+         ammL22PgEymNESxWuOfAJ+yOPCHN+WSeNxWeuV5sLiaO6UyN8tOKR3pTRwQlO1hufB
+         yNsAT6RIJ4aCyEjQVsqT7xExU+x3HCcIJxol4hAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.0 32/99] afs: Fix in-progess ops to ignore server-level callback invalidation
-Date:   Tue,  7 May 2019 01:31:26 -0400
-Message-Id: <20190507053235.29900-32-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Kai Krakow <kai@kaishome.de>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 33/99] bfq: update internal depth state when queue depth changes
+Date:   Tue,  7 May 2019 01:31:27 -0400
+Message-Id: <20190507053235.29900-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -42,170 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit eeba1e9cf31d064284dd1fa7bd6cfe01395bd03d ]
+[ Upstream commit 77f1e0a52d26242b6c2dba019f6ebebfb9ff701e ]
 
-The in-kernel afs filesystem client counts the number of server-level
-callback invalidation events (CB.InitCallBackState* RPC operations) that it
-receives from the server.  This is stored in cb_s_break in various
-structures, including afs_server and afs_vnode.
+A previous commit moved the shallow depth and BFQ depth map calculations
+to be done at init time, moving it outside of the hotter IO path. This
+potentially causes hangs if the users changes the depth of the scheduler
+map, by writing to the 'nr_requests' sysfs file for that device.
 
-If an inode is examined by afs_validate(), say, the afs_server copy is
-compared, along with other break counters, to those in afs_vnode, and if
-one or more of the counters do not match, it is considered that the
-server's callback promise is broken.  At points where this happens,
-AFS_VNODE_CB_PROMISED is cleared to indicate that the status must be
-refetched from the server.
+Add a blk-mq-sched hook that allows blk-mq to inform the scheduler if
+the depth changes, so that the scheduler can update its internal state.
 
-afs_validate() issues an FS.FetchStatus operation to get updated metadata -
-and based on the updated data_version may invalidate the pagecache too.
-
-However, the break counters are also used to determine whether to note a
-new callback in the vnode (which would set the AFS_VNODE_CB_PROMISED flag)
-and whether to cache the permit data included in the YFSFetchStatus record
-by the server.
-
-The problem comes when the server sends us a CB.InitCallBackState op.  The
-first such instance doesn't cause cb_s_break to be incremented, but rather
-causes AFS_SERVER_FL_NEW to be cleared - but thereafter, say some hours
-after last use and all the volumes have been automatically unmounted and
-the server has forgotten about the client[*], this *will* likely cause an
-increment.
-
- [*] There are other circumstances too, such as the server restarting or
-     needing to make space in its callback table.
-
-Note that the server won't send us a CB.InitCallBackState op until we talk
-to it again.
-
-So what happens is:
-
- (1) A mount for a new volume is attempted, a inode is created for the root
-     vnode and vnode->cb_s_break and AFS_VNODE_CB_PROMISED aren't set
-     immediately, as we don't have a nominated server to talk to yet - and
-     we may iterate through a few to find one.
-
- (2) Before the operation happens, afs_fetch_status(), say, notes in the
-     cursor (fc.cb_break) the break counter sum from the vnode, volume and
-     server counters, but the server->cb_s_break is currently 0.
-
- (3) We send FS.FetchStatus to the server.  The server sends us back
-     CB.InitCallBackState.  We increment server->cb_s_break.
-
- (4) Our FS.FetchStatus completes.  The reply includes a callback record.
-
- (5) xdr_decode_AFSCallBack()/xdr_decode_YFSCallBack() check to see whether
-     the callback promise was broken by checking the break counter sum from
-     step (2) against the current sum.
-
-     This fails because of step (3), so we don't set the callback record
-     and, importantly, don't set AFS_VNODE_CB_PROMISED on the vnode.
-
-This does not preclude the syscall from progressing, and we don't loop here
-rechecking the status, but rather assume it's good enough for one round
-only and will need to be rechecked next time.
-
- (6) afs_validate() it triggered on the vnode, probably called from
-     d_revalidate() checking the parent directory.
-
- (7) afs_validate() notes that AFS_VNODE_CB_PROMISED isn't set, so doesn't
-     update vnode->cb_s_break and assumes the vnode to be invalid.
-
- (8) afs_validate() needs to calls afs_fetch_status().  Go back to step (2)
-     and repeat, every time the vnode is validated.
-
-This primarily affects volume root dir vnodes.  Everything subsequent to
-those inherit an already incremented cb_s_break upon mounting.
-
-The issue is that we assume that the callback record and the cached permit
-information in a reply from the server can't be trusted after getting a
-server break - but this is wrong since the server makes sure things are
-done in the right order, holding up our ops if necessary[*].
-
- [*] There is an extremely unlikely scenario where a reply from before the
-     CB.InitCallBackState could get its delivery deferred till after - at
-     which point we think we have a promise when we don't.  This, however,
-     requires unlucky mass packet loss to one call.
-
-AFS_SERVER_FL_NEW tries to paper over the cracks for the initial mount from
-a server we've never contacted before, but this should be unnecessary.
-It's also further insulated from the problem on an initial mount by
-querying the server first with FS.GetCapabilities, which triggers the
-CB.InitCallBackState.
-
-Fix this by
-
- (1) Remove AFS_SERVER_FL_NEW.
-
- (2) In afs_calc_vnode_cb_break(), don't include cb_s_break in the
-     calculation.
-
- (3) In afs_cb_is_broken(), don't include cb_s_break in the check.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Kai Krakow <kai@kaishome.de>
+Reported-by: Paolo Valente <paolo.valente@linaro.org>
+Fixes: f0635b8a416e ("bfq: calculate shallow depths at init time")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/callback.c | 3 +--
- fs/afs/internal.h | 4 +---
- fs/afs/server.c   | 1 -
- 3 files changed, 2 insertions(+), 6 deletions(-)
+ block/bfq-iosched.c      | 8 +++++++-
+ block/blk-mq.c           | 2 ++
+ include/linux/elevator.h | 1 +
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-index 1c7955f5cdaf..128f2dbe256a 100644
---- a/fs/afs/callback.c
-+++ b/fs/afs/callback.c
-@@ -203,8 +203,7 @@ void afs_put_cb_interest(struct afs_net *net, struct afs_cb_interest *cbi)
-  */
- void afs_init_callback_state(struct afs_server *server)
- {
--	if (!test_and_clear_bit(AFS_SERVER_FL_NEW, &server->flags))
--		server->cb_s_break++;
-+	server->cb_s_break++;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 72510c470001..356620414cf9 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5353,7 +5353,7 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	return min_shallow;
  }
  
- /*
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 8871b9e8645f..465526f495b0 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -475,7 +475,6 @@ struct afs_server {
- 	time64_t		put_time;	/* Time at which last put */
- 	time64_t		update_at;	/* Time at which to next update the record */
- 	unsigned long		flags;
--#define AFS_SERVER_FL_NEW	0		/* New server, don't inc cb_s_break */
- #define AFS_SERVER_FL_NOT_READY	1		/* The record is not ready for use */
- #define AFS_SERVER_FL_NOT_FOUND	2		/* VL server says no such server */
- #define AFS_SERVER_FL_VL_FAIL	3		/* Failed to access VL server */
-@@ -828,7 +827,7 @@ static inline struct afs_cb_interest *afs_get_cb_interest(struct afs_cb_interest
- 
- static inline unsigned int afs_calc_vnode_cb_break(struct afs_vnode *vnode)
+-static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
++static void bfq_depth_updated(struct blk_mq_hw_ctx *hctx)
  {
--	return vnode->cb_break + vnode->cb_s_break + vnode->cb_v_break;
-+	return vnode->cb_break + vnode->cb_v_break;
+ 	struct bfq_data *bfqd = hctx->queue->elevator->elevator_data;
+ 	struct blk_mq_tags *tags = hctx->sched_tags;
+@@ -5361,6 +5361,11 @@ static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
+ 
+ 	min_shallow = bfq_update_depths(bfqd, &tags->bitmap_tags);
+ 	sbitmap_queue_min_shallow_depth(&tags->bitmap_tags, min_shallow);
++}
++
++static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
++{
++	bfq_depth_updated(hctx);
+ 	return 0;
  }
  
- static inline bool afs_cb_is_broken(unsigned int cb_break,
-@@ -836,7 +835,6 @@ static inline bool afs_cb_is_broken(unsigned int cb_break,
- 				    const struct afs_cb_interest *cbi)
- {
- 	return !cbi || cb_break != (vnode->cb_break +
--				    cbi->server->cb_s_break +
- 				    vnode->volume->cb_v_break);
- }
+@@ -5783,6 +5788,7 @@ static struct elevator_type iosched_bfq_mq = {
+ 		.requests_merged	= bfq_requests_merged,
+ 		.request_merged		= bfq_request_merged,
+ 		.has_work		= bfq_has_work,
++		.depth_updated		= bfq_depth_updated,
+ 		.init_hctx		= bfq_init_hctx,
+ 		.init_sched		= bfq_init_queue,
+ 		.exit_sched		= bfq_exit_queue,
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 16f9675c57e6..9ab847d0d6d2 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3123,6 +3123,8 @@ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr)
+ 		}
+ 		if (ret)
+ 			break;
++		if (q->elevator && q->elevator->type->ops.depth_updated)
++			q->elevator->type->ops.depth_updated(hctx);
+ 	}
  
-diff --git a/fs/afs/server.c b/fs/afs/server.c
-index 642afa2e9783..65b33b6da48b 100644
---- a/fs/afs/server.c
-+++ b/fs/afs/server.c
-@@ -226,7 +226,6 @@ static struct afs_server *afs_alloc_server(struct afs_net *net,
- 	RCU_INIT_POINTER(server->addresses, alist);
- 	server->addr_version = alist->version;
- 	server->uuid = *uuid;
--	server->flags = (1UL << AFS_SERVER_FL_NEW);
- 	server->update_at = ktime_get_real_seconds() + afs_server_update_delay;
- 	rwlock_init(&server->fs_lock);
- 	INIT_HLIST_HEAD(&server->cb_volumes);
+ 	if (!ret)
+diff --git a/include/linux/elevator.h b/include/linux/elevator.h
+index 2e9e2763bf47..6e8bc53740f0 100644
+--- a/include/linux/elevator.h
++++ b/include/linux/elevator.h
+@@ -31,6 +31,7 @@ struct elevator_mq_ops {
+ 	void (*exit_sched)(struct elevator_queue *);
+ 	int (*init_hctx)(struct blk_mq_hw_ctx *, unsigned int);
+ 	void (*exit_hctx)(struct blk_mq_hw_ctx *, unsigned int);
++	void (*depth_updated)(struct blk_mq_hw_ctx *);
+ 
+ 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
+ 	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *);
 -- 
 2.20.1
 
