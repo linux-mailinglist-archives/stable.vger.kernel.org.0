@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5200215CC0
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB9715CBA
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726280AbfEGGGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53636 "EHLO mail.kernel.org"
+        id S1727344AbfEGFdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:33:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727274AbfEGFdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:45 -0400
+        id S1726614AbfEGFdu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF23D206A3;
-        Tue,  7 May 2019 05:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13194206A3;
+        Tue,  7 May 2019 05:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207224;
-        bh=x5frDouWI3KLfoCg7ukxvQ0uGxS5IGb26ZNCG3OqipY=;
+        s=default; t=1557207229;
+        bh=lI2xi2mj34+sJkfJwEYZcKAO+lQOs07Up/5HbiAgGoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUeR+fDJf6Sq9EnI10KsWsOC7v9UByTivJwIpS3mTllKhoXtF3u4YTLc0FMdAU5US
-         /ZU0jETdUww7LHF0yKoCLUsEuReullNUz6xyWwuvu2XE9ldLWcPH3IGeMwikyxr0iP
-         BV0xZzOQ6jBsMVmdL0WUstBF8iuUZzrS+o04+SX8=
+        b=WGoJmsL3g/ar1DUKFMzlKstcoVtOcYKtcXXvbuIgEYwXOQHcyVokGTl5++7cPddbP
+         EgSFTlWJkdkFf5lN4XsPWa2vjs39uT2dCZ9pDU9DuBbG1+moI35VQxMjtvv/pBsNcm
+         w9pvsYXsekE3wGzoGlgUW27PGNhKYWEyPjHQ0wU8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Bolotin <dbolotin@marvell.com>,
-        Michal Kalderon <mkalderon@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 37/99] qed: Fix the DORQ's attentions handling
-Date:   Tue,  7 May 2019 01:31:31 -0400
-Message-Id: <20190507053235.29900-37-sashal@kernel.org>
+Cc:     David Francis <David.Francis@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Bhawanpreet Lakha <BhawanpreetLakha@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.0 38/99] drm/amd/display: If one stream full updates, full update all planes
+Date:   Tue,  7 May 2019 01:31:32 -0400
+Message-Id: <20190507053235.29900-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -45,166 +48,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Bolotin <dbolotin@marvell.com>
+From: David Francis <David.Francis@amd.com>
 
-[ Upstream commit 0d72c2ac89185f179da1e8a91c40c82f3fa38f0b ]
+[ Upstream commit c238bfe0be9ef7420f7669a69e27c8c8f4d8a568 ]
 
-Separate the overflow handling from the hardware interrupt status analysis.
-The interrupt status is a single register and is common for all PFs. The
-first PF reading the register is not necessarily the one who overflowed.
-All PFs must check their overflow status on every attention.
-In this change we clear the sticky indication in the attention handler to
-allow doorbells to be processed again as soon as possible, but running
-the doorbell recovery is scheduled for the periodic handler to reduce the
-time spent in the attention handler.
-Checking the need for DORQ flush was changed to "db_bar_no_edpm" because
-qed_edpm_enabled()'s result could change dynamically and might have
-prevented a needed flush.
+[Why]
+On some compositors, with two monitors attached, VT terminal
+switch can cause a graphical issue by the following means:
 
-Signed-off-by: Denis Bolotin <dbolotin@marvell.com>
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There are two streams, one for each monitor. Each stream has one
+plane
+
+current state:
+	M1:S1->P1
+	M2:S2->P2
+
+The user calls for a terminal switch and a commit is made to
+change both planes to linear swizzle mode. In atomic check,
+a new dc_state is constructed with new planes on each stream
+
+new state:
+	M1:S1->P3
+	M2:S2->P4
+
+In commit tail, each stream is committed, one at a time. The first
+stream (S1) updates properly, triggerring a full update and replacing
+the state
+
+current state:
+	M1:S1->P3
+	M2:S2->P4
+
+The update for S2 comes in, but dc detects that there is no difference
+between the stream and plane in the new and current states, and so
+triggers a fast update. The fast update does not program swizzle,
+so the second monitor is corrupted
+
+[How]
+Add a flag to dc_plane_state that forces full updates
+
+When a stream undergoes a full update, set this flag on all changed
+planes, then clear it on the current stream
+
+Subsequent streams will get full updates as a result
+
+Signed-off-by: David Francis <David.Francis@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet Lakha@amd.com>
+Acked-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed.h     |  3 ++
- drivers/net/ethernet/qlogic/qed/qed_int.c | 61 +++++++++++++++++------
- 2 files changed, 48 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 19 +++++++++++++++++++
+ drivers/gpu/drm/amd/display/dc/dc.h      |  3 +++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
-index 07ae600d0f35..f458c9776a89 100644
---- a/drivers/net/ethernet/qlogic/qed/qed.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed.h
-@@ -431,6 +431,8 @@ struct qed_qm_info {
- 	u8 num_pf_rls;
- };
- 
-+#define QED_OVERFLOW_BIT	1
-+
- struct qed_db_recovery_info {
- 	struct list_head list;
- 
-@@ -438,6 +440,7 @@ struct qed_db_recovery_info {
- 	spinlock_t lock;
- 	bool dorq_attn;
- 	u32 db_recovery_counter;
-+	unsigned long overflow;
- };
- 
- struct storm_stats {
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
-index 00688f4c0464..a7e95f239317 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_int.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
-@@ -376,6 +376,9 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
- 	u32 count = QED_DB_REC_COUNT;
- 	u32 usage = 1;
- 
-+	/* Flush any pending (e)dpms as they may never arrive */
-+	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
-+
- 	/* wait for usage to zero or count to run out. This is necessary since
- 	 * EDPM doorbell transactions can take multiple 64b cycles, and as such
- 	 * can "split" over the pci. Possibly, the doorbell drop can happen with
-@@ -404,23 +407,24 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
- 
- int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- {
--	u32 overflow;
-+	u32 attn_ovfl, cur_ovfl;
- 	int rc;
- 
--	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
--	DP_NOTICE(p_hwfn, "PF Overflow sticky 0x%x\n", overflow);
--	if (!overflow)
-+	attn_ovfl = test_and_clear_bit(QED_OVERFLOW_BIT,
-+				       &p_hwfn->db_recovery_info.overflow);
-+	cur_ovfl = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
-+	if (!cur_ovfl && !attn_ovfl)
- 		return 0;
- 
--	if (qed_edpm_enabled(p_hwfn)) {
-+	DP_NOTICE(p_hwfn, "PF Overflow sticky: attn %u current %u\n",
-+		  attn_ovfl, cur_ovfl);
-+
-+	if (cur_ovfl && !p_hwfn->db_bar_no_edpm) {
- 		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
- 		if (rc)
- 			return rc;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 1f92e7e8e3d3..5af2ea1f201d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1308,6 +1308,11 @@ static enum surface_update_type det_surface_update(const struct dc *dc,
+ 		return UPDATE_TYPE_FULL;
  	}
  
--	/* Flush any pending (e)dpm as they may never arrive */
--	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
--
- 	/* Release overflow sticky indication (stop silently dropping everything) */
- 	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
- 
-@@ -430,13 +434,35 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- 	return 0;
- }
- 
--static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
-+static void qed_dorq_attn_overflow(struct qed_hwfn *p_hwfn)
- {
--	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
- 	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
-+	u32 overflow;
- 	int rc;
- 
--	p_hwfn->db_recovery_info.dorq_attn = true;
-+	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
-+	if (!overflow)
-+		goto out;
-+
-+	/* Run PF doorbell recovery in next periodic handler */
-+	set_bit(QED_OVERFLOW_BIT, &p_hwfn->db_recovery_info.overflow);
-+
-+	if (!p_hwfn->db_bar_no_edpm) {
-+		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
-+		if (rc)
-+			goto out;
++	if (u->surface->force_full_update) {
++		update_flags->bits.full_update = 1;
++		return UPDATE_TYPE_FULL;
 +	}
 +
-+	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
-+out:
-+	/* Schedule the handler even if overflow was not detected */
-+	qed_periodic_db_rec_start(p_hwfn);
-+}
+ 	type = get_plane_info_update_type(u);
+ 	elevate_update_type(&overall_type, type);
+ 
+@@ -1637,6 +1642,14 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 		}
+ 
+ 		dc_resource_state_copy_construct(state, context);
 +
-+static int qed_dorq_attn_int_sts(struct qed_hwfn *p_hwfn)
-+{
-+	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
-+	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
- 
- 	/* int_sts may be zero since all PFs were interrupted for doorbell
- 	 * overflow but another one already handled it. Can abort here. If
-@@ -475,11 +501,6 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
- 			  GET_FIELD(details, QED_DORQ_ATTENTION_SIZE) * 4,
- 			  first_drop_reason, all_drops_reason);
- 
--		rc = qed_db_rec_handler(p_hwfn, p_ptt);
--		qed_periodic_db_rec_start(p_hwfn);
--		if (rc)
--			return rc;
--
- 		/* Clear the doorbell drop details and prepare for next drop */
- 		qed_wr(p_hwfn, p_ptt, DORQ_REG_DB_DROP_DETAILS_REL, 0);
- 
-@@ -505,6 +526,14 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
- 	return -EINVAL;
- }
- 
-+static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
-+{
-+	p_hwfn->db_recovery_info.dorq_attn = true;
-+	qed_dorq_attn_overflow(p_hwfn);
++		for (i = 0; i < dc->res_pool->pipe_count; i++) {
++			struct pipe_ctx *new_pipe = &context->res_ctx.pipe_ctx[i];
++			struct pipe_ctx *old_pipe = &dc->current_state->res_ctx.pipe_ctx[i];
 +
-+	return qed_dorq_attn_int_sts(p_hwfn);
-+}
++			if (new_pipe->plane_state && new_pipe->plane_state != old_pipe->plane_state)
++				new_pipe->plane_state->force_full_update = true;
++		}
+ 	}
+ 
+ 
+@@ -1680,6 +1693,12 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 		dc->current_state = context;
+ 		dc_release_state(old);
+ 
++		for (i = 0; i < dc->res_pool->pipe_count; i++) {
++			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
 +
- static void qed_dorq_attn_handler(struct qed_hwfn *p_hwfn)
- {
- 	if (p_hwfn->db_recovery_info.dorq_attn)
++			if (pipe_ctx->plane_state && pipe_ctx->stream == stream)
++				pipe_ctx->plane_state->force_full_update = false;
++		}
+ 	}
+ 	/*let's use current_state to update watermark etc*/
+ 	if (update_type >= UPDATE_TYPE_FULL)
+diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
+index 4b5bbb13ce7f..7d5656d7e460 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc.h
+@@ -496,6 +496,9 @@ struct dc_plane_state {
+ 	struct dc_plane_status status;
+ 	struct dc_context *ctx;
+ 
++	/* HACK: Workaround for forcing full reprogramming under some conditions */
++	bool force_full_update;
++
+ 	/* private to dc_surface.c */
+ 	enum dc_irq_source irq_source;
+ 	struct kref refcount;
 -- 
 2.20.1
 
