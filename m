@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5388B15C99
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 212C415C9C
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727505AbfEGFeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
+        id S1726347AbfEGGEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:04:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727496AbfEGFeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:21 -0400
+        id S1727522AbfEGFeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A3E721530;
-        Tue,  7 May 2019 05:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BFED20B7C;
+        Tue,  7 May 2019 05:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207260;
-        bh=vtaTpa38CojxyPM1lfClIIF52DyI3e1yNz+U3k9Z5As=;
+        s=default; t=1557207263;
+        bh=oXIr1mm3+pichJjL+9iVnU0mTDTTZQqC5fQkWc/FwsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSSSeKvGl6+wW6FMKan/jiZB3DTRfWoUG8en9QuuMNeqMAYJHr/AGzcJF9k5yeS10
-         WFJ1oFXR8eWr058PnDOIH8dlzIC7wlS+xot4Ym6x9QKWfIpYySgeY5UF+wIwS+BwAs
-         5ff27QLFJx7d7ZekiUNU6b3u9GO+4KDyQr65m0CA=
+        b=AZclECnsY76yV+4pSX8M9VuXUDZJlS6Pz+40P6Mf3s1hLCDJCcP/x4JsUDpy9gOYJ
+         ZPGWegaNJtqV7DVTNiAXlyS5LUNdU1FcHbFv1NC/sHVYwau2rnLsvAuG1nLqbDNSHi
+         Ii2/oEWAYydoU2bBnQpPhRMJriNdtg+5tgQJghi8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Andrey Konovalov <andreyknvl@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
+Cc:     Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Oscar Salvador <osalvador@suse.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 56/99] slab: store tagged freelist for off-slab slabmgmt
-Date:   Tue,  7 May 2019 01:31:50 -0400
-Message-Id: <20190507053235.29900-56-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 57/99] mm/hotplug: treat CMA pages as unmovable
+Date:   Tue,  7 May 2019 01:31:51 -0400
+Message-Id: <20190507053235.29900-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -53,142 +48,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 1a62b18d51e5c5ecc0345c85bb9fef870ab721ed ]
+[ Upstream commit 1a9f219157b22d0ffb340a9c5f431afd02cd2cf3 ]
 
-Commit 51dedad06b5f ("kasan, slab: make freelist stored without tags")
-calls kasan_reset_tag() for off-slab slab management object leading to
-freelist being stored non-tagged.
+has_unmovable_pages() is used by allocating CMA and gigantic pages as
+well as the memory hotplug.  The later doesn't know how to offline CMA
+pool properly now, but if an unused (free) CMA page is encountered, then
+has_unmovable_pages() happily considers it as a free memory and
+propagates this up the call chain.  Memory offlining code then frees the
+page without a proper CMA tear down which leads to an accounting issues.
+Moreover if the same memory range is onlined again then the memory never
+gets back to the CMA pool.
 
-However, cache_grow_begin() calls alloc_slabmgmt() which calls
-kmem_cache_alloc_node() assigns a tag for the address and stores it in
-the shadow address.  As the result, it causes endless errors below
-during boot due to drain_freelist() -> slab_destroy() ->
-kasan_slab_free() which compares already untagged freelist against the
-stored tag in the shadow address.
+State after memory offline:
 
-Since off-slab slab management object freelist is such a special case,
-just store it tagged.  Non-off-slab management object freelist is still
-stored untagged which has not been assigned a tag and should not cause
-any other troubles with this inconsistency.
+ # grep cma /proc/vmstat
+ nr_free_cma 205824
 
-  BUG: KASAN: double-free or invalid-free in slab_destroy+0x84/0x88
-  Pointer tag: [ff], memory tag: [99]
+ # cat /sys/kernel/debug/cma/cma-kvm_cma/count
+ 209920
 
-  CPU: 0 PID: 1376 Comm: kworker/0:4 Tainted: G        W 5.1.0-rc3+ #8
-  Hardware name: HPE Apollo 70             /C01_APACHE_MB         , BIOS L50_5.13_1.0.6 07/10/2018
-  Workqueue: cgroup_destroy css_killed_work_fn
-  Call trace:
-   print_address_description+0x74/0x2a4
-   kasan_report_invalid_free+0x80/0xc0
-   __kasan_slab_free+0x204/0x208
-   kasan_slab_free+0xc/0x18
-   kmem_cache_free+0xe4/0x254
-   slab_destroy+0x84/0x88
-   drain_freelist+0xd0/0x104
-   __kmem_cache_shrink+0x1ac/0x224
-   __kmemcg_cache_deactivate+0x1c/0x28
-   memcg_deactivate_kmem_caches+0xa0/0xe8
-   memcg_offline_kmem+0x8c/0x3d4
-   mem_cgroup_css_offline+0x24c/0x290
-   css_killed_work_fn+0x154/0x618
-   process_one_work+0x9cc/0x183c
-   worker_thread+0x9b0/0xe38
-   kthread+0x374/0x390
-   ret_from_fork+0x10/0x18
+Also, kmemleak still think those memory address are reserved below but
+have already been used by the buddy allocator after onlining.  This
+patch fixes the situation by treating CMA pageblocks as unmovable except
+when has_unmovable_pages() is called as part of CMA allocation.
 
-  Allocated by task 1625:
-   __kasan_kmalloc+0x168/0x240
-   kasan_slab_alloc+0x18/0x20
-   kmem_cache_alloc_node+0x1f8/0x3a0
-   cache_grow_begin+0x4fc/0xa24
-   cache_alloc_refill+0x2f8/0x3e8
-   kmem_cache_alloc+0x1bc/0x3bc
-   sock_alloc_inode+0x58/0x334
-   alloc_inode+0xb8/0x164
-   new_inode_pseudo+0x20/0xec
-   sock_alloc+0x74/0x284
-   __sock_create+0xb0/0x58c
-   sock_create+0x98/0xb8
-   __sys_socket+0x60/0x138
-   __arm64_sys_socket+0xa4/0x110
-   el0_svc_handler+0x2c0/0x47c
-   el0_svc+0x8/0xc
+  Offlined Pages 4096
+  kmemleak: Cannot insert 0xc000201f7d040008 into the object search tree (overlaps existing)
+  Call Trace:
+    dump_stack+0xb0/0xf4 (unreliable)
+    create_object+0x344/0x380
+    __kmalloc_node+0x3ec/0x860
+    kvmalloc_node+0x58/0x110
+    seq_read+0x41c/0x620
+    __vfs_read+0x3c/0x70
+    vfs_read+0xbc/0x1a0
+    ksys_read+0x7c/0x140
+    system_call+0x5c/0x70
+  kmemleak: Kernel memory leak detector disabled
+  kmemleak: Object 0xc000201cc8000000 (size 13757317120):
+  kmemleak:   comm "swapper/0", pid 0, jiffies 4294937297
+  kmemleak:   min_count = -1
+  kmemleak:   count = 0
+  kmemleak:   flags = 0x5
+  kmemleak:   checksum = 0
+  kmemleak:   backtrace:
+       cma_declare_contiguous+0x2a4/0x3b0
+       kvm_cma_reserve+0x11c/0x134
+       setup_arch+0x300/0x3f8
+       start_kernel+0x9c/0x6e8
+       start_here_common+0x1c/0x4b0
+  kmemleak: Automatic memory scanning thread ended
 
-  Freed by task 1625:
-   __kasan_slab_free+0x114/0x208
-   kasan_slab_free+0xc/0x18
-   kfree+0x1a8/0x1e0
-   single_release+0x7c/0x9c
-   close_pdeo+0x13c/0x43c
-   proc_reg_release+0xec/0x108
-   __fput+0x2f8/0x784
-   ____fput+0x1c/0x28
-   task_work_run+0xc0/0x1b0
-   do_notify_resume+0xb44/0x1278
-   work_pending+0x8/0x10
-
-  The buggy address belongs to the object at ffff809681b89e00
-   which belongs to the cache kmalloc-128 of size 128
-  The buggy address is located 0 bytes inside of
-   128-byte region [ffff809681b89e00, ffff809681b89e80)
-  The buggy address belongs to the page:
-  page:ffff7fe025a06e00 count:1 mapcount:0 mapping:01ff80082000fb00
-  index:0xffff809681b8fe04
-  flags: 0x17ffffffc000200(slab)
-  raw: 017ffffffc000200 ffff7fe025a06d08 ffff7fe022ef7b88 01ff80082000fb00
-  raw: ffff809681b8fe04 ffff809681b80000 00000001000000e0 0000000000000000
-  page dumped because: kasan: bad access detected
-  page allocated via order 0, migratetype Unmovable, gfp_mask
-  0x2420c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_COMP|__GFP_THISNODE)
-   prep_new_page+0x4e0/0x5e0
-   get_page_from_freelist+0x4ce8/0x50d4
-   __alloc_pages_nodemask+0x738/0x38b8
-   cache_grow_begin+0xd8/0xa24
-   ____cache_alloc_node+0x14c/0x268
-   __kmalloc+0x1c8/0x3fc
-   ftrace_free_mem+0x408/0x1284
-   ftrace_free_init_mem+0x20/0x28
-   kernel_init+0x24/0x548
-   ret_from_fork+0x10/0x18
-
-  Memory state around the buggy address:
-   ffff809681b89c00: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-   ffff809681b89d00: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-  >ffff809681b89e00: 99 99 99 99 99 99 99 99 fe fe fe fe fe fe fe fe
-                     ^
-   ffff809681b89f00: 43 43 43 43 43 fe fe fe fe fe fe fe fe fe fe fe
-   ffff809681b8a000: 6d fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-
-Link: http://lkml.kernel.org/r/20190403022858.97584-1-cai@lca.pw
-Fixes: 51dedad06b5f ("kasan, slab: make freelist stored without tags")
+[cai@lca.pw: use is_migrate_cma_page() and update commit log]
+  Link: http://lkml.kernel.org/r/20190416170510.20048-1-cai@lca.pw
+Link: http://lkml.kernel.org/r/20190413002623.8967-1-cai@lca.pw
 Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.c | 1 -
- 1 file changed, 1 deletion(-)
+ mm/page_alloc.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 2f2aa8eaf7d9..516df2d854ef 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -2371,7 +2371,6 @@ static void *alloc_slabmgmt(struct kmem_cache *cachep,
- 		/* Slab management obj is off-slab. */
- 		freelist = kmem_cache_alloc_node(cachep->freelist_cache,
- 					      local_flags, nodeid);
--		freelist = kasan_reset_tag(freelist);
- 		if (!freelist)
- 			return NULL;
- 	} else {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 318ef6ccdb3b..eedb57f9b40b 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7945,7 +7945,10 @@ void *__init alloc_large_system_hash(const char *tablename,
+ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+ 			 int migratetype, int flags)
+ {
+-	unsigned long pfn, iter, found;
++	unsigned long found;
++	unsigned long iter = 0;
++	unsigned long pfn = page_to_pfn(page);
++	const char *reason = "unmovable page";
+ 
+ 	/*
+ 	 * TODO we could make this much more efficient by not checking every
+@@ -7955,17 +7958,20 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+ 	 * can still lead to having bootmem allocations in zone_movable.
+ 	 */
+ 
+-	/*
+-	 * CMA allocations (alloc_contig_range) really need to mark isolate
+-	 * CMA pageblocks even when they are not movable in fact so consider
+-	 * them movable here.
+-	 */
+-	if (is_migrate_cma(migratetype) &&
+-			is_migrate_cma(get_pageblock_migratetype(page)))
+-		return false;
++	if (is_migrate_cma_page(page)) {
++		/*
++		 * CMA allocations (alloc_contig_range) really need to mark
++		 * isolate CMA pageblocks even when they are not movable in fact
++		 * so consider them movable here.
++		 */
++		if (is_migrate_cma(migratetype))
++			return false;
++
++		reason = "CMA page";
++		goto unmovable;
++	}
+ 
+-	pfn = page_to_pfn(page);
+-	for (found = 0, iter = 0; iter < pageblock_nr_pages; iter++) {
++	for (found = 0; iter < pageblock_nr_pages; iter++) {
+ 		unsigned long check = pfn + iter;
+ 
+ 		if (!pfn_valid_within(check))
+@@ -8045,7 +8051,7 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+ unmovable:
+ 	WARN_ON_ONCE(zone_idx(zone) == ZONE_MOVABLE);
+ 	if (flags & REPORT_FAILURE)
+-		dump_page(pfn_to_page(pfn+iter), "unmovable page");
++		dump_page(pfn_to_page(pfn + iter), reason);
+ 	return true;
+ }
+ 
 -- 
 2.20.1
 
