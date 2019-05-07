@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DF015ABE
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AA0F15AB4
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728563AbfEGFrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
+        id S1727559AbfEGFlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725926AbfEGFlH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:41:07 -0400
+        id S1728554AbfEGFlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:41:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E77A205ED;
-        Tue,  7 May 2019 05:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7E612087F;
+        Tue,  7 May 2019 05:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207666;
-        bh=2TFotMoJogSz8cQ3D94lytrYGs0Rm9Nw/CN5qSOhZb4=;
+        s=default; t=1557207668;
+        bh=uyUWu/YRvdGkGjQJJaeNKgUIULFg6yFhSnXMrgmgQ7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlibZBCjGXCiAQMN7k8jLO1P42YBSm6W9M9i/ST6071ICpgJMfBoWtQ4BmUcT+NTl
-         PKIUTVA/ldry5bza0s38snUXrfuXSVox99PFDP914tgjYYHxiDx3nsPKeJxCaaboii
-         DrWRqRlSYHQZF87Gmpoozv206Aa2scijs7ZcJn/M=
+        b=SG7t6wj5i32/ut6d+tUQ5CJ1kGzimuZWBHt2uucGBYd+ohFjxIZyXRJOYdmdxQtiL
+         snVUJBO/cFTbehyTEnPoLBU4RgUy7LMnAIGTnheyzclUtW7e6DvKcXs1DsawdLPicS
+         CXaErRITJAVhq6CXH5J/7O0PJHxg3FOUIyq38Qjs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jun Xiao <xiaojun2@hisilicon.com>,
-        Yonglong Liu <liuyonglong@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 85/95] net: hns: Fix WARNING when hns modules installed
-Date:   Tue,  7 May 2019 01:38:14 -0400
-Message-Id: <20190507053826.31622-85-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Chandan Rajendra <chandan@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <alexander.levin@microsoft.com>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 86/95] mm/memory.c: fix modifying of page protection by insert_pfn()
+Date:   Tue,  7 May 2019 01:38:15 -0400
+Message-Id: <20190507053826.31622-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -46,122 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Xiao <xiaojun2@hisilicon.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit c77804be53369dd4c15bfc376cf9b45948194cab ]
+[ Upstream commit cae85cb8add35f678cf487139d05e083ce2f570a ]
 
-Commit 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko
-after rmmod.") add phy_stop in hns_nic_init_phy(), In the branch of "net",
-this method is effective, but in the branch of "net-next", it will cause
-a WARNING when hns modules loaded, reference to commit 2b3e88ea6528 ("net:
-phy: improve phy state checking"):
+Aneesh has reported that PPC triggers the following warning when
+excercising DAX code:
 
-[10.092168] ------------[ cut here ]------------
-[10.092171] called from state READY
-[10.092189] WARNING: CPU: 4 PID: 1 at ../drivers/net/phy/phy.c:854
-                phy_stop+0x90/0xb0
-[10.092192] Modules linked in:
-[10.092197] CPU: 4 PID:1 Comm:swapper/0 Not tainted 4.20.0-rc7-next-20181220 #1
-[10.092200] Hardware name: Huawei TaiShan 2280 /D05, BIOS Hisilicon D05 UEFI
-                16.12 Release 05/15/2017
-[10.092202] pstate: 60000005 (nZCv daif -PAN -UAO)
-[10.092205] pc : phy_stop+0x90/0xb0
-[10.092208] lr : phy_stop+0x90/0xb0
-[10.092209] sp : ffff00001159ba90
-[10.092212] x29: ffff00001159ba90 x28: 0000000000000007
-[10.092215] x27: ffff000011180068 x26: ffff0000110a5620
-[10.092218] x25: ffff0000113b6000 x24: ffff842f96dac000
-[10.092221] x23: 0000000000000000 x22: 0000000000000000
-[10.092223] x21: ffff841fb8425e18 x20: ffff801fb3a56438
-[10.092226] x19: ffff801fb3a56000 x18: ffffffffffffffff
-[10.092228] x17: 0000000000000000 x16: 0000000000000000
-[10.092231] x15: ffff00001122d6c8 x14: ffff00009159b7b7
-[10.092234] x13: ffff00001159b7c5 x12: ffff000011245000
-[10.092236] x11: 0000000005f5e0ff x10: ffff00001159b750
-[10.092239] x9 : 00000000ffffffd0 x8 : 0000000000000465
-[10.092242] x7 : ffff0000112457f8 x6 : ffff0000113bd7ce
-[10.092245] x5 : 0000000000000000 x4 : 0000000000000000
-[10.092247] x3 : 00000000ffffffff x2 : ffff000011245828
-[10.092250] x1 : 4b5860bd05871300 x0 : 0000000000000000
-[10.092253] Call trace:
-[10.092255]  phy_stop+0x90/0xb0
-[10.092260]  hns_nic_init_phy+0xf8/0x110
-[10.092262]  hns_nic_try_get_ae+0x4c/0x3b0
-[10.092264]  hns_nic_dev_probe+0x1fc/0x480
-[10.092268]  platform_drv_probe+0x50/0xa0
-[10.092271]  really_probe+0x1f4/0x298
-[10.092273]  driver_probe_device+0x58/0x108
-[10.092275]  __driver_attach+0xdc/0xe0
-[10.092278]  bus_for_each_dev+0x74/0xc8
-[10.092280]  driver_attach+0x20/0x28
-[10.092283]  bus_add_driver+0x1b8/0x228
-[10.092285]  driver_register+0x60/0x110
-[10.092288]  __platform_driver_register+0x40/0x48
-[10.092292]  hns_nic_dev_driver_init+0x18/0x20
-[10.092296]  do_one_initcall+0x5c/0x180
-[10.092299]  kernel_init_freeable+0x198/0x240
-[10.092303]  kernel_init+0x10/0x108
-[10.092306]  ret_from_fork+0x10/0x18
-[10.092308] ---[ end trace 1396dd0278e397eb ]---
+  IP set_pte_at+0x3c/0x190
+  LR insert_pfn+0x208/0x280
+  Call Trace:
+     insert_pfn+0x68/0x280
+     dax_iomap_pte_fault.isra.7+0x734/0xa40
+     __xfs_filemap_fault+0x280/0x2d0
+     do_wp_page+0x48c/0xa40
+     __handle_mm_fault+0x8d0/0x1fd0
+     handle_mm_fault+0x140/0x250
+     __do_page_fault+0x300/0xd60
+     handle_page_fault+0x18
 
-This WARNING occurred because of calling phy_stop before phy_start.
+Now that is WARN_ON in set_pte_at which is
 
-The root cause of the problem in commit '308c6cafde01' is:
+        VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
 
-Reference to hns_nic_init_phy, the flag phydev->supported is changed after
-phy_connect_direct. The flag phydev->supported is 0x6ff when hns modules is
-loaded, so will not change Fiber Port power(Reference to marvell.c), which
-is power on at default.
-Then the flag phydev->supported is changed to 0x6f, so Fiber Port power is
-off when removing hns modules.
-When hns modules installed again, the flag phydev->supported is default
-value 0x6ff, so will not change Fiber Port power(now is off), causing mac
-link not up problem.
+The problem is that on some architectures set_pte_at() cannot cope with
+a situation where there is already some (different) valid entry present.
 
-So the solution is change phy flags before phy_connect_direct.
+Use ptep_set_access_flags() instead to modify the pfn which is built to
+deal with modifying existing PTE.
 
-Fixes: 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko after rmmod.")
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20190311084537.16029-1-jack@suse.cz
+Fixes: b2770da64254 "mm: add vm_insert_mixed_mkwrite()"
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Chandan Rajendra <chandan@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ mm/memory.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-index d30c28fba249..7f14f06e868a 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -1269,6 +1269,12 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
- 	if (!h->phy_dev)
- 		return 0;
+diff --git a/mm/memory.c b/mm/memory.c
+index f99b64ca1303..e9bce27bc18c 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1813,10 +1813,12 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 				WARN_ON_ONCE(!is_zero_pfn(pte_pfn(*pte)));
+ 				goto out_unlock;
+ 			}
+-			entry = *pte;
+-			goto out_mkwrite;
+-		} else
+-			goto out_unlock;
++			entry = pte_mkyoung(*pte);
++			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++			if (ptep_set_access_flags(vma, addr, pte, entry, 1))
++				update_mmu_cache(vma, addr, pte);
++		}
++		goto out_unlock;
+ 	}
  
-+	phy_dev->supported &= h->if_support;
-+	phy_dev->advertising = phy_dev->supported;
-+
-+	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
-+		phy_dev->autoneg = false;
-+
- 	if (h->phy_if != PHY_INTERFACE_MODE_XGMII) {
- 		phy_dev->dev_flags = 0;
+ 	/* Ok, finally just insert the thing.. */
+@@ -1825,7 +1827,6 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 	else
+ 		entry = pte_mkspecial(pfn_t_pte(pfn, prot));
  
-@@ -1280,15 +1286,6 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
- 	if (unlikely(ret))
- 		return -ENODEV;
- 
--	phy_dev->supported &= h->if_support;
--	phy_dev->advertising = phy_dev->supported;
--
--	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
--		phy_dev->autoneg = false;
--
--	if (h->phy_if == PHY_INTERFACE_MODE_SGMII)
--		phy_stop(phy_dev);
--
- 	return 0;
- }
- 
+-out_mkwrite:
+ 	if (mkwrite) {
+ 		entry = pte_mkyoung(entry);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
 -- 
 2.20.1
 
