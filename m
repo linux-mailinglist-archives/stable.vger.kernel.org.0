@@ -2,97 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBDC166A4
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 17:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8381670D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 17:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726572AbfEGPZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 11:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726236AbfEGPZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 11:25:18 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2737720578;
-        Tue,  7 May 2019 15:25:15 +0000 (UTC)
-Date:   Tue, 7 May 2019 11:25:13 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190507112513.11297412@gandalf.local.home>
-In-Reply-To: <20190507111227.1d4268d7@gandalf.local.home>
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
-        <20190506145745.17c59596@gandalf.local.home>
-        <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
-        <20190506162915.380993f9@gandalf.local.home>
-        <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
-        <20190506174511.2f8b696b@gandalf.local.home>
-        <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
-        <20190506210416.2489a659@oasis.local.home>
-        <CAHk-=whZwqzbu-=1r_j_cXfd=ta1q7RFCuneqBZfQQhS_P-BmQ@mail.gmail.com>
-        <20190506215353.14a8ef78@oasis.local.home>
-        <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
-        <20190506225819.11756974@oasis.local.home>
-        <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
-        <20190506232158.13c9123b@oasis.local.home>
-        <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
-        <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com>
-        <20190507111227.1d4268d7@gandalf.local.home>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726321AbfEGPmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 11:42:45 -0400
+Received: from 5.mo69.mail-out.ovh.net ([46.105.43.105]:36657 "EHLO
+        5.mo69.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726197AbfEGPmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 11:42:45 -0400
+X-Greylist: delayed 922 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 May 2019 11:42:44 EDT
+Received: from player697.ha.ovh.net (unknown [10.108.35.12])
+        by mo69.mail-out.ovh.net (Postfix) with ESMTP id 89D40506B4
+        for <stable@vger.kernel.org>; Tue,  7 May 2019 17:27:20 +0200 (CEST)
+Received: from armadeus.com (lfbn-1-7591-179.w90-126.abo.wanadoo.fr [90.126.248.179])
+        (Authenticated sender: sebastien.szymanski@armadeus.com)
+        by player697.ha.ovh.net (Postfix) with ESMTPSA id 274FD5875A38;
+        Tue,  7 May 2019 15:27:00 +0000 (UTC)
+From:   =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>
+To:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        NXP Linux Team <linux-imx@nxp.com>
+Cc:     Fabio Estevam <festevam@gmail.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>, stable@vger.kernel.org
+Subject: [PATCH RE-RESEND 1/2] drm/panel: Add support for Armadeus ST0700 Adapt
+Date:   Tue,  7 May 2019 17:27:12 +0200
+Message-Id: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+X-Mailer: git-send-email 2.19.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 11806186423600239639
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddrkedtgdelgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 11:12:27 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+that it can be connected on the TFT header of Armadeus Dev boards.
 
-> I don't look at Peter's patch and think "this is the solution for int3
-> emulate calls". I see Peter's patch as "Thanks God, we are finally
-> getting rid of the cause of all theses work around hacks all over the
-> place! and oh by the way, we can easily implement int3 call emulation
-> because of it".
+Cc: stable@vger.kernel.org # v4.19
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+---
+ .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
+ drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
+ 2 files changed, 38 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
 
-Note, if you really are adamant on your solution, I can write them up,
-test them, and get them out for this merge window. I really want a
-solution for the int3 emulate calls, as there is a real bug here that
-they fix.
+diff --git a/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+new file mode 100644
+index 000000000000..a30d63db3c8f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+@@ -0,0 +1,9 @@
++Armadeus ST0700 Adapt. A Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT with
++an adapter board.
++
++Required properties:
++- compatible: "armadeus,st0700-adapt"
++- power-supply: see panel-common.txt
++
++Optional properties:
++- backlight: see panel-common.txt
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 9e8218f6a3f2..45ca8d10b66f 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -446,6 +446,32 @@ static const struct panel_desc ampire_am800480r3tmqwa1h = {
+ 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
+ };
+ 
++static const struct display_timing santek_st0700i5y_rbslw_f_timing = {
++	.pixelclock = { 26400000, 33300000, 46800000 },
++	.hactive = { 800, 800, 800 },
++	.hfront_porch = { 16, 210, 354 },
++	.hback_porch = { 45, 36, 6 },
++	.hsync_len = { 1, 10, 40 },
++	.vactive = { 480, 480, 480 },
++	.vfront_porch = { 7, 22, 147 },
++	.vback_porch = { 22, 13, 3 },
++	.vsync_len = { 1, 10, 20 },
++	.flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
++		DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
++};
++
++static const struct panel_desc armadeus_st0700_adapt = {
++	.timings = &santek_st0700i5y_rbslw_f_timing,
++	.num_timings = 1,
++	.bpc = 6,
++	.size = {
++		.width = 154,
++		.height = 86,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_POSEDGE,
++};
++
+ static const struct drm_display_mode auo_b101aw03_mode = {
+ 	.clock = 51450,
+ 	.hdisplay = 1024,
+@@ -2544,6 +2570,9 @@ static const struct of_device_id platform_of_match[] = {
+ 	}, {
+ 		.compatible = "arm,rtsm-display",
+ 		.data = &arm_rtsm,
++	}, {
++		.compatible = "armadeus,st0700-adapt",
++		.data = &armadeus_st0700_adapt,
+ 	}, {
+ 		.compatible = "auo,b101aw03",
+ 		.data = &auo_b101aw03,
+-- 
+2.19.2
 
-But I will say, I still prefer Peter's solution. Maybe in the future we
-can revisit it again.
-
--- Steve
