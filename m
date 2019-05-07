@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEAB159DA
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0290215AD7
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728382AbfEGFkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59996 "EHLO mail.kernel.org"
+        id S1729170AbfEGFtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729119AbfEGFka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:30 -0400
+        id S1728812AbfEGFkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F8DC2087F;
-        Tue,  7 May 2019 05:40:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58BE920578;
+        Tue,  7 May 2019 05:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207629;
-        bh=C/SEdJvcztVmaWYIHppHb6GDJ7iOjWkEKhogPF8LK1I=;
+        s=default; t=1557207631;
+        bh=t/Br6gIcSiZmlrPC7V3vb+4t9UEZaeU+lmbv8eZ3UJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzLugjq8V/bTzbg43eUiU523ZrMeJwpsfGuXMzckElO7DXJomqN+NW2UIm8pAkKLX
-         P8PJcWgoVtZwneNDn/RzqxYprPZOMjqwTh2QRLvazvthMHftSn+VDRaPacvKN9DB/S
-         ZnuI51kryP7CnSTdJMEXm+769qAfAvPj1/1zVw+s=
+        b=eqMTMFfNiAdmOTFz6IRJSh1OzTHCw+F8+JdFUgr8JXsy6OYrMC/U3z/LM+lAJxd+2
+         xlyLSQA6woMkon6KhWrh2KOzoVyJsfwfOvcZiI7lNkosOttSUE0s3dpkucqR4Aim6x
+         CUVIVnkXsSzF47bGYqiAcpVshRB1jaHsmO3T3pWw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+Cc:     Adit Ranadive <aditr@vmware.com>,
+        Ruishuang Wang <ruishuangw@vmware.com>,
+        Bryan Tan <bryantan@vmware.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        dri-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 67/95] drm/rockchip: psr: do not dereference encoder before it is null checked.
-Date:   Tue,  7 May 2019 01:37:56 -0400
-Message-Id: <20190507053826.31622-67-sashal@kernel.org>
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 68/95] RDMA/vmw_pvrdma: Return the correct opcode when creating WR
+Date:   Tue,  7 May 2019 01:37:57 -0400
+Message-Id: <20190507053826.31622-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,46 +47,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+From: Adit Ranadive <aditr@vmware.com>
 
-[ Upstream commit 4eda776c3cefcb1f01b2d85bd8753f67606282b5 ]
+[ Upstream commit 6325e01b6cdf4636b721cf7259c1616e3cf28ce2 ]
 
-'encoder' is dereferenced before it is null sanity checked, hence we
-potentially have a null pointer dereference bug. Instead, initialise
-drm_drv from encoder->dev->dev_private after we are sure 'encoder' is
-not null.
+Since the IB_WR_REG_MR opcode value changed, let's set the PVRDMA device
+opcodes explicitly.
 
-Fixes: 5182c1a556d7f ("drm/rockchip: add an common abstracted PSR driver")
+Reported-by: Ruishuang Wang <ruishuangw@vmware.com>
+Fixes: 9a59739bd01f ("IB/rxe: Revise the ib_wr_opcode enum")
 Cc: stable@vger.kernel.org
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20181013105654.11827-1-enric.balletbo@collabora.com
+Reviewed-by: Bryan Tan <bryantan@vmware.com>
+Reviewed-by: Ruishuang Wang <ruishuangw@vmware.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: Adit Ranadive <aditr@vmware.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma.h    | 35 +++++++++++++++++++-
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c |  6 ++++
+ include/uapi/rdma/vmw_pvrdma-abi.h           |  1 +
+ 3 files changed, 41 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-index a553e182ff53..32e7dba2bf5e 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-@@ -221,13 +221,15 @@ EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
- int rockchip_drm_psr_register(struct drm_encoder *encoder,
- 			void (*psr_set)(struct drm_encoder *, bool enable))
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+index 984aa3484928..4463e1c1a764 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+@@ -407,7 +407,40 @@ static inline enum ib_qp_state pvrdma_qp_state_to_ib(enum pvrdma_qp_state state)
+ 
+ static inline enum pvrdma_wr_opcode ib_wr_opcode_to_pvrdma(enum ib_wr_opcode op)
  {
--	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
-+	struct rockchip_drm_private *drm_drv;
- 	struct psr_drv *psr;
- 	unsigned long flags;
+-	return (enum pvrdma_wr_opcode)op;
++	switch (op) {
++	case IB_WR_RDMA_WRITE:
++		return PVRDMA_WR_RDMA_WRITE;
++	case IB_WR_RDMA_WRITE_WITH_IMM:
++		return PVRDMA_WR_RDMA_WRITE_WITH_IMM;
++	case IB_WR_SEND:
++		return PVRDMA_WR_SEND;
++	case IB_WR_SEND_WITH_IMM:
++		return PVRDMA_WR_SEND_WITH_IMM;
++	case IB_WR_RDMA_READ:
++		return PVRDMA_WR_RDMA_READ;
++	case IB_WR_ATOMIC_CMP_AND_SWP:
++		return PVRDMA_WR_ATOMIC_CMP_AND_SWP;
++	case IB_WR_ATOMIC_FETCH_AND_ADD:
++		return PVRDMA_WR_ATOMIC_FETCH_AND_ADD;
++	case IB_WR_LSO:
++		return PVRDMA_WR_LSO;
++	case IB_WR_SEND_WITH_INV:
++		return PVRDMA_WR_SEND_WITH_INV;
++	case IB_WR_RDMA_READ_WITH_INV:
++		return PVRDMA_WR_RDMA_READ_WITH_INV;
++	case IB_WR_LOCAL_INV:
++		return PVRDMA_WR_LOCAL_INV;
++	case IB_WR_REG_MR:
++		return PVRDMA_WR_FAST_REG_MR;
++	case IB_WR_MASKED_ATOMIC_CMP_AND_SWP:
++		return PVRDMA_WR_MASKED_ATOMIC_CMP_AND_SWP;
++	case IB_WR_MASKED_ATOMIC_FETCH_AND_ADD:
++		return PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD;
++	case IB_WR_REG_SIG_MR:
++		return PVRDMA_WR_REG_SIG_MR;
++	default:
++		return PVRDMA_WR_ERROR;
++	}
+ }
  
- 	if (!encoder || !psr_set)
- 		return -EINVAL;
+ static inline enum ib_wc_status pvrdma_wc_status_to_ib(
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
+index d7162f2b7979..4d9c99dd366b 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
+@@ -695,6 +695,12 @@ int pvrdma_post_send(struct ib_qp *ibqp, struct ib_send_wr *wr,
+ 		    wr->opcode == IB_WR_RDMA_WRITE_WITH_IMM)
+ 			wqe_hdr->ex.imm_data = wr->ex.imm_data;
  
-+	drm_drv = encoder->dev->dev_private;
++		if (unlikely(wqe_hdr->opcode == PVRDMA_WR_ERROR)) {
++			*bad_wr = wr;
++			ret = -EINVAL;
++			goto out;
++		}
 +
- 	psr = kzalloc(sizeof(struct psr_drv), GFP_KERNEL);
- 	if (!psr)
- 		return -ENOMEM;
+ 		switch (qp->ibqp.qp_type) {
+ 		case IB_QPT_GSI:
+ 		case IB_QPT_UD:
+diff --git a/include/uapi/rdma/vmw_pvrdma-abi.h b/include/uapi/rdma/vmw_pvrdma-abi.h
+index 912ea1556a0b..fd801c7be120 100644
+--- a/include/uapi/rdma/vmw_pvrdma-abi.h
++++ b/include/uapi/rdma/vmw_pvrdma-abi.h
+@@ -76,6 +76,7 @@ enum pvrdma_wr_opcode {
+ 	PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD,
+ 	PVRDMA_WR_BIND_MW,
+ 	PVRDMA_WR_REG_SIG_MR,
++	PVRDMA_WR_ERROR,
+ };
+ 
+ enum pvrdma_wc_status {
 -- 
 2.20.1
 
