@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F352815CA4
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D80415CA9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727424AbfEGFeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:34:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53952 "EHLO mail.kernel.org"
+        id S1726413AbfEGGFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727411AbfEGFeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:05 -0400
+        id S1727419AbfEGFeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F32AE20B7C;
-        Tue,  7 May 2019 05:34:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7329C21479;
+        Tue,  7 May 2019 05:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207244;
-        bh=YSIJSBBHtM0WqwfXn8MlZjoSKbffyCq5FDxyImeCKYc=;
+        s=default; t=1557207245;
+        bh=MNlaOp58lREvSwWjRtLUes/DZFyGYNHZNIS4RhI6RfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdgDMdib5QADik8ITb9tCPLolbcaxwQATvyBsRfgrWjUy7LH3kYto16Xmp8ZCC9bj
-         tJtZQaJSMgI6qRTTxJ/PMqB17G1/TWxc+RzdVDeNjwIIgvZcZJOIwS/6LZPsdTwUzh
-         kl6t6tsX0erl7tkeDr42fQJ3vkjax+qFBJriYxuo=
+        b=CMDbeNzsAWo2b4TyP0WzAitrS261kOLPkPe9WprGS/oct3LG/GzT7WF5suug6irS6
+         /q+YNsl4LtEBPVHrgzEpJ5ieH644jeTgLDG7v0F95v/P33h1smPogblrC7KBHQgvyn
+         e03Fw9IKFRx0UpQCZLF80Ce+Z0wSPmHPbhMLYEqA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liran Alon <liran.alon@oracle.com>,
-        Saar Amar <saaramar@microsoft.com>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 46/99] KVM: nVMX: Expose RDPMC-exiting only when guest supports PMU
-Date:   Tue,  7 May 2019 01:31:40 -0400
-Message-Id: <20190507053235.29900-46-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 47/99] KVM: fix spectrev1 gadgets
+Date:   Tue,  7 May 2019 01:31:41 -0400
+Message-Id: <20190507053235.29900-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -46,83 +42,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liran Alon <liran.alon@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit e51bfdb68725dc052d16241ace40ea3140f938aa ]
+[ Upstream commit 1d487e9bf8ba66a7174c56a0029c54b1eca8f99c ]
 
-Issue was discovered when running kvm-unit-tests on KVM running as L1 on
-top of Hyper-V.
+These were found with smatch, and then generalized when applicable.
 
-When vmx_instruction_intercept unit-test attempts to run RDPMC to test
-RDPMC-exiting, it is intercepted by L1 KVM which it's EXIT_REASON_RDPMC
-handler raise #GP because vCPU exposed by Hyper-V doesn't support PMU.
-Instead of unit-test expectation to be reflected with EXIT_REASON_RDPMC.
-
-The reason vmx_instruction_intercept unit-test attempts to run RDPMC
-even though Hyper-V doesn't support PMU is because L1 expose to L2
-support for RDPMC-exiting. Which is reasonable to assume that is
-supported only in case CPU supports PMU to being with.
-
-Above issue can easily be simulated by modifying
-vmx_instruction_intercept config in x86/unittests.cfg to run QEMU with
-"-cpu host,+vmx,-pmu" and run unit-test.
-
-To handle issue, change KVM to expose RDPMC-exiting only when guest
-supports PMU.
-
-Reported-by: Saar Amar <saaramar@microsoft.com>
-Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Liran Alon <liran.alon@oracle.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ arch/x86/kvm/lapic.c     |  4 +++-
+ include/linux/kvm_host.h | 10 ++++++----
+ virt/kvm/irqchip.c       |  5 +++--
+ virt/kvm/kvm_main.c      |  6 ++++--
+ 4 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 34499081022c..0479aee38f4d 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6982,6 +6982,30 @@ static void nested_vmx_entry_exit_ctls_update(struct kvm_vcpu *vcpu)
- 	}
- }
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 4b6c2da7265c..e196e187d2f1 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -138,6 +138,7 @@ static inline bool kvm_apic_map_get_logical_dest(struct kvm_apic_map *map,
+ 		if (offset <= max_apic_id) {
+ 			u8 cluster_size = min(max_apic_id - offset + 1, 16U);
  
-+static bool guest_cpuid_has_pmu(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_cpuid_entry2 *entry;
-+	union cpuid10_eax eax;
-+
-+	entry = kvm_find_cpuid_entry(vcpu, 0xa, 0);
-+	if (!entry)
-+		return false;
-+
-+	eax.full = entry->eax;
-+	return (eax.split.version_id > 0);
-+}
-+
-+static void nested_vmx_procbased_ctls_update(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_vmx *vmx = to_vmx(vcpu);
-+	bool pmu_enabled = guest_cpuid_has_pmu(vcpu);
-+
-+	if (pmu_enabled)
-+		vmx->nested.msrs.procbased_ctls_high |= CPU_BASED_RDPMC_EXITING;
-+	else
-+		vmx->nested.msrs.procbased_ctls_high &= ~CPU_BASED_RDPMC_EXITING;
-+}
-+
- static void update_intel_pt_cfg(struct kvm_vcpu *vcpu)
++			offset = array_index_nospec(offset, map->max_apic_id + 1);
+ 			*cluster = &map->phys_map[offset];
+ 			*mask = dest_id & (0xffff >> (16 - cluster_size));
+ 		} else {
+@@ -900,7 +901,8 @@ static inline bool kvm_apic_map_get_dest_lapic(struct kvm *kvm,
+ 		if (irq->dest_id > map->max_apic_id) {
+ 			*bitmap = 0;
+ 		} else {
+-			*dst = &map->phys_map[irq->dest_id];
++			u32 dest_id = array_index_nospec(irq->dest_id, map->max_apic_id + 1);
++			*dst = &map->phys_map[dest_id];
+ 			*bitmap = 1;
+ 		}
+ 		return true;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index cf761ff58224..e41503b2c5a1 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -28,6 +28,7 @@
+ #include <linux/irqbypass.h>
+ #include <linux/swait.h>
+ #include <linux/refcount.h>
++#include <linux/nospec.h>
+ #include <asm/signal.h>
+ 
+ #include <linux/kvm.h>
+@@ -492,10 +493,10 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
+ 
+ static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
  {
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
-@@ -7070,6 +7094,7 @@ static void vmx_cpuid_update(struct kvm_vcpu *vcpu)
- 	if (nested_vmx_allowed(vcpu)) {
- 		nested_vmx_cr_fixed1_bits_update(vcpu);
- 		nested_vmx_entry_exit_ctls_update(vcpu);
-+		nested_vmx_procbased_ctls_update(vcpu);
- 	}
+-	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
+-	 * the caller has read kvm->online_vcpus before (as is the case
+-	 * for kvm_for_each_vcpu, for example).
+-	 */
++	int num_vcpus = atomic_read(&kvm->online_vcpus);
++	i = array_index_nospec(i, num_vcpus);
++
++	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  */
+ 	smp_rmb();
+ 	return kvm->vcpus[i];
+ }
+@@ -579,6 +580,7 @@ void kvm_put_kvm(struct kvm *kvm);
  
- 	if (boot_cpu_has(X86_FEATURE_INTEL_PT) &&
+ static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
+ {
++	as_id = array_index_nospec(as_id, KVM_ADDRESS_SPACE_NUM);
+ 	return srcu_dereference_check(kvm->memslots[as_id], &kvm->srcu,
+ 			lockdep_is_held(&kvm->slots_lock) ||
+ 			!refcount_read(&kvm->users_count));
+diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
+index b1286c4e0712..0bd0683640bd 100644
+--- a/virt/kvm/irqchip.c
++++ b/virt/kvm/irqchip.c
+@@ -144,18 +144,19 @@ static int setup_routing_entry(struct kvm *kvm,
+ {
+ 	struct kvm_kernel_irq_routing_entry *ei;
+ 	int r;
++	u32 gsi = array_index_nospec(ue->gsi, KVM_MAX_IRQ_ROUTES);
+ 
+ 	/*
+ 	 * Do not allow GSI to be mapped to the same irqchip more than once.
+ 	 * Allow only one to one mapping between GSI and non-irqchip routing.
+ 	 */
+-	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
++	hlist_for_each_entry(ei, &rt->map[gsi], link)
+ 		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
+ 		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
+ 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
+ 			return -EINVAL;
+ 
+-	e->gsi = ue->gsi;
++	e->gsi = gsi;
+ 	e->type = ue->type;
+ 	r = kvm_set_routing_entry(kvm, e, ue);
+ 	if (r)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index b4f2d892a1d3..ff68b07e94e9 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2974,12 +2974,14 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 	struct kvm_device_ops *ops = NULL;
+ 	struct kvm_device *dev;
+ 	bool test = cd->flags & KVM_CREATE_DEVICE_TEST;
++	int type;
+ 	int ret;
+ 
+ 	if (cd->type >= ARRAY_SIZE(kvm_device_ops_table))
+ 		return -ENODEV;
+ 
+-	ops = kvm_device_ops_table[cd->type];
++	type = array_index_nospec(cd->type, ARRAY_SIZE(kvm_device_ops_table));
++	ops = kvm_device_ops_table[type];
+ 	if (ops == NULL)
+ 		return -ENODEV;
+ 
+@@ -2994,7 +2996,7 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 	dev->kvm = kvm;
+ 
+ 	mutex_lock(&kvm->lock);
+-	ret = ops->create(dev, cd->type);
++	ret = ops->create(dev, type);
+ 	if (ret < 0) {
+ 		mutex_unlock(&kvm->lock);
+ 		kfree(dev);
 -- 
 2.20.1
 
