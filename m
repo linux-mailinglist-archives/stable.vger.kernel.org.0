@@ -2,118 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C881715B2E
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4BC15BBB
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728872AbfEGFwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:52:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38230 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728896AbfEGFwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:52:17 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7D5B205ED;
-        Tue,  7 May 2019 05:52:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557208336;
-        bh=N26NT472AJl64Ye593vKGyraTKV6QYnsEVPtsPUDgS8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RjCEr5aCMT4Uk9yNqIWCCL//2hkpSqXtp7E46ssLuyMCdjwXaf/KlsSxWnBWpiGo8
-         I95XOQDzgMx15QM+/qeZ93Wv+tITASZOVFMtU3sbNl+b+lCl1P9xO/fJtGOedFHaIe
-         psw9yA4amrorbJPSVfl31q+MqIMeGMI+31IesEdc=
-Date:   Tue, 7 May 2019 07:52:14 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Alexey Brodkin <alexey.brodkin@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
+        id S1728554AbfEGF5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:57:06 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:41809 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728539AbfEGF5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 01:57:05 -0400
+Received: by mail-lj1-f193.google.com with SMTP id k8so13128312lja.8
+        for <stable@vger.kernel.org>; Mon, 06 May 2019 22:57:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rasmusvillemoes.dk; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=C7TwO1vjbNHfMqbAxi9vlDVvmDYxhZ6ib+epFPKTheM=;
+        b=TDEjJvzcgnurW1FPZtCH9rYP2rDymIZeqdMqRdGI15WUsXRAn3v7+lnmyZ0fdZGIeF
+         Pc5D+zhVmkFbz3l3w4gfKZ2EnMZd+l84USSuNcl+9kMp8kUMYmIHDBt8nJJyKVkqp9N6
+         bfTxje9VGE12bymK8hn65n+jfWRpU1o46JJJI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=C7TwO1vjbNHfMqbAxi9vlDVvmDYxhZ6ib+epFPKTheM=;
+        b=ewx4hfGrizROrqlTZwGQTdZ4I0yGNOrceC0zuahW8pzGwOpZMIVbZXDdGnAqlbRY/r
+         ccqRKQXjsQjiIti95Xi4k9cT1rkoLSdozNbaM4At5V9rJdO6PRBnpQ2uCLUfGvmeFovl
+         Nx6jb9H5ZcQBFz8uOdWYfuW7t+luUUkTzWfiisX9zTDO7gmo+Pwwa+2RZ+Ry+HFqiZbo
+         Jblqd9Ej+Oik0MmJIhhMXY7/svZUE7UqkM8YT4A2TBi22H9ZjhNerNBeafNWR23Maurk
+         IjCInQrj8RRR8gWp1+AfHDDd+BufsZ9r5xkwAZF4YIhMDVUCCbd9QLCoRRCjWxD5fiTF
+         2N2Q==
+X-Gm-Message-State: APjAAAVG3s7QWs1gEGTYTfeDJG+/YNfXLn+DbL4mz8K11cpr4oeeR+MF
+        GFFvYZEqPcU16DgtnptJFEbUPg==
+X-Google-Smtp-Source: APXvYqwERnjT55opTEsv307+a6frciS871V94u2tJ9NDGTgJXKuYC1Zj43Kpzyifcos6RVOT/S+r2A==
+X-Received: by 2002:a2e:84ca:: with SMTP id q10mr2535264ljh.117.1557208623493;
+        Mon, 06 May 2019 22:57:03 -0700 (PDT)
+Received: from [172.16.11.26] ([81.216.59.226])
+        by smtp.gmail.com with ESMTPSA id s17sm1889372lfb.66.2019.05.06.22.57.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 May 2019 22:57:02 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 4.14 79/95] x86/asm: Remove dead __GNUC__
+ conditionals
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
-        David Laight <David.Laight@aculab.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         Sasha Levin <alexander.levin@microsoft.com>
-Subject: Re: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to
- ARCH_KMALLOC_MINALIGN
-Message-ID: <20190507055214.GA17986@kroah.com>
 References: <20190507053826.31622-1-sashal@kernel.org>
- <20190507053826.31622-72-sashal@kernel.org>
+ <20190507053826.31622-79-sashal@kernel.org>
+From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Message-ID: <d18bba8c-0d2c-03bd-0098-5f39ad726b01@rasmusvillemoes.dk>
+Date:   Tue, 7 May 2019 07:57:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190507053826.31622-72-sashal@kernel.org>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190507053826.31622-79-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 01:38:01AM -0400, Sasha Levin wrote:
-> From: Alexey Brodkin <alexey.brodkin@synopsys.com>
+On 07/05/2019 07.38, Sasha Levin wrote:
+> From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 > 
-> [ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
+> [ Upstream commit 88ca66d8540ca26119b1428cddb96b37925bdf01 ]
 > 
-> Initially we bumped into problem with 32-bit aligned atomic64_t
-> on ARC, see [1]. And then during quite lengthly discussion Peter Z.
-> mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
-> If allocation is done by plain kmalloc() obtained buffer will be
-> ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
-> devm_kmalloc() should have any other alignment?
-> 
-> This way we at least get the same behavior for both types of
-> allocation.
-> 
-> [1] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004009.html
-> [2] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004036.html
-> 
-> Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: David Laight <David.Laight@ACULAB.COM>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Vineet Gupta <vgupta@synopsys.com>
-> Cc: Will Deacon <will.deacon@arm.com>
-> Cc: Greg KH <greg@kroah.com>
-> Cc: <stable@vger.kernel.org> # 4.8+
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-> ---
->  drivers/base/devres.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/base/devres.c b/drivers/base/devres.c
-> index 71d577025285..e43a04a495a3 100644
-> --- a/drivers/base/devres.c
-> +++ b/drivers/base/devres.c
-> @@ -25,8 +25,14 @@ struct devres_node {
->  
->  struct devres {
->  	struct devres_node		node;
-> -	/* -- 3 pointers */
-> -	unsigned long long		data[];	/* guarantee ull alignment */
-> +	/*
-> +	 * Some archs want to perform DMA into kmalloc caches
-> +	 * and need a guaranteed alignment larger than
-> +	 * the alignment of a 64-bit integer.
-> +	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
-> +	 * buffer alignment as if it was allocated by plain kmalloc().
-> +	 */
-> +	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
->  };
->  
->  struct devres_group {
+> The minimum supported gcc version is >= 4.6, so these can be removed.
 
-This is not needed in any of the older kernels, despite what the stable@
-line said, as it ends up taking a lot of memory up for all other arches.
-That's why I only applied it to the one kernel version.  I'm betting
-that it will be eventually reverted when people notice it as well :)
+Eh, that bump happened for the 4.19 kernel, so this is not true for the
+4.14 branch. Has cafa0010cd51fb711fdcb50fc55f394c5f167a0a been applied
+to 4.14.y? Otherwise I don't think this is appropriate.
 
-So can you please drop it from all of your trees?
-
-thanks,
-
-greg k-h
+Rasmus
