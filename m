@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 560DF15B36
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A99C415B3B
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728102AbfEGFj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:39:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59056 "EHLO mail.kernel.org"
+        id S1728859AbfEGFwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728402AbfEGFjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:25 -0400
+        id S1727671AbfEGFj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CA7A20675;
-        Tue,  7 May 2019 05:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61B1720B7C;
+        Tue,  7 May 2019 05:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207565;
-        bh=FSFqdbn+Yk9ZtVY/0EwJNaARZW+n+i2voT5o2zoa3PA=;
+        s=default; t=1557207566;
+        bh=GGMllsJGL70Wd30hAUJvDQAa7WiQC42hvwxpkkNUawc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcZFyZ/bKuVeEtJMxAkFGhQE4/uzPk/hKHNNvCzoqrenGfSRG2wzXuAsIpk81AqED
-         NOCJD9nl9SOlicJ8Gb0KjpF4WtgOWnRkeGLI15/r1QRCWYXK2sBFhTE6tRMZevqjNn
-         ObNScxpCmNPY/frblleaVVk0UsNkON745TNXL/hU=
+        b=t8GgBtQJ0UHmTFmnOOR4/W1+6lh2y1QcfHfrYisQWuEZFovMo1iTIFgSTZ4+tfpt7
+         sh+p5+uzarc9x7kMQJpYuv8jniQIdNloU80dGRywI5nP61TCwIXcpJoes768sbwJwR
+         7tZLRwLw9EXLywua3+ZqeimTjJVQUSGmbXl4SdzM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 28/95] drm/sun4i: Set device driver data at bind time for use in unbind
-Date:   Tue,  7 May 2019 01:37:17 -0400
-Message-Id: <20190507053826.31622-28-sashal@kernel.org>
+Cc:     Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 29/95] selftests/net: correct the return value for run_netsocktests
+Date:   Tue,  7 May 2019 01:37:18 -0400
+Message-Id: <20190507053826.31622-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,37 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 02b92adbe33e6dbd15dc6e32540b22f47c4ff0a2 ]
+[ Upstream commit 30c04d796b693e22405c38e9b78e9a364e4c77e6 ]
 
-Our sun4i_drv_unbind gets the drm device using dev_get_drvdata.
-However, that driver data is never set in sun4i_drv_bind.
+The run_netsocktests will be marked as passed regardless the actual test
+result from the ./socket:
 
-Set it there to avoid getting a NULL pointer at unbind time.
+    selftests: net: run_netsocktests
+    ========================================
+    --------------------
+    running socket test
+    --------------------
+    [FAIL]
+    ok 1..6 selftests: net: run_netsocktests [PASS]
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-3-paul.kocialkowski@bootlin.com
+This is because the test script itself has been successfully executed.
+Fix this by exit 1 when the test failed.
+
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/net/run_netsocktests | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 8d3c8070ed86..e09161cf312f 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -96,6 +96,8 @@ static int sun4i_drv_bind(struct device *dev)
- 		ret = -ENOMEM;
- 		goto free_drm;
- 	}
-+
-+	dev_set_drvdata(dev, drm);
- 	drm->dev_private = drv;
- 	INIT_LIST_HEAD(&drv->engine_list);
- 	INIT_LIST_HEAD(&drv->tcon_list);
+diff --git a/tools/testing/selftests/net/run_netsocktests b/tools/testing/selftests/net/run_netsocktests
+index b093f39c298c..14e41faf2c57 100755
+--- a/tools/testing/selftests/net/run_netsocktests
++++ b/tools/testing/selftests/net/run_netsocktests
+@@ -7,7 +7,7 @@ echo "--------------------"
+ ./socket
+ if [ $? -ne 0 ]; then
+ 	echo "[FAIL]"
++	exit 1
+ else
+ 	echo "[PASS]"
+ fi
+-
 -- 
 2.20.1
 
