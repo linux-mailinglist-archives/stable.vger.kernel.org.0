@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E542E15BB3
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE94E15BB9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbfEGFhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57510 "EHLO mail.kernel.org"
+        id S1727966AbfEGF47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:56:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbfEGFhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:45 -0400
+        id S1727539AbfEGFhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A42A920578;
-        Tue,  7 May 2019 05:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D18AE205ED;
+        Tue,  7 May 2019 05:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207464;
-        bh=EiAGYo1E9SxfPaS0i1ndJq2wTAwaTy0SAsYy7NBE9E4=;
+        s=default; t=1557207466;
+        bh=9cO+/aT9CElXUbD+6b8Ci49IlANqm7qYkIfp6dh7t+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6HQS+K2Rw5Xt5FFvV3vBPfmzpZ/Ld5kBYA2vQGt7ccCLP7iVTDVX2kgqvo5tD3Ea
-         u6hjUYD1REZ7/zx+whyu0fSDZ7FhwZ6MGAQCG/xUq87/H0p72zSNJty2OupHVOovlw
-         o/37sCJGgrlwdFrJjESXKMG5QlOM7fHq2SCb3BCQ=
+        b=wIoM8eaeS2aSxgY0sT0d9SlJzxuMdxCbfuCU//Co3MNSSNpfEB7cj9V6mxmNR2qXD
+         UM1Znv2ZIrTMg0UeqKc8pOZIh4vhJ7PTR67YdPKQ+v9L7THVEQdaivBJdC7UlwLrXV
+         wVw+P8qdOUMZFR43AeIFs+k7SSVJ4pZHvDSEAIlk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Gomez <dagmcr@gmail.com>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 57/81] spi: ST ST95HF NFC: declare missing of table
-Date:   Tue,  7 May 2019 01:35:28 -0400
-Message-Id: <20190507053554.30848-57-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Borislav Petkov <bp@suse.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 58/81] x86/mm: Fix a crash with kmemleak_scan()
+Date:   Tue,  7 May 2019 01:35:29 -0400
+Message-Id: <20190507053554.30848-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,56 +49,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <dagmcr@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit d04830531d0c4a99c897a44038e5da3d23331d2f ]
+[ Upstream commit 0d02113b31b2017dd349ec9df2314e798a90fa6e ]
 
-Add missing <of_device_id> table for SPI driver relying on SPI
-device match since compatible is in a DT binding or in a DTS.
+The first kmemleak_scan() call after boot would trigger the crash below
+because this callpath:
 
-Before this patch:
-modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
-alias:          spi:st95hf
+  kernel_init
+    free_initmem
+      mem_encrypt_free_decrypted_mem
+        free_init_pages
 
-After this patch:
-modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
-alias:          spi:st95hf
-alias:          of:N*T*Cst,st95hfC*
-alias:          of:N*T*Cst,st95hf
+unmaps memory inside the .bss when DEBUG_PAGEALLOC=y.
 
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+kmemleak_init() will register the .data/.bss sections and then
+kmemleak_scan() will scan those addresses and dereference them looking
+for pointer references. If free_init_pages() frees and unmaps pages in
+those sections, kmemleak_scan() will crash if referencing one of those
+addresses:
+
+  BUG: unable to handle kernel paging request at ffffffffbd402000
+  CPU: 12 PID: 325 Comm: kmemleak Not tainted 5.1.0-rc4+ #4
+  RIP: 0010:scan_block
+  Call Trace:
+   scan_gray_list
+   kmemleak_scan
+   kmemleak_scan_thread
+   kthread
+   ret_from_fork
+
+Since kmemleak_free_part() is tolerant to unknown objects (not tracked
+by kmemleak), it is fine to call it from free_init_pages() even if not
+all address ranges passed to this function are known to kmemleak.
+
+ [ bp: Massage. ]
+
+Fixes: b3f0907c71e0 ("x86/mm: Add .bss..decrypted section to hold shared variables")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190423165811.36699-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st95hf/core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/mm/init.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nfc/st95hf/core.c b/drivers/nfc/st95hf/core.c
-index 2b26f762fbc3..01acb6e53365 100644
---- a/drivers/nfc/st95hf/core.c
-+++ b/drivers/nfc/st95hf/core.c
-@@ -1074,6 +1074,12 @@ static const struct spi_device_id st95hf_id[] = {
- };
- MODULE_DEVICE_TABLE(spi, st95hf_id);
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index d883869437b5..fb5f29c60019 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -6,6 +6,7 @@
+ #include <linux/bootmem.h>	/* for max_low_pfn */
+ #include <linux/swapfile.h>
+ #include <linux/swapops.h>
++#include <linux/kmemleak.h>
  
-+static const struct of_device_id st95hf_spi_of_match[] = {
-+        { .compatible = "st,st95hf" },
-+        { },
-+};
-+MODULE_DEVICE_TABLE(of, st95hf_spi_of_match);
-+
- static int st95hf_probe(struct spi_device *nfc_spi_dev)
- {
- 	int ret;
-@@ -1260,6 +1266,7 @@ static struct spi_driver st95hf_driver = {
- 	.driver = {
- 		.name = "st95hf",
- 		.owner = THIS_MODULE,
-+		.of_match_table = of_match_ptr(st95hf_spi_of_match),
- 	},
- 	.id_table = st95hf_id,
- 	.probe = st95hf_probe,
+ #include <asm/set_memory.h>
+ #include <asm/e820/api.h>
+@@ -767,6 +768,11 @@ void free_init_pages(char *what, unsigned long begin, unsigned long end)
+ 	if (debug_pagealloc_enabled()) {
+ 		pr_info("debug: unmapping init [mem %#010lx-%#010lx]\n",
+ 			begin, end - 1);
++		/*
++		 * Inform kmemleak about the hole in the memory since the
++		 * corresponding pages will be unmapped.
++		 */
++		kmemleak_free_part((void *)begin, end - begin);
+ 		set_memory_np(begin, (end - begin) >> PAGE_SHIFT);
+ 	} else {
+ 		/*
 -- 
 2.20.1
 
