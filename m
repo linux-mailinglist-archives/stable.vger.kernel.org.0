@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE8315C34
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A2915C36
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727905AbfEGFfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55838 "EHLO mail.kernel.org"
+        id S1727920AbfEGFfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727899AbfEGFfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:51 -0400
+        id S1727357AbfEGFfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C90F206A3;
-        Tue,  7 May 2019 05:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C00C2087F;
+        Tue,  7 May 2019 05:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207350;
-        bh=FN/ycQ0u4c5F1wG10t4zwA7W/xvnp6ssKa7Bc4d+Tro=;
+        s=default; t=1557207352;
+        bh=yQogMUBQPjk9nrgNv1yeng0T8x7R0pvQDhEzCVBPASc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMK+3YBIoLT6T0hbBWVNz9oKYTOwkZZl8vpMVupU3k1V/3VzsiE/sjfpc5YQRINaR
-         GrUkGg47llbxDDsuewVmdND6DQsq4ozNt9qHnWt+vB4RAp5OX0v1TFk0Pp7Tv3Az//
-         HxjcJleDH17UlQW3pCLUY9MsTwnv1iAWkgdoqadQ=
+        b=BG579wH5o7r5gSH7s420RRjjYkl1Sgn7Txz9Vqaf7Beo3lpPHqz9+zYO53lG6Th5b
+         mKURfxOHTRgXYAV2oZiQwLfz0qWiyBTaJweliLZsrilbVKOwKWfKpFhzqI7FntspAn
+         /Gt9jkU91ca98AIVNmptMzF6lUCPYUJRNHvv+uzM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antoine Tenart <antoine.tenart@bootlin.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Damian Kos <dkos@cadence.com>, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 98/99] net: mvpp2: fix validate for PPv2.1
-Date:   Tue,  7 May 2019 01:32:32 -0400
-Message-Id: <20190507053235.29900-98-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.0 99/99] drm/rockchip: fix for mailbox read validation.
+Date:   Tue,  7 May 2019 01:32:33 -0400
+Message-Id: <20190507053235.29900-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -44,37 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <antoine.tenart@bootlin.com>
+From: Damian Kos <dkos@cadence.com>
 
-[ Upstream commit 8b318f30ab4ef9bbc1241e6f8c1db366dbd347f2 ]
+[ Upstream commit e4056bbb6719fe713bfc4030ac78e8e97ddf7574 ]
 
-The Phylink validate function is the Marvell PPv2 driver makes a check
-on the GoP id. This is valid an has to be done when using PPv2.2 engines
-but makes no sense when using PPv2.1. The check done when using an RGMII
-interface makes sure the GoP id is not 0, but this breaks PPv2.1. Fixes
-it.
+This is basically the same fix as in
+commit fa68d4f8476b ("drm/rockchip: fix for mailbox read size")
+but for cdn_dp_mailbox_validate_receive function.
 
-Fixes: 0fb628f0f250 ("net: mvpp2: fix phylink handling of invalid PHY modes")
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+See patchwork.kernel.org/patch/10671981/ for details.
+
+Signed-off-by: Damian Kos <dkos@cadence.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1542640463-18332-1-git-send-email-dkos@cadence.com
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 2 +-
+ drivers/gpu/drm/rockchip/cdn-dp-reg.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 931beac3359d..70031e2b2294 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4370,7 +4370,7 @@ static void mvpp2_phylink_validate(struct net_device *dev,
- 	case PHY_INTERFACE_MODE_RGMII_ID:
- 	case PHY_INTERFACE_MODE_RGMII_RXID:
- 	case PHY_INTERFACE_MODE_RGMII_TXID:
--		if (port->gop_id == 0)
-+		if (port->priv->hw_version == MVPP22 && port->gop_id == 0)
- 			goto empty_set;
- 		break;
- 	default:
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-reg.c b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+index 5a485489a1e2..6c8b14fb1d2f 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-reg.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+@@ -113,7 +113,7 @@ static int cdp_dp_mailbox_write(struct cdn_dp_device *dp, u8 val)
+ 
+ static int cdn_dp_mailbox_validate_receive(struct cdn_dp_device *dp,
+ 					   u8 module_id, u8 opcode,
+-					   u8 req_size)
++					   u16 req_size)
+ {
+ 	u32 mbox_size, i;
+ 	u8 header[4];
 -- 
 2.20.1
 
