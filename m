@@ -2,153 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3582616A9C
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA63F16AA5
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbfEGSnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 14:43:55 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:40461 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726464AbfEGSnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:43:55 -0400
-Received: by mail-lj1-f196.google.com with SMTP id d15so15269898ljc.7;
-        Tue, 07 May 2019 11:43:53 -0700 (PDT)
+        id S1727483AbfEGSrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 14:47:09 -0400
+Received: from mail-wm1-f50.google.com ([209.85.128.50]:35137 "EHLO
+        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726464AbfEGSrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:47:08 -0400
+Received: by mail-wm1-f50.google.com with SMTP id y197so21356659wmd.0
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 11:47:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=MTOHP6F/0obsnMO5RHpAHRXQRdtgQj1GXLteD8Q5aeo=;
-        b=drZB7KzWbLddiQsxBcUFEHKdh6tdqgNqbFZOEs5rpArVKqFAquyNrigRYCaHfvIuqF
-         cwK3TIboRmpdPXsasfJjJhffbsNHfjosuwQsbHRwcDFXFnAKTB6xcjudj+JKtJVDX0nx
-         VZmyex/xSmkYgoaBrXoLnbiEjVrKn8jskWYGw1UetE9s/yS/rpHa99AlN0PPt/BfDE4N
-         eMOBjlA3J7lYDcnBxpkB+hweXvQj+Zehj39BI6nLMfHgrAGs1IwLQYYKvD8Rs4V8nyG/
-         D41xR45UViTnRk/2NZIB8s6HbIn8SWy0rtNvdZhNCGt5x1hdN9y1O5JCyRFddWYCU6nM
-         kdng==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EicP5+7NLxItUWuGl11cRsPa8v9OrlBqaeDFbba/kHE=;
+        b=TXWrdAoz6r60njWUnlKK+ZrkzNK8u02VJMJtuM+ESuV/ks/Sp0h+pDMe+hE7b4TeMh
+         1JeDTxdy+W0pm5B8DGe4fx6ZYCk31qB5S6jOfwM4pLAez7O7Qpy1m0xqeqXL+6NZ1PO5
+         cNeIbrP8lGGFcmZS9j/rKau3io2VkrgGDShaHvkSQ1b+mzcKyLHrOmWqMTPU/bjLSfx+
+         pyQxEHpjU8RsdgKtbQ1E3FWGcO5TUwezK6O+gUVLBlM9iXjzz8L59HsJHvFWYoZ8OeEs
+         wZ7h9zJzVivUKa2Vn3snSZl6PR3JkWNzvms3PUfOcOz6pExFeXuBvL5PAAQ85PB6Vl0A
+         z4kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MTOHP6F/0obsnMO5RHpAHRXQRdtgQj1GXLteD8Q5aeo=;
-        b=aSvkZAqz/HvBDxzQYIs30gZ6/B9PQwvPEgT9dBsAcWwErJHBtOkTYrctTliltlwoSw
-         tRAS5kZyr0Ju6H1+rDkvMYphGSVpOocv/wVAUM1dB3cC7ROKadseEt9Nc5uVS7aN3M8O
-         VdK90mB74G/7i96oCWdiLS20YTS0EgRSwii+bM4jnxpz1x2XAWhOh9M/mBEylGtpo/ND
-         PxpzhlqMpj/VDjZemhztuQpCKTlih7u+rMoXb06ReVtofiP2vWX6o97gRIe7i9idJg+e
-         4HdeytSBbS3nIlgqnior7sor1N3INjaBPS1pq33/uP/H+6+5H8FaAfuuyhTOtUTtQFgw
-         qtPQ==
-X-Gm-Message-State: APjAAAUK5nziRoFQz/meY8jtRwnqtVafh2FkEoAia3c/xHPDqmI8IgVb
-        p9Eck7JgMI4rjqEFGC2GXJvnk+U3N1kGQM9y02OYOA==
-X-Google-Smtp-Source: APXvYqz77EQOkAasYxlchH/UHy2FA2xAuzpcZE2KK65BeR6tBSrLVPSCy+WLci8wP4QaflygEHw5Ojb9Y3JU5kqA010=
-X-Received: by 2002:a2e:6e01:: with SMTP id j1mr17454402ljc.85.1557254632236;
- Tue, 07 May 2019 11:43:52 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EicP5+7NLxItUWuGl11cRsPa8v9OrlBqaeDFbba/kHE=;
+        b=dmf1O5CPAjNONcbBI/aRbKqZYGIfnQ9a6IguAdHW3zc4xHdZ0f4g7MX4/l3k+9WonS
+         Z6sCI7dzaPK5MtsbDNwLEZn0jXlGHj19FmjEL9Ity66RPchI6oTGWX8QLXHPSQn/GX4K
+         qQ0DFXFlIRBa+zz6DHmK0Q9mRivUf4nc7+94RjkdEh21oqf39ia7MyGWSLfJxqeUo3VN
+         zJ/OchZn7N/UHAdnwON0dsJZMAXsOQ5l5jCaVkPny8wO/lQy2KZ8uHyLRSC+r5MegsI8
+         HEqCNU+R4FKPwFK7R/Qi63jdqIySnZO8AMEAeXxTsNp0krHHnQ8xV85k7kyQgbUCJEDP
+         k+qw==
+X-Gm-Message-State: APjAAAXOUhTBgUhJnbl8V+fXRv/XxVx1PkUwDd/YhTyU7dKQtOJPAJkq
+        OvYBV1PDIHw/wpb9AVt8GTrxrFyuJY3t4A==
+X-Google-Smtp-Source: APXvYqzJlCxErYeE7NBiRsjsiJZY/58uctIhUUOb6CzZCYjr7ZIS5afbCzno+fwcvZJJNznF+cr8Ew==
+X-Received: by 2002:a7b:ce06:: with SMTP id m6mr21312582wmc.62.1557254826854;
+        Tue, 07 May 2019 11:47:06 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w2sm10322003wrm.74.2019.05.07.11.47.05
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 May 2019 11:47:06 -0700 (PDT)
+Message-ID: <5cd1d2aa.1c69fb81.de161.46cd@mx.google.com>
+Date:   Tue, 07 May 2019 11:47:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190424221258.19992-1-jason.gerecke@wacom.com>
-In-Reply-To: <20190424221258.19992-1-jason.gerecke@wacom.com>
-From:   Jason Gerecke <killertofu@gmail.com>
-Date:   Tue, 7 May 2019 11:43:40 -0700
-Message-ID: <CANRwn3TcnEPASa_qqiKPgTR743uKBBX+cJ8uQecj_DsScAKJbg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] HID: wacom: Don't set tool type until we're in range
-To:     Linux Input <linux-input@vger.kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        "# v3.17+" <stable@vger.kernel.org>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-3.18.y
+X-Kernelci-Kernel: v3.18.139-52-gf85e9af98591
+Subject: stable-rc/linux-3.18.y boot: 29 boots: 5 failed,
+ 24 passed (v3.18.139-52-gf85e9af98591)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Haven't heard anything back from you about this patch set, Benjamin.
-Just making sure it doesn't get lost down a crack :)
+stable-rc/linux-3.18.y boot: 29 boots: 5 failed, 24 passed (v3.18.139-52-gf=
+85e9af98591)
 
-Jason
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-3.18.y/kernel/v3.18.139-52-gf85e9af98591/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.18.=
+y/kernel/v3.18.139-52-gf85e9af98591/
+
+Tree: stable-rc
+Branch: linux-3.18.y
+Git Describe: v3.18.139-52-gf85e9af98591
+Git Commit: f85e9af985911d96cee73289542433c5ef892f82
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 10 unique boards, 6 SoC families, 8 builds out of 189
+
+Boot Failures Detected:
+
+x86_64:
+    x86_64_defconfig:
+        gcc-8:
+            minnowboard-turbot-E3826: 1 failed lab
+            qemu: 4 failed labs
+
 ---
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
-
-
-On Wed, Apr 24, 2019 at 3:13 PM Gerecke, Jason <killertofu@gmail.com> wrote=
-:
->
-> From: Jason Gerecke <jason.gerecke@wacom.com>
->
-> The serial number and tool type information that is reported by the table=
-t
-> while a pen is merely "in prox" instead of fully "in range" can be stale
-> and cause us to report incorrect tool information. Serial number, tool
-> type, and other information is only valid once the pen comes fully in ran=
-ge
-> so we should be careful to not use this information until that point.
->
-> In particular, this issue may cause the driver to incorectly report
-> BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
->
-> Fixes: a48324de6d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handl=
-e prox/range")
-> Cc: <stable@vger.kernel.org> # 4.11+
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 747730d32ab6..4c1bc239207e 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1236,13 +1236,13 @@ static void wacom_intuos_pro2_bt_pen(struct wacom=
-_wac *wacom)
->                 /* Add back in missing bits of ID for non-USI pens */
->                 wacom->id[0] |=3D (wacom->serial[0] >> 32) & 0xFFFFF;
->         }
-> -       wacom->tool[0]   =3D wacom_intuos_get_tool_type(wacom_intuos_id_m=
-angle(wacom->id[0]));
->
->         for (i =3D 0; i < pen_frames; i++) {
->                 unsigned char *frame =3D &data[i*pen_frame_len + 1];
->                 bool valid =3D frame[0] & 0x80;
->                 bool prox =3D frame[0] & 0x40;
->                 bool range =3D frame[0] & 0x20;
-> +               bool invert =3D frame[0] & 0x10;
->
->                 if (!valid)
->                         continue;
-> @@ -1251,9 +1251,24 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_=
-wac *wacom)
->                         wacom->shared->stylus_in_proximity =3D false;
->                         wacom_exit_report(wacom);
->                         input_sync(pen_input);
-> +
-> +                       wacom->tool[0] =3D 0;
-> +                       wacom->id[0] =3D 0;
-> +                       wacom->serial[0] =3D 0;
->                         return;
->                 }
-> +
->                 if (range) {
-> +                       if (!wacom->tool[0]) { /* first in range */
-> +                               /* Going into range select tool */
-> +                               if (invert)
-> +                                       wacom->tool[0] =3D BTN_TOOL_RUBBE=
-R;
-> +                               else if (wacom->id[0])
-> +                                       wacom->tool[0] =3D wacom_intuos_g=
-et_tool_type(wacom->id[0]);
-> +                               else
-> +                                       wacom->tool[0] =3D BTN_TOOL_PEN;
-> +                       }
-> +
->                         input_report_abs(pen_input, ABS_X, get_unaligned_=
-le16(&frame[1]));
->                         input_report_abs(pen_input, ABS_Y, get_unaligned_=
-le16(&frame[3]));
->
-> --
-> 2.21.0
->
+For more info write to <info@kernelci.org>
