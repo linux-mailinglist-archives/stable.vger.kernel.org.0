@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F041515AC7
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6979115AA6
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728105AbfEGFsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60166 "EHLO mail.kernel.org"
+        id S1729167AbfEGFko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728404AbfEGFkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:42 -0400
+        id S1727815AbfEGFkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA5D620578;
-        Tue,  7 May 2019 05:40:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC97420675;
+        Tue,  7 May 2019 05:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207641;
-        bh=wVexugz/PHLlLDRwzGd8Fi0rLwjyVsyR155fbuB14hs=;
+        s=default; t=1557207642;
+        bh=1Ohsioqf6e9PSqCMvFBCxo6ssLXNXK3ezfG6Snz+1is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvSF9SnCWyyvnTbwNzez4HTbzt9VAndcx/R8LbnJIRRqjT+6O6NqUMecSelKQt+i6
-         EjstU3vmyoRYGzudJPNxbpDFyXIfnYjtfDbNGEU6zGyjimTR6pULymYCTPquAU1Wpk
-         oR/h7Yo83SQJpU4GTQMAaVysCNJcKb3KHvUt7zCg=
+        b=uJszTVfgS3EUTBCmd8TIFp7tV6Nc265+9hVB5kp2NNFJqhR3eAM8F/WCjFKPN53tD
+         44vEhFmsln6n/ElabpJmTWg/3cA2lVAjBgZz5iwqDkIj/bs8cbUR0QZTuLB5qBgP8w
+         lT68rLfjBDu3h1qMdd0mIdCnNdOzbvzlkD2D8RGk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
+Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 74/95] btrfs: harden agaist duplicate fsid on scanned devices
-Date:   Tue,  7 May 2019 01:38:03 -0400
-Message-Id: <20190507053826.31622-74-sashal@kernel.org>
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 75/95] net_sched: fix two more memory leaks in cls_tcindex
+Date:   Tue,  7 May 2019 01:38:04 -0400
+Message-Id: <20190507053826.31622-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,116 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit a9261d4125c97ce8624e9941b75dee1b43ad5df9 ]
+[ Upstream commit 1db817e75f5b9387b8db11e37d5f0624eb9223e0 ]
 
-It's not that impossible to imagine that a device OR a btrfs image is
-copied just by using the dd or the cp command. Which in case both the
-copies of the btrfs will have the same fsid. If on the system with
-automount enabled, the copied FS gets scanned.
+struct tcindex_filter_result contains two parts:
+struct tcf_exts and struct tcf_result.
 
-We have a known bug in btrfs, that we let the device path be changed
-after the device has been mounted. So using this loop hole the new
-copied device would appears as if its mounted immediately after it's
-been copied.
+For the local variable 'cr', its exts part is never used but
+initialized without being released properly on success path. So
+just completely remove the exts part to fix this leak.
 
-For example:
+For the local variable 'new_filter_result', it is never properly
+released if not used by 'r' on success path.
 
-Initially.. /dev/mmcblk0p4 is mounted as /
-
-  $ lsblk
-  NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-  mmcblk0     179:0    0 29.2G  0 disk
-  |-mmcblk0p4 179:4    0    4G  0 part /
-  |-mmcblk0p2 179:2    0  500M  0 part /boot
-  |-mmcblk0p3 179:3    0  256M  0 part [SWAP]
-  `-mmcblk0p1 179:1    0  256M  0 part /boot/efi
-
-  $ btrfs fi show
-     Label: none  uuid: 07892354-ddaa-4443-90ea-f76a06accaba
-     Total devices 1 FS bytes used 1.40GiB
-     devid    1 size 4.00GiB used 3.00GiB path /dev/mmcblk0p4
-
-Copy mmcblk0 to sda
-
-  $ dd if=/dev/mmcblk0 of=/dev/sda
-
-And immediately after the copy completes the change in the device
-superblock is notified which the automount scans using btrfs device scan
-and the new device sda becomes the mounted root device.
-
-  $ lsblk
-  NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-  sda           8:0    1 14.9G  0 disk
-  |-sda4        8:4    1    4G  0 part /
-  |-sda2        8:2    1  500M  0 part
-  |-sda3        8:3    1  256M  0 part
-  `-sda1        8:1    1  256M  0 part
-  mmcblk0     179:0    0 29.2G  0 disk
-  |-mmcblk0p4 179:4    0    4G  0 part
-  |-mmcblk0p2 179:2    0  500M  0 part /boot
-  |-mmcblk0p3 179:3    0  256M  0 part [SWAP]
-  `-mmcblk0p1 179:1    0  256M  0 part /boot/efi
-
-  $ btrfs fi show /
-    Label: none  uuid: 07892354-ddaa-4443-90ea-f76a06accaba
-    Total devices 1 FS bytes used 1.40GiB
-    devid    1 size 4.00GiB used 3.00GiB path /dev/sda4
-
-The bug is quite nasty that you can't either unmount /dev/sda4 or
-/dev/mmcblk0p4. And the problem does not get solved until you take sda
-out of the system on to another system to change its fsid using the
-'btrfstune -u' command.
-
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- fs/btrfs/volumes.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ net/sched/cls_tcindex.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 38ed8e259e00..bd1117720fc1 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -696,6 +696,35 @@ static noinline int device_list_add(const char *path,
- 			return -EEXIST;
- 		}
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 52829fdc280b..75c7c7cc7499 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -322,9 +322,9 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 		  struct nlattr *est, bool ovr)
+ {
+ 	struct tcindex_filter_result new_filter_result, *old_r = r;
+-	struct tcindex_filter_result cr;
+ 	struct tcindex_data *cp = NULL, *oldp;
+ 	struct tcindex_filter *f = NULL; /* make gcc behave */
++	struct tcf_result cr = {};
+ 	int err, balloc = 0;
+ 	struct tcf_exts e;
  
-+		/*
-+		 * We are going to replace the device path for a given devid,
-+		 * make sure it's the same device if the device is mounted
-+		 */
-+		if (device->bdev) {
-+			struct block_device *path_bdev;
-+
-+			path_bdev = lookup_bdev(path);
-+			if (IS_ERR(path_bdev)) {
-+				mutex_unlock(&fs_devices->device_list_mutex);
-+				return ERR_CAST(path_bdev);
-+			}
-+
-+			if (device->bdev != path_bdev) {
-+				bdput(path_bdev);
-+				mutex_unlock(&fs_devices->device_list_mutex);
-+				btrfs_warn_in_rcu(device->fs_info,
-+			"duplicate device fsid:devid for %pU:%llu old:%s new:%s",
-+					disk_super->fsid, devid,
-+					rcu_str_deref(device->name), path);
-+				return ERR_PTR(-EEXIST);
-+			}
-+			bdput(path_bdev);
-+			btrfs_info_in_rcu(device->fs_info,
-+				"device fsid %pU devid %llu moved old:%s new:%s",
-+				disk_super->fsid, devid,
-+				rcu_str_deref(device->name), path);
-+		}
-+
- 		name = rcu_string_strdup(path, GFP_NOFS);
- 		if (!name)
- 			return -ENOMEM;
+@@ -363,13 +363,10 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	cp->h = p->h;
+ 
+ 	err = tcindex_filter_result_init(&new_filter_result);
+-	if (err < 0)
+-		goto errout1;
+-	err = tcindex_filter_result_init(&cr);
+ 	if (err < 0)
+ 		goto errout1;
+ 	if (old_r)
+-		cr.res = r->res;
++		cr = r->res;
+ 
+ 	if (tb[TCA_TCINDEX_HASH])
+ 		cp->hash = nla_get_u32(tb[TCA_TCINDEX_HASH]);
+@@ -460,8 +457,8 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	}
+ 
+ 	if (tb[TCA_TCINDEX_CLASSID]) {
+-		cr.res.classid = nla_get_u32(tb[TCA_TCINDEX_CLASSID]);
+-		tcf_bind_filter(tp, &cr.res, base);
++		cr.classid = nla_get_u32(tb[TCA_TCINDEX_CLASSID]);
++		tcf_bind_filter(tp, &cr, base);
+ 	}
+ 
+ 	if (old_r && old_r != r) {
+@@ -473,7 +470,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	}
+ 
+ 	oldp = p;
+-	r->res = cr.res;
++	r->res = cr;
+ 	tcf_exts_change(&r->exts, &e);
+ 
+ 	rcu_assign_pointer(tp->root, cp);
+@@ -492,6 +489,8 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 				; /* nothing */
+ 
+ 		rcu_assign_pointer(*fp, f);
++	} else {
++		tcf_exts_destroy(&new_filter_result.exts);
+ 	}
+ 
+ 	if (oldp)
+@@ -504,7 +503,6 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	else if (balloc == 2)
+ 		kfree(cp->h);
+ errout1:
+-	tcf_exts_destroy(&cr.exts);
+ 	tcf_exts_destroy(&new_filter_result.exts);
+ errout:
+ 	kfree(cp);
 -- 
 2.20.1
 
