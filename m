@@ -2,122 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C517F15CCD
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F2C15D3E
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbfEGGHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:07:13 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:41418 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726576AbfEGGHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 02:07:12 -0400
-Received: by mail-wr1-f65.google.com with SMTP id c12so20432739wrt.8
-        for <stable@vger.kernel.org>; Mon, 06 May 2019 23:07:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=9TmCafgXOhlH8RMOfH8q5x+Ucc2E78Z2c8fQjMQCVpw=;
-        b=Ik1Jh5uiCMljVBTvHbej8wxjsXUUh9q1rmHAjHg++m/85sI3TYNmJGEvWMLkQeo9I/
-         D3FPAZk/I/6myEpWI9bWw0J/tLzCaoH1RMDDGdeirpjRdiGuVVFc1uACOiMbPFrmG8yi
-         AUF7HFweejEyKJ5NDjiL4dniT9188LH6rJCcRqBhYnLrJBDk3CIh4ieYefZ8MrQEAdM1
-         pPM0TmPavMNfnLw3OKt1FHTJfu70FAfeoelEoc1ysz2qc+A5pVDUmCExbLJIvBOiFn5h
-         XEC775VWJEb+d3MaBquuCq74xESHUvnpR4dhLy3EmiDOdPGP+nScPHWIBT2FaLLDGaGO
-         wp6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=9TmCafgXOhlH8RMOfH8q5x+Ucc2E78Z2c8fQjMQCVpw=;
-        b=fpaj7RmAqgPe+5Cc3DEEnp/avwH/FvLTOBVfo7e739QJM+AXW6VxN6HMWPMf33yOVL
-         paUn2NeT0GD0TbMaHLA6OZi1U/7t7wJb02XHHZcuYgQ2+jjTvigsPG5ss2KC9RwLsMqD
-         Cv29qxmy81FOhb+B8LsAz8NmFmNXwN8XQr9YT6u8g6eYAJtuMZ2cWWxTaYJhXixk5sG5
-         QUBaLQY2/LsUt6eTynsCVxjjGrVbrBdL/8RaigtjS1ennZKGZTU2p48XPHD/B+7QySR5
-         G/gTITAgu/9H3oDWl9+UPA3P2fs88SSXsJWkgd0N2L+IadWnTru3Y+kK7o77/BcjB5GI
-         IROQ==
-X-Gm-Message-State: APjAAAVzUAvl8MmFeYHdoGq9GnqJUnNa2b/qZCmQj2jkwGsMQXuKdypw
-        4vdPwfBHQLQiF8bu928pHU4Hb2NW
-X-Google-Smtp-Source: APXvYqxvB1NSmU+lbB1Ef74uvhPQ0z+czACbBzPRjnIK1U07SElu6FKhl1ECPyz+43LndTA/FWG/Bw==
-X-Received: by 2002:adf:ce8e:: with SMTP id r14mr3993312wrn.289.1557209230817;
-        Mon, 06 May 2019 23:07:10 -0700 (PDT)
-Received: from gmail.com (2E8B0CD5.catv.pool.telekom.hu. [46.139.12.213])
-        by smtp.gmail.com with ESMTPSA id 17sm14290117wrk.91.2019.05.06.23.07.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 06 May 2019 23:07:10 -0700 (PDT)
-Date:   Tue, 7 May 2019 08:07:08 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     stable kernel team <stable@vger.kernel.org>
-Subject: [PATCH] genirq: Prevent use-after-free and work list corruption]
-Message-ID: <20190507060708.GA75860@gmail.com>
+        id S1726324AbfEGGPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:15:15 -0400
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:58495 "EHLO
+        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726253AbfEGGPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 02:15:15 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 341441601A;
+        Tue,  7 May 2019 02:15:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 07 May 2019 02:15:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=rUkopSZotbELjC7owtPyRjHNKJ3
+        xdDhDqSCz9ET9utg=; b=AS1BO+QbYPt06V80kSVUyssGF4Ba2f9z0Yh9quhHxX7
+        zrTPAu78fNvUrbRquynL/OWR/4IEEMzcBsbZpmAu/T4N0OQWXP2TbpaZL/67OAhQ
+        AMamKUBgCjwff5oVKKTOEy6EwglIpjt3hdXh9xMBRCkVveX7JxHP6YYZsqz+B7yJ
+        /AulUBJNufJAwBfc1oRE1bbq/iVhrAXm2F2mxOyJ86zthq+zNVT6L7PBGqcM3XDA
+        yLpCCiHazFsBS6/rBZ9253l7AbuuRSLqZUDSY38j0Cm7YKPDX8d7WnnOEwd3Zsp4
+        H0iMIUQe9hopOSO2NoJT8PcIXgNSVkduzqx39088lJQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rUkopS
+        ZotbELjC7owtPyRjHNKJ3xdDhDqSCz9ET9utg=; b=i7ncgJF/yfrNdTLwnNSNGZ
+        uPVA6ji2AnBVDI9n0r1y8pCK2yJNpSm7dQviwp0p4pawb8AQa9Vbho1pjtq0d9w6
+        SthRziw6x+GHcMq7GS4kSzIn2isTqgz2I+FZYAL17RIsTws3jDF0qX4BU8Vw2DuY
+        vrtCY+9WMmoOVmqv0UNVszGHh3+7HZxrUemQS8arYvwnDGndOxPKYPyxdBAX0NA2
+        dVQzxz6Kebs3eu/f1S4gDNexxDJNCUv0wNXPIxfSqq1NkF/SBe99LBCL2fPaM/jE
+        qMqjvpS1OMdgFqqsG41aexJD8oPWgSd8N1d+1k/8U7Y6puDsF2Nol6M61BfKJMGg
+        ==
+X-ME-Sender: <xms:byLRXO9BhqWoYOI1nD7awYSzoJh7Ykz-O04r0agOBB0_KZ-4c4GSZA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrjeelgddutdegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:byLRXC_C38TiyAvlCphEyaoBx2a4x19dVVLKoPi8hI9gDTgiZuWEJQ>
+    <xmx:byLRXPDUumKl0Lwt1Ff01r_ny4oSa8EB8q_pjjZs5b1ZPEYEG9Tv4w>
+    <xmx:byLRXKxTG2F7U2_wTmi4XGEK9Ymk8EJh6XiN7LmdDQAI7h7c_5Z2kQ>
+    <xmx:cCLRXDVh-v28OmP-Eopnv_AALi3F7RfEzPEvMJkEHBXZMavn-R0Dwg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 813DDE4693;
+        Tue,  7 May 2019 02:15:10 -0400 (EDT)
+Date:   Tue, 7 May 2019 08:15:03 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: Re: [PATCH AUTOSEL 4.14 79/95] x86/asm: Remove dead __GNUC__
+ conditionals
+Message-ID: <20190507061503.GA20385@kroah.com>
+References: <20190507053826.31622-1-sashal@kernel.org>
+ <20190507053826.31622-79-sashal@kernel.org>
+ <d18bba8c-0d2c-03bd-0098-5f39ad726b01@rasmusvillemoes.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <d18bba8c-0d2c-03bd-0098-5f39ad726b01@rasmusvillemoes.dk>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 07, 2019 at 07:57:01AM +0200, Rasmus Villemoes wrote:
+> On 07/05/2019 07.38, Sasha Levin wrote:
+> > From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> > 
+> > [ Upstream commit 88ca66d8540ca26119b1428cddb96b37925bdf01 ]
+> > 
+> > The minimum supported gcc version is >= 4.6, so these can be removed.
+> 
+> Eh, that bump happened for the 4.19 kernel, so this is not true for the
+> 4.14 branch. Has cafa0010cd51fb711fdcb50fc55f394c5f167a0a been applied
+> to 4.14.y? Otherwise I don't think this is appropriate.
 
-Hi Greg,
+No, that commit is not in 4.14, so we still have to "support" older
+versions of gcc there :(
 
-We forgot to mark 59c39840f5abf4a71e1 for -stable, please apply. It 
-should apply cleanly all the way back to v3.0.
+Sasha, can you drop this?
 
-Thanks,
+thanks,
 
-	Ingo
-
------ Forwarded message from tip-bot for Prasad Sodagudi <tipbot@zytor.com> -----
-
-Date: Sun, 24 Mar 2019 14:16:45 -0700
-From: tip-bot for Prasad Sodagudi <tipbot@zytor.com>
-To: linux-tip-commits@vger.kernel.org
-Cc: mingo@kernel.org, hpa@zytor.com, psodagud@codeaurora.org, tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: [tip:irq/core] genirq: Prevent use-after-free and work list corruption
-
-Commit-ID:  59c39840f5abf4a71e1810a8da71aaccd6c17d26
-Gitweb:     https://git.kernel.org/tip/59c39840f5abf4a71e1810a8da71aaccd6c17d26
-Author:     Prasad Sodagudi <psodagud@codeaurora.org>
-AuthorDate: Sun, 24 Mar 2019 07:57:04 -0700
-Committer:  Thomas Gleixner <tglx@linutronix.de>
-CommitDate: Sun, 24 Mar 2019 22:13:17 +0100
-
-genirq: Prevent use-after-free and work list corruption
-
-When irq_set_affinity_notifier() replaces the notifier, then the
-reference count on the old notifier is dropped which causes it to be
-freed. But nothing ensures that the old notifier is not longer queued
-in the work list. If it is queued this results in a use after free and
-possibly in work list corruption.
-
-Ensure that the work is canceled before the reference is dropped.
-
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: marc.zyngier@arm.com
-Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
-
----
- kernel/irq/manage.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 1401afa0d58a..53a081392115 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -357,8 +357,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
- 	desc->affinity_notify = notify;
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- 
--	if (old_notify)
-+	if (old_notify) {
-+		cancel_work_sync(&old_notify->work);
- 		kref_put(&old_notify->kref, old_notify->release);
-+	}
- 
- 	return 0;
- }
-
------ End forwarded message -----
+greg k-h
