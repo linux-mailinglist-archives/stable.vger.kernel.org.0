@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 498BA15B01
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5471E15AFF
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727434AbfEGFuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:50:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59534 "EHLO mail.kernel.org"
+        id S1728428AbfEGFun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729006AbfEGFkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:02 -0400
+        id S1729013AbfEGFkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2782020578;
-        Tue,  7 May 2019 05:40:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60267206A3;
+        Tue,  7 May 2019 05:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207601;
-        bh=5pTScp0q5TvIb7iGEx+Y32EmFwXpFe2+HIIZsPjpZbI=;
+        s=default; t=1557207603;
+        bh=oltf7s8yWvOf91gejP7+tfmQ/hNH4o0McIR8F6hT8ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSQnxfcz+d8l5Mu3pD0ycVqLbH0UMTpn0LmM9Vb/tN14w4mna7iNJq5eUXgLNOA1A
-         eOAAmIIyaFu89dfiIFM3+rSgTzpqeOM9d3WyVcOVStZEcJXFmMwDdDfZ3/9QEU4cwF
-         kJAbD18s9Gxhc3OsMF7HPWWvlbCLJpBsvVdY99vA=
+        b=UpG6C3IESQwcZyRQnBt7tALx1bais1M0nsL8oJScyW3aPlnRKcJsmhTyYxbbHBpu6
+         r/5Tj8+Dd9Kkj0t8oYCwoeTKTrvIxo3P7krH8P+e10JnT3zPh+dyTB6qIfbOPCAAKJ
+         dmQR4WZ30mHLRNLIwx0nKP4y3ijUck5502AKQOCM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
+Cc:     Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 49/95] drm/i915: Disable LP3 watermarks on all SNB machines
-Date:   Tue,  7 May 2019 01:37:38 -0400
-Message-Id: <20190507053826.31622-49-sashal@kernel.org>
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 50/95] fsnotify: generalize handling of extra event flags
+Date:   Tue,  7 May 2019 01:37:39 -0400
+Message-Id: <20190507053826.31622-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,134 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 03981c6ebec4fc7056b9b45f847393aeac90d060 ]
+[ Upstream commit 007d1e8395eaa59b0e7ad9eb2b53a40859446a88 ]
 
-I have a Thinkpad X220 Tablet in my hands that is losing vblank
-interrupts whenever LP3 watermarks are used.
+FS_EVENT_ON_CHILD gets a special treatment in fsnotify() because it is
+not a flag specifying an event type, but rather an extra flags that may
+be reported along with another event and control the handling of the
+event by the backend.
 
-If I nudge the latency value written to the WM3 register just
-by one in either direction the problem disappears. That to me
-suggests that the punit will not enter the corrsponding
-powersave mode (MPLL shutdown IIRC) unless the latency value
-in the register matches exactly what we read from SSKPD. Ie.
-it's not really a latency value but rather just a cookie
-by which the punit can identify the desired power saving state.
-On HSW/BDW this was changed such that we actually just write
-the WM level number into those bits, which makes much more
-sense given the observed behaviour.
+FS_ISDIR is also an "extra flag" and not an "event type" and therefore
+desrves the same treatment. With inotify/dnotify backends it was never
+possible to set FS_ISDIR in mark masks, so it did not matter.
+With fanotify backend, mark adding code jumps through hoops to avoid
+setting the FS_ISDIR in the commulative object mask.
 
-We could try to handle this by disallowing LP3 watermarks
-only when vblank interrupts are enabled but we'd first have
-to prove that only vblank interrupts are affected, which
-seems unlikely. Also we can't grab the wm mutex from the
-vblank enable/disable hooks because those are called with
-various spinlocks held. Thus we'd have to redesigne the
-watermark locking. So to play it safe and keep the code
-simple we simply disable LP3 watermarks on all SNB machines.
+Separate the constant ALL_FSNOTIFY_EVENTS to ALL_FSNOTIFY_FLAGS and
+ALL_FSNOTIFY_EVENTS, so the latter can be used to test for specific
+event types.
 
-To do that we simply zero out the latency values for
-watermark level 3, and we adjust the watermark computation
-to check for that. The behaviour now matches that of the
-g4x/vlv/skl wm code in the presence of a zeroed latency
-value.
-
-v2: s/USHRT_MAX/U32_MAX/ for consistency with the types (Chris)
-
-Cc: stable@vger.kernel.org
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=101269
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=103713
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20181114173440.6730-1-ville.syrjala@linux.intel.com
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/gpu/drm/i915/intel_pm.c | 41 ++++++++++++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ fs/notify/fsnotify.c             | 7 +++----
+ include/linux/fsnotify_backend.h | 9 +++++++--
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-index 87cccb5f8c5d..96a5237741e0 100644
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2471,6 +2471,9 @@ static uint32_t ilk_compute_pri_wm(const struct intel_crtc_state *cstate,
- 	uint32_t method1, method2;
- 	int cpp;
- 
-+	if (mem_value == 0)
-+		return U32_MAX;
-+
- 	if (!intel_wm_plane_visible(cstate, pstate))
- 		return 0;
- 
-@@ -2500,6 +2503,9 @@ static uint32_t ilk_compute_spr_wm(const struct intel_crtc_state *cstate,
- 	uint32_t method1, method2;
- 	int cpp;
- 
-+	if (mem_value == 0)
-+		return U32_MAX;
-+
- 	if (!intel_wm_plane_visible(cstate, pstate))
- 		return 0;
- 
-@@ -2523,6 +2529,9 @@ static uint32_t ilk_compute_cur_wm(const struct intel_crtc_state *cstate,
+diff --git a/fs/notify/fsnotify.c b/fs/notify/fsnotify.c
+index 506da82ff3f1..dc080c642dd0 100644
+--- a/fs/notify/fsnotify.c
++++ b/fs/notify/fsnotify.c
+@@ -192,7 +192,7 @@ static int send_to_group(struct inode *to_tell,
+ 			 struct fsnotify_iter_info *iter_info)
  {
- 	int cpp;
+ 	struct fsnotify_group *group = NULL;
+-	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
++	__u32 test_mask = (mask & ALL_FSNOTIFY_EVENTS);
+ 	__u32 marks_mask = 0;
+ 	__u32 marks_ignored_mask = 0;
  
-+	if (mem_value == 0)
-+		return U32_MAX;
-+
- 	if (!intel_wm_plane_visible(cstate, pstate))
- 		return 0;
+@@ -256,8 +256,7 @@ int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
+ 	struct fsnotify_iter_info iter_info;
+ 	struct mount *mnt;
+ 	int ret = 0;
+-	/* global tests shouldn't care about events on child only the specific event */
+-	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
++	__u32 test_mask = (mask & ALL_FSNOTIFY_EVENTS);
  
-@@ -2981,6 +2990,34 @@ static void snb_wm_latency_quirk(struct drm_i915_private *dev_priv)
- 	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
- }
- 
-+static void snb_wm_lp3_irq_quirk(struct drm_i915_private *dev_priv)
-+{
-+	/*
-+	 * On some SNB machines (Thinkpad X220 Tablet at least)
-+	 * LP3 usage can cause vblank interrupts to be lost.
-+	 * The DEIIR bit will go high but it looks like the CPU
-+	 * never gets interrupted.
-+	 *
-+	 * It's not clear whether other interrupt source could
-+	 * be affected or if this is somehow limited to vblank
-+	 * interrupts only. To play it safe we disable LP3
-+	 * watermarks entirely.
-+	 */
-+	if (dev_priv->wm.pri_latency[3] == 0 &&
-+	    dev_priv->wm.spr_latency[3] == 0 &&
-+	    dev_priv->wm.cur_latency[3] == 0)
-+		return;
-+
-+	dev_priv->wm.pri_latency[3] = 0;
-+	dev_priv->wm.spr_latency[3] = 0;
-+	dev_priv->wm.cur_latency[3] = 0;
-+
-+	DRM_DEBUG_KMS("LP3 watermarks disabled due to potential for lost interrupts\n");
-+	intel_print_wm_latency(dev_priv, "Primary", dev_priv->wm.pri_latency);
-+	intel_print_wm_latency(dev_priv, "Sprite", dev_priv->wm.spr_latency);
-+	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
-+}
-+
- static void ilk_setup_wm_latency(struct drm_i915_private *dev_priv)
+ 	if (data_is == FSNOTIFY_EVENT_PATH)
+ 		mnt = real_mount(((const struct path *)data)->mnt);
+@@ -380,7 +379,7 @@ static __init int fsnotify_init(void)
  {
- 	intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
-@@ -2997,8 +3034,10 @@ static void ilk_setup_wm_latency(struct drm_i915_private *dev_priv)
- 	intel_print_wm_latency(dev_priv, "Sprite", dev_priv->wm.spr_latency);
- 	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
+ 	int ret;
  
--	if (IS_GEN6(dev_priv))
-+	if (IS_GEN6(dev_priv)) {
- 		snb_wm_latency_quirk(dev_priv);
-+		snb_wm_lp3_irq_quirk(dev_priv);
-+	}
- }
+-	BUG_ON(hweight32(ALL_FSNOTIFY_EVENTS) != 23);
++	BUG_ON(hweight32(ALL_FSNOTIFY_BITS) != 23);
  
- static void skl_setup_wm_latency(struct drm_i915_private *dev_priv)
+ 	ret = init_srcu_struct(&fsnotify_mark_srcu);
+ 	if (ret)
+diff --git a/include/linux/fsnotify_backend.h b/include/linux/fsnotify_backend.h
+index ce74278a454a..81052313adeb 100644
+--- a/include/linux/fsnotify_backend.h
++++ b/include/linux/fsnotify_backend.h
+@@ -67,15 +67,20 @@
+ 
+ #define ALL_FSNOTIFY_PERM_EVENTS (FS_OPEN_PERM | FS_ACCESS_PERM)
+ 
++/* Events that can be reported to backends */
+ #define ALL_FSNOTIFY_EVENTS (FS_ACCESS | FS_MODIFY | FS_ATTRIB | \
+ 			     FS_CLOSE_WRITE | FS_CLOSE_NOWRITE | FS_OPEN | \
+ 			     FS_MOVED_FROM | FS_MOVED_TO | FS_CREATE | \
+ 			     FS_DELETE | FS_DELETE_SELF | FS_MOVE_SELF | \
+ 			     FS_UNMOUNT | FS_Q_OVERFLOW | FS_IN_IGNORED | \
+-			     FS_OPEN_PERM | FS_ACCESS_PERM | FS_EXCL_UNLINK | \
+-			     FS_ISDIR | FS_IN_ONESHOT | FS_DN_RENAME | \
++			     FS_OPEN_PERM | FS_ACCESS_PERM | FS_DN_RENAME)
++
++/* Extra flags that may be reported with event or control handling of events */
++#define ALL_FSNOTIFY_FLAGS  (FS_EXCL_UNLINK | FS_ISDIR | FS_IN_ONESHOT | \
+ 			     FS_DN_MULTISHOT | FS_EVENT_ON_CHILD)
+ 
++#define ALL_FSNOTIFY_BITS   (ALL_FSNOTIFY_EVENTS | ALL_FSNOTIFY_FLAGS)
++
+ struct fsnotify_group;
+ struct fsnotify_event;
+ struct fsnotify_mark;
 -- 
 2.20.1
 
