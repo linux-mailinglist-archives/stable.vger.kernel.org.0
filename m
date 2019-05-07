@@ -2,153 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F39156BD
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 01:54:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131B1156D4
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 02:10:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbfEFXyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 May 2019 19:54:12 -0400
-Received: from mga14.intel.com ([192.55.52.115]:53355 "EHLO mga14.intel.com"
+        id S1726095AbfEGAKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 May 2019 20:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726438AbfEFXyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 May 2019 19:54:12 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 May 2019 16:54:11 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.60,439,1549958400"; 
-   d="scan'208";a="149329913"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga007.fm.intel.com with ESMTP; 06 May 2019 16:54:11 -0700
-Subject: [PATCH v8 11/12] libnvdimm/pfn: Fix fsdax-mode namespace info-block
- zero-fields
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     akpm@linux-foundation.org
-Cc:     stable@vger.kernel.org, linux-nvdimm@lists.01.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        osalvador@suse.de, mhocko@suse.com
-Date:   Mon, 06 May 2019 16:40:24 -0700
-Message-ID: <155718602469.130019.1073417828141766553.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <155718596657.130019.17139634728875079809.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-2-gc94f
+        id S1726046AbfEGAKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 May 2019 20:10:20 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3309E206BF;
+        Tue,  7 May 2019 00:10:16 +0000 (UTC)
+Date:   Mon, 6 May 2019 20:10:14 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
+ functions
+Message-ID: <20190506201014.484e7b65@oasis.local.home>
+In-Reply-To: <CAHk-=wje38dbYFGNw0y==zd7Zo_4s2WOQjWaBDyr24RCdK2EPQ@mail.gmail.com>
+References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+        <20190503092247.20cc1ff0@gandalf.local.home>
+        <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
+        <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
+        <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
+        <20190506095631.6f71ad7c@gandalf.local.home>
+        <CAHk-=wgw_Jmn1iJWanoSFb1QZn3mbTD_JEoMsWcWj5QPeyHZHA@mail.gmail.com>
+        <20190506130643.62c35eeb@gandalf.local.home>
+        <CAHk-=whesas+GDtHZks62wqXWXe4d_g3XJ359GX81qj=Fgs6qQ@mail.gmail.com>
+        <20190506145745.17c59596@gandalf.local.home>
+        <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
+        <20190506162915.380993f9@gandalf.local.home>
+        <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
+        <20190506174511.2f8b696b@gandalf.local.home>
+        <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
+        <CAHk-=wje38dbYFGNw0y==zd7Zo_4s2WOQjWaBDyr24RCdK2EPQ@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-At namespace creation time there is the potential for the "expected to
-be zero" fields of a 'pfn' info-block to be filled with indeterminate
-data. While the kernel buffer is zeroed on allocation it is immediately
-overwritten by nd_pfn_validate() filling it with the current contents of
-the on-media info-block location. For fields like, 'flags' and the
-'padding' it potentially means that future implementations can not rely
-on those fields being zero.
+On Mon, 6 May 2019 15:31:57 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-In preparation to stop using the 'start_pad' and 'end_trunc' fields for
-section alignment, arrange for fields that are not explicitly
-initialized to be guaranteed zero. Bump the minor version to indicate it
-is safe to assume the 'padding' and 'flags' are zero. Otherwise, this
-corruption is expected to benign since all other critical fields are
-explicitly initialized.
+> On Mon, May 6, 2019 at 3:06 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+> >
+> > Why are you emulating something different than what you are rewriting?  
+> 
+> Side note: I'm also finding another bug on the ftrace side, which is a
+> simple race condition.
+> 
+> In particular, the logic with 'modifying_ftrace_code' is fundamentally racy.
+> 
+> What can happen is that on one CPU we rewrite one instruction:
+> 
+>         ftrace_update_func = ip;
+>         /* Make sure the breakpoints see the ftrace_update_func update */
+>         smp_wmb();
+> 
+>         /* See comment above by declaration of modifying_ftrace_code */
+>         atomic_inc(&modifying_ftrace_code);
+> 
+>         ret = ftrace_modify_code(ip, old, new);
+> 
+>         atomic_dec(&modifying_ftrace_code);
+> 
+>    but then another CPU hits the 'int3' while the modification is
+> going on, and takes the fault.
+> 
+> The fault handler does that
+> 
+>         if (unlikely(atomic_read(&modifying_ftrace_code))..
+> 
+> and sees that "yes, it's in the middle of modifying the ftrace code",
+> and calls ftrace_int3_handler().  All good and "obviously correct" so
+> far, no?
+> 
+> HOWEVER. It's actually buggy. Because in the meantime, the CPU that
+> was rewriting instructions has finished, and decrements the
+> modifying_ftrace_code, which doesn't hurt us (because we already saw
+> that the int3 was due to the modification.
 
-Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/nvdimm/dax_devs.c |    2 +-
- drivers/nvdimm/pfn.h      |    1 +
- drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
- 3 files changed, 17 insertions(+), 4 deletions(-)
+But the CPU that was rewriting instructions does a run_sync() after
+removing the int3:
 
-diff --git a/drivers/nvdimm/dax_devs.c b/drivers/nvdimm/dax_devs.c
-index 0453f49dc708..326f02ffca81 100644
---- a/drivers/nvdimm/dax_devs.c
-+++ b/drivers/nvdimm/dax_devs.c
-@@ -126,7 +126,7 @@ int nd_dax_probe(struct device *dev, struct nd_namespace_common *ndns)
- 	nvdimm_bus_unlock(&ndns->dev);
- 	if (!dax_dev)
- 		return -ENOMEM;
--	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	nd_pfn->pfn_sb = pfn_sb;
- 	rc = nd_pfn_validate(nd_pfn, DAX_SIG);
- 	dev_dbg(dev, "dax: %s\n", rc == 0 ? dev_name(dax_dev) : "<none>");
-diff --git a/drivers/nvdimm/pfn.h b/drivers/nvdimm/pfn.h
-index dde9853453d3..e901e3a3b04c 100644
---- a/drivers/nvdimm/pfn.h
-+++ b/drivers/nvdimm/pfn.h
-@@ -36,6 +36,7 @@ struct nd_pfn_sb {
- 	__le32 end_trunc;
- 	/* minor-version-2 record the base alignment of the mapping */
- 	__le32 align;
-+	/* minor-version-3 guarantee the padding and flags are zero */
- 	u8 padding[4000];
- 	__le64 checksum;
- };
-diff --git a/drivers/nvdimm/pfn_devs.c b/drivers/nvdimm/pfn_devs.c
-index 01f40672507f..a2406253eb70 100644
---- a/drivers/nvdimm/pfn_devs.c
-+++ b/drivers/nvdimm/pfn_devs.c
-@@ -420,6 +420,15 @@ static int nd_pfn_clear_memmap_errors(struct nd_pfn *nd_pfn)
- 	return 0;
- }
- 
-+/**
-+ * nd_pfn_validate - read and validate info-block
-+ * @nd_pfn: fsdax namespace runtime state / properties
-+ * @sig: 'devdax' or 'fsdax' signature
-+ *
-+ * Upon return the info-block buffer contents (->pfn_sb) are
-+ * indeterminate when validation fails, and a coherent info-block
-+ * otherwise.
-+ */
- int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
- {
- 	u64 checksum, offset;
-@@ -565,7 +574,7 @@ int nd_pfn_probe(struct device *dev, struct nd_namespace_common *ndns)
- 	nvdimm_bus_unlock(&ndns->dev);
- 	if (!pfn_dev)
- 		return -ENOMEM;
--	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	nd_pfn = to_nd_pfn(pfn_dev);
- 	nd_pfn->pfn_sb = pfn_sb;
- 	rc = nd_pfn_validate(nd_pfn, PFN_SIG);
-@@ -702,7 +711,7 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
- 	u64 checksum;
- 	int rc;
- 
--	pfn_sb = devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb = devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	if (!pfn_sb)
- 		return -ENOMEM;
- 
-@@ -711,11 +720,14 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
- 		sig = DAX_SIG;
- 	else
- 		sig = PFN_SIG;
-+
- 	rc = nd_pfn_validate(nd_pfn, sig);
- 	if (rc != -ENODEV)
- 		return rc;
- 
- 	/* no info block, do init */;
-+	memset(pfn_sb, 0, sizeof(*pfn_sb));
-+
- 	nd_region = to_nd_region(nd_pfn->dev.parent);
- 	if (nd_region->ro) {
- 		dev_info(&nd_pfn->dev,
-@@ -768,7 +780,7 @@ static int nd_pfn_init(struct nd_pfn *nd_pfn)
- 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
- 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
- 	pfn_sb->version_major = cpu_to_le16(1);
--	pfn_sb->version_minor = cpu_to_le16(2);
-+	pfn_sb->version_minor = cpu_to_le16(3);
- 	pfn_sb->start_pad = cpu_to_le32(start_pad);
- 	pfn_sb->end_trunc = cpu_to_le32(end_trunc);
- 	pfn_sb->align = cpu_to_le32(nd_pfn->align);
+static void run_sync(void)
+{
+	int enable_irqs;
+
+	/* No need to sync if there's only one CPU */
+	if (num_online_cpus() == 1)
+		return;
+
+	enable_irqs = irqs_disabled();
+
+	/* We may be called with interrupts disabled (on bootup). */
+	if (enable_irqs)
+		local_irq_enable();
+	on_each_cpu(do_sync_core, NULL, 1);
+	if (enable_irqs)
+		local_irq_disable();
+}
+
+Which sends an IPI to all CPUs to make sure they no longer see the int3.
+
+> 
+> BUT! There are two different races here:
+> 
+>  (a) maybe the fault handling was slow, and we saw the 'int3' and took
+> the fault, but the modifying CPU had already finished, so that
+> atomic_read(&modifying_ftrace_code) didn't actually trigger at all.
+> 
+>  (b) maybe the int3-faulting CPU *did* see the proper value of
+> modifying_ftrace_code, but the modifying CPU went on and started
+> *another* modification, and has changed ftrace_update_func in the
+> meantime, so now the int3 handling is looking at the wrong values!
+> 
+> In the case of (a), we'll die with an oops due to the inexplicable
+> 'int3' we hit. And in the case of (b) we'll be fixing up using the
+> wrong address.
+> 
+> Things like this is why I'm wondering how much of the problems are due
+> to the entry code, and how much of it is due to simply races and
+> timing differences?
+> 
+> Again, I don't actually know the ftrace code, and maybe I'm missing
+> something, but this really looks like _another_ fundamental bug.
+> 
+> The way to handle that modifying_ftrace_code thing is most likely by
+> using a sequence counter. For example, one way to actually do some
+> thing like this might be
+> 
+>         ftrace_update_func = ip;
+>         ftrace_update_target = func;
+>         smp_wmb();
+>         atomic_inc(&modifying_ftrace_head);
+> 
+>         ret = ftrace_modify_code(ip, old, new);
+> 
+>         atomic_inc(&modifying_ftrace_tail);
+>         smp_wmb();
+> 
+> and now the int3 code could do something like
+> 
+>         int head, tail;
+> 
+>         head = atomic_read(&modifying_ftrace_head);
+>         smp_rmb();
+>         tail = atomic_read(&modifying_ftrace_tail);
+> 
+>         /* Are we still in the process of modification? */
+>         if (unlikely(head != tail+1))
+>                 return 0;
+> 
+>         ip = ftrace_update_func;
+>         func = ftrace_update_target;
+>         smp_rmb();
+>         /* Need to re-check that the above two values are consistent
+> and we didn't exit */
+>         if (atomic_read(&modifying_ftrace_tail) != tail)
+>                 return 0;
+> 
+>         *pregs int3_emulate_call(regs, ip, func);
+>         return 1;
+> 
+> although it probably really would be better to use a seqcount instead
+> of writing it out like the above.
+> 
+> NOTE! The above only fixes the (b) race. The (a) race is probably best
+> handled by actually checking if the 'int3' instruction is still there
+> before dying.
+> 
+> Again, maybe there's something I'm missing, but having looked at that
+> patch now what feels like a million times, I'm finding more worrisome
+> things in the ftrace code than in the kernel entry code..
+
+I think you are missing the run_sync() which is the heavy hammer to
+make sure all CPUs are in sync. And this is done at each stage:
+
+	add int3
+	run_sync();
+	update call cite outside of int3
+	run_sync()
+	remove int3
+	run_sync()
+
+HPA said that the last run_sync() isn't needed, but I kept it because I
+wanted to make sure. Looks like your analysis shows that it is needed.
+
+-- Steve
 
