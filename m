@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA6115901
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 285C315CE4
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726694AbfEGFdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
+        id S1726704AbfEGFdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726678AbfEGFc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:32:59 -0400
+        id S1726699AbfEGFdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D0EC20B7C;
-        Tue,  7 May 2019 05:32:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C41F206A3;
+        Tue,  7 May 2019 05:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207178;
-        bh=m1p7UAVOnxe5IJuYFEQD7MknEjc4Qh9Zt5HfCqgINBw=;
+        s=default; t=1557207180;
+        bh=YF0cLZkxQoP0oKO+44ieh2E3KYdZBr50lVS9TSSLFW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9q9Kdy1kj5wyAVFwhYUOY49ESca3IW8q02TeT8Se2ttNEbA4OgH3mBezhXKKexR7
-         CrmpIrtYN5iTlt42j72RAENVu+us7HRr6MG3dfXE7cUuXlLiVf0NbYZ+LNSQAdNkd/
-         1uLf0MwIhxfIV0WgJr25rrJCHzxuJzlrY4n8pUxQ=
+        b=IGtQwsgqWwOt85uNwJxa5ikxs03BRdcYhVQtetZPLnFlDxqdGt3aR0NpuvrxbBq1N
+         ho4e8V240saY9JKrQCuJDX7r4gpVupXsGmN0Xadg59+Qu976dhTEysV5lDmxpi/AMV
+         jFWwnBc/blmcVdyK7yElXgJZNDZC4QsrJuMdmpgU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Jiang <dave.jiang@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.0 16/99] libnvdimm/security: provide fix for secure-erase to use zero-key
-Date:   Tue,  7 May 2019 01:31:10 -0400
-Message-Id: <20190507053235.29900-16-sashal@kernel.org>
+Cc:     Anson Huang <anson.huang@nxp.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 17/99] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
+Date:   Tue,  7 May 2019 01:31:11 -0400
+Message-Id: <20190507053235.29900-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -43,106 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Anson Huang <anson.huang@nxp.com>
 
-[ Upstream commit 037c8489ade669e0f09ad40d5b91e5e1159a14b1 ]
+[ Upstream commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 ]
 
-Add a zero key in order to standardize hardware that want a key of 0's to
-be passed. Some platforms defaults to a zero-key with security enabled
-rather than allow the OS to enable the security. The zero key would allow
-us to manage those platform as well. This also adds a fix to secure erase
-so it can use the zero key to do crypto erase. Some other security commands
-already use zero keys. This introduces a standard zero-key to allow
-unification of semantics cross nvdimm security commands.
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/security.c        | 17 ++++++++++++-----
- tools/testing/nvdimm/test/nfit.c | 11 +++++++++--
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvdimm/security.c b/drivers/nvdimm/security.c
-index f8bb746a549f..6bea6852bf27 100644
---- a/drivers/nvdimm/security.c
-+++ b/drivers/nvdimm/security.c
-@@ -22,6 +22,8 @@ static bool key_revalidate = true;
- module_param(key_revalidate, bool, 0444);
- MODULE_PARM_DESC(key_revalidate, "Require key validation at init.");
- 
-+static const char zero_key[NVDIMM_PASSPHRASE_LEN];
-+
- static void *key_data(struct key *key)
- {
- 	struct encrypted_key_payload *epayload = dereference_key_locked(key);
-@@ -286,8 +288,9 @@ int nvdimm_security_erase(struct nvdimm *nvdimm, unsigned int keyid,
- {
- 	struct device *dev = &nvdimm->dev;
- 	struct nvdimm_bus *nvdimm_bus = walk_to_nvdimm_bus(dev);
--	struct key *key;
-+	struct key *key = NULL;
- 	int rc;
-+	const void *data;
- 
- 	/* The bus lock should be held at the top level of the call stack */
- 	lockdep_assert_held(&nvdimm_bus->reconfig_mutex);
-@@ -319,11 +322,15 @@ int nvdimm_security_erase(struct nvdimm *nvdimm, unsigned int keyid,
- 		return -EOPNOTSUPP;
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index effb63205d3d..4c67cf30a5d9 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -148,6 +148,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
  	}
  
--	key = nvdimm_lookup_user_key(nvdimm, keyid, NVDIMM_BASE_KEY);
--	if (!key)
--		return -ENOKEY;
-+	if (keyid != 0) {
-+		key = nvdimm_lookup_user_key(nvdimm, keyid, NVDIMM_BASE_KEY);
-+		if (!key)
-+			return -ENOKEY;
-+		data = key_data(key);
-+	} else
-+		data = zero_key;
- 
--	rc = nvdimm->sec.ops->erase(nvdimm, key_data(key), pass_type);
-+	rc = nvdimm->sec.ops->erase(nvdimm, data, pass_type);
- 	dev_dbg(dev, "key: %d erase%s: %s\n", key_serial(key),
- 			pass_type == NVDIMM_MASTER ? "(master)" : "(user)",
- 			rc == 0 ? "success" : "fail");
-diff --git a/tools/testing/nvdimm/test/nfit.c b/tools/testing/nvdimm/test/nfit.c
-index b579f962451d..cad719876ef4 100644
---- a/tools/testing/nvdimm/test/nfit.c
-+++ b/tools/testing/nvdimm/test/nfit.c
-@@ -225,6 +225,8 @@ static struct workqueue_struct *nfit_wq;
- 
- static struct gen_pool *nfit_pool;
- 
-+static const char zero_key[NVDIMM_PASSPHRASE_LEN];
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
 +
- static struct nfit_test *to_nfit_test(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -1059,8 +1061,7 @@ static int nd_intel_test_cmd_secure_erase(struct nfit_test *t,
- 	struct device *dev = &t->pdev.dev;
- 	struct nfit_test_sec *sec = &dimm_sec_info[dimm];
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -163,9 +166,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
  
--	if (!(sec->state & ND_INTEL_SEC_STATE_ENABLED) ||
--			(sec->state & ND_INTEL_SEC_STATE_FROZEN)) {
-+	if (sec->state & ND_INTEL_SEC_STATE_FROZEN) {
- 		nd_cmd->status = ND_INTEL_STATUS_INVALID_STATE;
- 		dev_dbg(dev, "secure erase: wrong security state\n");
- 	} else if (memcmp(nd_cmd->passphrase, sec->passphrase,
-@@ -1068,6 +1069,12 @@ static int nd_intel_test_cmd_secure_erase(struct nfit_test *t,
- 		nd_cmd->status = ND_INTEL_STATUS_INVALID_PASS;
- 		dev_dbg(dev, "secure erase: wrong passphrase\n");
- 	} else {
-+		if (!(sec->state & ND_INTEL_SEC_STATE_ENABLED)
-+				&& (memcmp(nd_cmd->passphrase, zero_key,
-+					ND_INTEL_PASSPHRASE_SIZE) != 0)) {
-+			dev_dbg(dev, "invalid zero key\n");
-+			return 0;
-+		}
- 		memset(sec->passphrase, 0, ND_INTEL_PASSPHRASE_SIZE);
- 		memset(sec->master_passphrase, 0, ND_INTEL_PASSPHRASE_SIZE);
- 		sec->state = 0;
+-	pdata->input = input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
 -- 
 2.20.1
 
