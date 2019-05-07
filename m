@@ -2,105 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D23B416457
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 15:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC45D1647A
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 15:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726404AbfEGNOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 09:14:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726321AbfEGNOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 09:14:07 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70D8B2053B;
-        Tue,  7 May 2019 13:14:04 +0000 (UTC)
-Date:   Tue, 7 May 2019 09:14:02 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Peter Zijlstra' <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        "Linux List Kernel Mailing" <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Andy Lutomirski" <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Borislav Petkov" <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Jiri Kosina" <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        "Joerg Roedel" <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190507091403.556daba7@gandalf.local.home>
-In-Reply-To: <f55e3c951aee4b5686201aaf282cc62b@AcuMS.aculab.com>
-References: <20190502185225.0cdfc8bc@gandalf.local.home>
-        <20190502193129.664c5b2e@gandalf.local.home>
-        <20190502195052.0af473cf@gandalf.local.home>
-        <20190503092959.GB2623@hirez.programming.kicks-ass.net>
-        <20190503092247.20cc1ff0@gandalf.local.home>
-        <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
-        <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
-        <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
-        <20190507085753.GO2606@hirez.programming.kicks-ass.net>
-        <b34aa38bdfe84263bc20b60761bf6005@AcuMS.aculab.com>
-        <20190507113050.GR2606@hirez.programming.kicks-ass.net>
-        <f55e3c951aee4b5686201aaf282cc62b@AcuMS.aculab.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726426AbfEGNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 09:23:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:37304 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726321AbfEGNXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 09:23:32 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 756B6AEBF;
+        Tue,  7 May 2019 13:23:30 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 097871E3C5A; Tue,  7 May 2019 15:23:30 +0200 (CEST)
+Date:   Tue, 7 May 2019 15:23:30 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <alexander.levin@microsoft.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.14 50/95] fsnotify: generalize handling of
+ extra event flags
+Message-ID: <20190507132330.GB4635@quack2.suse.cz>
+References: <20190507053826.31622-1-sashal@kernel.org>
+ <20190507053826.31622-50-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190507053826.31622-50-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 12:57:15 +0000
-David Laight <David.Laight@ACULAB.COM> wrote:
-
-> > Only the INT3 thing needs 'the gap', but the far bigger change here is
-> > that kernel frames now have a complete pt_regs set and all sorts of
-> > horrible crap can go away.  
+On Tue 07-05-19 01:37:39, Sasha Levin wrote:
+> From: Amir Goldstein <amir73il@gmail.com>
 > 
-> I'm not doubting that generating the 'five register' interrupt stack frame
-> for faults in kernel space makes life simpler just suggesting that the
-> 'emulated call' can be done by emulating the 'iret' rather than generating
-> a gap in the stack.
-
-But how would the user put something on the stack? I don't see how
-emulating an iret helps here. Can you write some pseudo code to explain
-what you mean. I also believe the gap is only added for kernel->kernel
-entries.
-
+> [ Upstream commit 007d1e8395eaa59b0e7ad9eb2b53a40859446a88 ]
 > 
-> > For 32bit 'the gap' happens naturally when building a 5 entry frame. Yes
-> > it is possible to build a 5 entry frame on top of the old 3 entry one,
-> > but why bother...  
+> FS_EVENT_ON_CHILD gets a special treatment in fsnotify() because it is
+> not a flag specifying an event type, but rather an extra flags that may
+> be reported along with another event and control the handling of the
+> event by the backend.
 > 
-> Presumably there is 'horrid' code to generate the gap in 64bit mode?
-> (less horrid than 32bit, but still horrid?)
-> Or does it copy the entire pt_regs into a local stack frame and use
-> that for the iret?
+> FS_ISDIR is also an "extra flag" and not an "event type" and therefore
+> desrves the same treatment. With inotify/dnotify backends it was never
+> possible to set FS_ISDIR in mark masks, so it did not matter.
+> With fanotify backend, mark adding code jumps through hoops to avoid
+> setting the FS_ISDIR in the commulative object mask.
+> 
+> Separate the constant ALL_FSNOTIFY_EVENTS to ALL_FSNOTIFY_FLAGS and
+> ALL_FSNOTIFY_EVENTS, so the latter can be used to test for specific
+> event types.
+> 
+> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 
-On x86_64, the gap is only done for int3 and nothing else, thus it is
-much less horrid. That's because x86_64 has a sane pt_regs storage for
-all exceptions.
+Sasha, why did you select this patch? It is just a cleanup with no user
+visible effect and was done mostly to simplify implementing following
+features...
 
--- Steve
+								Honza
+
+> ---
+>  fs/notify/fsnotify.c             | 7 +++----
+>  include/linux/fsnotify_backend.h | 9 +++++++--
+>  2 files changed, 10 insertions(+), 6 deletions(-)
+> 
+> diff --git a/fs/notify/fsnotify.c b/fs/notify/fsnotify.c
+> index 506da82ff3f1..dc080c642dd0 100644
+> --- a/fs/notify/fsnotify.c
+> +++ b/fs/notify/fsnotify.c
+> @@ -192,7 +192,7 @@ static int send_to_group(struct inode *to_tell,
+>  			 struct fsnotify_iter_info *iter_info)
+>  {
+>  	struct fsnotify_group *group = NULL;
+> -	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
+> +	__u32 test_mask = (mask & ALL_FSNOTIFY_EVENTS);
+>  	__u32 marks_mask = 0;
+>  	__u32 marks_ignored_mask = 0;
+>  
+> @@ -256,8 +256,7 @@ int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
+>  	struct fsnotify_iter_info iter_info;
+>  	struct mount *mnt;
+>  	int ret = 0;
+> -	/* global tests shouldn't care about events on child only the specific event */
+> -	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
+> +	__u32 test_mask = (mask & ALL_FSNOTIFY_EVENTS);
+>  
+>  	if (data_is == FSNOTIFY_EVENT_PATH)
+>  		mnt = real_mount(((const struct path *)data)->mnt);
+> @@ -380,7 +379,7 @@ static __init int fsnotify_init(void)
+>  {
+>  	int ret;
+>  
+> -	BUG_ON(hweight32(ALL_FSNOTIFY_EVENTS) != 23);
+> +	BUG_ON(hweight32(ALL_FSNOTIFY_BITS) != 23);
+>  
+>  	ret = init_srcu_struct(&fsnotify_mark_srcu);
+>  	if (ret)
+> diff --git a/include/linux/fsnotify_backend.h b/include/linux/fsnotify_backend.h
+> index ce74278a454a..81052313adeb 100644
+> --- a/include/linux/fsnotify_backend.h
+> +++ b/include/linux/fsnotify_backend.h
+> @@ -67,15 +67,20 @@
+>  
+>  #define ALL_FSNOTIFY_PERM_EVENTS (FS_OPEN_PERM | FS_ACCESS_PERM)
+>  
+> +/* Events that can be reported to backends */
+>  #define ALL_FSNOTIFY_EVENTS (FS_ACCESS | FS_MODIFY | FS_ATTRIB | \
+>  			     FS_CLOSE_WRITE | FS_CLOSE_NOWRITE | FS_OPEN | \
+>  			     FS_MOVED_FROM | FS_MOVED_TO | FS_CREATE | \
+>  			     FS_DELETE | FS_DELETE_SELF | FS_MOVE_SELF | \
+>  			     FS_UNMOUNT | FS_Q_OVERFLOW | FS_IN_IGNORED | \
+> -			     FS_OPEN_PERM | FS_ACCESS_PERM | FS_EXCL_UNLINK | \
+> -			     FS_ISDIR | FS_IN_ONESHOT | FS_DN_RENAME | \
+> +			     FS_OPEN_PERM | FS_ACCESS_PERM | FS_DN_RENAME)
+> +
+> +/* Extra flags that may be reported with event or control handling of events */
+> +#define ALL_FSNOTIFY_FLAGS  (FS_EXCL_UNLINK | FS_ISDIR | FS_IN_ONESHOT | \
+>  			     FS_DN_MULTISHOT | FS_EVENT_ON_CHILD)
+>  
+> +#define ALL_FSNOTIFY_BITS   (ALL_FSNOTIFY_EVENTS | ALL_FSNOTIFY_FLAGS)
+> +
+>  struct fsnotify_group;
+>  struct fsnotify_event;
+>  struct fsnotify_mark;
+> -- 
+> 2.20.1
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
