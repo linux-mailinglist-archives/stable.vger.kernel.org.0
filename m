@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B46315A21
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:44:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4AA15A23
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728794AbfEGFmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
+        id S1729659AbfEGFmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:42:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728734AbfEGFmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:42:50 -0400
+        id S1729655AbfEGFmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:42:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDBBE20578;
-        Tue,  7 May 2019 05:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13305206A3;
+        Tue,  7 May 2019 05:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207769;
-        bh=ORIW/Z6sxOAMgncxRTcvupdrdp7O7IKVNDywnbsCAvU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HYMBgw5QwTCbjI/kLMcpIdGvz1EIBJZXkF1VWuMQLTpQeKJwLPd/flgbAIYO/fX/r
-         TJ37rWMErpvlnTsRE73t+PWUZaFA/Nl4AQvxxw5YREQ0sp9FuX1hjRlGnf8ceJ9dcD
-         aWLgry1qsiL25ReaDVg8/FcSYXkT6PZtj+Tc0Dm4=
+        s=default; t=1557207770;
+        bh=jhfjzkVjSbOwNgfqSPbi+VtglMpNTjW/S6MzVdjj+LY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jip3Wu2hfSa7/tElS8sEglnl5QWdb5HCD8FUP473i/NVxOjFcMJV6sgaMf25Hdvb8
+         bSKa58WB1t+u/zaYrfrMbfWdAcLM8DjH1yQ6ZuSf9on1lqFhqJMRf0ubswEqjW5Ptf
+         tz+efRJra/2VwKxW4++wiIPEfDtlw9CvqKiW7i68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 3.18 01/10] iio: adc: xilinx: fix potential use-after-free on remove
-Date:   Tue,  7 May 2019 01:42:37 -0400
-Message-Id: <20190507054247.537-1-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 3.18 02/10] HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
+Date:   Tue,  7 May 2019 01:42:38 -0400
+Message-Id: <20190507054247.537-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190507054247.537-1-sashal@kernel.org>
+References: <20190507054247.537-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,38 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 62039b6aef63380ba7a37c113bbaeee8a55c5342 ]
+[ Upstream commit 7975a1d6a7afeb3eb61c971a153d24dd8fa032f3 ]
 
-When cancel_delayed_work() returns, the delayed work may still
-be running. This means that the core could potentially free
-the private structure (struct xadc) while the delayed work
-is still using it. This is a potential use-after-free.
+According to HUTRR73 usages 0x79, 0x7a and 0x7c from the consumer page
+correspond to Brightness Up/Down/Toggle keys, so let's add the mappings.
 
-Fix by calling cancel_delayed_work_sync(), which waits for
-any residual work to finish before returning.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/xilinx-xadc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index a483747cdc9b..b520de11fc17 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1315,7 +1315,7 @@ static int xadc_remove(struct platform_device *pdev)
- 	}
- 	free_irq(irq, indio_dev);
- 	clk_disable_unprepare(xadc->clk);
--	cancel_delayed_work(&xadc->zynq_unmask_work);
-+	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
- 	kfree(xadc->data);
- 	kfree(indio_dev->channels);
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bb870ee75a90..b7d5a8835424 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -745,6 +745,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
+ 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
  
++		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
++		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
++		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
++
+ 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
+ 		case 0x083: map_key_clear(KEY_LAST);		break;
+ 		case 0x084: map_key_clear(KEY_ENTER);		break;
 -- 
 2.20.1
 
