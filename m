@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3194916ABB
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1412416ABD
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbfEGSx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 14:53:27 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43809 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726464AbfEGSx1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:53:27 -0400
-Received: by mail-pg1-f196.google.com with SMTP id t22so8742693pgi.10;
-        Tue, 07 May 2019 11:53:27 -0700 (PDT)
+        id S1727419AbfEGSx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 14:53:29 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:41719 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726464AbfEGSx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:53:29 -0400
+Received: by mail-pg1-f193.google.com with SMTP id z3so5051724pgp.8;
+        Tue, 07 May 2019 11:53:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jUaBkZMmmgzmMzkoqnX0MUxDUlbVz2UyMtd0YFW6+18=;
-        b=UuhxinJeldM2AmFH7ttf7DKC6TMUIiS2KSfnaOJeydjXmrxgYRRqU6AIP94CM0sJkx
-         3qcyrzQbDLhDn8J75ZMNr2n8OHehBAX/EtzXA7/XmIh4AYm/7zdSe+yHNG4RnBJt3XXI
-         /9wz67WCLkPlepJ6O4Q7RNDfe4v5hK/is2gz8r+VFkmT+6WHkhxZxH8rxtzEPjk9qsqZ
-         JsDLIe6QwqVfCeYXOGgaaxwBxMRGULnU6M1DS/3yK792BwgkZ1jGZ5abmPVDaBY1ZUjx
-         u8Zw67R0T1f9WiSSwpwyKvLEQkKeoHVeKtLr8CBwYw2Ykf7/I2mCxVFwmh0PcixuZO0T
-         iiOg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=fXrjZyI3zkrddTH2jXfU6DTNpkL2FJKBOlWlMqHcmC8=;
+        b=GBuj+tgmXa5/s1NYjDwoz5pAxoVfUfFh9XEMdgaGneb26j7IoLtJwEqWNbizUMEhDc
+         sRC6cGzA/aScrE62z/8c9inskY95BXcPRG/2L8Yenj/euk4h/74dbivWxEcbC5uArAd1
+         8cYLu8WFmR5KpwwYZ3btj3KbIU8J14dr/Wttu426GpKsToW9CwV4L4kkCo3N9rMS5Pnq
+         PxC6PEuRZD4CA1IFsjAacsNPI5evPX7KSBh3pB1KU5tmpzBU/JvVp/QgRzGRJ2Vu3xf1
+         RMYaoRpqZ9Cd0s7ACNwGlR+ydK4oIb+r7W9G3S/1tpHjqFp5IjU1tmk56PCTZy8zeS/2
+         M7vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jUaBkZMmmgzmMzkoqnX0MUxDUlbVz2UyMtd0YFW6+18=;
-        b=rwuIf0a1Q2SnGPaXTrwvGCG+VHUd01d3aQ9rBm2i1RVxcKPuEDxnHXYilp1MXgm2tD
-         oV6UhzvE3GTOvxZIb8X4i/2x0ucZlGKNnXSyX8N1yNjUX3GPSKhwdPJ/yIrnodVxvpUE
-         TaO0YRv+jCE7Gq2ONJlOaGj4U3cFmvLN6fpbWiBxFPKD3eDSCAkSGmTAkMILJMwoumyC
-         5P7X6Yk2Q8CtWfd1gWpCqRTDrdNG3miPLULfRhde9S1nD267TrR/2eOD2dg+axjvpp+V
-         uU+vWTMYO4pz98Wt5z/0130sMpPCCBnx4f6LaA5l0NROj79+92KX8nTp2isVM6UsIXDY
-         hgOw==
-X-Gm-Message-State: APjAAAWNohuCTGG02b7gm6HDy0yyhyeJCE2ZUhckMGBi00aoZh5DZX/D
-        qQiucVbsPCThI8zMTgZQlFCsrpFz
-X-Google-Smtp-Source: APXvYqwVJ3LKvrvvPRf6CLCjA5OphFg28CtI0o+nKR65H+uuWq7w8G3y34eNGkDZxDPPrNnt/fOv5A==
-X-Received: by 2002:aa7:8a53:: with SMTP id n19mr42287003pfa.11.1557255206197;
-        Tue, 07 May 2019 11:53:26 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=fXrjZyI3zkrddTH2jXfU6DTNpkL2FJKBOlWlMqHcmC8=;
+        b=ooBEH9KLiDs0Uw4SFJA/Av1pz9mzV16zNyqPvk7TZd1u80KjasnEmIRN9UU4FDnefR
+         o9Bak7Rg15FJDqskDwnhB+ergsAnDqQVfPSbJ+9C6gtmvx2dvhLfVhkrzMjfviYyMatw
+         YyGUJr+J/wQ0+i904cg6QFclcRWy8vc2lXljCdyPOuyex7tf4mh1phgs61NhMZD9zZES
+         xwcZlNxJOqmPRHmdmaBxefUDwUQryucCBdodUu64pG4j1DXicCqvLGNQXWb5CXdWJ0fQ
+         TNmfsApISik4mwx7U7WAx+i/bVmaHp4iQZwDq+Zrnb9kBbriZJs4fJjlR1fSUPYpTop9
+         sZCQ==
+X-Gm-Message-State: APjAAAVuuJ3NfJAXdLmiiczNL2TE6L0ydkXmiqJdabslK894bb2L3N2H
+        dU/qaw1wQMauHt+GPiov9ToZWam/
+X-Google-Smtp-Source: APXvYqxFaczlhP4zjYw0VoWBQEdUx7il02UF2a56ByVu6lbe5B4V3NrvOsUw4tA6yjD1eEtu40yAuw==
+X-Received: by 2002:a63:f843:: with SMTP id v3mr41254597pgj.69.1557255207917;
+        Tue, 07 May 2019 11:53:27 -0700 (PDT)
 Received: from US-191-ENG0002.corp.onewacom.com ([50.225.60.4])
-        by smtp.gmail.com with ESMTPSA id w189sm20085506pfw.147.2019.05.07.11.53.24
+        by smtp.gmail.com with ESMTPSA id w189sm20085506pfw.147.2019.05.07.11.53.26
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 11:53:25 -0700 (PDT)
+        Tue, 07 May 2019 11:53:26 -0700 (PDT)
 From:   "Gerecke, Jason" <killertofu@gmail.com>
 X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
 To:     linux-input@vger.kernel.org,
@@ -52,10 +52,12 @@ Cc:     Ping Cheng <pinglinux@gmail.com>,
         Aaron Armstrong Skomra <skomra@gmail.com>,
         Jason Gerecke <jason.gerecke@wacom.com>,
         stable@vger.kernel.org, Aaron Skomra <aaron.skomra@wacom.com>
-Subject: [PATCH 1/3] HID: wacom: Send BTN_TOUCH in response to INTUOSP2_BT eraser contact
-Date:   Tue,  7 May 2019 11:53:20 -0700
-Message-Id: <20190507185322.7168-1-jason.gerecke@wacom.com>
+Subject: [PATCH 2/3] HID: wacom: Correct button numbering 2nd-gen Intuos Pro over Bluetooth
+Date:   Tue,  7 May 2019 11:53:21 -0700
+Message-Id: <20190507185322.7168-2-jason.gerecke@wacom.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190507185322.7168-1-jason.gerecke@wacom.com>
+References: <20190507185322.7168-1-jason.gerecke@wacom.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -65,34 +67,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gerecke <jason.gerecke@wacom.com>
 
-The Bluetooth reports from the 2nd-gen Intuos Pro have separate bits for
-indicating if the tip or eraser is in contact with the tablet. At the
-moment, only the tip contact bit controls the state of the BTN_TOUCH
-event. This prevents the eraser from working as expected. This commit
-changes the driver to send BTN_TOUCH whenever either the tip or eraser
-contact bit is set.
+The button numbering of the 2nd-gen Intuos Pro is not consistent between
+the USB and Bluetooth interfaces. Over USB, the HID_GENERIC codepath
+enumerates the eight ExpressKeys first (BTN_0 - BTN_7) followed by the
+center modeswitch button (BTN_8). The Bluetooth codepath, however, has
+the center modeswitch button as BTN_0 and the the eight ExpressKeys as
+BTN_1 - BTN_8. To ensure userspace button mappings do not change
+depending on how the tablet is connected, modify the Bluetooth codepath
+to report buttons in the same order as USB.
 
+To ensure the mode switch LED continues to toggle in response to the
+mode switch button, the `wacom_is_led_toggled` function also requires
+a small update.
+
+Link: https://github.com/linuxwacom/input-wacom/pull/79
 Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
 Cc: <stable@vger.kernel.org> # 4.11+
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 613342bb9d6b..af62a630fee9 100644
+index af62a630fee9..e848445236d8 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1301,7 +1301,7 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
- 						 range ? frame[7] : wacom->features.distance_max);
- 			}
+@@ -1383,7 +1383,7 @@ static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
  
--			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
-+			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x09);
- 			input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
- 			input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
+-	int buttons = (data[282] << 1) | ((data[281] >> 6) & 0x01);
++	int buttons = data[282] | ((data[281] & 0x40) << 2);
+ 	int ring = data[285] & 0x7F;
+ 	bool ringstatus = data[285] & 0x80;
+ 	bool prox = buttons || ringstatus;
+@@ -3832,7 +3832,7 @@ static void wacom_24hd_update_leds(struct wacom *wacom, int mask, int group)
+ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+ 				 int mask, int group)
+ {
+-	int button_per_group;
++	int group_button;
  
+ 	/*
+ 	 * 21UX2 has LED group 1 to the left and LED group 0
+@@ -3842,9 +3842,12 @@ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+ 	if (wacom->wacom_wac.features.type == WACOM_21UX2)
+ 		group = 1 - group;
+ 
+-	button_per_group = button_count/wacom->led.count;
++	group_button = group * (button_count/wacom->led.count);
+ 
+-	return mask & (1 << (group * button_per_group));
++	if (wacom->wacom_wac.features.type == INTUOSP2_BT)
++		group_button = 8;
++
++	return mask & (1 << group_button);
+ }
+ 
+ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
 -- 
 2.21.0
 
