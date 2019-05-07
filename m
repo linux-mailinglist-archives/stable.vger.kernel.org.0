@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 449D615BD0
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6437615BE5
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728260AbfEGFhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:37:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56870 "EHLO mail.kernel.org"
+        id S1728477AbfEGF62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbfEGFhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:06 -0400
+        id S1728262AbfEGFhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64B08206A3;
-        Tue,  7 May 2019 05:37:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962A52087F;
+        Tue,  7 May 2019 05:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207426;
-        bh=6f/UtJtw1bJSmZaZWnczhzXREwDOP/CPECI0sdf2Qc8=;
+        s=default; t=1557207427;
+        bh=wbY17iC+YFYv7hcWzcyg95eJdFrNRIjFZv1JtEP1hZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoO62XhEo5kYhHH9oZz98vYFv1upz5opYTVrwLeJnf+A7KHcpi4xxfBR7If7d0U3z
-         kADYzHGwfOCRqxb2nRwt6tRgKtVTLwpC5Tj6c7dvfdPUyh/8S4tyHOEyrSJfMqNJ2e
-         afnK4uj5Jy4r9JQ/wojXKtwLXj58zS6L0F5T+5mM=
+        b=PM0raNILrCXWIPqhaRNXYi23oi8UoE5DAjCZ6BSBtItNIt2PvuYK/3vYeiknRzgO+
+         7pDYEVHBxaWRWGd6b5gbq2y5HJl856vnW7zUuAh/0Fk90gT8N4wokiPCgGy3Q/XpE4
+         cHHqL7o2fD+QiK0D9so4y0L2AhWcX/lGH179TrG0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Tony Camuso <tcamuso@redhat.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 36/81] tools lib traceevent: Fix missing equality check for strcmp
-Date:   Tue,  7 May 2019 01:35:07 -0400
-Message-Id: <20190507053554.30848-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 37/81] ipmi: ipmi_si_hardcode.c: init si_type array to fix a crash
+Date:   Tue,  7 May 2019 01:35:08 -0400
+Message-Id: <20190507053554.30848-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -45,59 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Tony Camuso <tcamuso@redhat.com>
 
-[ Upstream commit f32c2877bcb068a718bb70094cd59ccc29d4d082 ]
+[ Upstream commit a885bcfd152f97b25005298ab2d6b741aed9b49c ]
 
-There was a missing comparison with 0 when checking if type is "s64" or
-"u64". Therefore, the body of the if-statement was entered if "type" was
-"u64" or not "s64", which made the first strcmp() redundant since if
-type is "u64", it's not "s64".
+The intended behavior of function ipmi_hardcode_init_one() is to default
+to kcs interface when no type argument is presented when initializing
+ipmi with hard coded addresses.
 
-If type is "s64", the body of the if-statement is not entered but since
-the remainder of the function consists of if-statements which will not
-be entered if type is "s64", we will just return "val", which is
-correct, albeit at the cost of a few more calls to strcmp(), i.e., it
-will behave just as if the if-statement was entered.
+However, the array of char pointers allocated on the stack by function
+ipmi_hardcode_init() was not inited to zeroes, so it contained stack
+debris.
 
-If type is neither "s64" or "u64", the body of the if-statement will be
-entered incorrectly and "val" returned. This means that any type that is
-checked after "s64" and "u64" is handled the same way as "s64" and
-"u64", i.e., the limiting of "val" to fit in for example "s8" is never
-reached.
+Consequently, passing the cruft stored in this array to function
+ipmi_hardcode_init_one() caused a crash when it was unable to detect
+that the char * being passed was nonsense and tried to access the
+address specified by the bogus pointer.
 
-This was introduced in the kernel tree when the sources were copied from
-trace-cmd in commit f7d82350e597 ("tools/events: Add files to create
-libtraceevent.a"), and in the trace-cmd repo in 1cdbae6035cei
-("Implement typecasting in parser") when the function was introduced,
-i.e., it has always behaved the wrong way.
+The fix is simply to initialize the si_type array to zeroes, so if
+there were no type argument given to at the command line, function
+ipmi_hardcode_init_one() could properly default to the kcs interface.
 
-Detected by cppcheck.
-
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Fixes: f7d82350e597 ("tools/events: Add files to create libtraceevent.a")
-Link: http://lkml.kernel.org/r/20190409091529.2686-1-rikard.falkeborn@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tony Camuso <tcamuso@redhat.com>
+Message-Id: <1554837603-40299-1-git-send-email-tcamuso@redhat.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/event-parse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_si_hardcode.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
-index 10985d991ed2..6ccfd13d5cf9 100644
---- a/tools/lib/traceevent/event-parse.c
-+++ b/tools/lib/traceevent/event-parse.c
-@@ -2192,7 +2192,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
- 		return val & 0xffffffff;
+diff --git a/drivers/char/ipmi/ipmi_si_hardcode.c b/drivers/char/ipmi/ipmi_si_hardcode.c
+index 9ae2405c28bb..0c28e872ad3a 100644
+--- a/drivers/char/ipmi/ipmi_si_hardcode.c
++++ b/drivers/char/ipmi/ipmi_si_hardcode.c
+@@ -200,6 +200,8 @@ void __init ipmi_hardcode_init(void)
+ 	char *str;
+ 	char *si_type[SI_MAX_PARMS];
  
- 	if (strcmp(type, "u64") == 0 ||
--	    strcmp(type, "s64"))
-+	    strcmp(type, "s64") == 0)
- 		return val;
- 
- 	if (strcmp(type, "s8") == 0)
++	memset(si_type, 0, sizeof(si_type));
++
+ 	/* Parse out the si_type string into its components. */
+ 	str = si_type_str;
+ 	if (*str != '\0') {
 -- 
 2.20.1
 
