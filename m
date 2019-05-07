@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D1A15942
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BC6C15C53
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727752AbfEGFfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55300 "EHLO mail.kernel.org"
+        id S1727777AbfEGFfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727748AbfEGFfO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:14 -0400
+        id S1727760AbfEGFfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDB272087F;
-        Tue,  7 May 2019 05:35:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1103521479;
+        Tue,  7 May 2019 05:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207313;
-        bh=QlxfBMQ+G4Snm+04xP9Dx58hs52BGh0uejr3MEFJW8Y=;
+        s=default; t=1557207315;
+        bh=CqM25Liyll1vUZ+oKuFskUUke6oAbdea2XABoh0OlYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIkxxobuvyF9C+0Gne33ihpY96epTeQrKTwPmzFUUnbce+G+L3FVeVMaN/m9hhsZt
-         ZQws5LY1S7dCdtJYbK/yH/1gUf8tLCFJJJYorwbdUR7TqZKvWDp+Gnb20fYT8/rJcr
-         2lmEFqYXctAxAwt4h3IBqH2ahi1SWYYatm+OXsUw=
+        b=XWk22WJD4Bn64dhVWKXO7glZYVd4lqIym4OH7iKKPl70LwOEDOlhdf6Dex3sJMGOu
+         eu6bjUo6UUxKrgOL7BxGNFuErcXlCYdDX8/RNsI/I/5dvH6A3cXsxtTnv2jlM7ccsO
+         6OP9sO6+YsrF9e5s2bMnqYp0kWqzHM7YHvtQabZY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+Cc:     Tigran Tadevosyan <tigran.tadevosyan@arm.com>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 80/99] ARM: fix function graph tracer and unwinder dependencies
-Date:   Tue,  7 May 2019 01:32:14 -0400
-Message-Id: <20190507053235.29900-80-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 81/99] ARM: 8856/1: NOMMU: Fix CCR register faulty initialization when MPU is disabled
+Date:   Tue,  7 May 2019 01:32:15 -0400
+Message-Id: <20190507053235.29900-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -43,72 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Tigran Tadevosyan <tigran.tadevosyan@arm.com>
 
-[ Upstream commit 503621628b32782a07b2318e4112bd4372aa3401 ]
+[ Upstream commit c3143967807adb1357c36b68a7563fc0c4e1f615 ]
 
-Naresh Kamboju recently reported that the function-graph tracer crashes
-on ARM. The function-graph tracer assumes that the kernel is built with
-frame pointers.
+When CONFIG_ARM_MPU is not defined, the base address of v7M SCB register
+is not initialized with correct value. This prevents enabling I/D caches
+when the L1 cache poilcy is applied in kernel.
 
-We explicitly disabled the function-graph tracer when building Thumb2,
-since the Thumb2 ABI doesn't have frame pointers.
-
-We recently changed the way the unwinder method was selected, which
-seems to have made it more likely that we can end up with the function-
-graph tracer enabled but without the kernel built with frame pointers.
-
-Fix up the function graph tracer dependencies so the option is not
-available when we have no possibility of having frame pointers, and
-adjust the dependencies on the unwinder option to hide the non-frame
-pointer unwinder options if the function-graph tracer is enabled.
-
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 3c24121039c9da14692eb48f6e39565b28c0f3cf ("ARM: 8756/1: NOMMU: Postpone MPU activation till __after_proc_init")
+Signed-off-by: Tigran Tadevosyan <tigran.tadevosyan@arm.com>
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig       | 2 +-
- arch/arm/Kconfig.debug | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/kernel/head-nommu.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 26524b75970a..5bee4d559439 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -69,7 +69,7 @@ config ARM
- 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
- 	select HAVE_EXIT_THREAD
- 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
--	select HAVE_FUNCTION_GRAPH_TRACER if !THUMB2_KERNEL
-+	select HAVE_FUNCTION_GRAPH_TRACER if !THUMB2_KERNEL && !CC_IS_CLANG
- 	select HAVE_FUNCTION_TRACER if !XIP_KERNEL
- 	select HAVE_GCC_PLUGINS
- 	select HAVE_GENERIC_DMA_COHERENT
-diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
-index 6d6e0330930b..e388af4594a6 100644
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -47,8 +47,8 @@ config DEBUG_WX
- 
- choice
- 	prompt "Choose kernel unwinder"
--	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
--	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
-+	default UNWINDER_ARM if AEABI
-+	default UNWINDER_FRAME_POINTER if !AEABI
- 	help
- 	  This determines which method will be used for unwinding kernel stack
- 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
-@@ -65,7 +65,7 @@ config UNWINDER_FRAME_POINTER
- 
- config UNWINDER_ARM
- 	bool "ARM EABI stack unwinder"
--	depends on AEABI
-+	depends on AEABI && !FUNCTION_GRAPH_TRACER
- 	select ARM_UNWIND
- 	help
- 	  This option enables stack unwinding support in the kernel
+diff --git a/arch/arm/kernel/head-nommu.S b/arch/arm/kernel/head-nommu.S
+index ec29de250076..cab89479d15e 100644
+--- a/arch/arm/kernel/head-nommu.S
++++ b/arch/arm/kernel/head-nommu.S
+@@ -133,9 +133,9 @@ __secondary_data:
+  */
+ 	.text
+ __after_proc_init:
+-#ifdef CONFIG_ARM_MPU
+ M_CLASS(movw	r12, #:lower16:BASEADDR_V7M_SCB)
+ M_CLASS(movt	r12, #:upper16:BASEADDR_V7M_SCB)
++#ifdef CONFIG_ARM_MPU
+ M_CLASS(ldr	r3, [r12, 0x50])
+ AR_CLASS(mrc	p15, 0, r3, c0, c1, 4)          @ Read ID_MMFR0
+ 	and	r3, r3, #(MMFR0_PMSA)           @ PMSA field
 -- 
 2.20.1
 
