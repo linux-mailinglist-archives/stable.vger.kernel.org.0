@@ -2,90 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF35316D15
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 23:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E769D16D31
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 23:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726650AbfEGVYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 17:24:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52096 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726811AbfEGVYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 17:24:23 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E57320656;
-        Tue,  7 May 2019 21:24:20 +0000 (UTC)
-Date:   Tue, 7 May 2019 17:24:18 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Josh Poimboeuf <jpoimboe@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190507172418.67ef6fc3@gandalf.local.home>
-In-Reply-To: <20190507172159.5t3bm3mjkwagvite@treble>
-References: <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
-        <20190506225819.11756974@oasis.local.home>
-        <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
-        <20190506232158.13c9123b@oasis.local.home>
-        <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
-        <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com>
-        <20190507111227.1d4268d7@gandalf.local.home>
-        <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
-        <20190507163440.GV2606@hirez.programming.kicks-ass.net>
-        <CAHk-=wiuue37opWK5QaQ9f6twqDZuSratdP-1bK6kD9-Az5WnA@mail.gmail.com>
-        <20190507172159.5t3bm3mjkwagvite@treble>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1728492AbfEGV1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 17:27:36 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:38630 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727132AbfEGV1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 17:27:36 -0400
+Received: by mail-wr1-f45.google.com with SMTP id v11so4128201wru.5
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 14:27:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pHJwkeyCVuXqYh/3I/Ii1kdUSBZJVbcGpMiozIqBCa8=;
+        b=DwI7sGYMhBce8sLPSfSXB7YipUcpPdbE5q2w+kfemTb55RBwF6CiFKhNDJyQrf0Wpx
+         j+xeDZZDuiPtUsjr56FEbt74CZYBpwoc5//VGBLmLHEJmfl+8lL64bC8d6jhPUjrzBhh
+         zahJHI0YwTX+TuOaMgSgncIL/o/5CAyMInF/p7RTbDzM7Te1mNx2NLhZqTnJSoD4glSw
+         ZNWK26FdXrY7twMrSLVbtmFt0UQig3sMaR4rNTqYgmxna9EiZdE+rCkYDfg9nEKaXfXB
+         R3PkaNJvX8L8/BiW5mzR1USfnGuCE6I/d1U8Gp0w2UeZFvqBri6QHBTEbEsEbVbNl2z4
+         6L3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pHJwkeyCVuXqYh/3I/Ii1kdUSBZJVbcGpMiozIqBCa8=;
+        b=mMkUzE+IbJgZaXc4cDYFXR3JolRgrHjd4KNAGcybXAtNqVCMInJZTdYTHpRdhjMe8V
+         d8/UfQKvucvhHUDiCLTrkEjff/boqeC5NCTEfP5bRMHiCEZP3gFmELFQHujmavA/WJBz
+         AQ2g/CzrkZU/qlu/Bpo+AJjeYeZe72C+mwTzRU0n5BJJzR1suF6cU4xcocb31OfI5Zsb
+         m0DjxQYXHHbSh6n9/6ecR0Tq/2HuitdawshnVemP4VmCgtYjkau7lAvtyySBIleomPRc
+         X3ymcybHENYap3GRZ9hzeRCzhRnH1sues60ienYh6AUULX5OFgnBA+/ddR2BtHlz482p
+         2chw==
+X-Gm-Message-State: APjAAAWoB1l/xey/BGXGl+Vl9+ard8sXxhfz8ILyvRsqc6w3XtKD7l4z
+        5eJromV1X8SRA4ms3tMMH6qL5t6ITpVBHA==
+X-Google-Smtp-Source: APXvYqzUO5mwziq4yjGqMXVAKbdppJjVBLQrhjMT8uXzQNKomMnc0J8bYFF6/keJ0S+WJ8E9fc27xw==
+X-Received: by 2002:adf:e6ce:: with SMTP id y14mr1085581wrm.217.1557264454417;
+        Tue, 07 May 2019 14:27:34 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a20sm32741054wrf.37.2019.05.07.14.27.33
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 May 2019 14:27:33 -0700 (PDT)
+Message-ID: <5cd1f845.1c69fb81.fcf99.cd4f@mx.google.com>
+Date:   Tue, 07 May 2019 14:27:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.179-143-gc4db218e9451
+Subject: stable-rc/linux-4.4.y boot: 45 boots: 1 failed,
+ 43 passed with 1 conflict (v4.4.179-143-gc4db218e9451)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 12:21:59 -0500
-Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+stable-rc/linux-4.4.y boot: 45 boots: 1 failed, 43 passed with 1 conflict (=
+v4.4.179-143-gc4db218e9451)
 
-> regs->sp is *undefined* on x86-32.  We're damning our future selves to
-> have to always remember to use that darn kernel_stack_pointer() helper
-> for eternity just because of x86-32.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.179-143-gc4db218e9451/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.179-143-gc4db218e9451/
 
-And there's been several times I forget that regs->sp can not be read
-directly. Especially most of my bug reports are for x86_64 these days.
-But when I had that seldom x86_32 one, and go debugging, I would print
-out "regs->sp" and then the system would crash. And I spend some time
-wondering why?
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.179-143-gc4db218e9451
+Git Commit: c4db218e9451b084a3a6c3a4b9d6d84df93fac9b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 18 unique boards, 10 SoC families, 8 builds out of 190
 
-It's been a bane of mine for some time.
+Boot Failure Detected:
 
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
--- Steve
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-baylibre: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
