@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE7A15D10
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1F315CFD
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbfEGGJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:09:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
+        id S1726589AbfEGGIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:08:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726554AbfEGFcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:32:48 -0400
+        id S1726567AbfEGFct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:32:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31BE2087F;
-        Tue,  7 May 2019 05:32:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3E1C20B7C;
+        Tue,  7 May 2019 05:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207167;
-        bh=sw2etluuU/zmVe92Uj2XTHpP+tbisLk0ukAhe3FuuwM=;
+        s=default; t=1557207168;
+        bh=sHvKIOAEfB3iQ5fvdbpeeCL0PmmTlXV9b4O9QDwhKUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pr857ClQ92Xc074tdtMh7uCEK/hGlTH2tpKeFuxQX+Z+4xY5rRgzNuToad/0dO36U
-         BoTWIu6BRzpeo3+KSjtfa36DkSGhfyIMGLblxhJgAKeDcYSrg6k3cbNnQEN25oQLxU
-         CpzmUODqenT8gGVHOrL1WDDSUyhXOYVQNdVOFMIY=
+        b=UgKpjpVIGLcodtivdzCQES3BbVM3EAHNThxFi4K3d+II3j4YSjGkzc1TzGm0rTQgU
+         7tTN9Zhd7CRyi0LqaXuO7ZOqN5tnJmYzfYCtKd0LR9usiPPHtjxSxU+OiZYFz7oXnN
+         kcDLc7xCWPj4wA1WF3DS58qzZMdT423dYJslNlH0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 08/99] HID: input: add mapping for "Toggle Display" key
-Date:   Tue,  7 May 2019 01:31:02 -0400
-Message-Id: <20190507053235.29900-8-sashal@kernel.org>
+Cc:     Aditya Pakki <pakki001@umn.edu>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 5.0 09/99] libnvdimm/btt: Fix a kmemdup failure check
+Date:   Tue,  7 May 2019 01:31:03 -0400
+Message-Id: <20190507053235.29900-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -42,39 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit c01908a14bf735b871170092807c618bb9dae654 ]
+[ Upstream commit 486fa92df4707b5df58d6508728bdb9321a59766 ]
 
-According to HUT 1.12 usage 0xb5 from the generic desktop page is reserved
-for switching between external and internal display, so let's add the
-mapping.
+In case kmemdup fails, the fix releases resources and returns to
+avoid the NULL pointer dereference.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/nvdimm/btt_devs.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a985d55e3510..e2b933972465 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -677,6 +677,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
+diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
+index 795ad4ff35ca..e341498876ca 100644
+--- a/drivers/nvdimm/btt_devs.c
++++ b/drivers/nvdimm/btt_devs.c
+@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
+ 		return NULL;
  
-+		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
-+			switch (usage->hid & 0xf) {
-+			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
-+			default: goto ignore;
-+			}
-+			break;
-+		}
+ 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
+-	if (nd_btt->id < 0) {
+-		kfree(nd_btt);
+-		return NULL;
+-	}
++	if (nd_btt->id < 0)
++		goto out_nd_btt;
+ 
+ 	nd_btt->lbasize = lbasize;
+-	if (uuid)
++	if (uuid) {
+ 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
++		if (!uuid)
++			goto out_put_id;
++	}
+ 	nd_btt->uuid = uuid;
+ 	dev = &nd_btt->dev;
+ 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
+@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
+ 		return NULL;
+ 	}
+ 	return dev;
 +
- 		/*
- 		 * Some lazy vendors declare 255 usages for System Control,
- 		 * leading to the creation of ABS_X|Y axis and too many others.
++out_put_id:
++	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
++
++out_nd_btt:
++	kfree(nd_btt);
++	return NULL;
+ }
+ 
+ struct device *nd_btt_create(struct nd_region *nd_region)
 -- 
 2.20.1
 
