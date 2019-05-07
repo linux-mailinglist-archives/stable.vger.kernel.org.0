@@ -2,90 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA63F16AA5
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3194916ABB
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 20:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727483AbfEGSrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 14:47:09 -0400
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:35137 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726464AbfEGSrI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:47:08 -0400
-Received: by mail-wm1-f50.google.com with SMTP id y197so21356659wmd.0
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 11:47:07 -0700 (PDT)
+        id S1726743AbfEGSx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 14:53:27 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:43809 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726464AbfEGSx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 14:53:27 -0400
+Received: by mail-pg1-f196.google.com with SMTP id t22so8742693pgi.10;
+        Tue, 07 May 2019 11:53:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=EicP5+7NLxItUWuGl11cRsPa8v9OrlBqaeDFbba/kHE=;
-        b=TXWrdAoz6r60njWUnlKK+ZrkzNK8u02VJMJtuM+ESuV/ks/Sp0h+pDMe+hE7b4TeMh
-         1JeDTxdy+W0pm5B8DGe4fx6ZYCk31qB5S6jOfwM4pLAez7O7Qpy1m0xqeqXL+6NZ1PO5
-         cNeIbrP8lGGFcmZS9j/rKau3io2VkrgGDShaHvkSQ1b+mzcKyLHrOmWqMTPU/bjLSfx+
-         pyQxEHpjU8RsdgKtbQ1E3FWGcO5TUwezK6O+gUVLBlM9iXjzz8L59HsJHvFWYoZ8OeEs
-         wZ7h9zJzVivUKa2Vn3snSZl6PR3JkWNzvms3PUfOcOz6pExFeXuBvL5PAAQ85PB6Vl0A
-         z4kw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jUaBkZMmmgzmMzkoqnX0MUxDUlbVz2UyMtd0YFW6+18=;
+        b=UuhxinJeldM2AmFH7ttf7DKC6TMUIiS2KSfnaOJeydjXmrxgYRRqU6AIP94CM0sJkx
+         3qcyrzQbDLhDn8J75ZMNr2n8OHehBAX/EtzXA7/XmIh4AYm/7zdSe+yHNG4RnBJt3XXI
+         /9wz67WCLkPlepJ6O4Q7RNDfe4v5hK/is2gz8r+VFkmT+6WHkhxZxH8rxtzEPjk9qsqZ
+         JsDLIe6QwqVfCeYXOGgaaxwBxMRGULnU6M1DS/3yK792BwgkZ1jGZ5abmPVDaBY1ZUjx
+         u8Zw67R0T1f9WiSSwpwyKvLEQkKeoHVeKtLr8CBwYw2Ykf7/I2mCxVFwmh0PcixuZO0T
+         iiOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=EicP5+7NLxItUWuGl11cRsPa8v9OrlBqaeDFbba/kHE=;
-        b=dmf1O5CPAjNONcbBI/aRbKqZYGIfnQ9a6IguAdHW3zc4xHdZ0f4g7MX4/l3k+9WonS
-         Z6sCI7dzaPK5MtsbDNwLEZn0jXlGHj19FmjEL9Ity66RPchI6oTGWX8QLXHPSQn/GX4K
-         qQ0DFXFlIRBa+zz6DHmK0Q9mRivUf4nc7+94RjkdEh21oqf39ia7MyGWSLfJxqeUo3VN
-         zJ/OchZn7N/UHAdnwON0dsJZMAXsOQ5l5jCaVkPny8wO/lQy2KZ8uHyLRSC+r5MegsI8
-         HEqCNU+R4FKPwFK7R/Qi63jdqIySnZO8AMEAeXxTsNp0krHHnQ8xV85k7kyQgbUCJEDP
-         k+qw==
-X-Gm-Message-State: APjAAAXOUhTBgUhJnbl8V+fXRv/XxVx1PkUwDd/YhTyU7dKQtOJPAJkq
-        OvYBV1PDIHw/wpb9AVt8GTrxrFyuJY3t4A==
-X-Google-Smtp-Source: APXvYqzJlCxErYeE7NBiRsjsiJZY/58uctIhUUOb6CzZCYjr7ZIS5afbCzno+fwcvZJJNznF+cr8Ew==
-X-Received: by 2002:a7b:ce06:: with SMTP id m6mr21312582wmc.62.1557254826854;
-        Tue, 07 May 2019 11:47:06 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w2sm10322003wrm.74.2019.05.07.11.47.05
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jUaBkZMmmgzmMzkoqnX0MUxDUlbVz2UyMtd0YFW6+18=;
+        b=rwuIf0a1Q2SnGPaXTrwvGCG+VHUd01d3aQ9rBm2i1RVxcKPuEDxnHXYilp1MXgm2tD
+         oV6UhzvE3GTOvxZIb8X4i/2x0ucZlGKNnXSyX8N1yNjUX3GPSKhwdPJ/yIrnodVxvpUE
+         TaO0YRv+jCE7Gq2ONJlOaGj4U3cFmvLN6fpbWiBxFPKD3eDSCAkSGmTAkMILJMwoumyC
+         5P7X6Yk2Q8CtWfd1gWpCqRTDrdNG3miPLULfRhde9S1nD267TrR/2eOD2dg+axjvpp+V
+         uU+vWTMYO4pz98Wt5z/0130sMpPCCBnx4f6LaA5l0NROj79+92KX8nTp2isVM6UsIXDY
+         hgOw==
+X-Gm-Message-State: APjAAAWNohuCTGG02b7gm6HDy0yyhyeJCE2ZUhckMGBi00aoZh5DZX/D
+        qQiucVbsPCThI8zMTgZQlFCsrpFz
+X-Google-Smtp-Source: APXvYqwVJ3LKvrvvPRf6CLCjA5OphFg28CtI0o+nKR65H+uuWq7w8G3y34eNGkDZxDPPrNnt/fOv5A==
+X-Received: by 2002:aa7:8a53:: with SMTP id n19mr42287003pfa.11.1557255206197;
+        Tue, 07 May 2019 11:53:26 -0700 (PDT)
+Received: from US-191-ENG0002.corp.onewacom.com ([50.225.60.4])
+        by smtp.gmail.com with ESMTPSA id w189sm20085506pfw.147.2019.05.07.11.53.24
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 11:47:06 -0700 (PDT)
-Message-ID: <5cd1d2aa.1c69fb81.de161.46cd@mx.google.com>
-Date:   Tue, 07 May 2019 11:47:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 07 May 2019 11:53:25 -0700 (PDT)
+From:   "Gerecke, Jason" <killertofu@gmail.com>
+X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Aaron Skomra <aaron.skomra@wacom.com>
+Subject: [PATCH 1/3] HID: wacom: Send BTN_TOUCH in response to INTUOSP2_BT eraser contact
+Date:   Tue,  7 May 2019 11:53:20 -0700
+Message-Id: <20190507185322.7168-1-jason.gerecke@wacom.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-3.18.y
-X-Kernelci-Kernel: v3.18.139-52-gf85e9af98591
-Subject: stable-rc/linux-3.18.y boot: 29 boots: 5 failed,
- 24 passed (v3.18.139-52-gf85e9af98591)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-3.18.y boot: 29 boots: 5 failed, 24 passed (v3.18.139-52-gf=
-85e9af98591)
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--3.18.y/kernel/v3.18.139-52-gf85e9af98591/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.18.=
-y/kernel/v3.18.139-52-gf85e9af98591/
+The Bluetooth reports from the 2nd-gen Intuos Pro have separate bits for
+indicating if the tip or eraser is in contact with the tablet. At the
+moment, only the tip contact bit controls the state of the BTN_TOUCH
+event. This prevents the eraser from working as expected. This commit
+changes the driver to send BTN_TOUCH whenever either the tip or eraser
+contact bit is set.
 
-Tree: stable-rc
-Branch: linux-3.18.y
-Git Describe: v3.18.139-52-gf85e9af98591
-Git Commit: f85e9af985911d96cee73289542433c5ef892f82
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 10 unique boards, 6 SoC families, 8 builds out of 189
-
-Boot Failures Detected:
-
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            minnowboard-turbot-E3826: 1 failed lab
-            qemu: 4 failed labs
-
+Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 613342bb9d6b..af62a630fee9 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1301,7 +1301,7 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+ 						 range ? frame[7] : wacom->features.distance_max);
+ 			}
+ 
+-			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
++			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x09);
+ 			input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
+ 			input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
+ 
+-- 
+2.21.0
+
