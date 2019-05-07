@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 800E015C0B
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5331515C0A
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727346AbfEGGAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56346 "EHLO mail.kernel.org"
+        id S1728069AbfEGFgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728058AbfEGFgT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:19 -0400
+        id S1728064AbfEGFgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE2C120C01;
-        Tue,  7 May 2019 05:36:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34BE7216B7;
+        Tue,  7 May 2019 05:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207378;
-        bh=hBXc9T7g7moBL7FY6MAsud/UaYKdYSvABg4/xdbFYrU=;
+        s=default; t=1557207380;
+        bh=Mse0PztVDKI2pafPiRFY9YVP1ECY+99pN2bLesMeTqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqY9Die9YDgr1BSpEgLN2rrJisEtgB7ZKMSffg0q8vFJJrMAethJPzA2coR0OMl/F
-         QEHps3lHx5Ql/s8tnSHa0mdzoHZRmHGykSkneEGhEcHUBjZA8lr0ap5b9Zw2MXWlhx
-         zPnA2HIBZAOJ14DoRewc9CxEeHiEDChlj3csaBIY=
+        b=hOVho6Jr7quuDcW7ltaxWLqrzbgb27gzgFJ7Ig5hovq+60QKzsMLyG9VFz2aMj5tb
+         ZLVgW1mTAeywrYhnkcFfE/FsyCQH8ozIg16Vbh6MFVuXO1UiCGinyunrqqml7Kkj3C
+         0xEPmI7HqjCiDq2vphTmiRmQov6i5lc1x1TT0awM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 4.19 17/81] libnvdimm/pmem: fix a possible OOB access when read and write pmem
-Date:   Tue,  7 May 2019 01:34:48 -0400
-Message-Id: <20190507053554.30848-17-sashal@kernel.org>
+Cc:     Alexander Wetzel <alexander@wetzel-home.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 18/81] mac80211: Honor SW_CRYPTO_CONTROL for unicast keys in AP VLAN mode
+Date:   Tue,  7 May 2019 01:34:49 -0400
+Message-Id: <20190507053554.30848-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -46,63 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
+[ Upstream commit 78ad2341521d5ea96cb936244ed4c4c4ef9ec13b ]
 
-If offset is not zero and length is bigger than PAGE_SIZE,
-this will cause to out of boundary access to a page memory
+Restore SW_CRYPTO_CONTROL operation on AP_VLAN interfaces for unicast
+keys, the original override was intended to be done for group keys as
+those are treated specially by mac80211 and would always have been
+rejected.
 
-Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
-Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Now the situation is that AP_VLAN support must be enabled by the driver
+if it can support it (meaning it can support software crypto GTK TX).
+
+Thus, also simplify the code - if we get here with AP_VLAN and non-
+pairwise key, software crypto must be used (driver doesn't know about
+the interface) and can be used (driver must've advertised AP_VLAN if
+it also uses SW_CRYPTO_CONTROL).
+
+Fixes: db3bdcb9c3ff ("mac80211: allow AP_VLAN operation on crypto controlled devices")
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+[rewrite commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/mac80211/key.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 1d432c5ed275..cff027fc2676 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
- 
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		memcpy_flushcache(pmem_addr, mem + off, chunk);
- 		kunmap_atomic(mem);
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
+diff --git a/net/mac80211/key.c b/net/mac80211/key.c
+index c054ac85793c..f20bb39f492d 100644
+--- a/net/mac80211/key.c
++++ b/net/mac80211/key.c
+@@ -167,8 +167,10 @@ static int ieee80211_key_enable_hw_accel(struct ieee80211_key *key)
+ 		 * The driver doesn't know anything about VLAN interfaces.
+ 		 * Hence, don't send GTKs for VLAN interfaces to the driver.
+ 		 */
+-		if (!(key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE))
++		if (!(key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE)) {
++			ret = 1;
+ 			goto out_unsupported;
++		}
  	}
- }
  
-@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
- 		kunmap_atomic(mem);
- 		if (rem)
-@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
- 	}
- 	return BLK_STS_OK;
- }
+ 	ret = drv_set_key(key->local, SET_KEY, sdata,
+@@ -213,11 +215,8 @@ static int ieee80211_key_enable_hw_accel(struct ieee80211_key *key)
+ 		/* all of these we can do in software - if driver can */
+ 		if (ret == 1)
+ 			return 0;
+-		if (ieee80211_hw_check(&key->local->hw, SW_CRYPTO_CONTROL)) {
+-			if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN)
+-				return 0;
++		if (ieee80211_hw_check(&key->local->hw, SW_CRYPTO_CONTROL))
+ 			return -EINVAL;
+-		}
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.20.1
 
