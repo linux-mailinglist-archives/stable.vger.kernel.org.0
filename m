@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 062A715A48
+	by mail.lfdr.de (Postfix) with ESMTP id DCE2B15A4A
 	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbfEGFmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S1729005AbfEGFm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:42:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729548AbfEGFmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:42:25 -0400
+        id S1729559AbfEGFm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:42:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E6DE20675;
-        Tue,  7 May 2019 05:42:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D06F20578;
+        Tue,  7 May 2019 05:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207744;
-        bh=ol/OGDo+tUgXh3YHyIMGV+8+672D7lyX3eZgM7xXpUs=;
+        s=default; t=1557207746;
+        bh=h2sorwuKuOV27BsNisrUxV5esCmq3jcbHBZ2tVG+zgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvUDCi1oGc/+zPflrSOVNFU8y0ixnMDxGPES9pl5uAk/+dLI5aTvM3wzGspFYFJzj
-         FcfEvmEpX5PXaQzjuB3e9aytrfFxgAoqu+52WC5oXjgqH1NvBoxTBzPIkbKqrSkw+I
-         56tTWKHnQIkm6iK4nFUG9w6qddOKDwOmAZqzAiEc=
+        b=nZXFN0uUnmedtJ1/OOYDBrY+bSBkpwpVIi9AEZZRojrbaRjYNK4h1gh3Kd3rttgva
+         KNY0bPhB8BG3wVwcYOsyhWc5oUHls3m6S/0nESSYpC84NfTm7MEIuEK6Ba8dYfTvPn
+         97tsS7yIUcvYgkIeVIQ9KyQuz1mQKHKfggsNw2Hg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/14] s390/dasd: Fix capacity calculation for large volumes
-Date:   Tue,  7 May 2019 01:42:07 -0400
-Message-Id: <20190507054218.340-5-sashal@kernel.org>
+Cc:     Anson Huang <anson.huang@nxp.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/14] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
+Date:   Tue,  7 May 2019 01:42:08 -0400
+Message-Id: <20190507054218.340-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507054218.340-1-sashal@kernel.org>
 References: <20190507054218.340-1-sashal@kernel.org>
@@ -44,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Anson Huang <anson.huang@nxp.com>
 
-[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
+[ Upstream commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 ]
 
-The DASD driver incorrectly limits the maximum number of blocks of ECKD
-DASD volumes to 32 bit numbers. Volumes with a capacity greater than
-2^32-1 blocks are incorrectly recognized as smaller volumes.
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
 
-This results in the following volume capacity limits depending on the
-formatted block size:
-
-  BLKSIZE  MAX_GB   MAX_CYL
-      512    2047   5843492
-     1024    4095   8676701
-     2048    8191  13634816
-     4096   16383  23860929
-
-The same problem occurs when a volume with more than 17895697 cylinders
-is accessed in raw-track-access mode.
-
-Fix this problem by adding an explicit type cast when calculating the
-maximum number of blocks.
-
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 +++---
+ drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 80a43074c2f9..c530610f61ac 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -2066,14 +2066,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 9adf13a5864a..57143365e945 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -156,6 +156,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
  
- raw:
--	block->blocks = (private->real_cyl *
-+	block->blocks = ((unsigned long) private->real_cyl *
- 			  private->rdc_data.trk_per_cyl *
- 			  blk_per_trk);
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
++
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -172,9 +175,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
  
- 	dev_info(&device->cdev->dev,
--		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
-+		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
- 		 "%s\n", (block->bp_block >> 10),
--		 ((private->real_cyl *
-+		 (((unsigned long) private->real_cyl *
- 		   private->rdc_data.trk_per_cyl *
- 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
- 		 ((blk_per_trk * block->bp_block) >> 10),
+-	pdata->input = input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
 -- 
 2.20.1
 
