@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E1415B14
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECF2815B11
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728139AbfEGFvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:51:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59386 "EHLO mail.kernel.org"
+        id S1728959AbfEGFjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:39:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728946AbfEGFjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:52 -0400
+        id S1728955AbfEGFjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A292A21530;
-        Tue,  7 May 2019 05:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E365C20675;
+        Tue,  7 May 2019 05:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207591;
-        bh=O2/NA3AYa+PTWrpy6a/5bj3br+ITj7oov1QcxhdukG4=;
+        s=default; t=1557207592;
+        bh=vKWZ4BWnbyXlrZc2cSKReqfH0T75dQxJ0StJrorzd2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nr7Bsw1zgbsC/9QnxMWQTfx+7uZBEUiCWXSZiZvKP2NmO7eenl1A285VeBoaBLyn8
-         6uG0xsTlV9W2NlXE/fRxKKyFkJYpAAxtyRtr/nkaDxuGgzqRT1EwznT5zjQkaB+8fF
-         JZ1dJbogFI2RrT1TAxeQ/kDPl045wEEXzviokEJs=
+        b=ZKw/35PxTMlp7PORDasrUhGGCvWyGfqOsQGR6YlTSySwsLocBizbr/r4qBazLPTS6
+         NFfMfDDwlaRGQJGR1zIXGeCBb6y+gXBrRrCLG9TEsWsb1IT7TBvqqeRu1k9Doer1w4
+         kq0YtvbSesdA1plu5QT+WSDd5Z9LCBnwvoDfk5n8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Goldwyn Rodrigues <rgoldwyn@suse.de>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+Cc:     Punit Agrawal <punit.agrawal@arm.com>,
+        Suzuki Poulose <suzuki.poulose@arm.com>,
+        Christoffer Dall <christoffer.dall@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 41/95] ima: open a new file instance if no read permissions
-Date:   Tue,  7 May 2019 01:37:30 -0400
-Message-Id: <20190507053826.31622-41-sashal@kernel.org>
+        kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 4.14 42/95] KVM: arm/arm64: Ensure only THP is candidate for adjustment
+Date:   Tue,  7 May 2019 01:37:31 -0400
+Message-Id: <20190507053826.31622-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -46,144 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Goldwyn Rodrigues <rgoldwyn@suse.de>
+From: Punit Agrawal <punit.agrawal@arm.com>
 
-[ Upstream commit a408e4a86b36bf98ad15b9ada531cf0e5118ac67 ]
+[ Upstream commit fd2ef358282c849c193aa36dadbf4f07f7dcd29b ]
 
-Open a new file instance as opposed to changing file->f_mode when
-the file is not readable.  This is done to accomodate overlayfs
-stacked file operations change.  The real struct file is hidden
-behind the overlays struct file.  So, any file->f_mode manipulations are
-not reflected on the real struct file.  Open the file again in read mode
-if original file cannot be read, read and calculate the hash.
+PageTransCompoundMap() returns true for hugetlbfs and THP
+hugepages. This behaviour incorrectly leads to stage 2 faults for
+unsupported hugepage sizes (e.g., 64K hugepage with 4K pages) to be
+treated as THP faults.
 
-Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Cc: stable@vger.kernel.org (linux-4.19)
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Tighten the check to filter out hugetlbfs pages. This also leads to
+consistently mapping all unsupported hugepage sizes as PTE level
+entries at stage 2.
+
+Signed-off-by: Punit Agrawal <punit.agrawal@arm.com>
+Reviewed-by: Suzuki Poulose <suzuki.poulose@arm.com>
+Cc: Christoffer Dall <christoffer.dall@arm.com>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- security/integrity/ima/ima_crypto.c | 54 ++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ virt/kvm/arm/mmu.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index cb041af9eddb..af680b5b678a 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -232,7 +232,7 @@ static int ima_calc_file_hash_atfm(struct file *file,
+diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
+index 225dc671ae31..1f4cac53b923 100644
+--- a/virt/kvm/arm/mmu.c
++++ b/virt/kvm/arm/mmu.c
+@@ -1068,8 +1068,14 @@ static bool transparent_hugepage_adjust(kvm_pfn_t *pfnp, phys_addr_t *ipap)
  {
- 	loff_t i_size, offset;
- 	char *rbuf[2] = { NULL, };
--	int rc, read = 0, rbuf_len, active = 0, ahash_rc = 0;
-+	int rc, rbuf_len, active = 0, ahash_rc = 0;
- 	struct ahash_request *req;
- 	struct scatterlist sg[1];
- 	struct ahash_completion res;
-@@ -279,11 +279,6 @@ static int ima_calc_file_hash_atfm(struct file *file,
- 					  &rbuf_size[1], 0);
- 	}
+ 	kvm_pfn_t pfn = *pfnp;
+ 	gfn_t gfn = *ipap >> PAGE_SHIFT;
++	struct page *page = pfn_to_page(pfn);
  
--	if (!(file->f_mode & FMODE_READ)) {
--		file->f_mode |= FMODE_READ;
--		read = 1;
--	}
--
- 	for (offset = 0; offset < i_size; offset += rbuf_len) {
- 		if (!rbuf[1] && offset) {
- 			/* Not using two buffers, and it is not the first
-@@ -322,8 +317,6 @@ static int ima_calc_file_hash_atfm(struct file *file,
- 	/* wait for the last update request to complete */
- 	rc = ahash_wait(ahash_rc, &res);
- out3:
--	if (read)
--		file->f_mode &= ~FMODE_READ;
- 	ima_free_pages(rbuf[0], rbuf_size[0]);
- 	ima_free_pages(rbuf[1], rbuf_size[1]);
- out2:
-@@ -358,7 +351,7 @@ static int ima_calc_file_hash_tfm(struct file *file,
- {
- 	loff_t i_size, offset = 0;
- 	char *rbuf;
--	int rc, read = 0;
-+	int rc;
- 	SHASH_DESC_ON_STACK(shash, tfm);
- 
- 	shash->tfm = tfm;
-@@ -379,11 +372,6 @@ static int ima_calc_file_hash_tfm(struct file *file,
- 	if (!rbuf)
- 		return -ENOMEM;
- 
--	if (!(file->f_mode & FMODE_READ)) {
--		file->f_mode |= FMODE_READ;
--		read = 1;
--	}
--
- 	while (offset < i_size) {
- 		int rbuf_len;
- 
-@@ -400,8 +388,6 @@ static int ima_calc_file_hash_tfm(struct file *file,
- 		if (rc)
- 			break;
- 	}
--	if (read)
--		file->f_mode &= ~FMODE_READ;
- 	kfree(rbuf);
- out:
- 	if (!rc)
-@@ -442,6 +428,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- {
- 	loff_t i_size;
- 	int rc;
-+	struct file *f = file;
-+	bool new_file_instance = false, modified_flags = false;
- 
- 	/*
- 	 * For consistency, fail file's opened with the O_DIRECT flag on
-@@ -453,15 +441,41 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 		return -EINVAL;
- 	}
- 
--	i_size = i_size_read(file_inode(file));
-+	/* Open a new file instance in O_RDONLY if we cannot read */
-+	if (!(file->f_mode & FMODE_READ)) {
-+		int flags = file->f_flags & ~(O_WRONLY | O_APPEND |
-+				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
-+		flags |= O_RDONLY;
-+		f = dentry_open(&file->f_path, flags, file->f_cred);
-+		if (IS_ERR(f)) {
-+			/*
-+			 * Cannot open the file again, lets modify f_flags
-+			 * of original and continue
-+			 */
-+			pr_info_ratelimited("Unable to reopen file for reading.\n");
-+			f = file;
-+			f->f_flags |= FMODE_READ;
-+			modified_flags = true;
-+		} else {
-+			new_file_instance = true;
-+		}
-+	}
-+
-+	i_size = i_size_read(file_inode(f));
- 
- 	if (ima_ahash_minsize && i_size >= ima_ahash_minsize) {
--		rc = ima_calc_file_ahash(file, hash);
-+		rc = ima_calc_file_ahash(f, hash);
- 		if (!rc)
--			return 0;
-+			goto out;
- 	}
- 
--	return ima_calc_file_shash(file, hash);
-+	rc = ima_calc_file_shash(f, hash);
-+out:
-+	if (new_file_instance)
-+		fput(f);
-+	else if (modified_flags)
-+		f->f_flags &= ~FMODE_READ;
-+	return rc;
- }
- 
- /*
+-	if (PageTransCompoundMap(pfn_to_page(pfn))) {
++	/*
++	 * PageTransCompoungMap() returns true for THP and
++	 * hugetlbfs. Make sure the adjustment is done only for THP
++	 * pages.
++	 */
++	if (!PageHuge(page) && PageTransCompoundMap(page)) {
+ 		unsigned long mask;
+ 		/*
+ 		 * The address we faulted on is backed by a transparent huge
 -- 
 2.20.1
 
