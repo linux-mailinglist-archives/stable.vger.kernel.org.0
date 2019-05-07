@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E0515B9A
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0601715B98
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbfEGFiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728046AbfEGFiI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 May 2019 01:38:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57898 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728499AbfEGFiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:38:06 -0400
+        id S1726694AbfEGFiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:38:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85E9D214AE;
-        Tue,  7 May 2019 05:38:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B862220578;
+        Tue,  7 May 2019 05:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207485;
-        bh=mColmzft8Nb+sAebGjP60wsb9mHLEDd39ULoikCLQWE=;
+        s=default; t=1557207486;
+        bh=PKfrynBKEvM/PKeZRU7lV68wr5wLDaGH2t074wvcoTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuSuZiGkT8DszPhGCJZ4NccO+70AoR17ByxGnoaA5Mzi5Acq1+Y+O7tbyEldVFqBY
-         tLESniwSAG+mu86tS+edp0aR/adk3NeXlPZAwrUzImS4wqeWNjTLCIq2pa/auBMdmh
-         /gnxexnphg8D+EgMNu9P2eRgBA2EOk6WB2h+4GiA=
+        b=0K2i3p/3Jut5GrBZ83+IuBvUHoVXfhhhghlUjwDb3u2G7r1soClxIJA90c3XsJ3ni
+         bn50ACV5gS/ezhdPc8UnWWgchqxRTqncmYZEnQUn2wCI/EGJBgD8RzmukQQEFLgeLt
+         93SEBlUe8S6XRRJk3WzG2zxI/HSBOWGfDhmEcki8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhengliang <zhengliang6@huawei.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 69/81] f2fs: fix to data block override node segment by mistake
-Date:   Tue,  7 May 2019 01:35:40 -0400
-Message-Id: <20190507053554.30848-69-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 70/81] netfilter: nf_tables: use-after-free in dynamic operations
+Date:   Tue,  7 May 2019 01:35:41 -0400
+Message-Id: <20190507053554.30848-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,67 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengliang <zhengliang6@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit a0770e13c8da83bdb64738c0209ab02dd3cfff8b ]
+[ Upstream commit 3f3a390dbd59d236f62cff8e8b20355ef7069e3d ]
 
-v4: Rearrange the previous three versions.
+Smatch reports:
 
-The following scenario could lead to data block override by mistake.
+       net/netfilter/nf_tables_api.c:2167 nf_tables_expr_destroy()
+        error: dereferencing freed memory 'expr->ops'
 
-TASK A            |  TASK kworker                                            |     TASK B                                            |       TASK C
-                  |                                                          |                                                       |
-open              |                                                          |                                                       |
-write             |                                                          |                                                       |
-close             |                                                          |                                                       |
-                  |  f2fs_write_data_pages                                   |                                                       |
-                  |    f2fs_write_cache_pages                                |                                                       |
-                  |      f2fs_outplace_write_data                            |                                                       |
-                  |        f2fs_allocate_data_block (get block in seg S,     |                                                       |
-                  |                                  S is full, and only     |                                                       |
-                  |                                  have this valid data    |                                                       |
-                  |                                  block)                  |                                                       |
-                  |          allocate_segment                                |                                                       |
-                  |          locate_dirty_segment (mark S as PRE)            |                                                       |
-                  |        f2fs_submit_page_write (submit but is not         |                                                       |
-                  |                                written on dev)           |                                                       |
-unlink            |                                                          |                                                       |
- iput_final       |                                                          |                                                       |
-  f2fs_drop_inode |                                                          |                                                       |
-    f2fs_truncate |                                                          |                                                       |
- (not evict)      |                                                          |                                                       |
-                  |                                                          | write_checkpoint                                      |
-                  |                                                          |  flush merged bio but not wait file data writeback    |
-                  |                                                          |  set_prefree_as_free (mark S as FREE)                 |
-                  |                                                          |                                                       | update NODE/DATA
-                  |                                                          |                                                       | allocate_segment (select S)
-                  |     writeback done                                       |                                                       |
+net/netfilter/nf_tables_api.c
+    2162 static void nf_tables_expr_destroy(const struct nft_ctx *ctx,
+    2163                                   struct nft_expr *expr)
+    2164 {
+    2165        if (expr->ops->destroy)
+    2166                expr->ops->destroy(ctx, expr);
+                                                ^^^^
+--> 2167        module_put(expr->ops->type->owner);
+                           ^^^^^^^^^
+    2168 }
 
-So we need to guarantee io complete before truncate inode in f2fs_drop_inode.
+Smatch says there are three functions which free expr->ops.
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: b8e204006340 ("netfilter: nft_compat: use .release_ops and remove list of extension")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- fs/f2fs/super.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nf_tables_api.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 2264f27fd26d..036eb1e0d557 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -890,6 +890,10 @@ static int f2fs_drop_inode(struct inode *inode)
- 			sb_start_intwrite(inode->i_sb);
- 			f2fs_i_size_write(inode, 0);
- 
-+			f2fs_submit_merged_write_cond(F2FS_I_SB(inode),
-+					inode, NULL, 0, DATA);
-+			truncate_inode_pages_final(inode->i_mapping);
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index f272f9538c44..ef7ff13a7b99 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2113,9 +2113,11 @@ static int nf_tables_newexpr(const struct nft_ctx *ctx,
+ static void nf_tables_expr_destroy(const struct nft_ctx *ctx,
+ 				   struct nft_expr *expr)
+ {
++	const struct nft_expr_type *type = expr->ops->type;
 +
- 			if (F2FS_HAS_BLOCKS(inode))
- 				f2fs_truncate(inode);
+ 	if (expr->ops->destroy)
+ 		expr->ops->destroy(ctx, expr);
+-	module_put(expr->ops->type->owner);
++	module_put(type->owner);
+ }
  
+ struct nft_expr *nft_expr_init(const struct nft_ctx *ctx,
 -- 
 2.20.1
 
