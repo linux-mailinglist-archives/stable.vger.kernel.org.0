@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C00215B18
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8249A15B22
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728937AbfEGFjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:39:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
+        id S1728377AbfEGFvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728514AbfEGFjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:48 -0400
+        id S1728935AbfEGFjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9E4D205ED;
-        Tue,  7 May 2019 05:39:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2908420675;
+        Tue,  7 May 2019 05:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207587;
-        bh=mUmzi0R84Qcg29KZmmx+diwga44z3ZgjBf6zUAg0VwY=;
+        s=default; t=1557207589;
+        bh=sz3G/G7S59Ufj57jzQemIJTIAXrIRuQ6U/WPK+vEEH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4F5FEk5A7ygjcv/EPRtWpkRRAZ+ni7ZGhde8wCXJ19KNOEIpmNc52wZpKoUBs180
-         l1dm2WG0BuLycBUxz8uEPsStcdcG7rLFtd1/xXgDZZyblGkCzvbuH7hwJzBWotXFtk
-         joIyLr/8qvfPdP60YccaynCh3M52pPQw42W+DIak=
+        b=Satpoahixke2p4Zp9JZVVKOWs1CcyW3t1DJSB83E+AzV9BpY82ddC0SbXxJsNH21G
+         LbRoRAhgwY/SEtYNk74AdND7XsGRzdRSsFsP/GyGtKbaRSZw/ISkTQHIosKCp0+zCQ
+         YpZNaL8fZ/Ybg5gI0j2k1eplXFWNBAz+fiSv5iZo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tang Junhui <tang.junhui.linux@gmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+Cc:     Erik Schmauss <erik.schmauss@intel.com>,
+        Jean-Marc Lenoir <archlinux@jihemel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 38/95] bcache: correct dirty data statistics
-Date:   Tue,  7 May 2019 01:37:27 -0400
-Message-Id: <20190507053826.31622-38-sashal@kernel.org>
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 4.14 39/95] ACPICA: AML interpreter: add region addresses in global list during initialization
+Date:   Tue,  7 May 2019 01:37:28 -0400
+Message-Id: <20190507053826.31622-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,43 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Junhui <tang.junhui.linux@gmail.com>
+From: Erik Schmauss <erik.schmauss@intel.com>
 
-[ Upstream commit 2e17a262a2371d38d2ec03614a2675a32cef9912 ]
+[ Upstream commit 4abb951b73ff0a8a979113ef185651aa3c8da19b ]
 
-When bcache device is clean, dirty keys may still exist after
-journal replay, so we need to count these dirty keys even
-device in clean status, otherwise after writeback, the amount
-of dirty data would be incorrect.
+The table load process omitted adding the operation region address
+range to the global list. This omission is problematic because the OS
+queries the global list to check for address range conflicts before
+deciding which drivers to load. This commit may result in warning
+messages that look like the following:
 
-Signed-off-by: Tang Junhui <tang.junhui.linux@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[    7.871761] ACPI Warning: system_IO range 0x00000428-0x0000042F conflicts with op_region 0x00000400-0x0000047F (\PMIO) (20180531/utaddress-213)
+[    7.871769] ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+
+However, these messages do not signify regressions. It is a result of
+properly adding address ranges within the global address list.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=200011
+Tested-by: Jean-Marc Lenoir <archlinux@jihemel.com>
+Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/md/bcache/super.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/dsopcode.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index fe6e4c319b7c..9e875aba41b9 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1045,12 +1045,13 @@ int bch_cached_dev_attach(struct cached_dev *dc, struct cache_set *c,
- 	}
+diff --git a/drivers/acpi/acpica/dsopcode.c b/drivers/acpi/acpica/dsopcode.c
+index 0336df7ac47d..e8070f6ca835 100644
+--- a/drivers/acpi/acpica/dsopcode.c
++++ b/drivers/acpi/acpica/dsopcode.c
+@@ -451,6 +451,10 @@ acpi_ds_eval_region_operands(struct acpi_walk_state *walk_state,
+ 			  ACPI_FORMAT_UINT64(obj_desc->region.address),
+ 			  obj_desc->region.length));
  
- 	if (BDEV_STATE(&dc->sb) == BDEV_STATE_DIRTY) {
--		bch_sectors_dirty_init(&dc->disk);
- 		atomic_set(&dc->has_dirty, 1);
- 		atomic_inc(&dc->count);
- 		bch_writeback_queue(dc);
- 	}
- 
-+	bch_sectors_dirty_init(&dc->disk);
++	status = acpi_ut_add_address_range(obj_desc->region.space_id,
++					   obj_desc->region.address,
++					   obj_desc->region.length, node);
 +
- 	bch_cached_dev_run(dc);
- 	bcache_device_link(&dc->disk, c, "bdev");
+ 	/* Now the address and length are valid for this opregion */
  
+ 	obj_desc->region.flags |= AOPOBJ_DATA_VALID;
 -- 
 2.20.1
 
