@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0290215AD7
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B4515AD3
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729170AbfEGFtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60042 "EHLO mail.kernel.org"
+        id S1728503AbfEGFtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:49:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728812AbfEGFkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:32 -0400
+        id S1729127AbfEGFkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58BE920578;
-        Tue,  7 May 2019 05:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B12172087F;
+        Tue,  7 May 2019 05:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207631;
-        bh=t/Br6gIcSiZmlrPC7V3vb+4t9UEZaeU+lmbv8eZ3UJY=;
+        s=default; t=1557207632;
+        bh=6rqeJIpOxgLw/JjrqCTGWN5oEHnbMtARRiJU296VwB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqMTMFfNiAdmOTFz6IRJSh1OzTHCw+F8+JdFUgr8JXsy6OYrMC/U3z/LM+lAJxd+2
-         xlyLSQA6woMkon6KhWrh2KOzoVyJsfwfOvcZiI7lNkosOttSUE0s3dpkucqR4Aim6x
-         CUVIVnkXsSzF47bGYqiAcpVshRB1jaHsmO3T3pWw=
+        b=VhxL6kclzZ7TEwIrSRmca9vDRbC2Gd8ghKbeGfZrET42LpfUa7svyCt9xYLrXUWjY
+         a2XmyloCCXkia6FUxgoTBjgKbZ/GfLglMO6vCjzzV1og9MlzwNj3LeWUtjQsn6syTf
+         Z7pO/MemYk3w4Zx/uFCQ1zcqjcKBYK7wOVScSO34=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adit Ranadive <aditr@vmware.com>,
-        Ruishuang Wang <ruishuangw@vmware.com>,
-        Bryan Tan <bryantan@vmware.com>,
-        Vishnu Dasa <vdasa@vmware.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+Cc:     Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 68/95] RDMA/vmw_pvrdma: Return the correct opcode when creating WR
-Date:   Tue,  7 May 2019 01:37:57 -0400
-Message-Id: <20190507053826.31622-68-sashal@kernel.org>
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 69/95] arm64: dts: marvell: armada-ap806: reserve PSCI area
+Date:   Tue,  7 May 2019 01:37:58 -0400
+Message-Id: <20190507053826.31622-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -47,103 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adit Ranadive <aditr@vmware.com>
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 
-[ Upstream commit 6325e01b6cdf4636b721cf7259c1616e3cf28ce2 ]
+[ Upstream commit 132ac39cffbcfed80ada38ef0fc6d34d95da7be6 ]
 
-Since the IB_WR_REG_MR opcode value changed, let's set the PVRDMA device
-opcodes explicitly.
+The memory area [0x4000000-0x4200000[ is occupied by the PSCI firmware. Any
+attempt to access it from Linux leads to an immediate crash.
 
-Reported-by: Ruishuang Wang <ruishuangw@vmware.com>
-Fixes: 9a59739bd01f ("IB/rxe: Revise the ib_wr_opcode enum")
-Cc: stable@vger.kernel.org
-Reviewed-by: Bryan Tan <bryantan@vmware.com>
-Reviewed-by: Ruishuang Wang <ruishuangw@vmware.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: Adit Ranadive <aditr@vmware.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+So let's make the same memory reservation as the vendor kernel.
+
+[gregory: added as comment that this region matches the mainline U-boot]
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/infiniband/hw/vmw_pvrdma/pvrdma.h    | 35 +++++++++++++++++++-
- drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c |  6 ++++
- include/uapi/rdma/vmw_pvrdma-abi.h           |  1 +
- 3 files changed, 41 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-ap806.dtsi | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
-index 984aa3484928..4463e1c1a764 100644
---- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
-+++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
-@@ -407,7 +407,40 @@ static inline enum ib_qp_state pvrdma_qp_state_to_ib(enum pvrdma_qp_state state)
+diff --git a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
+index 30d48ecf46e0..27d2bd85d1ae 100644
+--- a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
+@@ -65,6 +65,23 @@
+ 		method = "smc";
+ 	};
  
- static inline enum pvrdma_wr_opcode ib_wr_opcode_to_pvrdma(enum ib_wr_opcode op)
- {
--	return (enum pvrdma_wr_opcode)op;
-+	switch (op) {
-+	case IB_WR_RDMA_WRITE:
-+		return PVRDMA_WR_RDMA_WRITE;
-+	case IB_WR_RDMA_WRITE_WITH_IMM:
-+		return PVRDMA_WR_RDMA_WRITE_WITH_IMM;
-+	case IB_WR_SEND:
-+		return PVRDMA_WR_SEND;
-+	case IB_WR_SEND_WITH_IMM:
-+		return PVRDMA_WR_SEND_WITH_IMM;
-+	case IB_WR_RDMA_READ:
-+		return PVRDMA_WR_RDMA_READ;
-+	case IB_WR_ATOMIC_CMP_AND_SWP:
-+		return PVRDMA_WR_ATOMIC_CMP_AND_SWP;
-+	case IB_WR_ATOMIC_FETCH_AND_ADD:
-+		return PVRDMA_WR_ATOMIC_FETCH_AND_ADD;
-+	case IB_WR_LSO:
-+		return PVRDMA_WR_LSO;
-+	case IB_WR_SEND_WITH_INV:
-+		return PVRDMA_WR_SEND_WITH_INV;
-+	case IB_WR_RDMA_READ_WITH_INV:
-+		return PVRDMA_WR_RDMA_READ_WITH_INV;
-+	case IB_WR_LOCAL_INV:
-+		return PVRDMA_WR_LOCAL_INV;
-+	case IB_WR_REG_MR:
-+		return PVRDMA_WR_FAST_REG_MR;
-+	case IB_WR_MASKED_ATOMIC_CMP_AND_SWP:
-+		return PVRDMA_WR_MASKED_ATOMIC_CMP_AND_SWP;
-+	case IB_WR_MASKED_ATOMIC_FETCH_AND_ADD:
-+		return PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD;
-+	case IB_WR_REG_SIG_MR:
-+		return PVRDMA_WR_REG_SIG_MR;
-+	default:
-+		return PVRDMA_WR_ERROR;
-+	}
- }
- 
- static inline enum ib_wc_status pvrdma_wc_status_to_ib(
-diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
-index d7162f2b7979..4d9c99dd366b 100644
---- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
-+++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
-@@ -695,6 +695,12 @@ int pvrdma_post_send(struct ib_qp *ibqp, struct ib_send_wr *wr,
- 		    wr->opcode == IB_WR_RDMA_WRITE_WITH_IMM)
- 			wqe_hdr->ex.imm_data = wr->ex.imm_data;
- 
-+		if (unlikely(wqe_hdr->opcode == PVRDMA_WR_ERROR)) {
-+			*bad_wr = wr;
-+			ret = -EINVAL;
-+			goto out;
-+		}
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
 +
- 		switch (qp->ibqp.qp_type) {
- 		case IB_QPT_GSI:
- 		case IB_QPT_UD:
-diff --git a/include/uapi/rdma/vmw_pvrdma-abi.h b/include/uapi/rdma/vmw_pvrdma-abi.h
-index 912ea1556a0b..fd801c7be120 100644
---- a/include/uapi/rdma/vmw_pvrdma-abi.h
-+++ b/include/uapi/rdma/vmw_pvrdma-abi.h
-@@ -76,6 +76,7 @@ enum pvrdma_wr_opcode {
- 	PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD,
- 	PVRDMA_WR_BIND_MW,
- 	PVRDMA_WR_REG_SIG_MR,
-+	PVRDMA_WR_ERROR,
- };
- 
- enum pvrdma_wc_status {
++		/*
++		 * This area matches the mapping done with a
++		 * mainline U-Boot, and should be updated by the
++		 * bootloader.
++		 */
++
++		psci-area@4000000 {
++			reg = <0x0 0x4000000 0x0 0x200000>;
++			no-map;
++		};
++	};
++
+ 	ap806 {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
 -- 
 2.20.1
 
