@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D66E915CC9
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 776AD15CC4
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727052AbfEGGGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1725994AbfEGGGw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 May 2019 02:06:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726947AbfEGFdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:40 -0400
+        id S1727301AbfEGFdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C035F20C01;
-        Tue,  7 May 2019 05:33:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F978214AE;
+        Tue,  7 May 2019 05:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207219;
-        bh=70TvJEmu8OvJflZWtXYL2j9zSm78Falniq/Upr9UmP0=;
+        s=default; t=1557207220;
+        bh=mtMDzxZPxAh0EDHxRHCQ4/YLrqXVHQcGl7Mse1HMZ24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCR+6p+WrVtBRY8/bv88sRfLYsXqCCyit1/5UD+ZDZSHPBdzA0X+KPXQRomQz9T6y
-         ammL22PgEymNESxWuOfAJ+yOPCHN+WSeNxWeuV5sLiaO6UyN8tOKR3pTRwQlO1hufB
-         yNsAT6RIJ4aCyEjQVsqT7xExU+x3HCcIJxol4hAU=
+        b=w7Ap+N8actzmtqL1ccS0soXuUXH+2bOXXsJfAr1pQv85HPQ2BDtt2g6Q/EKx95WdO
+         2BlwQL5nXTF0gxB0Yx+5+l/U+LGabuBJ2L0x6hK7nmygH6mW2/79E9M079oJ7YRDK7
+         NZvN/cdfF0XVfrxH7rCH6rZ2OuYx0WN86O7M0KhY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Kai Krakow <kai@kaishome.de>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 33/99] bfq: update internal depth state when queue depth changes
-Date:   Tue,  7 May 2019 01:31:27 -0400
-Message-Id: <20190507053235.29900-33-sashal@kernel.org>
+Cc:     Denis Bolotin <dbolotin@marvell.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 34/99] qed: Delete redundant doorbell recovery types
+Date:   Tue,  7 May 2019 01:31:28 -0400
+Message-Id: <20190507053235.29900-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -43,87 +45,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Denis Bolotin <dbolotin@marvell.com>
 
-[ Upstream commit 77f1e0a52d26242b6c2dba019f6ebebfb9ff701e ]
+[ Upstream commit 9ac6bb1414ac0d45fe9cefbd1f5b06f0e1a3c98a ]
 
-A previous commit moved the shallow depth and BFQ depth map calculations
-to be done at init time, moving it outside of the hotter IO path. This
-potentially causes hangs if the users changes the depth of the scheduler
-map, by writing to the 'nr_requests' sysfs file for that device.
+DB_REC_DRY_RUN (running doorbell recovery without sending doorbells) is
+never used. DB_REC_ONCE (send a single doorbell from the doorbell recovery)
+is not needed anymore because by running the periodic handler we make sure
+we check the overflow status later instead.
+This patch is needed because in the next patches, the only doorbell
+recovery type being used is DB_REC_REAL_DEAL, and the fixes are much
+cleaner without this enum.
 
-Add a blk-mq-sched hook that allows blk-mq to inform the scheduler if
-the depth changes, so that the scheduler can update its internal state.
-
-Tested-by: Kai Krakow <kai@kaishome.de>
-Reported-by: Paolo Valente <paolo.valente@linaro.org>
-Fixes: f0635b8a416e ("bfq: calculate shallow depths at init time")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Denis Bolotin <dbolotin@marvell.com>
+Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c      | 8 +++++++-
- block/blk-mq.c           | 2 ++
- include/linux/elevator.h | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed.h     |  3 +-
+ drivers/net/ethernet/qlogic/qed/qed_dev.c | 69 +++++++++--------------
+ drivers/net/ethernet/qlogic/qed/qed_int.c |  6 +-
+ drivers/net/ethernet/qlogic/qed/qed_int.h |  4 +-
+ 4 files changed, 31 insertions(+), 51 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 72510c470001..356620414cf9 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5353,7 +5353,7 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	return min_shallow;
- }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
+index 2d8a77cc156b..d5fece7eb169 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed.h
++++ b/drivers/net/ethernet/qlogic/qed/qed.h
+@@ -918,8 +918,7 @@ u16 qed_get_cm_pq_idx_llt_mtc(struct qed_hwfn *p_hwfn, u8 tc);
  
--static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
-+static void bfq_depth_updated(struct blk_mq_hw_ctx *hctx)
- {
- 	struct bfq_data *bfqd = hctx->queue->elevator->elevator_data;
- 	struct blk_mq_tags *tags = hctx->sched_tags;
-@@ -5361,6 +5361,11 @@ static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
+ /* doorbell recovery mechanism */
+ void qed_db_recovery_dp(struct qed_hwfn *p_hwfn);
+-void qed_db_recovery_execute(struct qed_hwfn *p_hwfn,
+-			     enum qed_db_rec_exec db_exec);
++void qed_db_recovery_execute(struct qed_hwfn *p_hwfn);
+ bool qed_edpm_enabled(struct qed_hwfn *p_hwfn);
  
- 	min_shallow = bfq_update_depths(bfqd, &tags->bitmap_tags);
- 	sbitmap_queue_min_shallow_depth(&tags->bitmap_tags, min_shallow);
-+}
-+
-+static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
+ /* Other Linux specific common definitions */
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 2ecaaaa4469a..ff0bbf8d073d 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -300,26 +300,19 @@ void qed_db_recovery_dp(struct qed_hwfn *p_hwfn)
+ 
+ /* Ring the doorbell of a single doorbell recovery entry */
+ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+-				 struct qed_db_recovery_entry *db_entry,
+-				 enum qed_db_rec_exec db_exec)
+-{
+-	if (db_exec != DB_REC_ONCE) {
+-		/* Print according to width */
+-		if (db_entry->db_width == DB_REC_WIDTH_32B) {
+-			DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
+-				   "%s doorbell address %p data %x\n",
+-				   db_exec == DB_REC_DRY_RUN ?
+-				   "would have rung" : "ringing",
+-				   db_entry->db_addr,
+-				   *(u32 *)db_entry->db_data);
+-		} else {
+-			DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
+-				   "%s doorbell address %p data %llx\n",
+-				   db_exec == DB_REC_DRY_RUN ?
+-				   "would have rung" : "ringing",
+-				   db_entry->db_addr,
+-				   *(u64 *)(db_entry->db_data));
+-		}
++				 struct qed_db_recovery_entry *db_entry)
 +{
-+	bfq_depth_updated(hctx);
- 	return 0;
- }
- 
-@@ -5783,6 +5788,7 @@ static struct elevator_type iosched_bfq_mq = {
- 		.requests_merged	= bfq_requests_merged,
- 		.request_merged		= bfq_request_merged,
- 		.has_work		= bfq_has_work,
-+		.depth_updated		= bfq_depth_updated,
- 		.init_hctx		= bfq_init_hctx,
- 		.init_sched		= bfq_init_queue,
- 		.exit_sched		= bfq_exit_queue,
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 16f9675c57e6..9ab847d0d6d2 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3123,6 +3123,8 @@ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr)
- 		}
- 		if (ret)
- 			break;
-+		if (q->elevator && q->elevator->type->ops.depth_updated)
-+			q->elevator->type->ops.depth_updated(hctx);
++	/* Print according to width */
++	if (db_entry->db_width == DB_REC_WIDTH_32B) {
++		DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
++			   "ringing doorbell address %p data %x\n",
++			   db_entry->db_addr,
++			   *(u32 *)db_entry->db_data);
++	} else {
++		DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
++			   "ringing doorbell address %p data %llx\n",
++			   db_entry->db_addr,
++			   *(u64 *)(db_entry->db_data));
  	}
  
- 	if (!ret)
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index 2e9e2763bf47..6e8bc53740f0 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -31,6 +31,7 @@ struct elevator_mq_ops {
- 	void (*exit_sched)(struct elevator_queue *);
- 	int (*init_hctx)(struct blk_mq_hw_ctx *, unsigned int);
- 	void (*exit_hctx)(struct blk_mq_hw_ctx *, unsigned int);
-+	void (*depth_updated)(struct blk_mq_hw_ctx *);
+ 	/* Sanity */
+@@ -334,14 +327,12 @@ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+ 	wmb();
  
- 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
- 	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *);
+ 	/* Ring the doorbell */
+-	if (db_exec == DB_REC_REAL_DEAL || db_exec == DB_REC_ONCE) {
+-		if (db_entry->db_width == DB_REC_WIDTH_32B)
+-			DIRECT_REG_WR(db_entry->db_addr,
+-				      *(u32 *)(db_entry->db_data));
+-		else
+-			DIRECT_REG_WR64(db_entry->db_addr,
+-					*(u64 *)(db_entry->db_data));
+-	}
++	if (db_entry->db_width == DB_REC_WIDTH_32B)
++		DIRECT_REG_WR(db_entry->db_addr,
++			      *(u32 *)(db_entry->db_data));
++	else
++		DIRECT_REG_WR64(db_entry->db_addr,
++				*(u64 *)(db_entry->db_data));
+ 
+ 	/* Flush the write combined buffer. Next doorbell may come from a
+ 	 * different entity to the same address...
+@@ -350,29 +341,21 @@ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+ }
+ 
+ /* Traverse the doorbell recovery entry list and ring all the doorbells */
+-void qed_db_recovery_execute(struct qed_hwfn *p_hwfn,
+-			     enum qed_db_rec_exec db_exec)
++void qed_db_recovery_execute(struct qed_hwfn *p_hwfn)
+ {
+ 	struct qed_db_recovery_entry *db_entry = NULL;
+ 
+-	if (db_exec != DB_REC_ONCE) {
+-		DP_NOTICE(p_hwfn,
+-			  "Executing doorbell recovery. Counter was %d\n",
+-			  p_hwfn->db_recovery_info.db_recovery_counter);
++	DP_NOTICE(p_hwfn, "Executing doorbell recovery. Counter was %d\n",
++		  p_hwfn->db_recovery_info.db_recovery_counter);
+ 
+-		/* Track amount of times recovery was executed */
+-		p_hwfn->db_recovery_info.db_recovery_counter++;
+-	}
++	/* Track amount of times recovery was executed */
++	p_hwfn->db_recovery_info.db_recovery_counter++;
+ 
+ 	/* Protect the list */
+ 	spin_lock_bh(&p_hwfn->db_recovery_info.lock);
+ 	list_for_each_entry(db_entry,
+-			    &p_hwfn->db_recovery_info.list, list_entry) {
+-		qed_db_recovery_ring(p_hwfn, db_entry, db_exec);
+-		if (db_exec == DB_REC_ONCE)
+-			break;
+-	}
+-
++			    &p_hwfn->db_recovery_info.list, list_entry)
++		qed_db_recovery_ring(p_hwfn, db_entry);
+ 	spin_unlock_bh(&p_hwfn->db_recovery_info.lock);
+ }
+ 
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index 92340919d852..b994f81eb51c 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -409,10 +409,8 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ 
+ 	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
+ 	DP_NOTICE(p_hwfn, "PF Overflow sticky 0x%x\n", overflow);
+-	if (!overflow) {
+-		qed_db_recovery_execute(p_hwfn, DB_REC_ONCE);
++	if (!overflow)
+ 		return 0;
+-	}
+ 
+ 	if (qed_edpm_enabled(p_hwfn)) {
+ 		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
+@@ -427,7 +425,7 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ 	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
+ 
+ 	/* Repeat all last doorbells (doorbell drop recovery) */
+-	qed_db_recovery_execute(p_hwfn, DB_REC_REAL_DEAL);
++	qed_db_recovery_execute(p_hwfn);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.h b/drivers/net/ethernet/qlogic/qed/qed_int.h
+index d81a62ebd524..df26bf333893 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.h
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.h
+@@ -192,8 +192,8 @@ void qed_int_disable_post_isr_release(struct qed_dev *cdev);
+ 
+ /**
+  * @brief - Doorbell Recovery handler.
+- *          Run DB_REAL_DEAL doorbell recovery in case of PF overflow
+- *          (and flush DORQ if needed), otherwise run DB_REC_ONCE.
++ *          Run doorbell recovery in case of PF overflow (and flush DORQ if
++ *          needed).
+  *
+  * @param p_hwfn
+  * @param p_ptt
 -- 
 2.20.1
 
