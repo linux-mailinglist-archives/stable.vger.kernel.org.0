@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5800015AAE
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 732CE15AC1
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbfEGFk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60346 "EHLO mail.kernel.org"
+        id S1728405AbfEGFsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:48:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729232AbfEGFk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:40:56 -0400
+        id S1728923AbfEGFk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:40:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3D1C205ED;
-        Tue,  7 May 2019 05:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D638B206A3;
+        Tue,  7 May 2019 05:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207655;
-        bh=Gzzi3VsPQoOc0Wwur4Hdr8LUbWfj03H6MpPi4hbh0F0=;
+        s=default; t=1557207656;
+        bh=SdEjLrzoirfnu9SPTTpVGyfMKMbThmogfoJTt9xhd1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4lBtLKl4Ksp73Unxw5sadISIKdnW2LZCkPBSPV6e9e9D1NeEyS9WGFFjvPAFQy2d
-         S2W2d5/+1j6yGoELQWsUOA4xqw3BYN2sYn/63mMdpykmD4AjVt8t0oYHLjvwlUM6wv
-         tL/b/95mdizSj/bbyRgRQaVY96vcKw+xXuwfSFS4=
+        b=hg6HY2L3gUEfHwO65T0/VIpzWYWje2QLjZ1Xb5aAerusmi8Pmrb84MHsBPYOJQ4NW
+         Mwe3BWTSe/RoNIz0x/RbAGP2VLX9OQyszXoo88RHo+S8XMHwvVDgmw/ruzYt+mNb6y
+         PfmU51AX0f2H4M60GysRkplbUTa1FVNafHRWREjo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     KT Liao <kt.liao@emc.com.tw>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Cc:     Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 80/95] Input: elan_i2c - add hardware ID for multiple Lenovo laptops
-Date:   Tue,  7 May 2019 01:38:09 -0400
-Message-Id: <20190507053826.31622-80-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 81/95] netfilter: nf_tables: warn when expr implements only one of activate/deactivate
+Date:   Tue,  7 May 2019 01:38:10 -0400
+Message-Id: <20190507053826.31622-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,73 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KT Liao <kt.liao@emc.com.tw>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 738c06d0e4562e0acf9f2c7438a22b2d5afc67aa ]
+[ Upstream commit 0ef235c71755c5f36c50282fcf2d7d08709be344 ]
 
-There are many Lenovo laptops which need elan_i2c support, this patch adds
-relevant IDs to the Elan driver so that touchpads are recognized.
+->destroy is only allowed to free data, or do other cleanups that do not
+have side effects on other state, such as visibility to other netlink
+requests.
 
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Such things need to be done in ->deactivate.
+As a transaction can fail, we need to make sure we can undo such
+operations, therefore ->activate() has to be provided too.
+
+So print a warning and refuse registration if expr->ops provides
+only one of the two operations.
+
+v2: fix nft_expr_check_ops to not repeat same check twice (Jones Desougi)
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ net/netfilter/nf_tables_api.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 2ce805d31ed1..ad89ba143a0e 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1254,22 +1254,47 @@ static const struct acpi_device_id elan_acpi_id[] = {
- 	{ "ELAN0600", 0 },
- 	{ "ELAN0601", 0 },
- 	{ "ELAN0602", 0 },
-+	{ "ELAN0603", 0 },
-+	{ "ELAN0604", 0 },
- 	{ "ELAN0605", 0 },
-+	{ "ELAN0606", 0 },
-+	{ "ELAN0607", 0 },
- 	{ "ELAN0608", 0 },
- 	{ "ELAN0605", 0 },
- 	{ "ELAN0609", 0 },
- 	{ "ELAN060B", 0 },
- 	{ "ELAN060C", 0 },
-+	{ "ELAN060F", 0 },
-+	{ "ELAN0610", 0 },
- 	{ "ELAN0611", 0 },
- 	{ "ELAN0612", 0 },
-+	{ "ELAN0615", 0 },
-+	{ "ELAN0616", 0 },
- 	{ "ELAN0617", 0 },
- 	{ "ELAN0618", 0 },
-+	{ "ELAN0619", 0 },
-+	{ "ELAN061A", 0 },
-+	{ "ELAN061B", 0 },
- 	{ "ELAN061C", 0 },
- 	{ "ELAN061D", 0 },
- 	{ "ELAN061E", 0 },
-+	{ "ELAN061F", 0 },
- 	{ "ELAN0620", 0 },
- 	{ "ELAN0621", 0 },
- 	{ "ELAN0622", 0 },
-+	{ "ELAN0623", 0 },
-+	{ "ELAN0624", 0 },
-+	{ "ELAN0625", 0 },
-+	{ "ELAN0626", 0 },
-+	{ "ELAN0627", 0 },
-+	{ "ELAN0628", 0 },
-+	{ "ELAN0629", 0 },
-+	{ "ELAN062A", 0 },
-+	{ "ELAN062B", 0 },
-+	{ "ELAN062C", 0 },
-+	{ "ELAN062D", 0 },
-+	{ "ELAN0631", 0 },
-+	{ "ELAN0632", 0 },
- 	{ "ELAN1000", 0 },
- 	{ }
- };
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index c445d57e3a5b..b149a7219084 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -220,6 +220,18 @@ static int nft_delchain(struct nft_ctx *ctx)
+ 	return err;
+ }
+ 
++/* either expr ops provide both activate/deactivate, or neither */
++static bool nft_expr_check_ops(const struct nft_expr_ops *ops)
++{
++	if (!ops)
++		return true;
++
++	if (WARN_ON_ONCE((!ops->activate ^ !ops->deactivate)))
++		return false;
++
++	return true;
++}
++
+ static void nft_rule_expr_activate(const struct nft_ctx *ctx,
+ 				   struct nft_rule *rule)
+ {
+@@ -1724,6 +1736,9 @@ static int nf_tables_delchain(struct net *net, struct sock *nlsk,
+  */
+ int nft_register_expr(struct nft_expr_type *type)
+ {
++	if (!nft_expr_check_ops(type->ops))
++		return -EINVAL;
++
+ 	nfnl_lock(NFNL_SUBSYS_NFTABLES);
+ 	if (type->family == NFPROTO_UNSPEC)
+ 		list_add_tail_rcu(&type->list, &nf_tables_expressions);
+@@ -1873,6 +1888,10 @@ static int nf_tables_expr_parse(const struct nft_ctx *ctx,
+ 			err = PTR_ERR(ops);
+ 			goto err1;
+ 		}
++		if (!nft_expr_check_ops(ops)) {
++			err = -EINVAL;
++			goto err1;
++		}
+ 	} else
+ 		ops = type->ops;
+ 
 -- 
 2.20.1
 
