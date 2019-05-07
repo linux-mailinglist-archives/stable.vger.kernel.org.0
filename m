@@ -2,132 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 239FC166F6
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 17:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F44166C8
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 17:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726631AbfEGPhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 11:37:32 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:43492 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726545AbfEGPhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 11:37:32 -0400
-Received: by mail-lj1-f193.google.com with SMTP id z5so9652093lji.10
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 08:37:31 -0700 (PDT)
+        id S1726381AbfEGPdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 11:33:37 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:43017 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726335AbfEGPdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 11:33:37 -0400
+Received: by mail-lf1-f65.google.com with SMTP id u27so11929479lfg.10;
+        Tue, 07 May 2019 08:33:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Y6ybn9R2wRwK7OVl8uatl/i1llM+QJoRgaCyqAFbo9Y=;
-        b=BNzVqUAAViERdEuxZy8DHUiuYxo8ddmm9cVx4BOchUH3WtVYroxRTUSipMK+LTDMnx
-         G6Nz0qaFq78h9Jxdf15yovQ7B7GKRx+9GVUL2kenVn+ddQfRmu4UzyEd25IlQcp/jSGE
-         dAIUJDF1c1Wz5T5Q+QRd4jWS9Etfzd3108pkw=
+         :cc:content-transfer-encoding;
+        bh=WQisPNfHOfBJIalj0+j26baB7DA29UKmypJYO0pbRkw=;
+        b=p/Ae+FE2KJJFwABwsALHLaFGmLRrrZwfw6c20iqhoqGxxvYFHcl4Mbl0rgeHBsHgPd
+         OWKfLJJPdkXbaBXWmTfG2b+0VB+VBwspEXLsxCtj7qabY+QR3AuBBRrFxF4qAWHRzYvs
+         zYS5wXWXvLvn+A3xfxJzBuUlOnPihB7fWAzS1N/DW/RHkNGXlNuoaXHhBErG5LjCU/59
+         2JX3nb3qPqK1wEs4pVqoZhR/R+PhflOPKM25QrzQs3w8tRqi4ZRRttnaw5JIbVdOwDzG
+         8IfTMUwpsgVHh+VXKBiQwX9yY3LofCi+aLAV1TjzFzet2eZgw12JYXQ9t0IZA51CzxJg
+         7IvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Y6ybn9R2wRwK7OVl8uatl/i1llM+QJoRgaCyqAFbo9Y=;
-        b=jOJnqBfmEcqczhu21w52JnnR1voJt1LDEzXdfXNrfQHkIxC9mg4IkeYtk4HA+ZDVcY
-         27XuCYIXTbGObkPE0StE4yXq1jBTxFS6BrV+MGI4saVX/c77LPO1Rb5TF6aFSTk5CNTO
-         ck3gOv8+zZnRddO7BcbXGHZ3vrY6A+7bZn5c5yKRdr1P8GR+ww6R7wGKR1BcHe2M1YWA
-         TK4BDs0zt0QMv7Bhr4n3/AkvQ5Ce46rG1aeFhOaWU/iOWcis/SAcCt186leQpU7LUUcf
-         IBZ2XPo5vPzUyyF859LGj+OLiuvXADfCFg4o7bzfKb2VcbWysFwyMjG5w1k9hvPVDICb
-         xHoA==
-X-Gm-Message-State: APjAAAVVDD4n9twY6+yYyb178SjdfbMu2drJJNb/k3qjAwHMv32WxJpQ
-        y+EJ0QEklS69CN2LkR8/eyqBNEvREug=
-X-Google-Smtp-Source: APXvYqxewhYuDuzY2y+5Ta8j1UfY+IjdSWtjrgWIfE20VQIeloHMILUu1GpidWx5YqS7UUaLJrkRZw==
-X-Received: by 2002:a2e:9155:: with SMTP id q21mr15990503ljg.178.1557243449934;
-        Tue, 07 May 2019 08:37:29 -0700 (PDT)
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com. [209.85.208.178])
-        by smtp.gmail.com with ESMTPSA id h24sm3247964ljk.10.2019.05.07.08.37.29
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 08:37:29 -0700 (PDT)
-Received: by mail-lj1-f178.google.com with SMTP id h21so14718067ljk.13
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 08:37:29 -0700 (PDT)
-X-Received: by 2002:a2e:3e0e:: with SMTP id l14mr17667665lja.125.1557243091071;
- Tue, 07 May 2019 08:31:31 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=WQisPNfHOfBJIalj0+j26baB7DA29UKmypJYO0pbRkw=;
+        b=atU+mJRapPz1pCa058oT/JKS+qELDqufX4CB8rG7sKsRwLmq8WWQZIk6EokRQZN+Tc
+         3oDO71WQ8MhPSiXjTugiVOTJRBXFyvrTWrbnU/yzspz229EU9RhBvFrb1DXD0B913aff
+         +uAXGeSFbHywuVxsvPg9zGsH1mC3kfvyIz6vNiwUAU6hoc4uPMnBUOv43VTO1B/ApCpa
+         HtbGhmfNX0Kmefw/IKjAv+DthisuslzCN4+Godi0SudmWAXlzqa9xw3iwKp2Z/cgfepm
+         kS6sqQuSvntxUYYZ1Gu/S69qUaAWP3r8gkf23bYDMC5LTY/LvnxanqVrmSHBvpgT13y/
+         2e8A==
+X-Gm-Message-State: APjAAAX0GKjU5PO8BzwAjvlP4Vg0gWJ9E9oIMI4bJKCExReX9Rw1yubV
+        kdTqMCZPtBmPMdztyvJklonbRghW5lFBnYgyUiQ=
+X-Google-Smtp-Source: APXvYqyy1KmutZbnqJrWqU9nAQFKvt+pfus9NE6eVAUy299obZzU9NfS85opZFbrS+ROq8Sw9zfcEjMSxrm8MGvA9oM=
+X-Received: by 2002:ac2:54a1:: with SMTP id w1mr18136772lfk.46.1557243214820;
+ Tue, 07 May 2019 08:33:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
- <20190506145745.17c59596@gandalf.local.home> <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
- <20190506162915.380993f9@gandalf.local.home> <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
- <20190506174511.2f8b696b@gandalf.local.home> <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
- <20190506210416.2489a659@oasis.local.home> <CAHk-=whZwqzbu-=1r_j_cXfd=ta1q7RFCuneqBZfQQhS_P-BmQ@mail.gmail.com>
- <20190506215353.14a8ef78@oasis.local.home> <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
- <20190506225819.11756974@oasis.local.home> <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
- <20190506232158.13c9123b@oasis.local.home> <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
- <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com> <20190507111227.1d4268d7@gandalf.local.home>
-In-Reply-To: <20190507111227.1d4268d7@gandalf.local.home>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 7 May 2019 08:31:14 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
-Message-ID: <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
+References: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+In-Reply-To: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Tue, 7 May 2019 12:33:39 -0300
+Message-ID: <CAOMZO5B2nMsVNO6O_D+YTSjux=-DjNPGxhkEi3AQquOZVODumA@mail.gmail.com>
+Subject: Re: [PATCH RE-RESEND 1/2] drm/panel: Add support for Armadeus ST0700 Adapt
+To:     =?UTF-8?Q?S=C3=A9bastien_Szymanski?= 
+        <sebastien.szymanski@armadeus.com>, Sam Ravnborg <sam@ravnborg.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 7, 2019 at 8:12 AM Steven Rostedt <rostedt@goodmis.org> wrote:
->>
-> Yes, band-aids are usually simpler than a proper fix.
+[Adding Sam, who is helping to review/collect panel-simple patches]
 
-What? No/.
-
-My fix is the *proper* fix.
-
-PeterZ's is the bandaid.
-
->             We have 28 years
-> of hacks built on hacks. There's a lot of hacks in the C code to handle
-> the differences between the crappy way x86_32 does pt_regs and the
-> proper way x86_64 does them.
-
-You're confusing "reality": with "your dream world". They are different.
-
-The reality is that the i386 kernel stack is just how things work. End of story.
-
-The reality is that changing something fundamental like the kernel
-stack at this point for an architecture that will not change in the
-future is silly.
-
-The reality is that Peter's patch is much bigger than mine, because it
-needed a lot of other changes *because* it did that change.
-
-> To implement your way, we need to change how the int3 handler works.
-> It will be the only exception handler having to return regs, otherwise
-> it will crash.
-
-What? That's what the patch *does*. It's trivial.  It is done.
-
-                  Linus
+On Tue, May 7, 2019 at 12:27 PM S=C3=A9bastien Szymanski
+<sebastien.szymanski@armadeus.com> wrote:
+>
+> This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+> Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+> that it can be connected on the TFT header of Armadeus Dev boards.
+>
+> Cc: stable@vger.kernel.org # v4.19
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: S=C3=A9bastien Szymanski <sebastien.szymanski@armadeus.com=
+>
+> ---
+>  .../display/panel/armadeus,st0700-adapt.txt   |  9 ++++++
+>  drivers/gpu/drm/panel/panel-simple.c          | 29 +++++++++++++++++++
+>  2 files changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/display/panel/armad=
+eus,st0700-adapt.txt
+>
+> diff --git a/Documentation/devicetree/bindings/display/panel/armadeus,st0=
+700-adapt.txt b/Documentation/devicetree/bindings/display/panel/armadeus,st=
+0700-adapt.txt
+> new file mode 100644
+> index 000000000000..a30d63db3c8f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-ada=
+pt.txt
+> @@ -0,0 +1,9 @@
+> +Armadeus ST0700 Adapt. A Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT =
+with
+> +an adapter board.
+> +
+> +Required properties:
+> +- compatible: "armadeus,st0700-adapt"
+> +- power-supply: see panel-common.txt
+> +
+> +Optional properties:
+> +- backlight: see panel-common.txt
+> diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel=
+/panel-simple.c
+> index 9e8218f6a3f2..45ca8d10b66f 100644
+> --- a/drivers/gpu/drm/panel/panel-simple.c
+> +++ b/drivers/gpu/drm/panel/panel-simple.c
+> @@ -446,6 +446,32 @@ static const struct panel_desc ampire_am800480r3tmqw=
+a1h =3D {
+>         .bus_format =3D MEDIA_BUS_FMT_RGB666_1X18,
+>  };
+>
+> +static const struct display_timing santek_st0700i5y_rbslw_f_timing =3D {
+> +       .pixelclock =3D { 26400000, 33300000, 46800000 },
+> +       .hactive =3D { 800, 800, 800 },
+> +       .hfront_porch =3D { 16, 210, 354 },
+> +       .hback_porch =3D { 45, 36, 6 },
+> +       .hsync_len =3D { 1, 10, 40 },
+> +       .vactive =3D { 480, 480, 480 },
+> +       .vfront_porch =3D { 7, 22, 147 },
+> +       .vback_porch =3D { 22, 13, 3 },
+> +       .vsync_len =3D { 1, 10, 20 },
+> +       .flags =3D DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
+> +               DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
+> +};
+> +
+> +static const struct panel_desc armadeus_st0700_adapt =3D {
+> +       .timings =3D &santek_st0700i5y_rbslw_f_timing,
+> +       .num_timings =3D 1,
+> +       .bpc =3D 6,
+> +       .size =3D {
+> +               .width =3D 154,
+> +               .height =3D 86,
+> +       },
+> +       .bus_format =3D MEDIA_BUS_FMT_RGB666_1X18,
+> +       .bus_flags =3D DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_POSEDG=
+E,
+> +};
+> +
+>  static const struct drm_display_mode auo_b101aw03_mode =3D {
+>         .clock =3D 51450,
+>         .hdisplay =3D 1024,
+> @@ -2544,6 +2570,9 @@ static const struct of_device_id platform_of_match[=
+] =3D {
+>         }, {
+>                 .compatible =3D "arm,rtsm-display",
+>                 .data =3D &arm_rtsm,
+> +       }, {
+> +               .compatible =3D "armadeus,st0700-adapt",
+> +               .data =3D &armadeus_st0700_adapt,
+>         }, {
+>                 .compatible =3D "auo,b101aw03",
+>                 .data =3D &auo_b101aw03,
+> --
+> 2.19.2
+>
