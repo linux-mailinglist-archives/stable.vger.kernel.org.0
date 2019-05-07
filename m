@@ -2,101 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E769D16D31
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 23:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29DE516D3E
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 23:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728492AbfEGV1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 17:27:36 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:38630 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727132AbfEGV1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 17:27:36 -0400
-Received: by mail-wr1-f45.google.com with SMTP id v11so4128201wru.5
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 14:27:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pHJwkeyCVuXqYh/3I/Ii1kdUSBZJVbcGpMiozIqBCa8=;
-        b=DwI7sGYMhBce8sLPSfSXB7YipUcpPdbE5q2w+kfemTb55RBwF6CiFKhNDJyQrf0Wpx
-         j+xeDZZDuiPtUsjr56FEbt74CZYBpwoc5//VGBLmLHEJmfl+8lL64bC8d6jhPUjrzBhh
-         zahJHI0YwTX+TuOaMgSgncIL/o/5CAyMInF/p7RTbDzM7Te1mNx2NLhZqTnJSoD4glSw
-         ZNWK26FdXrY7twMrSLVbtmFt0UQig3sMaR4rNTqYgmxna9EiZdE+rCkYDfg9nEKaXfXB
-         R3PkaNJvX8L8/BiW5mzR1USfnGuCE6I/d1U8Gp0w2UeZFvqBri6QHBTEbEsEbVbNl2z4
-         6L3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pHJwkeyCVuXqYh/3I/Ii1kdUSBZJVbcGpMiozIqBCa8=;
-        b=mMkUzE+IbJgZaXc4cDYFXR3JolRgrHjd4KNAGcybXAtNqVCMInJZTdYTHpRdhjMe8V
-         d8/UfQKvucvhHUDiCLTrkEjff/boqeC5NCTEfP5bRMHiCEZP3gFmELFQHujmavA/WJBz
-         AQ2g/CzrkZU/qlu/Bpo+AJjeYeZe72C+mwTzRU0n5BJJzR1suF6cU4xcocb31OfI5Zsb
-         m0DjxQYXHHbSh6n9/6ecR0Tq/2HuitdawshnVemP4VmCgtYjkau7lAvtyySBIleomPRc
-         X3ymcybHENYap3GRZ9hzeRCzhRnH1sues60ienYh6AUULX5OFgnBA+/ddR2BtHlz482p
-         2chw==
-X-Gm-Message-State: APjAAAWoB1l/xey/BGXGl+Vl9+ard8sXxhfz8ILyvRsqc6w3XtKD7l4z
-        5eJromV1X8SRA4ms3tMMH6qL5t6ITpVBHA==
-X-Google-Smtp-Source: APXvYqzUO5mwziq4yjGqMXVAKbdppJjVBLQrhjMT8uXzQNKomMnc0J8bYFF6/keJ0S+WJ8E9fc27xw==
-X-Received: by 2002:adf:e6ce:: with SMTP id y14mr1085581wrm.217.1557264454417;
-        Tue, 07 May 2019 14:27:34 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a20sm32741054wrf.37.2019.05.07.14.27.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 14:27:33 -0700 (PDT)
-Message-ID: <5cd1f845.1c69fb81.fcf99.cd4f@mx.google.com>
-Date:   Tue, 07 May 2019 14:27:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Kernel: v4.4.179-143-gc4db218e9451
-Subject: stable-rc/linux-4.4.y boot: 45 boots: 1 failed,
- 43 passed with 1 conflict (v4.4.179-143-gc4db218e9451)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1727132AbfEGVfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 17:35:00 -0400
+Received: from out4437.biz.mail.alibaba.com ([47.88.44.37]:43938 "EHLO
+        out4437.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726650AbfEGVfA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 17:35:00 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0TR8MvA1_1557264889;
+Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TR8MvA1_1557264889)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 08 May 2019 05:34:56 +0800
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+To:     jstancek@redhat.com, will.deacon@arm.com, akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force flush
+Date:   Wed,  8 May 2019 05:34:49 +0800
+Message-Id: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 45 boots: 1 failed, 43 passed with 1 conflict (=
-v4.4.179-143-gc4db218e9451)
+A few new fields were added to mmu_gather to make TLB flush smarter for
+huge page by telling what level of page table is changed.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.179-143-gc4db218e9451/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.179-143-gc4db218e9451/
+__tlb_reset_range() is used to reset all these page table state to
+unchanged, which is called by TLB flush for parallel mapping changes for
+the same range under non-exclusive lock (i.e. read mmap_sem).  Before
+commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
+munmap"), MADV_DONTNEED is the only one who may do page zapping in
+parallel and it doesn't remove page tables.  But, the forementioned commit
+may do munmap() under read mmap_sem and free page tables.  This causes a
+bug [1] reported by Jan Stancek since __tlb_reset_range() may pass the
+wrong page table state to architecture specific TLB flush operations.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.179-143-gc4db218e9451
-Git Commit: c4db218e9451b084a3a6c3a4b9d6d84df93fac9b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 18 unique boards, 10 SoC families, 8 builds out of 190
+So, removing __tlb_reset_range() sounds sane.  This may cause more TLB
+flush for MADV_DONTNEED, but it should be not called very often, hence
+the impact should be negligible.
 
-Boot Failure Detected:
+The original proposed fix came from Jan Stancek who mainly debugged this
+issue, I just wrapped up everything together.
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
+[1] https://lore.kernel.org/linux-mm/342bf1fd-f1bf-ed62-1127-e911b5032274@linux.alibaba.com/T/#m7a2ab6c878d5a256560650e56189cfae4e73217f
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-baylibre: FAIL (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-            lab-drue: PASS (gcc-8)
-
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Tested-by: Jan Stancek <jstancek@redhat.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
 ---
-For more info write to <info@kernelci.org>
+ mm/mmu_gather.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index 99740e1..9fd5272 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -249,11 +249,12 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+ 	 * flush by batching, a thread has stable TLB entry can fail to flush
+ 	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+ 	 * forcefully if we detect parallel PTE batching threads.
++	 *
++	 * munmap() may change mapping under non-excluse lock and also free
++	 * page tables.  Do not call __tlb_reset_range() for it.
+ 	 */
+-	if (mm_tlb_flush_nested(tlb->mm)) {
+-		__tlb_reset_range(tlb);
++	if (mm_tlb_flush_nested(tlb->mm))
+ 		__tlb_adjust_range(tlb, start, end - start);
+-	}
+ 
+ 	tlb_flush_mmu(tlb);
+ 
+-- 
+1.8.3.1
+
