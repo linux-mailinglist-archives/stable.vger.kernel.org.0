@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDCF15B7A
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B674715B75
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728474AbfEGFyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58276 "EHLO mail.kernel.org"
+        id S1728786AbfEGFyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727334AbfEGFi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:38:29 -0400
+        id S1728667AbfEGFia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:38:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B514206A3;
-        Tue,  7 May 2019 05:38:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B772B2087F;
+        Tue,  7 May 2019 05:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207509;
-        bh=dyoheBYe10LN6nBTsCT3WYUs9mOHV0vInXEYAm/3z94=;
+        s=default; t=1557207510;
+        bh=HtjpE101QbK9gW+OtJSdPiOgOJv26Q+FNS6nJPvoi+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9JDcfhWGhv6T6VcgL0jhmW2c4nL+EMXq0dKOcppfeg4mGdLgoXWxOAbH9bgaOriV
-         PdJ20rJ0DtjLpo6p2bJ2pEtVEknl4r+av++oWjsUspq7RzIVnvK1uj28hc8stGbgaQ
-         OY0R27r/Pd5QVB5FvtYwouGPiiaOfj0ToY9lL7AI=
+        b=06Gm+cveueb/1/OmhyQVt5sCsWm6lEsIZb5lxbW48NuqbnalZZ41PB5U1e/B83t/y
+         yOT7Xcl1F5OozUdF2a1fOuD23yp6lUOg6DSifCLnP75HEAVM2Y4C7Ou4814c3g/FPV
+         2pWR2guGvFyukMfU4ufKuaNnIQangB+bc8hl/VQI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>, Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 4.14 02/95] libnvdimm/namespace: Fix a potential NULL pointer dereference
-Date:   Tue,  7 May 2019 01:36:51 -0400
-Message-Id: <20190507053826.31622-2-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/95] HID: input: add mapping for Expose/Overview key
+Date:   Tue,  7 May 2019 01:36:52 -0400
+Message-Id: <20190507053826.31622-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,38 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 55c1fc0af29a6c1b92f217b7eb7581a882e0c07c ]
+[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
 
-In case kmemdup fails, the fix goes to blk_err to avoid NULL
-pointer dereference.
+According to HUTRR77 usage 0x29f from the consumer page is reserved for
+the Desktop application to present all running user’s application windows.
+Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
+add the mapping.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/namespace_devs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
-index 50b01d3eadd9..e3f228af59d1 100644
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -2234,9 +2234,12 @@ struct device *create_namespace_blk(struct nd_region *nd_region,
- 	if (!nsblk->uuid)
- 		goto blk_err;
- 	memcpy(name, nd_label->name, NSLABEL_NAME_LEN);
--	if (name[0])
-+	if (name[0]) {
- 		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN,
- 				GFP_KERNEL);
-+		if (!nsblk->alt_name)
-+			goto blk_err;
-+	}
- 	res = nsblk_add_resource(nd_region, ndd, nsblk,
- 			__le64_to_cpu(nd_label->dpa));
- 	if (!res)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d146a9b545ee..35422c419f52 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1016,6 +1016,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
+ 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
+ 
++		case 0x29f: map_key_clear(KEY_SCALE);		break;
++
+ 		default: map_key_clear(KEY_UNKNOWN);
+ 		}
+ 		break;
 -- 
 2.20.1
 
