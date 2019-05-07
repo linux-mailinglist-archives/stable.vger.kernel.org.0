@@ -2,106 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0C1163DC
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 14:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 040BF163E1
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 14:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726542AbfEGMmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 08:42:13 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:38860 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726426AbfEGMmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 08:42:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=81opB8G7Ipd0tVreem0atOppp7UchqtWU6V9nRjg3jM=; b=gYkz85TyaiCt6SSCYspfu7uf9
-        jrbc5Y4/InQcMFAT0lSX2OtfOHyC7APTtxe7YAvNjuUX2ihF5HCVIc6jH2JgTZGSaGI1e0PKeEZmt
-        XnPXmbtxl5YVqwGOFgPjLYhvKx1yPuZqmO+6TPlK+x51gIogJjQGwTE5q2MedgGWpcfx/aGUiq1S8
-        Z8ikXYv0UkkBzGkghK3nRMHvHYV+LJWXiG+YyIv06fEAuoLkx95svxUFDcbWJI2H3IMiWwEvZ3Hx+
-        NPcwK8hTflUo0JgfVKgMRLR8T03VTctYK6VVILJqOOqyUf7CTrnrDBnr/UGJKx7pREwTGjydZREIz
-        8T9xtBqXQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hNzPa-0007Bf-CG; Tue, 07 May 2019 12:41:34 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id D30DC201E11CE; Tue,  7 May 2019 14:41:31 +0200 (CEST)
-Date:   Tue, 7 May 2019 14:41:31 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-Message-ID: <20190507124131.GO2623@hirez.programming.kicks-ass.net>
-References: <20190502193129.664c5b2e@gandalf.local.home>
- <20190502195052.0af473cf@gandalf.local.home>
- <20190503092959.GB2623@hirez.programming.kicks-ass.net>
- <20190503092247.20cc1ff0@gandalf.local.home>
- <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
- <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
- <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
- <20190507085753.GO2606@hirez.programming.kicks-ass.net>
- <20190507092731.GH2650@hirez.programming.kicks-ass.net>
- <20190507082716.73cd5a01@gandalf.local.home>
+        id S1726224AbfEGMoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 08:44:08 -0400
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:5119 "EHLO
+        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726197AbfEGMoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 08:44:08 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5cd17d9f0000>; Tue, 07 May 2019 05:44:15 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 07 May 2019 05:44:07 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 07 May 2019 05:44:07 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 7 May
+ 2019 12:44:05 +0000
+Subject: Re: [PATCH 4.9 00/62] 4.9.174-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190506143051.102535767@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5e60aa52-9f2c-6ad7-deba-2eabc62e3a09@nvidia.com>
+Date:   Tue, 7 May 2019 13:44:03 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190507082716.73cd5a01@gandalf.local.home>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190506143051.102535767@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL101.nvidia.com (172.20.187.10)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1557233055; bh=99W7NoGj/2+MpnAHWb6Rwi1DR4t4YhmB5sC2H0ZEc4I=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=YEAFvQPaQ+I0/e3AoFMJfackyq8hkXtxAQGre5EOP9z/pkOvZbQ1B1A5GgJmZNGll
+         dSlTqSsHxUzY6hTVV9UPdmhY3so1TgLBdDJNtZc4mnHsDQgQrjg66WlwcYc6JQzMuO
+         mZJAAcx0bMgLa7EBPULHDl74gRWareVParCRubu0BMGDFiEkRXrXD+enPvZOj5dEqs
+         E0GZqj9sGVRzVI5ZtfBy+wKqBi+5EE8aQ/DK70PdFQF+mi5/89zuUtZdr+HEnBy3Nf
+         5K3FXURHNLY6gdpU2r8+883Sioa3R0KrDtnAIayXg9IRRApMFlbuQ9Eke5u3xY0wYS
+         1FSGK3R+QaFgg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 08:27:16AM -0400, Steven Rostedt wrote:
-> On Tue, 7 May 2019 11:27:31 +0200
-> Peter Zijlstra <peterz@infradead.org> wrote:
+
+On 06/05/2019 15:32, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.174 release.
+> There are 62 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> > FWIW, both these trampolines assume a kprobe will not
-> > int3_emulate_{push/call}(), for both bitnesses.
-> > 
-> > But then; I'm thinking kprobes should be inspection only and not modify
-> > things. So that might just be good enough.
+> Responses should be made by Wed 08 May 2019 02:29:15 PM UTC.
+> Anything received after that time might be too late.
 > 
-> I believe there are kprobe calls that do modify things. Note, they can
-> modify regs->ip. 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.174-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The kprobe pre_handler as used by kretprobes does, and that is indeed
-handled by the trampolines.
 
-> Kprobes sets the FTRACE_OPS_FL_IPMODIFY flag, thus
-> they can never be put at the same location that is being live patched.
+All tests are passing for Tegra ...
 
-OK, so do we want to allow kprobes that also modify regs->sp ? Because
-then we need to change these trampolines a bit.
+Test results for stable-v4.9:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
 
-I'd prefer not to allow kprobes this.
+Linux version:	4.9.174-rc2-g43d95ff
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
