@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E16F15A3D
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C25515A1E
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729323AbfEGFoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:44:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33598 "EHLO mail.kernel.org"
+        id S1729078AbfEGFmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728741AbfEGFmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:42:43 -0400
+        id S1729055AbfEGFmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:42:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 622EF205ED;
-        Tue,  7 May 2019 05:42:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE941206A3;
+        Tue,  7 May 2019 05:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207762;
-        bh=+kACfupaAaVCm6jAKa9+y7DVVVVW7QKdcJ+pTqSk9fU=;
+        s=default; t=1557207763;
+        bh=Gj/gb9o/BMA3EvYGLWGsYWpKNGUkiGs7sWYvMvHY27E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVUd+kUVgZQ5zo0SSow/O7Sihv59KNOgYQgmnkrHwjBBDtQU4FsZmeksDcBkzdzu3
-         ++v4aHtTm5aet6MPdx9IRlJuTq37NH+CynNsu4JWisMSWK2B/ExXerlRcuNoPSQwg3
-         cF2l4Y3awL9VwPiYS2DBuUC0N+EHQU2pSxhNaapg=
+        b=eZaMbf2e8HjPmG+4gWGbN+lZkiALrHosZ5ot6EMGanytNKjQ+vfAtnV82+h67RQpX
+         BRt/JIIh7lzxnhc2BAlDyQHVNnabUeNVSiH2WynLloORdo5perspWkGjk3uf9CsQEW
+         Xi71IIqLJvzL+fP/LGcjjcSSfFE8E4QwsEzUJ0Tg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Anastasov <ja@ssi.bg>, Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org
-Subject: [PATCH AUTOSEL 4.4 11/14] ipvs: do not schedule icmp errors from tunnels
-Date:   Tue,  7 May 2019 01:42:13 -0400
-Message-Id: <20190507054218.340-11-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 12/14] s390: ctcm: fix ctcm_new_device error return code
+Date:   Tue,  7 May 2019 01:42:14 -0400
+Message-Id: <20190507054218.340-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507054218.340-1-sashal@kernel.org>
 References: <20190507054218.340-1-sashal@kernel.org>
@@ -45,38 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0261ea1bd1eb0da5c0792a9119b8655cf33c80a3 ]
+[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
 
-We can receive ICMP errors from client or from
-tunneling real server. While the former can be
-scheduled to real server, the latter should
-not be scheduled, they are decapsulated only when
-existing connection is found.
+clang points out that the return code from this function is
+undefined for one of the error paths:
 
-Fixes: 6044eeffafbe ("ipvs: attempt to schedule icmp packets")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
+      [-Wsometimes-uninitialized]
+                if (priv->channel[direction] == NULL) {
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
+        return result;
+               ^~~~~~
+../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
+                if (priv->channel[direction] == NULL) {
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
+        int result;
+                  ^
+
+Make it return -ENODEV here, as in the related failure cases.
+gcc has a known bug in underreporting some of these warnings
+when it has already eliminated the assignment of the return code
+based on some earlier optimization step.
+
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/ctcm_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index ac212542a217..c4509a10ce52 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -1484,7 +1484,7 @@ ip_vs_in_icmp(struct netns_ipvs *ipvs, struct sk_buff *skb, int *related,
- 	if (!cp) {
- 		int v;
- 
--		if (!sysctl_schedule_icmp(ipvs))
-+		if (ipip || !sysctl_schedule_icmp(ipvs))
- 			return NF_ACCEPT;
- 
- 		if (!ip_vs_try_to_schedule(ipvs, AF_INET, skb, pd, &v, &cp, &ciph))
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 05c37d6d4afe..a31821d94677 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
+ 		if (priv->channel[direction] == NULL) {
+ 			if (direction == CTCM_WRITE)
+ 				channel_free(priv->channel[CTCM_READ]);
++			result = -ENODEV;
+ 			goto out_dev;
+ 		}
+ 		priv->channel[direction]->netdev = dev;
 -- 
 2.20.1
 
