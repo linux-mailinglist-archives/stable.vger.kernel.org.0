@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE24315A75
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8E415A85
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbfEGFld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60976 "EHLO mail.kernel.org"
+        id S1727591AbfEGFqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:46:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbfEGFlb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:41:31 -0400
+        id S1728670AbfEGFlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:41:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4941520675;
-        Tue,  7 May 2019 05:41:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E21220B7C;
+        Tue,  7 May 2019 05:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207691;
-        bh=KrhlHYDC3Mc2EEiVKPpdCQCUu2tXKBSno8oTxZhew/g=;
+        s=default; t=1557207692;
+        bh=Iapv8+LW/JqKANMSo08CbIC7pOslcbP8rBMT8KWHo2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+hfyjz+lz8xGS16e0eflTmj5GAp5XbwLp2mfywtJVaF6TkRqv1ggMcJr0vvVZX5q
-         uBV8pN0Xq8a7Y6l0IxYJoK9mdI/h2C2664bzQxycXEue3zAzdIGwAHxS1HbSEqwFuZ
-         cRBZCEa6b8bzpovB8b9bs/OxKTCAkwWT3KM4sbHs=
+        b=Sn9bcnrA+gt4HaETt3EjzUUcvADJF3/uDDqphswIswt7tW13E0PzApNLlKiotthLb
+         +QSwboK9vld0i5r5Q+qlzbeZY6qb6+OpZm24VsDNi/FfVjpOBf7B9Q2fRMS2rAduWj
+         SgXijo90W/8uc4Gf8OG3/4hp8bRguxp3l2vAHtJk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 4.9 06/25] libnvdimm/btt: Fix a kmemdup failure check
-Date:   Tue,  7 May 2019 01:41:03 -0400
-Message-Id: <20190507054123.32514-6-sashal@kernel.org>
+Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/25] s390/dasd: Fix capacity calculation for large volumes
+Date:   Tue,  7 May 2019 01:41:04 -0400
+Message-Id: <20190507054123.32514-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507054123.32514-1-sashal@kernel.org>
 References: <20190507054123.32514-1-sashal@kernel.org>
@@ -43,59 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit 486fa92df4707b5df58d6508728bdb9321a59766 ]
+[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
 
-In case kmemdup fails, the fix releases resources and returns to
-avoid the NULL pointer dereference.
+The DASD driver incorrectly limits the maximum number of blocks of ECKD
+DASD volumes to 32 bit numbers. Volumes with a capacity greater than
+2^32-1 blocks are incorrectly recognized as smaller volumes.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+This results in the following volume capacity limits depending on the
+formatted block size:
+
+  BLKSIZE  MAX_GB   MAX_CYL
+      512    2047   5843492
+     1024    4095   8676701
+     2048    8191  13634816
+     4096   16383  23860929
+
+The same problem occurs when a volume with more than 17895697 cylinders
+is accessed in raw-track-access mode.
+
+Fix this problem by adding an explicit type cast when calculating the
+maximum number of blocks.
+
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/btt_devs.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
-index 97dd2925ed6e..5d2c76682848 100644
---- a/drivers/nvdimm/btt_devs.c
-+++ b/drivers/nvdimm/btt_devs.c
-@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 11c6335b1951..9d772201e334 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -2054,14 +2054,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+ 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
  
- 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
--	if (nd_btt->id < 0) {
--		kfree(nd_btt);
--		return NULL;
--	}
-+	if (nd_btt->id < 0)
-+		goto out_nd_btt;
+ raw:
+-	block->blocks = (private->real_cyl *
++	block->blocks = ((unsigned long) private->real_cyl *
+ 			  private->rdc_data.trk_per_cyl *
+ 			  blk_per_trk);
  
- 	nd_btt->lbasize = lbasize;
--	if (uuid)
-+	if (uuid) {
- 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
-+		if (!uuid)
-+			goto out_put_id;
-+	}
- 	nd_btt->uuid = uuid;
- 	dev = &nd_btt->dev;
- 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
-@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 	}
- 	return dev;
-+
-+out_put_id:
-+	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
-+
-+out_nd_btt:
-+	kfree(nd_btt);
-+	return NULL;
- }
- 
- struct device *nd_btt_create(struct nd_region *nd_region)
+ 	dev_info(&device->cdev->dev,
+-		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
++		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
+ 		 "%s\n", (block->bp_block >> 10),
+-		 ((private->real_cyl *
++		 (((unsigned long) private->real_cyl *
+ 		   private->rdc_data.trk_per_cyl *
+ 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
+ 		 ((blk_per_trk * block->bp_block) >> 10),
 -- 
 2.20.1
 
