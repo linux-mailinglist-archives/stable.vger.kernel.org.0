@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFAF015AB5
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 807CC159E9
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbfEGFlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:41:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60654 "EHLO mail.kernel.org"
+        id S1729284AbfEGFlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:41:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729270AbfEGFlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:41:11 -0400
+        id S1729276AbfEGFlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:41:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F7CA21655;
-        Tue,  7 May 2019 05:41:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A9CA205ED;
+        Tue,  7 May 2019 05:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207670;
-        bh=zd5RSH0O9kIwj9YqjFxjmGw/uZ3pKRg7EYMAUNdc7nQ=;
+        s=default; t=1557207671;
+        bh=rsUug3G0mv+TqKD7Fq6JHlS9tz1bq4opeCfYDRz4pxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErfimIpmodP/4HR89jSiRfU/zpuyrLqQV17d2Qllo8PGfoQUpm/PaH7cug69/720i
-         CF8hwqW9FiRmNa6bq6Pk2pe0GCbT1uJJoXKxvLJ6OhI380PRFq9NLqovgX8+y1D6rH
-         9pEKowv9SMtKnuFlHJiKwDHFL3ZikZvnR8txfaEA=
+        b=i+T/LH6fnJF5I9AoNo15iTMfqUp71UAHPeT3qWNbN++Hp5/MplTRjd3Cvjn6wC5j/
+         dG9Lx5edRH0xxsmrs7IwdpbIEJIgkL/sfrSrQkz30T6jgk5QIUh+tZb1SfLMIevX8s
+         8+MDpuLARDguHvcSpm0s6POzoGQ9gUhLMRod+4XM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhengliang <zhengliang6@huawei.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Andy Duan <fugang.duan@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 87/95] f2fs: fix to data block override node segment by mistake
-Date:   Tue,  7 May 2019 01:38:16 -0400
-Message-Id: <20190507053826.31622-87-sashal@kernel.org>
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 88/95] net: fec: manage ahb clock in runtime pm
+Date:   Tue,  7 May 2019 01:38:17 -0400
+Message-Id: <20190507053826.31622-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,67 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengliang <zhengliang6@huawei.com>
+From: Andy Duan <fugang.duan@nxp.com>
 
-[ Upstream commit a0770e13c8da83bdb64738c0209ab02dd3cfff8b ]
+[ Upstream commit d7c3a206e6338e4ccdf030719dec028e26a521d5 ]
 
-v4: Rearrange the previous three versions.
+Some SOC like i.MX6SX clock have some limits:
+- ahb clock should be disabled before ipg.
+- ahb and ipg clocks are required for MAC MII bus.
+So, move the ahb clock to runtime management together with
+ipg clock.
 
-The following scenario could lead to data block override by mistake.
-
-TASK A            |  TASK kworker                                            |     TASK B                                            |       TASK C
-                  |                                                          |                                                       |
-open              |                                                          |                                                       |
-write             |                                                          |                                                       |
-close             |                                                          |                                                       |
-                  |  f2fs_write_data_pages                                   |                                                       |
-                  |    f2fs_write_cache_pages                                |                                                       |
-                  |      f2fs_outplace_write_data                            |                                                       |
-                  |        f2fs_allocate_data_block (get block in seg S,     |                                                       |
-                  |                                  S is full, and only     |                                                       |
-                  |                                  have this valid data    |                                                       |
-                  |                                  block)                  |                                                       |
-                  |          allocate_segment                                |                                                       |
-                  |          locate_dirty_segment (mark S as PRE)            |                                                       |
-                  |        f2fs_submit_page_write (submit but is not         |                                                       |
-                  |                                written on dev)           |                                                       |
-unlink            |                                                          |                                                       |
- iput_final       |                                                          |                                                       |
-  f2fs_drop_inode |                                                          |                                                       |
-    f2fs_truncate |                                                          |                                                       |
- (not evict)      |                                                          |                                                       |
-                  |                                                          | write_checkpoint                                      |
-                  |                                                          |  flush merged bio but not wait file data writeback    |
-                  |                                                          |  set_prefree_as_free (mark S as FREE)                 |
-                  |                                                          |                                                       | update NODE/DATA
-                  |                                                          |                                                       | allocate_segment (select S)
-                  |     writeback done                                       |                                                       |
-
-So we need to guarantee io complete before truncate inode in f2fs_drop_inode.
-
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- fs/f2fs/super.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/freescale/fec_main.c | 30 ++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 4c169ba50c0f..06b75737b1a0 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -668,6 +668,10 @@ static int f2fs_drop_inode(struct inode *inode)
- 			sb_start_intwrite(inode->i_sb);
- 			f2fs_i_size_write(inode, 0);
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index ce55c8f7f33a..ad3aabc39cc2 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1851,13 +1851,9 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 	int ret;
  
-+			f2fs_submit_merged_write_cond(F2FS_I_SB(inode),
-+					inode, NULL, 0, DATA);
-+			truncate_inode_pages_final(inode->i_mapping);
+ 	if (enable) {
+-		ret = clk_prepare_enable(fep->clk_ahb);
+-		if (ret)
+-			return ret;
+-
+ 		ret = clk_prepare_enable(fep->clk_enet_out);
+ 		if (ret)
+-			goto failed_clk_enet_out;
++			return ret;
+ 
+ 		if (fep->clk_ptp) {
+ 			mutex_lock(&fep->ptp_clk_mutex);
+@@ -1875,7 +1871,6 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 		if (ret)
+ 			goto failed_clk_ref;
+ 	} else {
+-		clk_disable_unprepare(fep->clk_ahb);
+ 		clk_disable_unprepare(fep->clk_enet_out);
+ 		if (fep->clk_ptp) {
+ 			mutex_lock(&fep->ptp_clk_mutex);
+@@ -1894,8 +1889,6 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ failed_clk_ptp:
+ 	if (fep->clk_enet_out)
+ 		clk_disable_unprepare(fep->clk_enet_out);
+-failed_clk_enet_out:
+-		clk_disable_unprepare(fep->clk_ahb);
+ 
+ 	return ret;
+ }
+@@ -3455,6 +3448,9 @@ fec_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(fep->clk_ipg);
+ 	if (ret)
+ 		goto failed_clk_ipg;
++	ret = clk_prepare_enable(fep->clk_ahb);
++	if (ret)
++		goto failed_clk_ahb;
+ 
+ 	fep->reg_phy = devm_regulator_get(&pdev->dev, "phy");
+ 	if (!IS_ERR(fep->reg_phy)) {
+@@ -3546,6 +3542,9 @@ fec_probe(struct platform_device *pdev)
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ failed_regulator:
++	clk_disable_unprepare(fep->clk_ahb);
++failed_clk_ahb:
++	clk_disable_unprepare(fep->clk_ipg);
+ failed_clk_ipg:
+ 	fec_enet_clk_enable(ndev, false);
+ failed_clk:
+@@ -3669,6 +3668,7 @@ static int __maybe_unused fec_runtime_suspend(struct device *dev)
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
+ 
++	clk_disable_unprepare(fep->clk_ahb);
+ 	clk_disable_unprepare(fep->clk_ipg);
+ 
+ 	return 0;
+@@ -3678,8 +3678,20 @@ static int __maybe_unused fec_runtime_resume(struct device *dev)
+ {
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
++	int ret;
+ 
+-	return clk_prepare_enable(fep->clk_ipg);
++	ret = clk_prepare_enable(fep->clk_ahb);
++	if (ret)
++		return ret;
++	ret = clk_prepare_enable(fep->clk_ipg);
++	if (ret)
++		goto failed_clk_ipg;
 +
- 			if (F2FS_HAS_BLOCKS(inode))
- 				f2fs_truncate(inode);
++	return 0;
++
++failed_clk_ipg:
++	clk_disable_unprepare(fep->clk_ahb);
++	return ret;
+ }
  
+ static const struct dev_pm_ops fec_pm_ops = {
 -- 
 2.20.1
 
