@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5331515C0A
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D820515C08
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbfEGFgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S1726949AbfEGGAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:00:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728064AbfEGFgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:20 -0400
+        id S1728097AbfEGFg3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34BE7216B7;
-        Tue,  7 May 2019 05:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4417420989;
+        Tue,  7 May 2019 05:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207380;
-        bh=Mse0PztVDKI2pafPiRFY9YVP1ECY+99pN2bLesMeTqU=;
+        s=default; t=1557207387;
+        bh=07ezoWhYpZHYmDgI6PuPhh2G7jw9bKMuMBXHQEJETHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOVho6Jr7quuDcW7ltaxWLqrzbgb27gzgFJ7Ig5hovq+60QKzsMLyG9VFz2aMj5tb
-         ZLVgW1mTAeywrYhnkcFfE/FsyCQH8ozIg16Vbh6MFVuXO1UiCGinyunrqqml7Kkj3C
-         0xEPmI7HqjCiDq2vphTmiRmQov6i5lc1x1TT0awM=
+        b=dpsOP6NXDt8FB0jJEfaimhLvH6HivuzTFCms2Qry3/fVf6efPyUGXjQN/tP3cxsqO
+         Plh47GkAtG1o8QQF9SAjerznTNHGicHAdPi+143A31wyWsNv1P0blwDNUlcbwh/xbH
+         MnZ56qG8GHkwUZyHpTze3YlrV8nZPg/Ah5GMSjKo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 18/81] mac80211: Honor SW_CRYPTO_CONTROL for unicast keys in AP VLAN mode
-Date:   Tue,  7 May 2019 01:34:49 -0400
-Message-Id: <20190507053554.30848-18-sashal@kernel.org>
+Cc:     Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/81] s390/3270: fix lockdep false positive on view->lock
+Date:   Tue,  7 May 2019 01:34:50 -0400
+Message-Id: <20190507053554.30848-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,61 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[ Upstream commit 78ad2341521d5ea96cb936244ed4c4c4ef9ec13b ]
+[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
 
-Restore SW_CRYPTO_CONTROL operation on AP_VLAN interfaces for unicast
-keys, the original override was intended to be done for group keys as
-those are treated specially by mac80211 and would always have been
-rejected.
+The spinlock in the raw3270_view structure is used by con3270, tty3270
+and fs3270 in different ways. For con3270 the lock can be acquired in
+irq context, for tty3270 and fs3270 the highest context is bh.
 
-Now the situation is that AP_VLAN support must be enabled by the driver
-if it can support it (meaning it can support software crypto GTK TX).
+Lockdep sees the view->lock as a single class and if the 3270 driver
+is used for the console the following message is generated:
 
-Thus, also simplify the code - if we get here with AP_VLAN and non-
-pairwise key, software crypto must be used (driver doesn't know about
-the interface) and can be used (driver must've advertised AP_VLAN if
-it also uses SW_CRYPTO_CONTROL).
+WARNING: inconsistent lock state
+5.1.0-rc3-05157-g5c168033979d #12 Not tainted
+--------------------------------
+inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
+(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
 
-Fixes: db3bdcb9c3ff ("mac80211: allow AP_VLAN operation on crypto controlled devices")
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-[rewrite commit message]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Introduce a lockdep subclass for the view lock to distinguish bh from
+irq locks.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/key.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/s390/char/con3270.c | 2 +-
+ drivers/s390/char/fs3270.c  | 3 ++-
+ drivers/s390/char/raw3270.c | 3 ++-
+ drivers/s390/char/raw3270.h | 4 +++-
+ drivers/s390/char/tty3270.c | 3 ++-
+ 5 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/key.c b/net/mac80211/key.c
-index c054ac85793c..f20bb39f492d 100644
---- a/net/mac80211/key.c
-+++ b/net/mac80211/key.c
-@@ -167,8 +167,10 @@ static int ieee80211_key_enable_hw_accel(struct ieee80211_key *key)
- 		 * The driver doesn't know anything about VLAN interfaces.
- 		 * Hence, don't send GTKs for VLAN interfaces to the driver.
- 		 */
--		if (!(key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE))
-+		if (!(key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE)) {
-+			ret = 1;
- 			goto out_unsupported;
-+		}
- 	}
+diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
+index fd2146bcc0ad..e17364e13d2f 100644
+--- a/drivers/s390/char/con3270.c
++++ b/drivers/s390/char/con3270.c
+@@ -629,7 +629,7 @@ con3270_init(void)
+ 		     (void (*)(unsigned long)) con3270_read_tasklet,
+ 		     (unsigned long) condev->read);
  
- 	ret = drv_set_key(key->local, SET_KEY, sdata,
-@@ -213,11 +215,8 @@ static int ieee80211_key_enable_hw_accel(struct ieee80211_key *key)
- 		/* all of these we can do in software - if driver can */
- 		if (ret == 1)
- 			return 0;
--		if (ieee80211_hw_check(&key->local->hw, SW_CRYPTO_CONTROL)) {
--			if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN)
--				return 0;
-+		if (ieee80211_hw_check(&key->local->hw, SW_CRYPTO_CONTROL))
- 			return -EINVAL;
--		}
- 		return 0;
- 	default:
- 		return -EINVAL;
+-	raw3270_add_view(&condev->view, &con3270_fn, 1);
++	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
+ 
+ 	INIT_LIST_HEAD(&condev->freemem);
+ 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
+diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
+index 16a4e8528bbc..2f9905ee047c 100644
+--- a/drivers/s390/char/fs3270.c
++++ b/drivers/s390/char/fs3270.c
+@@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
+ 
+ 	init_waitqueue_head(&fp->wait);
+ 	fp->fs_pid = get_pid(task_pid(current));
+-	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
++	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		fs3270_free_view(&fp->view);
+ 		goto out;
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index f8cd2935fbfd..63a41b168761 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -920,7 +920,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
+  * Add view to device with minor "minor".
+  */
+ int
+-raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
++raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
+ {
+ 	unsigned long flags;
+ 	struct raw3270 *rp;
+@@ -942,6 +942,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
+ 		view->cols = rp->cols;
+ 		view->ascebc = rp->ascebc;
+ 		spin_lock_init(&view->lock);
++		lockdep_set_subclass(&view->lock, subclass);
+ 		list_add(&view->list, &rp->view_list);
+ 		rc = 0;
+ 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
+diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
+index 114ca7cbf889..3afaa35f7351 100644
+--- a/drivers/s390/char/raw3270.h
++++ b/drivers/s390/char/raw3270.h
+@@ -150,6 +150,8 @@ struct raw3270_fn {
+ struct raw3270_view {
+ 	struct list_head list;
+ 	spinlock_t lock;
++#define RAW3270_VIEW_LOCK_IRQ	0
++#define RAW3270_VIEW_LOCK_BH	1
+ 	atomic_t ref_count;
+ 	struct raw3270 *dev;
+ 	struct raw3270_fn *fn;
+@@ -158,7 +160,7 @@ struct raw3270_view {
+ 	unsigned char *ascebc;		/* ascii -> ebcdic table */
+ };
+ 
+-int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
++int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
+ int raw3270_activate_view(struct raw3270_view *);
+ void raw3270_del_view(struct raw3270_view *);
+ void raw3270_deactivate_view(struct raw3270_view *);
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index 5b8af2782282..81067f5bb178 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -980,7 +980,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
+ 		return PTR_ERR(tp);
+ 
+ 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
+-			      tty->index + RAW3270_FIRSTMINOR);
++			      tty->index + RAW3270_FIRSTMINOR,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		tty3270_free_view(tp);
+ 		return rc;
 -- 
 2.20.1
 
