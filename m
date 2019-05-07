@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB5715BC6
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8253315BAE
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727572AbfEGF5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:57:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57346 "EHLO mail.kernel.org"
+        id S1728408AbfEGFhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:37:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727545AbfEGFhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:34 -0400
+        id S1728399AbfEGFhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 386EA20675;
-        Tue,  7 May 2019 05:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DC5B206A3;
+        Tue,  7 May 2019 05:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207453;
-        bh=gOlTQy3cU0afo36bvjvo/17E1PvEHAhf3sh7wya5gHU=;
+        s=default; t=1557207455;
+        bh=GGMllsJGL70Wd30hAUJvDQAa7WiQC42hvwxpkkNUawc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+Ol4hTsB0u/f7irvuTi1MGgUCW5GPTpL0PDDPxgT5nU3vr4Jz7KN9IAmAR9Dnk64
-         SEA53KrHqe1m09D4GXxfIvlYWE6KvM+ZitiRsxufPhRs6Rrl+aHHAUX+STiI0vU1Lv
-         10trzROAWZcMCLQNYnT+ZNMtpMrzfZgKb3g7e0ZY=
+        b=LNoODoejsFxBDoiT/0pbDqgO/4IuIcvidgbY019YppR1GtAqDdf4gzWAoNTxYk+D8
+         XQXjRw00gs9S4/+MeBofcAYQS8OguqvALGyGmddXiSQh9n2u2Ik/9/FQrCVkxEm+yl
+         Ci3+WE8Cj3mWkMZU/tpDX8g066t8CTaiGTeWnAtE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 50/81] drm/sun4i: Fix component unbinding and component master deletion
-Date:   Tue,  7 May 2019 01:35:21 -0400
-Message-Id: <20190507053554.30848-50-sashal@kernel.org>
+Cc:     Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 51/81] selftests/net: correct the return value for run_netsocktests
+Date:   Tue,  7 May 2019 01:35:22 -0400
+Message-Id: <20190507053554.30848-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,46 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit f5a9ed867c83875546c9aadd4ed8e785e9adcc3c ]
+[ Upstream commit 30c04d796b693e22405c38e9b78e9a364e4c77e6 ]
 
-For our component-backed driver to be properly removed, we need to
-delete the component master in sun4i_drv_remove and make sure to call
-component_unbind_all in the master's unbind so that all components are
-unbound when the master is.
+The run_netsocktests will be marked as passed regardless the actual test
+result from the ./socket:
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-4-paul.kocialkowski@bootlin.com
+    selftests: net: run_netsocktests
+    ========================================
+    --------------------
+    running socket test
+    --------------------
+    [FAIL]
+    ok 1..6 selftests: net: run_netsocktests [PASS]
+
+This is because the test script itself has been successfully executed.
+Fix this by exit 1 when the test failed.
+
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/net/run_netsocktests | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 7cac01c72c02..62703630090a 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -160,6 +160,8 @@ static void sun4i_drv_unbind(struct device *dev)
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
- 	drm_dev_put(drm);
-+
-+	component_unbind_all(dev, NULL);
- }
- 
- static const struct component_master_ops sun4i_drv_master_ops = {
-@@ -407,6 +409,8 @@ static int sun4i_drv_probe(struct platform_device *pdev)
- 
- static int sun4i_drv_remove(struct platform_device *pdev)
- {
-+	component_master_del(&pdev->dev, &sun4i_drv_master_ops);
-+
- 	return 0;
- }
- 
+diff --git a/tools/testing/selftests/net/run_netsocktests b/tools/testing/selftests/net/run_netsocktests
+index b093f39c298c..14e41faf2c57 100755
+--- a/tools/testing/selftests/net/run_netsocktests
++++ b/tools/testing/selftests/net/run_netsocktests
+@@ -7,7 +7,7 @@ echo "--------------------"
+ ./socket
+ if [ $? -ne 0 ]; then
+ 	echo "[FAIL]"
++	exit 1
+ else
+ 	echo "[PASS]"
+ fi
+-
 -- 
 2.20.1
 
