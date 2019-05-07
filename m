@@ -2,214 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37AE415DCE
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 09:04:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF1815DFA
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 09:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726322AbfEGHEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 03:04:23 -0400
-Received: from smtprelay-out1.synopsys.com ([198.182.61.142]:53150 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726253AbfEGHEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 03:04:22 -0400
-Received: from mailhost.synopsys.com (dc8-mailhost1.synopsys.com [10.13.135.209])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 9E1BAC01EB;
-        Tue,  7 May 2019 07:04:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1557212656; bh=EgwbqrIDlOKeOpANBxfoAqWMx9vfzjNf1QWR72jjXzg=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=b2JJ0uEZpxwV/ZjimVefsw3vtZg+1oHCx6CFwFOjKCqnX0hLIBj4+P1+e1jcvrI2D
-         VHmYbSe+CfQIsHuolJC7IArw9+mBIEACwZN1oM7h2Io/0ZnKGiWYkIVjfxYb/I/Qgm
-         4txVHCjqylH3NA7+w/8ZAQ7+piyWJnp+BjJYJO9o9BlY9FOJfcVNooPhOSXi0sk9xi
-         lik5E1IunEivBu8O8haYnFuL9mJZ5zYfpWV5q/azWx/wWdb/gqSzKGSqn3KP/uIoCQ
-         2aJWBxLlubPiDY8i/eEz0aucBqlopgc1V/7L6RRg3M5lMCtIPe2iVzz6IoPvh1ZOKs
-         eppF4ZH5vDICA==
-Received: from US01WEHTC2.internal.synopsys.com (us01wehtc2.internal.synopsys.com [10.12.239.237])
-        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 77429A005D;
-        Tue,  7 May 2019 07:04:18 +0000 (UTC)
-Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
- US01WEHTC2.internal.synopsys.com (10.12.239.237) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Tue, 7 May 2019 00:04:18 -0700
-Received: from NAM05-CO1-obe.outbound.protection.outlook.com (10.13.134.195)
- by mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
- 14.3.408.0; Tue, 7 May 2019 00:04:17 -0700
+        id S1726722AbfEGHS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 03:18:58 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:37844 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726564AbfEGHS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 03:18:58 -0400
+Received: by mail-lf1-f65.google.com with SMTP id h126so11006646lfh.4
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 00:18:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=synopsys.onmicrosoft.com; s=selector1-synopsys-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=coMxPQlhqRphxm2/E3dz+12hZDp8AK8mRhYjpV2DRM8=;
- b=qG5cIp18MbjoTMhIBvWXfOqjdtiNIUvOUM5I+M6k+orJZFhDvSQirz4PNYjANH51oE0EliEfMkbT2aMViL6CXg/PZDPQS+9RJSEXoXr562cyXVTtI3VDA6r3U2sdd4MRmFZViWQBEmgvrBQM87B/4ljd4emexaBK7VAniJbLoPU=
-Received: from CY4PR1201MB0120.namprd12.prod.outlook.com (10.172.78.14) by
- CY4PR1201MB0071.namprd12.prod.outlook.com (10.172.79.137) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1856.10; Tue, 7 May 2019 07:04:14 +0000
-Received: from CY4PR1201MB0120.namprd12.prod.outlook.com
- ([fe80::ac77:1c39:d9eb:ee9a]) by CY4PR1201MB0120.namprd12.prod.outlook.com
- ([fe80::ac77:1c39:d9eb:ee9a%4]) with mapi id 15.20.1856.012; Tue, 7 May 2019
- 07:04:14 +0000
-From:   Alexey Brodkin <Alexey.Brodkin@synopsys.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        David Laight <David.Laight@aculab.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: RE: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to
- ARCH_KMALLOC_MINALIGN
-Thread-Topic: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to
- ARCH_KMALLOC_MINALIGN
-Thread-Index: AQHVBJd3onwrWwkS2UueAl57c5ZJEaZfKNsAgAATBJA=
-Date:   Tue, 7 May 2019 07:04:13 +0000
-Message-ID: <CY4PR1201MB01200B5B52E39A88D8D3FDDDA1310@CY4PR1201MB0120.namprd12.prod.outlook.com>
-References: <20190507053826.31622-1-sashal@kernel.org>
- <20190507053826.31622-72-sashal@kernel.org>
- <20190507055214.GA17986@kroah.com>
-In-Reply-To: <20190507055214.GA17986@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=abrodkin@synopsys.com; 
-x-originating-ip: [198.182.37.200]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6d4e5240-4851-49f8-6bb1-08d6d2ba369d
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(2017052603328)(7193020);SRVR:CY4PR1201MB0071;
-x-ms-traffictypediagnostic: CY4PR1201MB0071:
-x-ms-exchange-purlcount: 1
-x-microsoft-antispam-prvs: <CY4PR1201MB0071D44CC32E9AE1A23DD977A1310@CY4PR1201MB0071.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:126;
-x-forefront-prvs: 0030839EEE
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(376002)(366004)(39850400004)(346002)(136003)(396003)(13464003)(189003)(199004)(6306002)(6436002)(76176011)(66556008)(66476007)(66446008)(66946007)(14454004)(53936002)(256004)(102836004)(64756008)(26005)(229853002)(66066001)(14444005)(4326008)(561944003)(6246003)(9686003)(33656002)(55016002)(53546011)(186003)(7736002)(74316002)(305945005)(6506007)(7696005)(86362001)(446003)(7416002)(73956011)(3846002)(76116006)(6116002)(71190400001)(2906002)(8676002)(81156014)(8936002)(81166006)(54906003)(68736007)(316002)(110136005)(25786009)(966005)(478600001)(476003)(99286004)(11346002)(71200400001)(52536014)(486006)(5660300002);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR1201MB0071;H:CY4PR1201MB0120.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: synopsys.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: CJgi+3NK0BxPX1lgwrovb2wieQILsxdeB+q4gDn49HWQuGlIputy7eaHmpiwnPClHWTm2q67wxDbAB+CcWhFdurxV9e2HOGjEmoEoEjfc/mvmkx3OtnPt00A2LsVpw/NEBdb9aSzAVHBcUqfIy7pmzCU10QjH/95cXTDj0DL/W1y7vapMguLuRyyI6NV5E1+l+gG1Gs5MhsBYPjsexq3hgP3hUmIpqgtrwaDjrJZG1dvDF7qKFStoWn+UKI3rH0/BU10hlmtyXVdKGm8BRJ29FWBXAUhoTINoeUOkCR88/zEmUOubZMK1r7ZC9sEDh2q1pkjbjtnaPMrv5IEc55Ij6AB/s08sHX4TtEdM0AGHJSPCb9u86bRB5nBtfU1iXHzts0CjSF0xds9RBknl0SBYA0HDhcDGqN0nYOL6Bem8JY=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=KxOzBwPrI0UyBHLvYuriVgankKTqtmmygLFMUywfJls=;
+        b=p2xltNsNDXGvw+JGUxGVnky4G2BbNoahQl6zgnbmLnSuzGmldBHdQggte0R+qb8me5
+         iQuderc8CF4oFhQbOcrakU8/JUaHnMmihV53mZOV9lMO/zdFtPg3nAZFnQ6ycJvXOkRb
+         F50/mnpG7nY/FlgEI2sxockt2w84gSjjAf7XILpd7AEplQa2IfnzwbkFe7WagIOhODBV
+         hUL9iWXETlCtVzPQM1IiW4gQw1Uikdyc+aSyOdk6PxIAL/F6W1ePZ6bZ5EvhRxOyf4+H
+         JoE6i4VivIjBSKKjV9jz3ced0r/0Y79N7mB4Ju6yN25m2gTj1UG6YEb0nMMIq0WCTgL8
+         W4bA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=KxOzBwPrI0UyBHLvYuriVgankKTqtmmygLFMUywfJls=;
+        b=PG9141FUFtvCWQD9IeHlYtnzNP42kAt/RXzGVoDglb6d54B3784YsIqn7Kr2UEfB6q
+         9n+0xthE55byNxFcNxGdZk2bKtOAC2ywWsoZEmOVfhLZOnDuG0qoLdGoEEQT7nOLDLbW
+         EILaMOGvvOPR0fK7W33GLYGFcZFazqioXXs1JdzJikDZxTRWcvrXBnXbpRc+fJcO5yRM
+         SL8DESDLH+wGIz2HIEf6+Rs8m2o8vXu9wXl4MSkGd9f9TCgY88AKibQCEcmS2e7t4iqx
+         Z6GfzxaSF0biKEdSyhPd5MHMcGo5fFFTZZU3WfEWUlFmL2SOOg6/CEEZj9ORQqaRPKeH
+         HZRA==
+X-Gm-Message-State: APjAAAWKXZjgAw90z5KkQEXJw09M6KkhK6kqW2NzMLoVunx5LFq50TgM
+        5jZYEQPRqVpxnzz05S24H4vtRYU4lnJUiAbZJBatXw==
+X-Google-Smtp-Source: APXvYqymcjyu44lBADWsOxMfSm1VDEWO/uT9+PCI5Cb3Aen9oAJIj+02t297YXdJb4zvR6zgHdqDFOI+a9YWDqvWS0k=
+X-Received: by 2002:ac2:4246:: with SMTP id m6mr10253557lfl.0.1557213536734;
+ Tue, 07 May 2019 00:18:56 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d4e5240-4851-49f8-6bb1-08d6d2ba369d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 May 2019 07:04:14.0039
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB0071
-X-OriginatorOrg: synopsys.com
+References: <20190506143054.670334917@linuxfoundation.org>
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 7 May 2019 12:48:45 +0530
+Message-ID: <CA+G9fYsQhu8=23c0zNPKuDxOxJuwCesNYZikEtMztUBYy30u1w@mail.gmail.com>
+Subject: Re: [PATCH 5.0 000/122] 5.0.14-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Mon, 6 May 2019 at 20:04, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.0.14 release.
+> There are 122 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 08 May 2019 02:29:09 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.0.14-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-> -----Original Message-----
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Sent: Tuesday, May 7, 2019 8:52 AM
-> To: Sasha Levin <sashal@kernel.org>
-> Cc: linux-kernel@vger.kernel.org; stable@vger.kernel.org; Alexey Brodkin =
-<abrodkin@synopsys.com>;
-> Alexey Brodkin <abrodkin@synopsys.com>; Geert Uytterhoeven <geert@linux-m=
-68k.org>; David Laight
-> <David.Laight@aculab.com>; Peter Zijlstra <peterz@infradead.org>; Thomas =
-Gleixner
-> <tglx@linutronix.de>; Vineet Gupta <vgupta@synopsys.com>; Will Deacon <wi=
-ll.deacon@arm.com>; Sasha
-> Levin <alexander.levin@microsoft.com>
-> Subject: Re: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to ARCH_KMAL=
-LOC_MINALIGN
->=20
-> On Tue, May 07, 2019 at 01:38:01AM -0400, Sasha Levin wrote:
-> > From: Alexey Brodkin <alexey.brodkin@synopsys.com>
-> >
-> > [ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
-> >
-> > Initially we bumped into problem with 32-bit aligned atomic64_t
-> > on ARC, see [1]. And then during quite lengthly discussion Peter Z.
-> > mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
-> > If allocation is done by plain kmalloc() obtained buffer will be
-> > ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
-> > devm_kmalloc() should have any other alignment?
-> >
-> > This way we at least get the same behavior for both types of
-> > allocation.
-> >
-> > [1] https://urldefense.proofpoint.com/v2/url?u=3Dhttp-3A__lists.infrade=
-ad.org_pipermail_linux-2Dsnps-
-> 2Darc_2018-
-> 2DJuly_004009.html&d=3DDwIBAg&c=3DDPL6_X_6JkXFx7AXWqB0tg&r=3DlqdeeSSEes0G=
-FDDl656eViXO7breS55ytWkhpk5R81I&m=3DA
-> YtkWKU38pzVfJMBuK0lUwxRyKT6dDfHoD3yO6OIB5k&s=3De7e2sXKcjHDQdGSrKWM0jmpSOf=
-he0MFk4-nMZJe9En8&e=3D
-> > [2] https://urldefense.proofpoint.com/v2/url?u=3Dhttp-3A__lists.infrade=
-ad.org_pipermail_linux-2Dsnps-
-> 2Darc_2018-
-> 2DJuly_004036.html&d=3DDwIBAg&c=3DDPL6_X_6JkXFx7AXWqB0tg&r=3DlqdeeSSEes0G=
-FDDl656eViXO7breS55ytWkhpk5R81I&m=3DA
-> YtkWKU38pzVfJMBuK0lUwxRyKT6dDfHoD3yO6OIB5k&s=3DL23zrl8rf2MmReUI8rT3FQpMiZ=
-U9H3Xjh9uVxJQe8dw&e=3D
-> >
-> > Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> > Cc: David Laight <David.Laight@ACULAB.COM>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Vineet Gupta <vgupta@synopsys.com>
-> > Cc: Will Deacon <will.deacon@arm.com>
-> > Cc: Greg KH <greg@kroah.com>
-> > Cc: <stable@vger.kernel.org> # 4.8+
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-> > ---
-> >  drivers/base/devres.c | 10 ++++++++--
-> >  1 file changed, 8 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/base/devres.c b/drivers/base/devres.c
-> > index 71d577025285..e43a04a495a3 100644
-> > --- a/drivers/base/devres.c
-> > +++ b/drivers/base/devres.c
-> > @@ -25,8 +25,14 @@ struct devres_node {
-> >
-> >  struct devres {
-> >  	struct devres_node		node;
-> > -	/* -- 3 pointers */
-> > -	unsigned long long		data[];	/* guarantee ull alignment */
-> > +	/*
-> > +	 * Some archs want to perform DMA into kmalloc caches
-> > +	 * and need a guaranteed alignment larger than
-> > +	 * the alignment of a 64-bit integer.
-> > +	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
-> > +	 * buffer alignment as if it was allocated by plain kmalloc().
-> > +	 */
-> > +	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
-> >  };
-> >
-> >  struct devres_group {
->=20
-> This is not needed in any of the older kernels, despite what the stable@
-> line said, as it ends up taking a lot of memory up for all other arches.
-> That's why I only applied it to the one kernel version.  I'm betting
-> that it will be eventually reverted when people notice it as well :)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-That very well might become the case but then we're back to the initial pro=
-blem,
-right? So maybe some other more future-proof solution should be implemented=
-?
+Summary
+------------------------------------------------------------------------
 
-See initially we discussed simple explicit 8-byte alignment which won't cha=
-nge
-data layout for most of arches while fixing our issue on ARC but for some r=
-eason
-people were not happy with that proposal and that's how we ended-up with wh=
-at we
-discuss here now.
+kernel: 5.0.14-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.0.y
+git commit: 5b4a1a11a18cf15168a00c41c55384b2558cdee0
+git describe: v5.0.13-123-g5b4a1a11a18c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/bui=
+ld/v5.0.13-123-g5b4a1a11a18c
 
--Alexey
+
+No regressions (compared to build v5.0.13)
+
+No fixes (compared to build v5.0.13)
+
+
+Ran 25048 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-fs-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
