@@ -2,171 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B203160DD
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 11:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B24B816166
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 11:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726582AbfEGJ2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 05:28:03 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:50762 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726394AbfEGJ2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 05:28:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=K74zIJWVTADuSIeC0XGT8F72POWkdJPeuuL+utrmqlI=; b=X+FkTbzUvH17w4p9cdF0zY8Lj
-        z6mvwSURsgoU9jZNM7JsIZkBBkQG+d+bLW17Dp4Yp9sQg+zPplRVE8UIxiC1ILSqiEGILP19Hx7M8
-        P+0mCwuZ7ldUxusHH2FqbBQ1crOSmnAteH6lVo+sMIdAbCS9N+QhsNjuWxRXM5Vi4mT31Fxbgk3G2
-        7+HWX/nyUSdgFlIdYdwc6c84w7qsgHu8aFyj/mTQws57Wn52FNW6WZ0JdacRQ+jGxPyY3nZxQcERn
-        ysnUZztpngc6ZTNpHwFbHjVCxUvuYok1HGJ2n1qNas+WlKwXJyb8qZ0LA4CT2FAzJ5ZghGYrgnRix
-        nMIDyk9hA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hNwNo-00016k-Li; Tue, 07 May 2019 09:27:32 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 1BF2A2023ADB7; Tue,  7 May 2019 11:27:31 +0200 (CEST)
-Date:   Tue, 7 May 2019 11:27:31 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
-Message-ID: <20190507092731.GH2650@hirez.programming.kicks-ass.net>
-References: <20190502202146.GZ2623@hirez.programming.kicks-ass.net>
- <20190502185225.0cdfc8bc@gandalf.local.home>
- <20190502193129.664c5b2e@gandalf.local.home>
- <20190502195052.0af473cf@gandalf.local.home>
- <20190503092959.GB2623@hirez.programming.kicks-ass.net>
- <20190503092247.20cc1ff0@gandalf.local.home>
- <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
- <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
- <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
- <20190507085753.GO2606@hirez.programming.kicks-ass.net>
+        id S1726575AbfEGJuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 05:50:03 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:38201 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726349AbfEGJuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 05:50:03 -0400
+Received: by mail-lf1-f66.google.com with SMTP id y19so3778587lfy.5
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 02:50:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zNp1YRbEftpcKw7owid8pQ+LWmXYBCyJ8w39jtFzBAA=;
+        b=F/qFACIovh3CmwXbjD+3dOHfVjXBeZbPAoIXTG2azrXfNtT/bcEXpzNFVL+rmk5JLH
+         h0G1jedbQoQ5rkDEEkjbQw1v5BehJ1m7AhnQyS5lRMaoSdszaRv4kSBptu0xFEX4F+WX
+         ZmVXq39zMGZpBtm8DBQRMDYa49xCk4hzx5DlJMtZGzgjFurOSh3u79hQ/FlMDziRY38L
+         7duLzNBiyGXZKKLi+p1lh2XZVPKmur4S0oE90B37WFeUDqnqYzqhZmor3oaAXcxa7/Wf
+         kPJWRBu3boVh7PlHQdGc8djRuoXh+aBfrcC2utQbfGh7j1bs7to+K1tUynjmgjE7uYyP
+         6rFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zNp1YRbEftpcKw7owid8pQ+LWmXYBCyJ8w39jtFzBAA=;
+        b=I6OxSjzLwr/umxCZW/ub5T3V3js+Kuq16lTucIkyBqZV5gEBoQI4mxpCWSj+Hgxm2I
+         DHpAaiYP1SuS0EdsReBicCQVYOCkwUl+UvsQlU0JcFofo/wW5WthZV9fleJ+b/uArdjX
+         u52eu0D4KjcaNIYlOXJ+CrUc/5j/ZTzxRNjeVt4Vd3Jc0k2Mt1TlKNzbXd8bRBWw3CUc
+         qI3BW1sivce9f3Qu5aClY3vjhpsI9+d/LjT4IjcipBdWY9zvxseD5d4vMuBLSBQKjTLB
+         zgWHnZ3spFmNOHJa3QVGhVhji8heqSKOM1y1TGW8T8SPoOWt8xMH361CzTn07QXj34gE
+         7CHA==
+X-Gm-Message-State: APjAAAWKF6+bWVu/3bR9cc1z8tX53keT9WiCFuWxubqJzgKOKhS+qCp/
+        LpzV3RRWejSdsewtBR/InjkVWOvppCDtLzy51pg4siZ4weY=
+X-Google-Smtp-Source: APXvYqwNaK3JJjwoFLCb4Is81ZPtl2ydAoHQvVJGVpBpMJ/jw6Tvx6Yg61XRCN0Q9QxYxb6MVvlq4DXiYVzgeG0Fmm0=
+X-Received: by 2002:ac2:55b0:: with SMTP id y16mr1245772lfg.142.1557222601585;
+ Tue, 07 May 2019 02:50:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190507085753.GO2606@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190506143053.899356316@linuxfoundation.org>
+In-Reply-To: <20190506143053.899356316@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 7 May 2019 15:19:50 +0530
+Message-ID: <CA+G9fYt6Chi3=u=EEg6kNv1_VdbWEe4Nzu7rJuKPLnzVAk7JJQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/99] 4.19.41-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 10:57:53AM +0200, Peter Zijlstra wrote:
-> diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-> index 9e4fa2484d10..28d8ba3b9add 100644
-> --- a/arch/x86/kernel/kprobes/core.c
-> +++ b/arch/x86/kernel/kprobes/core.c
-> @@ -731,29 +731,27 @@ asm(
->  	".global kretprobe_trampoline\n"
->  	".type kretprobe_trampoline, @function\n"
->  	"kretprobe_trampoline:\n"
-> -#ifdef CONFIG_X86_64
->  	/* We don't bother saving the ss register */
-> +#ifdef CONFIG_X86_64
->  	"	pushq %rsp\n"
->  	"	pushfq\n"
->  	SAVE_REGS_STRING
->  	"	movq %rsp, %rdi\n"
->  	"	call trampoline_handler\n"
->  	/* Replace saved sp with true return address. */
-> -	"	movq %rax, 152(%rsp)\n"
-> +	"	movq %rax, 19*8(%rsp)\n"
->  	RESTORE_REGS_STRING
->  	"	popfq\n"
->  #else
-> -	"	pushf\n"
-> +	"	pushl %esp\n"
-> +	"	pushfl\n"
->  	SAVE_REGS_STRING
->  	"	movl %esp, %eax\n"
->  	"	call trampoline_handler\n"
-> -	/* Move flags to cs */
-> -	"	movl 56(%esp), %edx\n"
-> -	"	movl %edx, 52(%esp)\n"
-> -	/* Replace saved flags with true return address. */
-> -	"	movl %eax, 56(%esp)\n"
-> +	/* Replace saved sp with true return address. */
-> +	"	movl %eax, 15*4(%esp)\n"
->  	RESTORE_REGS_STRING
-> -	"	popf\n"
-> +	"	popfl\n"
->  #endif
->  	"	ret\n"
->  	".size kretprobe_trampoline, .-kretprobe_trampoline\n"
+On Mon, 6 May 2019 at 20:10, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.41 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 08 May 2019 02:29:12 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.41-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-> diff --git a/arch/x86/kernel/kprobes/opt.c b/arch/x86/kernel/kprobes/opt.c
-> index f14262952015..c1010207d036 100644
-> --- a/arch/x86/kernel/kprobes/opt.c
-> +++ b/arch/x86/kernel/kprobes/opt.c
-> @@ -115,14 +115,15 @@ asm (
->  			"optprobe_template_call:\n"
->  			ASM_NOP5
->  			/* Move flags to rsp */
-> -			"	movq 144(%rsp), %rdx\n"
-> -			"	movq %rdx, 152(%rsp)\n"
-> +			"	movq 18*8(%rsp), %rdx\n"
-> +			"	movq %rdx, 19*8(%rsp)\n"
->  			RESTORE_REGS_STRING
->  			/* Skip flags entry */
->  			"	addq $8, %rsp\n"
->  			"	popfq\n"
->  #else /* CONFIG_X86_32 */
-> -			"	pushf\n"
-> +			"	pushl %esp\n"
-> +			"	pushfl\n"
->  			SAVE_REGS_STRING
->  			"	movl %esp, %edx\n"
->  			".global optprobe_template_val\n"
-> @@ -131,9 +132,13 @@ asm (
->  			".global optprobe_template_call\n"
->  			"optprobe_template_call:\n"
->  			ASM_NOP5
-> +			/* Move flags into esp */
-> +			"	movl 14*4(%esp), %edx\n"
-> +			"	movl %edx, 15*4(%esp)\n"
->  			RESTORE_REGS_STRING
-> -			"	addl $4, %esp\n"	/* skip cs */
-> -			"	popf\n"
-> +			/* Skip flags entry */
-> +			"	addl $4, %esp\n"
-> +			"	popfl\n"
->  #endif
->  			".global optprobe_template_end\n"
->  			"optprobe_template_end:\n"
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-FWIW, both these trampolines assume a kprobe will not
-int3_emulate_{push/call}(), for both bitnesses.
+Summary
+------------------------------------------------------------------------
 
-But then; I'm thinking kprobes should be inspection only and not modify
-things. So that might just be good enough.
+kernel: 4.19.41-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: f897c76a347c330cca7fc03afaa64164eda545f7
+git describe: v4.19.40-100-gf897c76a347c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.40-100-gf897c76a347c
 
+No regressions (compared to build v4.19.40)
+
+No fixes (compared to build v4.19.40)
+
+Ran 24695 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
