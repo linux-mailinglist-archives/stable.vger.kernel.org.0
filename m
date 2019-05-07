@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE9015B12
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E1415B14
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:51:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728952AbfEGFjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
+        id S1728139AbfEGFvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728940AbfEGFjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:39:51 -0400
+        id S1728946AbfEGFjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:39:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 874D8214AE;
-        Tue,  7 May 2019 05:39:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A292A21530;
+        Tue,  7 May 2019 05:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207590;
-        bh=I7g2P9K7D4dU1UxT9helvGgvqlFPJNb06UB/OqUI2Fo=;
+        s=default; t=1557207591;
+        bh=O2/NA3AYa+PTWrpy6a/5bj3br+ITj7oov1QcxhdukG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/W9O7Rt4ArS5XZQhIgTrZWaaZ8ezaybfLqm0jpQp6lBFa70RCkKptsv6UMSvCEmP
-         OMtReh/AemwnHC79bshbWmCBwBtsU3XG9tZ8uPPMmwfB6p57WRj/1B7R3H/gVTiTAc
-         NBj9S18PuvOotJNME8GNMPGqJV2nEQAjV7YQ5edQ=
+        b=nr7Bsw1zgbsC/9QnxMWQTfx+7uZBEUiCWXSZiZvKP2NmO7eenl1A285VeBoaBLyn8
+         6uG0xsTlV9W2NlXE/fRxKKyFkJYpAAxtyRtr/nkaDxuGgzqRT1EwznT5zjQkaB+8fF
+         JZ1dJbogFI2RrT1TAxeQ/kDPl045wEEXzviokEJs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        Seth Howell <seth.howell@intel.com>,
+Cc:     Goldwyn Rodrigues <rgoldwyn@suse.de>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <alexander.levin@microsoft.com>,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 40/95] IB/rxe: Revise the ib_wr_opcode enum
-Date:   Tue,  7 May 2019 01:37:29 -0400
-Message-Id: <20190507053826.31622-40-sashal@kernel.org>
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 41/95] ima: open a new file instance if no read permissions
+Date:   Tue,  7 May 2019 01:37:30 -0400
+Message-Id: <20190507053826.31622-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
@@ -44,127 +46,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-[ Upstream commit 9a59739bd01f77db6fbe2955a4fce165f0f43568 ]
+[ Upstream commit a408e4a86b36bf98ad15b9ada531cf0e5118ac67 ]
 
-This enum has become part of the uABI, as both RXE and the
-ib_uverbs_post_send() command expect userspace to supply values from this
-enum. So it should be properly placed in include/uapi/rdma.
+Open a new file instance as opposed to changing file->f_mode when
+the file is not readable.  This is done to accomodate overlayfs
+stacked file operations change.  The real struct file is hidden
+behind the overlays struct file.  So, any file->f_mode manipulations are
+not reflected on the real struct file.  Open the file again in read mode
+if original file cannot be read, read and calculate the hash.
 
-In userspace this enum is called 'enum ibv_wr_opcode' as part of
-libibverbs.h. That enum defines different values for IB_WR_LOCAL_INV,
-IB_WR_SEND_WITH_INV, and IB_WR_LSO. These were introduced (incorrectly, it
-turns out) into libiberbs in 2015.
-
-The kernel has changed its mind on the numbering for several of the IB_WC
-values over the years, but has remained stable on IB_WR_LOCAL_INV and
-below.
-
-Based on this we can conclude that there is no real user space user of the
-values beyond IB_WR_ATOMIC_FETCH_AND_ADD, as they have never worked via
-rdma-core. This is confirmed by inspection, only rxe uses the kernel enum
-and implements the latter operations. rxe has clearly never worked with
-these attributes from userspace. Other drivers that support these opcodes
-implement the functionality without calling out to the kernel.
-
-To make IB_WR_SEND_WITH_INV and related work for RXE in userspace we
-choose to renumber the IB_WR enum in the kernel to match the uABI that
-userspace has bee using since before Soft RoCE was merged. This is an
-overall simpler configuration for the whole software stack, and obviously
-can't break anything existing.
-
-Reported-by: Seth Howell <seth.howell@intel.com>
-Tested-by: Seth Howell <seth.howell@intel.com>
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Cc: stable@vger.kernel.org (linux-4.19)
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- include/rdma/ib_verbs.h           | 34 ++++++++++++++++++-------------
- include/uapi/rdma/ib_user_verbs.h | 20 +++++++++++++++++-
- 2 files changed, 39 insertions(+), 15 deletions(-)
+ security/integrity/ima/ima_crypto.c | 54 ++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
 
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 5a24b4c700e5..9e76b2410d03 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -1251,21 +1251,27 @@ struct ib_qp_attr {
- };
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index cb041af9eddb..af680b5b678a 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -232,7 +232,7 @@ static int ima_calc_file_hash_atfm(struct file *file,
+ {
+ 	loff_t i_size, offset;
+ 	char *rbuf[2] = { NULL, };
+-	int rc, read = 0, rbuf_len, active = 0, ahash_rc = 0;
++	int rc, rbuf_len, active = 0, ahash_rc = 0;
+ 	struct ahash_request *req;
+ 	struct scatterlist sg[1];
+ 	struct ahash_completion res;
+@@ -279,11 +279,6 @@ static int ima_calc_file_hash_atfm(struct file *file,
+ 					  &rbuf_size[1], 0);
+ 	}
  
- enum ib_wr_opcode {
--	IB_WR_RDMA_WRITE,
--	IB_WR_RDMA_WRITE_WITH_IMM,
--	IB_WR_SEND,
--	IB_WR_SEND_WITH_IMM,
--	IB_WR_RDMA_READ,
--	IB_WR_ATOMIC_CMP_AND_SWP,
--	IB_WR_ATOMIC_FETCH_AND_ADD,
--	IB_WR_LSO,
--	IB_WR_SEND_WITH_INV,
--	IB_WR_RDMA_READ_WITH_INV,
--	IB_WR_LOCAL_INV,
--	IB_WR_REG_MR,
--	IB_WR_MASKED_ATOMIC_CMP_AND_SWP,
--	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD,
-+	/* These are shared with userspace */
-+	IB_WR_RDMA_WRITE = IB_UVERBS_WR_RDMA_WRITE,
-+	IB_WR_RDMA_WRITE_WITH_IMM = IB_UVERBS_WR_RDMA_WRITE_WITH_IMM,
-+	IB_WR_SEND = IB_UVERBS_WR_SEND,
-+	IB_WR_SEND_WITH_IMM = IB_UVERBS_WR_SEND_WITH_IMM,
-+	IB_WR_RDMA_READ = IB_UVERBS_WR_RDMA_READ,
-+	IB_WR_ATOMIC_CMP_AND_SWP = IB_UVERBS_WR_ATOMIC_CMP_AND_SWP,
-+	IB_WR_ATOMIC_FETCH_AND_ADD = IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD,
-+	IB_WR_LSO = IB_UVERBS_WR_TSO,
-+	IB_WR_SEND_WITH_INV = IB_UVERBS_WR_SEND_WITH_INV,
-+	IB_WR_RDMA_READ_WITH_INV = IB_UVERBS_WR_RDMA_READ_WITH_INV,
-+	IB_WR_LOCAL_INV = IB_UVERBS_WR_LOCAL_INV,
-+	IB_WR_MASKED_ATOMIC_CMP_AND_SWP =
-+		IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP,
-+	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD =
-+		IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD,
-+
-+	/* These are kernel only and can not be issued by userspace */
-+	IB_WR_REG_MR = 0x20,
- 	IB_WR_REG_SIG_MR,
-+
- 	/* reserve values for low level drivers' internal use.
- 	 * These values will not be used at all in the ib core layer.
- 	 */
-diff --git a/include/uapi/rdma/ib_user_verbs.h b/include/uapi/rdma/ib_user_verbs.h
-index e0e83a105953..e11b4def8630 100644
---- a/include/uapi/rdma/ib_user_verbs.h
-+++ b/include/uapi/rdma/ib_user_verbs.h
-@@ -751,10 +751,28 @@ struct ib_uverbs_sge {
- 	__u32 lkey;
- };
+-	if (!(file->f_mode & FMODE_READ)) {
+-		file->f_mode |= FMODE_READ;
+-		read = 1;
+-	}
+-
+ 	for (offset = 0; offset < i_size; offset += rbuf_len) {
+ 		if (!rbuf[1] && offset) {
+ 			/* Not using two buffers, and it is not the first
+@@ -322,8 +317,6 @@ static int ima_calc_file_hash_atfm(struct file *file,
+ 	/* wait for the last update request to complete */
+ 	rc = ahash_wait(ahash_rc, &res);
+ out3:
+-	if (read)
+-		file->f_mode &= ~FMODE_READ;
+ 	ima_free_pages(rbuf[0], rbuf_size[0]);
+ 	ima_free_pages(rbuf[1], rbuf_size[1]);
+ out2:
+@@ -358,7 +351,7 @@ static int ima_calc_file_hash_tfm(struct file *file,
+ {
+ 	loff_t i_size, offset = 0;
+ 	char *rbuf;
+-	int rc, read = 0;
++	int rc;
+ 	SHASH_DESC_ON_STACK(shash, tfm);
  
-+enum ib_uverbs_wr_opcode {
-+	IB_UVERBS_WR_RDMA_WRITE = 0,
-+	IB_UVERBS_WR_RDMA_WRITE_WITH_IMM = 1,
-+	IB_UVERBS_WR_SEND = 2,
-+	IB_UVERBS_WR_SEND_WITH_IMM = 3,
-+	IB_UVERBS_WR_RDMA_READ = 4,
-+	IB_UVERBS_WR_ATOMIC_CMP_AND_SWP = 5,
-+	IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD = 6,
-+	IB_UVERBS_WR_LOCAL_INV = 7,
-+	IB_UVERBS_WR_BIND_MW = 8,
-+	IB_UVERBS_WR_SEND_WITH_INV = 9,
-+	IB_UVERBS_WR_TSO = 10,
-+	IB_UVERBS_WR_RDMA_READ_WITH_INV = 11,
-+	IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP = 12,
-+	IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD = 13,
-+	/* Review enum ib_wr_opcode before modifying this */
-+};
+ 	shash->tfm = tfm;
+@@ -379,11 +372,6 @@ static int ima_calc_file_hash_tfm(struct file *file,
+ 	if (!rbuf)
+ 		return -ENOMEM;
+ 
+-	if (!(file->f_mode & FMODE_READ)) {
+-		file->f_mode |= FMODE_READ;
+-		read = 1;
+-	}
+-
+ 	while (offset < i_size) {
+ 		int rbuf_len;
+ 
+@@ -400,8 +388,6 @@ static int ima_calc_file_hash_tfm(struct file *file,
+ 		if (rc)
+ 			break;
+ 	}
+-	if (read)
+-		file->f_mode &= ~FMODE_READ;
+ 	kfree(rbuf);
+ out:
+ 	if (!rc)
+@@ -442,6 +428,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ {
+ 	loff_t i_size;
+ 	int rc;
++	struct file *f = file;
++	bool new_file_instance = false, modified_flags = false;
+ 
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -453,15 +441,41 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 		return -EINVAL;
+ 	}
+ 
+-	i_size = i_size_read(file_inode(file));
++	/* Open a new file instance in O_RDONLY if we cannot read */
++	if (!(file->f_mode & FMODE_READ)) {
++		int flags = file->f_flags & ~(O_WRONLY | O_APPEND |
++				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
++		flags |= O_RDONLY;
++		f = dentry_open(&file->f_path, flags, file->f_cred);
++		if (IS_ERR(f)) {
++			/*
++			 * Cannot open the file again, lets modify f_flags
++			 * of original and continue
++			 */
++			pr_info_ratelimited("Unable to reopen file for reading.\n");
++			f = file;
++			f->f_flags |= FMODE_READ;
++			modified_flags = true;
++		} else {
++			new_file_instance = true;
++		}
++	}
 +
- struct ib_uverbs_send_wr {
- 	__u64 wr_id;
- 	__u32 num_sge;
--	__u32 opcode;
-+	__u32 opcode;		/* see enum ib_uverbs_wr_opcode */
- 	__u32 send_flags;
- 	union {
- 		__u32 imm_data;
++	i_size = i_size_read(file_inode(f));
+ 
+ 	if (ima_ahash_minsize && i_size >= ima_ahash_minsize) {
+-		rc = ima_calc_file_ahash(file, hash);
++		rc = ima_calc_file_ahash(f, hash);
+ 		if (!rc)
+-			return 0;
++			goto out;
+ 	}
+ 
+-	return ima_calc_file_shash(file, hash);
++	rc = ima_calc_file_shash(f, hash);
++out:
++	if (new_file_instance)
++		fput(f);
++	else if (modified_flags)
++		f->f_flags &= ~FMODE_READ;
++	return rc;
+ }
+ 
+ /*
 -- 
 2.20.1
 
