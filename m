@@ -2,190 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AEE16AD5
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 21:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA4916AD8
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 21:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726464AbfEGTB6 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 7 May 2019 15:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42262 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726321AbfEGTB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 15:01:58 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 603DF20578;
-        Tue,  7 May 2019 19:01:54 +0000 (UTC)
-Date:   Tue, 7 May 2019 15:01:53 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Josh Poimboeuf <jpoimboe@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 2/3] x86_64: Allow breakpoints to emulate call
- functions
-Message-ID: <20190507150153.7a5d376d@gandalf.local.home>
-In-Reply-To: <20190507175342.fskdj2qidpao65qi@treble>
-References: <20190507174227.673261270@goodmis.org>
-        <20190507174400.219947724@goodmis.org>
-        <20190507175342.fskdj2qidpao65qi@treble>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726321AbfEGTEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 15:04:06 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33158 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726091AbfEGTEG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 15:04:06 -0400
+Received: from ben by shadbolt.decadent.org.uk with local (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hO5Nk-0000CA-9x; Tue, 07 May 2019 20:04:04 +0100
+Date:   Tue, 7 May 2019 20:04:04 +0100
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org
+Message-ID: <20190507190404.ub43rr4iuvqfkbsq@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="amebupxkjdtzns4d"
+Content-Disposition: inline
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on
+        shadbolt.decadent.org.uk
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.0 required=5.0 tests=NO_RELAYS autolearn=disabled
+        version=3.4.2
+Subject: [PATCH 3.16-4.9] timer/debug: Change /proc/timer_stats from 0644 to
+ 0600
+X-SA-Exim-Version: 4.2.1 (built Tue, 02 Aug 2016 21:08:31 +0000)
+X-SA-Exim-Scanned: Yes (on shadbolt.decadent.org.uk)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 12:53:42 -0500
-Josh Poimboeuf <jpoimboe@redhat.com> wrote:
 
-> > To handle this, copy the exception frame on entry of the breakpoint handler
-> > and have leave a gap that can be used to add a return address to the stack
-> > frame and return from the breakpoint to the emulated called function,
-> > allowing for that called function to return back to the location after the
-> > breakpoint was placed.  
-> 
-> This part is done by patch 1.
-> 
-> > 
-> > The helper functions were also added:  
-> 
-> No longer "also" :-)
+--amebupxkjdtzns4d
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+The timer_stats facility should filter and translate PIDs if opened
+=66rom a non-initial PID namespace, to avoid leaking information about
+the wider system.  It should also not show kernel virtual addresses.
+Unfortunately it has now been removed upstream (as redundant)
+instead of being fixed.
 
-> > +#ifdef CONFIG_X86_64
-> > +static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
-> > +{
-> > +	regs->sp -= sizeof(unsigned long);
-> > +	*(unsigned long *)regs->sp = val;
-> > +}  
-> 
-> How this works isn't really obvious.  A comment is probably warranted to
-> explain the fact that the int3 entry code reserved some space on the
-> stack.
-> 
+For stable, fix the leak by restricting access to root only.  A
+similar change was already made for the /proc/timer_list file.
 
-
-How's this?
-
--- Steve
-
-From d29dc2e9e0275c9857932b80cebc01551b669efb Mon Sep 17 00:00:00 2001
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Wed, 1 May 2019 15:11:17 +0200
-Subject: [PATCH] x86_64: Allow breakpoints to emulate call functions
-
-In order to allow breakpoints to emulate call functions, they need to push
-the return address onto the stack. But because the breakpoint exception
-frame is added to the stack when the breakpoint is hit, there's no room to
-add the address onto the stack and return to the address of the emulated
-called funtion.
-
-This helper functions are added:
-
-  int3_emulate_jmp(): changes the location of the regs->ip to return there.
-
- (The next two are only for x86_64)
-  int3_emulate_push(): to push the address onto the gap in the stack
-  int3_emulate_call(): push the return address and change regs->ip
-
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nayna Jain <nayna@linux.ibm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-[ Modified to only work for x86_64 and added comment to int3_emulate_push() ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/include/asm/text-patching.h | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+--- a/kernel/time/timer_stats.c
++++ b/kernel/time/timer_stats.c
+@@ -417,7 +417,7 @@ static int __init init_tstats_procfs(voi
+ {
+ 	struct proc_dir_entry *pe;
+=20
+-	pe =3D proc_create("timer_stats", 0644, NULL, &tstats_fops);
++	pe =3D proc_create("timer_stats", 0600, NULL, &tstats_fops);
+ 	if (!pe)
+ 		return -ENOMEM;
+ 	return 0;
 
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index e85ff65c43c3..05861cc08787 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -39,4 +39,32 @@ extern int poke_int3_handler(struct pt_regs *regs);
- extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
- extern int after_bootmem;
- 
-+static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
-+{
-+	regs->ip = ip;
-+}
-+
-+#define INT3_INSN_SIZE 1
-+#define CALL_INSN_SIZE 5
-+
-+#ifdef CONFIG_X86_64
-+static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
-+{
-+	/*
-+	 * The int3 handler in entry_64.S adds a gap between the
-+	 * stack where the break point happened, and the saving of
-+	 * pt_regs. We can extend the original stack because of
-+	 * this gap. See the idtentry macro's create_gap option.
-+	 */
-+	regs->sp -= sizeof(unsigned long);
-+	*(unsigned long *)regs->sp = val;
-+}
-+
-+static inline void int3_emulate_call(struct pt_regs *regs, unsigned long func)
-+{
-+	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
-+	int3_emulate_jmp(regs, func);
-+}
-+#endif
-+
- #endif /* _ASM_X86_TEXT_PATCHING_H */
--- 
-2.20.1
+--amebupxkjdtzns4d
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAlzR1p8ACgkQ57/I7JWG
+EQmWjRAAlQYmNI5JGQtxg9flkPCLOgKwLMAsglvtPB7NybwoxxH1z7cpfUwK65hb
+Z+hAFX+TBBSyuRYuf0Pq0cgG1ieFU31YxC3jpxtoP3PmIRIPVydyca+Dg8b0Wt1M
+aLDcnicyPXaDnrzRpIJoG6PwblVPB1Pswa0fshN0vMRT0HfbtxWeOrS3Ne0y1Z2Z
+LEhxhYXBMN3Z4b/ReORRviJGjtquznrRx5bCGdkJpL74hR2dstDb8JLwO/UFDpCD
+gg0IPcW3QLsciiIM+CoCTDu4+qLsOf9JIbhRD9jrhxXTbX7ANkg5XmplHNtcKnow
+ZklPX0M48pChdqeGxvN1AmXGMaxnB1USUrXfqGF96ioaHNlwu3vtqntMt4PrfIoC
+bYzi8nku3CWjcoPari6fYbK+qSVCJZRZthGWSidrjqaC8mO5Y7150TTDgxqLpbUL
+nXfq22bkONVjEI8OSNZj1hd32gvy3Xx9cliodoVgTBUM8di5H9PMjwy3Y5y/7VjP
+j+QeqM0OJmY3mmi5gNrl7opvCAMUMKsGL6G9r5v5XOXc1qpPh0wwCMxsewway9OJ
+qPX3Yv18+YcQAKuFVRS7aRY+aufjw/KSLQCXr+FIJJx0dKvdlzJVEsX0p+I+Clnq
+PcXK/LzyxU8idVlXt3G2ZieDZKKoM1F5RszvEFLIrbR4uMu+1AE=
+=y6da
+-----END PGP SIGNATURE-----
+
+--amebupxkjdtzns4d--
