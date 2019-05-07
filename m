@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 212C415C9C
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A8CE15C91
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbfEGGEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:04:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
+        id S1727543AbfEGFe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:34:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727522AbfEGFeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:34:24 -0400
+        id S1727532AbfEGFe1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:34:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BFED20B7C;
-        Tue,  7 May 2019 05:34:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D02F22087F;
+        Tue,  7 May 2019 05:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207263;
-        bh=oXIr1mm3+pichJjL+9iVnU0mTDTTZQqC5fQkWc/FwsU=;
+        s=default; t=1557207265;
+        bh=Z70QKsPD3e3mToKCe29V3EsQvz2CP06bSc4T9mz6NSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZclECnsY76yV+4pSX8M9VuXUDZJlS6Pz+40P6Mf3s1hLCDJCcP/x4JsUDpy9gOYJ
-         ZPGWegaNJtqV7DVTNiAXlyS5LUNdU1FcHbFv1NC/sHVYwau2rnLsvAuG1nLqbDNSHi
-         Ii2/oEWAYydoU2bBnQpPhRMJriNdtg+5tgQJghi8=
+        b=U8Y2cIYhPozZhD5z/fvTjnBgJi7DaPFsIatp1ut9gnoLwSL+dyOiXIL53tX900YVf
+         6Z7RgU3v2FT67S2Io3pnyWaoCUt8jLUTsSLZdE6wNqd4jZMtbZzTBZdR+AzKSJt+lq
+         SytGeXsj4A5N6NECLXHbYsrm54FPfiWoWJXNhFbw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Oscar Salvador <osalvador@suse.de>,
+Cc:     Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 57/99] mm/hotplug: treat CMA pages as unmovable
-Date:   Tue,  7 May 2019 01:31:51 -0400
-Message-Id: <20190507053235.29900-57-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 58/99] mm: fix inactive list balancing between NUMA nodes and cgroups
+Date:   Tue,  7 May 2019 01:31:52 -0400
+Message-Id: <20190507053235.29900-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -46,128 +46,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 1a9f219157b22d0ffb340a9c5f431afd02cd2cf3 ]
+[ Upstream commit 3b991208b897f52507168374033771a984b947b1 ]
 
-has_unmovable_pages() is used by allocating CMA and gigantic pages as
-well as the memory hotplug.  The later doesn't know how to offline CMA
-pool properly now, but if an unused (free) CMA page is encountered, then
-has_unmovable_pages() happily considers it as a free memory and
-propagates this up the call chain.  Memory offlining code then frees the
-page without a proper CMA tear down which leads to an accounting issues.
-Moreover if the same memory range is onlined again then the memory never
-gets back to the CMA pool.
+During !CONFIG_CGROUP reclaim, we expand the inactive list size if it's
+thrashing on the node that is about to be reclaimed.  But when cgroups
+are enabled, we suddenly ignore the node scope and use the cgroup scope
+only.  The result is that pressure bleeds between NUMA nodes depending
+on whether cgroups are merely compiled into Linux.  This behavioral
+difference is unexpected and undesirable.
 
-State after memory offline:
+When the refault adaptivity of the inactive list was first introduced,
+there were no statistics at the lruvec level - the intersection of node
+and memcg - so it was better than nothing.
 
- # grep cma /proc/vmstat
- nr_free_cma 205824
+But now that we have that infrastructure, use lruvec_page_state() to
+make the list balancing decision always NUMA aware.
 
- # cat /sys/kernel/debug/cma/cma-kvm_cma/count
- 209920
-
-Also, kmemleak still think those memory address are reserved below but
-have already been used by the buddy allocator after onlining.  This
-patch fixes the situation by treating CMA pageblocks as unmovable except
-when has_unmovable_pages() is called as part of CMA allocation.
-
-  Offlined Pages 4096
-  kmemleak: Cannot insert 0xc000201f7d040008 into the object search tree (overlaps existing)
-  Call Trace:
-    dump_stack+0xb0/0xf4 (unreliable)
-    create_object+0x344/0x380
-    __kmalloc_node+0x3ec/0x860
-    kvmalloc_node+0x58/0x110
-    seq_read+0x41c/0x620
-    __vfs_read+0x3c/0x70
-    vfs_read+0xbc/0x1a0
-    ksys_read+0x7c/0x140
-    system_call+0x5c/0x70
-  kmemleak: Kernel memory leak detector disabled
-  kmemleak: Object 0xc000201cc8000000 (size 13757317120):
-  kmemleak:   comm "swapper/0", pid 0, jiffies 4294937297
-  kmemleak:   min_count = -1
-  kmemleak:   count = 0
-  kmemleak:   flags = 0x5
-  kmemleak:   checksum = 0
-  kmemleak:   backtrace:
-       cma_declare_contiguous+0x2a4/0x3b0
-       kvm_cma_reserve+0x11c/0x134
-       setup_arch+0x300/0x3f8
-       start_kernel+0x9c/0x6e8
-       start_here_common+0x1c/0x4b0
-  kmemleak: Automatic memory scanning thread ended
-
-[cai@lca.pw: use is_migrate_cma_page() and update commit log]
-  Link: http://lkml.kernel.org/r/20190416170510.20048-1-cai@lca.pw
-Link: http://lkml.kernel.org/r/20190413002623.8967-1-cai@lca.pw
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+[hannes@cmpxchg.org: fix bisection hole]
+  Link: http://lkml.kernel.org/r/20190417155241.GB23013@cmpxchg.org
+Link: http://lkml.kernel.org/r/20190412144438.2645-1-hannes@cmpxchg.org
+Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ mm/vmscan.c | 29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 318ef6ccdb3b..eedb57f9b40b 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7945,7 +7945,10 @@ void *__init alloc_large_system_hash(const char *tablename,
- bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 			 int migratetype, int flags)
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index e979705bbf32..022afabac3f6 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2199,7 +2199,6 @@ static void shrink_active_list(unsigned long nr_to_scan,
+  *   10TB     320        32GB
+  */
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct mem_cgroup *memcg,
+ 				 struct scan_control *sc, bool actual_reclaim)
  {
--	unsigned long pfn, iter, found;
-+	unsigned long found;
-+	unsigned long iter = 0;
-+	unsigned long pfn = page_to_pfn(page);
-+	const char *reason = "unmovable page";
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+@@ -2220,16 +2219,12 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 	inactive = lruvec_lru_size(lruvec, inactive_lru, sc->reclaim_idx);
+ 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
  
+-	if (memcg)
+-		refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
+-	else
+-		refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
+-
  	/*
- 	 * TODO we could make this much more efficient by not checking every
-@@ -7955,17 +7958,20 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 	 * can still lead to having bootmem allocations in zone_movable.
+ 	 * When refaults are being observed, it means a new workingset
+ 	 * is being established. Disable active list protection to get
+ 	 * rid of the stale workingset quickly.
  	 */
- 
--	/*
--	 * CMA allocations (alloc_contig_range) really need to mark isolate
--	 * CMA pageblocks even when they are not movable in fact so consider
--	 * them movable here.
--	 */
--	if (is_migrate_cma(migratetype) &&
--			is_migrate_cma(get_pageblock_migratetype(page)))
--		return false;
-+	if (is_migrate_cma_page(page)) {
-+		/*
-+		 * CMA allocations (alloc_contig_range) really need to mark
-+		 * isolate CMA pageblocks even when they are not movable in fact
-+		 * so consider them movable here.
-+		 */
-+		if (is_migrate_cma(migratetype))
-+			return false;
-+
-+		reason = "CMA page";
-+		goto unmovable;
-+	}
- 
--	pfn = page_to_pfn(page);
--	for (found = 0, iter = 0; iter < pageblock_nr_pages; iter++) {
-+	for (found = 0; iter < pageblock_nr_pages; iter++) {
- 		unsigned long check = pfn + iter;
- 
- 		if (!pfn_valid_within(check))
-@@ -8045,7 +8051,7 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- unmovable:
- 	WARN_ON_ONCE(zone_idx(zone) == ZONE_MOVABLE);
- 	if (flags & REPORT_FAILURE)
--		dump_page(pfn_to_page(pfn+iter), "unmovable page");
-+		dump_page(pfn_to_page(pfn + iter), reason);
- 	return true;
++	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+ 	if (file && actual_reclaim && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+@@ -2250,12 +2245,10 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
  }
+ 
+ static unsigned long shrink_list(enum lru_list lru, unsigned long nr_to_scan,
+-				 struct lruvec *lruvec, struct mem_cgroup *memcg,
+-				 struct scan_control *sc)
++				 struct lruvec *lruvec, struct scan_control *sc)
+ {
+ 	if (is_active_lru(lru)) {
+-		if (inactive_list_is_low(lruvec, is_file_lru(lru),
+-					 memcg, sc, true))
++		if (inactive_list_is_low(lruvec, is_file_lru(lru), sc, true))
+ 			shrink_active_list(nr_to_scan, lruvec, sc, lru);
+ 		return 0;
+ 	}
+@@ -2355,7 +2348,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
+ 			 * anonymous pages on the LRU in eligible zones.
+ 			 * Otherwise, the small LRU gets thrashed.
+ 			 */
+-			if (!inactive_list_is_low(lruvec, false, memcg, sc, false) &&
++			if (!inactive_list_is_low(lruvec, false, sc, false) &&
+ 			    lruvec_lru_size(lruvec, LRU_INACTIVE_ANON, sc->reclaim_idx)
+ 					>> sc->priority) {
+ 				scan_balance = SCAN_ANON;
+@@ -2373,7 +2366,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
+ 	 * lruvec even if it has plenty of old anonymous pages unless the
+ 	 * system is under heavy pressure.
+ 	 */
+-	if (!inactive_list_is_low(lruvec, true, memcg, sc, false) &&
++	if (!inactive_list_is_low(lruvec, true, sc, false) &&
+ 	    lruvec_lru_size(lruvec, LRU_INACTIVE_FILE, sc->reclaim_idx) >> sc->priority) {
+ 		scan_balance = SCAN_FILE;
+ 		goto out;
+@@ -2526,7 +2519,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
+ 				nr[lru] -= nr_to_scan;
+ 
+ 				nr_reclaimed += shrink_list(lru, nr_to_scan,
+-							    lruvec, memcg, sc);
++							    lruvec, sc);
+ 			}
+ 		}
+ 
+@@ -2593,7 +2586,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
+ 	 * Even if we did not try to evict anon pages at all, we want to
+ 	 * rebalance the anon lru active/inactive ratio.
+ 	 */
+-	if (inactive_list_is_low(lruvec, false, memcg, sc, true))
++	if (inactive_list_is_low(lruvec, false, sc, true))
+ 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
+ 				   sc, LRU_ACTIVE_ANON);
+ }
+@@ -2993,12 +2986,8 @@ static void snapshot_refaults(struct mem_cgroup *root_memcg, pg_data_t *pgdat)
+ 		unsigned long refaults;
+ 		struct lruvec *lruvec;
+ 
+-		if (memcg)
+-			refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
+-		else
+-			refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
+-
+ 		lruvec = mem_cgroup_lruvec(pgdat, memcg);
++		refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+ 		lruvec->refaults = refaults;
+ 	} while ((memcg = mem_cgroup_iter(root_memcg, memcg, NULL)));
+ }
+@@ -3363,7 +3352,7 @@ static void age_active_anon(struct pglist_data *pgdat,
+ 	do {
+ 		struct lruvec *lruvec = mem_cgroup_lruvec(pgdat, memcg);
+ 
+-		if (inactive_list_is_low(lruvec, false, memcg, sc, true))
++		if (inactive_list_is_low(lruvec, false, sc, true))
+ 			shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
+ 					   sc, LRU_ACTIVE_ANON);
  
 -- 
 2.20.1
