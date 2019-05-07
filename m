@@ -2,119 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 064A315E7A
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 09:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A9015E8D
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 09:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726348AbfEGHrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 03:47:00 -0400
-Received: from mail-eopbgr790111.outbound.protection.outlook.com ([40.107.79.111]:11392
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726249AbfEGHq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 03:46:59 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=testarcselector01; d=microsoft.com; cv=none;
- b=K2ZaIQ+jPnzdTaE9+0QDAe4pZohcCkvsA5mgNjvhmg6yEqz5cfubb7ZIFwfBj7CkDKxqrMm8T9ehhGJtnREttfxxc0sjIqu+ubmJBfyITvQc8gEOm/BgZ+8mU1XRgkZZl34BmCaP+hZKdnQnj/T9nPVtjsVIs+0/cPJH8mMUlnU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=testarcselector01;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gvC19Yf40mYc0pYEteOzJeS21p6geKK+URR5jdlV0Ic=;
- b=VrcYiDd/4NeLdX2IL9zdmiHHklrRnnTqF5SNDd8bD8OOL2BO7B3HwqdOU3qOvnVYCpvfnzUt3p8ulRVIcZ5zexCJt2GP3nlkHmRu0/UM0bh+MrGOLVJafvyVuGaEfbCRpeMnqxH3hcO0OXuPwjL7gISfDbuJq5PxaR05z6jPxfE=
-ARC-Authentication-Results: i=1; test.office365.com
- 1;spf=none;dmarc=none;dkim=none;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gvC19Yf40mYc0pYEteOzJeS21p6geKK+URR5jdlV0Ic=;
- b=VNFb513o7IVVO7jDPPHVdKbvYTjTMXKzUd3qFpJreGz8DoN452UaHk2sLz6k08PmhVrkH01FdQNJgSpThUYLTfQlOh9RAef4A92lD+/+vVCkeQHDxGuFjMh97g+F3tvy1PGjtpPPcLCdxz9z/b5IUIQj7noI4BODLv6Oo4+T1P4=
-Received: from SN6PR2101MB0942.namprd21.prod.outlook.com (52.132.114.19) by
- SN6PR2101MB0942.namprd21.prod.outlook.com (52.132.114.19) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1900.4; Tue, 7 May 2019 07:46:56 +0000
-Received: from SN6PR2101MB0942.namprd21.prod.outlook.com
- ([fe80::453:8268:2686:4cf]) by SN6PR2101MB0942.namprd21.prod.outlook.com
- ([fe80::453:8268:2686:4cf%8]) with mapi id 15.20.1900.002; Tue, 7 May 2019
- 07:46:56 +0000
-From:   Dexuan Cui <decui@microsoft.com>
-To:     "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        "juliana.rodrigueiro@intra2net.com" 
-        <juliana.rodrigueiro@intra2net.com>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>,
-        "apw@canonical.com" <apw@canonical.com>,
-        "olaf@aepfle.de" <olaf@aepfle.de>, vkuznets <vkuznets@redhat.com>,
-        "jasowang@redhat.com" <jasowang@redhat.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH] Drivers: hv: vmbus: Fix virt_to_hvpfn() for X86_PAE
-Thread-Topic: [PATCH] Drivers: hv: vmbus: Fix virt_to_hvpfn() for X86_PAE
-Thread-Index: AQHVBKkKTisq9OloE02W7qrjLXJSBQ==
-Date:   Tue, 7 May 2019 07:46:55 +0000
-Message-ID: <1557215147-89776-1-git-send-email-decui@microsoft.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: MWHPR2201CA0038.namprd22.prod.outlook.com
- (2603:10b6:301:16::12) To SN6PR2101MB0942.namprd21.prod.outlook.com
- (2603:10b6:805:4::19)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=decui@microsoft.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 1.8.3.1
-x-originating-ip: [13.77.154.182]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: a664109b-49a5-41d0-4e66-08d6d2c02cda
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:SN6PR2101MB0942;
-x-ms-traffictypediagnostic: SN6PR2101MB0942:
-x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
-x-microsoft-antispam-prvs: <SN6PR2101MB094278C89534CE50B17A0B5BBF310@SN6PR2101MB0942.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:4714;
-x-forefront-prvs: 0030839EEE
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(136003)(396003)(366004)(376002)(39860400002)(189003)(199004)(68736007)(7416002)(53936002)(10290500003)(10090500001)(6436002)(6486002)(476003)(71200400001)(2501003)(86362001)(66446008)(64756008)(86612001)(66476007)(66556008)(73956011)(66946007)(1511001)(66066001)(3846002)(6116002)(305945005)(71190400001)(4744005)(6512007)(25786009)(4720700003)(36756003)(6506007)(386003)(54906003)(2906002)(186003)(99286004)(478600001)(256004)(5660300002)(14444005)(2616005)(4326008)(52116002)(102836004)(81156014)(8936002)(7736002)(316002)(81166006)(110136005)(50226002)(8676002)(486006)(26005)(14454004)(22452003)(921003)(1121003);DIR:OUT;SFP:1102;SCL:1;SRVR:SN6PR2101MB0942;H:SN6PR2101MB0942.namprd21.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: microsoft.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: mN1U5dTKpJoC4gWAVZJstFwDud/bS6FJp8Ysvr2q6dhztk7F+mHSMruVCfukPWAgvlj6G/4U9nRFIzO0w8yhMTyPdMa2x0FvxrFcfBsZwfxa0INnNY5fSfOXUkaj7zo4kzAQwe1zrffI++bqJay753a3MGqsAEKElK7ng3DoF+zKkKIJIIyxnA/gMp96XMg7LcSTGGDu1oADmeszS1+wpbTy3QBqZafedsFAAyL5+0aRamh7yRzds7IxrJbM1lf2nYrAts2LYXQXhZ6uDicQzI+oyYKEwAdUN8CpFjQ4gpWLVsKdl2iSoriT+6C9d5cNX6YZfuGhhrmzQHyphG435QpIW92tX6Ue473f6JmYUQqbrLTARzCNtwKOlD155tfn21+2cvMZPT0AkzHnZj5u2T4f0MH2qNEOrsZ1yr36+vk=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726569AbfEGHtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 03:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37726 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726249AbfEGHtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 03:49:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6824320989;
+        Tue,  7 May 2019 07:49:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557215351;
+        bh=+PWIk+jenwliWAQGmS7l/OPCGC2E4s58qIi8cbiRXLI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W3ms7NVNGVP2YJfjyg1AmbDqErSBQBizUYMjqYDn4u1VbkhJDwoxVV8SttbGCkna2
+         /qmtqAfxO5IwQrjhWSTS+szdYAj3zV9bkrOVlkRqzDKpj36aesJfgTqjM6d1tL4q50
+         Ghr4dYffs90kIXLQ67WCZTqbDRonRJEtDtFf7Mv4=
+Date:   Tue, 7 May 2019 09:49:09 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        David Laight <David.Laight@aculab.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: Re: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to
+ ARCH_KMALLOC_MINALIGN
+Message-ID: <20190507074909.GD26478@kroah.com>
+References: <20190507053826.31622-1-sashal@kernel.org>
+ <20190507053826.31622-72-sashal@kernel.org>
+ <20190507055214.GA17986@kroah.com>
+ <CY4PR1201MB01200B5B52E39A88D8D3FDDDA1310@CY4PR1201MB0120.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a664109b-49a5-41d0-4e66-08d6d2c02cda
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 May 2019 07:46:55.8980
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR2101MB0942
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CY4PR1201MB01200B5B52E39A88D8D3FDDDA1310@CY4PR1201MB0120.namprd12.prod.outlook.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SW4gdGhlIGNhc2Ugb2YgWDg2X1BBRSwgdW5zaWduZWQgbG9uZyBpcyB1MzIsIGJ1dCB0aGUgcGh5
-c2ljYWwgYWRkcmVzcyB0eXBlDQpzaG91bGQgYmUgdTY0LiBEdWUgdG8gdGhlIGJ1ZyBoZXJlLCB0
-aGUgbmV0dnNjIGRyaXZlciBjYW4gbm90IGxvYWQNCnN1Y2Nlc3NmdWxseSwgYW5kIHNvbWV0aW1l
-cyB0aGUgVk0gY2FuIHBhbmljIGR1ZSB0byBtZW1vcnkgY29ycnVwdGlvbiAodGhlDQpoeXBlcnZp
-c29yIHdyaXRlcyBkYXRhIHRvIHRoZSB3cm9uZyBsb2NhdGlvbikuDQoNCkZpeGVzOiA2YmEzNDE3
-MWJjYmQgKCJEcml2ZXJzOiBodjogdm1idXM6IFJlbW92ZSB1c2Ugb2Ygc2xvd192aXJ0X3RvX3Bo
-eXMoKSIpDQpDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KQ2M6IE1pY2hhZWwgS2VsbGV5IDxt
-aWtlbGxleUBtaWNyb3NvZnQuY29tPg0KUmVwb3J0ZWQtYW5kLXRlc3RlZC1ieTogSnVsaWFuYSBS
-b2RyaWd1ZWlybyA8anVsaWFuYS5yb2RyaWd1ZWlyb0BpbnRyYTJuZXQuY29tPg0KU2lnbmVkLW9m
-Zi1ieTogRGV4dWFuIEN1aSA8ZGVjdWlAbWljcm9zb2Z0LmNvbT4NCi0tLQ0KIGRyaXZlcnMvaHYv
-Y2hhbm5lbC5jIHwgMiArLQ0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxl
-dGlvbigtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9odi9jaGFubmVsLmMgYi9kcml2ZXJzL2h2
-L2NoYW5uZWwuYw0KaW5kZXggMjMzODFjNDFkMDg3Li5hYWFlZTVmOTMxOTMgMTAwNjQ0DQotLS0g
-YS9kcml2ZXJzL2h2L2NoYW5uZWwuYw0KKysrIGIvZHJpdmVycy9odi9jaGFubmVsLmMNCkBAIC0z
-OCw3ICszOCw3IEBADQogDQogc3RhdGljIHVuc2lnbmVkIGxvbmcgdmlydF90b19odnBmbih2b2lk
-ICphZGRyKQ0KIHsNCi0JdW5zaWduZWQgbG9uZyBwYWRkcjsNCisJcGh5c19hZGRyX3QgcGFkZHI7
-DQogDQogCWlmIChpc192bWFsbG9jX2FkZHIoYWRkcikpDQogCQlwYWRkciA9IHBhZ2VfdG9fcGh5
-cyh2bWFsbG9jX3RvX3BhZ2UoYWRkcikpICsNCi0tIA0KMi4xNy4xDQoNCg==
+On Tue, May 07, 2019 at 07:04:13AM +0000, Alexey Brodkin wrote:
+> Hi Greg,
+> 
+> > -----Original Message-----
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Sent: Tuesday, May 7, 2019 8:52 AM
+> > To: Sasha Levin <sashal@kernel.org>
+> > Cc: linux-kernel@vger.kernel.org; stable@vger.kernel.org; Alexey Brodkin <abrodkin@synopsys.com>;
+> > Alexey Brodkin <abrodkin@synopsys.com>; Geert Uytterhoeven <geert@linux-m68k.org>; David Laight
+> > <David.Laight@aculab.com>; Peter Zijlstra <peterz@infradead.org>; Thomas Gleixner
+> > <tglx@linutronix.de>; Vineet Gupta <vgupta@synopsys.com>; Will Deacon <will.deacon@arm.com>; Sasha
+> > Levin <alexander.levin@microsoft.com>
+> > Subject: Re: [PATCH AUTOSEL 4.14 72/95] devres: Align data[] to ARCH_KMALLOC_MINALIGN
+> > 
+> > On Tue, May 07, 2019 at 01:38:01AM -0400, Sasha Levin wrote:
+> > > From: Alexey Brodkin <alexey.brodkin@synopsys.com>
+> > >
+> > > [ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
+> > >
+> > > Initially we bumped into problem with 32-bit aligned atomic64_t
+> > > on ARC, see [1]. And then during quite lengthly discussion Peter Z.
+> > > mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
+> > > If allocation is done by plain kmalloc() obtained buffer will be
+> > > ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
+> > > devm_kmalloc() should have any other alignment?
+> > >
+> > > This way we at least get the same behavior for both types of
+> > > allocation.
+> > >
+> > > [1] https://urldefense.proofpoint.com/v2/url?u=http-3A__lists.infradead.org_pipermail_linux-2Dsnps-
+> > 2Darc_2018-
+> > 2DJuly_004009.html&d=DwIBAg&c=DPL6_X_6JkXFx7AXWqB0tg&r=lqdeeSSEes0GFDDl656eViXO7breS55ytWkhpk5R81I&m=A
+> > YtkWKU38pzVfJMBuK0lUwxRyKT6dDfHoD3yO6OIB5k&s=e7e2sXKcjHDQdGSrKWM0jmpSOfhe0MFk4-nMZJe9En8&e=
+> > > [2] https://urldefense.proofpoint.com/v2/url?u=http-3A__lists.infradead.org_pipermail_linux-2Dsnps-
+> > 2Darc_2018-
+> > 2DJuly_004036.html&d=DwIBAg&c=DPL6_X_6JkXFx7AXWqB0tg&r=lqdeeSSEes0GFDDl656eViXO7breS55ytWkhpk5R81I&m=A
+> > YtkWKU38pzVfJMBuK0lUwxRyKT6dDfHoD3yO6OIB5k&s=L23zrl8rf2MmReUI8rT3FQpMiZU9H3Xjh9uVxJQe8dw&e=
+> > >
+> > > Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> > > Cc: David Laight <David.Laight@ACULAB.COM>
+> > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > Cc: Vineet Gupta <vgupta@synopsys.com>
+> > > Cc: Will Deacon <will.deacon@arm.com>
+> > > Cc: Greg KH <greg@kroah.com>
+> > > Cc: <stable@vger.kernel.org> # 4.8+
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+> > > ---
+> > >  drivers/base/devres.c | 10 ++++++++--
+> > >  1 file changed, 8 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/base/devres.c b/drivers/base/devres.c
+> > > index 71d577025285..e43a04a495a3 100644
+> > > --- a/drivers/base/devres.c
+> > > +++ b/drivers/base/devres.c
+> > > @@ -25,8 +25,14 @@ struct devres_node {
+> > >
+> > >  struct devres {
+> > >  	struct devres_node		node;
+> > > -	/* -- 3 pointers */
+> > > -	unsigned long long		data[];	/* guarantee ull alignment */
+> > > +	/*
+> > > +	 * Some archs want to perform DMA into kmalloc caches
+> > > +	 * and need a guaranteed alignment larger than
+> > > +	 * the alignment of a 64-bit integer.
+> > > +	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
+> > > +	 * buffer alignment as if it was allocated by plain kmalloc().
+> > > +	 */
+> > > +	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
+> > >  };
+> > >
+> > >  struct devres_group {
+> > 
+> > This is not needed in any of the older kernels, despite what the stable@
+> > line said, as it ends up taking a lot of memory up for all other arches.
+> > That's why I only applied it to the one kernel version.  I'm betting
+> > that it will be eventually reverted when people notice it as well :)
+> 
+> That very well might become the case but then we're back to the initial problem,
+> right? So maybe some other more future-proof solution should be implemented?
+
+Possibly yes.
+
+> See initially we discussed simple explicit 8-byte alignment which won't change
+> data layout for most of arches while fixing our issue on ARC but for some reason
+> people were not happy with that proposal and that's how we ended-up with what we
+> discuss here now.
+
+I'm not disagreeing that this is a valid solution for you, I wasn't part
+of the original discussion, sorry.  Just that this probably isn't
+something that should be backported to older kernels at this point in
+time.
+
+thanks,
+
+greg k-h
