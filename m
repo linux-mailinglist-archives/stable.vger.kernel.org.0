@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B95515C56
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:03:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184AE15C5A
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbfEGFfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55368 "EHLO mail.kernel.org"
+        id S1726825AbfEGGDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726924AbfEGFfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:35:20 -0400
+        id S1726953AbfEGFfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:35:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CF522087F;
-        Tue,  7 May 2019 05:35:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA9C220C01;
+        Tue,  7 May 2019 05:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207319;
-        bh=EiAGYo1E9SxfPaS0i1ndJq2wTAwaTy0SAsYy7NBE9E4=;
+        s=default; t=1557207320;
+        bh=nUE/tGG4Eiqp4QbhmubyW9/DNF8bdzhhE8jZr+0HMOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/u0jRbRufFrj8/VqPVoaK9jwQvBxIz5i++3TqJ8jVw7skMj6LmWdEdMJRrGERbEg
-         22We8d2aEPVESKIxU1gUJasXY4ud+Z6/dn4es26aAZO9nKKWioSAdbpdGNsAEIFxZd
-         ipn9bD69NJ+5k5sLSU5OzEatxOyIsZOcyztIWvj8=
+        b=w6E9I6GjbqEh7ScuU0qFOGvDOk7MMkbJAdMldd7Bn1T370ojVo4p5J7FlqEm7r5PK
+         nidyQgghU+dtIrj0yMyNbL/MbTivS+8jwNONDjGW8nUFj1X4KJU/ujUP8j0KYChuBg
+         W9UYxQU4zyiFh7UkL8/I5IUaxfKBwwLVYV7SCnVQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Gomez <dagmcr@gmail.com>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 83/99] spi: ST ST95HF NFC: declare missing of table
-Date:   Tue,  7 May 2019 01:32:17 -0400
-Message-Id: <20190507053235.29900-83-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>, "Yan, Zheng" <zyan@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 84/99] ceph: handle the case where a dentry has been renamed on outstanding req
+Date:   Tue,  7 May 2019 01:32:18 -0400
+Message-Id: <20190507053235.29900-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
@@ -44,56 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <dagmcr@gmail.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit d04830531d0c4a99c897a44038e5da3d23331d2f ]
+[ Upstream commit 4b8222870032715f9d995f3eb7c7acd8379a275d ]
 
-Add missing <of_device_id> table for SPI driver relying on SPI
-device match since compatible is in a DT binding or in a DTS.
+It's possible for us to issue a lookup to revalidate a dentry
+concurrently with a rename. If done in the right order, then we could
+end up processing dentry info in the reply that no longer reflects the
+state of the dentry.
 
-Before this patch:
-modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
-alias:          spi:st95hf
+If req->r_dentry->d_name differs from the one in the trace, then just
+ignore the trace in the reply. We only need to do this however if the
+parent's i_rwsem is not held.
 
-After this patch:
-modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
-alias:          spi:st95hf
-alias:          of:N*T*Cst,st95hfC*
-alias:          of:N*T*Cst,st95hf
-
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st95hf/core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ceph/inode.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/st95hf/core.c b/drivers/nfc/st95hf/core.c
-index 2b26f762fbc3..01acb6e53365 100644
---- a/drivers/nfc/st95hf/core.c
-+++ b/drivers/nfc/st95hf/core.c
-@@ -1074,6 +1074,12 @@ static const struct spi_device_id st95hf_id[] = {
- };
- MODULE_DEVICE_TABLE(spi, st95hf_id);
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 9d1f34d46627..5880ee20ada4 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1152,6 +1152,19 @@ static int splice_dentry(struct dentry **pdn, struct inode *in)
+ 	return 0;
+ }
  
-+static const struct of_device_id st95hf_spi_of_match[] = {
-+        { .compatible = "st,st95hf" },
-+        { },
-+};
-+MODULE_DEVICE_TABLE(of, st95hf_spi_of_match);
++static int d_name_cmp(struct dentry *dentry, const char *name, size_t len)
++{
++	int ret;
 +
- static int st95hf_probe(struct spi_device *nfc_spi_dev)
- {
- 	int ret;
-@@ -1260,6 +1266,7 @@ static struct spi_driver st95hf_driver = {
- 	.driver = {
- 		.name = "st95hf",
- 		.owner = THIS_MODULE,
-+		.of_match_table = of_match_ptr(st95hf_spi_of_match),
- 	},
- 	.id_table = st95hf_id,
- 	.probe = st95hf_probe,
++	/* take d_lock to ensure dentry->d_name stability */
++	spin_lock(&dentry->d_lock);
++	ret = dentry->d_name.len - len;
++	if (!ret)
++		ret = memcmp(dentry->d_name.name, name, len);
++	spin_unlock(&dentry->d_lock);
++	return ret;
++}
++
+ /*
+  * Incorporate results into the local cache.  This is either just
+  * one inode, or a directory, dentry, and possibly linked-to inode (e.g.,
+@@ -1401,7 +1414,8 @@ int ceph_fill_trace(struct super_block *sb, struct ceph_mds_request *req)
+ 		err = splice_dentry(&req->r_dentry, in);
+ 		if (err < 0)
+ 			goto done;
+-	} else if (rinfo->head->is_dentry) {
++	} else if (rinfo->head->is_dentry &&
++		   !d_name_cmp(req->r_dentry, rinfo->dname, rinfo->dname_len)) {
+ 		struct ceph_vino *ptvino = NULL;
+ 
+ 		if ((le32_to_cpu(rinfo->diri.in->cap.caps) & CEPH_CAP_FILE_SHARED) ||
 -- 
 2.20.1
 
