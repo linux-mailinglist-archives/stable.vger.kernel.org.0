@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D70815C13
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800E015C0B
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728178AbfEGGA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 02:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
+        id S1727346AbfEGGAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 02:00:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728051AbfEGFgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:36:18 -0400
+        id S1728058AbfEGFgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:36:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97FA620989;
-        Tue,  7 May 2019 05:36:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE2C120C01;
+        Tue,  7 May 2019 05:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207377;
-        bh=YF0cLZkxQoP0oKO+44ieh2E3KYdZBr50lVS9TSSLFW8=;
+        s=default; t=1557207378;
+        bh=hBXc9T7g7moBL7FY6MAsud/UaYKdYSvABg4/xdbFYrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSr9cGmmRwmB9oumE8v1rKNPCCpasdgWYkk+H0l1f33iBtdMahjvBHu8foVvejacf
-         Dj0mD2HdrVX9MnBR9KqZ9+AfLyX5I16jrynRxGYu0swSYqTg4+mC7ggKZReG2rW8k+
-         lpcxmEjaQrSDtFHrI4OTeFmg+m1H8jRlHMJzayVc=
+        b=FqY9Die9YDgr1BSpEgLN2rrJisEtgB7ZKMSffg0q8vFJJrMAethJPzA2coR0OMl/F
+         QEHps3lHx5Ql/s8tnSHa0mdzoHZRmHGykSkneEGhEcHUBjZA8lr0ap5b9Zw2MXWlhx
+         zPnA2HIBZAOJ14DoRewc9CxEeHiEDChlj3csaBIY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <anson.huang@nxp.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/81] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
-Date:   Tue,  7 May 2019 01:34:47 -0400
-Message-Id: <20190507053554.30848-16-sashal@kernel.org>
+Cc:     Li RongQing <lirongqing@baidu.com>,
+        Liang ZhiCheng <liangzhicheng@baidu.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 4.19 17/81] libnvdimm/pmem: fix a possible OOB access when read and write pmem
+Date:   Tue,  7 May 2019 01:34:48 -0400
+Message-Id: <20190507053554.30848-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,48 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <anson.huang@nxp.com>
+From: Li RongQing <lirongqing@baidu.com>
 
-[ Upstream commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 ]
+[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
 
-SNVS IRQ is requested before necessary driver data initialized,
-if there is a pending IRQ during driver probe phase, kernel
-NULL pointer panic will occur in IRQ handler. To avoid such
-scenario, just initialize necessary driver data before enabling
-IRQ. This patch is inspired by NXP's internal kernel tree.
+If offset is not zero and length is bigger than PAGE_SIZE,
+this will cause to out of boundary access to a page memory
 
-Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
+Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
+Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/nvdimm/pmem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index effb63205d3d..4c67cf30a5d9 100644
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -148,6 +148,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 		return error;
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index 1d432c5ed275..cff027fc2676 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
+ 
+ 	while (len) {
+ 		mem = kmap_atomic(page);
+-		chunk = min_t(unsigned int, len, PAGE_SIZE);
++		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
+ 		memcpy_flushcache(pmem_addr, mem + off, chunk);
+ 		kunmap_atomic(mem);
+ 		len -= chunk;
+ 		off = 0;
+ 		page++;
+-		pmem_addr += PAGE_SIZE;
++		pmem_addr += chunk;
  	}
+ }
  
-+	pdata->input = input;
-+	platform_set_drvdata(pdev, pdata);
-+
- 	error = devm_request_irq(&pdev->dev, pdata->irq,
- 			       imx_snvs_pwrkey_interrupt,
- 			       0, pdev->name, pdev);
-@@ -163,9 +166,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 		return error;
+@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
+ 
+ 	while (len) {
+ 		mem = kmap_atomic(page);
+-		chunk = min_t(unsigned int, len, PAGE_SIZE);
++		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
+ 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
+ 		kunmap_atomic(mem);
+ 		if (rem)
+@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
+ 		len -= chunk;
+ 		off = 0;
+ 		page++;
+-		pmem_addr += PAGE_SIZE;
++		pmem_addr += chunk;
  	}
- 
--	pdata->input = input;
--	platform_set_drvdata(pdev, pdata);
--
- 	device_init_wakeup(&pdev->dev, pdata->wakeup);
- 
- 	return 0;
+ 	return BLK_STS_OK;
+ }
 -- 
 2.20.1
 
