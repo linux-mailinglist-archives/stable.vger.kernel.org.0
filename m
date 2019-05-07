@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7276415BE3
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FCA61597F
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726787AbfEGF6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:58:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57002 "EHLO mail.kernel.org"
+        id S1727471AbfEGFhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727658AbfEGFhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:37:12 -0400
+        id S1727843AbfEGFhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:37:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3071120675;
-        Tue,  7 May 2019 05:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E58F20B7C;
+        Tue,  7 May 2019 05:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207432;
-        bh=+agNTwg/jhZpl+avmXspwR4Lh16PJZ5+3wdGOLlFBWA=;
+        s=default; t=1557207434;
+        bh=6eYzvdpLkadmW6qPSEIkeXBgut3LdJXI5R40mz6omm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZy0O64BUqy6PTXM3J9JOGlF4rNbyFckqR62lMgY0AsudP+COVdEFoJ3O04WQo/gN
-         1EcsW/e8P6bMTmKfTd5Edjje4/VNUtWx/+Nz4r7JBWy1sBX+xhTPXzHtAJKQSHTZ0I
-         bqTJQrRh8SCJ5jUdZZtF0vBRSofeMQWBz+JmdSJ4=
+        b=PExlh3TrlTqxCOGgxK3rjg7w4u8pvC6bRXwaGj4e5g6zREG2es1Gy9uIa0IqmSFht
+         UlFr/TSGFO5r4VQ9Om4bgcmO1KrxVWUTGkrLOrp9+zhek7nEOa+/Mj+CChYycgx2B6
+         mOK3BcV0elOxHGjTSc4Rw5eN8RNtUTxCqYsFHbJ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Matthew Whitehead <tedheadster@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 40/81] scsi: aic7xxx: fix EISA support
-Date:   Tue,  7 May 2019 01:35:11 -0400
-Message-Id: <20190507053554.30848-40-sashal@kernel.org>
+Cc:     Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 41/81] mm: fix inactive list balancing between NUMA nodes and cgroups
+Date:   Tue,  7 May 2019 01:35:12 -0400
+Message-Id: <20190507053554.30848-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -44,98 +46,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 144ec97493af34efdb77c5aba146e9c7de8d0a06 ]
+[ Upstream commit 3b991208b897f52507168374033771a984b947b1 ]
 
-Instead of relying on the now removed NULL argument to
-pci_alloc_consistent, switch to the generic DMA API, and store the struct
-device so that we can pass it.
+During !CONFIG_CGROUP reclaim, we expand the inactive list size if it's
+thrashing on the node that is about to be reclaimed.  But when cgroups
+are enabled, we suddenly ignore the node scope and use the cgroup scope
+only.  The result is that pressure bleeds between NUMA nodes depending
+on whether cgroups are merely compiled into Linux.  This behavioral
+difference is unexpected and undesirable.
 
-Fixes: 4167b2ad5182 ("PCI: Remove NULL device handling from PCI DMA API")
-Reported-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+When the refault adaptivity of the inactive list was first introduced,
+there were no statistics at the lruvec level - the intersection of node
+and memcg - so it was better than nothing.
+
+But now that we have that infrastructure, use lruvec_page_state() to
+make the list balancing decision always NUMA aware.
+
+[hannes@cmpxchg.org: fix bisection hole]
+  Link: http://lkml.kernel.org/r/20190417155241.GB23013@cmpxchg.org
+Link: http://lkml.kernel.org/r/20190412144438.2645-1-hannes@cmpxchg.org
+Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7770_osm.c     |  1 +
- drivers/scsi/aic7xxx/aic7xxx.h         |  1 +
- drivers/scsi/aic7xxx/aic7xxx_osm.c     | 10 ++++------
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |  1 +
- 4 files changed, 7 insertions(+), 6 deletions(-)
+ mm/vmscan.c | 29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/scsi/aic7xxx/aic7770_osm.c b/drivers/scsi/aic7xxx/aic7770_osm.c
-index 3d401d02c019..bdd177e3d762 100644
---- a/drivers/scsi/aic7xxx/aic7770_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7770_osm.c
-@@ -91,6 +91,7 @@ aic7770_probe(struct device *dev)
- 	ahc = ahc_alloc(&aic7xxx_driver_template, name);
- 	if (ahc == NULL)
- 		return (ENOMEM);
-+	ahc->dev = dev;
- 	error = aic7770_config(ahc, aic7770_ident_table + edev->id.driver_data,
- 			       eisaBase);
- 	if (error != 0) {
-diff --git a/drivers/scsi/aic7xxx/aic7xxx.h b/drivers/scsi/aic7xxx/aic7xxx.h
-index 4ce4e903a759..7f6e83296dfa 100644
---- a/drivers/scsi/aic7xxx/aic7xxx.h
-+++ b/drivers/scsi/aic7xxx/aic7xxx.h
-@@ -949,6 +949,7 @@ struct ahc_softc {
- 	 * Platform specific device information.
- 	 */
- 	ahc_dev_softc_t		  dev_softc;
-+	struct device		  *dev;
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 3830066018c1..ee545d1e9894 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2190,7 +2190,6 @@ static void shrink_active_list(unsigned long nr_to_scan,
+  *   10TB     320        32GB
+  */
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct mem_cgroup *memcg,
+ 				 struct scan_control *sc, bool actual_reclaim)
+ {
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+@@ -2211,16 +2210,12 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 	inactive = lruvec_lru_size(lruvec, inactive_lru, sc->reclaim_idx);
+ 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
  
+-	if (memcg)
+-		refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
+-	else
+-		refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
+-
  	/*
- 	 * Bus specific device information.
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-index c6be3aeb302b..306d0bf33478 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -861,8 +861,8 @@ int
- ahc_dmamem_alloc(struct ahc_softc *ahc, bus_dma_tag_t dmat, void** vaddr,
- 		 int flags, bus_dmamap_t *mapp)
- {
--	*vaddr = pci_alloc_consistent(ahc->dev_softc,
--				      dmat->maxsize, mapp);
-+	/* XXX: check if we really need the GFP_ATOMIC and unwind this mess! */
-+	*vaddr = dma_alloc_coherent(ahc->dev, dmat->maxsize, mapp, GFP_ATOMIC);
- 	if (*vaddr == NULL)
- 		return ENOMEM;
- 	return 0;
-@@ -872,8 +872,7 @@ void
- ahc_dmamem_free(struct ahc_softc *ahc, bus_dma_tag_t dmat,
- 		void* vaddr, bus_dmamap_t map)
- {
--	pci_free_consistent(ahc->dev_softc, dmat->maxsize,
--			    vaddr, map);
-+	dma_free_coherent(ahc->dev, dmat->maxsize, vaddr, map);
+ 	 * When refaults are being observed, it means a new workingset
+ 	 * is being established. Disable active list protection to get
+ 	 * rid of the stale workingset quickly.
+ 	 */
++	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+ 	if (file && actual_reclaim && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+@@ -2241,12 +2236,10 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
  }
  
- int
-@@ -1124,8 +1123,7 @@ ahc_linux_register_host(struct ahc_softc *ahc, struct scsi_host_template *templa
- 
- 	host->transportt = ahc_linux_transport_template;
- 
--	retval = scsi_add_host(host,
--			(ahc->dev_softc ? &ahc->dev_softc->dev : NULL));
-+	retval = scsi_add_host(host, ahc->dev);
- 	if (retval) {
- 		printk(KERN_WARNING "aic7xxx: scsi_add_host failed\n");
- 		scsi_host_put(host);
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-index 0fc14dac7070..717d8d1082ce 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-@@ -250,6 +250,7 @@ ahc_linux_pci_dev_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		}
+ static unsigned long shrink_list(enum lru_list lru, unsigned long nr_to_scan,
+-				 struct lruvec *lruvec, struct mem_cgroup *memcg,
+-				 struct scan_control *sc)
++				 struct lruvec *lruvec, struct scan_control *sc)
+ {
+ 	if (is_active_lru(lru)) {
+-		if (inactive_list_is_low(lruvec, is_file_lru(lru),
+-					 memcg, sc, true))
++		if (inactive_list_is_low(lruvec, is_file_lru(lru), sc, true))
+ 			shrink_active_list(nr_to_scan, lruvec, sc, lru);
+ 		return 0;
  	}
- 	ahc->dev_softc = pci;
-+	ahc->dev = &pci->dev;
- 	error = ahc_pci_config(ahc, entry);
- 	if (error != 0) {
- 		ahc_free(ahc);
+@@ -2346,7 +2339,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
+ 			 * anonymous pages on the LRU in eligible zones.
+ 			 * Otherwise, the small LRU gets thrashed.
+ 			 */
+-			if (!inactive_list_is_low(lruvec, false, memcg, sc, false) &&
++			if (!inactive_list_is_low(lruvec, false, sc, false) &&
+ 			    lruvec_lru_size(lruvec, LRU_INACTIVE_ANON, sc->reclaim_idx)
+ 					>> sc->priority) {
+ 				scan_balance = SCAN_ANON;
+@@ -2364,7 +2357,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
+ 	 * lruvec even if it has plenty of old anonymous pages unless the
+ 	 * system is under heavy pressure.
+ 	 */
+-	if (!inactive_list_is_low(lruvec, true, memcg, sc, false) &&
++	if (!inactive_list_is_low(lruvec, true, sc, false) &&
+ 	    lruvec_lru_size(lruvec, LRU_INACTIVE_FILE, sc->reclaim_idx) >> sc->priority) {
+ 		scan_balance = SCAN_FILE;
+ 		goto out;
+@@ -2517,7 +2510,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
+ 				nr[lru] -= nr_to_scan;
+ 
+ 				nr_reclaimed += shrink_list(lru, nr_to_scan,
+-							    lruvec, memcg, sc);
++							    lruvec, sc);
+ 			}
+ 		}
+ 
+@@ -2584,7 +2577,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
+ 	 * Even if we did not try to evict anon pages at all, we want to
+ 	 * rebalance the anon lru active/inactive ratio.
+ 	 */
+-	if (inactive_list_is_low(lruvec, false, memcg, sc, true))
++	if (inactive_list_is_low(lruvec, false, sc, true))
+ 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
+ 				   sc, LRU_ACTIVE_ANON);
+ }
+@@ -2982,12 +2975,8 @@ static void snapshot_refaults(struct mem_cgroup *root_memcg, pg_data_t *pgdat)
+ 		unsigned long refaults;
+ 		struct lruvec *lruvec;
+ 
+-		if (memcg)
+-			refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
+-		else
+-			refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
+-
+ 		lruvec = mem_cgroup_lruvec(pgdat, memcg);
++		refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+ 		lruvec->refaults = refaults;
+ 	} while ((memcg = mem_cgroup_iter(root_memcg, memcg, NULL)));
+ }
+@@ -3344,7 +3333,7 @@ static void age_active_anon(struct pglist_data *pgdat,
+ 	do {
+ 		struct lruvec *lruvec = mem_cgroup_lruvec(pgdat, memcg);
+ 
+-		if (inactive_list_is_low(lruvec, false, memcg, sc, true))
++		if (inactive_list_is_low(lruvec, false, sc, true))
+ 			shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
+ 					   sc, LRU_ACTIVE_ANON);
+ 
 -- 
 2.20.1
 
