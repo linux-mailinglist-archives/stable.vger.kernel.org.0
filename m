@@ -2,131 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4381D16761
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 18:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 239FC166F6
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 17:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726335AbfEGQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 12:05:59 -0400
-Received: from 3.mo6.mail-out.ovh.net ([178.33.253.26]:48242 "EHLO
-        3.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726545AbfEGQF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 12:05:58 -0400
-X-Greylist: delayed 1801 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 May 2019 12:05:58 EDT
-Received: from player697.ha.ovh.net (unknown [10.108.57.23])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id DD58B1C0E07
-        for <stable@vger.kernel.org>; Tue,  7 May 2019 17:27:42 +0200 (CEST)
-Received: from armadeus.com (lfbn-1-7591-179.w90-126.abo.wanadoo.fr [90.126.248.179])
-        (Authenticated sender: sebastien.szymanski@armadeus.com)
-        by player697.ha.ovh.net (Postfix) with ESMTPSA id 261115875B80;
-        Tue,  7 May 2019 15:27:23 +0000 (UTC)
-From:   =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>
-To:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        NXP Linux Team <linux-imx@nxp.com>
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>, stable@vger.kernel.org
-Subject: [PATCH RE-RESEND 2/2] ARM: dts: opos6uldev: use OF graph to describe the display
-Date:   Tue,  7 May 2019 17:27:13 +0200
-Message-Id: <20190507152713.27494-2-sebastien.szymanski@armadeus.com>
-X-Mailer: git-send-email 2.19.2
-In-Reply-To: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
-References: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+        id S1726631AbfEGPhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 11:37:32 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:43492 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726545AbfEGPhc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 11:37:32 -0400
+Received: by mail-lj1-f193.google.com with SMTP id z5so9652093lji.10
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 08:37:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Y6ybn9R2wRwK7OVl8uatl/i1llM+QJoRgaCyqAFbo9Y=;
+        b=BNzVqUAAViERdEuxZy8DHUiuYxo8ddmm9cVx4BOchUH3WtVYroxRTUSipMK+LTDMnx
+         G6Nz0qaFq78h9Jxdf15yovQ7B7GKRx+9GVUL2kenVn+ddQfRmu4UzyEd25IlQcp/jSGE
+         dAIUJDF1c1Wz5T5Q+QRd4jWS9Etfzd3108pkw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y6ybn9R2wRwK7OVl8uatl/i1llM+QJoRgaCyqAFbo9Y=;
+        b=jOJnqBfmEcqczhu21w52JnnR1voJt1LDEzXdfXNrfQHkIxC9mg4IkeYtk4HA+ZDVcY
+         27XuCYIXTbGObkPE0StE4yXq1jBTxFS6BrV+MGI4saVX/c77LPO1Rb5TF6aFSTk5CNTO
+         ck3gOv8+zZnRddO7BcbXGHZ3vrY6A+7bZn5c5yKRdr1P8GR+ww6R7wGKR1BcHe2M1YWA
+         TK4BDs0zt0QMv7Bhr4n3/AkvQ5Ce46rG1aeFhOaWU/iOWcis/SAcCt186leQpU7LUUcf
+         IBZ2XPo5vPzUyyF859LGj+OLiuvXADfCFg4o7bzfKb2VcbWysFwyMjG5w1k9hvPVDICb
+         xHoA==
+X-Gm-Message-State: APjAAAVVDD4n9twY6+yYyb178SjdfbMu2drJJNb/k3qjAwHMv32WxJpQ
+        y+EJ0QEklS69CN2LkR8/eyqBNEvREug=
+X-Google-Smtp-Source: APXvYqxewhYuDuzY2y+5Ta8j1UfY+IjdSWtjrgWIfE20VQIeloHMILUu1GpidWx5YqS7UUaLJrkRZw==
+X-Received: by 2002:a2e:9155:: with SMTP id q21mr15990503ljg.178.1557243449934;
+        Tue, 07 May 2019 08:37:29 -0700 (PDT)
+Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com. [209.85.208.178])
+        by smtp.gmail.com with ESMTPSA id h24sm3247964ljk.10.2019.05.07.08.37.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 May 2019 08:37:29 -0700 (PDT)
+Received: by mail-lj1-f178.google.com with SMTP id h21so14718067ljk.13
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 08:37:29 -0700 (PDT)
+X-Received: by 2002:a2e:3e0e:: with SMTP id l14mr17667665lja.125.1557243091071;
+ Tue, 07 May 2019 08:31:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 11812378874205393943
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddrkedtgdelgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+References: <20190502181811.GY2623@hirez.programming.kicks-ass.net>
+ <20190506145745.17c59596@gandalf.local.home> <CAHk-=witfFBW2O5v6g--FmqnAFsMkKNLosTFfWyaoJ7euQF8kQ@mail.gmail.com>
+ <20190506162915.380993f9@gandalf.local.home> <CAHk-=wi5KBWUOvM94aTOPnoJ5L_aQG=vgLQ4SxxZDeQD0pF2tQ@mail.gmail.com>
+ <20190506174511.2f8b696b@gandalf.local.home> <CAHk-=wj3R_s0RTJOmTBNaUPhu4fz2shNBUr4M6Ej65UYSNCs-g@mail.gmail.com>
+ <20190506210416.2489a659@oasis.local.home> <CAHk-=whZwqzbu-=1r_j_cXfd=ta1q7RFCuneqBZfQQhS_P-BmQ@mail.gmail.com>
+ <20190506215353.14a8ef78@oasis.local.home> <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
+ <20190506225819.11756974@oasis.local.home> <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
+ <20190506232158.13c9123b@oasis.local.home> <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
+ <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com> <20190507111227.1d4268d7@gandalf.local.home>
+In-Reply-To: <20190507111227.1d4268d7@gandalf.local.home>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 7 May 2019 08:31:14 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
+Message-ID: <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To make use of the new eLCDIF DRM driver OF graph description is
-required. Describe the display using OF graph nodes.
+On Tue, May 7, 2019 at 8:12 AM Steven Rostedt <rostedt@goodmis.org> wrote:
+>>
+> Yes, band-aids are usually simpler than a proper fix.
 
-Cc: stable@vger.kernel.org # v4.19
-Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
----
- arch/arm/boot/dts/imx6ul-opos6uldev.dts | 37 +++++++++++--------------
- 1 file changed, 16 insertions(+), 21 deletions(-)
+What? No/.
 
-diff --git a/arch/arm/boot/dts/imx6ul-opos6uldev.dts b/arch/arm/boot/dts/imx6ul-opos6uldev.dts
-index 0e59ee57fd55..8ecdb9ad2b2e 100644
---- a/arch/arm/boot/dts/imx6ul-opos6uldev.dts
-+++ b/arch/arm/boot/dts/imx6ul-opos6uldev.dts
-@@ -56,7 +56,7 @@
- 		stdout-path = &uart1;
- 	};
- 
--	backlight {
-+	backlight: backlight {
- 		compatible = "pwm-backlight";
- 		pwms = <&pwm3 0 191000>;
- 		brightness-levels = <0 4 8 16 32 64 128 255>;
-@@ -97,6 +97,18 @@
- 		gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>;
- 	};
- 
-+	panel: panel {
-+		compatible = "armadeus,st0700-adapt";
-+		power-supply = <&reg_3v3>;
-+		backlight = <&backlight>;
-+
-+		port {
-+			panel_in: endpoint {
-+				remote-endpoint = <&lcdif_out>;
-+			};
-+		};
-+	};
-+
- 	reg_5v: regulator-5v {
- 		compatible = "regulator-fixed";
- 		regulator-name = "5V";
-@@ -182,28 +194,11 @@
- &lcdif {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_lcdif>;
--	display = <&display0>;
--	lcd-supply = <&reg_3v3>;
- 	status = "okay";
- 
--	display0: display0 {
--		bits-per-pixel = <32>;
--		bus-width = <18>;
--
--		display-timings {
--			timing0: timing0 {
--				clock-frequency = <33000033>;
--				hactive = <800>;
--				vactive = <480>;
--				hback-porch = <96>;
--				hfront-porch = <96>;
--				vback-porch = <20>;
--				vfront-porch = <21>;
--				hsync-len = <64>;
--				vsync-len = <4>;
--				de-active = <1>;
--				pixelclk-active = <0>;
--			};
-+	port {
-+		lcdif_out: endpoint {
-+			remote-endpoint = <&panel_in>;
- 		};
- 	};
- };
--- 
-2.19.2
+My fix is the *proper* fix.
 
+PeterZ's is the bandaid.
+
+>             We have 28 years
+> of hacks built on hacks. There's a lot of hacks in the C code to handle
+> the differences between the crappy way x86_32 does pt_regs and the
+> proper way x86_64 does them.
+
+You're confusing "reality": with "your dream world". They are different.
+
+The reality is that the i386 kernel stack is just how things work. End of story.
+
+The reality is that changing something fundamental like the kernel
+stack at this point for an architecture that will not change in the
+future is silly.
+
+The reality is that Peter's patch is much bigger than mine, because it
+needed a lot of other changes *because* it did that change.
+
+> To implement your way, we need to change how the int3 handler works.
+> It will be the only exception handler having to return regs, otherwise
+> it will crash.
+
+What? That's what the patch *does*. It's trivial.  It is done.
+
+                  Linus
