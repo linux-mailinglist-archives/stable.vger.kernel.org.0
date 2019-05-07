@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EF515913
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184A815CD6
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbfEGFdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726894AbfEGFdd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 May 2019 01:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53438 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726947AbfEGFda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:30 -0400
+        id S1726963AbfEGFdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15D8720C01;
-        Tue,  7 May 2019 05:33:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF29C21019;
+        Tue,  7 May 2019 05:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207209;
-        bh=bTMDjl5OERlZhmnbj15r+fyRb5JYDrqCCHTDy+GWvlA=;
+        s=default; t=1557207211;
+        bh=H+hl6blTEEQuHFR5ZLcESWbMwaZSUsXpDv5wdZIqMSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWeB0TFRZhc/wNfPlgDfKsQBdQB0YsrXHFlinlS6ULAQmUIX40r3ZK9hizZhpWIW7
-         22RMZLxEQgJcCysUIMfz0T4qoEhDsla3J9GRNPUImlZH2PFKzCEiUuHuTRvYpkXTxV
-         Wn43PmqkmDgzUxa+E2auwaZN7oG8RxEto2cmCw4w=
+        b=pnKvg8BuHCLHH5mQsNYVYlT6z5RS8Kvo5iL59yhO6kbTvvJg1QR0l+p36Dg/+c0lh
+         kEIdWmQfBenxXAGB2WADOR2hy3xu857mgZFFIjYZ0oRKWY8+A0tUeoRCxg0oBAx9hE
+         9jxH8bvfUIIt7isg0gvuCJB2UU3p7mmZXFcmizI0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wentalou <Wentao.Lou@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.0 27/99] drm/amdgpu: shadow in shadow_list without tbo.mem.start cause page fault in sriov TDR
-Date:   Tue,  7 May 2019 01:31:21 -0400
-Message-Id: <20190507053235.29900-27-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 28/99] mISDN: Check address length before reading address family
+Date:   Tue,  7 May 2019 01:31:22 -0400
+Message-Id: <20190507053235.29900-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,36 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wentalou <Wentao.Lou@amd.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit b575f10dbd6f84c2c8744ff1f486bfae1e4f6f38 ]
+[ Upstream commit 238ffdc49ef98b15819cfd5e3fb23194e3ea3d39 ]
 
-shadow was added into shadow_list by amdgpu_bo_create_shadow.
-meanwhile, shadow->tbo.mem was not fully configured.
-tbo.mem would be fully configured by amdgpu_vm_sdma_map_table until calling amdgpu_vm_clear_bo.
-If sriov TDR occurred between amdgpu_bo_create_shadow and amdgpu_vm_sdma_map_table,
-amdgpu_device_recover_vram would deal with shadow without tbo.mem.start.
+KMSAN will complain if valid address length passed to bind() is shorter
+than sizeof("struct sockaddr_mISDN"->family) bytes.
 
-Signed-off-by: Wentao Lou <Wentao.Lou@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/mISDN/socket.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 7ff3a28fc903..5336b2c9b615 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3150,6 +3150,7 @@ static int amdgpu_device_recover_vram(struct amdgpu_device *adev)
+diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
+index 15d3ca37669a..04da3a17cd95 100644
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -710,10 +710,10 @@ base_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
+ 	struct sock *sk = sock->sk;
+ 	int err = 0;
  
- 		/* No need to recover an evicted BO */
- 		if (shadow->tbo.mem.mem_type != TTM_PL_TT ||
-+		    shadow->tbo.mem.start == AMDGPU_BO_INVALID_OFFSET ||
- 		    shadow->parent->tbo.mem.mem_type != TTM_PL_VRAM)
- 			continue;
+-	if (!maddr || maddr->family != AF_ISDN)
++	if (addr_len < sizeof(struct sockaddr_mISDN))
+ 		return -EINVAL;
  
+-	if (addr_len < sizeof(struct sockaddr_mISDN))
++	if (!maddr || maddr->family != AF_ISDN)
+ 		return -EINVAL;
+ 
+ 	lock_sock(sk);
 -- 
 2.20.1
 
