@@ -2,106 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA5D161FD
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 12:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CFD162D5
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 13:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbfEGKbc convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 7 May 2019 06:31:32 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:50406 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726547AbfEGKbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 06:31:32 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-135-fQiddA3kMDSw-qG7Exz2OQ-1; Tue, 07 May 2019 11:31:29 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
- (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue,
- 7 May 2019 11:31:28 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 7 May 2019 11:31:28 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Jiri Kosina' <jikos@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-CC:     Andy Lutomirski <luto@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "Ard Biesheuvel" <ard.biesheuvel@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
+        id S1726324AbfEGLcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 07:32:16 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:38388 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726276AbfEGLcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 07:32:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=0G0Op7qzdUllIx217BDIX7hQDFmNR1hjBEmN3uH/wmM=; b=bv9hlo2+IqIluXyx1IyzYf4+2
+        XhumvYALMGJMgM81v5ZLGPqY5LRZT67zik8hBt/625x5jxWyUACHPwDUiRtMLRjyLFvSehE0YE9hA
+        WGGaAEm4Vl0gGDXvotmBnc3tECB82fSuKQ8Sex3m4R/NZ4WI2ti48nUQA8iUYzqb3GENub4IxQS9M
+        xUX1h7wMqORpAYUeAvaWgn5ss/K6KKU3WqkmIEqdjHnLl1vrosMXNaFZEhI6TOJsXytb/c3vdR6P3
+        dD4e/QeMf+TEl7i2H86GUAZAY5cVEe9letJOB7J9cES996O5TlJTAZ3VCmQ+UyU3Pmz+Q62/LWc8F
+        7dDh57edQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hNyJB-0006Sy-Su; Tue, 07 May 2019 11:30:54 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id D03FC2063D744; Tue,  7 May 2019 13:30:50 +0200 (CEST)
+Date:   Tue, 7 May 2019 13:30:50 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
         Nicolai Stange <nstange@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?iso-8859-2?Q?Radim_Kr=E8m=E1=F8?= <rkrcmar@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
- export
-Thread-Topic: [PATCH] x86/fpu: Remove the _GPL from the kernel_fpu_begin/end()
- export
-Thread-Index: AQHVAkq0vUiV5g3MjEetDYjdoqqHvaZfXF+Q
-Date:   Tue, 7 May 2019 10:31:28 +0000
-Message-ID: <957b01f742ed47d1ac9e0ea1277d155b@AcuMS.aculab.com>
-References: <761345df6285930339aced868ebf8ec459091383.1556807897.git.luto@kernel.org>
- <20190502154043.gfv4iplcvzjz3mc6@linutronix.de>
- <nycvar.YFH.7.76.1905032044250.10635@cbobk.fhfr.pm>
- <nycvar.YFH.7.76.1905040849370.17054@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.1905040849370.17054@cbobk.fhfr.pm>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call functions
+Message-ID: <20190507113050.GR2606@hirez.programming.kicks-ass.net>
+References: <20190502185225.0cdfc8bc@gandalf.local.home>
+ <20190502193129.664c5b2e@gandalf.local.home>
+ <20190502195052.0af473cf@gandalf.local.home>
+ <20190503092959.GB2623@hirez.programming.kicks-ass.net>
+ <20190503092247.20cc1ff0@gandalf.local.home>
+ <2045370D-38D8-406C-9E94-C1D483E232C9@amacapital.net>
+ <CAHk-=wjrOLqBG1qe9C3T=fLN0m=78FgNOGOEL22gU=+Pw6Mu9Q@mail.gmail.com>
+ <20190506081951.GJ2606@hirez.programming.kicks-ass.net>
+ <20190507085753.GO2606@hirez.programming.kicks-ass.net>
+ <b34aa38bdfe84263bc20b60761bf6005@AcuMS.aculab.com>
 MIME-Version: 1.0
-X-MC-Unique: fQiddA3kMDSw-qG7Exz2OQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b34aa38bdfe84263bc20b60761bf6005@AcuMS.aculab.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-...
-> So I don't really see a problem with Andy's patch. If we want to annoy
-> external non-GPL modules as much as possible, sure, that's for a separate
-> discussion though (and I am sure many people would agree to that).
-> Proposal to get rid of EXPORT_SYMBOL in favor of EXPORT_SYMBOL_GPL would
-> be a good start I guess :)
+On Tue, May 07, 2019 at 09:18:51AM +0000, David Laight wrote:
+> From: Peter Zijlstra
+> > Sent: 07 May 2019 09:58
+> ...
+> > +	/*
+> > +	 * When we're here from kernel mode; the (exception) stack looks like:
+> > +	 *
+> > +	 * 4*4(%esp) - <previous context>
+> > +	 * 3*4(%esp) - flags
+> > +	 * 2*4(%esp) - cs
+> > +	 * 1*4(%esp) - ip
+> > +	 * 0*4(%esp) - orig_eax
+> 
+> Am I right in thinking that this is the only 'INT3' stack frame that
+> needs to be 'fiddled' with?
+> And that the 'emulate a call instruction' has verified that is the case??
+> So the %cs is always the kernel %cs.
 
-As a writer on an external non-GPL module I'd point out:
-1 - Even if we wanted to 'upstream' our code it is very specific
-    and wouldn't really be wanted/accepted.
-    Even if accepted it would always be excluded from builds.
-2 - It would take man-years to make it meet the kernel code guidelines
-    and to make it portable (from x86).
-    It also contains conditionals because it gets build for windows.
-    I don't like a lot of it.
-3 - Almost all the calls to kernel functions are through a 'wrapper'
-    file that is compiled on the target system.
-    About the only functions that are directly called are ones like memcpy().
-4 - It wouldn't be that hard, and would still be GPLv2 if we built
-    two loadable modules, one GPL and one non-GPL and put all our
-    wrapper functions in the GPL one.
-    We'd still need a small wrapper for the non-GPL module, but while
-    Non-GPL modules are supported at all it wouldn't be much work.
-5 - The continual tweaks for new kernel versions keep us in a job!
+Only the INT3 thing needs 'the gap', but the far bigger change here is
+that kernel frames now have a complete pt_regs set and all sorts of
+horrible crap can go away.
 
-Some of the _GPL exports are a PITA:
-- we can't reference count network namespaces (without creating a socket).
-- we can't reference count 'pid' structures making sending signals tricky.
-- I thing the PCIe error handling functions that we ought to be using
-  are GPL.
-
-At the moment we've not needed the fpu :-)
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+For 32bit 'the gap' happens naturally when building a 5 entry frame. Yes
+it is possible to build a 5 entry frame on top of the old 3 entry one,
+but why bother...
