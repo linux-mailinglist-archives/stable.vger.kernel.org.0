@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B27315CD7
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 08:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EF515913
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbfEGFd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
+        id S1726991AbfEGFdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:33:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726894AbfEGFd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:33:27 -0400
+        id S1726947AbfEGFda (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:33:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D2A120B7C;
-        Tue,  7 May 2019 05:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15D8720C01;
+        Tue,  7 May 2019 05:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207206;
-        bh=ljHDDdXyratzljjdrAbax9jGz9/dTE86P9+UvMbcDXo=;
+        s=default; t=1557207209;
+        bh=bTMDjl5OERlZhmnbj15r+fyRb5JYDrqCCHTDy+GWvlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KepX4JqgQaVD4o6ZQeWrsI6IZqjar3QdHXMWYJuuFnB1AJ9tRb8KHokGPwMNX7pmz
-         Lkr+J8eG9L8zYMQE2TwZX+Dt+i4ZSLaZaNxIVMrQOWkm+LTVW4XMILPFmvKtYhwPc0
-         evQB6lPPMlyIAsbub72EsExoHXIcMTaSak8bz1p8=
+        b=qWeB0TFRZhc/wNfPlgDfKsQBdQB0YsrXHFlinlS6ULAQmUIX40r3ZK9hizZhpWIW7
+         22RMZLxEQgJcCysUIMfz0T4qoEhDsla3J9GRNPUImlZH2PFKzCEiUuHuTRvYpkXTxV
+         Wn43PmqkmDgzUxa+E2auwaZN7oG8RxEto2cmCw4w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Ahern <dsahern@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 26/99] selftests: fib_tests: Fix 'Command line is not complete' errors
-Date:   Tue,  7 May 2019 01:31:20 -0400
-Message-Id: <20190507053235.29900-26-sashal@kernel.org>
+Cc:     wentalou <Wentao.Lou@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.0 27/99] drm/amdgpu: shadow in shadow_list without tbo.mem.start cause page fault in sriov TDR
+Date:   Tue,  7 May 2019 01:31:21 -0400
+Message-Id: <20190507053235.29900-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,179 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: wentalou <Wentao.Lou@amd.com>
 
-[ Upstream commit a5f622984a623df9a84cf43f6b098d8dd76fbe05 ]
+[ Upstream commit b575f10dbd6f84c2c8744ff1f486bfae1e4f6f38 ]
 
-A couple of tests are verifying a route has been removed. The helper
-expects the prefix as the first part of the expected output. When
-checking that a route has been deleted the prefix is empty leading
-to an invalid ip command:
+shadow was added into shadow_list by amdgpu_bo_create_shadow.
+meanwhile, shadow->tbo.mem was not fully configured.
+tbo.mem would be fully configured by amdgpu_vm_sdma_map_table until calling amdgpu_vm_clear_bo.
+If sriov TDR occurred between amdgpu_bo_create_shadow and amdgpu_vm_sdma_map_table,
+amdgpu_device_recover_vram would deal with shadow without tbo.mem.start.
 
-  $ ip ro ls match
-  Command line is not complete. Try option "help"
-
-Fix by moving the comparison of expected output and output to a new
-function that is used by both check_route and check_route6. Use the
-new helper for the 2 checks on route removal.
-
-Also, remove the reset of 'set -x' in route_setup which overrides the
-user managed setting.
-
-Fixes: d69faad76584c ("selftests: fib_tests: Add prefix route tests with metric")
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wentao Lou <Wentao.Lou@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fib_tests.sh | 94 ++++++++++--------------
- 1 file changed, 40 insertions(+), 54 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
-index 1080ff55a788..0d2a5f4f1e63 100755
---- a/tools/testing/selftests/net/fib_tests.sh
-+++ b/tools/testing/selftests/net/fib_tests.sh
-@@ -605,6 +605,39 @@ run_cmd()
- 	return $rc
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 7ff3a28fc903..5336b2c9b615 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3150,6 +3150,7 @@ static int amdgpu_device_recover_vram(struct amdgpu_device *adev)
  
-+check_expected()
-+{
-+	local out="$1"
-+	local expected="$2"
-+	local rc=0
-+
-+	[ "${out}" = "${expected}" ] && return 0
-+
-+	if [ -z "${out}" ]; then
-+		if [ "$VERBOSE" = "1" ]; then
-+			printf "\nNo route entry found\n"
-+			printf "Expected:\n"
-+			printf "    ${expected}\n"
-+		fi
-+		return 1
-+	fi
-+
-+	# tricky way to convert output to 1-line without ip's
-+	# messy '\'; this drops all extra white space
-+	out=$(echo ${out})
-+	if [ "${out}" != "${expected}" ]; then
-+		rc=1
-+		if [ "${VERBOSE}" = "1" ]; then
-+			printf "    Unexpected route entry. Have:\n"
-+			printf "        ${out}\n"
-+			printf "    Expected:\n"
-+			printf "        ${expected}\n\n"
-+		fi
-+	fi
-+
-+	return $rc
-+}
-+
- # add route for a prefix, flushing any existing routes first
- # expected to be the first step of a test
- add_route6()
-@@ -652,31 +685,7 @@ check_route6()
- 	pfx=$1
+ 		/* No need to recover an evicted BO */
+ 		if (shadow->tbo.mem.mem_type != TTM_PL_TT ||
++		    shadow->tbo.mem.start == AMDGPU_BO_INVALID_OFFSET ||
+ 		    shadow->parent->tbo.mem.mem_type != TTM_PL_VRAM)
+ 			continue;
  
- 	out=$($IP -6 ro ls match ${pfx} | sed -e 's/ pref medium//')
--	[ "${out}" = "${expected}" ] && return 0
--
--	if [ -z "${out}" ]; then
--		if [ "$VERBOSE" = "1" ]; then
--			printf "\nNo route entry found\n"
--			printf "Expected:\n"
--			printf "    ${expected}\n"
--		fi
--		return 1
--	fi
--
--	# tricky way to convert output to 1-line without ip's
--	# messy '\'; this drops all extra white space
--	out=$(echo ${out})
--	if [ "${out}" != "${expected}" ]; then
--		rc=1
--		if [ "${VERBOSE}" = "1" ]; then
--			printf "    Unexpected route entry. Have:\n"
--			printf "        ${out}\n"
--			printf "    Expected:\n"
--			printf "        ${expected}\n\n"
--		fi
--	fi
--
--	return $rc
-+	check_expected "${out}" "${expected}"
- }
- 
- route_cleanup()
-@@ -725,7 +734,7 @@ route_setup()
- 	ip -netns ns2 addr add 172.16.103.2/24 dev veth4
- 	ip -netns ns2 addr add 172.16.104.1/24 dev dummy1
- 
--	set +ex
-+	set +e
- }
- 
- # assumption is that basic add of a single path route works
-@@ -960,7 +969,8 @@ ipv6_addr_metric_test()
- 	run_cmd "$IP li set dev dummy2 down"
- 	rc=$?
- 	if [ $rc -eq 0 ]; then
--		check_route6 ""
-+		out=$($IP -6 ro ls match 2001:db8:104::/64)
-+		check_expected "${out}" ""
- 		rc=$?
- 	fi
- 	log_test $rc 0 "Prefix route removed on link down"
-@@ -1091,38 +1101,13 @@ check_route()
- 	local pfx
- 	local expected="$1"
- 	local out
--	local rc=0
- 
- 	set -- $expected
- 	pfx=$1
- 	[ "${pfx}" = "unreachable" ] && pfx=$2
- 
- 	out=$($IP ro ls match ${pfx})
--	[ "${out}" = "${expected}" ] && return 0
--
--	if [ -z "${out}" ]; then
--		if [ "$VERBOSE" = "1" ]; then
--			printf "\nNo route entry found\n"
--			printf "Expected:\n"
--			printf "    ${expected}\n"
--		fi
--		return 1
--	fi
--
--	# tricky way to convert output to 1-line without ip's
--	# messy '\'; this drops all extra white space
--	out=$(echo ${out})
--	if [ "${out}" != "${expected}" ]; then
--		rc=1
--		if [ "${VERBOSE}" = "1" ]; then
--			printf "    Unexpected route entry. Have:\n"
--			printf "        ${out}\n"
--			printf "    Expected:\n"
--			printf "        ${expected}\n\n"
--		fi
--	fi
--
--	return $rc
-+	check_expected "${out}" "${expected}"
- }
- 
- # assumption is that basic add of a single path route works
-@@ -1387,7 +1372,8 @@ ipv4_addr_metric_test()
- 	run_cmd "$IP li set dev dummy2 down"
- 	rc=$?
- 	if [ $rc -eq 0 ]; then
--		check_route ""
-+		out=$($IP ro ls match 172.16.104.0/24)
-+		check_expected "${out}" ""
- 		rc=$?
- 	fi
- 	log_test $rc 0 "Prefix route removed on link down"
 -- 
 2.20.1
 
