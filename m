@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A91915BA4
-	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EBD15BA2
+	for <lists+stable@lfdr.de>; Tue,  7 May 2019 07:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727957AbfEGFiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 01:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57814 "EHLO mail.kernel.org"
+        id S1728114AbfEGF4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 01:56:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728499AbfEGFiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 May 2019 01:38:01 -0400
+        id S1727983AbfEGFiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 01:38:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77C2521530;
-        Tue,  7 May 2019 05:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C11A421655;
+        Tue,  7 May 2019 05:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557207480;
-        bh=dxV053zhGb4G++2yO2/3vvKS9KiYcm1mq0KoO8T0WdY=;
+        s=default; t=1557207482;
+        bh=y9ZLVXMrz9krp9KqLxl4O+qrXhLwZoiMvHNYlQn2wu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mw8amyw9NJum7BkuRZ/pGbXJCo+VEj0fWcTzbNbTOB18w9/HTW5PIiiQi/xFTaSHr
-         bRmzO/NKSAwTZNCfCA6I9GH9OCBqPJ6JJAR4DYHdphXEMFIg98t7OKBVPGF9XbR4G+
-         Zgw2m4QLISqJZVfe+kJE0s+3Iwkp6knzm3RZc8zg=
+        b=cJzielO5QAPxr5NXCU89nVN8nPJnzsYPuPtBAZGRWiZoTtL30Hh1rt72TISAzZif2
+         MU+Uk5v5s1Jvx9jHSvOxFb+mtUmeubSBJJsNRRMIs2YV2QuRR/yCi9G6S7qxRzmgs9
+         6ObaPFkKUtUDJW1vG3fdmSoaNGt1BFX59h/D15rM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 66/81] net: dsa: mv88e6xxx: fix few issues in mv88e6390x_port_set_cmode
-Date:   Tue,  7 May 2019 01:35:37 -0400
-Message-Id: <20190507053554.30848-66-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Chandan Rajendra <chandan@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <alexander.levin@microsoft.com>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 67/81] mm/memory.c: fix modifying of page protection by insert_pfn()
+Date:   Tue,  7 May 2019 01:35:38 -0400
+Message-Id: <20190507053554.30848-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
@@ -45,98 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 5ceaeb99ffb4dc002d20f6ac243c19a85e2c7a76 ]
+[ Upstream commit cae85cb8add35f678cf487139d05e083ce2f570a ]
 
-This patches fixes few issues in mv88e6390x_port_set_cmode().
+Aneesh has reported that PPC triggers the following warning when
+excercising DAX code:
 
-1. When entering the function the old cmode may be 0, in this case
-   mv88e6390x_serdes_get_lane() returns -ENODEV. As result we bail
-   out and have no chance to set a new mode. Therefore deal properly
-   with -ENODEV.
+  IP set_pte_at+0x3c/0x190
+  LR insert_pfn+0x208/0x280
+  Call Trace:
+     insert_pfn+0x68/0x280
+     dax_iomap_pte_fault.isra.7+0x734/0xa40
+     __xfs_filemap_fault+0x280/0x2d0
+     do_wp_page+0x48c/0xa40
+     __handle_mm_fault+0x8d0/0x1fd0
+     handle_mm_fault+0x140/0x250
+     __do_page_fault+0x300/0xd60
+     handle_page_fault+0x18
 
-2. Once we have disabled power and irq, let's set the cached cmode to 0.
-   This reflects the actual status and is cleaner if we bail out with an
-   error in the following function calls.
+Now that is WARN_ON in set_pte_at which is
 
-3. The cached cmode is used by mv88e6390x_serdes_get_lane(),
-   mv88e6390_serdes_power_lane() and mv88e6390_serdes_irq_enable().
-   Currently we set the cached mode to the new one at the very end of
-   the function only, means until then we use the old one what may be
-   wrong.
+        VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
 
-4. When calling mv88e6390_serdes_irq_enable() we use the lane value
-   belonging to the old cmode. Get the lane belonging to the new cmode
-   before calling this function.
+The problem is that on some architectures set_pte_at() cannot cope with
+a situation where there is already some (different) valid entry present.
 
-It's hard to provide a good "Fixes" tag because quite a few smaller
-changes have been done to the code in question recently.
+Use ptep_set_access_flags() instead to modify the pfn which is built to
+deal with modifying existing PTE.
 
-Fixes: d235c48b40d3 ("net: dsa: mv88e6xxx: power serdes on/off for 10G interfaces on 6390X")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20190311084537.16029-1-jack@suse.cz
+Fixes: b2770da64254 "mm: add vm_insert_mixed_mkwrite()"
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Chandan Rajendra <chandan@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/net/dsa/mv88e6xxx/port.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ mm/memory.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
-index 7fffce734f0a..fdeddbfa829d 100644
---- a/drivers/net/dsa/mv88e6xxx/port.c
-+++ b/drivers/net/dsa/mv88e6xxx/port.c
-@@ -379,18 +379,22 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		return 0;
- 
- 	lane = mv88e6390x_serdes_get_lane(chip, port);
--	if (lane < 0)
-+	if (lane < 0 && lane != -ENODEV)
- 		return lane;
- 
--	if (chip->ports[port].serdes_irq) {
--		err = mv88e6390_serdes_irq_disable(chip, port, lane);
-+	if (lane >= 0) {
-+		if (chip->ports[port].serdes_irq) {
-+			err = mv88e6390_serdes_irq_disable(chip, port, lane);
-+			if (err)
-+				return err;
+diff --git a/mm/memory.c b/mm/memory.c
+index 9c69278173b7..e0010cb870e0 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1796,10 +1796,12 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 				WARN_ON_ONCE(!is_zero_pfn(pte_pfn(*pte)));
+ 				goto out_unlock;
+ 			}
+-			entry = *pte;
+-			goto out_mkwrite;
+-		} else
+-			goto out_unlock;
++			entry = pte_mkyoung(*pte);
++			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++			if (ptep_set_access_flags(vma, addr, pte, entry, 1))
++				update_mmu_cache(vma, addr, pte);
 +		}
-+
-+		err = mv88e6390x_serdes_power(chip, port, false);
- 		if (err)
- 			return err;
++		goto out_unlock;
  	}
  
--	err = mv88e6390x_serdes_power(chip, port, false);
--	if (err)
--		return err;
-+	chip->ports[port].cmode = 0;
+ 	/* Ok, finally just insert the thing.. */
+@@ -1808,7 +1810,6 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 	else
+ 		entry = pte_mkspecial(pfn_t_pte(pfn, prot));
  
- 	if (cmode) {
- 		err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_STS, &reg);
-@@ -404,6 +408,12 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		if (err)
- 			return err;
- 
-+		chip->ports[port].cmode = cmode;
-+
-+		lane = mv88e6390x_serdes_get_lane(chip, port);
-+		if (lane < 0)
-+			return lane;
-+
- 		err = mv88e6390x_serdes_power(chip, port, true);
- 		if (err)
- 			return err;
-@@ -415,8 +425,6 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		}
- 	}
- 
--	chip->ports[port].cmode = cmode;
--
- 	return 0;
- }
- 
+-out_mkwrite:
+ 	if (mkwrite) {
+ 		entry = pte_mkyoung(entry);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
 -- 
 2.20.1
 
