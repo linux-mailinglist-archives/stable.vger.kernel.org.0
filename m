@@ -2,88 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DA616E7D
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 02:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD6816EC8
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 04:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726313AbfEHA4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 20:56:03 -0400
-Received: from mail-it1-f194.google.com ([209.85.166.194]:55733 "EHLO
-        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbfEHA4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 20:56:03 -0400
-Received: by mail-it1-f194.google.com with SMTP id q132so1279339itc.5;
-        Tue, 07 May 2019 17:56:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=PiA2GgebXiGNdOioGbkk07AYvlMPPYqr0D+S0vlim3g=;
-        b=PTVy54ELFIhLsI8bp1RMULWZyQb5ZZU3fwT8GVCOMiIn48rF8VsnJET3EQhpASGnqo
-         1KZcEFLuywYruJsTRL/Mg+7BIoPuGMcXJMpQpgRj8gNRN0y5aYsa2Qp7en62B5rtAO7m
-         UjQ/uZeWF1UrMDYhzh0ngUDTvqvL9rrJ/P5ZK3mn8KhImUW42SZUNzvNDU9lL6/lU1nw
-         dyF5bBBw7lFOyS1XAkWNe5j43bLlZ0p94xN3FQHveHgWHvlmzE0tUzd7b2i4HQhf+S5e
-         qCg/kYlCbn6AjY6S2Hc+bcYciFjUPJATmd+POI362jsBsSkK6P5W1qxuw+tVy73gDFdU
-         UT/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PiA2GgebXiGNdOioGbkk07AYvlMPPYqr0D+S0vlim3g=;
-        b=baex1q2a3J35/j8cEh24Vk2ZGuEcs5cUvAXlowAnfy72Z5Yb7oJ2ihyW+uezdr1BQW
-         w3KhG2MrXlr3e11FWtEJTJUDICVOJRxOLlTFz83pzFSM4ReYF3SXOsiQB1+d7WHPL6yi
-         soNMUa2JDxtPZTi35iR+VDF/Ri1eMlHxwDkGx2IzLYkNMDwLofAj5dJp6cFSTsuFam3K
-         KOr0rM0jcK/U31EBykqqmDP9CSile/i7m64R5bcwsfq5KTBpW4o4KgTkPDYYvwWBTQ8d
-         72CiqLZKUxA7Xmn/QL8OHAlvcH67pYzPDASPAxEgK4WsuewITvtuZ2srexlSe7zOxtfg
-         ppfw==
-X-Gm-Message-State: APjAAAX9TJj9PHBSMGj+2EDuS8sO/IEruvtP+JPzztMX4jxuDShHToQQ
-        iJEIi0MSEIiHmxqbH4XdEak=
-X-Google-Smtp-Source: APXvYqyywlxZxShrE23vVOV73uE/g8MoECS3kQY2Ve8zo9PGQ1+e74AISFNwf0PRfF/AqUZWdTReag==
-X-Received: by 2002:a24:c3c2:: with SMTP id s185mr1040884itg.156.1557276962433;
-        Tue, 07 May 2019 17:56:02 -0700 (PDT)
-Received: from asus (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id n138sm358940itb.32.2019.05.07.17.56.00
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 07 May 2019 17:56:01 -0700 (PDT)
-Date:   Tue, 7 May 2019 18:56:00 -0600
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.0 000/122] 5.0.14-stable review
-Message-ID: <20190508005558.GA2689@asus>
-References: <20190506143054.670334917@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726353AbfEHCAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 22:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726378AbfEHCAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 May 2019 22:00:03 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5519920656;
+        Wed,  8 May 2019 02:00:01 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.92)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1hOBsG-0005qV-Bq; Tue, 07 May 2019 22:00:00 -0400
+Message-Id: <20190508015559.767152678@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Tue, 07 May 2019 21:55:59 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 0/3] x86_64/ftrace: Emulate calls from int3 when patching functions
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 06, 2019 at 04:30:58PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.0.14 release.
-> There are 122 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 08 May 2019 02:29:09 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.14-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+
+[
+  This is the non-RFC version.
+
+  It went through and passed all my tests. If there's no objections
+  I'm going to include this in my pull request. I still have patches
+  in my INBOX that may still be included, so I need to run those through
+  my tests as well, so a pull request wont be immediate.
+]
+
+Nicolai Stange discovered that Live Kernel Patching can have unforseen
+consequences if tracing is enabled when there are functions that are
+patched. The reason being, is that Live Kernel patching is built on top
+of ftrace, which will have the patched functions call the live kernel
+trampoline directly, and that trampoline will modify the regs->ip address
+to return to the patched function.
+
+But in the transition between changing the call to the customized
+trampoline, the tracing code is needed to have its handler called
+an well, so the function fentry location must be changed from calling
+the live kernel patching trampoline, to the ftrace_reg_caller trampoline
+which will iterate through all the registered ftrace handlers for
+that function.
+
+During this transition, a break point is added to do the live code
+modifications. But if that break point is hit, it just skips calling
+any handler, and makes the call site act as a nop. For tracing, the
+worse that can happen is that you miss a function being traced, but
+for live kernel patching the affects are more severe, as the old buggy
+function is now called.
+
+To solve this, an int3_emulate_call() is created for x86_64 to allow
+ftrace on x86_64 to emulate the call to ftrace_regs_caller() which will
+make sure all the registered handlers to that function are still called.
+And this keeps live kernel patching happy!
+
+To mimimize the changes, and to avoid controversial patches, this
+only changes x86_64. Due to the way x86_32 implements the regs->sp
+the complexity of emulating calls on that platform is too much for
+stable patches, and live kernel patching does not support x86_32 anyway.
 
 
-Compiled, booted, and no dmesg regressions on my system. 
+Josh Poimboeuf (1):
+      x86_64: Add gap to int3 to allow for call emulation
 
--Kelsey 
+Peter Zijlstra (2):
+      x86_64: Allow breakpoints to emulate call instructions
+      ftrace/x86_64: Emulate call function while updating in breakpoint handler
+
+----
+ arch/x86/entry/entry_64.S            | 18 ++++++++++++++++--
+ arch/x86/include/asm/text-patching.h | 28 ++++++++++++++++++++++++++++
+ arch/x86/kernel/ftrace.c             | 32 +++++++++++++++++++++++++++-----
+ 3 files changed, 71 insertions(+), 7 deletions(-)
