@@ -2,82 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7FF178DE
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 13:51:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF9217963
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 14:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727855AbfEHLvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 07:51:11 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:36440 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727684AbfEHLvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 07:51:11 -0400
-Received: by mail-wr1-f65.google.com with SMTP id o4so26825781wra.3
-        for <stable@vger.kernel.org>; Wed, 08 May 2019 04:51:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dcXRWe6bC6aBB/9+h+05Y5su78G3lmqKg/cTGvhQgcg=;
-        b=FsBmzLM1Vo/oKq5ej3NgDo3wVNvWVg7QcLzZaWvNYThFqeVFt23nwer0HkT8uEPRzT
-         AWB039AoN+PemZ39ec0xvoUHG77xn7LhQQ5RaZZU/KL6GqsQNauC1C4kyi7uV7YzEae9
-         4yyM38yxjbFqvYiU9BkFKuumbBW9ICEq4Rsv9Nn34JtT2HyVkvQ4aczNyoR2xb3WfVuj
-         X4N2sYCRkmki2qq89j14fhjVtMtBC1CNTzZRehRGL+Ivykb34cETZpnTCEk8l8IDjb/w
-         omxInLkbLNwCh4HE3XUB/qKkBcPpDsOCs6lxBYMCKtoLGoVqiGlT7BBmgYeKbmvaMx1x
-         q6JA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dcXRWe6bC6aBB/9+h+05Y5su78G3lmqKg/cTGvhQgcg=;
-        b=g5CHSxh5OyUOFx5x0oyWjfY1LkeQAaJLh9XI3YHxEfZgsciwKkXJ1VNiimj6DLM1o9
-         1Zbt/SK/Mp4BA8vgNwQYJw0rFVAxpPDaP+lh+j8WL6YYy7G4FPsZ42Hq2KjbMtEyz2Pb
-         EfvUu3Mh3o0F0ytduswvjNg1J1sJMvjUjXE0pFDDy5aqkbF/unmuTWFvdr6M/LsJ2hpi
-         kViUhS4zRKugMlusDHaTx3Jl6Eg/bHU1K+pgyXZZDdDN7LJd33839sypvQJuhv0CZWEq
-         4Uyq4pWRc9bmgMwwdIGNqnV8EEfZ/sGDxCb+YRV4I1xeHUFUWU5AgddKJZAluvM01ZLV
-         5q6Q==
-X-Gm-Message-State: APjAAAVvoPh9b93TFhYCfhghVdDjijf7IDYYnl9eJbYQB/kYI7kvN6d1
-        9p7q9yToRkoft1FOepv3B5lpTiK+2cAgYg==
-X-Google-Smtp-Source: APXvYqwm1jBsVEWy2JkOqneygyWuHsAJ2rFgjA3mIHZfVla1Eoz4d1RVgF8irCby0aDkCj7+pqLgYA==
-X-Received: by 2002:a5d:4348:: with SMTP id u8mr28114140wrr.129.1557316269511;
-        Wed, 08 May 2019 04:51:09 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 15sm4322887wmx.23.2019.05.08.04.51.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 May 2019 04:51:08 -0700 (PDT)
-Message-ID: <5cd2c2ac.1c69fb81.c2cfa.35d6@mx.google.com>
-Date:   Wed, 08 May 2019 04:51:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727575AbfEHMY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 08:24:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727612AbfEHMY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 08:24:26 -0400
+Received: from tleilax.poochiereds.net (cpe-71-70-156-158.nc.res.rr.com [71.70.156.158])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEAA021479;
+        Wed,  8 May 2019 12:24:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557318265;
+        bh=Zdk82H5gLZG6N4Ke8D6gtSQWOYRKyl+i+my5uTDvPkY=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=NPLLyKCstxxzVF30bqlo0UJ7W2M6zkKBgrR8JkIJUQTFJNk/igGlTI+hFLbgXEomh
+         jcJLrLJT2f8LQ580P3GvxYD/i81OMDVZiSVtRFugWIXvTyGO2T7z/KygTDzQRfyqMU
+         yS4fx77CAeKhGLO7We++w6DrCw7L6G5EgXJhxGmc=
+Message-ID: <84addb90fc41372ad723d469a00bbb4cce2c9c55.camel@kernel.org>
+Subject: Re: [PATCH 1/2] NFSv4.1: Again fix a race where CB_NOTIFY_LOCK
+ fails to wake a waiter
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Yihao Wu <wuyihao@linux.alibaba.com>, linux-nfs@vger.kernel.org,
+        "J. Bruce Fields" <bfields@fieldses.org>
+Cc:     stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        caspar@linux.alibaba.com
+Date:   Wed, 08 May 2019 08:24:23 -0400
+In-Reply-To: <2a1cebca-1efb-1686-475b-a581e50e61b4@linux.alibaba.com>
+References: <d0b6fc01-0a73-e4f7-b393-3ecc9aacffb0@linux.alibaba.com>
+         <2a1cebca-1efb-1686-475b-a581e50e61b4@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.1 (3.32.1-1.fc30) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.117
-Subject: stable/linux-4.14.y boot: 64 boots: 0 failed,
- 63 passed with 1 untried/unknown (v4.14.117)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 64 boots: 0 failed, 63 passed with 1 untried/unkn=
-own (v4.14.117)
+On Wed, 2019-05-08 at 17:13 +0800, Yihao Wu wrote:
+> Commit b7dbcc0e433f ""NFSv4.1: Fix a race where CB_NOTIFY_LOCK fails
+> to wake a waiter" found this bug. However it didn't fix it. This can
+> be fixed by adding memory barrier pair.
+> 
+> Specifically, if any CB_NOTIFY_LOCK should be handled between unlocking
+> the wait queue and freezable_schedule_timeout, only two cases are
+> possible. So CB_NOTIFY_LOCK will not be dropped unexpectly.
+> 
+> 1. The callback thread marks the NFS client as waked. Then NFS client
+> noticed that itself is waked, so it don't goes to sleep. And it cleans
+> its wake mark.
+> 
+> 2. The NFS client noticed that itself is not waked yet, so it goes to
+> sleep. No modification will ever happen to the wake mark in between.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.117/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.117/
+It's not clear to me what you mean by "wake mark" here. Do you mean the
+"notified" flag? This could use a better description.
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.117
-Git Commit: b4677bbb658d54ad29c8122d61bdcc0f878030b1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 31 unique boards, 15 SoC families, 10 builds out of 201
+> Fixes: a1d617d ("nfs: allow blocking locks to be awoken by lock callbacks")
+> Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
+> ---
+>  fs/nfs/nfs4proc.c | 21 +++++----------------
+>  1 file changed, 5 insertions(+), 16 deletions(-)
+> 
+> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> index 741ff8c..f13ea09 100644
+> --- a/fs/nfs/nfs4proc.c
+> +++ b/fs/nfs/nfs4proc.c
+> @@ -6867,7 +6867,6 @@ struct nfs4_lock_waiter {
+>  	struct task_struct	*task;
+>  	struct inode		*inode;
+>  	struct nfs_lowner	*owner;
+> -	bool			notified;
+>  };
+>  
+>  static int
+> @@ -6889,13 +6888,13 @@ struct nfs4_lock_waiter {
+>  		/* Make sure it's for the right inode */
+>  		if (nfs_compare_fh(NFS_FH(waiter->inode), &cbnl->cbnl_fh))
+>  			return 0;
+> -
+> -		waiter->notified = true;
+>  	}
+>  
+>  	/* override "private" so we can use default_wake_function */
+>  	wait->private = waiter->task;
+> -	ret = autoremove_wake_function(wait, mode, flags, key);
+> +	ret = woken_wake_function(wait, mode, flags, key);
+> +	if (ret)
+> +		list_del_init(&wait->entry);
+>  	wait->private = waiter;
+>  	return ret;
+>  }
+> @@ -6914,8 +6913,7 @@ struct nfs4_lock_waiter {
+>  				    .s_dev = server->s_dev };
+>  	struct nfs4_lock_waiter waiter = { .task  = current,
+>  					   .inode = state->inode,
+> -					   .owner = &owner,
+> -					   .notified = false };
+> +					   .owner = &owner};
+>  	wait_queue_entry_t wait;
+>  
+>  	/* Don't bother with waitqueue if we don't expect a callback */
+> @@ -6928,21 +6926,12 @@ struct nfs4_lock_waiter {
+>  	add_wait_queue(q, &wait);
+>  
+>  	while(!signalled()) {
+> -		waiter.notified = false;
+>  		status = nfs4_proc_setlk(state, cmd, request);
+>  		if ((status != -EAGAIN) || IS_SETLK(cmd))
+>  			break;
+>  
+>  		status = -ERESTARTSYS;
+> -		spin_lock_irqsave(&q->lock, flags);
+> -		if (waiter.notified) {
+> -			spin_unlock_irqrestore(&q->lock, flags);
+> -			continue;
+> -		}
+> -		set_current_state(TASK_INTERRUPTIBLE);
+> -		spin_unlock_irqrestore(&q->lock, flags);
+> -
+> -		freezable_schedule_timeout(NFS4_LOCK_MAXTIMEOUT);
+> +		wait_woken(&wait, TASK_INTERRUPTIBLE, NFS4_LOCK_MAXTIMEOUT);
 
----
-For more info write to <info@kernelci.org>
+This seems to have dropped the "freezable" part above, such that waiting
+on a file lock will prevent (e.g.) a laptop from suspending. I think
+that needs to be in here as those waits can be quite long.
+
+>  	}
+>  
+>  	finish_wait(q, &wait);
+
+-- 
+Jeff Layton <jlayton@kernel.org>
+
