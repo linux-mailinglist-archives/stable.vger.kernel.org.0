@@ -2,114 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6696180F8
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 22:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72091810B
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 22:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728965AbfEHUZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 16:25:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728837AbfEHUYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 16:24:55 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B962173B;
-        Wed,  8 May 2019 20:24:54 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.92)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1hOT7V-0007ji-Ku; Wed, 08 May 2019 16:24:53 -0400
-Message-Id: <20190508202453.536550511@goodmis.org>
-User-Agent: quilt/0.65
-Date:   Wed, 08 May 2019 16:24:38 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Orit Wasserman <orit.was@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, stable@vger.kernel.org,
-        Elazar Leibovich <elazar@lightbitslabs.com>
-Subject: [for-next][PATCH 11/13] tracing: Fix partial reading of trace events id file
-References: <20190508202427.252736423@goodmis.org>
+        id S1729488AbfEHU0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 16:26:45 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:39111 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729003AbfEHU0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 16:26:45 -0400
+Received: by mail-pg1-f195.google.com with SMTP id w22so9342471pgi.6
+        for <stable@vger.kernel.org>; Wed, 08 May 2019 13:26:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=OoSAyLqOzoTY4imTMlt5PXtdUH44ZwugWLFtgR1oxSE=;
+        b=tV5HH5lWOzHtckicgsfc51J6eNwMvV2tW+XHuF6CYyJUdxBtE1UJVmLFLeV5joiFWN
+         uxjlFtB+LxasFatjjPafAohY9evgEv+8ADu5Uyi9FHAhNPbVJmvq0wYRqdBv/7rusYGU
+         0zEUlRzHjo74veCDdg+/RHOBm/cyJ0UQDX3qU/HBqDt50im2NsaSv7bpZouSpC9JoC3B
+         acSRkq46X8/LmyKUnDuRtknHutDaPJFhnCs8ENjgWsQGhm2b0/gqysMsJh3rkeKjNQ1f
+         sCGzZg8dnfKChXGhp1tPblzEPbWSAKJvYgM+LSIdoYuf/9eYaOoByQ8bGQ2SiT7pwU6x
+         qDTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=OoSAyLqOzoTY4imTMlt5PXtdUH44ZwugWLFtgR1oxSE=;
+        b=Dc1feiS/bZCril03pu+cJgimzDBulLe0vz8GwwDFAF2ZT7Y2v26mevEAAA7Cnku90W
+         PSlNlnvT50mJppO5iWYTDS/r1R7kV2qQTx422rh8Dn9BRRNb8tFnKhsh2Gt3UrSERscc
+         jYpdxNcoSH8EAu5IsDN/+HmLPp+6b4dXLItTuEd2R4uZf7j+GqfHgncdTP6UEHh8ewT3
+         uvP20oViIheU16w62NR5QrHBgb2CYBZTQfMD5sWe6z7Cob+Q41jXSsyQNh+boIW7n0/A
+         emi9d3BTmQjxSCbenZabIhtHbEsRJWJQ5d7CSUQcb4VIP7swF4PXSWFKcdb71jn3wRkF
+         igHQ==
+X-Gm-Message-State: APjAAAWzFNVmvAxBXv7KXECZv9AxXD2U3JV5Ae68H6Pevo/I2yg9NOP0
+        7Mah9/seNPYBK8xkVrvhP2jYuQqG
+X-Google-Smtp-Source: APXvYqwMoiauZe5i8ofLrMADrXvHo3BJVxcQ/isefeiLoACkGMIXY53jBARJIbq4SNGDqLdtRN4n2Q==
+X-Received: by 2002:a63:e602:: with SMTP id g2mr168941pgh.172.1557347204831;
+        Wed, 08 May 2019 13:26:44 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 18sm141094pfp.18.2019.05.08.13.26.43
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 May 2019 13:26:43 -0700 (PDT)
+Date:   Wed, 8 May 2019 13:26:42 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Build failure in v4.4.y.queue (ppc:allmodconfig)
+Message-ID: <20190508202642.GA28212@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elazar Leibovich <elazar@lightbitslabs.com>
+I see multiple instances of:
 
-When reading only part of the id file, the ppos isn't tracked correctly.
-This is taken care by simple_read_from_buffer.
+arch/powerpc/kernel/exceptions-64s.S:839: Error:
+	attempt to move .org backwards
 
-Reading a single byte, and then the next byte would result EOF.
+in v4.4.y.queue (v4.4.179-143-gc4db218e9451).
 
-While this seems like not a big deal, this breaks abstractions that
-reads information from files unbuffered. See for example
-https://github.com/golang/go/issues/29399
+This is due to commit 9b2d4e06d7f1 ("powerpc/64s: Add support for a store
+forwarding barrier at kernel entry/exit"), which is part of a large patch
+series and can not easily be reverted.
 
-This code was mentioned as problematic in
-commit cd458ba9d5a5
-("tracing: Do not (ab)use trace_seq in event_id_read()")
+Guess I'll stop doing ppc:allmodconfig builds in v4.4.y ?
 
-An example C code that show this bug is:
-
-  #include <stdio.h>
-  #include <stdint.h>
-
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <unistd.h>
-
-  int main(int argc, char **argv) {
-    if (argc < 2)
-      return 1;
-    int fd = open(argv[1], O_RDONLY);
-    char c;
-    read(fd, &c, 1);
-    printf("First  %c\n", c);
-    read(fd, &c, 1);
-    printf("Second %c\n", c);
-  }
-
-Then run with, e.g.
-
-  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
-
-You'll notice you're getting the first character twice, instead of the
-first two characters in the id file.
-
-Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
-
-Cc: Orit Wasserman <orit.was@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
-Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/trace/trace_events.c | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 81c038ed6cee..0ce3db67f556 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1319,9 +1319,6 @@ event_id_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppos)
- 	char buf[32];
- 	int len;
- 
--	if (*ppos)
--		return 0;
--
- 	if (unlikely(!id))
- 		return -ENODEV;
- 
--- 
-2.20.1
-
-
+Thanks,
+Guenter
