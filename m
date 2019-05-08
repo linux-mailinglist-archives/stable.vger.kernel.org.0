@@ -2,101 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE09180B1
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 21:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB78317E86
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbfEHTwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 15:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
+        id S1728354AbfEHQxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 12:53:04 -0400
+Received: from smtp.hosts.co.uk ([85.233.160.19]:46444 "EHLO smtp.hosts.co.uk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbfEHTwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 15:52:39 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99315214AF;
-        Wed,  8 May 2019 19:52:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557345159;
-        bh=AbqWklh7wQR67sEkjeLgqgaMOMh1ejquMtpBoCLZfzI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aK9Hrh8GYArrrC2PR6dMDPN6aTg5mpsntG7Qhb5wkAuPvHFQuOrgKb1i1UcC3DALa
-         aKI8mDGQQV+hlJ/FYrg/9DlnltkaWMXrgTt76Qru1j/Nt4yWYUoCiRGJRcJYlh10i+
-         95Zvw3ga/zURbdrDdhQjcReNqJxoNeHaD9aLL7bw=
-Date:   Wed, 8 May 2019 18:52:02 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Don Zickus <dzickus@redhat.com>
-Cc:     Veronika Kabatova <vkabatov@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4pyFIFBBU1M=?= =?utf-8?Q?=3A?= Stable queue: queue-5.0
-Message-ID: <20190508165202.GB6157@kroah.com>
-References: <cki.8007596684.1FGCVHW930@redhat.com>
- <20190507170150.GA1468@kroah.com>
- <870847532.18462136.1557251794376.JavaMail.zimbra@redhat.com>
- <20190508092439.GB2361@kroah.com>
- <20190508162242.tbhuuwd6wrm66ppb@redhat.com>
+        id S1728044AbfEHQxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 12:53:04 -0400
+Received: from [81.155.195.4] (helo=[192.168.1.118])
+        by smtp.hosts.co.uk with esmtpa (Exim)
+        (envelope-from <antlists@youngman.org.uk>)
+        id 1hOPoT-0001Zo-3p; Wed, 08 May 2019 17:53:01 +0100
+Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
+ raid0 bios
+To:     "Guilherme G. Piccoli" <guilherme@gpiccoli.net>,
+        Song Liu <liu.song.a23@gmail.com>
+References: <20190430223722.20845-1-gpiccoli@canonical.com>
+ <20190430223722.20845-2-gpiccoli@canonical.com>
+ <CAPhsuW4SeUhNOJJkEf9wcLjbbc9qX0=C8zqbyCtC7Q8fdL91hw@mail.gmail.com>
+ <c8721ba3-5d38-7906-5049-e2b16e967ecf@canonical.com>
+ <CAPhsuW6ahmkUhCgns=9WHPXSvYefB0Gmr1oB7gdZiD86sKyHFg@mail.gmail.com>
+ <5CD2A172.4010302@youngman.org.uk>
+ <0ad36b2f-ec36-6930-b587-da0526613567@gpiccoli.net>
+Cc:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
+        linux-block@vger.kernel.org,
+        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
+        axboe@kernel.dk, Gavin Guo <gavin.guo@canonical.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>, kernel@gpiccoli.net,
+        Ming Lei <ming.lei@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        stable@vger.kernel.org
+From:   Wols Lists <antlists@youngman.org.uk>
+Message-ID: <5CD3096B.4030302@youngman.org.uk>
+Date:   Wed, 8 May 2019 17:52:59 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101
+ Thunderbird/38.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190508162242.tbhuuwd6wrm66ppb@redhat.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <0ad36b2f-ec36-6930-b587-da0526613567@gpiccoli.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 08, 2019 at 12:22:42PM -0400, Don Zickus wrote:
-> On Wed, May 08, 2019 at 11:24:39AM +0200, Greg KH wrote:
-> > > Hi,
-> > > 
-> > > in some cases we are running multiple recipes in a single test job, to
-> > > get out the results faster. Each recipe is started by a "boot test" since
-> > > that's responsible for installing and booting the kernel being tested. The
-> > > report joins all recipes for given architecture, hence that one test is
-> > > shown there multiple times. I agree that we should make this more clear
-> > > and separate the report parts per recipes but we didn't have time for it
-> > > yet, sorry. I notified people about the problem and we'll prioritize :)
-> > > 
-> > > > And I see you are running xfstests, which is great, but does it really
-> > > > all "pass"?  What type of filesystem image are you running it on.
-> > > > 
-> > > 
-> > > Here you can find the list of subtests that's being run [0] and a list of
-> > > excluded ones from them [1]. This is just a reduced test set as some of the
-> > > tests were triggering fake failures or taking too long to run as a part of
-> > > CI. The lists may change in the future of course.
-> > > 
-> > > We set up two separate xfs partitions for the testing. The machine should
-> > > have at least 50G of space available for this.
-> > > 
-> > > 
-> > > Hope this explains everything and sorry for the recipe confusion. Let us
-> > > know if you have anything else!
-> > 
-> > Thanks a lot for the information.  It's good to see that someone is
-> > finally running xfstests on the stable trees, that's much appreciated.
+On 08/05/19 15:52, Guilherme G. Piccoli wrote:
+> Hi, I understand your concern. But all other raid levels contains
+> failure-event mechanisms. For example, in all my tests with raid5 or
+> raid1, it first complained the device was removed, then it failed in
+> super_written() when no other available device was present.
+> On the other hand, raid0 does "blind-writes": it just selects the device
+> in which that bio should be written (given the stripe math) and change
+> the bio's device, sending it back via generic_make_request(). It's
+> dummy, but not in a bad way, but rather for performance reasons. It has
+> no "intelligence" for failures, as all other raid levels.
 > 
-> Hi Greg,
+> That said, we could fix md.c for all raid levels, but I personally think
+> it's a bazooka shot, only raid0 shows consistently this issue.
 > 
-> Thanks for the feedback.  If you have some other suggested tests, we might
-> be able to add them to our test harness.  We do have some bandwidth for
-> extra testing.  Thanks!
+The academic in me says we should push that error handling into
+generic_make_request() or some raid function in md.c that deals with
+those problems. Sounds like there's a fair bit of duplicate
+functionality that could be re-factored out.
+>>
+>> Academic purity versus engineering practicality :-)
+> 
+> Heheh you have good points here! Thanks for the input =)
+> Cheers,
+> 
+Doesn't help when there's not an architect to design an overall "grand
+scheme", but my usual way of working is to design top down academically,
+and then ask myself "what do I need" before implementing bottom-up.
+Hopefully with a load of documentation saying "I haven't done this
+because I don't need it, but this is where it goes".
 
-Oh, hey, yes, I do have a list!
+Cheers,
+Wol
 
-It's the list that 0-day does today:
-	https://git.kernel.org/pub/scm/linux/kernel/git/wfg/lkp-tests.git/tree/tests
-pick some up from there and run with it.
-
-Or look at what Linaro did, they are running a bunch of tests.
-
-Or better yet, work with kernel.ci to integrate runtime tests there so
-that everyone can benifit!
-
-Having these "closed" testing silos is not good overall.  I'm happy to
-see the kernels get tested, but the duplication of effort is quite sad.
-
-thanks,
-
-greg k-h
