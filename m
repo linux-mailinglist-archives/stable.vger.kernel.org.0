@@ -2,82 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2068017E06
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A54217E33
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbfEHQWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 12:22:47 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:49558 "EHLO mx1.redhat.com"
+        id S1727721AbfEHQhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 12:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727502AbfEHQWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 12:22:47 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727502AbfEHQhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 12:37:54 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id DD006300B915;
-        Wed,  8 May 2019 16:22:46 +0000 (UTC)
-Received: from redhat.com (dhcp-17-8.bos.redhat.com [10.18.17.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 24A7B5F7E5;
-        Wed,  8 May 2019 16:22:44 +0000 (UTC)
-Date:   Wed, 8 May 2019 12:22:42 -0400
-From:   Don Zickus <dzickus@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Veronika Kabatova <vkabatov@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4pyF?= PASS: Stable queue: queue-5.0
-Message-ID: <20190508162242.tbhuuwd6wrm66ppb@redhat.com>
-References: <cki.8007596684.1FGCVHW930@redhat.com>
- <20190507170150.GA1468@kroah.com>
- <870847532.18462136.1557251794376.JavaMail.zimbra@redhat.com>
- <20190508092439.GB2361@kroah.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E5BB216F4;
+        Wed,  8 May 2019 16:37:50 +0000 (UTC)
+Date:   Wed, 8 May 2019 12:37:48 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
+ functions
+Message-ID: <20190508123748.1737b8b5@gandalf.local.home>
+In-Reply-To: <CAHk-=wg5_fwx_-ybD9TLQE4rAUqtYzO2CAmpciWTkDn3dtKMOw@mail.gmail.com>
+References: <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
+        <20190506225819.11756974@oasis.local.home>
+        <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
+        <20190506232158.13c9123b@oasis.local.home>
+        <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
+        <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com>
+        <20190507111227.1d4268d7@gandalf.local.home>
+        <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
+        <20190507163440.GV2606@hirez.programming.kicks-ass.net>
+        <CAHk-=wiuue37opWK5QaQ9f6twqDZuSratdP-1bK6kD9-Az5WnA@mail.gmail.com>
+        <20190507172159.5t3bm3mjkwagvite@treble>
+        <20190507172418.67ef6fc3@gandalf.local.home>
+        <CAHk-=wg5_fwx_-ybD9TLQE4rAUqtYzO2CAmpciWTkDn3dtKMOw@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190508092439.GB2361@kroah.com>
-User-Agent: NeoMutt/20180716
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Wed, 08 May 2019 16:22:46 +0000 (UTC)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 08, 2019 at 11:24:39AM +0200, Greg KH wrote:
-> > Hi,
-> > 
-> > in some cases we are running multiple recipes in a single test job, to
-> > get out the results faster. Each recipe is started by a "boot test" since
-> > that's responsible for installing and booting the kernel being tested. The
-> > report joins all recipes for given architecture, hence that one test is
-> > shown there multiple times. I agree that we should make this more clear
-> > and separate the report parts per recipes but we didn't have time for it
-> > yet, sorry. I notified people about the problem and we'll prioritize :)
-> > 
-> > > And I see you are running xfstests, which is great, but does it really
-> > > all "pass"?  What type of filesystem image are you running it on.
-> > > 
-> > 
-> > Here you can find the list of subtests that's being run [0] and a list of
-> > excluded ones from them [1]. This is just a reduced test set as some of the
-> > tests were triggering fake failures or taking too long to run as a part of
-> > CI. The lists may change in the future of course.
-> > 
-> > We set up two separate xfs partitions for the testing. The machine should
-> > have at least 50G of space available for this.
-> > 
-> > 
-> > Hope this explains everything and sorry for the recipe confusion. Let us
-> > know if you have anything else!
+On Tue, 7 May 2019 21:50:52 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
+
+> > It's been a bane of mine for some time.  
 > 
-> Thanks a lot for the information.  It's good to see that someone is
-> finally running xfstests on the stable trees, that's much appreciated.
+> Guys, I have basically a one-liner patch for your hangups.
+> 
+> It's called "rename 'sp' to 'user_sp' on x86-32".
+> 
+> Then we make the 'sp' field on x86-64 be a union, so that you can call
+> it user_sp or sp as you wish.
+> 
+> Yeah, it's really more than one line, because obviously the users will
+> need chaning, but honestly, that would be a _real_ cleanup. Make the
+> register match what it actually is.
 
-Hi Greg,
+But is it? Sure, it will be a reminder that it's different for x86-32,
+but that still doesn't take away the fact that pt_regs on x86_32 is an
+anomaly! Where else do we have part of a data structure that can't be
+read because it can possibly fault? If regs is a valid pointer, one
+would think that simply reading regs->sp (or regs->user_sp) would be no
+more dangerous than reading regs->ip.
 
-Thanks for the feedback.  If you have some other suggested tests, we might
-be able to add them to our test harness.  We do have some bandwidth for
-extra testing.  Thanks!
+The difference between entry_32.S from entry_64.S causes it to spill
+into C code, making the x86_64 code more difficult to deal with. Sure,
+10 to 15 years ago, all your arguments would make sense. But today, who
+uses x86_32?  Perhaps you may use it in a VM, but I asked a few
+developers when was the last time they used one, they told me 5 to 7
+years ago. I only boot x86_32 to test to make sure I didn't break it.
 
-Cheers,
-Don
+Yes, your diffstat is really nice to the changes to entry_32.S, but at
+what cost? To make the x86_64 code more complex? That whole returning
+the regs in the int3 handler makes no sense on x86_64, but yet we would
+need to do it to handle x86_32. Why burden the architecture of today
+and tomorrow with the architecture of yesterday? x86_32 is becoming
+more obsolete by the day. It baffles me why we wouldn't want to contain
+its complexity in a single file then to spread it out like wildfire
+across the generic x86 code.
+
+The &regs->sp hack is just one more rung in the complex learning curve
+ladder of becoming a Linux kernel developer.
+
+-- Steve
