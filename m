@@ -2,97 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8658516E12
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 02:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DA616E7D
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 02:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbfEHAKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 May 2019 20:10:40 -0400
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:59904 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbfEHAKk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 20:10:40 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id x480AQ18030660; Wed, 8 May 2019 09:10:26 +0900
-X-Iguazu-Qid: 34trPHnJtp4SJX7ZnU
-X-Iguazu-QSIG: v=2; s=0; t=1557274226; q=34trPHnJtp4SJX7ZnU; m=GRuQWOFM8kgwiNxmUcKBoJxO6dGlsBq0CmDxg/ZAAZQ=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1512) id x480AOWn008974;
-        Wed, 8 May 2019 09:10:25 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id x480AOFV029282;
-        Wed, 8 May 2019 09:10:24 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id x480AOm7022147;
-        Wed, 8 May 2019 09:10:24 +0900
-Date:   Wed, 8 May 2019 09:10:14 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+        id S1726313AbfEHA4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 May 2019 20:56:03 -0400
+Received: from mail-it1-f194.google.com ([209.85.166.194]:55733 "EHLO
+        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726276AbfEHA4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 May 2019 20:56:03 -0400
+Received: by mail-it1-f194.google.com with SMTP id q132so1279339itc.5;
+        Tue, 07 May 2019 17:56:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=PiA2GgebXiGNdOioGbkk07AYvlMPPYqr0D+S0vlim3g=;
+        b=PTVy54ELFIhLsI8bp1RMULWZyQb5ZZU3fwT8GVCOMiIn48rF8VsnJET3EQhpASGnqo
+         1KZcEFLuywYruJsTRL/Mg+7BIoPuGMcXJMpQpgRj8gNRN0y5aYsa2Qp7en62B5rtAO7m
+         UjQ/uZeWF1UrMDYhzh0ngUDTvqvL9rrJ/P5ZK3mn8KhImUW42SZUNzvNDU9lL6/lU1nw
+         dyF5bBBw7lFOyS1XAkWNe5j43bLlZ0p94xN3FQHveHgWHvlmzE0tUzd7b2i4HQhf+S5e
+         qCg/kYlCbn6AjY6S2Hc+bcYciFjUPJATmd+POI362jsBsSkK6P5W1qxuw+tVy73gDFdU
+         UT/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PiA2GgebXiGNdOioGbkk07AYvlMPPYqr0D+S0vlim3g=;
+        b=baex1q2a3J35/j8cEh24Vk2ZGuEcs5cUvAXlowAnfy72Z5Yb7oJ2ihyW+uezdr1BQW
+         w3KhG2MrXlr3e11FWtEJTJUDICVOJRxOLlTFz83pzFSM4ReYF3SXOsiQB1+d7WHPL6yi
+         soNMUa2JDxtPZTi35iR+VDF/Ri1eMlHxwDkGx2IzLYkNMDwLofAj5dJp6cFSTsuFam3K
+         KOr0rM0jcK/U31EBykqqmDP9CSile/i7m64R5bcwsfq5KTBpW4o4KgTkPDYYvwWBTQ8d
+         72CiqLZKUxA7Xmn/QL8OHAlvcH67pYzPDASPAxEgK4WsuewITvtuZ2srexlSe7zOxtfg
+         ppfw==
+X-Gm-Message-State: APjAAAX9TJj9PHBSMGj+2EDuS8sO/IEruvtP+JPzztMX4jxuDShHToQQ
+        iJEIi0MSEIiHmxqbH4XdEak=
+X-Google-Smtp-Source: APXvYqyywlxZxShrE23vVOV73uE/g8MoECS3kQY2Ve8zo9PGQ1+e74AISFNwf0PRfF/AqUZWdTReag==
+X-Received: by 2002:a24:c3c2:: with SMTP id s185mr1040884itg.156.1557276962433;
+        Tue, 07 May 2019 17:56:02 -0700 (PDT)
+Received: from asus (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
+        by smtp.gmail.com with ESMTPSA id n138sm358940itb.32.2019.05.07.17.56.00
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 07 May 2019 17:56:01 -0700 (PDT)
+Date:   Tue, 7 May 2019 18:56:00 -0600
+From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 38/99] net: stmmac: use correct DMA buffer size in
- the RX descriptor
-X-TSB-HOP: ON
-Message-ID: <20190508001014.hlemsaqvir3umv2i@toshiba.co.jp>
-References: <20190506143053.899356316@linuxfoundation.org>
- <20190506143057.399914447@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.0 000/122] 5.0.14-stable review
+Message-ID: <20190508005558.GA2689@asus>
+References: <20190506143054.670334917@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190506143057.399914447@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <20190506143054.670334917@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On Mon, May 06, 2019 at 04:32:11PM +0200, Greg Kroah-Hartman wrote:
-> [ Upstream commit 583e6361414903c5206258a30e5bd88cb03c0254 ]
+On Mon, May 06, 2019 at 04:30:58PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.0.14 release.
+> There are 122 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> We always program the maximum DMA buffer size into the receive descriptor,
-> although the allocated size may be less. E.g. with the default MTU size
-> we allocate only 1536 bytes. If somebody sends us a bigger frame, then
-> memory may get corrupted.
+> Responses should be made by Wed 08 May 2019 02:29:09 PM UTC.
+> Anything received after that time might be too late.
 > 
-> Fix by using exact buffer sizes.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.14-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
+> and the diffstat can be found below.
 > 
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  .../net/ethernet/stmicro/stmmac/descs_com.h   | 22 ++++++++++++-------
->  .../ethernet/stmicro/stmmac/dwmac4_descs.c    |  2 +-
->  .../ethernet/stmicro/stmmac/dwxgmac2_descs.c  |  2 +-
->  .../net/ethernet/stmicro/stmmac/enh_desc.c    | 10 ++++++---
->  drivers/net/ethernet/stmicro/stmmac/hwif.h    |  2 +-
->  .../net/ethernet/stmicro/stmmac/norm_desc.c   | 10 ++++++---
->  .../net/ethernet/stmicro/stmmac/stmmac_main.c |  6 +++--
+> thanks,
+> 
+> greg k-h
 
-This commit is incomplete and we need the following commit:
 
-commit f87db4dbd52f2f8a170a2b51cb0926221ca7c9e2
-Author: YueHaibing <yuehaibing@huawei.com>
-Date:   Wed Apr 17 09:49:39 2019 +0800
+Compiled, booted, and no dmesg regressions on my system. 
 
-    net: stmmac: Use bfsize1 in ndesc_init_rx_desc
-
-    gcc warn this:
-
-    drivers/net/ethernet/stmicro/stmmac/norm_desc.c: In function ndesc_init_rx_desc:
-    drivers/net/ethernet/stmicro/stmmac/norm_desc.c:138:6: warning: variable 'bfsize1' set but not used [-Wunused-but-set-variable]
-
-    Like enh_desc_init_rx_desc, we should use bfsize1
-    in ndesc_init_rx_desc to calculate 'p->des1'
-
-    Fixes: 583e63614149 ("net: stmmac: use correct DMA buffer size in the RX descriptor")
-    Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-    Reviewed-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
-And this fix is also needed for 5.0.14-rc.
-Please apply this commit to 4.19.y-rc and 5.0.y-rc.
-
-Best regards,
-  Nobuhiro
+-Kelsey 
