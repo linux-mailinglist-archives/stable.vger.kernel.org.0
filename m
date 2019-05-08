@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8384D171D8
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 08:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2AB117242
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 09:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725884AbfEHGnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 02:43:40 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:45264 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725910AbfEHGnk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 02:43:40 -0400
-Received: by mail-wr1-f54.google.com with SMTP id s15so25555214wra.12
-        for <stable@vger.kernel.org>; Tue, 07 May 2019 23:43:37 -0700 (PDT)
+        id S1726684AbfEHHEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 03:04:11 -0400
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:34518 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726656AbfEHHEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 03:04:11 -0400
+Received: by mail-wr1-f42.google.com with SMTP id f7so15352442wrq.1
+        for <stable@vger.kernel.org>; Wed, 08 May 2019 00:04:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=6ILXRO4IqRYnEaJfRXSvRA86cDAJRRqX7Pl45X0H4eg=;
-        b=NU4It/4DmL3dABeEyKbrlmgXLGHqL9rUCvFy/McjP/bax+xxd3Y/LLjcso2GA0b1ue
-         rpDXhGOotumeC0rjr39llH3Fn2olrCKkpaoyTvqI86epPjQzgsaPGXPOzf7RiaNvWLOa
-         9BRg40Z/crY+2y1r0GkJhqjqxLiz29A44y15LY6B9WdfRyOpLe0h58ddNUXtsTxsLoMM
-         g4Xv+yB4Oa0ndhy3Om5Fp9Mg7oCPhN0Ab5G94IE1in1VrfVquvUfKVWBOsQgxeM8zau/
-         f6n4bMw9p0SO+DX2F8c+sjSdVAztIVkucc6rzd5loWawlmqMlMoXHSowIE94KOrt1oMn
-         T6rA==
+        bh=MQd/ktV566p6ZRyGiu9L0NnNGrUvXp8FhDw4aYhZm2o=;
+        b=zywZhjwIQ31uq7qqzuMq5geT9icfpAys7MPAPE84Tk6HaVI88aAqKJdO3H6I75xQ5G
+         cWh+lOHQCOBQ7kg0AvICzqIzNaNxnpneG+KXJJb17Eoid+MIoaddfk1t5pn06F2p1D7K
+         zP+Wb5245V0XguASNmh4p1FVzcLn23/rer5QrFpM2+W5RjfjPnr8pSo6mDApB3lkspOo
+         YRHDYx7Sj4ZGZ0NQMT1KUDXvUvu/H7G7WyUABY0Y8nMFWp46sHRuvI5xxQMILHFg5V4e
+         C0DcsBG9UC1ZRriQ6hbIghkIm3X5Bv61i20K8DDOyBg02lqlbsys1/Urqr54ipA3u8I/
+         T55g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=6ILXRO4IqRYnEaJfRXSvRA86cDAJRRqX7Pl45X0H4eg=;
-        b=Tkca9Mr0apq5x+0hxcqq+ZVx1RpLMarG2XEfx6eyIOR1VJTS/sIn6AN5EG1QuKI4UV
-         liq85maIZMnYML8XT46Zy3frEMeBntK4VMuH937KYd+DLIh4gJOUsWjxqYsrGwpuscGn
-         Th1SLkHy2RFnJc3DQCm5bIrKIygxxShKlNtOTrwC30ECMOBJn1OQiQ0h4H3RiBij6JAt
-         GSKyZBmBGyuct5dUg+TqxElT/EPxRMA0Tmg4yFigLWqRcTPiDgah0y+eaasH2b/9//Jy
-         ECkD1qeGHU4gptUPCbANf0gE4pDOc1I6Bo9CSW/RNUQB67o/1nb2BcXxqQR/YevAK4zB
-         zuHQ==
-X-Gm-Message-State: APjAAAVOhfd2O3o+nEORsDWdg1KG4uh+HAOoXSr3m6S3twz89YUhlgkT
-        HgXXgikeFdepqPSb+wiVDjqQFBAs4fU1RQ==
-X-Google-Smtp-Source: APXvYqwx0qiq2nPy9bTxnYmNNVCh/QDnFgcWnjH8Qmd41XS1R0cDTNqATCZZw9ft3RPGhiH8rr0KhQ==
-X-Received: by 2002:a5d:420a:: with SMTP id n10mr6457488wrq.325.1557297815537;
-        Tue, 07 May 2019 23:43:35 -0700 (PDT)
+        bh=MQd/ktV566p6ZRyGiu9L0NnNGrUvXp8FhDw4aYhZm2o=;
+        b=X6q5j2wFm+SmUdM42l9r+7o9pi89PNr6XMcTxVMXAL39NCpn4ugYb3jCS2xhq9bPgp
+         dU25FRxwhNMb52NwVnhrihMcyFQthzEsY97oTR4FTk+IsJrgqTXUKLKKWlpVG3YztGSr
+         MkKQ2ou4IQ2jdsnvw/yJOYG1VGL3snak13RH7k/jXiV3utMqaE6PkqCK8jC5XiBi2Eta
+         ahmA6ovgywpTcwp82p1mW82gjySo+jESAflEC8hSUmdn/IQm4Fi+b4h54/cX/QEHUp8x
+         a1sNrAsq++gttVcXIx50YTpN/me5N/mozziLVUoWbsRvOEZK7AtcmVtOkrAkEX+PjseD
+         keIA==
+X-Gm-Message-State: APjAAAW+rku/s3EDoJ0hPlCu8Ajsh7ARCq7Uq5mCJ5P3dEAd8tjBLKg1
+        IlPpz/MBhhlW3+IMVU8irPIpe1WkjOQdkw==
+X-Google-Smtp-Source: APXvYqynR2b5FGMHzk2PZr+aHSN0s6cX4LbrGInL2ca5sKwekRVqYZpyyC9mnPWvUQYu0PS52i5b6Q==
+X-Received: by 2002:adf:fc51:: with SMTP id e17mr1617787wrs.243.1557299047418;
+        Wed, 08 May 2019 00:04:07 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j4sm7945620wrw.94.2019.05.07.23.43.34
+        by smtp.gmail.com with ESMTPSA id u11sm30297899wrg.35.2019.05.08.00.04.06
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 May 2019 23:43:34 -0700 (PDT)
-Message-ID: <5cd27a96.1c69fb81.bb68f.5f06@mx.google.com>
-Date:   Tue, 07 May 2019 23:43:34 -0700 (PDT)
+        Wed, 08 May 2019 00:04:06 -0700 (PDT)
+Message-ID: <5cd27f66.1c69fb81.f833c.c907@mx.google.com>
+Date:   Wed, 08 May 2019 00:04:06 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.14
-Subject: stable/linux-5.0.y build: 208 builds: 3 failed, 205 passed,
- 48 warnings (v5.0.14)
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.41
+Subject: stable/linux-4.19.y build: 206 builds: 3 failed, 203 passed,
+ 33 warnings (v4.19.41)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,16 +63,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.0.y build: 208 builds: 3 failed, 205 passed, 48 warnings (v5=
-.0.14)
+stable/linux-4.19.y build: 206 builds: 3 failed, 203 passed, 33 warnings (v=
+4.19.41)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
-rnel/v5.0.14/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.41/
 
 Tree: stable
-Branch: linux-5.0.y
-Git Describe: v5.0.14
-Git Commit: 274ede3e1a5fb3d0fd33acafb08993e95972c51f
+Branch: linux-4.19.y
+Git Describe: v4.19.41
+Git Commit: 21de7eb67cff193e92a4556ae282a994e69b8499
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e.git
 Built: 7 unique architectures
@@ -90,25 +90,24 @@ Warnings Detected:
 arc:    arc-linux-gcc (ARC HS GNU/Linux glibc toolchain 2018.09-rc1) 8.2.1 =
 20180814
 
-    allnoconfig: 1 warning
-    axs103_defconfig: 6 warnings
-    axs103_smp_defconfig: 6 warnings
-    haps_hs_defconfig: 2 warnings
-    haps_hs_smp_defconfig: 2 warnings
-    hsdk_defconfig: 4 warnings
-    nsim_hs_defconfig: 2 warnings
-    nsim_hs_smp_defconfig: 2 warnings
-    nsimosci_hs_defconfig: 4 warnings
-    nsimosci_hs_smp_defconfig: 4 warnings
-    tinyconfig: 1 warning
-    vdk_hs38_defconfig: 5 warnings
-    vdk_hs38_smp_defconfig: 5 warnings
+    axs103_defconfig: 3 warnings
+    axs103_smp_defconfig: 3 warnings
+    haps_hs_defconfig: 1 warning
+    haps_hs_smp_defconfig: 1 warning
+    hsdk_defconfig: 3 warnings
+    nsim_hs_defconfig: 1 warning
+    nsim_hs_smp_defconfig: 1 warning
+    nsimosci_hs_defconfig: 3 warnings
+    nsimosci_hs_smp_defconfig: 3 warnings
+    vdk_hs38_defconfig: 4 warnings
+    vdk_hs38_smp_defconfig: 4 warnings
 
 mips:    mips-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0
 
-    db1xxx_defconfig: 1 warning
+    lemote2f_defconfig: 1 warning
+    loongson3_defconfig: 2 warnings
     malta_qemu_32r6_defconfig: 1 warning
-    rb532_defconfig: 1 warning
+    nlm_xlp_defconfig: 1 warning
 
 x86_64:    gcc (Debian 8.3.0-6) 8.3.0
 
@@ -119,23 +118,15 @@ Warnings summary:
 
     25   arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is n=
 ot used [-Wunused-value]
-    13   arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length =
-array 'pd0' [-Wvla]
+    3    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
     2    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined =
 but not used [-Wunused-function]
-    2    arch/arc/boot/dts/axs10x_mb.dtsi:227.15-231.6: Warning (i2c_bus_re=
-g): /axs10x_mb/i2c@0x1f000/eeprom@0x57: I2C bus unit address format error, =
-expected "57"
-    2    arch/arc/boot/dts/axs10x_mb.dtsi:221.15-225.6: Warning (i2c_bus_re=
-g): /axs10x_mb/i2c@0x1f000/eeprom@0x54: I2C bus unit address format error, =
-expected "54"
     1    {standard input}:131: Warning: macro instruction expanded into mul=
 tiple instructions
-    1    drivers/mtd/nand/raw/au1550nd.c:447:57: warning: pointer type mism=
-atch in conditional expression
-    1    drivers/ata/pata_rb532_cf.c:165:24: warning: unused variable 'info=
-' [-Wunused-variable]
-    1    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    .config:1006:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -161,12 +152,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -245,18 +232,10 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
-    arch/arc/boot/dts/axs10x_mb.dtsi:221.15-225.6: Warning (i2c_bus_reg): /=
-axs10x_mb/i2c@0x1f000/eeprom@0x54: I2C bus unit address format error, expec=
-ted "54"
-    arch/arc/boot/dts/axs10x_mb.dtsi:227.15-231.6: Warning (i2c_bus_reg): /=
-axs10x_mb/i2c@0x1f000/eeprom@0x57: I2C bus unit address format error, expec=
-ted "57"
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -266,18 +245,10 @@ ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/arc/boot/dts/axs10x_mb.dtsi:221.15-225.6: Warning (i2c_bus_reg): /=
-axs10x_mb/i2c@0x1f000/eeprom@0x54: I2C bus unit address format error, expec=
-ted "54"
-    arch/arc/boot/dts/axs10x_mb.dtsi:227.15-231.6: Warning (i2c_bus_reg): /=
-axs10x_mb/i2c@0x1f000/eeprom@0x57: I2C bus unit address format error, expec=
-ted "57"
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -392,27 +363,13 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/mtd/nand/raw/au1550nd.c:447:57: warning: pointer type mismatch =
-in conditional expression
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -511,23 +468,19 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
-section mismatches
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
 
@@ -538,12 +491,10 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
  mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -653,8 +604,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -668,8 +623,14 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
+lid for HOTPLUG_PCI_SHPC
+    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -852,8 +813,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3156:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -862,34 +827,28 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
 section mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 =
-section mismatches
-
-Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -899,12 +858,10 @@ ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings=
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings=
 , 0 section mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -1029,12 +986,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/ata/pata_rb532_cf.c:165:24: warning: unused variable 'info' [-W=
-unused-variable]
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1182,7 +1135,7 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+    .config:1006:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1201,12 +1154,8 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1225,14 +1174,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sec=
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sec=
 tion mismatches
 
 Warnings:
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
@@ -1242,12 +1189,10 @@ ed [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0=
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0=
  section mismatches
 
 Warnings:
-    arch/arc/mm/tlb.c:914:2: warning: ISO C90 forbids variable length array=
- 'pd0' [-Wvla]
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
