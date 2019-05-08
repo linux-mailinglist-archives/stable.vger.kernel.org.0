@@ -2,115 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88311180E4
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 22:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D728D18107
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 22:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727568AbfEHUQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 16:16:33 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:37404 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727780AbfEHUQd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 16:16:33 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x48KE7Sw139454;
-        Wed, 8 May 2019 20:16:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2018-07-02;
- bh=RNyiBPHYmMKPy9Ae5WLvwYN+r0cY1awKN5dSIQUf1PM=;
- b=y/TCL95Rml3dD4NpWNmcSltG1tNIp46T5O+MdFYvMJD9CGl0ObYJAHZ+EBHDVsfaoLxR
- HNuv4F9EbW+pwZ3JnWtmXK1IaBTnVvo0f5bZt3PKv8mi6LnvDz073Pe4CTHHYWXXw8bG
- 8GDjv8SM8UXXY8bYJmV0Rbi6m8TAXJuHgCrnieYQbYrIbfoXJLRAgEHG0Zj8XqV1UhLx
- w+Rxq6LZ6j8pQiOP8jcrMHhECLb+xBSx7hlx+ptO9ACBfbgKblb5dQAcT+TAL41qfKSl
- D5SBBKtV7/kN2aG5rRydMzzAsCsy6liumZZhjKRGvxEQmj7wASMO7K05iqKQrNLE1Tlk Aw== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 2s94b66prj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 08 May 2019 20:16:21 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x48KF9SY093762;
-        Wed, 8 May 2019 20:16:20 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 2s94bac3s1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 08 May 2019 20:16:20 +0000
-Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x48KGIXK020586;
-        Wed, 8 May 2019 20:16:18 GMT
-Received: from [192.168.1.222] (/71.63.128.209)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 08 May 2019 13:16:17 -0700
-Subject: Re: [PATCH] hugetlbfs: always use address space in inode for resv_map
- pointer
-To:     yuyufen <yuyufen@huawei.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Michal Hocko <mhocko@kernel.org>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        id S1728798AbfEHUYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 16:24:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34946 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728776AbfEHUYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 16:24:53 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D834721734;
+        Wed,  8 May 2019 20:24:52 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.92)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1hOT7U-0007eq-1S; Wed, 08 May 2019 16:24:52 -0400
+Message-Id: <20190508202451.935409793@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Wed, 08 May 2019 16:24:28 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-References: <20190416065058.GB11561@dhcp22.suse.cz>
- <20190419204435.16984-1-mike.kravetz@oracle.com>
- <fafe9985-7db1-b65c-523d-875ab4b3b3b8@huawei.com>
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <5d7dc0d5-7cd3-eb95-a1e7-9c68fe393647@oracle.com>
-Date:   Wed, 8 May 2019 13:16:09 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [for-next][PATCH 01/13] x86_64: Add gap to int3 to allow for call emulation
+References: <20190508202427.252736423@goodmis.org>
 MIME-Version: 1.0
-In-Reply-To: <fafe9985-7db1-b65c-523d-875ab4b3b3b8@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9251 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=976
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1905080124
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9251 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1905080124
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/8/19 12:10 AM, yuyufen wrote:
-> On 2019/4/20 4:44, Mike Kravetz wrote:
->> Continuing discussion about commit 58b6e5e8f1ad ("hugetlbfs: fix memory
->> leak for resv_map") brought up the issue that inode->i_mapping may not
->> point to the address space embedded within the inode at inode eviction
->> time.  The hugetlbfs truncate routine handles this by explicitly using
->> inode->i_data.  However, code cleaning up the resv_map will still use
->> the address space pointed to by inode->i_mapping.  Luckily, private_data
->> is NULL for address spaces in all such cases today but, there is no
->> guarantee this will continue.
->>
->> Change all hugetlbfs code getting a resv_map pointer to explicitly get
->> it from the address space embedded within the inode.  In addition, add
->> more comments in the code to indicate why this is being done.
->>
->> Reported-by: Yufen Yu <yuyufen@huawei.com>
->> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-...
-> 
-> Dose this patch have been applied?
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-Andrew has pulled it into his tree.  However, I do not believe there has
-been an ACK or Review, so am not sure of the exact status.
+To allow an int3 handler to emulate a call instruction, it must be able to
+push a return address onto the stack. Add a gap to the stack to allow the
+int3 handler to push the return address and change the return from int3 to
+jump straight to the emulated called function target.
 
-> I think it is better to add fixes label, like:
-> Fixes: 58b6e5e8f1ad ("hugetlbfs: fix memory leak for resv_map")
-> 
-> Since the commit 58b6e5e8f1a has been merged to stable, this patch also be needed.
-> https://www.spinics.net/lists/stable/msg298740.html
+Link: http://lkml.kernel.org/r/20181130183917.hxmti5josgq4clti@treble
+Link: http://lkml.kernel.org/r/20190502162133.GX2623@hirez.programming.kicks-ass.net
 
-It must have been the AI that decided 58b6e5e8f1a needed to go to stable.
-Even though this technically does not fix 58b6e5e8f1a, I'm OK with adding
-the Fixes: to force this to go to the same stable trees.
+[
+  Note, this is needed to allow Live Kernel Patching to not miss calling a
+  patched function when tracing is enabled. -- Steven Rostedt
+]
 
+Cc: stable@vger.kernel.org
+Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
+Tested-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ arch/x86/entry/entry_64.S | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 1f0efdb7b629..27fcc6fbdd52 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -879,7 +879,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work_interrupt		smp_irq_work_interrupt
+  * @paranoid == 2 is special: the stub will never switch stacks.  This is for
+  * #DF: if the thread stack is somehow unusable, we'll still get a useful OOPS.
+  */
+-.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
++.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1 create_gap=0
+ ENTRY(\sym)
+ 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+ 
+@@ -899,6 +899,20 @@ ENTRY(\sym)
+ 	jnz	.Lfrom_usermode_switch_stack_\@
+ 	.endif
+ 
++	.if \create_gap == 1
++	/*
++	 * If coming from kernel space, create a 6-word gap to allow the
++	 * int3 handler to emulate a call instruction.
++	 */
++	testb	$3, CS-ORIG_RAX(%rsp)
++	jnz	.Lfrom_usermode_no_gap_\@
++	.rept	6
++	pushq	5*8(%rsp)
++	.endr
++	UNWIND_HINT_IRET_REGS offset=8
++.Lfrom_usermode_no_gap_\@:
++	.endif
++
+ 	.if \paranoid
+ 	call	paranoid_entry
+ 	.else
+@@ -1130,7 +1144,7 @@ apicinterrupt3 HYPERV_STIMER0_VECTOR \
+ #endif /* CONFIG_HYPERV */
+ 
+ idtentry debug			do_debug		has_error_code=0	paranoid=1 shift_ist=DEBUG_STACK
+-idtentry int3			do_int3			has_error_code=0
++idtentry int3			do_int3			has_error_code=0	create_gap=1
+ idtentry stack_segment		do_stack_segment	has_error_code=1
+ 
+ #ifdef CONFIG_XEN_PV
 -- 
-Mike Kravetz
+2.20.1
+
+
