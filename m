@@ -2,82 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 248F91760C
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 12:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4225717634
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 12:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727212AbfEHKdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 06:33:53 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40969 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727210AbfEHKdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 06:33:53 -0400
-Received: by mail-wr1-f65.google.com with SMTP id d12so6033066wrm.8
-        for <stable@vger.kernel.org>; Wed, 08 May 2019 03:33:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xVtdUK+TpGxlj3pBIdVdDogk1OqnLaMqv2RKH4qzPJY=;
-        b=d1wrSAHwBpq93v/dOSUc34WMx9yK0gHVosSFO5muXS+UFJAik1ydwotIzvOTYYXVOa
-         tDYUX26hO1Yelvn6HzStcmDXtGYddV368qCXfmtT3nWM6ahttdAN3uUlqVpsn+cO+ZR9
-         UV7nALDgVlLlyI19mIcBDRPEVkLrLsozhssHvmBwGOwVqP5pqzpO224mG2si/T8FzwJT
-         edKQIJJH7tKhvZwYCUf8aRkmiggScG9ME1lqdBM7U9FGnsx/OFcSYc7eBlxtD7JUX56x
-         E1iv7mZCuEbUo/ID6hr82zhE3HJymGVNdeXwXNNha23PZX8SbuJ2NecnnLpRgJ2muaeM
-         mW+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xVtdUK+TpGxlj3pBIdVdDogk1OqnLaMqv2RKH4qzPJY=;
-        b=WP2953ZAhAuc/Rsnfwi4AjBLMmbv58TY4bucSDLKH46fcU1AyC5248bJzUkWHN5hVx
-         NZP8lkFkHDqnn75mVWG+6FuLK7fcMlGy1dV39uplJAOkeEUIMrtpJIsft5/LzX7MOOME
-         IILyVBtduUL7erFNSYHXgli6OjYAT8GFe57dn1972wFvxHBgXTovlYIkTyVMi6mjCqeY
-         pip2fzTlAI/xKlH0T42v+1Q8vhNL9AdJJ/vtWJn3UAABfFzaNXt+IqeElYes5BoAdymG
-         6qRRUyX2okC70wVlslK2okkUrEeu4iwJxXKU3AG0+aKE29ugKBWO3q61UOqRUr6jN0jf
-         5DNg==
-X-Gm-Message-State: APjAAAVCbJGu7dykaHntSJbrIk9AHx6nerYkuyi6rG7TuYEZdmQRTdrL
-        YLnCZMSJeRbZMGPezsNG8Isn30tqllTS/w==
-X-Google-Smtp-Source: APXvYqzqvIYofId5dQVaJEh+1DbRQ+stwT2DlMam4MaoitHnrbujjdXrPYH7weyXqx3in/Ue9MLYqw==
-X-Received: by 2002:adf:f686:: with SMTP id v6mr4019228wrp.246.1557311631585;
-        Wed, 08 May 2019 03:33:51 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t126sm1776417wma.1.2019.05.08.03.33.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 May 2019 03:33:50 -0700 (PDT)
-Message-ID: <5cd2b08e.1c69fb81.b2d10.806e@mx.google.com>
-Date:   Wed, 08 May 2019 03:33:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726180AbfEHKqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 06:46:12 -0400
+Received: from mga04.intel.com ([192.55.52.120]:47235 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725922AbfEHKqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 06:46:12 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 May 2019 03:46:11 -0700
+X-ExtLoop1: 1
+Received: from faerberc-mobl.ger.corp.intel.com (HELO [10.252.63.220]) ([10.252.63.220])
+  by fmsmga005.fm.intel.com with ESMTP; 08 May 2019 03:46:10 -0700
+Subject: Re: [PATCH 1/2] drm/i915: Fix fastset vs. pfit on/off on HSW EDP
+ transcoder
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+References: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
+From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Message-ID: <8c07fb94-ab18-b371-5cff-7e071e3a31c7@linux.intel.com>
+Date:   Wed, 8 May 2019 12:46:09 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.41
-Subject: stable/linux-4.19.y boot: 68 boots: 0 failed,
- 66 passed with 2 untried/unknown (v4.19.41)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190425162906.5242-1-ville.syrjala@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 68 boots: 0 failed, 66 passed with 2 untried/unkn=
-own (v4.19.41)
+Op 25-04-2019 om 18:29 schreef Ville Syrjala:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+>
+> On HSW the pipe A panel fitter lives inside the display power well,
+> and the input MUX for the EDP transcoder needs to be configured
+> appropriately to route the data through the power well as needed.
+> Changing the MUX setting is not allowed while the pipe is active,
+> so we need to force a full modeset whenever we need to change it.
+>
+> Currently we may end up doing a fastset which won't change the
+> MUX settings, but it will drop the power well reference, and that
+> kills the pipe.
+>
+> Cc: stable@vger.kernel.org
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/intel_display.c  |  9 +++++++++
+>  drivers/gpu/drm/i915/intel_pipe_crc.c | 13 ++++++++++---
+>  2 files changed, 19 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+> index c67f165b466c..691c9a929164 100644
+> --- a/drivers/gpu/drm/i915/intel_display.c
+> +++ b/drivers/gpu/drm/i915/intel_display.c
+> @@ -12133,6 +12133,7 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+>  			  struct intel_crtc_state *pipe_config,
+>  			  bool adjust)
+>  {
+> +	struct intel_crtc *crtc = to_intel_crtc(current_config->base.crtc);
+>  	bool ret = true;
+>  	bool fixup_inherited = adjust &&
+>  		(current_config->base.mode.private_flags & I915_MODE_FLAG_INHERITED) &&
+> @@ -12354,6 +12355,14 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+>  		PIPE_CONF_CHECK_X(gmch_pfit.pgm_ratios);
+>  	PIPE_CONF_CHECK_X(gmch_pfit.lvds_border_bits);
+>  
+> +	/*
+> +	 * Changing the EDP transcoder input mux
+> +	 * (A_ONOFF vs. A_ON) requires a full modeset.
+> +	 */
+> +	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A &&
+> +	    current_config->cpu_transcoder == TRANSCODER_EDP)
+> +		PIPE_CONF_CHECK_BOOL(pch_pfit.enabled);
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.41/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.41/
+I guess it depends if we want to make it a blocker or not..
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.41
-Git Commit: 21de7eb67cff193e92a4556ae282a994e69b8499
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 35 unique boards, 15 SoC families, 10 builds out of 206
+> +
+>  	if (!adjust) {
+>  		PIPE_CONF_CHECK_I(pipe_src_w);
+>  		PIPE_CONF_CHECK_I(pipe_src_h);
+> diff --git a/drivers/gpu/drm/i915/intel_pipe_crc.c b/drivers/gpu/drm/i915/intel_pipe_crc.c
+> index e94b5b1bc1b7..e7c7be4911c1 100644
+> --- a/drivers/gpu/drm/i915/intel_pipe_crc.c
+> +++ b/drivers/gpu/drm/i915/intel_pipe_crc.c
+> @@ -311,10 +311,17 @@ intel_crtc_crc_setup_workarounds(struct intel_crtc *crtc, bool enable)
+>  	pipe_config->base.mode_changed = pipe_config->has_psr;
+>  	pipe_config->crc_enabled = enable;
+>  
+> -	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A) {
+> +	if (IS_HASWELL(dev_priv) &&
+> +	    pipe_config->base.active && crtc->pipe == PIPE_A &&
+> +	    pipe_config->cpu_transcoder == TRANSCODER_EDP) {
+> +		bool old_need_power_well = pipe_config->pch_pfit.enabled ||
+> +			pipe_config->pch_pfit.force_thru;
+> +		bool new_need_power_well = pipe_config->pch_pfit.enabled ||
+> +			enable;
+> +
+>  		pipe_config->pch_pfit.force_thru = enable;
+> -		if (pipe_config->cpu_transcoder == TRANSCODER_EDP &&
+> -		    pipe_config->pch_pfit.enabled != enable)
+> +
+> +		if (old_need_power_well != new_need_power_well)
+>  			pipe_config->base.connectors_changed = true;
 
----
-For more info write to <info@kernelci.org>
+Could we get rid of this logic and set mode_changed instead?
+
+Ah, I see that is done in 2/2, much less surprises then. :)
+
+In that case, for both:
+
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+
