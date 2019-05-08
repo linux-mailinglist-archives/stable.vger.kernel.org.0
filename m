@@ -2,48 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A93E17B51
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 16:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE1817B53
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 16:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727304AbfEHOGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 10:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42046 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726767AbfEHOGs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 10:06:48 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C447920675;
-        Wed,  8 May 2019 14:06:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557324408;
-        bh=Xkzsie3FbQaGp4gy2CU9zdtI/NF6YHLpPdU2TmOh+cc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m+tLl/nMBRnTGqumubQ0zGvurU+x6oHfXi8kkZfcT7DkhebXLDj55++mdhy5VXgWm
-         /ENMBPj7oXTscf7dF3Ao5yfmFX1eRn3R2NBogJm+MJAB6Dzqt+VYpl7Wvbw9bsv51K
-         Pb0YvAsFtNrbGNPG9me5U93bWK2jsvJU49sJxDx0=
-Date:   Wed, 8 May 2019 16:01:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: Please apply commit b90cd6f2b905 to v4.19.y and earlier
-Message-ID: <20190508140102.GA18939@kroah.com>
-References: <41f58f37-314b-2f4e-441f-46961a2d7b88@roeck-us.net>
+        id S1727618AbfEHOIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 10:08:48 -0400
+Received: from smtp.domeneshop.no ([194.63.252.55]:54234 "EHLO
+        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727543AbfEHOIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 10:08:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org; s=ds201810;
+        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject; bh=OXWL9yM5oSKvXY+Sc7sNvmmV1lIcFuLOw5jmcfOW6rc=;
+        b=C11pfppLtMrgZB4cdv4b181Uat0VLWF7YT6O5JXLMFO/XBN+xchN+ebE9yvTJw5yRIISfd1FRaNIJieIMEDm2JmQCTXKhJANlb0ABNeipCn3FmhSFuNMSSLruKv7UL1OZSigptel6JhQfBhw0cOjsXRZcEMs+6I61qCBgJBlpF+dBAI7HXMdkaVjSSk2ZEKmIcumfjOzvh7o2B2tFVHq9hb4q4b73FRM7adc8eLkBlU0ZXGvSGGC8pk2Zr9xoB0FXFbAAhQns7fQcBmSopbKyH0E1E4FV8dRau7vFjqVIn7Vusxbrr9Cv43QbDbSh+G00FrYxfybxAwvbkDYr+dvLA==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:61879 helo=[192.168.10.178])
+        by smtp.domeneshop.no with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.84_2)
+        (envelope-from <noralf@tronnes.org>)
+        id 1hONFV-0002YE-Gp; Wed, 08 May 2019 16:08:45 +0200
+Subject: Re: [PATCH] drm/cma-helper: Fix drm_gem_cma_free_object()
+To:     Oleksandr Andrushchenko <andr2000@gmail.com>,
+        dri-devel@lists.freedesktop.org
+Cc:     "Li, Tingqian" <tingqian.li@intel.com>, stable@vger.kernel.org
+References: <20190426124753.53722-1-noralf@tronnes.org>
+ <67fc69cc-7db3-968e-2492-acd01dc3def5@tronnes.org>
+ <1816a2c7-d409-09f5-964e-ebe7d4b91d1d@gmail.com>
+From:   =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Message-ID: <d1f983a0-fa3d-f3e1-707b-3412becc109e@tronnes.org>
+Date:   Wed, 8 May 2019 16:08:42 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41f58f37-314b-2f4e-441f-46961a2d7b88@roeck-us.net>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <1816a2c7-d409-09f5-964e-ebe7d4b91d1d@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 08, 2019 at 06:32:50AM -0700, Guenter Roeck wrote:
-> Commit b90cd6f2b905 ("scsi: libsas: fix a race condition when smp task timeout")
-> fixes CVE-2018-20836 [1]. Please apply to v4.19.y and earlier releases.
 
-Queued up everywhere, thanks!
 
-greg k-h
+Den 08.05.2019 08.33, skrev Oleksandr Andrushchenko:
+> On 5/7/19 7:04 PM, Noralf Trønnes wrote:
+>> Hi,
+>>
+>> Could someone please have a look at this one?
+>>
+>> Noralf.
+>>
+>> Den 26.04.2019 14.47, skrev Noralf Trønnes:
+>>> The logic for freeing an imported buffer with a virtual address is
+>>> broken. It will free the buffer instead of unmapping the dma buf.
+>>> Fix by reversing the if ladder and first check if the buffer is
+>>> imported.
+>>>
+>>> Fixes: b9068cde51ee ("drm/cma-helper: Add DRM_GEM_CMA_VMAP_DRIVER_OPS")
+>>> Cc: stable@vger.kernel.org
+>>> Reported-by: "Li, Tingqian" <tingqian.li@intel.com>
+>>> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+> Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+
+Thanks Oleksandr, applied to drm-misc-next-fixes.
+
+Noralf.
+
+>>> ---
+>>>
+>>>   drivers/gpu/drm/drm_gem_cma_helper.c | 8 ++++----
+>>>   1 file changed, 4 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c
+>>> b/drivers/gpu/drm/drm_gem_cma_helper.c
+>>> index cc26625b4b33..e01ceed09e67 100644
+>>> --- a/drivers/gpu/drm/drm_gem_cma_helper.c
+>>> +++ b/drivers/gpu/drm/drm_gem_cma_helper.c
+>>> @@ -186,13 +186,13 @@ void drm_gem_cma_free_object(struct
+>>> drm_gem_object *gem_obj)
+>>>         cma_obj = to_drm_gem_cma_obj(gem_obj);
+>>>   -    if (cma_obj->vaddr) {
+>>> -        dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+>>> -                cma_obj->vaddr, cma_obj->paddr);
+>>> -    } else if (gem_obj->import_attach) {
+>>> +    if (gem_obj->import_attach) {
+>>>           if (cma_obj->vaddr)
+>>>               dma_buf_vunmap(gem_obj->import_attach->dmabuf,
+>>> cma_obj->vaddr);
+>>>           drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
+>>> +    } else if (cma_obj->vaddr) {
+>>> +        dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+>>> +                cma_obj->vaddr, cma_obj->paddr);
+>>>       }
+>>>         drm_gem_object_release(gem_obj);
+>>>
+>> _______________________________________________
+>> dri-devel mailing list
+>> dri-devel@lists.freedesktop.org
+>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> 
