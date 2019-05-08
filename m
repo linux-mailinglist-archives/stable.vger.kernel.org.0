@@ -2,66 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 954731757F
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 11:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D22A117533
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 11:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbfEHJ5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 05:57:36 -0400
-Received: from smtp.hosts.co.uk ([85.233.160.19]:13514 "EHLO smtp.hosts.co.uk"
+        id S1726523AbfEHJfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 05:35:24 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57874 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726281AbfEHJ5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 05:57:35 -0400
-X-Greylist: delayed 1688 seconds by postgrey-1.27 at vger.kernel.org; Wed, 08 May 2019 05:57:34 EDT
-Received: from [81.155.195.4] (helo=[192.168.1.118])
-        by smtp.hosts.co.uk with esmtpa (Exim)
-        (envelope-from <antlists@youngman.org.uk>)
-        id 1hOItA-0006Nd-4w; Wed, 08 May 2019 10:29:24 +0100
-Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
- raid0 bios
-To:     Song Liu <liu.song.a23@gmail.com>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-References: <20190430223722.20845-1-gpiccoli@canonical.com>
- <20190430223722.20845-2-gpiccoli@canonical.com>
- <CAPhsuW4SeUhNOJJkEf9wcLjbbc9qX0=C8zqbyCtC7Q8fdL91hw@mail.gmail.com>
- <c8721ba3-5d38-7906-5049-e2b16e967ecf@canonical.com>
- <CAPhsuW6ahmkUhCgns=9WHPXSvYefB0Gmr1oB7gdZiD86sKyHFg@mail.gmail.com>
-Cc:     linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
-        axboe@kernel.dk, Gavin Guo <gavin.guo@canonical.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>, kernel@gpiccoli.net,
-        Ming Lei <ming.lei@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        stable@vger.kernel.org
-From:   Wols Lists <antlists@youngman.org.uk>
-Message-ID: <5CD2A172.4010302@youngman.org.uk>
-Date:   Wed, 8 May 2019 10:29:22 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101
- Thunderbird/38.7.0
+        id S1726404AbfEHJfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 05:35:24 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 7BC613019882;
+        Wed,  8 May 2019 09:35:24 +0000 (UTC)
+Received: from localhost (ovpn-12-18.pek2.redhat.com [10.72.12.18])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CA67C5D9C8;
+        Wed,  8 May 2019 09:35:23 +0000 (UTC)
+Date:   Wed, 8 May 2019 17:35:20 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        x86@kernel.org, tglx@linutronix.de, mingo@kernel.org,
+        hpa@zytor.com, kirill.shutemov@linux.intel.com,
+        keescook@chromium.org
+Subject: Re: [PATCH v4] x86/mm/KASLR: Fix the size of vmemmap section
+Message-ID: <20190508093520.GD24922@MiWiFi-R3L-srv>
+References: <20190508080417.15074-1-bhe@redhat.com>
+ <20190508082418.GC24922@MiWiFi-R3L-srv>
+ <20190508090424.GA19015@zn.tnic>
 MIME-Version: 1.0
-In-Reply-To: <CAPhsuW6ahmkUhCgns=9WHPXSvYefB0Gmr1oB7gdZiD86sKyHFg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190508090424.GA19015@zn.tnic>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Wed, 08 May 2019 09:35:24 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/05/19 22:07, Song Liu wrote:
-> Could you please run a quick test with raid5? I am wondering whether
-> some race condition could get us into similar crash. If we cannot easily
-> trigger the bug, we can process with this version.
+On 05/08/19 at 11:04am, Borislav Petkov wrote:
+> On Wed, May 08, 2019 at 04:24:18PM +0800, Baoquan He wrote:
+> > I think this's worth noticing stable tree:
+> > 
+> > Cc: stable@vger.kernel.org
+> 
+> Fixes: ?
 
-Bear in mind I just read the list and write documentation, but ...
+Not sure which commit validated 5-level.
 
-My gut feeling is that if it can theoretically happen for all raid
-modes, it should be fixed for all raid modes. What happens if code
-changes elsewhere and suddenly it really does happen for say raid-5?
+Hi Kirill,
 
-On the other hand, if fixing it in md.c only gets tested for raid-0, how
-do we know it will actually work for other raids if they do suddenly
-start falling through.
+Is this commit OK?
 
-Academic purity versus engineering practicality :-)
+Fiexes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic for CONFIG_X86_5LEVEL=y")
 
-Cheers,
-Wol
+Thanks
+Baoquan
