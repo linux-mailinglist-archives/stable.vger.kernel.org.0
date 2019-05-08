@@ -2,94 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0210317E48
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458CD180B0
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 21:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728465AbfEHQlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 12:41:02 -0400
-Received: from mail-yw1-f67.google.com ([209.85.161.67]:46624 "EHLO
-        mail-yw1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728457AbfEHQlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 12:41:02 -0400
-Received: by mail-yw1-f67.google.com with SMTP id a130so11149135ywe.13
-        for <stable@vger.kernel.org>; Wed, 08 May 2019 09:41:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=pK0d0RZmUxDAg2UlpJZk6eqKP4c8MBzekwXBlQJcaEA=;
-        b=YS5aDbbBHo/ZpqucQo4JmlEVicPBsSMyK91OtXe2V8t5TpyOfWVVDZcWLMQ/dv72Jf
-         v62QeBR8G9/vH2qg+fbIYKlXx5sgCxG23YYKxDnUkXd6o3YISBsF+FfsL2MJqAoy1Qzy
-         wBj+YvrFo99bgAxJ4s7iDmnOj9bnYrxt2dH3s=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=pK0d0RZmUxDAg2UlpJZk6eqKP4c8MBzekwXBlQJcaEA=;
-        b=N25JXnkikO48crfAwkTapxKSlwGz7OcRrVemm0LgRC/YGrh0KFPNtCHrdOpbdONrxN
-         VSELA82dTMlQJKawUKkxBGhglXN3ywZKhsdrXTL4u7OMESWpUpvkVzlIQL8Uu0Ojp+KP
-         SgEsDbhH7Ir8hH5OIzXyLH21YxthBK7r+VjEI7sBHJM04/7f8YufRtckz2S2bcxLtVoa
-         l+DE2WQTSMQupfH5cEPfxV0zqMm2CwyKez8LFb33zn0BYa/9mJryiBP9kiEQe3HP3d4/
-         qSmJIMVq2YOQZMiXH/lyZIVi52e5cLd+FCew9/H2FRGfrB+eh1QVogqHh37Io11WAhY5
-         Fxvw==
-X-Gm-Message-State: APjAAAVkuK/1rTzDx1ib1P8cmeJf3TI97KYqa6PmS6wuVpfrrkssQHFG
-        0Y5HC6TDBT/YIyYnB4ACRDOfxw==
-X-Google-Smtp-Source: APXvYqz9ir/Gh8NUb1ycpQcDDVHcfdkyx6GifoD6MZrbq72G+zOHknduP6n8ZVhZZ9W94OE4VgRLcg==
-X-Received: by 2002:a25:4941:: with SMTP id w62mr27324493yba.360.1557333661480;
-        Wed, 08 May 2019 09:41:01 -0700 (PDT)
-Received: from lbrmn-lnxub113.broadcom.net ([192.19.228.250])
-        by smtp.gmail.com with ESMTPSA id u6sm4671081ywl.71.2019.05.08.09.40.59
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 May 2019 09:41:00 -0700 (PDT)
-From:   Scott Branden <scott.branden@broadcom.com>
-To:     Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>
-Cc:     BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>,
-        linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Trac Hoang <trac.hoang@broadcom.com>,
-        stable@vger.kernel.org, Scott Branden <scott.branden@broadcom.com>
-Subject: [PATCH v2 2/2] mmc: sdhci-iproc: Set NO_HISPD bit to fix HS50 data hold time problem
-Date:   Wed,  8 May 2019 09:40:44 -0700
-Message-Id: <20190508164044.22451-3-scott.branden@broadcom.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190508164044.22451-1-scott.branden@broadcom.com>
-References: <20190508164044.22451-1-scott.branden@broadcom.com>
+        id S1726982AbfEHTwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 15:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51092 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726852AbfEHTwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 15:52:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0611F214AF;
+        Wed,  8 May 2019 19:52:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557345156;
+        bh=EtV0GppDsx6A7wMUfgUybNBag75yT8pxR0enu+LrYO4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bEiFOQVWOixaOLfDaVIDPX1vHBSGu2u68cjK06cJUnjRVbpexNQYZz59diTRuwnoF
+         KewR5+N39Zavf+6UffG1D7Zjc4sUW6Z/L4LJYvX1hmxFgLh4WY56brhmDsk5bis8id
+         gBF8RBM1YW/Tsz8LAiFaQrZA3OfWn6TDMoPUgFpU=
+Date:   Wed, 8 May 2019 18:49:57 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4pyFIFBBU1M=?= =?utf-8?Q?=3A?= Stable queue: queue-5.0
+Message-ID: <20190508164957.GA6157@kroah.com>
+References: <cki.A78709C14B.5852BV39BE@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cki.A78709C14B.5852BV39BE@redhat.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trac Hoang <trac.hoang@broadcom.com>
+On Wed, May 08, 2019 at 11:54:19AM -0400, CKI Project wrote:
+> Hello,
+> 
+> We ran automated tests on a patchset that was proposed for merging into this
+> kernel tree. The patches were applied to:
+> 
+>        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+>             Commit: 274ede3e1a5f - Linux 5.0.14
 
-The iproc host eMMC/SD controller hold time does not meet the
-specification in the HS50 mode.  This problem can be mitigated
-by disabling the HISPD bit; thus forcing the controller output
-data to be driven on the falling clock edges rather than the
-rising clock edges.
+Meta-comment, are you all going to move to the "latest" stable queue
+now that 5.1 is out?  Or are you stuck at 5.0?  5.0 is only going to be
+around for a few more weeks at most.
 
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Trac Hoang <trac.hoang@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
----
- drivers/mmc/host/sdhci-iproc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+And, any plans on doing this for 4.19 or other older LTS kernels that
+are going to be sticking around for many years?
 
-diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
-index 9d4071c41c94..2feb4ef32035 100644
---- a/drivers/mmc/host/sdhci-iproc.c
-+++ b/drivers/mmc/host/sdhci-iproc.c
-@@ -220,7 +220,8 @@ static const struct sdhci_iproc_data iproc_cygnus_data = {
- 
- static const struct sdhci_pltfm_data sdhci_iproc_pltfm_data = {
- 	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
--		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
-+		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12 |
-+		  SDHCI_QUIRK_NO_HISPD_BIT,
- 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN,
- 	.ops = &sdhci_iproc_ops,
- };
--- 
-2.17.1
+thanks,
 
+greg k-h
