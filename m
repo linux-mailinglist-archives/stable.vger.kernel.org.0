@@ -2,127 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D32173E6
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 10:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95B91742C
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 10:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbfEHIdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 04:33:09 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:34937 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726548AbfEHIdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 04:33:09 -0400
-Received: by mail-ed1-f65.google.com with SMTP id p26so3433043edr.2
-        for <stable@vger.kernel.org>; Wed, 08 May 2019 01:33:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=sender:date:from:to:cc:subject:message-id:mail-followup-to
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=pK6wVbjmnvB/fkRhlO06WndQQley/CLsWlKi7Lo/4rk=;
-        b=jyKQzz7bipEyXQ6mMXMUmxM55YNMYTV09/uuB5zNRCY0/9ZBIP+Lfyi94AaxP8Hj0y
-         hnYPMzZdHpSUNgX7RXjh+tdhhT8nVwCAOFUoj8mudlIsy8+E2rpAyby34PhbMF66SUe3
-         RGDCf2Tg5xAYPjSK0ABIlA3ukX0dLv5ZwK9Bs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=pK6wVbjmnvB/fkRhlO06WndQQley/CLsWlKi7Lo/4rk=;
-        b=XLWVQwGccd7ZcF8T8DWvu9arYyVKKt/cGybV5rsAKyBSWpk48yduQjN5+Mu9WckG5L
-         1wyeMIzHNlKd5E+v/CE+a3uIuYz8gfr2yIz1zfn436mxQJssplmakmY4f7r0+sdtj+oy
-         RVXnDo2g8MjMazbvOUBrYbZQK1ZMbRE8tQTlUpt7/v9qXyL/ezZ9m1SdUxA8UdCZzsuE
-         0ZaikxPOgCAZui16aXIrgJfUF5UKuNQLU6bqvm/8kg/+DKWGxDe4C8eyHXM6TATPfj2T
-         WzRY8iJpAU1f+o9+09ZRzaxtTKvuM0O7CaR2aIH5hMbT5yldSyjbV3LN9iRArJPb8qRR
-         5aug==
-X-Gm-Message-State: APjAAAVp0kQdNvXO83QEl9k1VG6byfhOrVLEKeom0wVQrLCnFohafOQw
-        +l42tQn5woXY29AAQf+yEP9A1A==
-X-Google-Smtp-Source: APXvYqwUkZlPgHY9vRwVHZGsHkyTtIbJaS1tfENj3GHg4lDVQYijjVoHXXBWgmsCGnRbNduUH4WMew==
-X-Received: by 2002:a50:8927:: with SMTP id e36mr38416424ede.54.1557304387856;
-        Wed, 08 May 2019 01:33:07 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:569e:0:3106:d637:d723:e855])
-        by smtp.gmail.com with ESMTPSA id m27sm2593869eje.67.2019.05.08.01.33.06
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 08 May 2019 01:33:06 -0700 (PDT)
-Date:   Wed, 8 May 2019 10:33:03 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, David Airlie <airlied@linux.ie>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        DRI mailing list <dri-devel@lists.freedesktop.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        stable <stable@vger.kernel.org>,
-        =?iso-8859-1?Q?S=E9bastien?= Szymanski 
-        <sebastien.szymanski@armadeus.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH RE-RESEND 1/2] drm/panel: Add support for Armadeus ST0700
- Adapt
-Message-ID: <20190508083303.GR17751@phenom.ffwll.local>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        DRI mailing list <dri-devel@lists.freedesktop.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        stable <stable@vger.kernel.org>,
-        =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
-References: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
- <CAOMZO5B2nMsVNO6O_D+YTSjux=-DjNPGxhkEi3AQquOZVODumA@mail.gmail.com>
- <20190507161950.GA24879@ravnborg.org>
+        id S1726934AbfEHIqo convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 8 May 2019 04:46:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56604 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726793AbfEHIqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 04:46:44 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C66ED8830F
+        for <stable@vger.kernel.org>; Wed,  8 May 2019 08:46:43 +0000 (UTC)
+Received: from [172.54.42.34] (cpt-0010.paas.prod.upshift.rdu2.redhat.com [10.0.18.81])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6EF6110021B5;
+        Wed,  8 May 2019 08:46:41 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190507161950.GA24879@ravnborg.org>
-X-Operating-System: Linux phenom 4.14.0-3-amd64 
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.0
+Message-ID: <cki.51BD83F814.M0YECTR4MJ@redhat.com>
+X-Gitlab-Pipeline-ID: 9508
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9508
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 08 May 2019 08:46:43 +0000 (UTC)
+Date:   Wed, 8 May 2019 04:46:44 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 07, 2019 at 06:19:50PM +0200, Sam Ravnborg wrote:
-> Hi Fabio
-> 
-> On Tue, May 07, 2019 at 12:33:39PM -0300, Fabio Estevam wrote:
-> > [Adding Sam, who is helping to review/collect panel-simple patches]
-> > 
-> > On Tue, May 7, 2019 at 12:27 PM S�bastien Szymanski
-> > <sebastien.szymanski@armadeus.com> wrote:
-> > >
-> > > This patch adds support for the Armadeus ST0700 Adapt. It comes with a
-> > > Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
-> > > that it can be connected on the TFT header of Armadeus Dev boards.
-> > >
-> > > Cc: stable@vger.kernel.org # v4.19
-> > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > > Signed-off-by: S�bastien Szymanski <sebastien.szymanski@armadeus.com>
-> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-> 
-> If you wil lresend the patch I can apply it.
-> I have lost the original mail.
+Hello,
 
-Usually patchwork should have it already (and you can pipe the raw
-patchwork mbox into dim apply), but somehow it's not there either.
-Not sure why, sometimes this is because mails are stuck in moderation,
-sometimes because people do interesting things with their mails (e.g. smtp
-servers mangling formatting).
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 274ede3e1a5f - Linux 5.0.14
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 274ede3e1a5f - Linux 5.0.14
+
+We then merged the patchset with `git am`:
+
+  net-stmmac-use-bfsize1-in-ndesc_init_rx_desc.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ Ethernet drivers sanity [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+     🚧 ✅ selinux-policy: serge-testsuite [9]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ Ethernet drivers sanity [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     🚧 ✅ selinux-policy: serge-testsuite [9]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Ethernet drivers sanity [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+     🚧 ✅ selinux-policy: serge-testsuite [9]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ Ethernet drivers sanity [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     🚧 ✅ selinux-policy: serge-testsuite [9]
+     🚧 ✅ audit: audit testsuite test [7]
+     🚧 ✅ stress: stress-ng [8]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
