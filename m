@@ -2,98 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EFE217B62
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 16:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F6A1C93E
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 15:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727620AbfEHOOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 10:14:32 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:33169 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726703AbfEHOOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 10:14:32 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id B8EA9444;
-        Wed,  8 May 2019 10:14:30 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 08 May 2019 10:14:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uIr5yT
-        QCvSIB56H10tVB9NRzCA/IqkPKHxDk0+nW8W4=; b=eGTiy+aKge/3GR/navxD/u
-        lJmzxgTvOticPB13FQaB59/GwV/cnsE2emu28NkSO1FEp7iGstccFADQPg/8OeYH
-        4uG4tF4Kd1MaI/LVMFJtXE4+m/+1L8rOBO8s2/M36M6wZ3XnXM5woAGyXPMTS/kx
-        eyHhoQYk89WM+d/x15rSPdkHQN7ylwRkX3NLBU4F5GgIGqlvdhifB8PetDzZUGfD
-        5zQJVsUao0PSdJniMdo7Kgvdq9AfDI8gwbPmppwagVDpy7HsQbEgT2n7EYn3iuW/
-        +nN+K5FSbC8YpyFTbrmmqT9aVXM+xMYUnU0PuAVgeZlWFc5wa5HwWj6zuWEPU/Ag
-        ==
-X-ME-Sender: <xms:ROTSXFFFgNQX0xzgWiEhfdKfWf3U951_Sc_YJY_neVJFCyq6srro3w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeefgdejfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:ROTSXI3R-vzmd6IzRNgs_UnB7Fkdnbhu2VkTFg5dfRqMGM63SZMzwg>
-    <xmx:ROTSXComKiHn97alAzMAR9MbANc6KbzGUxogGliPv5I6iReVWsr-EA>
-    <xmx:ROTSXFOPb3oex6tWQ8Ef0jndrtk93yiiGTJ7FTPF5VBdaFQKF69J_Q>
-    <xmx:RuTSXGc48ouxrmXaXg8Z0ms_nAK_WqNPyouqZOrEO1_aXB7fD9hGbQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0D82080061;
-        Wed,  8 May 2019 10:14:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: most: sound: pass correct device when creating a" failed to apply to 4.19-stable tree
-To:     christian.gromm@microchip.com, erosca@de.adit-jv.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 May 2019 16:13:40 +0200
-Message-ID: <155732482015120@kroah.com>
+        id S1725928AbfENNMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 09:12:33 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:41642 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725901AbfENNMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 09:12:32 -0400
+Received: by mail-pl1-f195.google.com with SMTP id f12so6237242plt.8
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 06:12:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=8j4bTePHKvxQHvdCNJpe7zeTS2p9aPCumSJI0+OPUho=;
+        b=QFJ7Uj5YexuFf6uISaOzUn230iNrGfeGlc5p43zd5sz3KohEp5mu1AieK2+nd3A4Ul
+         eQMY2Z8dEI6SO527Hx3lpfx+qG6PFsMPpD8t0XJPiyUJoIEBsXU5wI/dI8+2+w1/Bl+0
+         F7ItnZYkgweTYUPkCBIpXzOWiI6lbAftb+paqcWaapzMQYXvfTvEEGXQMmjkEZM7EvfU
+         JDy5Nb6VX3ws3gAv+5glr4Pzo4FaSnwIq6LIsjLjUDxFyWz8vLdxOval9hI5sS5ZRJpl
+         bt6XDed0yt9H9K/f2WX8NStrCnX2jieuEGxGp4X4QmG0/5+qsHIdzOxikX00+d+q7typ
+         qEwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=8j4bTePHKvxQHvdCNJpe7zeTS2p9aPCumSJI0+OPUho=;
+        b=syZuGhyH62Ev4zaikLC95zTiuq0OZ0lcY/xJjYCgFnqYi+ZvD8aqPyDdJn1PWaJZCi
+         g/JQRE7eFf3o0czsd0BYGzIY3q0l2Y2XjFW9e8++Em0+F38B71InEjbZkmMPzxW0GOWW
+         e91BJuvCjZMl/xGzehFYD9Gfrpp29TprnGJnMXLdZYO06z2uugEoPn1nj9qUOLPZWLYs
+         RD8TkthfLApM5EhdC6/dGDgJuRdDh3H73wSSvQqKh2iUIwK0BXDk6PKBz0nZNC3+tNJt
+         9pTzcPbs95U5yvAkKFqvMIIwFShk+2y6cWkaNllkFjX1SQMRdrCgr3RtHcXwUz5WOelA
+         /dFw==
+X-Gm-Message-State: APjAAAVSXMATyRreFYkoYKzXDxkKSvwzYjKVLlUNhSjwlVyhb8tFPQMD
+        UfN3b79xh1+HPMqq/z2bMeUTQA==
+X-Google-Smtp-Source: APXvYqxqgfcYr8ueqlj/ULqC7UHBgssWO16AHhzumldec5lumpiBNFn6b6GYsRNopPkPY29HgGR5nw==
+X-Received: by 2002:a17:902:84:: with SMTP id a4mr37940501pla.210.1557839552080;
+        Tue, 14 May 2019 06:12:32 -0700 (PDT)
+Received: from box.localdomain ([134.134.139.83])
+        by smtp.gmail.com with ESMTPSA id 5sm2405005pfh.109.2019.05.14.06.12.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 May 2019 06:12:30 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id F2F551007C1; Wed,  8 May 2019 17:47:39 +0300 (+03)
+Date:   Wed, 8 May 2019 17:47:39 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, x86@kernel.org, tglx@linutronix.de,
+        mingo@kernel.org, hpa@zytor.com, kirill.shutemov@linux.intel.com,
+        keescook@chromium.org
+Subject: Re: [PATCH v4] x86/mm/KASLR: Fix the size of vmemmap section
+Message-ID: <20190508144739.we4owbvjmjisium5@box>
+References: <20190508080417.15074-1-bhe@redhat.com>
+ <20190508082418.GC24922@MiWiFi-R3L-srv>
+ <20190508090424.GA19015@zn.tnic>
+ <20190508093520.GD24922@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190508093520.GD24922@MiWiFi-R3L-srv>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, May 08, 2019 at 05:35:20PM +0800, Baoquan He wrote:
+> On 05/08/19 at 11:04am, Borislav Petkov wrote:
+> > On Wed, May 08, 2019 at 04:24:18PM +0800, Baoquan He wrote:
+> > > I think this's worth noticing stable tree:
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > 
+> > Fixes: ?
+> 
+> Not sure which commit validated 5-level.
+> 
+> Hi Kirill,
+> 
+> Is this commit OK?
+> 
+> Fiexes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic for CONFIG_X86_5LEVEL=y")
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Yep.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 98592c1faca82a9024a64e4ecead68b19f81c299 Mon Sep 17 00:00:00 2001
-From: Christian Gromm <christian.gromm@microchip.com>
-Date: Tue, 30 Apr 2019 14:07:48 +0200
-Subject: [PATCH] staging: most: sound: pass correct device when creating a
- sound card
-
-This patch fixes the usage of the wrong struct device when calling
-function snd_card_new.
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Signed-off-by: Christian Gromm <christian.gromm@microchip.com>
-Fixes: 69c90cf1b2fa ("staging: most: sound: call snd_card_new with struct device")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/staging/most/sound/sound.c b/drivers/staging/most/sound/sound.c
-index 7c998673a6f8..342f390d68b3 100644
---- a/drivers/staging/most/sound/sound.c
-+++ b/drivers/staging/most/sound/sound.c
-@@ -613,7 +613,7 @@ static int audio_probe_channel(struct most_interface *iface, int channel_id,
- 	INIT_LIST_HEAD(&adpt->dev_list);
- 	iface->priv = adpt;
- 	list_add_tail(&adpt->list, &adpt_list);
--	ret = snd_card_new(&iface->dev, -1, "INIC", THIS_MODULE,
-+	ret = snd_card_new(iface->driver_dev, -1, "INIC", THIS_MODULE,
- 			   sizeof(*channel), &adpt->card);
- 	if (ret < 0)
- 		goto err_free_adpt;
-
+-- 
+ Kirill A. Shutemov
