@@ -2,68 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5116F1703A
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 06:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7A1171A3
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 08:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725832AbfEHE5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 00:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725815AbfEHE5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 00:57:39 -0400
-Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032A42053B;
-        Wed,  8 May 2019 04:57:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557291459;
-        bh=zc8ET2TlkNTxfwKt24Q51994S2V4ItrjPRhAJkNmZiQ=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=NiW6sio4OdTuLOj3M1f6+jhfGZ22s3WTTqKsXOZAKCCulte+Bz8KILCV27BX5IHkd
-         ktiBaWbBtEyZNBDN62d30NahZ5q0BGCvqC7udh4nHKnAcYbgCRgy3ys64nUGGJ9Ipt
-         BTY5oQdc4yNsxh7vfDi9bDRKtpMa3iLMVJjUsYKI=
-Date:   Wed, 8 May 2019 13:57:36 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Andreas Ziegler <andreas.ziegler@fau.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] tracing: probeevent: Fix to make the type of
- $comm string
-Message-Id: <20190508135736.8b8495e0406acb48e4980758@kernel.org>
-In-Reply-To: <20190507232909.645695d3@oasis.local.home>
-References: <155723736241.9149.14582064184468574539.stgit@devnote2>
-        <20190507174758.1D5FA205C9@mail.kernel.org>
-        <20190508122403.73cce014a6f7d66e0835e2be@kernel.org>
-        <20190507232909.645695d3@oasis.local.home>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1726470AbfEHGd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 02:33:26 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:34461 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726428AbfEHGd0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 02:33:26 -0400
+Received: by mail-lf1-f65.google.com with SMTP id v18so11457348lfi.1
+        for <stable@vger.kernel.org>; Tue, 07 May 2019 23:33:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=wSfgw7BiPTIK7rSF926mclLkOzCKoWt4POZASR80exU=;
+        b=XvtuTdiXdG50tx+b8t5XwkSkDso6nENBekOdEmZda7xvisWmptANvIxR6iYQRN6/ca
+         h18uEkd4f7FA+9WxqLyhGDlLKchuF0UDxvZeZjdq/VAdX3sxp5nK41isI3OxaPWAeSF/
+         uxeP2Uzq83bFlQgE4HTGsQ+1I7mhWnsxHLofoObgQg75XDVKIo84/1Z+NfBLAy9lLqO9
+         6tqHK1S8CELuYGOmgfWWjBxaiNlBfbHDYUuxJHHI4vXUvjaHqiXkQYm0olq0iBwpNLmA
+         UjEkQy799azHbghK9M/dNeSAa01GuSIBA326RSM2Moy3vMHvMwYEZVAjFEoahb9TaxW0
+         Z/9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=wSfgw7BiPTIK7rSF926mclLkOzCKoWt4POZASR80exU=;
+        b=t2OohRqkJiV7VZCDsvU71QUntbNzAdBMhaLmAuznmuxAvgayH0TEd37Qp/rit7jcn3
+         Rji8U87ED96Cgtq61XkreTn4uxx2XJpbHAROYP+JwlRYnBd+xZT41rWlEeX9wYjU5vk6
+         SPb5cX3srKAuDleCgKoF9K6+DgzJNFdYxulLWNK8nKEBaaj4uDfTGpiq8wezTVKzDAoj
+         IqB6l0of4NxzOGR+BdzqdaQqiT/WrGNyO05n7/q8PSc5qaYI4//7Ot08CBjT20yIwvTj
+         63ryb+eEvXJVwac9Pb6b9Hz+rOEvOcJECPLI/S2etTt3d8F0V53tBgzryFa+jWQF3fPS
+         X2lQ==
+X-Gm-Message-State: APjAAAUxWzOFAU/U6sxmnrXXJvg0nj1Huf8A4sWoFau+DrMDH9eE8vhG
+        Nn3QJqYc/req29G05yrYFDTO0PJk
+X-Google-Smtp-Source: APXvYqzKo3uOdRfceBfe2sas5wmynfulmeB4OPUXute987F0OwmCAXSLAI7TT44VpKJPPuRM4yAFlQ==
+X-Received: by 2002:a19:a40f:: with SMTP id q15mr17527331lfc.121.1557297203407;
+        Tue, 07 May 2019 23:33:23 -0700 (PDT)
+Received: from [10.17.182.20] (ll-22.209.223.85.sovam.net.ua. [85.223.209.22])
+        by smtp.gmail.com with ESMTPSA id a11sm238059ljb.31.2019.05.07.23.33.22
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 07 May 2019 23:33:22 -0700 (PDT)
+Subject: Re: [PATCH] drm/cma-helper: Fix drm_gem_cma_free_object()
+To:     =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
+        dri-devel@lists.freedesktop.org
+Cc:     "Li, Tingqian" <tingqian.li@intel.com>, stable@vger.kernel.org
+References: <20190426124753.53722-1-noralf@tronnes.org>
+ <67fc69cc-7db3-968e-2492-acd01dc3def5@tronnes.org>
+From:   Oleksandr Andrushchenko <andr2000@gmail.com>
+Message-ID: <1816a2c7-d409-09f5-964e-ebe7d4b91d1d@gmail.com>
+Date:   Wed, 8 May 2019 09:33:21 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+In-Reply-To: <67fc69cc-7db3-968e-2492-acd01dc3def5@tronnes.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 23:29:09 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+On 5/7/19 7:04 PM, Noralf Trønnes wrote:
+> Hi,
+>
+> Could someone please have a look at this one?
+>
+> Noralf.
+>
+> Den 26.04.2019 14.47, skrev Noralf Trønnes:
+>> The logic for freeing an imported buffer with a virtual address is
+>> broken. It will free the buffer instead of unmapping the dma buf.
+>> Fix by reversing the if ladder and first check if the buffer is imported.
+>>
+>> Fixes: b9068cde51ee ("drm/cma-helper: Add DRM_GEM_CMA_VMAP_DRIVER_OPS")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: "Li, Tingqian" <tingqian.li@intel.com>
+>> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+>> ---
+>>
+>>   drivers/gpu/drm/drm_gem_cma_helper.c | 8 ++++----
+>>   1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c b/drivers/gpu/drm/drm_gem_cma_helper.c
+>> index cc26625b4b33..e01ceed09e67 100644
+>> --- a/drivers/gpu/drm/drm_gem_cma_helper.c
+>> +++ b/drivers/gpu/drm/drm_gem_cma_helper.c
+>> @@ -186,13 +186,13 @@ void drm_gem_cma_free_object(struct drm_gem_object *gem_obj)
+>>   
+>>   	cma_obj = to_drm_gem_cma_obj(gem_obj);
+>>   
+>> -	if (cma_obj->vaddr) {
+>> -		dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+>> -			    cma_obj->vaddr, cma_obj->paddr);
+>> -	} else if (gem_obj->import_attach) {
+>> +	if (gem_obj->import_attach) {
+>>   		if (cma_obj->vaddr)
+>>   			dma_buf_vunmap(gem_obj->import_attach->dmabuf, cma_obj->vaddr);
+>>   		drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
+>> +	} else if (cma_obj->vaddr) {
+>> +		dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+>> +			    cma_obj->vaddr, cma_obj->paddr);
+>>   	}
+>>   
+>>   	drm_gem_object_release(gem_obj);
+>>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
-> On Wed, 8 May 2019 12:24:03 +0900
-> Masami Hiramatsu <mhiramat@kernel.org> wrote:
-> 
-> > > How should we proceed with this patch?
-> > >   
-> > 
-> > Thanks for the report! I missed the Fixes tag. I realized that the comm type
-> > check was done in other place in older kernel. This bug was introduced by
-> > commit 533059281ee5 ("tracing: probeevent: Introduce new argument fetching code").
-> 
-> I've applied this to my queue. Should I change the Fixes to the above commit?
-
-Thanks! Yes, please update the Fixes tag to 533059281ee5, that is the correct commit.
-
-Thank you,
-
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
