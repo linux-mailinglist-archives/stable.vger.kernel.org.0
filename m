@@ -2,173 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B95B91742C
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 10:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7FD1748E
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 11:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbfEHIqo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 8 May 2019 04:46:44 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56604 "EHLO mx1.redhat.com"
+        id S1726730AbfEHJGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 05:06:43 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:41786 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbfEHIqo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 04:46:44 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725815AbfEHJGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 05:06:42 -0400
+Received: from zn.tnic (p2E584D41.dip0.t-ipconnect.de [46.88.77.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C66ED8830F
-        for <stable@vger.kernel.org>; Wed,  8 May 2019 08:46:43 +0000 (UTC)
-Received: from [172.54.42.34] (cpt-0010.paas.prod.upshift.rdu2.redhat.com [10.0.18.81])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6EF6110021B5;
-        Wed,  8 May 2019 08:46:41 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 779A01EC0A9C;
+        Wed,  8 May 2019 11:06:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1557306401;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=F6au2xiowFFEoX8qqczga5C08P8EsTyJL1hDoPHKRLU=;
+        b=gtag/QyTLpaXebQdNOSc2BxfbBdPsOotaUxQnYYlZqYKxx/hGyCqFVD+1hLrWBMJGRJxEZ
+        7jYLvNVsWkAglyoG6bfT8M0QtF4bmPPjww95fIWt28VVP4uNTqIMG0XuThFYjETPXFOt8P
+        7Vv7sRm8/Ga9Dlt/7Jfry6pnXZkz+1o=
+Date:   Wed, 8 May 2019 11:04:24 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        x86@kernel.org, tglx@linutronix.de, mingo@kernel.org,
+        hpa@zytor.com, kirill.shutemov@linux.intel.com,
+        keescook@chromium.org
+Subject: Re: [PATCH v4] x86/mm/KASLR: Fix the size of vmemmap section
+Message-ID: <20190508090424.GA19015@zn.tnic>
+References: <20190508080417.15074-1-bhe@redhat.com>
+ <20190508082418.GC24922@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.0
-Message-ID: <cki.51BD83F814.M0YECTR4MJ@redhat.com>
-X-Gitlab-Pipeline-ID: 9508
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9508
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 08 May 2019 08:46:43 +0000 (UTC)
-Date:   Wed, 8 May 2019 04:46:44 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20190508082418.GC24922@MiWiFi-R3L-srv>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Wed, May 08, 2019 at 04:24:18PM +0800, Baoquan He wrote:
+> I think this's worth noticing stable tree:
+> 
+> Cc: stable@vger.kernel.org
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Fixes: ?
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 274ede3e1a5f - Linux 5.0.14
+-- 
+Regards/Gruss,
+    Boris.
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 274ede3e1a5f - Linux 5.0.14
-
-We then merged the patchset with `git am`:
-
-  net-stmmac-use-bfsize1-in-ndesc_init_rx_desc.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-d8ce985c60a3a8fd1cf9b9ba3e8e10beeb420404.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [7]
-     🚧 ✅ stress: stress-ng [8]
-     🚧 ✅ selinux-policy: serge-testsuite [9]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     🚧 ✅ selinux-policy: serge-testsuite [9]
-     🚧 ✅ audit: audit testsuite test [7]
-     🚧 ✅ stress: stress-ng [8]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [7]
-     🚧 ✅ stress: stress-ng [8]
-     🚧 ✅ selinux-policy: serge-testsuite [9]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     🚧 ✅ selinux-policy: serge-testsuite [9]
-     🚧 ✅ audit: audit testsuite test [7]
-     🚧 ✅ stress: stress-ng [8]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+Good mailing practices for 400: avoid top-posting and trim the reply.
