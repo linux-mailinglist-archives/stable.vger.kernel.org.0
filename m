@@ -2,146 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 200A517FB7
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 20:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE331808D
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 21:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbfEHSSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 14:18:47 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:44726 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727352AbfEHSSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 14:18:47 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=wuyihao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0TRCTQGt_1557339523;
-Received: from ali-186590dcce93-2.local(mailfrom:wuyihao@linux.alibaba.com fp:SMTPD_---0TRCTQGt_1557339523)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 09 May 2019 02:18:44 +0800
-Subject: Re: [PATCH 1/2] NFSv4.1: Again fix a race where CB_NOTIFY_LOCK fails
- to wake a waiter
-To:     Jeff Layton <jlayton@kernel.org>, linux-nfs@vger.kernel.org,
-        "J. Bruce Fields" <bfields@fieldses.org>
-Cc:     stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        caspar@linux.alibaba.com
-References: <d0b6fc01-0a73-e4f7-b393-3ecc9aacffb0@linux.alibaba.com>
- <2a1cebca-1efb-1686-475b-a581e50e61b4@linux.alibaba.com>
- <84addb90fc41372ad723d469a00bbb4cce2c9c55.camel@kernel.org>
-From:   Yihao Wu <wuyihao@linux.alibaba.com>
-Message-ID: <0f965495-9bb7-e35e-696b-5115f561366c@linux.alibaba.com>
-Date:   Thu, 9 May 2019 02:18:46 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:60.0)
- Gecko/20100101 Thunderbird/60.6.1
+        id S1727843AbfEHTiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 15:38:05 -0400
+Received: from pbmsgap01.intersil.com ([192.157.179.201]:35184 "EHLO
+        pbmsgap01.intersil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727489AbfEHTiE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 15:38:04 -0400
+X-Greylist: delayed 2290 seconds by postgrey-1.27 at vger.kernel.org; Wed, 08 May 2019 15:38:04 EDT
+Received: from pps.filterd (pbmsgap01.intersil.com [127.0.0.1])
+        by pbmsgap01.intersil.com (8.16.0.27/8.16.0.27) with SMTP id x48Ir5jJ025711
+        for <stable@vger.kernel.org>; Wed, 8 May 2019 14:59:53 -0400
+Received: from pbmxdp01.intersil.corp (pbmxdp01.pb.intersil.com [132.158.200.222])
+        by pbmsgap01.intersil.com with ESMTP id 2s96903rr8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 08 May 2019 14:59:53 -0400
+Received: from pbmxdp01.intersil.corp (132.158.200.222) by
+ pbmxdp01.intersil.corp (132.158.200.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.1531.3; Wed, 8 May 2019 14:59:52 -0400
+Received: from localhost.localdomain (132.158.202.108) by
+ pbmxdp01.intersil.corp (132.158.200.222) with Microsoft SMTP Server id
+ 15.1.1531.3 via Frontend Transport; Wed, 8 May 2019 14:59:51 -0400
+From:   Chris Brandt <chris.brandt@renesas.com>
+To:     <stable@vger.kernel.org>
+CC:     Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH] ARM: 8680/1: boot/compressed: fix inappropriate Thumb2 mnemonic for __nop
+Date:   Wed, 8 May 2019 13:59:51 -0500
+Message-ID: <20190508185951.41148-1-chris.brandt@renesas.com>
+X-Mailer: git-send-email 2.16.1
 MIME-Version: 1.0
-In-Reply-To: <84addb90fc41372ad723d469a00bbb4cce2c9c55.camel@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-08_10:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=junk_notspam policy=junk score=0 suspectscore=4 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1905080115
+X-Proofpoint-Spam-Reason: mlx
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019/5/8 8:24 PM, Jeff Layton wrote:
-> On Wed, 2019-05-08 at 17:13 +0800, Yihao Wu wrote:
->> Commit b7dbcc0e433f ""NFSv4.1: Fix a race where CB_NOTIFY_LOCK fails
->> to wake a waiter" found this bug. However it didn't fix it. This can
->> be fixed by adding memory barrier pair.
->>
->> Specifically, if any CB_NOTIFY_LOCK should be handled between unlocking
->> the wait queue and freezable_schedule_timeout, only two cases are
->> possible. So CB_NOTIFY_LOCK will not be dropped unexpectly.
->>
->> 1. The callback thread marks the NFS client as waked. Then NFS client
->> noticed that itself is waked, so it don't goes to sleep. And it cleans
->> its wake mark.
->>
->> 2. The NFS client noticed that itself is not waked yet, so it goes to
->> sleep. No modification will ever happen to the wake mark in between.
->>
-> 
-> It's not clear to me what you mean by "wake mark" here. Do you mean the
-> "notified" flag? This could use a better description.
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-Yes. I mean "notified flag" by "wake mark". I will clear these ambiguities.
+[ Upstream commit 60ce2858514ed9ccaf00dc7e9f4dc219537e9855 ]
 
-Thanks
+Commit 06a4b6d009a1 ("ARM: 8677/1: boot/compressed: fix decompressor
+header layout for v7-M") fixed an issue in the layout of the header
+of the compressed kernel image that was caused by the assembler
+emitting narrow opcodes for 'mov r0, r0', and for this reason, the
+mnemonic was updated to use the W() macro, which will append the .w
+suffix (which forces a wide encoding) if required, i.e., when building
+the kernel in Thumb2 mode.
 
-> 
->> Fixes: a1d617d ("nfs: allow blocking locks to be awoken by lock callbacks")
->> Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
->> ---
->>  fs/nfs/nfs4proc.c | 21 +++++----------------
->>  1 file changed, 5 insertions(+), 16 deletions(-)
->>
->> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
->> index 741ff8c..f13ea09 100644
->> --- a/fs/nfs/nfs4proc.c
->> +++ b/fs/nfs/nfs4proc.c
->> @@ -6867,7 +6867,6 @@ struct nfs4_lock_waiter {
->>  	struct task_struct	*task;
->>  	struct inode		*inode;
->>  	struct nfs_lowner	*owner;
->> -	bool			notified;
->>  };
->>  
->>  static int
->> @@ -6889,13 +6888,13 @@ struct nfs4_lock_waiter {
->>  		/* Make sure it's for the right inode */
->>  		if (nfs_compare_fh(NFS_FH(waiter->inode), &cbnl->cbnl_fh))
->>  			return 0;
->> -
->> -		waiter->notified = true;
->>  	}
->>  
->>  	/* override "private" so we can use default_wake_function */
->>  	wait->private = waiter->task;
->> -	ret = autoremove_wake_function(wait, mode, flags, key);
->> +	ret = woken_wake_function(wait, mode, flags, key);
->> +	if (ret)
->> +		list_del_init(&wait->entry);
->>  	wait->private = waiter;
->>  	return ret;
->>  }
->> @@ -6914,8 +6913,7 @@ struct nfs4_lock_waiter {
->>  				    .s_dev = server->s_dev };
->>  	struct nfs4_lock_waiter waiter = { .task  = current,
->>  					   .inode = state->inode,
->> -					   .owner = &owner,
->> -					   .notified = false };
->> +					   .owner = &owner};
->>  	wait_queue_entry_t wait;
->>  
->>  	/* Don't bother with waitqueue if we don't expect a callback */
->> @@ -6928,21 +6926,12 @@ struct nfs4_lock_waiter {
->>  	add_wait_queue(q, &wait);
->>  
->>  	while(!signalled()) {
->> -		waiter.notified = false;
->>  		status = nfs4_proc_setlk(state, cmd, request);
->>  		if ((status != -EAGAIN) || IS_SETLK(cmd))
->>  			break;
->>  
->>  		status = -ERESTARTSYS;
->> -		spin_lock_irqsave(&q->lock, flags);
->> -		if (waiter.notified) {
->> -			spin_unlock_irqrestore(&q->lock, flags);
->> -			continue;
->> -		}
->> -		set_current_state(TASK_INTERRUPTIBLE);
->> -		spin_unlock_irqrestore(&q->lock, flags);
->> -
->> -		freezable_schedule_timeout(NFS4_LOCK_MAXTIMEOUT);
->> +		wait_woken(&wait, TASK_INTERRUPTIBLE, NFS4_LOCK_MAXTIMEOUT);
-> 
-> This seems to have dropped the "freezable" part above, such that waiting
-> on a file lock will prevent (e.g.) a laptop from suspending. I think
-> that needs to be in here as those waits can be quite long.
-> 
+However, this failed to take into account that on Thumb2 kernels built
+for CPUs that are also ARM capable, the entry point is entered in ARM
+mode, and so the instructions emitted here will be ARM instructions
+that only exist in a wide encoding to begin with, which is why the
+assembler rejects the .w suffix here and aborts the build with the
+following message:
 
-You're right. I overlooked this. This will be fixed.
+  head.S: Assembler messages:
+  head.S:132: Error: width suffixes are invalid in ARM mode -- `mov.w r0,r0'
 
-Thanks
+So replace the W(mov) with separate ARM and Thumb2 instructions, where
+the latter will only be used for THUMB2_ONLY builds.
 
->>  	}
->>  
->>  	finish_wait(q, &wait);
-> 
+Fixes: 06a4b6d009a1 ("ARM: 8677/1: boot/compressed: fix decompressor ...")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+---
+
+For the 4.9.x tree, commit 7b5407843691 was applied, but that caused
+an issue for CONFIG_THUMB2 builds as you can see in the commit
+message above.
+
+Therefore, this upstream fix (that came 2 weeks later) is also required
+in the 4.9.x tree to make it build again.
+---
+ arch/arm/boot/compressed/efi-header.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/compressed/efi-header.S b/arch/arm/boot/compressed/efi-header.S
+index 3f7d1b74c5e0..a17ca8d78656 100644
+--- a/arch/arm/boot/compressed/efi-header.S
++++ b/arch/arm/boot/compressed/efi-header.S
+@@ -17,7 +17,8 @@
+ 		@ there.
+ 		.inst	'M' | ('Z' << 8) | (0x1310 << 16)   @ tstne r0, #0x4d000
+ #else
+-		W(mov)	r0, r0
++ AR_CLASS(	mov	r0, r0		)
++  M_CLASS(	nop.w			)
+ #endif
+ 		.endm
+ 
+-- 
+2.16.1
 
