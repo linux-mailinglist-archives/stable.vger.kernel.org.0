@@ -2,118 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A54217E33
-	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFAA17E44
+	for <lists+stable@lfdr.de>; Wed,  8 May 2019 18:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727721AbfEHQhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 12:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50560 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727502AbfEHQhy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 12:37:54 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E5BB216F4;
-        Wed,  8 May 2019 16:37:50 +0000 (UTC)
-Date:   Wed, 8 May 2019 12:37:48 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [RFC][PATCH 1/2] x86: Allow breakpoints to emulate call
- functions
-Message-ID: <20190508123748.1737b8b5@gandalf.local.home>
-In-Reply-To: <CAHk-=wg5_fwx_-ybD9TLQE4rAUqtYzO2CAmpciWTkDn3dtKMOw@mail.gmail.com>
-References: <CAHk-=wjLXmOn=Cp=uOfO4gE01eN_-UcOUyrMTTw5-f_OfPO48Q@mail.gmail.com>
-        <20190506225819.11756974@oasis.local.home>
-        <CAHk-=wh4FCNBLe8OyDZt2Tr+k9JhhTsg3H8R4b55peKcf0b6eQ@mail.gmail.com>
-        <20190506232158.13c9123b@oasis.local.home>
-        <CAHk-=wi4vPg4pu6RvxQrUuBL4Vgwd2G2iaEJVVumny+cBOWMZw@mail.gmail.com>
-        <CAHk-=wg2_okyU8mpkGCUrudgfg8YmNetSD8=scNbOkN+imqZdQ@mail.gmail.com>
-        <20190507111227.1d4268d7@gandalf.local.home>
-        <CAHk-=wjYdj+vvV8uUA8eaUSxOhu=xuQxdo-dtM927j0-3hSkEw@mail.gmail.com>
-        <20190507163440.GV2606@hirez.programming.kicks-ass.net>
-        <CAHk-=wiuue37opWK5QaQ9f6twqDZuSratdP-1bK6kD9-Az5WnA@mail.gmail.com>
-        <20190507172159.5t3bm3mjkwagvite@treble>
-        <20190507172418.67ef6fc3@gandalf.local.home>
-        <CAHk-=wg5_fwx_-ybD9TLQE4rAUqtYzO2CAmpciWTkDn3dtKMOw@mail.gmail.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1728423AbfEHQlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 12:41:00 -0400
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:36306 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728415AbfEHQk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 May 2019 12:40:59 -0400
+Received: by mail-yw1-f68.google.com with SMTP id q185so16765755ywe.3
+        for <stable@vger.kernel.org>; Wed, 08 May 2019 09:40:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=Xa6DtNP/MsKA3xKlWUlfMOa1BuQnbHXWgUsbk88eqkY=;
+        b=GcFcfdz920X4hAX7aP+vIaiyEOWH4ow01gaSLiNFw/lkDgzf3WlT0694nzdDi/gyFN
+         Fc8v+7pLhnyHv2+P+5XPjJnwYWdmqdr85JV9OFtuv496D5IUyQgG7lZpBoCeTxt53pw7
+         PXnXA/FoWK1dK4Mwg211m0vncobkAkEZctTw4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=Xa6DtNP/MsKA3xKlWUlfMOa1BuQnbHXWgUsbk88eqkY=;
+        b=BMK3p++vnbeIQoDSMjuUOi7n4qKrI5vRU/Y/G/McfgYznooIUYS/hWfcJAQoFV6fn1
+         Zq8o1XJRDg6FcCAtsBCpC66/T+K05cmCXAvYLA6HnGdEsV9ZG/DtfcMaD34B2nE9hayG
+         YO6HpdAoUZgu8pZ8OAE67GRykzbxnllIhXGTBm7ukoctOxxz9Xv1AbtaMIZs4lnbrBSa
+         PaMhjzbuAKa9pGdwD83VCrQ9DkKxdssBb7M1nnFg8J6lBOfxyKv+vSXQ7eEj0jbJYTG2
+         vLk+Z/dJnDMa2gHYzhw+vjgb6XNeARyZzbf6xAlnJuYqLZGuPUUJ08ZoOEtnjGDVVQFW
+         ICHg==
+X-Gm-Message-State: APjAAAV3jp9NS3vDYUxX2U2pwF8oyNPbK9PMoxGhV1Vz7jVxTLkQ50SK
+        PsPn8d2QUXtdoZDxVQh4ThOCGQ==
+X-Google-Smtp-Source: APXvYqwwQ/ZXbeVOvDJBMAyLP+sfNNNFUcrgESJuSZJO2anvG8yUMgG4YKbZW8WAbZQhc+gylFARBQ==
+X-Received: by 2002:a81:2717:: with SMTP id n23mr12899509ywn.511.1557333658983;
+        Wed, 08 May 2019 09:40:58 -0700 (PDT)
+Received: from lbrmn-lnxub113.broadcom.net ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id u6sm4671081ywl.71.2019.05.08.09.40.56
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 May 2019 09:40:58 -0700 (PDT)
+From:   Scott Branden <scott.branden@broadcom.com>
+To:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>
+Cc:     BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>,
+        linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Trac Hoang <trac.hoang@broadcom.com>,
+        stable@vger.kernel.org, Scott Branden <scott.branden@broadcom.com>
+Subject: [PATCH v2 1/2] mmc: sdhci-iproc: cygnus: Set NO_HISPD bit to fix HS50 data hold time problem
+Date:   Wed,  8 May 2019 09:40:43 -0700
+Message-Id: <20190508164044.22451-2-scott.branden@broadcom.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190508164044.22451-1-scott.branden@broadcom.com>
+References: <20190508164044.22451-1-scott.branden@broadcom.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 May 2019 21:50:52 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+From: Trac Hoang <trac.hoang@broadcom.com>
 
-> > It's been a bane of mine for some time.  
-> 
-> Guys, I have basically a one-liner patch for your hangups.
-> 
-> It's called "rename 'sp' to 'user_sp' on x86-32".
-> 
-> Then we make the 'sp' field on x86-64 be a union, so that you can call
-> it user_sp or sp as you wish.
-> 
-> Yeah, it's really more than one line, because obviously the users will
-> need chaning, but honestly, that would be a _real_ cleanup. Make the
-> register match what it actually is.
+The iproc host eMMC/SD controller hold time does not meet the
+specification in the HS50 mode. This problem can be mitigated
+by disabling the HISPD bit; thus forcing the controller output
+data to be driven on the falling clock edges rather than the
+rising clock edges.
 
-But is it? Sure, it will be a reminder that it's different for x86-32,
-but that still doesn't take away the fact that pt_regs on x86_32 is an
-anomaly! Where else do we have part of a data structure that can't be
-read because it can possibly fault? If regs is a valid pointer, one
-would think that simply reading regs->sp (or regs->user_sp) would be no
-more dangerous than reading regs->ip.
+This change applies only to the Cygnus platform.
 
-The difference between entry_32.S from entry_64.S causes it to spill
-into C code, making the x86_64 code more difficult to deal with. Sure,
-10 to 15 years ago, all your arguments would make sense. But today, who
-uses x86_32?  Perhaps you may use it in a VM, but I asked a few
-developers when was the last time they used one, they told me 5 to 7
-years ago. I only boot x86_32 to test to make sure I didn't break it.
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Trac Hoang <trac.hoang@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ drivers/mmc/host/sdhci-iproc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Yes, your diffstat is really nice to the changes to entry_32.S, but at
-what cost? To make the x86_64 code more complex? That whole returning
-the regs in the int3 handler makes no sense on x86_64, but yet we would
-need to do it to handle x86_32. Why burden the architecture of today
-and tomorrow with the architecture of yesterday? x86_32 is becoming
-more obsolete by the day. It baffles me why we wouldn't want to contain
-its complexity in a single file then to spread it out like wildfire
-across the generic x86 code.
+diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
+index 9d12c06c7fd6..9d4071c41c94 100644
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -196,7 +196,8 @@ static const struct sdhci_ops sdhci_iproc_32only_ops = {
+ };
+ 
+ static const struct sdhci_pltfm_data sdhci_iproc_cygnus_pltfm_data = {
+-	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK,
++	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
+ 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN | SDHCI_QUIRK2_HOST_OFF_CARD_ON,
+ 	.ops = &sdhci_iproc_32only_ops,
+ };
+-- 
+2.17.1
 
-The &regs->sp hack is just one more rung in the complex learning curve
-ladder of becoming a Linux kernel developer.
-
--- Steve
