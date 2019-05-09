@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16BBF1919A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95F5191FD
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728487AbfEISx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:53:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
+        id S1727622AbfEIStz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbfEISx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:53:28 -0400
+        id S1727883AbfEIStx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76321217F9;
-        Thu,  9 May 2019 18:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85AD32183E;
+        Thu,  9 May 2019 18:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428007;
-        bh=O9PomuJkP140PHP9gtPkB3f9C32wLIzisqMz+jqkS80=;
+        s=default; t=1557427793;
+        bh=I+QDktYu+QQzHoDsXUrQ9bv4Jncxo0ot9xe/W1uWQZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4zOgqmlKfFldiP64G4CMWiN9znZQMytNcFP+ZY5pB+jh6ddeS6kxctAP2/J4e1hw
-         SDx2XBalHfmbGxVwTQwWWu0GaqrNwOij6RrHnZj5/XHBxir1lLrqhMvA+biTBmhjwj
-         6fgPstBUlde7u3PyVut5G9By87srMbVkhrAXhPj8=
+        b=zyK7xR+Oh1K1gaPcOq/fVuPN+hizW2OErYLEi5rmbWQmtxjU18C3iXakgmk3aybH0
+         hN4MdakQkZ6eitdkQoBhIhFrh/ZHukCUT3iWxZ8RcgzcmClGahYC39P4as1j7im8ue
+         cEh57gIzJIMUWPgdxkyIQapPkWJTy69eP3TqTckY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 70/95] NFSv4.1 fix incorrect return value in copy_file_range
+        stable@vger.kernel.org,
+        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 52/66] USB: serial: f81232: fix interrupt worker not stop
 Date:   Thu,  9 May 2019 20:42:27 +0200
-Message-Id: <20190509181314.342811653@linuxfoundation.org>
+Message-Id: <20190509181307.088759077@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0769663b4f580566ef6cdf366f3073dbe8022c39 ]
+From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
 
-According to the NFSv4.2 spec if the input and output file is the
-same file, operation should fail with EINVAL. However, linux
-copy_file_range() system call has no such restrictions. Therefore,
-in such case let's return EOPNOTSUPP and allow VFS to fallback
-to doing do_splice_direct(). Also when copy_file_range is called
-on an NFSv4.0 or 4.1 mount (ie., a server that doesn't support
-COPY functionality), we also need to return EOPNOTSUPP and
-fallback to a regular copy.
+commit 804dbee1e49774918339c1e5a87400988c0819e8 upstream.
 
-Fixes xfstest generic/075, generic/091, generic/112, generic/263
-for all NFSv4.x versions.
+The F81232 will use interrupt worker to handle MSR change.
+This patch will fix the issue that interrupt work should stop
+in close() and suspend().
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This also fixes line-status events being disabled after a suspend cycle
+until the port is re-opened.
+
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+[ johan: amend commit message ]
+Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
+Cc: stable <stable@vger.kernel.org>	# 4.1
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfs42proc.c | 3 ---
- fs/nfs/nfs4file.c  | 4 +++-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/usb/serial/f81232.c |   39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index fed06fd9998d3..94f98e190e632 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -329,9 +329,6 @@ ssize_t nfs42_proc_copy(struct file *src, loff_t pos_src,
- 	};
- 	ssize_t err, err2;
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -556,9 +556,12 @@ static int f81232_open(struct tty_struct
  
--	if (!nfs_server_capable(file_inode(dst), NFS_CAP_COPY))
--		return -EOPNOTSUPP;
--
- 	src_lock = nfs_get_lock_context(nfs_file_open_context(src));
- 	if (IS_ERR(src_lock))
- 		return PTR_ERR(src_lock);
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 45b2322e092d2..00d17198ee12a 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -133,8 +133,10 @@ static ssize_t nfs4_copy_file_range(struct file *file_in, loff_t pos_in,
- 				    struct file *file_out, loff_t pos_out,
- 				    size_t count, unsigned int flags)
+ static void f81232_close(struct usb_serial_port *port)
  {
-+	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
-+		return -EOPNOTSUPP;
- 	if (file_inode(file_in) == file_inode(file_out))
--		return -EINVAL;
-+		return -EOPNOTSUPP;
- 	return nfs42_proc_copy(file_in, pos_in, file_out, pos_out, count);
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++
+ 	f81232_port_disable(port);
+ 	usb_serial_generic_close(port);
+ 	usb_kill_urb(port->interrupt_in_urb);
++	flush_work(&port_priv->interrupt_work);
  }
  
--- 
-2.20.1
-
+ static void f81232_dtr_rts(struct usb_serial_port *port, int on)
+@@ -652,6 +655,40 @@ static int f81232_port_remove(struct usb
+ 	return 0;
+ }
+ 
++static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
++{
++	struct usb_serial_port *port = serial->port[0];
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
++		usb_kill_urb(port->read_urbs[i]);
++
++	usb_kill_urb(port->interrupt_in_urb);
++
++	if (port_priv)
++		flush_work(&port_priv->interrupt_work);
++
++	return 0;
++}
++
++static int f81232_resume(struct usb_serial *serial)
++{
++	struct usb_serial_port *port = serial->port[0];
++	int result;
++
++	if (tty_port_initialized(&port->port)) {
++		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
++		if (result) {
++			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
++					result);
++			return result;
++		}
++	}
++
++	return usb_serial_generic_resume(serial);
++}
++
+ static struct usb_serial_driver f81232_device = {
+ 	.driver = {
+ 		.owner =	THIS_MODULE,
+@@ -675,6 +712,8 @@ static struct usb_serial_driver f81232_d
+ 	.read_int_callback =	f81232_read_int_callback,
+ 	.port_probe =		f81232_port_probe,
+ 	.port_remove =		f81232_port_remove,
++	.suspend =		f81232_suspend,
++	.resume =		f81232_resume,
+ };
+ 
+ static struct usb_serial_driver * const serial_drivers[] = {
 
 
