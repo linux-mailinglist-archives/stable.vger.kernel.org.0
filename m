@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E046419205
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C21B19196
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728207AbfEISt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42754 "EHLO mail.kernel.org"
+        id S1728819AbfEISxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbfEISt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:28 -0400
+        id S1728844AbfEISxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:53:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 975E620578;
-        Thu,  9 May 2019 18:49:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 892C6204FD;
+        Thu,  9 May 2019 18:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427767;
-        bh=DSgNyAu3218PTqN3ZNvpI+NYW6lqI+fUcvQx/HBEHVU=;
+        s=default; t=1557427992;
+        bh=qxNcQDxSh66X3XT1A9HlEwqB20CxHkhLaAHXQ69M1j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFpg9K20iua7yX4TUqiZX69TRf7FT3rOysTelCP57jgKVz6v5zOGslv8PjJp/YiJn
-         VmE5SgOVF3DnMroNqwzFsCYKnSb4vM95dIt5ghGEB8KJL0LwAfugR8pcFK3mMNHXB6
-         M1wEc+iQI04IJ6/DGxhj/Vk84f9PyS78gjrDZSFQ=
+        b=ND2XEk6cRYf2A3huXYJ/OdoE6AEzZdD1t5v4cf1kXgqeeAMoD9k3rjIjva/J50PFY
+         EzysA24h04l85xu9lbb/7yRHDfm6XqahXZq4LXsd7Q33/Av/Jd8kzIBYeY8CDLmCUI
+         5uqhH/0D5Kl4TAlAZVSzPwj+ncS6JSTeVBayqM/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.19 63/66] UAS: fix alignment of scatter/gather segments
-Date:   Thu,  9 May 2019 20:42:38 +0200
-Message-Id: <20190509181308.012452081@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.0 82/95] ACPI / LPSS: Use acpi_lpss_* instead of acpi_subsys_* functions for hibernate
+Date:   Thu,  9 May 2019 20:42:39 +0200
+Message-Id: <20190509181315.038135125@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 3ae62a42090f1ed48e2313ed256a1182a85fb575 upstream.
+commit c8afd03486c26accdda4846e5561aa3f8e862a9d upstream.
 
-This is the UAS version of
+Commit 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from
+resume_noirq") makes acpi_lpss_{suspend_late,resume_early}() bail early
+on BYT/CHT as resume_from_noirq is set.
 
-747668dbc061b3e62bc1982767a3a1f9815fcf0e
-usb-storage: Set virt_boundary_mask to avoid SG overflows
+This means that on resume from hibernate dw_i2c_plat_resume() doesn't get
+called by the restore_early callback, acpi_lpss_resume_early(). Instead it
+should be called by the restore_noirq callback matching how things are done
+when resume_from_noirq is set and we are doing a regular resume.
 
-We are not as likely to be vulnerable as storage, as it is unlikelier
-that UAS is run over a controller without native support for SG,
-but the issue exists.
-The issue has been existing since the inception of the driver.
+Change the restore_noirq callback to acpi_lpss_resume_noirq so that
+dw_i2c_plat_resume() gets properly called when resume_from_noirq is set
+and we are resuming from hibernate.
 
-Fixes: 115bb1ffa54c ("USB: Add UAS driver")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
+Likewise also change the poweroff_noirq callback so that
+dw_i2c_plat_suspend gets called properly.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202139
+Fixes: 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from resume_noirq")
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |   35 ++++++++++++++++++++++-------------
- 1 file changed, 22 insertions(+), 13 deletions(-)
+ drivers/acpi/acpi_lpss.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -796,24 +796,33 @@ static int uas_slave_alloc(struct scsi_d
- {
- 	struct uas_dev_info *devinfo =
- 		(struct uas_dev_info *)sdev->host->hostdata;
-+	int maxp;
- 
- 	sdev->hostdata = devinfo;
- 
- 	/*
--	 * USB has unusual DMA-alignment requirements: Although the
--	 * starting address of each scatter-gather element doesn't matter,
--	 * the length of each element except the last must be divisible
--	 * by the Bulk maxpacket value.  There's currently no way to
--	 * express this by block-layer constraints, so we'll cop out
--	 * and simply require addresses to be aligned at 512-byte
--	 * boundaries.  This is okay since most block I/O involves
--	 * hardware sectors that are multiples of 512 bytes in length,
--	 * and since host controllers up through USB 2.0 have maxpacket
--	 * values no larger than 512.
-+	 * We have two requirements here. We must satisfy the requirements
-+	 * of the physical HC and the demands of the protocol, as we
-+	 * definitely want no additional memory allocation in this path
-+	 * ruling out using bounce buffers.
- 	 *
--	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
--	 * values can be as large as 2048.  To make that work properly
--	 * will require changes to the block layer.
-+	 * For a transmission on USB to continue we must never send
-+	 * a package that is smaller than maxpacket. Hence the length of each
-+         * scatterlist element except the last must be divisible by the
-+         * Bulk maxpacket value.
-+	 * If the HC does not ensure that through SG,
-+	 * the upper layer must do that. We must assume nothing
-+	 * about the capabilities off the HC, so we use the most
-+	 * pessimistic requirement.
-+	 */
-+
-+	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
-+	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
-+
-+	/*
-+	 * The protocol has no requirements on alignment in the strict sense.
-+	 * Controllers may or may not have alignment restrictions.
-+	 * As this is not exported, we use an extremely conservative guess.
- 	 */
- 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
- 
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -1142,8 +1142,8 @@ static struct dev_pm_domain acpi_lpss_pm
+ 		.thaw_noirq = acpi_subsys_thaw_noirq,
+ 		.poweroff = acpi_subsys_suspend,
+ 		.poweroff_late = acpi_lpss_suspend_late,
+-		.poweroff_noirq = acpi_subsys_suspend_noirq,
+-		.restore_noirq = acpi_subsys_resume_noirq,
++		.poweroff_noirq = acpi_lpss_suspend_noirq,
++		.restore_noirq = acpi_lpss_resume_noirq,
+ 		.restore_early = acpi_lpss_resume_early,
+ #endif
+ 		.runtime_suspend = acpi_lpss_runtime_suspend,
 
 
