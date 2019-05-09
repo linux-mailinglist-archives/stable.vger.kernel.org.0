@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D065D1922A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB2819268
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726932AbfEITEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        id S1727468AbfEISp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728042AbfEISsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:48:31 -0400
+        id S1726927AbfEISp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3151217D7;
-        Thu,  9 May 2019 18:48:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55A01217F9;
+        Thu,  9 May 2019 18:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427711;
-        bh=AKm1vEkwF5J8C9tbcUZ9n/nVxeGNvVg6AyzgqZlIbGA=;
+        s=default; t=1557427557;
+        bh=DlwqHKX9HesHpaoi5gq2+Nbnpb6Iun8ERTUB5rF1+IA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRya7tBaTKOEOGsA6KZadMIYKFRoz7fB2/UpH8+U0sV8xQPUylqSg5UsdwpwIa/uC
-         H4jHmT3ZeulvHWwNPg6/YmNDP5kE24f+7Uqb2ojx562zEmIhV02oIlK5wQbf8V62Gx
-         9UoSK26LPQMEKkimYkEy16OovOeXWeZpt6FFNh2w=
+        b=BDBw+xJ3oNeo7uZrrk7PXAZcOLahEmjyGaePRX0NaWpOUx20crJX6R0MWE8sBq9IC
+         AsRWjNumm21+oXpmezQBgNuYhIoTUSuzSoWxuk85BUA4WSVHfOGTki5h37lbmRDbIt
+         w70NUOear30yfpPJJ8RCEl9Ws0/8N0BvkqijbddY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/66] RDMA/vmw_pvrdma: Fix memory leak on pvrdma_pci_remove
+Subject: [PATCH 4.14 26/42] ASoC: Intel: kbl: fix wrong number of channels
 Date:   Thu,  9 May 2019 20:42:15 +0200
-Message-Id: <20190509181306.192556547@linuxfoundation.org>
+Message-Id: <20190509181257.909030705@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ea7a5c706fa49273cf6d1d9def053ecb50db2076 ]
+[ Upstream commit d6ba3f815bc5f3c4249d15c8bc5fbb012651b4a4 ]
 
-Make sure to free the DSR on pvrdma_pci_remove() to avoid the memory leak.
+Fix wrong setting on number of channels.  The context wants to set
+constraint to 2 channels instead of 4.
 
-Fixes: 29c8d9eba550 ("IB: Add vmw_pvrdma driver")
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Adit Ranadive <aditr@vmware.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
-index a5719899f49ad..ed99f0a08dc4e 100644
---- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
-+++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
-@@ -1123,6 +1123,8 @@ static void pvrdma_pci_remove(struct pci_dev *pdev)
- 	pvrdma_page_dir_cleanup(dev, &dev->cq_pdir);
- 	pvrdma_page_dir_cleanup(dev, &dev->async_pdir);
- 	pvrdma_free_slots(dev);
-+	dma_free_coherent(&pdev->dev, sizeof(*dev->dsr), dev->dsr,
-+			  dev->dsrbase);
+diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
+index 69ab559564921..41cb1fefbd427 100644
+--- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
++++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
+@@ -405,7 +405,7 @@ static const struct snd_pcm_hw_constraint_list constraints_dmic_channels = {
+ };
  
- 	iounmap(dev->regs);
- 	kfree(dev->sgid_tbl);
+ static const unsigned int dmic_2ch[] = {
+-	4,
++	2,
+ };
+ 
+ static const struct snd_pcm_hw_constraint_list constraints_dmic_2ch = {
 -- 
 2.20.1
 
