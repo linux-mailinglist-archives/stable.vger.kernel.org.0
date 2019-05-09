@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F4F19243
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE59C1923A
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726931AbfEITFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
+        id S1727842AbfEISrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727851AbfEISre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:34 -0400
+        id S1727857AbfEISrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:47:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1A2E217F4;
-        Thu,  9 May 2019 18:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B82C217F9;
+        Thu,  9 May 2019 18:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427654;
-        bh=6QL4gbroYHFM4CXyZoM/xXTLR89UPs6FMfba/74u2OE=;
+        s=default; t=1557427656;
+        bh=aD/N5gPsVhM0JlMNYj0g6pyBk36ukHSTrEyvxuYlAt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlDO4CgpHpx1Kvf9/HMXqmoAwNVC+kIWsQoWTimf6179/F/LRUCU4P5C+FEVE6oXt
-         aH+wLUsErgrppbmEsDpYIMTVOyp1OefpRiiehVU1tkH48aI+vd7QXLmLlaz2TDwluc
-         z2mnCKLWHEdLmaFHlEVFiiNajrot4nrmiys4oFNE=
+        b=ixcHbQeYMHXTtonhLqTEGvnouFwCROz/R5OWsdC1EoZoaOcPfR/pqBVJSZRWVEopd
+         Eh3atlheNSLK8us3uZMVOkKCf1JjSKBc2+OD08G1ptrd80ykBFhyk/9zcClKYo6wjE
+         3wrFRHkFPU0+BFbmhLcl1IyXUyOyb77ylK5wgDEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
+        stable@vger.kernel.org,
+        Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/66] ASoC: cs4270: Set auto-increment bit for register writes
-Date:   Thu,  9 May 2019 20:41:56 +0200
-Message-Id: <20190509181304.124051555@linuxfoundation.org>
+Subject: [PATCH 4.19 22/66] ASoC: dapm: Fix NULL pointer dereference in snd_soc_dapm_free_kcontrol
+Date:   Thu,  9 May 2019 20:41:57 +0200
+Message-Id: <20190509181304.226182023@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
 References: <20190509181301.719249738@linuxfoundation.org>
@@ -44,35 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f0f2338a9cfaf71db895fa989ea7234e8a9b471d ]
+[ Upstream commit cacea3a90e211f0c111975535508d446a4a928d2 ]
 
-The CS4270 does not by default increment the register address on
-consecutive writes. During normal operation it doesn't matter as all
-register accesses are done individually. At resume time after suspend,
-however, the regcache code gathers the biggest possible block of
-registers to sync and sends them one on one go.
+w_text_param can be NULL and it is being dereferenced without checking.
+Add the missing sanity check to prevent  NULL pointer dereference.
 
-To fix this, set the INCR bit in all cases.
-
-Signed-off-by: Daniel Mack <daniel@zonque.org>
+Signed-off-by: Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs4270.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-dapm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/codecs/cs4270.c b/sound/soc/codecs/cs4270.c
-index 3c266eeb89bfb..007ce9f48e443 100644
---- a/sound/soc/codecs/cs4270.c
-+++ b/sound/soc/codecs/cs4270.c
-@@ -642,6 +642,7 @@ static const struct regmap_config cs4270_regmap = {
- 	.reg_defaults =		cs4270_reg_defaults,
- 	.num_reg_defaults =	ARRAY_SIZE(cs4270_reg_defaults),
- 	.cache_type =		REGCACHE_RBTREE,
-+	.write_flag_mask =	CS4270_I2C_INCR,
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 9b78fb3daa7bb..2257b1b0151c4 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3847,6 +3847,10 @@ snd_soc_dapm_free_kcontrol(struct snd_soc_card *card,
+ 	int count;
  
- 	.readable_reg =		cs4270_reg_is_readable,
- 	.volatile_reg =		cs4270_reg_is_volatile,
+ 	devm_kfree(card->dev, (void *)*private_value);
++
++	if (!w_param_text)
++		return;
++
+ 	for (count = 0 ; count < num_params; count++)
+ 		devm_kfree(card->dev, (void *)w_param_text[count]);
+ 	devm_kfree(card->dev, w_param_text);
 -- 
 2.20.1
 
