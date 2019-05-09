@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DEF19237
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC43C1907E
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726761AbfEITFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40520 "EHLO mail.kernel.org"
+        id S1727316AbfEISpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:45:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727874AbfEISrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:49 -0400
+        id S1727281AbfEISpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9533217D7;
-        Thu,  9 May 2019 18:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03BFE217D6;
+        Thu,  9 May 2019 18:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427668;
+        s=default; t=1557427520;
         bh=n6R/SMkEDuB4xZ6Ddy+01pQ8t9J5hnVCEn33UDP+TM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0gSLRpLGzlrygrgVLNoX274O9PD91rfrNNcTYUjanFjJAHmyMBlFUz6z9MwPIsVP
-         zfRSV3f9Bt8yIfA9N1Y7M/Hi2Sk8qaoMwWAOkp1gw+CWxzWUgs8+Lc5fqJZma+4TXR
-         RBGtGtt65FQ9MAGUw8qHEhRwj/KENUjLL/zXmGdI=
+        b=cghv0FKPxEt2BtnmshQGM1ASRgHvjE/37zZKJUExYcTcN7D4bG9o+udyJ+DjnLApm
+         pPotNxgDV35eTMqzTSpdBv0KUKT/Fj+2WJjjHPdMFUrpssF2c5tg0TVGwKQprYNnpO
+         lgdSajVZbGIcQymyzmF90hCpjfB1+vu9664svRlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Will Deacon <will.deacon@arm.com>,
         Christophe Leroy <christophe.leroy@c-s.fr>,
         linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/66] MIPS: KGDB: fix kgdb support for SMP platforms.
-Date:   Thu,  9 May 2019 20:42:01 +0200
-Message-Id: <20190509181304.656350630@linuxfoundation.org>
+Subject: [PATCH 4.14 13/42] MIPS: KGDB: fix kgdb support for SMP platforms.
+Date:   Thu,  9 May 2019 20:42:02 +0200
+Message-Id: <20190509181255.318076267@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
