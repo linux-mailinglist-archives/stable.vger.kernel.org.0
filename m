@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A23F19212
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F6B19180
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728025AbfEITDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:03:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
+        id S1728739AbfEISyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727692AbfEIStL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:11 -0400
+        id S1728994AbfEISyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:54:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7B4D2182B;
-        Thu,  9 May 2019 18:49:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DA04217F5;
+        Thu,  9 May 2019 18:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427750;
-        bh=if2nZ56rO+pMZc+Myfq3f0Ur5avwSADbbKcVIDE0cJU=;
+        s=default; t=1557428042;
+        bh=WSRye4QuqhDnD0KzcvLyhshoPeuDaJR9wrkaZyoDOMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sa6BqvQXbPekqFKQuBK3bynypz39S0Qg50Bc5xxyFlAtK0uTHj1Ib9QyXcHNrS8NT
-         EoQsI0daRNScp66NjIxgO02Vd/+5axOdFvnZvedyEyu5XPBqUnXx8t6JqOQKA8D0Jn
-         tmU90xQQmlbROWwyCv/XhYp1zPxRldSVyuO2gZHo=
+        b=k9T/2le6w7aTdOD4OH7Bzy1GPn27QlG+7WeyI3avUflcptqUaS2hOD+QS4u1YrSoo
+         88C1xZom91BeZRxsvlfxbdwOnSERCTt5Hs+tOKx+ARtpBWVKk/mSPmE8PCLx9XGCiB
+         SgycBdQcn4zTz15o9F0lTgIxKSrk3mFaqVUWyEH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.19 57/66] soc: sunxi: Fix missing dependency on REGMAP_MMIO
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 5.0 75/95] usb: dwc3: Fix default lpm_nyet_threshold value
 Date:   Thu,  9 May 2019 20:42:32 +0200
-Message-Id: <20190509181307.508024707@linuxfoundation.org>
+Message-Id: <20190509181314.625961037@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit a84014e1db35d8e7af09878d0b4bf30804fb17d5 upstream.
+commit 8d791929b2fbdf7734c1596d808e55cb457f4562 upstream.
 
-When enabling ARCH_SUNXI from allnoconfig, SUNXI_SRAM is enabled, but
-not REGMAP_MMIO, so the kernel fails to link with an undefined reference
-to __devm_regmap_init_mmio_clk. Select REGMAP_MMIO, as suggested in
-drivers/base/regmap/Kconfig.
+The max possible value for DCTL.LPM_NYET_THRES is 15 and not 255. Change
+the default value to 15.
 
-This creates the following dependency loop:
-
-  drivers/of/Kconfig:68:                symbol OF_IRQ depends on IRQ_DOMAIN
-  kernel/irq/Kconfig:63:                symbol IRQ_DOMAIN is selected by REGMAP
-  drivers/base/regmap/Kconfig:7:        symbol REGMAP default is visible depending on REGMAP_MMIO
-  drivers/base/regmap/Kconfig:39:       symbol REGMAP_MMIO is selected by SUNXI_SRAM
-  drivers/soc/sunxi/Kconfig:4:          symbol SUNXI_SRAM is selected by USB_MUSB_SUNXI
-  drivers/usb/musb/Kconfig:63:          symbol USB_MUSB_SUNXI depends on GENERIC_PHY
-  drivers/phy/Kconfig:7:                symbol GENERIC_PHY is selected by PHY_BCM_NS_USB3
-  drivers/phy/broadcom/Kconfig:29:      symbol PHY_BCM_NS_USB3 depends on MDIO_BUS
-  drivers/net/phy/Kconfig:12:           symbol MDIO_BUS default is visible depending on PHYLIB
-  drivers/net/phy/Kconfig:181:          symbol PHYLIB is selected by ARC_EMAC_CORE
-  drivers/net/ethernet/arc/Kconfig:18:  symbol ARC_EMAC_CORE is selected by ARC_EMAC
-  drivers/net/ethernet/arc/Kconfig:24:  symbol ARC_EMAC depends on OF_IRQ
-
-To fix the circular dependency, make USB_MUSB_SUNXI select GENERIC_PHY
-instead of depending on it. This matches the use of GENERIC_PHY by all
-but two other drivers.
-
-Cc: <stable@vger.kernel.org> # 4.19
-Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 80caf7d21adc ("usb: dwc3: add lpm erratum support")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/sunxi/Kconfig |    1 +
- drivers/usb/musb/Kconfig  |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/sunxi/Kconfig
-+++ b/drivers/soc/sunxi/Kconfig
-@@ -4,6 +4,7 @@
- config SUNXI_SRAM
- 	bool
- 	default ARCH_SUNXI
-+	select REGMAP_MMIO
- 	help
- 	  Say y here to enable the SRAM controller support. This
- 	  device is responsible on mapping the SRAM in the sunXi SoCs
---- a/drivers/usb/musb/Kconfig
-+++ b/drivers/usb/musb/Kconfig
-@@ -66,7 +66,7 @@ config USB_MUSB_SUNXI
- 	depends on NOP_USB_XCEIV
- 	depends on PHY_SUN4I_USB
- 	depends on EXTCON
--	depends on GENERIC_PHY
-+	select GENERIC_PHY
- 	select SUNXI_SRAM
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1218,7 +1218,7 @@ static void dwc3_get_properties(struct d
+ 	u8			tx_max_burst_prd;
  
- config USB_MUSB_DAVINCI
+ 	/* default to highest possible threshold */
+-	lpm_nyet_threshold = 0xff;
++	lpm_nyet_threshold = 0xf;
+ 
+ 	/* default to -3.5dB de-emphasis */
+ 	tx_de_emphasis = 1;
 
 
