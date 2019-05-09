@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A0219222
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2461929F
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728007AbfEISsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41178 "EHLO mail.kernel.org"
+        id S1726869AbfEITJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:09:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728001AbfEISsT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:48:19 -0400
+        id S1726690AbfEISoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:44:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2246120578;
-        Thu,  9 May 2019 18:48:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0057A2183E;
+        Thu,  9 May 2019 18:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427698;
-        bh=768g+G9BGAia/U51H5InFiVZGSab1b0jKwKZJNhW9oc=;
+        s=default; t=1557427460;
+        bh=5iPk4+ih3XUJVCw+XissPYCGciJ7xc3mxsPBpRoFYPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F49yDp+hp0PFni+SLEtmJDQ9xNydHb7/g+h9n35GZKyYNBOcMT4Cq0GPoGyY5TO7U
-         Tg8ebxVUXyrMdQkob4/iVnbU40SX6jed84cmwgxHzStHyXlMqsRem6LoiaEgM6O6ac
-         q8fSq66RU/+UuyCzqqtm85cMBHQnfJzmvmyFhHWg=
+        b=gvnEnCPj+rH3rfePdjBFVm+KvsVO/kOdAwi0eXPVmtfnLG3La40d+kYjNI7tq3X6i
+         kYlCAB2DNyZzDmMnV3O3FFR0dVfkJ7S1sMNtXgjykb2Ac8zqm7rYyMkQroneZMBFA2
+         poplXfkW3YcDRYMpwAt24Sl0j+ofDTGTtxZc9RbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
+        Thomas Gleixner <tglx@linutronix.de>, marc.zyngier@arm.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/66] objtool: Add rewind_stack_do_exit() to the noreturn list
+Subject: [PATCH 4.9 19/28] genirq: Prevent use-after-free and work list corruption
 Date:   Thu,  9 May 2019 20:42:11 +0200
-Message-Id: <20190509181305.815495611@linuxfoundation.org>
+Message-Id: <20190509181254.290923000@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,34 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4fa5ecda2bf96be7464eb406df8aba9d89260227 ]
+[ Upstream commit 59c39840f5abf4a71e1810a8da71aaccd6c17d26 ]
 
-This fixes the following warning seen on GCC 7.3:
+When irq_set_affinity_notifier() replaces the notifier, then the
+reference count on the old notifier is dropped which causes it to be
+freed. But nothing ensures that the old notifier is not longer queued
+in the work list. If it is queued this results in a use after free and
+possibly in work list corruption.
 
-  arch/x86/kernel/dumpstack.o: warning: objtool: oops_end() falls through to next function show_regs()
+Ensure that the work is canceled before the reference is dropped.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/3418ebf5a5a9f6ed7e80954c741c0b904b67b5dc.1554398240.git.jpoimboe@redhat.com
+Cc: marc.zyngier@arm.com
+Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/manage.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 550f17611bd75..ef152daccc333 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -165,6 +165,7 @@ static int __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"fortify_panic",
- 		"usercopy_abort",
- 		"machine_real_restart",
-+		"rewind_stack_do_exit",
- 	};
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index cf94460504bba..be7f489788e27 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -332,8 +332,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
+ 	desc->affinity_notify = notify;
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
  
- 	if (func->bind == STB_WEAK)
+-	if (old_notify)
++	if (old_notify) {
++		cancel_work_sync(&old_notify->work);
+ 		kref_put(&old_notify->kref, old_notify->release);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
