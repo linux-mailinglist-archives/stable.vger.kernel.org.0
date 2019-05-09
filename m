@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F9A19118
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF3781924F
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726921AbfEISxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:53:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47322 "EHLO mail.kernel.org"
+        id S1727390AbfEITGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728325AbfEISw7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:59 -0400
+        id S1727248AbfEISq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77142217D6;
-        Thu,  9 May 2019 18:52:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5670F2183E;
+        Thu,  9 May 2019 18:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427979;
-        bh=IDw46fZYrf8Ouu1BoNhchZFD0deoikTUfU2RsJt3vcA=;
+        s=default; t=1557427615;
+        bh=m5v/VQDEu53kIn8smOqM7gN/gtLhfkr4W9EBM+BYU1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPPAs9n4Lu80ttjonFcqYLScaJsBh9HWwHw0sgvNG5GX8P0NWn9boSm6Rc7oL2jIo
-         g8boIVA9r6E9Y+W8eMkhA7EIfFhc42kNdi+x+JiByB+ekGgnpCvybcUKN688yORJnI
-         9MNpfuHrAUbTzYhGIDP7jlwJjA3Yx9z5fcqwNefA=
+        b=EOWtoGmz9WhE0xqlHXRHkJz7Xvsc9VGQngE2Y19CMpe2NtmJSTW3AQHb10af5wCjr
+         JHZ0vvCXWlRJd1KAu8rC8p+siCtQUD5t8FB148NeFN6SDxmWUp6cNvKt3QFxKlTXCd
+         BufKwLPFPFg0GMSuEYfH6LSG4ASRVwBFvg67lHcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 69/95] platform/x86: pmc_atom: Drop __initconst on dmi table
+        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.14 37/42] Bluetooth: hidp: fix buffer overflow
 Date:   Thu,  9 May 2019 20:42:26 +0200
-Message-Id: <20190509181314.280484929@linuxfoundation.org>
+Message-Id: <20190509181259.896495485@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b995dcca7cf12f208cfd95fd9d5768dca7cccec7 ]
+From: Young Xiao <YangX92@hotmail.com>
 
-It's used by probe and that isn't an init function. Drop this so that we
-don't get a section mismatch.
+commit a1616a5ac99ede5d605047a9012481ce7ff18b16 upstream.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: David Müller <dave.mueller@gmx.ch>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Fixes: 7c2e07130090 ("clk: x86: Add system specific quirk to mark clocks as critical")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Struct ca is copied from userspace. It is not checked whether the "name"
+field is NULL terminated, which allows local users to obtain potentially
+sensitive information from kernel stack memory, via a HIDPCONNADD command.
+
+This vulnerability is similar to CVE-2011-1079.
+
+Signed-off-by: Young Xiao <YangX92@hotmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hidp/sock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index eaec2d306481c..c7039f52ad518 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -396,7 +396,7 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
-  * Some systems need one or more of their pmc_plt_clks to be
-  * marked as critical.
-  */
--static const struct dmi_system_id critclk_systems[] __initconst = {
-+static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		.ident = "MPL CEC1x",
- 		.matches = {
--- 
-2.20.1
-
+--- a/net/bluetooth/hidp/sock.c
++++ b/net/bluetooth/hidp/sock.c
+@@ -76,6 +76,7 @@ static int hidp_sock_ioctl(struct socket
+ 			sockfd_put(csock);
+ 			return err;
+ 		}
++		ca.name[sizeof(ca.name)-1] = 0;
+ 
+ 		err = hidp_connection_add(&ca, csock, isock);
+ 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
 
 
