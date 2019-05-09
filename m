@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 022B1191D4
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0026419297
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727222AbfEITAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:00:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45110 "EHLO mail.kernel.org"
+        id S1727053AbfEISoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:44:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728011AbfEISvV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:51:21 -0400
+        id S1727089AbfEISoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E63F217D7;
-        Thu,  9 May 2019 18:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35F262183F;
+        Thu,  9 May 2019 18:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427880;
-        bh=PiO4JVTlllckNxCOroUiEq7Z+G49cXwehLEgPNZ8pus=;
+        s=default; t=1557427478;
+        bh=z/KGFFDvSAg9YaKNINdovmagIzFMweISCju5tT/qXmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKZv4pwxBWAPWGByrzkgrk58i23yu808qvZtZAXqwrpvAnCInnzqes3yPOKjTHuix
-         OOcI0c/IeRaRFkMDmdZ34STB6Ii4VLJcIrQo8wddMDlUv6AUUF4RkPKy5LPCw74+sV
-         rcaL4M+nHCFdUX52W0KcDunLxVf5QUrjh8IQZ8YU=
+        b=JyBygKff/HqgDCvt9/LK1/j4bB5R4iWVBCyLIhSwdLOPdjqrEDII+FZPq3WOPH5V2
+         sCyoiYGpednBxjsg0A66ZRPwK/H3abfrDqNudRcrplIGBg8Ztq+x8AHb63XNmp6r+A
+         arJHquky1qXamg5ONCxDm4pSK9lW5JDrTCxtx+n0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        YueHaibing <yuehaibing@huawei.com>,
+        stable@vger.kernel.org, Rander Wang <rander.wang@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 39/95] iov_iter: Fix build error without CONFIG_CRYPTO
+Subject: [PATCH 4.9 04/28] ASoC:soc-pcm:fix a codec fixup issue in TDM case
 Date:   Thu,  9 May 2019 20:41:56 +0200
-Message-Id: <20190509181312.077306094@linuxfoundation.org>
+Message-Id: <20190509181250.990152284@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27fad74a5a77fe2e1f876db7bf27efcf2ec304b2 ]
+[ Upstream commit 570f18b6a8d1f0e60e8caf30e66161b6438dcc91 ]
 
-If CONFIG_CRYPTO is not set or set to m,
-gcc building warn this:
+On HDaudio platforms, if playback is started when capture is working,
+there is no audible output.
 
-lib/iov_iter.o: In function `hash_and_copy_to_iter':
-iov_iter.c:(.text+0x9129): undefined reference to `crypto_stats_get'
-iov_iter.c:(.text+0x9152): undefined reference to `crypto_stats_ahash_update'
+This can be root-caused to the use of the rx|tx_mask to store an HDaudio
+stream tag.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: d05f443554b3 ("iov_iter: introduce hash_and_copy_to_iter helper")
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+If capture is stared before playback, rx_mask would be non-zero on HDaudio
+platform, then the channel number of playback, which is in the same codec
+dai with the capture, would be changed by soc_pcm_codec_params_fixup based
+on the tx_mask at first, then overwritten by this function based on rx_mask
+at last.
+
+According to the author of tx|rx_mask, tx_mask is for playback and rx_mask
+is for capture. And stream direction is checked at all other references of
+tx|rx_mask in ASoC, so here should be an error. This patch checks stream
+direction for tx|rx_mask for fixup function.
+
+This issue would affect not only HDaudio+ASoC, but also I2S codecs if the
+channel number based on rx_mask is not equal to the one for tx_mask. It could
+be rarely reproduecd because most drivers in kernel set the same channel number
+to tx|rx_mask or rx_mask is zero.
+
+Tested on all platforms using stream_tag & HDaudio and intel I2S platforms.
+
+Signed-off-by: Rander Wang <rander.wang@linux.intel.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/iov_iter.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/soc-pcm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index be4bd627caf06..a0d1cd88f903f 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -1515,6 +1515,7 @@ EXPORT_SYMBOL(csum_and_copy_to_iter);
- size_t hash_and_copy_to_iter(const void *addr, size_t bytes, void *hashp,
- 		struct iov_iter *i)
- {
-+#ifdef CONFIG_CRYPTO
- 	struct ahash_request *hash = hashp;
- 	struct scatterlist sg;
- 	size_t copied;
-@@ -1524,6 +1525,9 @@ size_t hash_and_copy_to_iter(const void *addr, size_t bytes, void *hashp,
- 	ahash_request_set_crypt(hash, &sg, NULL, copied);
- 	crypto_ahash_update(hash);
- 	return copied;
-+#else
-+	return 0;
-+#endif
- }
- EXPORT_SYMBOL(hash_and_copy_to_iter);
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index b111ecda6439d..1dbcdc99dbe36 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -894,10 +894,13 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
+ 		codec_params = *params;
+ 
+ 		/* fixup params based on TDM slot masks */
+-		if (codec_dai->tx_mask)
++		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++		    codec_dai->tx_mask)
+ 			soc_pcm_codec_params_fixup(&codec_params,
+ 						   codec_dai->tx_mask);
+-		if (codec_dai->rx_mask)
++
++		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
++		    codec_dai->rx_mask)
+ 			soc_pcm_codec_params_fixup(&codec_params,
+ 						   codec_dai->rx_mask);
  
 -- 
 2.20.1
