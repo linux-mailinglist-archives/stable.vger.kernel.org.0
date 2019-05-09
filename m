@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 780A01909F
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BBF1919A
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726787AbfEISq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39402 "EHLO mail.kernel.org"
+        id S1728487AbfEISx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:53:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727686AbfEISq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:46:59 -0400
+        id S1728897AbfEISx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:53:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE539217F5;
-        Thu,  9 May 2019 18:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76321217F9;
+        Thu,  9 May 2019 18:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427618;
-        bh=I5zM+GozbT0bt9CqEAiv4Y3sfVcVo/KIvmIUaX75MXE=;
+        s=default; t=1557428007;
+        bh=O9PomuJkP140PHP9gtPkB3f9C32wLIzisqMz+jqkS80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhH8eyek5lzndAtIyJFfDyxHTaLYH9hVyKZgNCar+F4uvfbMCUeuJdb4TpzCKx3AA
-         /Iud8YO7VmIc1dE16el4990ooL5TeZGP5FESrs0Rif20CwG04ZyyUsfaLryTtxFPgG
-         RoEj/gkcpT08H2kiU1BNJ4hngirge8W7BL1NjVtw=
+        b=C4zOgqmlKfFldiP64G4CMWiN9znZQMytNcFP+ZY5pB+jh6ddeS6kxctAP2/J4e1hw
+         SDx2XBalHfmbGxVwTQwWWu0GaqrNwOij6RrHnZj5/XHBxir1lLrqhMvA+biTBmhjwj
+         6fgPstBUlde7u3PyVut5G9By87srMbVkhrAXhPj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>
-Subject: [PATCH 4.14 38/42] Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 70/95] NFSv4.1 fix incorrect return value in copy_file_range
 Date:   Thu,  9 May 2019 20:42:27 +0200
-Message-Id: <20190509181259.990192481@linuxfoundation.org>
+Message-Id: <20190509181314.342811653@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
-References: <20190509181252.616018683@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+[ Upstream commit 0769663b4f580566ef6cdf366f3073dbe8022c39 ]
 
-commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
+According to the NFSv4.2 spec if the input and output file is the
+same file, operation should fail with EINVAL. However, linux
+copy_file_range() system call has no such restrictions. Therefore,
+in such case let's return EOPNOTSUPP and allow VFS to fallback
+to doing do_splice_direct(). Also when copy_file_range is called
+on an NFSv4.0 or 4.1 mount (ie., a server that doesn't support
+COPY functionality), we also need to return EOPNOTSUPP and
+fallback to a regular copy.
 
-The minimum encryption key size for LE connections is 56 bits and to
-align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
-BR/EDR connections as well.
+Fixes xfstest generic/075, generic/091, generic/112, generic/263
+for all NFSv4.x versions.
 
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci_core.h |    3 +++
- net/bluetooth/hci_conn.c         |    8 ++++++++
- 2 files changed, 11 insertions(+)
+ fs/nfs/nfs42proc.c | 3 ---
+ fs/nfs/nfs4file.c  | 4 +++-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -178,6 +178,9 @@ struct adv_info {
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index fed06fd9998d3..94f98e190e632 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -329,9 +329,6 @@ ssize_t nfs42_proc_copy(struct file *src, loff_t pos_src,
+ 	};
+ 	ssize_t err, err2;
  
- #define HCI_MAX_SHORT_NAME_LENGTH	10
- 
-+/* Min encryption key size to match with SMP */
-+#define HCI_MIN_ENC_KEY_SIZE		7
-+
- /* Default LE RPA expiry time, 15 minutes */
- #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
- 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1165,6 +1165,14 @@ int hci_conn_check_link_mode(struct hci_
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
- 
-+	/* The minimum encryption key size needs to be enforced by the
-+	 * host stack before establishing any L2CAP connections. The
-+	 * specification in theory allows a minimum of 1, but to align
-+	 * BR/EDR and LE transports, a minimum of 7 is chosen.
-+	 */
-+	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
-+		return 0;
-+
- 	return 1;
+-	if (!nfs_server_capable(file_inode(dst), NFS_CAP_COPY))
+-		return -EOPNOTSUPP;
+-
+ 	src_lock = nfs_get_lock_context(nfs_file_open_context(src));
+ 	if (IS_ERR(src_lock))
+ 		return PTR_ERR(src_lock);
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 45b2322e092d2..00d17198ee12a 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -133,8 +133,10 @@ static ssize_t nfs4_copy_file_range(struct file *file_in, loff_t pos_in,
+ 				    struct file *file_out, loff_t pos_out,
+ 				    size_t count, unsigned int flags)
+ {
++	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
++		return -EOPNOTSUPP;
+ 	if (file_inode(file_in) == file_inode(file_out))
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 	return nfs42_proc_copy(file_in, pos_in, file_out, pos_out, count);
  }
  
+-- 
+2.20.1
+
 
 
