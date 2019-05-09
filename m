@@ -2,238 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B772A18EC2
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DC818EE5
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726657AbfEIRPg convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 9 May 2019 13:15:36 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58288 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726653AbfEIRPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 13:15:36 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B3752C05B038
-        for <stable@vger.kernel.org>; Thu,  9 May 2019 17:15:35 +0000 (UTC)
-Received: from [172.54.105.48] (cpt-0019.paas.prod.upshift.rdu2.redhat.com [10.0.18.96])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F16825DD8F;
-        Thu,  9 May 2019 17:15:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-CC:     Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.A07C52FDE8.8QWRYNWLES@redhat.com>
-X-Gitlab-Pipeline-ID: 9589
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9589
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Thu, 09 May 2019 17:15:35 +0000 (UTC)
-Date:   Thu, 9 May 2019 13:15:36 -0400
+        id S1726769AbfEIRYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 13:24:39 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:36125 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726764AbfEIRYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:24:38 -0400
+Received: by mail-pg1-f196.google.com with SMTP id a3so1550848pgb.3
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 10:24:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=cPBzyUAV50pAnZfXXI85W0FJrR1AmwGO+3Mm+J5Ler8=;
+        b=KZymrmgNoadDcCwAw9QgPOqaSR0OLrD5V49mAh1uQt0GgJ3kfSscqL6ofV06PDPlwW
+         7JIc+kGuIJRjIpOrvb6N2dADvTRctPUm5ttHOPJ1QG1d5TZIv7631WzfeC7gBsCMTlN1
+         fbPaM6gs/seQ3JgTCfuCXd2U0Uj505rmkAGeo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=cPBzyUAV50pAnZfXXI85W0FJrR1AmwGO+3Mm+J5Ler8=;
+        b=AGWlAYspMugbcrsZpmKddWOOi2ArLA90I8+VPN4ixtWnu3Q3woVsqT5PTTgVnDmIZo
+         AzRM8a8fBdb46PhbcTt0co7mDClRDH+d7ow8QDeZozD6AYLlLQvdnwZMIBeFGp/sxSSD
+         HGryd1s72WankpzbAkF85clFeZE3jk3Uo2MGIK7Z+LtvWgA2kMbKklb9OCml5ZTwfZXK
+         kTy/LkA6iL/oZVbEbOI6TL2RkAh7KM6PFCEIZJU0c7KReIiNO3nSNqDzVE5Wgr77IvsT
+         ObAF6zZyOhrKcj0L2o4E70p5iePAa5P8ttEJ6XTcgB0STSXJdfboFtgIEqGeATiLv5Nc
+         0W4A==
+X-Gm-Message-State: APjAAAUuIPg4BGlndAkF+93yXwM+TnetDgNmbLDJ6SHLhUqYu2yTTBRE
+        lwvKK8Gf2np8lPXWn7J66eXdGQ==
+X-Google-Smtp-Source: APXvYqwltYnMRdytoyt+Gakgvt9eaNw+HtE2WFlXBJvXLOllj4Xdxq3+5a4BOoOCJ7GUUv5cjQ6L4w==
+X-Received: by 2002:a62:3892:: with SMTP id f140mr6877728pfa.128.1557422677403;
+        Thu, 09 May 2019 10:24:37 -0700 (PDT)
+Received: from lbrmn-lnxub113.broadcom.net ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id m8sm3989699pgn.59.2019.05.09.10.24.35
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 10:24:36 -0700 (PDT)
+From:   Scott Branden <scott.branden@broadcom.com>
+To:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>
+Cc:     BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>,
+        linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Trac Hoang <trac.hoang@broadcom.com>,
+        stable@vger.kernel.org, Scott Branden <scott.branden@broadcom.com>
+Subject: [PATCH v3 1/2] mmc: sdhci-iproc: cygnus: Set NO_HISPD bit to fix HS50 data hold time problem
+Date:   Thu,  9 May 2019 10:24:26 -0700
+Message-Id: <20190509172427.17835-2-scott.branden@broadcom.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190509172427.17835-1-scott.branden@broadcom.com>
+References: <20190509172427.17835-1-scott.branden@broadcom.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+From: Trac Hoang <trac.hoang@broadcom.com>
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The iproc host eMMC/SD controller hold time does not meet the
+specification in the HS50 mode. This problem can be mitigated
+by disabling the HISPD bit; thus forcing the controller output
+data to be driven on the falling clock edges rather than the
+rising clock edges.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 21de7eb67cff - Linux 4.19.41
+This change applies only to the Cygnus platform.
 
-The results of these automated tests are provided below.
+Stable tag (v4.12+) chosen to assist stable kernel maintainers so that
+the change does not produce merge conflicts backporting to older kernel
+versions. In reality, the timing bug existed since the driver was first
+introduced but there is no need for this driver to be supported in kernel
+versions that old.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Trac Hoang <trac.hoang@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ drivers/mmc/host/sdhci-iproc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
+index 9d12c06c7fd6..9d4071c41c94 100644
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -196,7 +196,8 @@ static const struct sdhci_ops sdhci_iproc_32only_ops = {
+ };
+ 
+ static const struct sdhci_pltfm_data sdhci_iproc_cygnus_pltfm_data = {
+-	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK,
++	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
+ 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN | SDHCI_QUIRK2_HOST_OFF_CARD_ON,
+ 	.ops = &sdhci_iproc_32only_ops,
+ };
+-- 
+2.17.1
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 21de7eb67cff - Linux 4.19.41
-
-We then merged the patchset with `git am`:
-
-  net-stmmac-use-bfsize1-in-ndesc_init_rx_desc.patch
-  scsi-libsas-fix-a-race-condition-when-smp-task-timeout.patch
-  drivers-hv-vmbus-remove-the-undesired-put_cpu_ptr-in-hv_synic_cleanup.patch
-  ubsan-fix-nasty-wbuiltin-declaration-mismatch-gcc-9-warnings.patch
-  staging-greybus-power_supply-fix-prop-descriptor-request-size.patch
-  staging-most-cdev-fix-chrdev_region-leak-in-mod_exit.patch
-  asoc-tlv320aic3x-fix-reset-gpio-reference-counting.patch
-  asoc-hdmi-codec-fix-s-pdif-dai.patch
-  asoc-stm32-sai-fix-iec958-controls-indexation.patch
-  asoc-stm32-sai-fix-exposed-capabilities-in-spdif-mod.patch
-  asoc-soc-pcm-fix-a-codec-fixup-issue-in-tdm-case.patch
-  asoc-intel-skl-fix-a-simultaneous-playback-capture-i.patch
-  asoc-nau8824-fix-the-issue-of-the-widget-with-prefix.patch
-  asoc-nau8810-fix-the-issue-of-widget-with-prefixed-n.patch
-  asoc-samsung-odroid-fix-clock-configuration-for-4410.patch
-  asoc-rt5682-recording-has-no-sound-after-booting.patch
-  asoc-wm_adsp-add-locking-to-wm_adsp2_bus_error.patch
-  clk-meson-gxbb-round-the-vdec-dividers-to-closest.patch
-  asoc-stm32-dfsdm-manage-multiple-prepare.patch
-  asoc-stm32-dfsdm-fix-debugfs-warnings-on-entry-creat.patch
-  asoc-cs4270-set-auto-increment-bit-for-register-writ.patch
-  asoc-dapm-fix-null-pointer-dereference-in-snd_soc_da.patch
-  drm-omap-hdmi4_cec-fix-cec-clock-handling-for-pm.patch
-  ib-hfi1-eliminate-opcode-tests-on-mr-deref.patch
-  ib-hfi1-fix-the-allocation-of-rsm-table.patch
-  mips-kgdb-fix-kgdb-support-for-smp-platforms.patch
-  asoc-tlv320aic32x4-fix-common-pins.patch
-  drm-mediatek-fix-an-error-code-in-mtk_hdmi_dt_parse_.patch
-  perf-x86-intel-fix-handling-of-wakeup_events-for-mul.patch
-  perf-x86-intel-initialize-tfa-msr.patch
-  linux-kernel.h-use-parentheses-around-argument-in-u6.patch
-  xtensa-fix-initialization-of-pt_regs-syscall-in-star.patch
-  asoc-rockchip-pdm-fix-regmap_ops-hang-issue.patch
-  drm-amd-display-fix-cursor-black-issue.patch
-  asoc-cs35l35-disable-regulators-on-driver-removal.patch
-  objtool-add-rewind_stack_do_exit-to-the-noreturn-lis.patch
-  slab-fix-a-crash-by-reading-proc-slab_allocators.patch
-  drm-sun4i-tcon-top-fix-null-invalid-pointer-derefere.patch
-  virtio_pci-fix-a-null-pointer-reference-in-vp_del_vq.patch
-  rdma-vmw_pvrdma-fix-memory-leak-on-pvrdma_pci_remove.patch
-  rdma-hns-fix-bug-that-caused-srq-creation-to-fail.patch
-  scsi-csiostor-fix-missing-data-copy-in-csio_scsi_err.patch
-  drm-mediatek-fix-possible-object-reference-leak.patch
-  asoc-intel-kbl-fix-wrong-number-of-channels.patch
-  virtio-blk-limit-number-of-hw-queues-by-nr_cpu_ids.patch
-  nvme-fc-correct-csn-initialization-and-increments-on.patch
-  platform-x86-pmc_atom-drop-__initconst-on-dmi-table.patch
-  perf-core-fix-perf_event_disable_inatomic-race.patch
-  iommu-amd-set-exclusion-range-correctly.patch
-  genirq-prevent-use-after-free-and-work-list-corrupti.patch
-  usb-dwc3-fix-default-lpm_nyet_threshold-value.patch
-  usb-serial-f81232-fix-interrupt-worker-not-stop.patch
-  usb-cdc-acm-fix-unthrottle-races.patch
-  usb-storage-set-virt_boundary_mask-to-avoid-sg-overflows.patch
-  intel_th-pci-add-comet-lake-support.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-1e6698257e9c955fdfc591d72b5fd9e8cf6eb8cf.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     🚧 ✅ selinux-policy: serge-testsuite [8]
-     🚧 ✅ audit: audit testsuite test [9]
-     🚧 ✅ Storage blktests [10]
-     🚧 ✅ stress: stress-ng [11]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [9]
-     🚧 ✅ Storage blktests [10]
-     🚧 ✅ stress: stress-ng [11]
-     🚧 ✅ selinux-policy: serge-testsuite [8]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     🚧 ✅ selinux-policy: serge-testsuite [8]
-     🚧 ✅ audit: audit testsuite test [9]
-     🚧 ❎ Storage blktests [10]
-     🚧 ✅ stress: stress-ng [11]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ Ethernet drivers sanity [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [9]
-     🚧 ✅ Storage blktests [10]
-     🚧 ✅ stress: stress-ng [11]
-     🚧 ✅ selinux-policy: serge-testsuite [8]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
