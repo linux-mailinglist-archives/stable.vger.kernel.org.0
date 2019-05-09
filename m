@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5056A190A2
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B084C191E2
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726795AbfEISrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
+        id S1728446AbfEISuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727282AbfEISrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:09 -0400
+        id S1728447AbfEISuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D9342184C;
-        Thu,  9 May 2019 18:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E732183F;
+        Thu,  9 May 2019 18:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427628;
-        bh=/PDMLp9ytkli3MkNFsgXwaVfR6fjrDOiPBZB0nlmlM8=;
+        s=default; t=1557427834;
+        bh=UybR7+64MctBP4TSmvRsvq3QhxyQyi/1HhQQ7WoABHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEu6Ur7+mmI3RhsTMgqFTSZgqg5ygcprdBo2r8D2zOO3aa0RXSroY0B0TLP1cVFdD
-         N2zaby0xKmLEGJNCCHV1i+QpXePyPYm6HMoeOXRhVcOCPKerJ2DEvULdme87TuAuI7
-         7B6yFYyoEDhKw7wKveZ5SGbFjJnb0Hkdyv0M13Qk=
+        b=YFUH/uYfL+E7vf8ttcSdu4VecVFXgKXRQZFl5aVu0stCyT0twjYDuGULSkaZT/I3d
+         zlC19WTgr0UruicLeuHssLTYMJmVg010VuFyv+S/aD1YAEw8WYUDAJ3iH4NyacxeHY
+         AY0/EvXjjjTZXvw6wliq+qYDxGzvwQic28TGrEF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.19 03/66] Drivers: hv: vmbus: Remove the undesired put_cpu_ptr() in hv_synic_cleanup()
+        stable@vger.kernel.org, Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 21/95] ASoC: rt5682: fix jack type detection issue
 Date:   Thu,  9 May 2019 20:41:38 +0200
-Message-Id: <20190509181302.099188548@linuxfoundation.org>
+Message-Id: <20190509181310.821993471@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+[ Upstream commit 675212bfb23394514b7f68ebf3954ba936281ccc ]
 
-commit a0033bd1eae4650b69be07c17cb87393da584563 upstream.
+The jack type detection needs the main bias power of analog.
+The modification makes sure the main bias power on/off while jack plug/unplug.
 
-With CONFIG_DEBUG_PREEMPT=y, the put_cpu_ptr() triggers an underflow
-warning in preempt_count_sub().
-
-Fixes: 37cdd991fac8 ("vmbus: put related per-cpu variable together")
-Cc: stable@vger.kernel.org
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hv.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/codecs/rt5682.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/hv/hv.c
-+++ b/drivers/hv/hv.c
-@@ -402,7 +402,6 @@ int hv_synic_cleanup(unsigned int cpu)
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index 49ff5e52db584..9331c13d2017a 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -909,7 +909,8 @@ static int rt5682_headset_detect(struct snd_soc_component *component,
+ 	if (jack_insert) {
  
- 		clockevents_unbind_device(hv_cpu->clk_evt, cpu);
- 		hv_ce_shutdown(hv_cpu->clk_evt);
--		put_cpu_ptr(hv_cpu);
- 	}
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_1,
+-			RT5682_PWR_VREF2, RT5682_PWR_VREF2);
++			RT5682_PWR_VREF2 | RT5682_PWR_MB,
++			RT5682_PWR_VREF2 | RT5682_PWR_MB);
+ 		snd_soc_component_update_bits(component,
+ 				RT5682_PWR_ANLG_1, RT5682_PWR_FV2, 0);
+ 		usleep_range(15000, 20000);
+@@ -946,7 +947,7 @@ static int rt5682_headset_detect(struct snd_soc_component *component,
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
+ 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_1,
+-			RT5682_PWR_VREF2, 0);
++			RT5682_PWR_VREF2 | RT5682_PWR_MB, 0);
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
+ 			RT5682_PWR_CBJ, 0);
  
- 	hv_get_synint_state(VMBUS_MESSAGE_SINT, shared_sint.as_uint64);
+@@ -2295,16 +2296,13 @@ static int rt5682_set_bias_level(struct snd_soc_component *component,
+ 	switch (level) {
+ 	case SND_SOC_BIAS_PREPARE:
+ 		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
+-			RT5682_PWR_MB | RT5682_PWR_BG,
+-			RT5682_PWR_MB | RT5682_PWR_BG);
++			RT5682_PWR_BG, RT5682_PWR_BG);
+ 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
+ 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO,
+ 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO);
+ 		break;
+ 
+ 	case SND_SOC_BIAS_STANDBY:
+-		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
+-			RT5682_PWR_MB, RT5682_PWR_MB);
+ 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
+ 			RT5682_DIG_GATE_CTRL, RT5682_DIG_GATE_CTRL);
+ 		break;
+@@ -2312,7 +2310,7 @@ static int rt5682_set_bias_level(struct snd_soc_component *component,
+ 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
+ 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO, 0);
+ 		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
+-			RT5682_PWR_MB | RT5682_PWR_BG, 0);
++			RT5682_PWR_BG, 0);
+ 		break;
+ 
+ 	default:
+-- 
+2.20.1
+
 
 
