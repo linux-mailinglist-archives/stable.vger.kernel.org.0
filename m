@@ -2,155 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4B4186D9
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 10:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B49D186DA
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 10:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725991AbfEIIf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 04:35:59 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42019 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725869AbfEIIf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 04:35:59 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E35D622136;
-        Thu,  9 May 2019 04:35:57 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 09 May 2019 04:35:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yLRyiX
-        ojwolD9JIM85FzvCEUOC4cEI63FjhOi7RuDkU=; b=zVOpRhHvmig7YDtTM0H15R
-        KsyPDrf4sd2CNHQITzj6+h5AKSpgkrcf9+Fd8853XkqiS0duejeWLrkbulnLVHQX
-        1686PIEj1IyvqXqOr8Tuvymo2ANpzcaSMxxnqjEKngtqbdFmLsDNsN2OrZPVo54m
-        Fni+1nvdSSvyIB3guPdr1KII1Qbc00Vavejb2AEaj6gREIlOFz51zrVSw0ddj1Xg
-        MHz9lTXxPlzm9Zcg3ecqFmbDtUw/Z1MJtg8DNnf/WTY3JPlh/Yxtx6IwD4oJVpl/
-        WHGSoyynTYSExjmOj35dR599A+CWXcZ1yeotBLba3CSTH1h87FM73Vq85MFLQONw
-        ==
-X-ME-Sender: <xms:bebTXPgqW2iHPM7LklleGez80DooaTfPESz3Kf_9i4Zf-fr6m5iQKw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeehgddtiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:bebTXFMlvVNkRFcIQBFmgU2eTZlJ448ji130CW-87eL7UhrtYp0BSQ>
-    <xmx:bebTXJNXQ_fqNQ_nrYPmUFLDZj6efU216EN-AZ5D7ty41kfJr05WYQ>
-    <xmx:bebTXNKuATsiZJZDx8Hl1W7Y00mmc1NLlMPgMs9fGekwqRc7s6xj3g>
-    <xmx:bebTXNrmCMFET2v-J3hwxg-D0A1WvWnyYI3L4_MWhSzPxo56fJ2PFw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D580B1037C;
-        Thu,  9 May 2019 04:35:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] USB: serial: f81232: fix interrupt worker not stop" failed to apply to 4.4-stable tree
-To:     hpeter@gmail.com, hpeter+linux_kernel@gmail.com, johan@kernel.org,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 May 2019 10:35:55 +0200
-Message-ID: <155739095567236@kroah.com>
+        id S1726054AbfEIIho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 04:37:44 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:34174 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725992AbfEIIhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 04:37:43 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1B800374;
+        Thu,  9 May 2019 01:37:43 -0700 (PDT)
+Received: from brain-police (usa-sjc-mx-foss1.foss.arm.com [217.140.101.70])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1D54E3F575;
+        Thu,  9 May 2019 01:37:40 -0700 (PDT)
+Date:   Thu, 9 May 2019 09:37:26 +0100
+From:   Will Deacon <will.deacon@arm.com>
+To:     Yang Shi <yang.shi@linux.alibaba.com>, peterz@infradead.org
+Cc:     jstancek@redhat.com, akpm@linux-foundation.org,
+        stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Message-ID: <20190509083726.GA2209@brain-police>
+References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi all, [+Peter]
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Apologies for the delay; I'm attending a conference this week so it's tricky
+to keep up with email.
 
-thanks,
+On Wed, May 08, 2019 at 05:34:49AM +0800, Yang Shi wrote:
+> A few new fields were added to mmu_gather to make TLB flush smarter for
+> huge page by telling what level of page table is changed.
+> 
+> __tlb_reset_range() is used to reset all these page table state to
+> unchanged, which is called by TLB flush for parallel mapping changes for
+> the same range under non-exclusive lock (i.e. read mmap_sem).  Before
+> commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
+> munmap"), MADV_DONTNEED is the only one who may do page zapping in
+> parallel and it doesn't remove page tables.  But, the forementioned commit
+> may do munmap() under read mmap_sem and free page tables.  This causes a
+> bug [1] reported by Jan Stancek since __tlb_reset_range() may pass the
+> wrong page table state to architecture specific TLB flush operations.
 
-greg k-h
+Yikes. Is it actually safe to run free_pgtables() concurrently for a given
+mm?
 
------------------- original commit in Linus's tree ------------------
+> So, removing __tlb_reset_range() sounds sane.  This may cause more TLB
+> flush for MADV_DONTNEED, but it should be not called very often, hence
+> the impact should be negligible.
+> 
+> The original proposed fix came from Jan Stancek who mainly debugged this
+> issue, I just wrapped up everything together.
 
-From 804dbee1e49774918339c1e5a87400988c0819e8 Mon Sep 17 00:00:00 2001
-From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
-Date: Tue, 30 Apr 2019 09:22:29 +0800
-Subject: [PATCH] USB: serial: f81232: fix interrupt worker not stop
+I'm still paging the nested flush logic back in, but I have some comments on
+the patch below.
 
-The F81232 will use interrupt worker to handle MSR change.
-This patch will fix the issue that interrupt work should stop
-in close() and suspend().
+> [1] https://lore.kernel.org/linux-mm/342bf1fd-f1bf-ed62-1127-e911b5032274@linux.alibaba.com/T/#m7a2ab6c878d5a256560650e56189cfae4e73217f
+> 
+> Reported-by: Jan Stancek <jstancek@redhat.com>
+> Tested-by: Jan Stancek <jstancek@redhat.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> ---
+>  mm/mmu_gather.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+> index 99740e1..9fd5272 100644
+> --- a/mm/mmu_gather.c
+> +++ b/mm/mmu_gather.c
+> @@ -249,11 +249,12 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+>  	 * flush by batching, a thread has stable TLB entry can fail to flush
 
-This also fixes line-status events being disabled after a suspend cycle
-until the port is re-opened.
+Urgh, we should rewrite this comment while we're here so that it makes sense...
 
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-[ johan: amend commit message ]
-Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
-Cc: stable <stable@vger.kernel.org>	# 4.1
-Signed-off-by: Johan Hovold <johan@kernel.org>
+>  	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+>  	 * forcefully if we detect parallel PTE batching threads.
+> +	 *
+> +	 * munmap() may change mapping under non-excluse lock and also free
+> +	 * page tables.  Do not call __tlb_reset_range() for it.
+>  	 */
+> -	if (mm_tlb_flush_nested(tlb->mm)) {
+> -		__tlb_reset_range(tlb);
+> +	if (mm_tlb_flush_nested(tlb->mm))
+>  		__tlb_adjust_range(tlb, start, end - start);
+> -	}
 
-diff --git a/drivers/usb/serial/f81232.c b/drivers/usb/serial/f81232.c
-index 0dcdcb4b2cde..dee6f2caf9b5 100644
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -556,9 +556,12 @@ static int f81232_open(struct tty_struct *tty, struct usb_serial_port *port)
- 
- static void f81232_close(struct usb_serial_port *port)
- {
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+
- 	f81232_port_disable(port);
- 	usb_serial_generic_close(port);
- 	usb_kill_urb(port->interrupt_in_urb);
-+	flush_work(&port_priv->interrupt_work);
- }
- 
- static void f81232_dtr_rts(struct usb_serial_port *port, int on)
-@@ -632,6 +635,40 @@ static int f81232_port_remove(struct usb_serial_port *port)
- 	return 0;
- }
- 
-+static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
-+		usb_kill_urb(port->read_urbs[i]);
-+
-+	usb_kill_urb(port->interrupt_in_urb);
-+
-+	if (port_priv)
-+		flush_work(&port_priv->interrupt_work);
-+
-+	return 0;
-+}
-+
-+static int f81232_resume(struct usb_serial *serial)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	int result;
-+
-+	if (tty_port_initialized(&port->port)) {
-+		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
-+		if (result) {
-+			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
-+					result);
-+			return result;
-+		}
-+	}
-+
-+	return usb_serial_generic_resume(serial);
-+}
-+
- static struct usb_serial_driver f81232_device = {
- 	.driver = {
- 		.owner =	THIS_MODULE,
-@@ -655,6 +692,8 @@ static struct usb_serial_driver f81232_device = {
- 	.read_int_callback =	f81232_read_int_callback,
- 	.port_probe =		f81232_port_probe,
- 	.port_remove =		f81232_port_remove,
-+	.suspend =		f81232_suspend,
-+	.resume =		f81232_resume,
- };
- 
- static struct usb_serial_driver * const serial_drivers[] = {
+I don't think we can elide the call __tlb_reset_range() entirely, since I
+think we do want to clear the freed_pXX bits to ensure that we walk the
+range with the smallest mapping granule that we have. Otherwise couldn't we
+have a problem if we hit a PMD that had been cleared, but the TLB
+invalidation for the PTEs that used to be linked below it was still pending?
 
+Perhaps we should just set fullmm if we see that here's a concurrent
+unmapper rather than do a worst-case range invalidation. Do you have a feeling
+for often the mm_tlb_flush_nested() triggers in practice?
+
+Will
