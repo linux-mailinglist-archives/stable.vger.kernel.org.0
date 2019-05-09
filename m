@@ -2,60 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79665182DB
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 02:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649F1182E2
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 02:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726924AbfEIA1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 May 2019 20:27:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43782 "EHLO mail.kernel.org"
+        id S1727053AbfEIAjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 May 2019 20:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726972AbfEIA1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 May 2019 20:27:10 -0400
+        id S1726709AbfEIAjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 May 2019 20:39:52 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34242216C4;
-        Thu,  9 May 2019 00:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D72C620863;
+        Thu,  9 May 2019 00:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557361629;
-        bh=n9NaYVasz19itEEeW9A7pgBMKMN9BIjYMK2U7NL6eKE=;
+        s=default; t=1557362391;
+        bh=8Dqo7ID/B/CIwsN9jxTVpjR1pzNJfNt8P4RvYfYg+lo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ACS0u0u9xQT3gdFyhHur8CGaxlaKUadAHcx9gxNVfdHuV/ZSotizKYgMjk3Gulhvk
-         V46WoVN+WdJQbLAuirVzNjwNiQ5yYKPu+6O+P71t8/rq1ZJkNn6kkunpb0gZ8o1DOq
-         kPJNC7M6qOm2xkSq6yEujsYf0CGlerH0r73+9S7c=
-Date:   Wed, 8 May 2019 20:27:08 -0400
+        b=EfiEtOcugO5SeYOu+Dksv1fTEXbXVbbQ63LtZNPs5mJXRzGHOBMR3060b2iUZulIQ
+         mjebw+ljElN6+cDeKJuxTL4WJ5qJ+vVRRkLltyvvwqO3ANyDXnsHO29b3WaIyMmBii
+         2TZNnzd3g2JubhnSBimmOOKZNkQyKxRPjxY931mM=
+Date:   Wed, 8 May 2019 20:39:49 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Major Hayden <major@redhat.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4pyFIFBBU1M=?= =?utf-8?Q?=3A?= Stable queue: queue-5.0
-Message-ID: <20190509002708.GN1747@sasha-vm>
-References: <cki.A78709C14B.5852BV39BE@redhat.com>
- <20190508164957.GA6157@kroah.com>
- <fc0c62c2-c923-822d-c255-683ca22e7495@redhat.com>
+To:     Chris Brandt <chris.brandt@renesas.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] ARM: 8680/1: boot/compressed: fix inappropriate Thumb2
+ mnemonic for __nop
+Message-ID: <20190509003949.GO1747@sasha-vm>
+References: <20190508185951.41148-1-chris.brandt@renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <fc0c62c2-c923-822d-c255-683ca22e7495@redhat.com>
+In-Reply-To: <20190508185951.41148-1-chris.brandt@renesas.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 08, 2019 at 02:59:13PM -0500, Major Hayden wrote:
->On 5/8/19 11:49 AM, Greg KH wrote:
->> Meta-comment, are you all going to move to the "latest" stable queue
->> now that 5.1 is out?  Or are you stuck at 5.0?  5.0 is only going to be
->> around for a few more weeks at most.
->>
->> And, any plans on doing this for 4.19 or other older LTS kernels that
->> are going to be sticking around for many years?
+On Wed, May 08, 2019 at 01:59:51PM -0500, Chris Brandt wrote:
+>From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 >
->We generally test the latest stable, but we could try to add some of the LTS versions in addition to the latest stable if that would help. I'll add in 4.19 today and see how it runs with our existing test set.
+>[ Upstream commit 60ce2858514ed9ccaf00dc7e9f4dc219537e9855 ]
+>
+>Commit 06a4b6d009a1 ("ARM: 8677/1: boot/compressed: fix decompressor
+>header layout for v7-M") fixed an issue in the layout of the header
+>of the compressed kernel image that was caused by the assembler
+>emitting narrow opcodes for 'mov r0, r0', and for this reason, the
+>mnemonic was updated to use the W() macro, which will append the .w
+>suffix (which forces a wide encoding) if required, i.e., when building
+>the kernel in Thumb2 mode.
+>
+>However, this failed to take into account that on Thumb2 kernels built
+>for CPUs that are also ARM capable, the entry point is entered in ARM
+>mode, and so the instructions emitted here will be ARM instructions
+>that only exist in a wide encoding to begin with, which is why the
+>assembler rejects the .w suffix here and aborts the build with the
+>following message:
+>
+>  head.S: Assembler messages:
+>  head.S:132: Error: width suffixes are invalid in ARM mode -- `mov.w r0,r0'
+>
+>So replace the W(mov) with separate ARM and Thumb2 instructions, where
+>the latter will only be used for THUMB2_ONLY builds.
+>
+>Fixes: 06a4b6d009a1 ("ARM: 8677/1: boot/compressed: fix decompressor ...")
+>Reported-by: Arnd Bergmann <arnd@arndb.de>
+>Acked-by: Arnd Bergmann <arnd@arndb.de>
+>Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+>Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+>---
+>
+>For the 4.9.x tree, commit 7b5407843691 was applied, but that caused
+>an issue for CONFIG_THUMB2 builds as you can see in the commit
+>message above.
+>
+>Therefore, this upstream fix (that came 2 weeks later) is also required
+>in the 4.9.x tree to make it build again.
 
-If anything breaks we're more than happy to fix it :)
+I've queued 60ce2858514 for 4.9, thanks!
 
 --
 Thanks,
