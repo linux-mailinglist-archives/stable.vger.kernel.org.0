@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A771925A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA171920B
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727595AbfEISqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S1728161AbfEIStE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727610AbfEISqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:46:33 -0400
+        id S1728157AbfEIStD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F5242182B;
-        Thu,  9 May 2019 18:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 126C2217D7;
+        Thu,  9 May 2019 18:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427592;
-        bh=/Ak2cryeRbqtVajCcrEXnZ0g1RLRGc8NS9oXXLo4otE=;
+        s=default; t=1557427742;
+        bh=HwTDDQgpdyLKymq762qog44ANmbDGP/fSirsRKzlApc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spxHBJVMMJh8OotVT+B7BiHmdfYW9C0DUEnqKejZ+be5ghV1jNk88f+IBo2osi03B
-         0WB5f149M5cy2TA6f4WGyhKHs60cbhMhcLVF8qMfc3x0hw65u0lvM79NtHdKwP3Zqn
-         scuQ6+khTTQdtG6cJi3X7WH/qjjddBaPjYePXzlg=
+        b=J0SBOuyG9NZEaSB7ljZ4I0UO16Ne3Z5g9SJwHQZ+NcbFh9dR8NrAL8NfwmPXLW/Fn
+         YTKisgC4+5sQ0a3Pgwo7h89Xt8U9kUZTR1+2udJ3WOshRQLmD8uRoAOUb0zAJqCMRV
+         nntPD3CHi9EcSSXsaFuI87KOW04fbGy8INQRIoDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 40/42] ASoC: Intel: avoid Oops if DMA setup fails
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Seth Bollinger <Seth.Bollinger@digi.com>,
+        Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH 4.19 54/66] usb-storage: Set virt_boundary_mask to avoid SG overflows
 Date:   Thu,  9 May 2019 20:42:29 +0200
-Message-Id: <20190509181300.228829321@linuxfoundation.org>
+Message-Id: <20190509181307.248818725@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
-References: <20190509181252.616018683@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Zwisler <zwisler@chromium.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 0efa3334d65b7f421ba12382dfa58f6ff5bf83c4 upstream.
+commit 747668dbc061b3e62bc1982767a3a1f9815fcf0e upstream.
 
-Currently in sst_dsp_new() if we get an error return from sst_dma_new()
-we just print an error message and then still complete the function
-successfully.  This means that we are trying to run without sst->dma
-properly set up, which will result in NULL pointer dereference when
-sst->dma is later used.  This was happening for me in
-sst_dsp_dma_get_channel():
+The USB subsystem has always had an unusual requirement for its
+scatter-gather transfers: Each element in the scatterlist (except the
+last one) must have a length divisible by the bulk maxpacket size.
+This is a particular issue for USB mass storage, which uses SG lists
+created by the block layer rather than setting up its own.
 
-        struct sst_dma *dma = dsp->dma;
-	...
-        dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
+So far we have scraped by okay because most devices have a logical
+block size of 512 bytes or larger, and the bulk maxpacket sizes for
+USB 2 and below are all <= 512.  However, USB 3 has a bulk maxpacket
+size of 1024.  Since the xhci-hcd driver includes native SG support,
+this hasn't mattered much.  But now people are trying to use USB-3
+mass storage devices with USBIP, and the vhci-hcd driver currently
+does not have full SG support.
 
-This resulted in:
+The result is an overflow error, when the driver attempts to implement
+an SG transfer of 63 512-byte blocks as a single
+3584-byte (7 blocks) transfer followed by seven 4096-byte (8 blocks)
+transfers.  The device instead sends 31 1024-byte packets followed by
+a 512-byte packet, and this overruns the first SG buffer.
 
-   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
-   IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
+Ideally this would be fixed by adding better SG support to vhci-hcd.
+But for now it appears we can work around the problem by
+asking the block layer to respect the maxpacket limitation, through
+the use of the virt_boundary_mask.
 
-Fix this by adding proper error handling for the case where we fail to
-set up DMA.
-
-This change only affects Haswell and Broadwell systems.  Baytrail
-systems explicilty opt-out of DMA via sst->pdata->resindex_dma_base
-being set to -1.
-
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Cc: stable@vger.kernel.org
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Seth Bollinger <Seth.Bollinger@digi.com>
+Tested-by: Seth Bollinger <Seth.Bollinger@digi.com>
+CC: Ming Lei <tom.leiming@gmail.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/common/sst-firmware.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/storage/scsiglue.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/sound/soc/intel/common/sst-firmware.c
-+++ b/sound/soc/intel/common/sst-firmware.c
-@@ -1252,11 +1252,15 @@ struct sst_dsp *sst_dsp_new(struct devic
- 		goto irq_err;
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -65,6 +65,7 @@ static const char* host_info(struct Scsi
+ static int slave_alloc (struct scsi_device *sdev)
+ {
+ 	struct us_data *us = host_to_us(sdev->host);
++	int maxp;
  
- 	err = sst_dma_new(sst);
--	if (err)
--		dev_warn(dev, "sst_dma_new failed %d\n", err);
-+	if (err)  {
-+		dev_err(dev, "sst_dma_new failed %d\n", err);
-+		goto dma_err;
-+	}
+ 	/*
+ 	 * Set the INQUIRY transfer length to 36.  We don't use any of
+@@ -74,20 +75,17 @@ static int slave_alloc (struct scsi_devi
+ 	sdev->inquiry_len = 36;
  
- 	return sst;
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
+-	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * USB has unusual scatter-gather requirements: the length of each
++	 * scatterlist element except the last must be divisible by the
++	 * Bulk maxpacket value.  Fortunately this value is always a
++	 * power of 2.  Inform the block layer about this requirement.
++	 */
++	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
++
++	/*
++	 * Some host controllers may have alignment requirements.
++	 * We'll play it safe by requiring 512-byte alignment always.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
  
-+dma_err:
-+	free_irq(sst->irq, sst);
- irq_err:
- 	if (sst->ops->free)
- 		sst->ops->free(sst);
 
 
