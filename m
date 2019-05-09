@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD2F1916D
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855C419150
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728974AbfEIS4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:56:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
+        id S1728408AbfEISzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728655AbfEISy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:57 -0400
+        id S1729258AbfEISzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:55:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6409204FD;
-        Thu,  9 May 2019 18:54:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9429217D6;
+        Thu,  9 May 2019 18:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428097;
-        bh=wRPFeyce9M4vuMa0CFMDtgaGsnXeBo/NOGwadyRg36E=;
+        s=default; t=1557428136;
+        bh=g85WHPlSeeNCZmBZ0LD/EXxEDcEyzF+M+UOePGG4gEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htVXjRPdqMkG87c4KRn+A7yw66ktSVaO8XtZVPi+f8tlBnmes+O424Qpq4Vh+Au/V
-         7Q5MooLBcRsP/chF5INkWC5nVVpixBbRZMd58qa5SCTAoIZmytM/tFBlSD2WUkb5uM
-         i91yJYvwb/pCndqr3KS/Hi7urxgXKVfsnmeeplMM=
+        b=OcFJOTUY7RNhcOQJ+1fGIg3M22b+9lg1IKbxfo+djqO8dJiKjruSglBAqAQZR1u+a
+         JYj8nP5Enk87yGpneSeu1+ia75WFzL+UWTRIUJpjkqrakHtTkneCyG38AjlTRoJ53e
+         lCoNQMzQ2t3FZ73R+2xv9ZBVuIFIl+CWrJov3xsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Imre Kaloz <kaloz@openwrt.org>,
         Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.1 24/30] Bluetooth: Fix not initializing L2CAP tx_credits
-Date:   Thu,  9 May 2019 20:42:56 +0200
-Message-Id: <20190509181256.147670995@linuxfoundation.org>
+Subject: [PATCH 5.1 25/30] Bluetooth: hci_bcm: Fix empty regulator supplies for Intel Macs
+Date:   Thu,  9 May 2019 20:42:57 +0200
+Message-Id: <20190509181256.346176831@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
 References: <20190509181250.417203112@linuxfoundation.org>
@@ -44,62 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit ba8f5289f706aed94cc95b15cc5b89e22062f61f upstream.
+commit 62611abc8f37d00e3b0cff0eb2d72fa92b05fd27 upstream.
 
-l2cap_le_flowctl_init was reseting the tx_credits which works only for
-outgoing connection since that set the tx_credits on the response, for
-incoming connections that was not the case which leaves the channel
-without any credits causing it to be suspended.
+The code path for Macs goes through bcm_apple_get_resources(), which
+skips over the code that sets up the regulator supplies. As a result,
+the call to regulator_bulk_enable() / regulator_bulk_disable() results
+in a NULL pointer dereference.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+This was reported on the kernel.org Bugzilla, bug 202963.
+
+Unbreak Broadcom Bluetooth support on Intel Macs by checking if the
+supplies were set up before enabling or disabling them.
+
+The same does not need to be done for the clocks, as the common clock
+framework API checks for NULL pointers.
+
+Fixes: 75d11676dccb ("Bluetooth: hci_bcm: Add support for regulator supplies")
+Cc: <stable@vger.kernel.org> # 5.0.x
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Tested-by: Imre Kaloz <kaloz@openwrt.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: stable@vger.kernel.org # 4.20+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/l2cap_core.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/bluetooth/hci_bcm.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -510,12 +510,12 @@ void l2cap_chan_set_defaults(struct l2ca
- }
- EXPORT_SYMBOL_GPL(l2cap_chan_set_defaults);
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -228,9 +228,15 @@ static int bcm_gpio_set_power(struct bcm
+ 	int err;
  
--static void l2cap_le_flowctl_init(struct l2cap_chan *chan)
-+static void l2cap_le_flowctl_init(struct l2cap_chan *chan, u16 tx_credits)
- {
- 	chan->sdu = NULL;
- 	chan->sdu_last_frag = NULL;
- 	chan->sdu_len = 0;
--	chan->tx_credits = 0;
-+	chan->tx_credits = tx_credits;
- 	/* Derive MPS from connection MTU to stop HCI fragmentation */
- 	chan->mps = min_t(u16, chan->imtu, chan->conn->mtu - L2CAP_HDR_SIZE);
- 	/* Give enough credits for a full packet */
-@@ -1281,7 +1281,7 @@ static void l2cap_le_connect(struct l2ca
- 	if (test_and_set_bit(FLAG_LE_CONN_REQ_SENT, &chan->flags))
- 		return;
+ 	if (powered && !dev->res_enabled) {
+-		err = regulator_bulk_enable(BCM_NUM_SUPPLIES, dev->supplies);
+-		if (err)
+-			return err;
++		/* Intel Macs use bcm_apple_get_resources() and don't
++		 * have regulator supplies configured.
++		 */
++		if (dev->supplies[0].supply) {
++			err = regulator_bulk_enable(BCM_NUM_SUPPLIES,
++						    dev->supplies);
++			if (err)
++				return err;
++		}
  
--	l2cap_le_flowctl_init(chan);
-+	l2cap_le_flowctl_init(chan, 0);
+ 		/* LPO clock needs to be 32.768 kHz */
+ 		err = clk_set_rate(dev->lpo_clk, 32768);
+@@ -259,7 +265,13 @@ static int bcm_gpio_set_power(struct bcm
+ 	if (!powered && dev->res_enabled) {
+ 		clk_disable_unprepare(dev->txco_clk);
+ 		clk_disable_unprepare(dev->lpo_clk);
+-		regulator_bulk_disable(BCM_NUM_SUPPLIES, dev->supplies);
++
++		/* Intel Macs use bcm_apple_get_resources() and don't
++		 * have regulator supplies configured.
++		 */
++		if (dev->supplies[0].supply)
++			regulator_bulk_disable(BCM_NUM_SUPPLIES,
++					       dev->supplies);
+ 	}
  
- 	req.psm     = chan->psm;
- 	req.scid    = cpu_to_le16(chan->scid);
-@@ -5532,11 +5532,10 @@ static int l2cap_le_connect_req(struct l
- 	chan->dcid = scid;
- 	chan->omtu = mtu;
- 	chan->remote_mps = mps;
--	chan->tx_credits = __le16_to_cpu(req->credits);
- 
- 	__l2cap_chan_add(conn, chan);
- 
--	l2cap_le_flowctl_init(chan);
-+	l2cap_le_flowctl_init(chan, __le16_to_cpu(req->credits));
- 
- 	dcid = chan->scid;
- 	credits = chan->rx_credits;
+ 	/* wait for device to power on and come out of reset */
 
 
