@@ -2,39 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8EF7191CB
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE73E1921D
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727291AbfEITAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:00:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45714 "EHLO mail.kernel.org"
+        id S1727948AbfEISsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727147AbfEISvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:51:50 -0400
+        id S1727509AbfEISsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:48:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 857F7217F5;
-        Thu,  9 May 2019 18:51:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5357217D7;
+        Thu,  9 May 2019 18:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427910;
-        bh=ejtJlRKggDYSrnvS5XNrV6OwQHBXLxSQjZ7wIfmVLJI=;
+        s=default; t=1557427685;
+        bh=aX+daBkOFi/hzxzV5VBSXPDsK3AzYTYFgnswphyaDhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1ioYN+7WxP6hj/BEWCGAkdN2/6xUc6XCUKXqN0rz0ju6mqVH/jJJFlBIseo+mE78
-         V3MCTX/MPKVEPKxsmtDt/a35PcI4BrxXbwBWUK5AjI7bwlgfWubJj0DpkAwPRZCrAS
-         t/PrB3TnilZjJA5fyOIPUoP4A/CJalTUlfNUQC1I=
+        b=zRhkGA67lOD1TM40rm2wye/7zLuIS/D+hrPtr4TPldD6ASPlHsqFpGIUWdUD8izHw
+         fQVK6f2guYFgAgtSklFo2ZT7AmoIF3zdDAKVUjWux6wIzyLm6i+8nNVjRwKLy8P4nC
+         ruFMJ2A9fFA40wb/fbQ+oftmZdqKEVjhGoHqHNf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Andrei Vagin <avagin@openvz.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        NeilBrown <neilb@suse.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Qiaowei Ren <qiaowei.ren@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 49/95] drm/sun4i: tcon top: Fix NULL/invalid pointer dereference in sun8i_tcon_top_un/bind
+Subject: [PATCH 4.19 31/66] linux/kernel.h: Use parentheses around argument in u64_to_user_ptr()
 Date:   Thu,  9 May 2019 20:42:06 +0200
-Message-Id: <20190509181312.902008471@linuxfoundation.org>
+Message-Id: <20190509181305.215780475@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a07a94b47b1f528f39c3e6187b5eaf02efe44ea ]
+[ Upstream commit a0fe2c6479aab5723239b315ef1b552673f434a3 ]
 
-There are two problems here:
+Use parentheses around uses of the argument in u64_to_user_ptr() to
+ensure that the cast doesn't apply to part of the argument.
 
-1. Not all clk_data->hws[] need to be initialized, depending on various
-   configured quirks. This leads to NULL ptr deref in
-   clk_hw_unregister_gate() in sun8i_tcon_top_unbind()
-2. If there is error when registering the clk_data->hws[],
-   err_unregister_gates error path will try to unregister
-   IS_ERR()=true (invalid) pointer.
+There are existing uses of the macro of the form
 
-For problem (1) I have this stack trace:
+  u64_to_user_ptr(A + B)
 
-Unable to handle kernel NULL pointer dereference at virtual
-  address 0000000000000008
-Call trace:
- clk_hw_unregister+0x8/0x18
- clk_hw_unregister_gate+0x14/0x28
- sun8i_tcon_top_unbind+0x2c/0x60
- component_unbind.isra.4+0x2c/0x50
- component_bind_all+0x1d4/0x230
- sun4i_drv_bind+0xc4/0x1a0
- try_to_bring_up_master+0x164/0x1c0
- __component_add+0xa0/0x168
- component_add+0x10/0x18
- sun8i_dw_hdmi_probe+0x18/0x20
- platform_drv_probe+0x3c/0x70
- really_probe+0xcc/0x278
- driver_probe_device+0x34/0xa8
+which expands to
 
-Problem (2) was identified by head scratching.
+  (void __user *)(uintptr_t)A + B
 
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190405233048.3823-1-megous@megous.com
+(the cast applies to the first operand of the addition, the addition
+is a pointer addition). This happens to still work as intended, the
+semantic difference doesn't cause a difference in behavior.
+
+But I want to use u64_to_user_ptr() with a ternary operator in the
+argument, like so:
+
+  u64_to_user_ptr(A ? B : C)
+
+This currently doesn't work as intended.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: Andrei Vagin <avagin@openvz.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Qiaowei Ren <qiaowei.ren@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190329214652.258477-1-jannh@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_tcon_top.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/kernel.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_tcon_top.c b/drivers/gpu/drm/sun4i/sun8i_tcon_top.c
-index fc36e0c10a374..b1e7c76e9c172 100644
---- a/drivers/gpu/drm/sun4i/sun8i_tcon_top.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_tcon_top.c
-@@ -227,7 +227,7 @@ static int sun8i_tcon_top_bind(struct device *dev, struct device *master,
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index d6aac75b51baa..3d83ebb302cfd 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -73,8 +73,8 @@
  
- err_unregister_gates:
- 	for (i = 0; i < CLK_NUM; i++)
--		if (clk_data->hws[i])
-+		if (!IS_ERR_OR_NULL(clk_data->hws[i]))
- 			clk_hw_unregister_gate(clk_data->hws[i]);
- 	clk_disable_unprepare(tcon_top->bus);
- err_assert_reset:
-@@ -245,7 +245,8 @@ static void sun8i_tcon_top_unbind(struct device *dev, struct device *master,
+ #define u64_to_user_ptr(x) (		\
+ {					\
+-	typecheck(u64, x);		\
+-	(void __user *)(uintptr_t)x;	\
++	typecheck(u64, (x));		\
++	(void __user *)(uintptr_t)(x);	\
+ }					\
+ )
  
- 	of_clk_del_provider(dev->of_node);
- 	for (i = 0; i < CLK_NUM; i++)
--		clk_hw_unregister_gate(clk_data->hws[i]);
-+		if (clk_data->hws[i])
-+			clk_hw_unregister_gate(clk_data->hws[i]);
- 
- 	clk_disable_unprepare(tcon_top->bus);
- 	reset_control_assert(tcon_top->rst);
 -- 
 2.20.1
 
