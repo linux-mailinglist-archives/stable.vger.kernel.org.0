@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 009D919176
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A36F819123
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728707AbfEISyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49126 "EHLO mail.kernel.org"
+        id S1728373AbfEISx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:53:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729054AbfEISyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:22 -0400
+        id S1726998AbfEISxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:53:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 637A1204FD;
-        Thu,  9 May 2019 18:54:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AF56204FD;
+        Thu,  9 May 2019 18:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428061;
-        bh=whVgiUWxByz3UDSxKvA60d0HPLOmjktW30Qs3hRuMIw=;
+        s=default; t=1557428005;
+        bh=BaAJelODdWM6J33FqK4AT3VkKhIgqJ7Apl5XTEcEHDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pfx81zuKi2FhhufEzYMC3/8ejkP3KuJp6BCBhOPtfeNyZJ4Cwj2jJXGnQiR7bmaN+
-         A9PVTkpl7Z0vIrBfal9MlkMfX0kLXqCuep0qAUpkMKFERmIJt/94nXP85bqUyCvWip
-         lGPCAq8QgQ7v76qmdCgLe8DKBMJNiPB+T9WOiHZc=
+        b=qn5f8utYl1G8ACdgB+yvhGH8JL1OaaWO/Jeu+tYD3G8JgXBizqDzxP4yyROJ9FkKt
+         85zy2wc9CxwuTjwuOnW5LhYzAa9bQJbJx2o4yEGM8ru3uN7yK5W8xctENbyVihved8
+         VE7/hFDyVcPh88txfOXv03Ml7xxULC6mcUF6ahx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>, marc.zyngier@arm.com
-Subject: [PATCH 5.1 12/30] genirq: Prevent use-after-free and work list corruption
+        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.0 87/95] Bluetooth: hidp: fix buffer overflow
 Date:   Thu,  9 May 2019 20:42:44 +0200
-Message-Id: <20190509181253.320625162@linuxfoundation.org>
+Message-Id: <20190509181315.339240186@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
-References: <20190509181250.417203112@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prasad Sodagudi <psodagud@codeaurora.org>
+From: Young Xiao <YangX92@hotmail.com>
 
-commit 59c39840f5abf4a71e1810a8da71aaccd6c17d26 upstream.
+commit a1616a5ac99ede5d605047a9012481ce7ff18b16 upstream.
 
-When irq_set_affinity_notifier() replaces the notifier, then the
-reference count on the old notifier is dropped which causes it to be
-freed. But nothing ensures that the old notifier is not longer queued
-in the work list. If it is queued this results in a use after free and
-possibly in work list corruption.
+Struct ca is copied from userspace. It is not checked whether the "name"
+field is NULL terminated, which allows local users to obtain potentially
+sensitive information from kernel stack memory, via a HIDPCONNADD command.
 
-Ensure that the work is canceled before the reference is dropped.
+This vulnerability is similar to CVE-2011-1079.
 
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: marc.zyngier@arm.com
-Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
+Signed-off-by: Young Xiao <YangX92@hotmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/manage.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/hidp/sock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -357,8 +357,10 @@ irq_set_affinity_notifier(unsigned int i
- 	desc->affinity_notify = notify;
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+--- a/net/bluetooth/hidp/sock.c
++++ b/net/bluetooth/hidp/sock.c
+@@ -75,6 +75,7 @@ static int do_hidp_sock_ioctl(struct soc
+ 			sockfd_put(csock);
+ 			return err;
+ 		}
++		ca.name[sizeof(ca.name)-1] = 0;
  
--	if (old_notify)
-+	if (old_notify) {
-+		cancel_work_sync(&old_notify->work);
- 		kref_put(&old_notify->kref, old_notify->release);
-+	}
- 
- 	return 0;
- }
+ 		err = hidp_connection_add(&ca, csock, isock);
+ 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
 
 
