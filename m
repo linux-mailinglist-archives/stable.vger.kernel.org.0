@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0026419297
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9608019261
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfEISoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36156 "EHLO mail.kernel.org"
+        id S1726736AbfEISqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfEISoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:44:39 -0400
+        id S1727546AbfEISqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35F262183F;
-        Thu,  9 May 2019 18:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BFB9217F5;
+        Thu,  9 May 2019 18:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427478;
-        bh=z/KGFFDvSAg9YaKNINdovmagIzFMweISCju5tT/qXmE=;
+        s=default; t=1557427576;
+        bh=PfIkP7KuBLwBB46NxQMftxKVlqvw4HiH02nzRntN+r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JyBygKff/HqgDCvt9/LK1/j4bB5R4iWVBCyLIhSwdLOPdjqrEDII+FZPq3WOPH5V2
-         sCyoiYGpednBxjsg0A66ZRPwK/H3abfrDqNudRcrplIGBg8Ztq+x8AHb63XNmp6r+A
-         arJHquky1qXamg5ONCxDm4pSK9lW5JDrTCxtx+n0=
+        b=xrRxnBN4b4U0koWxB44YgVqEG+6SbpkvTLvOTdMBlwLxdJ9pBFc9RCcqFU4lCxaAM
+         vVSHLLQwEG81/xivf5yGCDvB6s9/WQXNLayPLzPvTu1x0dMNnKBuYGX6A3QqBrT9xP
+         Wqk50fASNzf5vGvSgJsH4/LAV2YXLOzhj7Ih+6qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rander Wang <rander.wang@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, John Hsu <KCHSU0@nuvoton.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/28] ASoC:soc-pcm:fix a codec fixup issue in TDM case
+Subject: [PATCH 4.14 07/42] ASoC: nau8824: fix the issue of the widget with prefix name
 Date:   Thu,  9 May 2019 20:41:56 +0200
-Message-Id: <20190509181250.990152284@linuxfoundation.org>
+Message-Id: <20190509181254.109239930@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 570f18b6a8d1f0e60e8caf30e66161b6438dcc91 ]
+[ Upstream commit 844a4a362dbec166b44d6b9b3dd45b08cb273703 ]
 
-On HDaudio platforms, if playback is started when capture is working,
-there is no audible output.
+The driver has two issues when machine add prefix name for codec.
+(1)The stream name of DAI can't find the AIF widgets.
+(2)The drivr can enable/disalbe the MICBIAS and SAR widgets.
 
-This can be root-caused to the use of the rx|tx_mask to store an HDaudio
-stream tag.
+The patch will fix these issues caused by prefixed name added.
 
-If capture is stared before playback, rx_mask would be non-zero on HDaudio
-platform, then the channel number of playback, which is in the same codec
-dai with the capture, would be changed by soc_pcm_codec_params_fixup based
-on the tx_mask at first, then overwritten by this function based on rx_mask
-at last.
-
-According to the author of tx|rx_mask, tx_mask is for playback and rx_mask
-is for capture. And stream direction is checked at all other references of
-tx|rx_mask in ASoC, so here should be an error. This patch checks stream
-direction for tx|rx_mask for fixup function.
-
-This issue would affect not only HDaudio+ASoC, but also I2S codecs if the
-channel number based on rx_mask is not equal to the one for tx_mask. It could
-be rarely reproduecd because most drivers in kernel set the same channel number
-to tx|rx_mask or rx_mask is zero.
-
-Tested on all platforms using stream_tag & HDaudio and intel I2S platforms.
-
-Signed-off-by: Rander Wang <rander.wang@linux.intel.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: John Hsu <KCHSU0@nuvoton.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/codecs/nau8824.c | 46 +++++++++++++++++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index b111ecda6439d..1dbcdc99dbe36 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -894,10 +894,13 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
- 		codec_params = *params;
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index 0240759f951c7..e8ea51247b179 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -634,8 +634,8 @@ static const struct snd_soc_dapm_widget nau8824_dapm_widgets[] = {
+ 	SND_SOC_DAPM_ADC("ADCR", NULL, NAU8824_REG_ANALOG_ADC_2,
+ 		NAU8824_ADCR_EN_SFT, 0),
  
- 		/* fixup params based on TDM slot masks */
--		if (codec_dai->tx_mask)
-+		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
-+		    codec_dai->tx_mask)
- 			soc_pcm_codec_params_fixup(&codec_params,
- 						   codec_dai->tx_mask);
--		if (codec_dai->rx_mask)
+-	SND_SOC_DAPM_AIF_OUT("AIFTX", "HiFi Capture", 0, SND_SOC_NOPM, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("AIFRX", "HiFi Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("AIFTX", "Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("AIFRX", "Playback", 0, SND_SOC_NOPM, 0, 0),
+ 
+ 	SND_SOC_DAPM_DAC("DACL", NULL, NAU8824_REG_RDAC,
+ 		NAU8824_DACL_EN_SFT, 0),
+@@ -784,6 +784,36 @@ static void nau8824_int_status_clear_all(struct regmap *regmap)
+ 	}
+ }
+ 
++static void nau8824_dapm_disable_pin(struct nau8824 *nau8824, const char *pin)
++{
++	struct snd_soc_dapm_context *dapm = nau8824->dapm;
++	const char *prefix = dapm->component->name_prefix;
++	char prefixed_pin[80];
 +
-+		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
-+		    codec_dai->rx_mask)
- 			soc_pcm_codec_params_fixup(&codec_params,
- 						   codec_dai->rx_mask);
++	if (prefix) {
++		snprintf(prefixed_pin, sizeof(prefixed_pin), "%s %s",
++			 prefix, pin);
++		snd_soc_dapm_disable_pin(dapm, prefixed_pin);
++	} else {
++		snd_soc_dapm_disable_pin(dapm, pin);
++	}
++}
++
++static void nau8824_dapm_enable_pin(struct nau8824 *nau8824, const char *pin)
++{
++	struct snd_soc_dapm_context *dapm = nau8824->dapm;
++	const char *prefix = dapm->component->name_prefix;
++	char prefixed_pin[80];
++
++	if (prefix) {
++		snprintf(prefixed_pin, sizeof(prefixed_pin), "%s %s",
++			 prefix, pin);
++		snd_soc_dapm_force_enable_pin(dapm, prefixed_pin);
++	} else {
++		snd_soc_dapm_force_enable_pin(dapm, pin);
++	}
++}
++
+ static void nau8824_eject_jack(struct nau8824 *nau8824)
+ {
+ 	struct snd_soc_dapm_context *dapm = nau8824->dapm;
+@@ -792,8 +822,8 @@ static void nau8824_eject_jack(struct nau8824 *nau8824)
+ 	/* Clear all interruption status */
+ 	nau8824_int_status_clear_all(regmap);
  
+-	snd_soc_dapm_disable_pin(dapm, "SAR");
+-	snd_soc_dapm_disable_pin(dapm, "MICBIAS");
++	nau8824_dapm_disable_pin(nau8824, "SAR");
++	nau8824_dapm_disable_pin(nau8824, "MICBIAS");
+ 	snd_soc_dapm_sync(dapm);
+ 
+ 	/* Enable the insertion interruption, disable the ejection
+@@ -822,8 +852,8 @@ static void nau8824_jdet_work(struct work_struct *work)
+ 	struct regmap *regmap = nau8824->regmap;
+ 	int adc_value, event = 0, event_mask = 0;
+ 
+-	snd_soc_dapm_force_enable_pin(dapm, "MICBIAS");
+-	snd_soc_dapm_force_enable_pin(dapm, "SAR");
++	nau8824_dapm_enable_pin(nau8824, "MICBIAS");
++	nau8824_dapm_enable_pin(nau8824, "SAR");
+ 	snd_soc_dapm_sync(dapm);
+ 
+ 	msleep(100);
+@@ -834,8 +864,8 @@ static void nau8824_jdet_work(struct work_struct *work)
+ 	if (adc_value < HEADSET_SARADC_THD) {
+ 		event |= SND_JACK_HEADPHONE;
+ 
+-		snd_soc_dapm_disable_pin(dapm, "SAR");
+-		snd_soc_dapm_disable_pin(dapm, "MICBIAS");
++		nau8824_dapm_disable_pin(nau8824, "SAR");
++		nau8824_dapm_disable_pin(nau8824, "MICBIAS");
+ 		snd_soc_dapm_sync(dapm);
+ 	} else {
+ 		event |= SND_JACK_HEADSET;
 -- 
 2.20.1
 
