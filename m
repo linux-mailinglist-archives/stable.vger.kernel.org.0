@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8F619217
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE6919282
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726787AbfEITEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41938 "EHLO mail.kernel.org"
+        id S1727418AbfEITIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:08:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728101AbfEISsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:48:50 -0400
+        id S1727273AbfEISpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FA47217D7;
-        Thu,  9 May 2019 18:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A136A217F5;
+        Thu,  9 May 2019 18:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427729;
-        bh=0zZtPe/QZmm1wOMxxCB1OieNmsIUQ3UbVlb0wPX58Fw=;
+        s=default; t=1557427510;
+        bh=EMkLnOSZMMv4MZEje/xzNx+RTKH8T3X3TlZQylSguD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvsoTr7lZ1O98lEm5QYOCz82/wNwwkUI/aDdtQh2a7VzwlGQd+VHi0lpXRnXdWYAE
-         GVUxmFPyRzPiXbSvW7TwbTtworkneRGCpX1ThqdyLWIBsqMSMo01iWpRGatmDZR75L
-         mPG3Z8kKICaoK6XNP69QnuUoWPoSttQyxmGjiJ/E=
+        b=nXbGAiadrq3uFQzVNu9Lvf2v19dTbObBufavqjl/4LMFSGk3WZH+c8JI4iUbFFLeA
+         xxJ7nNgl80sfMWNVX5yBT9KnoVL96oyCCBrFs/pJOS67mXExw5lL+RSSu6ryWwbN0c
+         XDkTp1aNtSA0HWwoCD8xgstGKbBms2JSNfL1Tm8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JaeChul Lee <jcsing.lee@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/66] ASoC: samsung: odroid: Fix clock configuration for 44100 sample rate
+        stable@vger.kernel.org, chenxiang <chenxiang66@hisilicon.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Ewan Milne <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Tomas Henzl <thenzl@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 01/42] scsi: libsas: fix a race condition when smp task timeout
 Date:   Thu,  9 May 2019 20:41:50 +0200
-Message-Id: <20190509181303.530167536@linuxfoundation.org>
+Message-Id: <20190509181252.772469485@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,47 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2b13bee3884926cba22061efa75bd315e871de24 ]
+From: Jason Yan <yanaijie@huawei.com>
 
-After commit fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate
-handling") the audio root clock frequency is configured improperly for
-44100 sample rate. Due to clock rate rounding it's 20070401 Hz instead
-of 22579000 Hz. This results in a too low value of the PSR clock divider
-in the CPU DAI driver and too fast actual sample rate for fs=44100. E.g.
-1 kHz tone has actual 1780 Hz frequency (1 kHz * 20070401/22579000 * 2).
+commit b90cd6f2b905905fb42671009dc0e27c310a16ae upstream.
 
-Fix this by increasing the correction passed to clk_set_rate() to take
-into account inaccuracy of the EPLL frequency properly.
+When the lldd is processing the complete sas task in interrupt and set the
+task stat as SAS_TASK_STATE_DONE, the smp timeout timer is able to be
+triggered at the same time. And smp_task_timedout() will complete the task
+wheter the SAS_TASK_STATE_DONE is set or not. Then the sas task may freed
+before lldd end the interrupt process. Thus a use-after-free will happen.
 
-Fixes: fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate handling")
-Reported-by: JaeChul Lee <jcsing.lee@samsung.com>
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by calling the complete() only when SAS_TASK_STATE_DONE is not
+set. And remove the check of the return value of the del_timer(). Once the
+LLDD sets DONE, it must call task->done(), which will call
+smp_task_done()->complete() and the task will be completed and freed
+correctly.
+
+Reported-by: chenxiang <chenxiang66@hisilicon.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+CC: John Garry <john.garry@huawei.com>
+CC: Johannes Thumshirn <jthumshirn@suse.de>
+CC: Ewan Milne <emilne@redhat.com>
+CC: Christoph Hellwig <hch@lst.de>
+CC: Tomas Henzl <thenzl@redhat.com>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Guenter Roeck <linux@roeck-us.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/samsung/odroid.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/libsas/sas_expander.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/samsung/odroid.c b/sound/soc/samsung/odroid.c
-index e7b371b072304..45c6d73967852 100644
---- a/sound/soc/samsung/odroid.c
-+++ b/sound/soc/samsung/odroid.c
-@@ -64,11 +64,11 @@ static int odroid_card_hw_params(struct snd_pcm_substream *substream,
- 		return ret;
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -47,17 +47,16 @@ static void smp_task_timedout(unsigned l
+ 	unsigned long flags;
  
- 	/*
--	 *  We add 1 to the rclk_freq value in order to avoid too low clock
-+	 *  We add 2 to the rclk_freq value in order to avoid too low clock
- 	 *  frequency values due to the EPLL output frequency not being exact
- 	 *  multiple of the audio sampling rate.
- 	 */
--	rclk_freq = params_rate(params) * rfs + 1;
-+	rclk_freq = params_rate(params) * rfs + 2;
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+-	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
++	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
++		complete(&task->slow_task->completion);
++	}
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+-
+-	complete(&task->slow_task->completion);
+ }
  
- 	ret = clk_set_rate(priv->sclk_i2s, rclk_freq);
- 	if (ret < 0)
--- 
-2.20.1
-
+ static void smp_task_done(struct sas_task *task)
+ {
+-	if (!del_timer(&task->slow_task->timer))
+-		return;
++	del_timer(&task->slow_task->timer);
+ 	complete(&task->slow_task->completion);
+ }
+ 
 
 
