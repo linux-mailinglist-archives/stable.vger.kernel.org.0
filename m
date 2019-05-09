@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DF818FB7
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A6318FB8
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbfEIRzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 13:55:45 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58737 "EHLO
+        id S1726714AbfEIRzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 13:55:47 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38851 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726632AbfEIRzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:55:44 -0400
+        by vger.kernel.org with ESMTP id S1726632AbfEIRzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:55:46 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 43E4225AC7;
-        Thu,  9 May 2019 13:55:44 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D655824953;
+        Thu,  9 May 2019 13:55:45 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 09 May 2019 13:55:44 -0400
+  by compute6.internal (MEProxy); Thu, 09 May 2019 13:55:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RmyOj4
-        2Frhwx8SfVUfnPffzqDCKQqFro9nMVVgbsAy0=; b=gowzZi4GtvsIEepA4mlEd+
-        ufyGwY5bBogWGf4L6jbzTNuIo0+HOWz10A4L4VryAUgkQHszmEF1oxNTdj1BYBWY
-        R54f5ttk0im/rad/9iYbSKEC+eNFEGYQnXFFyvPo6AR4HCHTZnOitBvUGwwI4IDS
-        Ip7IKknyh8U5hS/WcSZFiUXnRI+cXBPApthkruBxAdBdPuFIB9P8Mag2HA2DrUvU
-        FoM4olRkSeuLMrU98Un0y9j71Kkm10NVOCOPUTBpAqMBHgrGEi6sDR/vq9kzaUVw
-        IubhBdcmZiW3oz5gF2WdOF7Ka5KNiyjTkWIF/4zmXT6qqFvTkm+EIlHfSTz140vQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=he9K65
+        x1CB9R9yVlmjDmb+lUZhVPiBNUc5FwO56Ab4g=; b=DCRLkw2FmWBYfwpomuUhR0
+        BHovYWNF3tA7xdIWtLNGEtYmdIKiHpKwv2u/Z5RbOxWLjfo/0DqH0bot2bP2+ScB
+        P98tcrd3Ve5WrBxapuzp2iHqj0zDB/oXXbGm5xSUemrDLDsl5mpCKB0X5zVPFesP
+        b1webVqy2AGQ5aWhyqZv9URXEqVokXsn5ezCqLy/i7lxvW5wq4YEuugpIlvfKxjj
+        pqr6p+hNNjfTnYda9PpLmkX14FCGo/BUqUn46KYZiLjccZxg2faQqHXm0O7FpfKu
+        YUER9WGhlXVYZumwkzb90FNNPvAUTknxc7rEGhAjSBn5uC+E3j4OHbLsEM/W6MHA
         ==
-X-ME-Sender: <xms:oGnUXKXEEQwdPfwT1c2vtViKaW_NAQ-3edQGWXP79KOPJe5Ki4Zljg>
+X-ME-Sender: <xms:oWnUXEdnw1Hs8vk4w1yqYAbxXfh5JQai9_vVnOM0Q_sAYJed31IxSg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeeigdehkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:oGnUXCAKonc6Mw8Xa0hjfLEEJQBNQht0Rus3srmNoEIfRgSpj-r3QQ>
-    <xmx:oGnUXNE1iOoXoPtB1v2EdS0cdyeL2swHDAoGzMmNLufO-bhgmkeOuw>
-    <xmx:oGnUXOfepm_nvgwHNHGRI_x_lZJSh5GBT1jXCVIsZ2npihmPYfzifA>
-    <xmx:oGnUXAvw1WF-G8gkcMogNFrVE6iPTFzyBQezDSCLWY1Ol9RQMsyoLA>
+X-ME-Proxy: <xmx:oWnUXEc23NslCu-kBHlng5tIEgqBusdftGF_tqp8HNGbdPn8MkQ_Aw>
+    <xmx:oWnUXPpp5xeDgr1HKP7JJ0qPpxE3KTO4TuMVezzIqeCMdYdkydWnSA>
+    <xmx:oWnUXGUWGWXx9nywYjiUwalu3XAJhAl7Ac8FzTUVLIRbMEeBQKz5Ng>
+    <xmx:oWnUXCd2KVIqhi_Vsakk-2-3sRUpyN9YeL4ORhVHCr7dHe4VyabPIg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A36A8103CB;
-        Thu,  9 May 2019 13:55:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4836A1037C;
+        Thu,  9 May 2019 13:55:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero" failed to apply to 4.4-stable tree
 To:     will.deacon@arm.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 May 2019 19:55:36 +0200
-Message-ID: <1557424536259@kroah.com>
+Date:   Thu, 09 May 2019 19:55:37 +0200
+Message-ID: <1557424537152249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
