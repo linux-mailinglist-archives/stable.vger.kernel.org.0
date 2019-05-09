@@ -2,124 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC6A18A3E
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78C4818A4E
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726594AbfEINEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 09:04:42 -0400
-Received: from mail-wr1-f47.google.com ([209.85.221.47]:46141 "EHLO
-        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726054AbfEINEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 09:04:42 -0400
-Received: by mail-wr1-f47.google.com with SMTP id r7so2322691wrr.13
-        for <stable@vger.kernel.org>; Thu, 09 May 2019 06:04:41 -0700 (PDT)
+        id S1726563AbfEINHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 09:07:37 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:33173 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726511AbfEINHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 09:07:37 -0400
+Received: by mail-pl1-f194.google.com with SMTP id y3so1148316plp.0
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 06:07:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jgjdLpyM8EnA/ozc4CWX3LV4Y7xiqB0zLFPPOIGW6OM=;
-        b=MED8cC+AXIdm7H1oOPScfzYEoi7ogFafw4gntDVul81rs/l6OHyEf3huZpd2iAat8y
-         VNNrhE7minW4VpDY1NuT9ys+Do/oV4EagoxPDLFlHgKVKt0GhVHQWlcoJUodYCNgKhwq
-         C6eHTO1rxkD6Tke2wH0X7OPfXICWF2iX0dM74yF/DL3+4pH8EkrdG2xgrrr+lWUkZGxI
-         MwXDK/m2/ZmdoEZL9jDrdWKxT/04z0lPpdo8mAEFzP/MWsXNrg7IkdiGQsuARxZgk1bi
-         88I+b5DAiax+30gO0b6g2A2te3Fbs4vdaud0tP2P+v6tfqE2Pm3nhC6hiJkVvn5DsHyB
-         oLUQ==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=AMDSOHuntpXjwkDROmPwR3CtgdKHjORZGQxYxRCtzlU=;
+        b=lmC2wxBOUUxBpARjaZJqsfJzrZMRiR1P3nYQGJS8kJ6P5trMZHbo2STPMZbf4tl/bE
+         dDHY2sVyuBYEF0ALB5HW8JzvmbjsV1krfl5dT/zCQ81Q9ixUMiCD1ZPoG418wrmZwDET
+         aRhq1VjdW020hplpfYZAxl2YeuxKk5e5Kl1RH9eEEt8e7cL8JDo6qJ7+bjTF9/rB5cK0
+         Feqx4lIgWPvr8arTX2zGvBLZFSf5ORhpt/UAsJkbkp4+yXfm6NNwZ5yn02FSS/dQIPR4
+         MvdrffaELUToz2lIp6ProF6siAQo+z1QRuHmHzFXhdPofFSgjIhtCujfEiv/gf9G2iq+
+         H1VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jgjdLpyM8EnA/ozc4CWX3LV4Y7xiqB0zLFPPOIGW6OM=;
-        b=VDSUM8Xeaw4IgLbvIPysfHCXt0BsPj12E/SMAYYT0Ookq16X7Ki8RvaFQOOwjlasVq
-         r6DFc+gm+CUtEKfY+57KuQGPcu7305najdIXzBeWVYjme6piT1YCUQw5wWkZUxALcgcE
-         8g8yd+SBsWDiBdyJEwddRxfqU8p+oMH51wRQmIwAImHcGebifdDvBJOhG4FRNCECtW19
-         52kYNHdCUBp6bgULaqhYxHmmt86UBTEIY6VAQt8x2UwXKxJYBV+QnOepuFxOeayIETDo
-         qLZiJt5cQ8mE/pdaodTRY/VDA5UhML66qhM/wOnpP/ZwEF77b8Z2T7OmmkE2RyKPmc3G
-         yPtw==
-X-Gm-Message-State: APjAAAVVy4rux92FrlmLju8KetfeRRu+qfhAhsp8d6jPhO8PgiFCMSrS
-        bP1j7aZLHAgvmU1zuclLRMddllLtTPKUJA==
-X-Google-Smtp-Source: APXvYqzZNHAebJvfvZrE//l/knpt1RXpyF+pucDTbzTFdzOxi9w5dnjUf5lvH3B1I0PKJ+qbXy/NVw==
-X-Received: by 2002:adf:dbce:: with SMTP id e14mr3017688wrj.249.1557407080308;
-        Thu, 09 May 2019 06:04:40 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f6sm3110527wro.12.2019.05.09.06.04.39
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=AMDSOHuntpXjwkDROmPwR3CtgdKHjORZGQxYxRCtzlU=;
+        b=X+ZWXzMftdLDRLGnDb87s1zsc9aOfp8GJh37zixAQrjnZYmqWj8hP2uYOQo0IJGF9r
+         pLwjKwEmI2ZMFFUPpq3tKldXuUclQiXVV3UKnbYEt6JNX4KvXb705TGVn+CvcGYvuWad
+         zN+P7+FmmdMe6ea2VSlgK6JuQGDG5Qw3BApu9NtIZ7ea7GCismetWtWjTbUJxUCxMw1m
+         MZ6CSJS8jzPD78VXG4xxurbEF/mO4dtcWuvM/fGvztRco2U4V5f9q7FmH9iGDio7f3wn
+         3bMyY/QToaL6UqxuIksTGTkMXAkaH1iP9J7n1IoolevPLfKPEecHiiYlcGKP5kjFgcbU
+         e6uA==
+X-Gm-Message-State: APjAAAXC14+VSAS68tOenVR4TdAaA5dhRif0ghz0oPgl7wpSyjDbOZ7k
+        8S3/3raqzUfCv3ETlamVn3k2g/Q9
+X-Google-Smtp-Source: APXvYqxY64yiv1YSXv40+phLLmGiWlKDHIHmA3rCiS28kXRO7hdD/3Py8T04aZ70WemoqMOckVi6AQ==
+X-Received: by 2002:a17:902:e091:: with SMTP id cb17mr4891085plb.222.1557407255840;
+        Thu, 09 May 2019 06:07:35 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 5sm5158382pfs.17.2019.05.09.06.07.32
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 May 2019 06:04:39 -0700 (PDT)
-Message-ID: <5cd42567.1c69fb81.8b2c2.f09a@mx.google.com>
-Date:   Thu, 09 May 2019 06:04:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 09 May 2019 06:07:33 -0700 (PDT)
+Subject: Re: Build failure in v4.4.y.queue (ppc:allmodconfig)
+To:     =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <20190508202642.GA28212@roeck-us.net>
+ <20190509065324.GA3864@kroah.com> <20190509114923.696222cb@naga>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <e8aa590e-a02f-19de-96df-6728ded7aab3@roeck-us.net>
+Date:   Thu, 9 May 2019 06:07:31 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.174
-Subject: stable-rc/linux-4.9.y boot: 108 boots: 1 failed,
- 103 passed with 1 offline, 1 untried/unknown, 2 conflicts (v4.9.174)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190509114923.696222cb@naga>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 108 boots: 1 failed, 103 passed with 1 offline,=
- 1 untried/unknown, 2 conflicts (v4.9.174)
+On 5/9/19 2:49 AM, Michal Suchánek wrote:
+> On Thu, 9 May 2019 08:53:24 +0200
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> 
+>> On Wed, May 08, 2019 at 01:26:42PM -0700, Guenter Roeck wrote:
+>>> I see multiple instances of:
+>>>
+>>> arch/powerpc/kernel/exceptions-64s.S:839: Error:
+>>> 	attempt to move .org backwards
+>>>
+>>> in v4.4.y.queue (v4.4.179-143-gc4db218e9451).
+>>>
+>>> This is due to commit 9b2d4e06d7f1 ("powerpc/64s: Add support for a store
+>>> forwarding barrier at kernel entry/exit"), which is part of a large patch
+>>> series and can not easily be reverted.
+>>>
+>>> Guess I'll stop doing ppc:allmodconfig builds in v4.4.y ?
+>>
+>> Michael, I thought this patch series was supposed to fix ppc issues, not
+>> add to them :)
+>>
+>> Any ideas on what to do here?
+> 
+> What exact code do you build?
+>
+$ make ARCH=powerpc CROSS_COMPILE=powerpc64-linux- allmodconfig
+$ powerpc64-linux-gcc --version
+powerpc64-linux-gcc (GCC) 8.3.0
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.174/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.174/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.174
-Git Commit: d79b8577dfb7d02cada8c6671d39d10c09af891b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 51 unique boards, 22 SoC families, 15 builds out of 196
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.9.173-61-g43d95ffd27=
-9c)
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.9.173-61-g43d95ffd27=
-9c)
-
-Boot Failure Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Guenter
