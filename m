@@ -2,76 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0558919596
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 01:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCBA1959D
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 01:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726694AbfEIXLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 19:11:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34100 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726682AbfEIXLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 19:11:37 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F642173C;
-        Thu,  9 May 2019 23:11:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557443496;
-        bh=4czGVVwxwttY99MriEH8D5p/ohHXnX9UEsQ9++fXAiw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=AgZ9nGkinsJeJnmcfS5Jgm3wtmVHuRU5lptN1SIUZM/xc4SVbVTukk0uVJmEYFG63
-         fMg9LLzPL0e+JcHsSReAaSejpacJiUpDr0BieQ4pJA82YRn7b8Ey8V+LYXI+wAGnu0
-         Lk1B0ytS5mLdcAT5Yjxpl6AjFwv9CECO4jFRec8Y=
-Date:   Thu, 9 May 2019 16:11:35 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     yuyufen <yuyufen@huawei.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] hugetlbfs: always use address space in inode for
- resv_map pointer
-Message-Id: <20190509161135.00b542e5b4d0996b5089ea02@linux-foundation.org>
-In-Reply-To: <5d7dc0d5-7cd3-eb95-a1e7-9c68fe393647@oracle.com>
-References: <20190416065058.GB11561@dhcp22.suse.cz>
-        <20190419204435.16984-1-mike.kravetz@oracle.com>
-        <fafe9985-7db1-b65c-523d-875ab4b3b3b8@huawei.com>
-        <5d7dc0d5-7cd3-eb95-a1e7-9c68fe393647@oracle.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1726694AbfEIXUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 19:20:47 -0400
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:50701 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726108AbfEIXUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 19:20:47 -0400
+Received: by mail-wm1-f52.google.com with SMTP id y17so4300096wmj.0
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 16:20:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ny9DAjRdHRW8uBEUv0pXdjnGdpSKpdU7nUDj5e8Y9eQ=;
+        b=0Iq3aWtX7RqjkVBXmm8SHdeP8OBfuBVWpOF8vBU1/5ki3L80K55L7MNW6SUROjcyZg
+         MfpzpfrGsQGb+o+bRo62NNXtoTMHRog0sNhcsgx4RgiebNGNAaInRpqG4mrwkrQZPQpR
+         wKHB0vjUawkgOKAPdZpq2FydSlnoqyRvsC3WT9d5rxlvn+fl+3dtpFxv40P3A01kLX+M
+         wwI0JhBav2qpSpWT6WYHQiGAI+ydBlBM7tq9r3vaTh5vfn65J5RPsaX1qwrNRVDT0kdn
+         arga2okpHDmfpNN7rIWGoZQ4oCP/3Yh5olmX47Fp7bTHtP79Uok3+HQUinHdr1zhyQeN
+         mRjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ny9DAjRdHRW8uBEUv0pXdjnGdpSKpdU7nUDj5e8Y9eQ=;
+        b=FSZOP+F7lrUYxMl4hPc7qyLzTlBDRgF88hkMmlqK/B+PAyIOGkz5GTtVoTwFpjSqJ2
+         /D1AhTzUYsc1YDuf+wBqLW67EiJIyBPAl4YLD0uB1zjmnd/rxYq4SSwPQWHoeGGWjis7
+         R+yjGfHL9YgM//s0FXVzjFDzxm+pLt+UYuOdihNX0TFU5+xVnSDPjObN7rnuzPUgQdXn
+         o+KhVlmvvdBwUoiSWk5/kswLrjN7qprWgA9LIXi3GGH62097EyEj7QoRzwUE35o2PBeC
+         Ox/Ln7LM9d/vYknyi7KD30cQLtL3PLoPf5RukmK+dmjkbU/xgoyvpdLMpr6wALa0S0vU
+         cP8w==
+X-Gm-Message-State: APjAAAWqEv8ne03lwC31qf8Gzbh4CbIBlVdMZKb5p0gct3WRDIIoPkd2
+        /vE/qQ+fa2IvRMl4DZcthTeJtSjK0cOY0g==
+X-Google-Smtp-Source: APXvYqwoI4mEef9KQaOX8+C5HNyuS1zXCRZ+ViEHyR8njdSt1hmFtc96Msqcg2AklB2x+t9InVsLog==
+X-Received: by 2002:a1c:dcc2:: with SMTP id t185mr4990965wmg.143.1557444045277;
+        Thu, 09 May 2019 16:20:45 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a8sm3689460wmf.33.2019.05.09.16.20.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 16:20:44 -0700 (PDT)
+Message-ID: <5cd4b5cc.1c69fb81.629e.287e@mx.google.com>
+Date:   Thu, 09 May 2019 16:20:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.179-160-g2c68c4c9b112
+Subject: stable-rc/linux-4.4.y boot: 98 boots: 2 failed,
+ 95 passed with 1 conflict (v4.4.179-160-g2c68c4c9b112)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 8 May 2019 13:16:09 -0700 Mike Kravetz <mike.kravetz@oracle.com> wrote:
+stable-rc/linux-4.4.y boot: 98 boots: 2 failed, 95 passed with 1 conflict (=
+v4.4.179-160-g2c68c4c9b112)
 
-> > I think it is better to add fixes label, like:
-> > Fixes: 58b6e5e8f1ad ("hugetlbfs: fix memory leak for resv_map")
-> > 
-> > Since the commit 58b6e5e8f1a has been merged to stable, this patch also be needed.
-> > https://www.spinics.net/lists/stable/msg298740.html
-> 
-> It must have been the AI that decided 58b6e5e8f1a needed to go to stable.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.179-160-g2c68c4c9b112/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.179-160-g2c68c4c9b112/
 
-grr.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.179-160-g2c68c4c9b112
+Git Commit: 2c68c4c9b1128c52fd9915bf8529f31601fc81b6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 21 SoC families, 14 builds out of 190
 
-> Even though this technically does not fix 58b6e5e8f1a, I'm OK with adding
-> the Fixes: to force this to go to the same stable trees.
+Boot Regressions Detected:
 
-Why are we bothering with any of this, given that
+arm:
 
-: Luckily, private_data is NULL for address spaces in all such cases
-: today but, there is no guarantee this will continue.
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.4.179)
 
-?
+Boot Failures Detected:
 
-Even though 58b6e5e8f1ad was inappropriately backported, the above
-still holds, so what problem does a backport of "hugetlbfs: always use
-address space in inode for resv_map pointer" actually solve?
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
 
-And yes, some review of this would be nice
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
