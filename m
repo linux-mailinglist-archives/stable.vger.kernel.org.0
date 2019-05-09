@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 758EE19177
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B84819126
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728833AbfEISy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:54:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
+        id S1728636AbfEISxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728301AbfEISy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:27 -0400
+        id S1728508AbfEISxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:53:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C39B52183F;
-        Thu,  9 May 2019 18:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE09720578;
+        Thu,  9 May 2019 18:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428067;
-        bh=zxR1iS372/HBPbflDvjoOuYk9gDbDXGjCZR08oSYC7s=;
+        s=default; t=1557428013;
+        bh=+MeY4MgWJ4dyuu9ZqGGVbumkiUOWOv10xp0i2fvugKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziemxIfj6EvYLnBW1Hv3G6GM5ACl1dZ3FwPGB0LL5Lvy63nYGaPCSRNQxPedHllwD
-         A/uf9AN5olWpQKp/CKcTP3Yf1m+j6wGSvEhVbHdC7lRUG79AiUf3XkcA9G3T3Ds10z
-         Q4Oq6Lc9ZRWN9Wn378pWSNKQRfHjyv0FLvjAhRYU=
+        b=up2j3GlecNp4ZxCG+16ZFmDXzApFyVBEJDQH1mrTYxUZ1hlrKcEHngZh8H4f2ctCP
+         Qk5xPc053GLZmtaVjoXsHMP+yf1SCPAc/cwTe4R2fFM/8GASCOS5XtbY7U8yiL5KL1
+         3ihS3qyaXlclDR/G0x4JJAlZwtsjHwUrGeImlgOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.1 14/30] iio: adc: qcom-spmi-adc5: Fix of-based module autoloading
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.0 89/95] Bluetooth: Fix not initializing L2CAP tx_credits
 Date:   Thu,  9 May 2019 20:42:46 +0200
-Message-Id: <20190509181253.883706841@linuxfoundation.org>
+Message-Id: <20190509181315.467602708@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
-References: <20190509181250.417203112@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 447ccb4e0834a9f9f0dd5643e421c7f1a1649e6a upstream.
+commit ba8f5289f706aed94cc95b15cc5b89e22062f61f upstream.
 
-The of_device_id table needs to be registered as module alias in order
-for automatic module loading to pick the kernel module based on the
-DeviceTree compatible. So add MODULE_DEVICE_TABLE() to make this happen.
+l2cap_le_flowctl_init was reseting the tx_credits which works only for
+outgoing connection since that set the tx_credits on the response, for
+incoming connections that was not the case which leaves the channel
+without any credits causing it to be suspended.
 
-Fixes: e13d757279bb ("iio: adc: Add QCOM SPMI PMIC5 ADC driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org # 4.20+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/qcom-spmi-adc5.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/l2cap_core.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/adc/qcom-spmi-adc5.c
-+++ b/drivers/iio/adc/qcom-spmi-adc5.c
-@@ -664,6 +664,7 @@ static const struct of_device_id adc5_ma
- 	},
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, adc5_match_table);
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -510,12 +510,12 @@ void l2cap_chan_set_defaults(struct l2ca
+ }
+ EXPORT_SYMBOL_GPL(l2cap_chan_set_defaults);
  
- static int adc5_get_dt_data(struct adc5_chip *adc, struct device_node *node)
+-static void l2cap_le_flowctl_init(struct l2cap_chan *chan)
++static void l2cap_le_flowctl_init(struct l2cap_chan *chan, u16 tx_credits)
  {
+ 	chan->sdu = NULL;
+ 	chan->sdu_last_frag = NULL;
+ 	chan->sdu_len = 0;
+-	chan->tx_credits = 0;
++	chan->tx_credits = tx_credits;
+ 	/* Derive MPS from connection MTU to stop HCI fragmentation */
+ 	chan->mps = min_t(u16, chan->imtu, chan->conn->mtu - L2CAP_HDR_SIZE);
+ 	/* Give enough credits for a full packet */
+@@ -1281,7 +1281,7 @@ static void l2cap_le_connect(struct l2ca
+ 	if (test_and_set_bit(FLAG_LE_CONN_REQ_SENT, &chan->flags))
+ 		return;
+ 
+-	l2cap_le_flowctl_init(chan);
++	l2cap_le_flowctl_init(chan, 0);
+ 
+ 	req.psm     = chan->psm;
+ 	req.scid    = cpu_to_le16(chan->scid);
+@@ -5531,11 +5531,10 @@ static int l2cap_le_connect_req(struct l
+ 	chan->dcid = scid;
+ 	chan->omtu = mtu;
+ 	chan->remote_mps = mps;
+-	chan->tx_credits = __le16_to_cpu(req->credits);
+ 
+ 	__l2cap_chan_add(conn, chan);
+ 
+-	l2cap_le_flowctl_init(chan);
++	l2cap_le_flowctl_init(chan, __le16_to_cpu(req->credits));
+ 
+ 	dcid = chan->scid;
+ 	credits = chan->rx_credits;
 
 
