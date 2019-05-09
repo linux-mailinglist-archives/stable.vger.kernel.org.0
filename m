@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C08AD1920C
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D665D19250
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727704AbfEIStK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42390 "EHLO mail.kernel.org"
+        id S1727165AbfEISqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727681AbfEIStI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:08 -0400
+        id S1727637AbfEISqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F888217F5;
-        Thu,  9 May 2019 18:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50F9D2182B;
+        Thu,  9 May 2019 18:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427747;
-        bh=erub84zW5SlMt2EeVa3Z6abSx4S29rau3YDLlNndXu8=;
+        s=default; t=1557427597;
+        bh=M/WflKJ18bUUTjs4bfqR6PSZ0fvoLlGIFcH8OVmjCno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtzNXyfFGCMIna3SB9BCLXZXyo8+sd8KjyB+aJyBpQ8dg43+0/2exYzHGRrs90prV
-         o+sMzEH4VE5FT+yGswvHnRySAJeuZlhIEcNAXvVoAgbe3mHIBA9vfKszhCUIFtFcxG
-         iRU3UHzBouDlg5XA+BHBFjw+THNA4srpuLaYtoPs=
+        b=TiQ5QylFh6A7TxJSlvqqWWddXKT5TNuDinKB9Gq8vLXAuRh5Ixzz8BqdcWJRg7woW
+         gfFF3P98tPRc3ZN0SiugHtJL0YROjtV2ULycIW2xX/oeXzUNrSBUs2JE31pIsOfvm0
+         UdjwbclEmBt3OSIFIbn4WymIx9HLGKwfLrydghHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Neubert <christian.neubert.86@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 4.19 56/66] cpufreq: armada-37xx: fix frequency calculation for opp
+        stable@vger.kernel.org, stable@kernel.org,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.14 42/42] arm64: futex: Bound number of LDXR/STXR loops in FUTEX_WAKE_OP
 Date:   Thu,  9 May 2019 20:42:31 +0200
-Message-Id: <20190509181307.425842082@linuxfoundation.org>
+Message-Id: <20190509181300.512525411@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit 8db82563451f976597ab7b282ec655e4390a4088 upstream.
+commit 03110a5cb2161690ae5ac04994d47ed0cd6cef75 upstream.
 
-The frequency calculation was based on the current(max) frequency of the
-CPU. However for low frequency, the value used was already the parent
-frequency divided by a factor of 2.
+Our futex implementation makes use of LDXR/STXR loops to perform atomic
+updates to user memory from atomic context. This can lead to latency
+problems if we end up spinning around the LL/SC sequence at the expense
+of doing something useful.
 
-Instead of using this frequency, this fix directly get the frequency from
-the parent clock.
+Rework our futex atomic operations so that we return -EAGAIN if we fail
+to update the futex word after 128 attempts. The core futex code will
+reschedule if necessary and we'll try again later.
 
-Fixes: 92ce45fb875d ("cpufreq: Add DVFS support for Armada 37xx")
-Cc: <stable@vger.kernel.org>
-Reported-by: Christian Neubert <christian.neubert.86@gmail.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: <stable@kernel.org>
+Fixes: 6170a97460db ("arm64: Atomic operations")
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/armada-37xx-cpufreq.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/futex.h |   55 +++++++++++++++++++++++++----------------
+ 1 file changed, 34 insertions(+), 21 deletions(-)
 
---- a/drivers/cpufreq/armada-37xx-cpufreq.c
-+++ b/drivers/cpufreq/armada-37xx-cpufreq.c
-@@ -359,11 +359,11 @@ static int __init armada37xx_cpufreq_dri
- 	struct armada_37xx_dvfs *dvfs;
- 	struct platform_device *pdev;
- 	unsigned long freq;
--	unsigned int cur_frequency;
-+	unsigned int cur_frequency, base_frequency;
- 	struct regmap *nb_pm_base, *avs_base;
- 	struct device *cpu_dev;
- 	int load_lvl, ret;
--	struct clk *clk;
-+	struct clk *clk, *parent;
+--- a/arch/arm64/include/asm/futex.h
++++ b/arch/arm64/include/asm/futex.h
+@@ -23,26 +23,34 @@
  
- 	nb_pm_base =
- 		syscon_regmap_lookup_by_compatible("marvell,armada-3700-nb-pm");
-@@ -399,6 +399,22 @@ static int __init armada37xx_cpufreq_dri
- 		return PTR_ERR(clk);
- 	}
+ #include <asm/errno.h>
  
-+	parent = clk_get_parent(clk);
-+	if (IS_ERR(parent)) {
-+		dev_err(cpu_dev, "Cannot get parent clock for CPU0\n");
-+		clk_put(clk);
-+		return PTR_ERR(parent);
-+	}
++#define FUTEX_MAX_LOOPS	128 /* What's the largest number you can think of? */
 +
-+	/* Get parent CPU frequency */
-+	base_frequency =  clk_get_rate(parent);
-+
-+	if (!base_frequency) {
-+		dev_err(cpu_dev, "Failed to get parent clock rate for CPU\n");
-+		clk_put(clk);
-+		return -EINVAL;
-+	}
-+
- 	/* Get nominal (current) CPU frequency */
- 	cur_frequency = clk_get_rate(clk);
- 	if (!cur_frequency) {
-@@ -431,7 +447,7 @@ static int __init armada37xx_cpufreq_dri
- 	for (load_lvl = ARMADA_37XX_DVFS_LOAD_0; load_lvl < LOAD_LEVEL_NR;
- 	     load_lvl++) {
- 		unsigned long u_volt = avs_map[dvfs->avs[load_lvl]] * 1000;
--		freq = cur_frequency / dvfs->divider[load_lvl];
-+		freq = base_frequency / dvfs->divider[load_lvl];
- 		ret = dev_pm_opp_add(cpu_dev, freq, u_volt);
- 		if (ret)
- 			goto remove_opp;
+ #define __futex_atomic_op(insn, ret, oldval, uaddr, tmp, oparg)		\
+ do {									\
++	unsigned int loops = FUTEX_MAX_LOOPS;				\
++									\
+ 	uaccess_enable();						\
+ 	asm volatile(							\
+ "	prfm	pstl1strm, %2\n"					\
+ "1:	ldxr	%w1, %2\n"						\
+ 	insn "\n"							\
+ "2:	stlxr	%w0, %w3, %2\n"						\
+-"	cbnz	%w0, 1b\n"						\
+-"	dmb	ish\n"							\
++"	cbz	%w0, 3f\n"						\
++"	sub	%w4, %w4, %w0\n"					\
++"	cbnz	%w4, 1b\n"						\
++"	mov	%w0, %w7\n"						\
+ "3:\n"									\
++"	dmb	ish\n"							\
+ "	.pushsection .fixup,\"ax\"\n"					\
+ "	.align	2\n"							\
+-"4:	mov	%w0, %w5\n"						\
++"4:	mov	%w0, %w6\n"						\
+ "	b	3b\n"							\
+ "	.popsection\n"							\
+ 	_ASM_EXTABLE(1b, 4b)						\
+ 	_ASM_EXTABLE(2b, 4b)						\
+-	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp)	\
+-	: "r" (oparg), "Ir" (-EFAULT)					\
++	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp),	\
++	  "+r" (loops)							\
++	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
+ 	: "memory");							\
+ 	uaccess_disable();						\
+ } while (0)
+@@ -57,23 +65,23 @@ arch_futex_atomic_op_inuser(int op, int
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+-		__futex_atomic_op("mov	%w3, %w4",
++		__futex_atomic_op("mov	%w3, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ADD:
+-		__futex_atomic_op("add	%w3, %w1, %w4",
++		__futex_atomic_op("add	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_OR:
+-		__futex_atomic_op("orr	%w3, %w1, %w4",
++		__futex_atomic_op("orr	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ANDN:
+-		__futex_atomic_op("and	%w3, %w1, %w4",
++		__futex_atomic_op("and	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, ~oparg);
+ 		break;
+ 	case FUTEX_OP_XOR:
+-		__futex_atomic_op("eor	%w3, %w1, %w4",
++		__futex_atomic_op("eor	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	default:
+@@ -93,6 +101,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 			      u32 oldval, u32 newval)
+ {
+ 	int ret = 0;
++	unsigned int loops = FUTEX_MAX_LOOPS;
+ 	u32 val, tmp;
+ 	u32 __user *uaddr;
+ 
+@@ -104,20 +113,24 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	asm volatile("// futex_atomic_cmpxchg_inatomic\n"
+ "	prfm	pstl1strm, %2\n"
+ "1:	ldxr	%w1, %2\n"
+-"	sub	%w3, %w1, %w4\n"
+-"	cbnz	%w3, 3f\n"
+-"2:	stlxr	%w3, %w5, %2\n"
+-"	cbnz	%w3, 1b\n"
+-"	dmb	ish\n"
++"	sub	%w3, %w1, %w5\n"
++"	cbnz	%w3, 4f\n"
++"2:	stlxr	%w3, %w6, %2\n"
++"	cbz	%w3, 3f\n"
++"	sub	%w4, %w4, %w3\n"
++"	cbnz	%w4, 1b\n"
++"	mov	%w0, %w8\n"
+ "3:\n"
++"	dmb	ish\n"
++"4:\n"
+ "	.pushsection .fixup,\"ax\"\n"
+-"4:	mov	%w0, %w6\n"
+-"	b	3b\n"
++"5:	mov	%w0, %w7\n"
++"	b	4b\n"
+ "	.popsection\n"
+-	_ASM_EXTABLE(1b, 4b)
+-	_ASM_EXTABLE(2b, 4b)
+-	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp)
+-	: "r" (oldval), "r" (newval), "Ir" (-EFAULT)
++	_ASM_EXTABLE(1b, 5b)
++	_ASM_EXTABLE(2b, 5b)
++	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
++	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
+ 	: "memory");
+ 	uaccess_disable();
+ 
 
 
