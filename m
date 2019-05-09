@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C9E1929B
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345F619224
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727033AbfEITJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35940 "EHLO mail.kernel.org"
+        id S1727310AbfEISsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:48:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727048AbfEISoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:44:32 -0400
+        id S1728036AbfEISs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:48:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B715217F5;
-        Thu,  9 May 2019 18:44:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53425217F9;
+        Thu,  9 May 2019 18:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427470;
-        bh=6n0GKdS7BlfEBRnyPq2cxQ+2dRUOf7IlbbWhpkO/mt4=;
+        s=default; t=1557427708;
+        bh=Rp7/QikNtiLDpD20dGNUM3+MIlwpnQqPwqvMNHk1K90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CSvX8Nclut2pUEUyMZ0FYLasweJpxCkiI+VeaVJHTG4rQkjo0WyDQJe7UCN4UzM4
-         2IHCMr7jePgIflg010ImyyMr9aEEPWCMqu0WDYZejPxIYKrPNkBGEKW9uIefLndtZO
-         z7TUwTWeCngXAHdPruvoMAgp86pTtAvdKoj6Oink=
+        b=2oUuT0H/qjJ+LOXMxOd/gTceQE2vDLKhBU/uAFwda+VAEv6dd3/efgVJQpWHbnTJI
+         KZkmjV8b4OvpkhNkU/Hq6SLQKWSNGMPjRP82oJyQbhSqRpLfBeIkEc7vmCXcBdy4Vd
+         4hzd2OQIeBp34G7hDf5WsL20QghyslN+ZY9AO77w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Seth Bollinger <Seth.Bollinger@digi.com>,
-        Ming Lei <tom.leiming@gmail.com>
-Subject: [PATCH 4.9 22/28] usb-storage: Set virt_boundary_mask to avoid SG overflows
+        stable@vger.kernel.org, Gonglei <arei.gonglei@huawei.com>,
+        Longpeng <longpeng2@huawei.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 39/66] virtio_pci: fix a NULL pointer reference in vp_del_vqs
 Date:   Thu,  9 May 2019 20:42:14 +0200
-Message-Id: <20190509181254.988450875@linuxfoundation.org>
+Message-Id: <20190509181306.101821011@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+[ Upstream commit 6a8aae68c87349dbbcd46eac380bc43cdb98a13b ]
 
-commit 747668dbc061b3e62bc1982767a3a1f9815fcf0e upstream.
+If the msix_affinity_masks is alloced failed, then we'll
+try to free some resources in vp_free_vectors() that may
+access it directly.
 
-The USB subsystem has always had an unusual requirement for its
-scatter-gather transfers: Each element in the scatterlist (except the
-last one) must have a length divisible by the bulk maxpacket size.
-This is a particular issue for USB mass storage, which uses SG lists
-created by the block layer rather than setting up its own.
+We met the following stack in our production:
+[   29.296767] BUG: unable to handle kernel NULL pointer dereference at  (null)
+[   29.311151] IP: [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
+[   29.324787] PGD 0
+[   29.333224] Oops: 0000 [#1] SMP
+[...]
+[   29.425175] RIP: 0010:[<ffffffffc04fe35a>]  [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
+[   29.441405] RSP: 0018:ffff9a55c2dcfa10  EFLAGS: 00010206
+[   29.453491] RAX: 0000000000000000 RBX: ffff9a55c322c400 RCX: 0000000000000000
+[   29.467488] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9a55c322c400
+[   29.481461] RBP: ffff9a55c2dcfa20 R08: 0000000000000000 R09: ffffc1b6806ff020
+[   29.495427] R10: 0000000000000e95 R11: 0000000000aaaaaa R12: 0000000000000000
+[   29.509414] R13: 0000000000010000 R14: ffff9a55bd2d9e98 R15: ffff9a55c322c400
+[   29.523407] FS:  00007fdcba69f8c0(0000) GS:ffff9a55c2840000(0000) knlGS:0000000000000000
+[   29.538472] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.551621] CR2: 0000000000000000 CR3: 000000003ce52000 CR4: 00000000003607a0
+[   29.565886] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   29.580055] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   29.594122] Call Trace:
+[   29.603446]  [<ffffffffc04fe8a2>] vp_request_msix_vectors+0xe2/0x260 [virtio_pci]
+[   29.618017]  [<ffffffffc04fedc5>] vp_try_to_find_vqs+0x95/0x3b0 [virtio_pci]
+[   29.632152]  [<ffffffffc04ff117>] vp_find_vqs+0x37/0xb0 [virtio_pci]
+[   29.645582]  [<ffffffffc057bf63>] init_vq+0x153/0x260 [virtio_blk]
+[   29.658831]  [<ffffffffc057c1e8>] virtblk_probe+0xe8/0x87f [virtio_blk]
+[...]
 
-So far we have scraped by okay because most devices have a logical
-block size of 512 bytes or larger, and the bulk maxpacket sizes for
-USB 2 and below are all <= 512.  However, USB 3 has a bulk maxpacket
-size of 1024.  Since the xhci-hcd driver includes native SG support,
-this hasn't mattered much.  But now people are trying to use USB-3
-mass storage devices with USBIP, and the vhci-hcd driver currently
-does not have full SG support.
-
-The result is an overflow error, when the driver attempts to implement
-an SG transfer of 63 512-byte blocks as a single
-3584-byte (7 blocks) transfer followed by seven 4096-byte (8 blocks)
-transfers.  The device instead sends 31 1024-byte packets followed by
-a 512-byte packet, and this overruns the first SG buffer.
-
-Ideally this would be fixed by adding better SG support to vhci-hcd.
-But for now it appears we can work around the problem by
-asking the block layer to respect the maxpacket limitation, through
-the use of the virt_boundary_mask.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Seth Bollinger <Seth.Bollinger@digi.com>
-Tested-by: Seth Bollinger <Seth.Bollinger@digi.com>
-CC: Ming Lei <tom.leiming@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Longpeng <longpeng2@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/scsiglue.c |   26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/storage/scsiglue.c
-+++ b/drivers/usb/storage/scsiglue.c
-@@ -81,6 +81,7 @@ static const char* host_info(struct Scsi
- static int slave_alloc (struct scsi_device *sdev)
- {
- 	struct us_data *us = host_to_us(sdev->host);
-+	int maxp;
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 465a6f5142cc5..45b04bc91f248 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -255,9 +255,11 @@ void vp_del_vqs(struct virtio_device *vdev)
+ 	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
+ 		free_irq(pci_irq_vector(vp_dev->pci_dev, i), vp_dev);
  
- 	/*
- 	 * Set the INQUIRY transfer length to 36.  We don't use any of
-@@ -90,20 +91,17 @@ static int slave_alloc (struct scsi_devi
- 	sdev->inquiry_len = 36;
+-	for (i = 0; i < vp_dev->msix_vectors; i++)
+-		if (vp_dev->msix_affinity_masks[i])
+-			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++	if (vp_dev->msix_affinity_masks) {
++		for (i = 0; i < vp_dev->msix_vectors; i++)
++			if (vp_dev->msix_affinity_masks[i])
++				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++	}
  
- 	/*
--	 * USB has unusual DMA-alignment requirements: Although the
--	 * starting address of each scatter-gather element doesn't matter,
--	 * the length of each element except the last must be divisible
--	 * by the Bulk maxpacket value.  There's currently no way to
--	 * express this by block-layer constraints, so we'll cop out
--	 * and simply require addresses to be aligned at 512-byte
--	 * boundaries.  This is okay since most block I/O involves
--	 * hardware sectors that are multiples of 512 bytes in length,
--	 * and since host controllers up through USB 2.0 have maxpacket
--	 * values no larger than 512.
--	 *
--	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
--	 * values can be as large as 2048.  To make that work properly
--	 * will require changes to the block layer.
-+	 * USB has unusual scatter-gather requirements: the length of each
-+	 * scatterlist element except the last must be divisible by the
-+	 * Bulk maxpacket value.  Fortunately this value is always a
-+	 * power of 2.  Inform the block layer about this requirement.
-+	 */
-+	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
-+	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
-+
-+	/*
-+	 * Some host controllers may have alignment requirements.
-+	 * We'll play it safe by requiring 512-byte alignment always.
- 	 */
- 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
- 
+ 	if (vp_dev->msix_enabled) {
+ 		/* Disable the vector used for configuration */
+-- 
+2.20.1
+
 
 
