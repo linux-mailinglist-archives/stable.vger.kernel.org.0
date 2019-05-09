@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D6E1907A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A0419184
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727275AbfEISpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36822 "EHLO mail.kernel.org"
+        id S1728691AbfEISwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfEISpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:45:08 -0400
+        id S1728484AbfEISwV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:52:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25312217F9;
-        Thu,  9 May 2019 18:45:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68CBB204FD;
+        Thu,  9 May 2019 18:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427507;
-        bh=m5v/VQDEu53kIn8smOqM7gN/gtLhfkr4W9EBM+BYU1s=;
+        s=default; t=1557427940;
+        bh=KH0XmhzLD93Or6j9wxqIc4v46wmOy3/G4VNW5JBvIHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MpzpTdOZIEM+pXsSPqaoE8MuzT52iDto1imwWBJsUsm3UdGVAsMmMJ4tAqRe5hlLX
-         1uMdr8ciAJSORsVP7Dp3qtffRXA5+zD3jWkt+MoQ+WS3tA93QjG83s5GsK1QfPpMQD
-         JQ4mERKwKgGdIsqN5RE+mlXXgRJRILxErrD+isYo=
+        b=Uuy8iXsYqcf/eO4nxArwXE7H7NSzI5q/dhWHv6YBN9Uw7TrGTSOhGdWOJQViZxQ2N
+         6mJaZ2LM8ftQFvxYM6debL8S/eau/vBh6yWeSOVrKpycQcUP8liYMNxiL2LoLQJYxX
+         2SbahASGvbQCaXYzGnokXJVrwOZnXVJ4wN1Y824o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.9 24/28] Bluetooth: hidp: fix buffer overflow
-Date:   Thu,  9 May 2019 20:42:16 +0200
-Message-Id: <20190509181255.392576707@linuxfoundation.org>
+        stable@vger.kernel.org, Wangyan Wang <wangyan.wang@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 60/95] drm/mediatek: no change parent rate in round_rate() for MT2701 hdmi phy
+Date:   Thu,  9 May 2019 20:42:17 +0200
+Message-Id: <20190509181313.682875657@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Young Xiao <YangX92@hotmail.com>
+[ Upstream commit 9ee76098a1b8ae21cccac641b735ee4d3a77bccf ]
 
-commit a1616a5ac99ede5d605047a9012481ce7ff18b16 upstream.
+This is the third step to make MT2701 HDMI stable.
+We should not change the rate of parent for hdmi phy when
+doing round_rate for this clock. The parent clock of hdmi
+phy must be the same as it. We change it when doing set_rate
+only.
 
-Struct ca is copied from userspace. It is not checked whether the "name"
-field is NULL terminated, which allows local users to obtain potentially
-sensitive information from kernel stack memory, via a HIDPCONNADD command.
-
-This vulnerability is similar to CVE-2011-1079.
-
-Signed-off-by: Young Xiao <YangX92@hotmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Wangyan Wang <wangyan.wang@mediatek.com>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/sock.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/mediatek/mtk_hdmi_phy.c        | 14 --------------
+ drivers/gpu/drm/mediatek/mtk_hdmi_phy.h        |  2 --
+ drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c |  6 ++++++
+ drivers/gpu/drm/mediatek/mtk_mt8173_hdmi_phy.c | 14 ++++++++++++++
+ 4 files changed, 20 insertions(+), 16 deletions(-)
 
---- a/net/bluetooth/hidp/sock.c
-+++ b/net/bluetooth/hidp/sock.c
-@@ -76,6 +76,7 @@ static int hidp_sock_ioctl(struct socket
- 			sockfd_put(csock);
- 			return err;
- 		}
-+		ca.name[sizeof(ca.name)-1] = 0;
+diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi_phy.c b/drivers/gpu/drm/mediatek/mtk_hdmi_phy.c
+index 08b029772c5a5..5223498502c49 100644
+--- a/drivers/gpu/drm/mediatek/mtk_hdmi_phy.c
++++ b/drivers/gpu/drm/mediatek/mtk_hdmi_phy.c
+@@ -15,20 +15,6 @@ static const struct phy_ops mtk_hdmi_phy_dev_ops = {
+ 	.owner = THIS_MODULE,
+ };
  
- 		err = hidp_connection_add(&ca, csock, isock);
- 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
+-long mtk_hdmi_pll_round_rate(struct clk_hw *hw, unsigned long rate,
+-			     unsigned long *parent_rate)
+-{
+-	struct mtk_hdmi_phy *hdmi_phy = to_mtk_hdmi_phy(hw);
+-
+-	hdmi_phy->pll_rate = rate;
+-	if (rate <= 74250000)
+-		*parent_rate = rate;
+-	else
+-		*parent_rate = rate / 2;
+-
+-	return rate;
+-}
+-
+ void mtk_hdmi_phy_clear_bits(struct mtk_hdmi_phy *hdmi_phy, u32 offset,
+ 			     u32 bits)
+ {
+diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi_phy.h b/drivers/gpu/drm/mediatek/mtk_hdmi_phy.h
+index d28b8d5ed2b44..2d8b3182470dc 100644
+--- a/drivers/gpu/drm/mediatek/mtk_hdmi_phy.h
++++ b/drivers/gpu/drm/mediatek/mtk_hdmi_phy.h
+@@ -49,8 +49,6 @@ void mtk_hdmi_phy_set_bits(struct mtk_hdmi_phy *hdmi_phy, u32 offset,
+ void mtk_hdmi_phy_mask(struct mtk_hdmi_phy *hdmi_phy, u32 offset,
+ 		       u32 val, u32 mask);
+ struct mtk_hdmi_phy *to_mtk_hdmi_phy(struct clk_hw *hw);
+-long mtk_hdmi_pll_round_rate(struct clk_hw *hw, unsigned long rate,
+-			     unsigned long *parent_rate);
+ 
+ extern struct platform_driver mtk_hdmi_phy_driver;
+ extern struct mtk_hdmi_phy_conf mtk_hdmi_phy_8173_conf;
+diff --git a/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c b/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
+index 31f3175f032bc..d3cc4022e9884 100644
+--- a/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
++++ b/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
+@@ -106,6 +106,12 @@ static void mtk_hdmi_pll_unprepare(struct clk_hw *hw)
+ 	usleep_range(80, 100);
+ }
+ 
++static long mtk_hdmi_pll_round_rate(struct clk_hw *hw, unsigned long rate,
++				    unsigned long *parent_rate)
++{
++	return rate;
++}
++
+ static int mtk_hdmi_pll_set_rate(struct clk_hw *hw, unsigned long rate,
+ 				 unsigned long parent_rate)
+ {
+diff --git a/drivers/gpu/drm/mediatek/mtk_mt8173_hdmi_phy.c b/drivers/gpu/drm/mediatek/mtk_mt8173_hdmi_phy.c
+index 37f9503d76433..47f8a29516822 100644
+--- a/drivers/gpu/drm/mediatek/mtk_mt8173_hdmi_phy.c
++++ b/drivers/gpu/drm/mediatek/mtk_mt8173_hdmi_phy.c
+@@ -199,6 +199,20 @@ static void mtk_hdmi_pll_unprepare(struct clk_hw *hw)
+ 	usleep_range(100, 150);
+ }
+ 
++static long mtk_hdmi_pll_round_rate(struct clk_hw *hw, unsigned long rate,
++				    unsigned long *parent_rate)
++{
++	struct mtk_hdmi_phy *hdmi_phy = to_mtk_hdmi_phy(hw);
++
++	hdmi_phy->pll_rate = rate;
++	if (rate <= 74250000)
++		*parent_rate = rate;
++	else
++		*parent_rate = rate / 2;
++
++	return rate;
++}
++
+ static int mtk_hdmi_pll_set_rate(struct clk_hw *hw, unsigned long rate,
+ 				 unsigned long parent_rate)
+ {
+-- 
+2.20.1
+
 
 
