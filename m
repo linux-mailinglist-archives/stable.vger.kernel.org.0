@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9363190DE
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F6F19284
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727974AbfEISt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43412 "EHLO mail.kernel.org"
+        id S1727237AbfEISpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726900AbfEISt6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:58 -0400
+        id S1727231AbfEISpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6865217F5;
-        Thu,  9 May 2019 18:49:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3844217F9;
+        Thu,  9 May 2019 18:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427798;
-        bh=sluI6ywh67Hf4Em0DA1/OQqFn2niaEOSF97FgzeYugY=;
+        s=default; t=1557427502;
+        bh=/Ak2cryeRbqtVajCcrEXnZ0g1RLRGc8NS9oXXLo4otE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=px41kV4nozqm+atIWIvpkPaQzEU8kUKeYCrCw++VYXr6fkWX8VvM+bTlTivclzB0Q
-         A778X5UQCAGYDZtvFQsI/ukXj4MS7NFxN1trswwjOeev0uU3IfQTZ8CUCM7HxCPD87
-         3tbosPhdBTxUk7LJ/HrM3Gy781ZXkjx3acbxXmbA=
+        b=lBg0SoTVuQr3YYvA3/kio10QgShrNvjkzrDquZapM7wWHvm2oXxU1y9qZQcngv/xa
+         ytiXKXzDWemEDS78LGye9kBY1tHiWASL6ZYdmc7+EsQFXcJXga94UmtnoR3FNf76O+
+         r9ELK/KBH+bXz66n6wQQtucDYbyhf0tUrekcqHTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/66] ASoC: Intel: kbl: fix wrong number of channels
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 27/28] ASoC: Intel: avoid Oops if DMA setup fails
 Date:   Thu,  9 May 2019 20:42:19 +0200
-Message-Id: <20190509181306.500387669@linuxfoundation.org>
+Message-Id: <20190509181255.966606899@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6ba3f815bc5f3c4249d15c8bc5fbb012651b4a4 ]
+From: Ross Zwisler <zwisler@chromium.org>
 
-Fix wrong setting on number of channels.  The context wants to set
-constraint to 2 channels instead of 4.
+commit 0efa3334d65b7f421ba12382dfa58f6ff5bf83c4 upstream.
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Currently in sst_dsp_new() if we get an error return from sst_dma_new()
+we just print an error message and then still complete the function
+successfully.  This means that we are trying to run without sst->dma
+properly set up, which will result in NULL pointer dereference when
+sst->dma is later used.  This was happening for me in
+sst_dsp_dma_get_channel():
+
+        struct sst_dma *dma = dsp->dma;
+	...
+        dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
+
+This resulted in:
+
+   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+   IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
+
+Fix this by adding proper error handling for the case where we fail to
+set up DMA.
+
+This change only affects Haswell and Broadwell systems.  Baytrail
+systems explicilty opt-out of DMA via sst->pdata->resindex_dma_base
+being set to -1.
+
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Cc: stable@vger.kernel.org
 Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/common/sst-firmware.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-index a892b37eab7c9..b8a03f58ac8cc 100644
---- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-+++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-@@ -406,7 +406,7 @@ static const struct snd_pcm_hw_constraint_list constraints_dmic_channels = {
- };
+--- a/sound/soc/intel/common/sst-firmware.c
++++ b/sound/soc/intel/common/sst-firmware.c
+@@ -1252,11 +1252,15 @@ struct sst_dsp *sst_dsp_new(struct devic
+ 		goto irq_err;
  
- static const unsigned int dmic_2ch[] = {
--	4,
-+	2,
- };
+ 	err = sst_dma_new(sst);
+-	if (err)
+-		dev_warn(dev, "sst_dma_new failed %d\n", err);
++	if (err)  {
++		dev_err(dev, "sst_dma_new failed %d\n", err);
++		goto dma_err;
++	}
  
- static const struct snd_pcm_hw_constraint_list constraints_dmic_2ch = {
--- 
-2.20.1
-
+ 	return sst;
+ 
++dma_err:
++	free_irq(sst->irq, sst);
+ irq_err:
+ 	if (sst->ops->free)
+ 		sst->ops->free(sst);
 
 
