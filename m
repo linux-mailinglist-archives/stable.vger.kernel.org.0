@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A8819559
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 00:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69FA19576
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 00:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbfEIWoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 18:44:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51422 "EHLO mail.kernel.org"
+        id S1726799AbfEIWy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 18:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726108AbfEIWoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 18:44:19 -0400
+        id S1726219AbfEIWy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 18:54:57 -0400
 Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 074A021744;
-        Thu,  9 May 2019 22:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01D3C2182B;
+        Thu,  9 May 2019 22:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557441858;
-        bh=VvBgWfyTNvjT3DLqqh0wu3ldRhmm/RLNOj2tUyZGoVw=;
+        s=default; t=1557442496;
+        bh=PI9D7tEDOSDMcgBY7udVmhJ9UiBtDAFFDeXNDwMn6Xc=;
         h=Date:From:To:Subject:From;
-        b=XD+0ikuKkwk2s6Z4hmHfH7ddD/xJcsrt6wNHNAQIiO/5jJu42iSXCwGodOjlxrXGU
-         72zNlJRaiwaodpgRb2KOdIqvvVq8aDQyw2NKFmXdBIsI+JwBK27SGbIZZqFs9np8L6
-         tJghRiJMSyHYuIXJsyXL7b5pOBW3CcAwRH/hkxtc=
-Date:   Thu, 09 May 2019 15:44:17 -0700
+        b=dwIn0dUeDuLPppteK9pmIcqzD4KwVSEg30ROpZZOIq+CHK2vYla9Kky8wTrRZU3OC
+         5eolPoI8ldkhRaw0LmuACOKrLGSzmVEfEkjF3wp6Z3UdSUityonDEE6QXb0ewd2F67
+         J/rdt4JLkwysBtPHSvYYcufI1ZVl7tUAX6F8srzo=
+Date:   Thu, 09 May 2019 15:54:55 -0700
 From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, chandan@linux.ibm.com,
-        dan.j.williams@intel.com, jack@suse.cz, jrdr.linux@gmail.com,
-        mm-commits@vger.kernel.org, piotr.balcer@intel.com,
-        stable@vger.kernel.org, willy@infradead.org, yan.ma@intel.com
-Subject:  +
- =?US-ASCII?Q?mm-huge=5Fmemory-fix-vmf=5Finsert=5Fpfn=5Fpmd-pud-crash-hand?=
- =?US-ASCII?Q?le-unaligned-addresses.patch?= added to -mm tree
-Message-ID: <20190509224417.LPb80puhy%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, linfeilong@huawei.com, mhocko@suse.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        osalvador@suse.de, shenkai8@huawei.com, stable@vger.kernel.org,
+        wangwang2@huawei.com
+Subject:  + mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock.patch
+ added to -mm tree
+Message-ID: <20190509225455.7CBPIwsHY%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,14 +40,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
+     Subject: mm/hugetlb.c: don't put_page in lock of hugetlb_lock
 has been added to the -mm tree.  Its filename is
-     mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses.patch
+     mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock.patch
 
 This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses.patch
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock.patch
 and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses.patch
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -64,176 +61,78 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
+From: Kai Shen <shenkai8@huawei.com>
+Subject: mm/hugetlb.c: don't put_page in lock of hugetlb_lock
 
-Starting with c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page
-protection by insert_pfn_pmd()") vmf_insert_pfn_pmd() internally calls
-pmdp_set_access_flags().  That helper enforces a pmd aligned @address
-argument via VM_BUG_ON() assertion.
+spinlock recursion happened when do LTP test:
+#!/bin/bash
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
 
-Update the implementation to take a 'struct vm_fault' argument directly
-and apply the address alignment fixup internally to fix crash signatures
-like:
+The dtor returned by get_compound_page_dtor in __put_compound_page may be
+the function of free_huge_page which will lock the hugetlb_lock, so don't
+put_page in lock of hugetlb_lock.
 
-    kernel BUG at arch/x86/mm/pgtable.c:515!
-    invalid opcode: 0000 [#1] SMP NOPTI
-    CPU: 51 PID: 43713 Comm: java Tainted: G           OE     4.19.35 #1
-    [..]
-    RIP: 0010:pmdp_set_access_flags+0x48/0x50
-    [..]
-    Call Trace:
-     vmf_insert_pfn_pmd+0x198/0x350
-     dax_iomap_fault+0xe82/0x1190
-     ext4_dax_huge_fault+0x103/0x1f0
-     ? __switch_to_asm+0x40/0x70
-     __handle_mm_fault+0x3f6/0x1370
-     ? __switch_to_asm+0x34/0x70
-     ? __switch_to_asm+0x40/0x70
-     handle_mm_fault+0xda/0x200
-     __do_page_fault+0x249/0x4f0
-     do_page_fault+0x32/0x110
-     ? page_fault+0x8/0x30
-     page_fault+0x1e/0x30
+ BUG: spinlock recursion on CPU#0, hugemmap05/1079
+  lock: hugetlb_lock+0x0/0x18, .magic: dead4ead, .owner: hugemmap05/1079, .owner_cpu: 0
+ Call trace:
+  dump_backtrace+0x0/0x198
+  show_stack+0x24/0x30
+  dump_stack+0xa4/0xcc
+  spin_dump+0x84/0xa8
+  do_raw_spin_lock+0xd0/0x108
+  _raw_spin_lock+0x20/0x30
+  free_huge_page+0x9c/0x260
+  __put_compound_page+0x44/0x50
+  __put_page+0x2c/0x60
+  alloc_surplus_huge_page.constprop.19+0xf0/0x140
+  hugetlb_acct_memory+0x104/0x378
+  hugetlb_reserve_pages+0xe0/0x250
+  hugetlbfs_file_mmap+0xc0/0x140
+  mmap_region+0x3e8/0x5b0
+  do_mmap+0x280/0x460
+  vm_mmap_pgoff+0xf4/0x128
+  ksys_mmap_pgoff+0xb4/0x258
+  __arm64_sys_mmap+0x34/0x48
+  el0_svc_common+0x78/0x130
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
 
-Link: http://lkml.kernel.org/r/155741946350.372037.11148198430068238140.stgit@dwillia2-desk3.amr.corp.intel.com
-Fixes: c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page protection by insert_pfn_pmd()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Piotr Balcer <piotr.balcer@intel.com>
-Tested-by: Yan Ma <yan.ma@intel.com>
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Chandan Rajendra <chandan@linux.ibm.com>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
+Link: http://lkml.kernel.org/r/b8ade452-2d6b-0372-32c2-703644032b47@huawei.com
+Fixes: 9980d744a0 ("mm, hugetlb: get rid of surplus page accounting tricks")
+Signed-off-by: Kai Shen <shenkai8@huawei.com>
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/dax/device.c    |    6 ++----
- fs/dax.c                |    6 ++----
- include/linux/huge_mm.h |    6 ++----
- mm/huge_memory.c        |   16 ++++++++++------
- 4 files changed, 16 insertions(+), 18 deletions(-)
+ mm/hugetlb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/dax/device.c~mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses
-+++ a/drivers/dax/device.c
-@@ -184,8 +184,7 @@ static vm_fault_t __dev_dax_pmd_fault(st
- 
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
- 
--	return vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pmd(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- 
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
-@@ -235,8 +234,7 @@ static vm_fault_t __dev_dax_pud_fault(st
- 
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
- 
--	return vmf_insert_pfn_pud(vmf->vma, vmf->address, vmf->pud, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pud(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- #else
- static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
---- a/fs/dax.c~mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses
-+++ a/fs/dax.c
-@@ -1575,8 +1575,7 @@ static vm_fault_t dax_iomap_pmd_fault(st
- 		}
- 
- 		trace_dax_pmd_insert_mapping(inode, vmf, PMD_SIZE, pfn, entry);
--		result = vmf_insert_pfn_pmd(vma, vmf->address, vmf->pmd, pfn,
--					    write);
-+		result = vmf_insert_pfn_pmd(vmf, pfn, write);
- 		break;
- 	case IOMAP_UNWRITTEN:
- 	case IOMAP_HOLE:
-@@ -1686,8 +1685,7 @@ dax_insert_pfn_mkwrite(struct vm_fault *
- 		ret = vmf_insert_mixed_mkwrite(vmf->vma, vmf->address, pfn);
- #ifdef CONFIG_FS_DAX_PMD
- 	else if (order == PMD_ORDER)
--		ret = vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd,
--			pfn, true);
-+		ret = vmf_insert_pfn_pmd(vmf, pfn, FAULT_FLAG_WRITE);
- #endif
- 	else
- 		ret = VM_FAULT_FALLBACK;
---- a/include/linux/huge_mm.h~mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses
-+++ a/include/linux/huge_mm.h
-@@ -47,10 +47,8 @@ extern bool move_huge_pmd(struct vm_area
- extern int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
- 			unsigned long addr, pgprot_t newprot,
- 			int prot_numa);
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write);
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write);
- enum transparent_hugepage_flag {
- 	TRANSPARENT_HUGEPAGE_FLAG,
- 	TRANSPARENT_HUGEPAGE_REQ_MADV_FLAG,
---- a/mm/huge_memory.c~mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses
-+++ a/mm/huge_memory.c
-@@ -793,11 +793,13 @@ out_unlock:
- 		pte_free(mm, pgtable);
- }
- 
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PMD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
- 	pgtable_t pgtable = NULL;
-+
- 	/*
- 	 * If we had pmd_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -820,7 +822,7 @@ vm_fault_t vmf_insert_pfn_pmd(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pmd(vma, addr, pmd, pfn, pgprot, write, pgtable);
-+	insert_pfn_pmd(vma, addr, vmf->pmd, pfn, pgprot, write, pgtable);
- 	return VM_FAULT_NOPAGE;
- }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pmd);
-@@ -869,10 +871,12 @@ out_unlock:
- 	spin_unlock(ptl);
- }
- 
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PUD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
-+
- 	/*
- 	 * If we had pud_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -889,7 +893,7 @@ vm_fault_t vmf_insert_pfn_pud(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pud(vma, addr, pud, pfn, pgprot, write);
-+	insert_pfn_pud(vma, addr, vmf->pud, pfn, pgprot, write);
- 	return VM_FAULT_NOPAGE;
- }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pud);
+--- a/mm/hugetlb.c~mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock
++++ a/mm/hugetlb.c
+@@ -1574,8 +1574,9 @@ static struct page *alloc_surplus_huge_p
+ 	 */
+ 	if (h->surplus_huge_pages >= h->nr_overcommit_huge_pages) {
+ 		SetPageHugeTemporary(page);
++		spin_unlock(&hugetlb_lock);
+ 		put_page(page);
+-		page = NULL;
++		return NULL;
+ 	} else {
+ 		h->surplus_huge_pages++;
+ 		h->surplus_huge_pages_node[page_to_nid(page)]++;
 _
 
-Patches currently in -mm which might be from dan.j.williams@intel.com are
+Patches currently in -mm which might be from shenkai8@huawei.com are
 
-mm-huge_memory-fix-vmf_insert_pfn_pmd-pud-crash-handle-unaligned-addresses.patch
-mm-shuffle-initial-free-memory-to-improve-memory-side-cache-utilization.patch
-mm-shuffle-initial-free-memory-to-improve-memory-side-cache-utilization-fix.patch
-mm-move-buddy-list-manipulations-into-helpers.patch
-mm-move-buddy-list-manipulations-into-helpers-fix.patch
-mm-maintain-randomization-of-page-free-lists.patch
+mm-hugetlb-dont-put_page-in-lock-of-hugetlb_lock.patch
 
