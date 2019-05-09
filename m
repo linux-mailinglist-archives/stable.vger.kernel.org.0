@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B084C191E2
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2ED191E1
 	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728446AbfEISuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
+        id S1727186AbfEITBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728447AbfEISuf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:50:35 -0400
+        id S1728456AbfEISuh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E732183F;
-        Thu,  9 May 2019 18:50:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 526A820578;
+        Thu,  9 May 2019 18:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427834;
-        bh=UybR7+64MctBP4TSmvRsvq3QhxyQyi/1HhQQ7WoABHI=;
+        s=default; t=1557427836;
+        bh=mrCCDWM23VSfbpq4cOeRulv0rY0o3uBxCNGWwpjI4rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFUH/uYfL+E7vf8ttcSdu4VecVFXgKXRQZFl5aVu0stCyT0twjYDuGULSkaZT/I3d
-         zlC19WTgr0UruicLeuHssLTYMJmVg010VuFyv+S/aD1YAEw8WYUDAJ3iH4NyacxeHY
-         AY0/EvXjjjTZXvw6wliq+qYDxGzvwQic28TGrEF4=
+        b=pRTCyQNRfCMkc2ynaK66iZpu3cgMABlTBff55vHQFS2dTy3NGODTggGHLqF5EaHgJ
+         3w5ENiKp0tdijNMyWQvFon3hbED98JVCIi3jTDnrLk9hP2LTyq5Srg+vyPwqJFZ9sp
+         TSxW0bwHEq3Osh6UEZVFmX3NUiXvU2rqtXcjLZzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shuming Fan <shumingf@realtek.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 21/95] ASoC: rt5682: fix jack type detection issue
-Date:   Thu,  9 May 2019 20:41:38 +0200
-Message-Id: <20190509181310.821993471@linuxfoundation.org>
+Subject: [PATCH 5.0 22/95] ASoC: rt5682: recording has no sound after booting
+Date:   Thu,  9 May 2019 20:41:39 +0200
+Message-Id: <20190509181310.884855118@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
 References: <20190509181309.180685671@linuxfoundation.org>
@@ -44,68 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 675212bfb23394514b7f68ebf3954ba936281ccc ]
+[ Upstream commit 1c5b6a27e432e4fe170a924c8b41012271496a4c ]
 
-The jack type detection needs the main bias power of analog.
-The modification makes sure the main bias power on/off while jack plug/unplug.
+If ASRC turns on, HW will use clk_dac as the reference clock
+whether recording or playback.
+Both of clk_dac and clk_adc should set proper clock while using ASRC.
 
 Signed-off-by: Shuming Fan <shumingf@realtek.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ sound/soc/codecs/rt5682.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index 49ff5e52db584..9331c13d2017a 100644
+index 9331c13d2017a..72ef2a0f6387d 100644
 --- a/sound/soc/codecs/rt5682.c
 +++ b/sound/soc/codecs/rt5682.c
-@@ -909,7 +909,8 @@ static int rt5682_headset_detect(struct snd_soc_component *component,
- 	if (jack_insert) {
+@@ -1202,7 +1202,7 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
+ 	struct snd_soc_component *component =
+ 		snd_soc_dapm_to_component(w->dapm);
+ 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
+-	int ref, val, reg, sft, mask, idx = -EINVAL;
++	int ref, val, reg, idx = -EINVAL;
+ 	static const int div_f[] = {1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48};
+ 	static const int div_o[] = {1, 2, 4, 6, 8, 12, 16, 24, 32, 48};
  
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_1,
--			RT5682_PWR_VREF2, RT5682_PWR_VREF2);
-+			RT5682_PWR_VREF2 | RT5682_PWR_MB,
-+			RT5682_PWR_VREF2 | RT5682_PWR_MB);
- 		snd_soc_component_update_bits(component,
- 				RT5682_PWR_ANLG_1, RT5682_PWR_FV2, 0);
- 		usleep_range(15000, 20000);
-@@ -946,7 +947,7 @@ static int rt5682_headset_detect(struct snd_soc_component *component,
- 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
- 			RT5682_TRIG_JD_MASK, RT5682_TRIG_JD_LOW);
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_1,
--			RT5682_PWR_VREF2, 0);
-+			RT5682_PWR_VREF2 | RT5682_PWR_MB, 0);
- 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_3,
- 			RT5682_PWR_CBJ, 0);
+@@ -1216,15 +1216,10 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
  
-@@ -2295,16 +2296,13 @@ static int rt5682_set_bias_level(struct snd_soc_component *component,
- 	switch (level) {
- 	case SND_SOC_BIAS_PREPARE:
- 		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
--			RT5682_PWR_MB | RT5682_PWR_BG,
--			RT5682_PWR_MB | RT5682_PWR_BG);
-+			RT5682_PWR_BG, RT5682_PWR_BG);
- 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
- 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO,
- 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO);
- 		break;
+ 	idx = rt5682_div_sel(rt5682, ref, div_f, ARRAY_SIZE(div_f));
  
- 	case SND_SOC_BIAS_STANDBY:
--		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
--			RT5682_PWR_MB, RT5682_PWR_MB);
- 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
- 			RT5682_DIG_GATE_CTRL, RT5682_DIG_GATE_CTRL);
- 		break;
-@@ -2312,7 +2310,7 @@ static int rt5682_set_bias_level(struct snd_soc_component *component,
- 		regmap_update_bits(rt5682->regmap, RT5682_PWR_DIG_1,
- 			RT5682_DIG_GATE_CTRL | RT5682_PWR_LDO, 0);
- 		regmap_update_bits(rt5682->regmap, RT5682_PWR_ANLG_1,
--			RT5682_PWR_MB | RT5682_PWR_BG, 0);
-+			RT5682_PWR_BG, 0);
- 		break;
+-	if (w->shift == RT5682_PWR_ADC_S1F_BIT) {
++	if (w->shift == RT5682_PWR_ADC_S1F_BIT)
+ 		reg = RT5682_PLL_TRACK_3;
+-		sft = RT5682_ADC_OSR_SFT;
+-		mask = RT5682_ADC_OSR_MASK;
+-	} else {
++	else
+ 		reg = RT5682_PLL_TRACK_2;
+-		sft = RT5682_DAC_OSR_SFT;
+-		mask = RT5682_DAC_OSR_MASK;
+-	}
  
- 	default:
+ 	snd_soc_component_update_bits(component, reg,
+ 		RT5682_FILTER_CLK_DIV_MASK, idx << RT5682_FILTER_CLK_DIV_SFT);
+@@ -1236,7 +1231,8 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
+ 	}
+ 
+ 	snd_soc_component_update_bits(component, RT5682_ADDA_CLK_1,
+-		mask, idx << sft);
++		RT5682_ADC_OSR_MASK | RT5682_DAC_OSR_MASK,
++		(idx << RT5682_ADC_OSR_SFT) | (idx << RT5682_DAC_OSR_SFT));
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
