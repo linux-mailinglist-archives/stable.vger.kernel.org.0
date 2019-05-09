@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDEA191DC
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABB9191BC
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728447AbfEISut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44388 "EHLO mail.kernel.org"
+        id S1727859AbfEISuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:50:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727068AbfEISus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:50:48 -0400
+        id S1727484AbfEISuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C455F20578;
-        Thu,  9 May 2019 18:50:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AD912177E;
+        Thu,  9 May 2019 18:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427848;
-        bh=DRhEhGyYWBssR7wYLehVy2xwuilR7RyWyiKA0TLdZbk=;
+        s=default; t=1557427851;
+        bh=7YSVyEHR9cbz+EdC4WPtdFFJbGSeC6z/9Zzn4FDvP2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5lHAxWqKfELNFuoEwIB4BkoGDzVYT3wlgLNnQMVymcqUln0MXBEqe4xyCMBpARIx
-         YhNP+5rkdCh1dMETK8N3gDMROGx11EJEkKqPgY55HzpDJDrorGxxe9gMYuX+3+IzLb
-         aNxxZyuhNhxG82fM2uTJJK+CuHs5bGr6B/W6eQOc=
+        b=vX/0eR5Yk9lvripiHPhe2CPazRbqBeNO2ph1nA8K/FJhTZrr3jsmD1lsZynKlmL+y
+         w1xBI0EPONKxOtSPmGYJXlHWh5Dp7M2JgQ+KQBhzNSiZfISgm5mhCjwdeL99ily4yl
+         jqEqOHCfq/+z1Kd9EWGVOkRpIRp5Ple3bdsEH4f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 26/95] ASoC: stm32: dfsdm: fix debugfs warnings on entry creation
-Date:   Thu,  9 May 2019 20:41:43 +0200
-Message-Id: <20190509181311.153520435@linuxfoundation.org>
+Subject: [PATCH 5.0 27/95] ASoC: cs4270: Set auto-increment bit for register writes
+Date:   Thu,  9 May 2019 20:41:44 +0200
+Message-Id: <20190509181311.208741542@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
 References: <20190509181309.180685671@linuxfoundation.org>
@@ -44,71 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c47255b61129857b74b0d86eaf59335348be05e0 ]
+[ Upstream commit f0f2338a9cfaf71db895fa989ea7234e8a9b471d ]
 
-Register platform component with a prefix, to avoid warnings
-on debugfs entries creation, due to component name
-redundancy.
+The CS4270 does not by default increment the register address on
+consecutive writes. During normal operation it doesn't matter as all
+register accesses are done individually. At resume time after suspend,
+however, the regcache code gathers the biggest possible block of
+registers to sync and sends them one on one go.
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+To fix this, set the INCR bit in all cases.
+
+Signed-off-by: Daniel Mack <daniel@zonque.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_adfsdm.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs4270.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
-index 71d341b732a4d..24948b95eb19f 100644
---- a/sound/soc/stm/stm32_adfsdm.c
-+++ b/sound/soc/stm/stm32_adfsdm.c
-@@ -304,6 +304,7 @@ MODULE_DEVICE_TABLE(of, stm32_adfsdm_of_match);
- static int stm32_adfsdm_probe(struct platform_device *pdev)
- {
- 	struct stm32_adfsdm_priv *priv;
-+	struct snd_soc_component *component;
- 	int ret;
+diff --git a/sound/soc/codecs/cs4270.c b/sound/soc/codecs/cs4270.c
+index 33d74f163bd75..793a14d586672 100644
+--- a/sound/soc/codecs/cs4270.c
++++ b/sound/soc/codecs/cs4270.c
+@@ -642,6 +642,7 @@ static const struct regmap_config cs4270_regmap = {
+ 	.reg_defaults =		cs4270_reg_defaults,
+ 	.num_reg_defaults =	ARRAY_SIZE(cs4270_reg_defaults),
+ 	.cache_type =		REGCACHE_RBTREE,
++	.write_flag_mask =	CS4270_I2C_INCR,
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-@@ -331,9 +332,15 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->iio_cb))
- 		return PTR_ERR(priv->iio_cb);
- 
--	ret = devm_snd_soc_register_component(&pdev->dev,
--					      &stm32_adfsdm_soc_platform,
--					      NULL, 0);
-+	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
-+	if (!component)
-+		return -ENOMEM;
-+#ifdef CONFIG_DEBUG_FS
-+	component->debugfs_prefix = "pcm";
-+#endif
-+
-+	ret = snd_soc_add_component(&pdev->dev, component,
-+				    &stm32_adfsdm_soc_platform, NULL, 0);
- 	if (ret < 0)
- 		dev_err(&pdev->dev, "%s: Failed to register PCM platform\n",
- 			__func__);
-@@ -341,12 +348,20 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
- 	return ret;
- }
- 
-+static int stm32_adfsdm_remove(struct platform_device *pdev)
-+{
-+	snd_soc_unregister_component(&pdev->dev);
-+
-+	return 0;
-+}
-+
- static struct platform_driver stm32_adfsdm_driver = {
- 	.driver = {
- 		   .name = STM32_ADFSDM_DRV_NAME,
- 		   .of_match_table = stm32_adfsdm_of_match,
- 		   },
- 	.probe = stm32_adfsdm_probe,
-+	.remove = stm32_adfsdm_remove,
- };
- 
- module_platform_driver(stm32_adfsdm_driver);
+ 	.readable_reg =		cs4270_reg_is_readable,
+ 	.volatile_reg =		cs4270_reg_is_volatile,
 -- 
 2.20.1
 
