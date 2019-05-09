@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 855C419150
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4750819158
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728408AbfEISzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50712 "EHLO mail.kernel.org"
+        id S1726888AbfEISz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:55:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729258AbfEISzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:55:37 -0400
+        id S1729226AbfEISzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:55:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9429217D6;
-        Thu,  9 May 2019 18:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6E522177E;
+        Thu,  9 May 2019 18:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428136;
-        bh=g85WHPlSeeNCZmBZ0LD/EXxEDcEyzF+M+UOePGG4gEc=;
+        s=default; t=1557428123;
+        bh=hFGAcTGN8+exjIpw3elz3HCRPqeJPoKx3U8wzUVaBrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcFJOTUY7RNhcOQJ+1fGIg3M22b+9lg1IKbxfo+djqO8dJiKjruSglBAqAQZR1u+a
-         JYj8nP5Enk87yGpneSeu1+ia75WFzL+UWTRIUJpjkqrakHtTkneCyG38AjlTRoJ53e
-         lCoNQMzQ2t3FZ73R+2xv9ZBVuIFIl+CWrJov3xsc=
+        b=1ouUgs92g2DcbmRMaD2T8Bp88WJVS7rnIyc5roVrYyH+GIwwCaXA50fDj9WwZcEYg
+         SiUM+dwLdU6NJDk0dD25zDqZVPbLuSv1q40xjkelDxdODDwrcCEbc83V8f9IU7TCXE
+         +gojYpNRDB5O/c0YHU2AmVf5X6ZkVwmniEskn0nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Imre Kaloz <kaloz@openwrt.org>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.1 25/30] Bluetooth: hci_bcm: Fix empty regulator supplies for Intel Macs
-Date:   Thu,  9 May 2019 20:42:57 +0200
-Message-Id: <20190509181256.346176831@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.1 26/30] UAS: fix alignment of scatter/gather segments
+Date:   Thu,  9 May 2019 20:42:58 +0200
+Message-Id: <20190509181256.628727841@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
 References: <20190509181250.417203112@linuxfoundation.org>
@@ -44,69 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 62611abc8f37d00e3b0cff0eb2d72fa92b05fd27 upstream.
+commit 3ae62a42090f1ed48e2313ed256a1182a85fb575 upstream.
 
-The code path for Macs goes through bcm_apple_get_resources(), which
-skips over the code that sets up the regulator supplies. As a result,
-the call to regulator_bulk_enable() / regulator_bulk_disable() results
-in a NULL pointer dereference.
+This is the UAS version of
 
-This was reported on the kernel.org Bugzilla, bug 202963.
+747668dbc061b3e62bc1982767a3a1f9815fcf0e
+usb-storage: Set virt_boundary_mask to avoid SG overflows
 
-Unbreak Broadcom Bluetooth support on Intel Macs by checking if the
-supplies were set up before enabling or disabling them.
+We are not as likely to be vulnerable as storage, as it is unlikelier
+that UAS is run over a controller without native support for SG,
+but the issue exists.
+The issue has been existing since the inception of the driver.
 
-The same does not need to be done for the clocks, as the common clock
-framework API checks for NULL pointers.
-
-Fixes: 75d11676dccb ("Bluetooth: hci_bcm: Add support for regulator supplies")
-Cc: <stable@vger.kernel.org> # 5.0.x
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Tested-by: Imre Kaloz <kaloz@openwrt.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 115bb1ffa54c ("USB: Add UAS driver")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_bcm.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/usb/storage/uas.c |   35 ++++++++++++++++++++++-------------
+ 1 file changed, 22 insertions(+), 13 deletions(-)
 
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -228,9 +228,15 @@ static int bcm_gpio_set_power(struct bcm
- 	int err;
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -789,24 +789,33 @@ static int uas_slave_alloc(struct scsi_d
+ {
+ 	struct uas_dev_info *devinfo =
+ 		(struct uas_dev_info *)sdev->host->hostdata;
++	int maxp;
  
- 	if (powered && !dev->res_enabled) {
--		err = regulator_bulk_enable(BCM_NUM_SUPPLIES, dev->supplies);
--		if (err)
--			return err;
-+		/* Intel Macs use bcm_apple_get_resources() and don't
-+		 * have regulator supplies configured.
-+		 */
-+		if (dev->supplies[0].supply) {
-+			err = regulator_bulk_enable(BCM_NUM_SUPPLIES,
-+						    dev->supplies);
-+			if (err)
-+				return err;
-+		}
+ 	sdev->hostdata = devinfo;
  
- 		/* LPO clock needs to be 32.768 kHz */
- 		err = clk_set_rate(dev->lpo_clk, 32768);
-@@ -259,7 +265,13 @@ static int bcm_gpio_set_power(struct bcm
- 	if (!powered && dev->res_enabled) {
- 		clk_disable_unprepare(dev->txco_clk);
- 		clk_disable_unprepare(dev->lpo_clk);
--		regulator_bulk_disable(BCM_NUM_SUPPLIES, dev->supplies);
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
++	 * We have two requirements here. We must satisfy the requirements
++	 * of the physical HC and the demands of the protocol, as we
++	 * definitely want no additional memory allocation in this path
++	 * ruling out using bounce buffers.
+ 	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * For a transmission on USB to continue we must never send
++	 * a package that is smaller than maxpacket. Hence the length of each
++         * scatterlist element except the last must be divisible by the
++         * Bulk maxpacket value.
++	 * If the HC does not ensure that through SG,
++	 * the upper layer must do that. We must assume nothing
++	 * about the capabilities off the HC, so we use the most
++	 * pessimistic requirement.
++	 */
 +
-+		/* Intel Macs use bcm_apple_get_resources() and don't
-+		 * have regulator supplies configured.
-+		 */
-+		if (dev->supplies[0].supply)
-+			regulator_bulk_disable(BCM_NUM_SUPPLIES,
-+					       dev->supplies);
- 	}
++	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
++
++	/*
++	 * The protocol has no requirements on alignment in the strict sense.
++	 * Controllers may or may not have alignment restrictions.
++	 * As this is not exported, we use an extremely conservative guess.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
  
- 	/* wait for device to power on and come out of reset */
 
 
