@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F360E1928A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F29E19225
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbfEISo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S1728036AbfEISsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727198AbfEISo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:44:57 -0400
+        id S1728054AbfEISsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:48:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94753217F5;
-        Thu,  9 May 2019 18:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E9B217D7;
+        Thu,  9 May 2019 18:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427497;
-        bh=jLuUJzS93NiFBMI63O+Gx7/+lKHwhvNKMTtWX26LwmE=;
+        s=default; t=1557427716;
+        bh=scQnLSil0ImaITJO60dTpxacwCQbUf+OJuPDTSNB3n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vb+3WYOLtV3ouAJsD+et/S/9sWx50nFIIMjXU3RDiaGq6N3g/lrmIqTWYZq9m6ia6
-         FBfTdp1KSUnUPMVuM7UXhcp4XwYpppV6gsHdo651rhSfdM09bFAhS1EttbV/wUEhzz
-         QwBwGaBY3bFL4TNjC0KEpEtDQ7OnTzK1qLkDhbK4=
+        b=F/Zub/svBLIJuzNH8bW276utS1VGp8N8hbc9bFEOjCWdm6E407pGbDu3mqrmSNGAH
+         byjRIn8FgmMrgv7ut2Dxscdz8OWVBWtep8VJmaWhmNQ/6Gx8D77wZme0PmPU1WmaQO
+         uLaa1NrzSynaEOIZ0OIfc723goEIob2Sew0+bIis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>
-Subject: [PATCH 4.9 25/28] Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 42/66] scsi: csiostor: fix missing data copy in csio_scsi_err_handler()
 Date:   Thu,  9 May 2019 20:42:17 +0200
-Message-Id: <20190509181255.579097161@linuxfoundation.org>
+Message-Id: <20190509181306.349125189@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+[ Upstream commit 5c2442fd78998af60e13aba506d103f7f43f8701 ]
 
-commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
+If scsi cmd sglist is not suitable for DDP then csiostor driver uses
+preallocated buffers for DDP, because of this data copy is required from
+DDP buffer to scsi cmd sglist before calling ->scsi_done().
 
-The minimum encryption key size for LE connections is 56 bits and to
-align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
-BR/EDR connections as well.
-
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci_core.h |    3 +++
- net/bluetooth/hci_conn.c         |    8 ++++++++
- 2 files changed, 11 insertions(+)
+ drivers/scsi/csiostor/csio_scsi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -176,6 +176,9 @@ struct adv_info {
+diff --git a/drivers/scsi/csiostor/csio_scsi.c b/drivers/scsi/csiostor/csio_scsi.c
+index dab0d3f9bee13..e09c7f360dbde 100644
+--- a/drivers/scsi/csiostor/csio_scsi.c
++++ b/drivers/scsi/csiostor/csio_scsi.c
+@@ -1713,8 +1713,11 @@ csio_scsi_err_handler(struct csio_hw *hw, struct csio_ioreq *req)
+ 	}
  
- #define HCI_MAX_SHORT_NAME_LENGTH	10
+ out:
+-	if (req->nsge > 0)
++	if (req->nsge > 0) {
+ 		scsi_dma_unmap(cmnd);
++		if (req->dcopy && (host_status == DID_OK))
++			host_status = csio_scsi_copy_to_sgl(hw, req);
++	}
  
-+/* Min encryption key size to match with SMP */
-+#define HCI_MIN_ENC_KEY_SIZE		7
-+
- /* Default LE RPA expiry time, 15 minutes */
- #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
- 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1165,6 +1165,14 @@ int hci_conn_check_link_mode(struct hci_
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
- 
-+	/* The minimum encryption key size needs to be enforced by the
-+	 * host stack before establishing any L2CAP connections. The
-+	 * specification in theory allows a minimum of 1, but to align
-+	 * BR/EDR and LE transports, a minimum of 7 is chosen.
-+	 */
-+	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
-+		return 0;
-+
- 	return 1;
- }
- 
+ 	cmnd->result = (((host_status) << 16) | scsi_status);
+ 	cmnd->scsi_done(cmnd);
+-- 
+2.20.1
+
 
 
