@@ -2,39 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 480271929A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE65191AA
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726842AbfEITI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        id S1728641AbfEIS6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727033AbfEISog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:44:36 -0400
+        id S1728026AbfEISwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:52:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DABB2183F;
-        Thu,  9 May 2019 18:44:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44C95217D7;
+        Thu,  9 May 2019 18:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427476;
-        bh=FeuoLYrKFjwXsEkDfYktpq5SL9o0dXT4W2nvFWAizQU=;
+        s=default; t=1557427973;
+        bh=0VqV0jJX90eYH8l9rKoIsmKTEX47Oti3YPtNJj6Ig/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opkQmquclT/UPioY0E2sHtRDAcNo1EZmDsq/Hba5WAoOHLWAvoG+eaXf88Sqqx/gk
-         NMj5iHVegosI77t3DSvRkhyJyQur3t/lrBqk6aBCMdq0SlE2eiKIcmQZBnFINwhhxd
-         PNCZArCQakIfO+9YS7MVPY3ehaJH8MHCyvnHqdlA=
+        b=jPO1gznbFLZg9dNkyFJokq7xinXr5cdFzXX9P+EJ7xnmKdvNt2GKK0PkyEG4PfV1U
+         JcjwLbxXrWkMkrEb6Hv+HdDeO9Az3BfkkUFn4DwxNeKKDmxas86cQHQS8CusFeeTtm
+         u05a8v0mUkc2Y47430p46U4khQ5zzSEaY7BAzs5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rui.silva@linaro.org>,
-        Johan Hovold <johan@kernel.org>,
-        Rui Miguel Silva <rmfrfs@gmail.com>
-Subject: [PATCH 4.9 03/28] staging: greybus: power_supply: fix prop-descriptor request size
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Andrei Vagin <avagin@openvz.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        NeilBrown <neilb@suse.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Qiaowei Ren <qiaowei.ren@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 38/95] linux/kernel.h: Use parentheses around argument in u64_to_user_ptr()
 Date:   Thu,  9 May 2019 20:41:55 +0200
-Message-Id: <20190509181250.816103692@linuxfoundation.org>
+Message-Id: <20190509181311.994204612@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+[ Upstream commit a0fe2c6479aab5723239b315ef1b552673f434a3 ]
 
-commit 47830c1127ef166af787caf2f871f23089610a7f upstream.
+Use parentheses around uses of the argument in u64_to_user_ptr() to
+ensure that the cast doesn't apply to part of the argument.
 
-Since moving the message buffers off the stack, the dynamically
-allocated get-prop-descriptor request buffer is incorrectly sized due to
-using the pointer rather than request-struct size when creating the
-operation.
+There are existing uses of the macro of the form
 
-Fortunately, the pointer size is always larger than this one-byte
-request, but this could still cause trouble on the remote end due to the
-unexpected message size.
+  u64_to_user_ptr(A + B)
 
-Fixes: 9d15134d067e ("greybus: power_supply: rework get descriptors")
-Cc: stable <stable@vger.kernel.org>     # 4.9
-Cc: Rui Miguel Silva <rui.silva@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+which expands to
 
+  (void __user *)(uintptr_t)A + B
+
+(the cast applies to the first operand of the addition, the addition
+is a pointer addition). This happens to still work as intended, the
+semantic difference doesn't cause a difference in behavior.
+
+But I want to use u64_to_user_ptr() with a ternary operator in the
+argument, like so:
+
+  u64_to_user_ptr(A ? B : C)
+
+This currently doesn't work as intended.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: Andrei Vagin <avagin@openvz.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Qiaowei Ren <qiaowei.ren@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190329214652.258477-1-jannh@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/power_supply.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/kernel.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/greybus/power_supply.c
-+++ b/drivers/staging/greybus/power_supply.c
-@@ -521,7 +521,7 @@ static int gb_power_supply_prop_descript
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 8f0e68e250a76..fd827b2400596 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -73,8 +73,8 @@
  
- 	op = gb_operation_create(connection,
- 				 GB_POWER_SUPPLY_TYPE_GET_PROP_DESCRIPTORS,
--				 sizeof(req), sizeof(*resp) + props_count *
-+				 sizeof(*req), sizeof(*resp) + props_count *
- 				 sizeof(struct gb_power_supply_props_desc),
- 				 GFP_KERNEL);
- 	if (!op)
+ #define u64_to_user_ptr(x) (		\
+ {					\
+-	typecheck(u64, x);		\
+-	(void __user *)(uintptr_t)x;	\
++	typecheck(u64, (x));		\
++	(void __user *)(uintptr_t)(x);	\
+ }					\
+ )
+ 
+-- 
+2.20.1
+
 
 
