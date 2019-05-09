@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6395E19206
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE862191AE
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727539AbfEIStb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
+        id S1727047AbfEIS7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbfEISta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:30 -0400
+        id S1728128AbfEISwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:52:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31C7E20578;
-        Thu,  9 May 2019 18:49:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB61F204FD;
+        Thu,  9 May 2019 18:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427769;
-        bh=mESJRP+Mw6KkSs5rmMeYGTbvR9DiHjYe7Zp09k4ufj0=;
+        s=default; t=1557427951;
+        bh=90tcU6lbo5qtFJjvews1rJ8yuN3aCTLEDfe3UJATu4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOOj/HH+EnwMpMCwbo1EhjV4hg7mIiTrgbeiF62FmrAhonU8nLCroQ8Jj0Pkc1q3i
-         +88I3M/rTx1D8uVU1g9CdcNwjOKwDcFO16q+WuGZBf3P2QY70ijboEUkd2aywV4fXn
-         aLjlK1C61YvemM1mPB8V5buzOeGYvwViNUaq07Ig=
+        b=0zigT9zPYiQCJJoeyHqkz2s+BTllvEr5s7fwYj6PTwObFv6ApfwE1zUD+EC0Tnp5l
+         YMv8nszk88rqkTzXXzpcA9pXGQ8HwXEj+/H/84gwGn0bMYRu4Z9O3T0+66AbP5wioB
+         9IdduyKJfI2F5lEX9VuD4Bmc0lctDqWZ3+hPRN6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/66] nvme-fc: correct csn initialization and increments on error
+        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 64/95] virtio-blk: limit number of hw queues by nr_cpu_ids
 Date:   Thu,  9 May 2019 20:42:21 +0200
-Message-Id: <20190509181306.657565576@linuxfoundation.org>
+Message-Id: <20190509181313.952622984@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 67f471b6ed3b09033c4ac77ea03f92afdb1989fe ]
+[ Upstream commit bf348f9b78d413e75bb079462751a1d86b6de36c ]
 
-This patch fixes a long-standing bug that initialized the FC-NVME
-cmnd iu CSN value to 1. Early FC-NVME specs had the connection starting
-with CSN=1. By the time the spec reached approval, the language had
-changed to state a connection should start with CSN=0.  This patch
-corrects the initialization value for FC-NVME connections.
+When tag_set->nr_maps is 1, the block layer limits the number of hw queues
+by nr_cpu_ids. No matter how many hw queues are used by virtio-blk, as it
+has (tag_set->nr_maps == 1), it can use at most nr_cpu_ids hw queues.
 
-Additionally, in reviewing the transport, the CSN value is assigned to
-the new IU early in the start routine. It's possible that a later dma
-map request may fail, causing the command to never be sent to the
-controller.  Change the location of the assignment so that it is
-immediately prior to calling the lldd. Add a comment block to explain
-the impacts if the lldd were to additionally fail sending the command.
+In addition, specifically for pci scenario, when the 'num-queues' specified
+by qemu is more than maxcpus, virtio-blk would not be able to allocate more
+than maxcpus vectors in order to have a vector for each queue. As a result,
+it falls back into MSI-X with one vector for config and one shared for
+queues.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Considering above reasons, this patch limits the number of hw queues used
+by virtio-blk by nr_cpu_ids.
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 9375fa705d829..67dec8860bf3c 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -1844,7 +1844,7 @@ nvme_fc_init_queue(struct nvme_fc_ctrl *ctrl, int idx)
- 	memset(queue, 0, sizeof(*queue));
- 	queue->ctrl = ctrl;
- 	queue->qnum = idx;
--	atomic_set(&queue->csn, 1);
-+	atomic_set(&queue->csn, 0);
- 	queue->dev = ctrl->dev;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b16a887bbd02a..29bede887237f 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
+ 	if (err)
+ 		num_vqs = 1;
  
- 	if (idx > 0)
-@@ -1886,7 +1886,7 @@ nvme_fc_free_queue(struct nvme_fc_queue *queue)
- 	 */
- 
- 	queue->connection_id = 0;
--	atomic_set(&queue->csn, 1);
-+	atomic_set(&queue->csn, 0);
- }
- 
- static void
-@@ -2182,7 +2182,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- {
- 	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
- 	struct nvme_command *sqe = &cmdiu->sqe;
--	u32 csn;
- 	int ret, opstate;
- 
- 	/*
-@@ -2197,8 +2196,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- 
- 	/* format the FC-NVME CMD IU and fcp_req */
- 	cmdiu->connection_id = cpu_to_be64(queue->connection_id);
--	csn = atomic_inc_return(&queue->csn);
--	cmdiu->csn = cpu_to_be32(csn);
- 	cmdiu->data_len = cpu_to_be32(data_len);
- 	switch (io_dir) {
- 	case NVMEFC_FCP_WRITE:
-@@ -2256,11 +2253,24 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- 	if (!(op->flags & FCOP_FLAGS_AEN))
- 		blk_mq_start_request(op->rq);
- 
-+	cmdiu->csn = cpu_to_be32(atomic_inc_return(&queue->csn));
- 	ret = ctrl->lport->ops->fcp_io(&ctrl->lport->localport,
- 					&ctrl->rport->remoteport,
- 					queue->lldd_handle, &op->fcp_req);
- 
- 	if (ret) {
-+		/*
-+		 * If the lld fails to send the command is there an issue with
-+		 * the csn value?  If the command that fails is the Connect,
-+		 * no - as the connection won't be live.  If it is a command
-+		 * post-connect, it's possible a gap in csn may be created.
-+		 * Does this matter?  As Linux initiators don't send fused
-+		 * commands, no.  The gap would exist, but as there's nothing
-+		 * that depends on csn order to be delivered on the target
-+		 * side, it shouldn't hurt.  It would be difficult for a
-+		 * target to even detect the csn gap as it has no idea when the
-+		 * cmd with the csn was supposed to arrive.
-+		 */
- 		opstate = atomic_xchg(&op->state, FCPOP_STATE_COMPLETE);
- 		__nvme_fc_fcpop_chk_teardowns(ctrl, op, opstate);
- 
++	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
++
+ 	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
+ 	if (!vblk->vqs)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
