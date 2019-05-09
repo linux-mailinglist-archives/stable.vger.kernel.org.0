@@ -2,198 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A0F192D6
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 674C6192DB
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727038AbfEITVG convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 9 May 2019 15:21:06 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:44748 "EHLO mx1.redhat.com"
+        id S1726768AbfEITW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726899AbfEITUh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 15:20:37 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726704AbfEITW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 15:22:57 -0400
+Received: from gmail.com (unknown [104.132.1.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8AFDD86668
-        for <stable@vger.kernel.org>; Thu,  9 May 2019 19:20:36 +0000 (UTC)
-Received: from [172.54.105.48] (cpt-0019.paas.prod.upshift.rdu2.redhat.com [10.0.18.96])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C216A60CD7;
-        Thu,  9 May 2019 19:20:33 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EA3D2085A;
+        Thu,  9 May 2019 19:22:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557429775;
+        bh=w4SRzGYQsBWgUHXqNv+wa752qvlww+0U/SNfkV/CKhI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yGbX4XtGMdC//IvntlHxFaLvcBK1BXISAnSzAK/++CzH3mkpKDGuD/ar+kqNc8MEp
+         gjn96A8UYBWNCY3VUiJGSP1bNq7WLU7BASi7xw2KJE/dFL83Ry8dT4p3YTHbOCfhU3
+         SgRf90CNWImfJdFgLYEh38NQyLoJ/vbFD2hovLKs=
+Date:   Thu, 9 May 2019 12:22:54 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Fang =?utf-8?B?SG9uZ2ppZSjmlrnmtKrmnbAp?= 
+        <hongjiefang@asrmicro.com>
+Cc:     Sasha Levin <sashal@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>,
+        "jaegeuk@kernel.org" <jaegeuk@kernel.org>,
+        "linux-fscrypt@vger.kernel.org" <linux-fscrypt@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2] fscrypt: don't set policy for a dead directory
+Message-ID: <20190509192252.GA42815@gmail.com>
+References: <1557307654-673-1-git-send-email-hongjiefang@asrmicro.com>
+ <20190508155604.1B59820989@mail.kernel.org>
+ <a38236b96095470aa1da3960b113a5e2@mail2012.asrmicro.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.50660F1890.WDSRU27JIS@redhat.com>
-X-Gitlab-Pipeline-ID: 9629
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9629
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Thu, 09 May 2019 19:20:36 +0000 (UTC)
-Date:   Thu, 9 May 2019 15:20:37 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <a38236b96095470aa1da3960b113a5e2@mail2012.asrmicro.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Thu, May 09, 2019 at 11:04:50AM +0000, Fang Hongjie(方洪杰) wrote:
+> 
+> > From: Sasha Levin [mailto:sashal@kernel.org]
+> > Sent: Wednesday, May 08, 2019 11:56 PM
+> > To: Sasha Levin; Fang Hongjie(方洪杰); tytso@mit.edu; jaegeuk@kernel.org;
+> > ebiggers@kernel.org
+> > Cc: linux-fscrypt@vger.kernel.org; stable@vger.kernel.org
+> > Subject: Re: [PATCH V2] fscrypt: don't set policy for a dead directory
+> > 
+> > Hi,
+> > 
+> > [This is an automated email]
+> > 
+> > This commit has been processed because it contains a "Fixes:" tag,
+> > fixing commit: 9bd8212f981e ext4 crypto: add encryption policy and password salt
+> > support.
+> > 
+> > The bot has tested the following trees: v5.0.13, v4.19.40, v4.14.116, v4.9.173, v4.4.179.
+> > 
+> > v5.0.13: Build OK!
+> > v4.19.40: Build OK!
+> > v4.14.116: Build OK!
+> > v4.9.173: Failed to apply! Possible dependencies:
+> >     Unable to calculate
+> > 
+> > v4.4.179: Failed to apply! Possible dependencies:
+> >     002ced4be642 ("fscrypto: only allow setting encryption policy on directories")
+> >     0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+> >     0cab80ee0c9e ("f2fs: fix to convert inline inode in ->setattr")
+> >     0fac2d501b0d ("f2fs crypto: fix spelling typo in comment")
+> >     0fd785eb931d ("f2fs: relocate is_merged_page")
+> >     1dafa51d45c6 ("f2fs crypto: check for too-short encrypted file names")
+> >     36b35a0dbe90 ("f2fs: support data flush in background")
+> >     55d1cdb25a81 ("f2fs: relocate tracepoint of write_checkpoint")
+> >     6b2553918d8b ("replace ->follow_link() with new method that could stay in
+> > RCU mode")
+> >     6beceb5427aa ("f2fs: introduce time and interval facility")
+> >     8dc0d6a11e7d ("f2fs: early check broken symlink length in the encrypted case")
+> >     922ec355f863 ("f2fs crypto: avoid unneeded memory allocation when
+> > {en/de}crypting symlink")
+> >     9e8925b67a80 ("locks: Allow disabling mandatory locking at compile time")
+> >     a263669fa18f ("f2fs crypto: sync with ext4's fname padding")
+> >     ae1086686487 ("f2fs crypto: handle unexpected lack of encryption keys")
+> >     b9d777b85ff1 ("f2fs: check inline_data flag at converting time")
+> >     ce855a3bd092 ("f2fs crypto: f2fs_page_crypto() doesn't need a encryption
+> > context")
+> >     d0239e1bf520 ("f2fs: detect idle time depending on user behavior")
+> >     d323d005ac4a ("f2fs: support file defragment")
+> >     dffd0cfa06d4 ("fscrypt: use ENOTDIR when setting encryption policy on
+> > nondirectory")
+> >     ed3360abbc04 ("f2fs crypto: make sure the encryption info is initialized on
+> > opendir(2)")
+> > 
+> > 
+> > How should we proceed with this patch?
+> 
+> There is not a "fs/crypto" directory for kernel v4.4.179.
+> Perhaps it is not still necessary to test it on this tree.
+> 
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+In 4.4 the code was in fs/ext4/ rather than fs/crypto/, so it will need to be
+backported to there.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: e93c9c99a629 - Linux 5.1
+That's for *after* this patch is applied and reaches mainline, of course.
+There's nothing to backport before then.
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: e93c9c99a629 - Linux 5.1
-
-We then merged the patchset with `git am`:
-
-  drivers-hv-vmbus-remove-the-undesired-put_cpu_ptr-in-hv_synic_cleanup.patch
-  ubsan-fix-nasty-wbuiltin-declaration-mismatch-gcc-9-warnings.patch
-  staging-greybus-power_supply-fix-prop-descriptor-request-size.patch
-  staging-wilc1000-avoid-gfp_kernel-allocation-from-atomic-context.patch
-  staging-most-cdev-fix-chrdev_region-leak-in-mod_exit.patch
-  staging-most-sound-pass-correct-device-when-creating-a-sound-card.patch
-  usb-dwc3-allow-building-usb_dwc3_qcom-without-extcon.patch
-  usb-dwc3-fix-default-lpm_nyet_threshold-value.patch
-  usb-serial-f81232-fix-interrupt-worker-not-stop.patch
-  usb-cdc-acm-fix-unthrottle-races.patch
-  usb-storage-set-virt_boundary_mask-to-avoid-sg-overflows.patch
-  genirq-prevent-use-after-free-and-work-list-corruption.patch
-  intel_th-pci-add-comet-lake-support.patch
-  iio-adc-qcom-spmi-adc5-fix-of-based-module-autoloading.patch
-  cpufreq-armada-37xx-fix-frequency-calculation-for-opp.patch
-  acpi-lpss-use-acpi_lpss_-instead-of-acpi_subsys_-functions-for-hibernate.patch
-  soc-sunxi-fix-missing-dependency-on-regmap_mmio.patch
-  scsi-lpfc-change-snprintf-to-scnprintf-for-possible-overflow.patch
-  scsi-qla2xxx-fix-incorrect-region-size-setting-in-optrom-sysfs-routines.patch
-  scsi-qla2xxx-set-remote-port-devloss-timeout-to-0.patch
-  scsi-qla2xxx-fix-device-staying-in-blocked-state.patch
-  bluetooth-hidp-fix-buffer-overflow.patch
-  bluetooth-align-minimum-encryption-key-size-for-le-and-br-edr-connections.patch
-  bluetooth-fix-not-initializing-l2cap-tx_credits.patch
-  bluetooth-hci_bcm-fix-empty-regulator-supplies-for-intel-macs.patch
-  uas-fix-alignment-of-scatter-gather-segments.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c82e8c01f5d35d794bb5ab119414c197a9f87939.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c82e8c01f5d35d794bb5ab119414c197a9f87939.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c82e8c01f5d35d794bb5ab119414c197a9f87939.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c82e8c01f5d35d794bb5ab119414c197a9f87939.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c82e8c01f5d35d794bb5ab119414c197a9f87939.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c82e8c01f5d35d794bb5ab119414c197a9f87939.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c82e8c01f5d35d794bb5ab119414c197a9f87939.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c82e8c01f5d35d794bb5ab119414c197a9f87939.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ httpd: mod_ssl smoke sanity [3]
-     ✅ iotop: sanity [4]
-     ✅ tuned: tune-processes-through-perf [5]
-     ✅ Usex - version 1.9-29 [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ httpd: mod_ssl smoke sanity [3]
-     ✅ iotop: sanity [4]
-     ✅ tuned: tune-processes-through-perf [5]
-     ✅ Usex - version 1.9-29 [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ httpd: mod_ssl smoke sanity [3]
-     ✅ iotop: sanity [4]
-     ✅ tuned: tune-processes-through-perf [5]
-     ✅ Usex - version 1.9-29 [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ httpd: mod_ssl smoke sanity [3]
-     ✅ iotop: sanity [4]
-     ✅ tuned: tune-processes-through-perf [5]
-     ✅ Usex - version 1.9-29 [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+- Eric
