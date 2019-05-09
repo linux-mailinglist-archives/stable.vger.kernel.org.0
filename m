@@ -2,204 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5441A195A5
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 01:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F4101195A8
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 01:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726694AbfEIX1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 19:27:06 -0400
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:35073 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726108AbfEIX1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 19:27:06 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0TRHabNi_1557444414;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TRHabNi_1557444414)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 10 May 2019 07:27:02 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     jstancek@redhat.com, peterz@infradead.org, will.deacon@arm.com,
-        namit@vmware.com, minchan@kernel.org, mgorman@suse.de
-Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force flush
-Date:   Fri, 10 May 2019 07:26:54 +0800
-Message-Id: <1557444414-12090-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1726835AbfEIX1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 19:27:16 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:55057 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726108AbfEIX1P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 19:27:15 -0400
+Received: by mail-wm1-f67.google.com with SMTP id b203so5245522wmb.4
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 16:27:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=RnvY7geH+A4N8B10Z1RbPFf3s1ZPigUFVWpv/Xpazjs=;
+        b=KZXV+ZmebZiHyksi89Co3Ncpgpll079vA+GPTDcX0c3sNhE7P/fo4EdX4iO1u0r0mZ
+         COOreq3YGTcJLoYVnHX/+3Xvs7DTecqEiFLlFMaY7yEKZIyzuSAyvs5K7i6EE4gH01uV
+         91H5X2EdBsyu5VtMNtV/YFwARMQ2cqT6CCKNQ9uJF3pXIwS9U9Wwp7JUEcC7vUJKXjx8
+         DJGfxDLwnLy3krjt0OtCkXQjTudjHgYu0+rFwPcdGGjxmknBOkYH5WlQC+K/eg0wdlkK
+         Scx4Nsm9ATFL0UUBB4FxUQW+qPRPW5ZrN+J/aj2IFQK8R3u5FLkqXNxWqPNEvFu2zskn
+         aljA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=RnvY7geH+A4N8B10Z1RbPFf3s1ZPigUFVWpv/Xpazjs=;
+        b=cLP9of5GQHLuf79Fq743zXocwZ9yc9rBKrurYl9wDiktcWSMLrdf061YT5WOsR1BDu
+         qGbLdZgkQTgWeTzjj+jMHyDfWjW+zc5OQzQUvGPRXRjM/giPpUXraIlqxvK2d2VrAil1
+         PIPsVYkJs9qBEoKU+PIcAe4usH0+9xXyhtdixC88AWWKKaShZkWBAF8mVPB87uQ2FK8M
+         /XH+fZj6rFKV1ssg26HXlotYqWGEszuuI1bbKo/CUsrAgOyad794hbIw1n14tWO4pTjP
+         e2Y7XNCWEMQohD1wzr1bYwZfyNHqJWIKzOhwIqxEeeV3pl7lWXH3EwrzuSpmE4uJp46q
+         6uQg==
+X-Gm-Message-State: APjAAAUjaJMIP9RGNWmj6iRIAajT86rrGhnSDC7y4AGsXR/brq7PnhLy
+        xYcQVpj7nZFy74/YmsmLJ6OEZWZiv/2xgA==
+X-Google-Smtp-Source: APXvYqxLLfrFCfz3i3u9lf6pJBwCTjAtwmx1g16ijs4SqlmlwcGtWHQfTSP6cXuPpLXD8ZRGHn/UEw==
+X-Received: by 2002:a1c:a406:: with SMTP id n6mr4581605wme.126.1557444433385;
+        Thu, 09 May 2019 16:27:13 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f7sm2215872wmb.28.2019.05.09.16.27.12
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 16:27:12 -0700 (PDT)
+Message-ID: <5cd4b750.1c69fb81.c7a5d.a8bc@mx.google.com>
+Date:   Thu, 09 May 2019 16:27:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.117-43-gfd7dbc6d8090
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
+Subject: Re: [PATCH 4.14 00/42] 4.14.118-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A few new fields were added to mmu_gather to make TLB flush smarter for
-huge page by telling what level of page table is changed.
 
-__tlb_reset_range() is used to reset all these page table state to
-unchanged, which is called by TLB flush for parallel mapping changes for
-the same range under non-exclusive lock (i.e. read mmap_sem).  Before
-commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
-munmap"), the syscalls (e.g. MADV_DONTNEED, MADV_FREE) which may update
-PTEs in parallel don't remove page tables.  But, the forementioned
-commit may do munmap() under read mmap_sem and free page tables.  This
-may result in program hang on aarch64 reported by Jan Stancek.  The
-problem could be reproduced by his test program with slightly modified
-below.
 
----8<---
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.117-43-gfd7dbc6d8090/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.117-43-gfd7dbc6d8090/
 
-static int map_size = 4096;
-static int num_iter = 500;
-static long threads_total;
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.117-43-gfd7dbc6d8090
+Git Commit: fd7dbc6d8090b210573e19d5a50f7772ec4b1977
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 64 unique boards, 25 SoC families, 15 builds out of 201
 
-static void *distant_area;
+Boot Failures Detected:
 
-void *map_write_unmap(void *ptr)
-{
-	int *fd = ptr;
-	unsigned char *map_address;
-	int i, j = 0;
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
 
-	for (i = 0; i < num_iter; i++) {
-		map_address = mmap(distant_area, (size_t) map_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		if (map_address == MAP_FAILED) {
-			perror("mmap");
-			exit(1);
-		}
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
 
-		for (j = 0; j < map_size; j++)
-			map_address[j] = 'b';
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-		if (munmap(map_address, map_size) == -1) {
-			perror("munmap");
-			exit(1);
-		}
-	}
+arm:
+    davinci_all_defconfig:
+        da850-lcdk:
+            lab-baylibre: PASS (gcc-8)
+            lab-baylibre-seattle: FAIL (gcc-8)
 
-	return NULL;
-}
-
-void *dummy(void *ptr)
-{
-	return NULL;
-}
-
-int main(void)
-{
-	pthread_t thid[2];
-
-	/* hint for mmap in map_write_unmap() */
-	distant_area = mmap(0, DISTANT_MMAP_SIZE, PROT_WRITE | PROT_READ,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	munmap(distant_area, (size_t)DISTANT_MMAP_SIZE);
-	distant_area += DISTANT_MMAP_SIZE / 2;
-
-	while (1) {
-		pthread_create(&thid[0], NULL, map_write_unmap, NULL);
-		pthread_create(&thid[1], NULL, dummy, NULL);
-
-		pthread_join(thid[0], NULL);
-		pthread_join(thid[1], NULL);
-	}
-}
----8<---
-
-The program may bring in parallel execution like below:
-
-        t1                                        t2
-munmap(map_address)
-  downgrade_write(&mm->mmap_sem);
-  unmap_region()
-  tlb_gather_mmu()
-    inc_tlb_flush_pending(tlb->mm);
-  free_pgtables()
-    tlb->freed_tables = 1
-    tlb->cleared_pmds = 1
-
-                                        pthread_exit()
-                                        madvise(thread_stack, 8M, MADV_DONTNEED)
-                                          zap_page_range()
-                                            tlb_gather_mmu()
-                                              inc_tlb_flush_pending(tlb->mm);
-
-  tlb_finish_mmu()
-    if (mm_tlb_flush_nested(tlb->mm))
-      __tlb_reset_range()
-
-__tlb_reset_range() would reset freed_tables and cleared_* bits, but
-this may cause inconsistency for munmap() which do free page tables.
-Then it may result in some architectures, e.g. aarch64, may not flush
-TLB completely as expected to have stale TLB entries remained.
-
-The original proposed fix came from Jan Stancek who mainly debugged this
-issue, I just wrapped up everything together.
-
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
 ---
-v2: Reworked the commit log per Peter and Will
-    Adopted the suggestion from Peter
-
- mm/mmu_gather.c | 39 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 32 insertions(+), 7 deletions(-)
-
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index 99740e1..469492d 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -245,14 +245,39 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
- {
- 	/*
- 	 * If there are parallel threads are doing PTE changes on same range
--	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
--	 * flush by batching, a thread has stable TLB entry can fail to flush
--	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
--	 * forcefully if we detect parallel PTE batching threads.
-+	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
-+	 * flush by batching, one thread may end up seeing inconsistent PTEs
-+	 * and result in having stale TLB entries.  So flush TLB forcefully
-+	 * if we detect parallel PTE batching threads.
-+	 *
-+	 * However, some syscalls, e.g. munmap(), may free page tables, this
-+	 * needs force flush everything in the given range. Otherwise this
-+	 * may result in having stale TLB entries for some architectures,
-+	 * e.g. aarch64, that could specify flush what level TLB.
- 	 */
--	if (mm_tlb_flush_nested(tlb->mm)) {
--		__tlb_reset_range(tlb);
--		__tlb_adjust_range(tlb, start, end - start);
-+	if (mm_tlb_flush_nested(tlb->mm) && !tlb->fullmm) {
-+		/*
-+		 * Since we can't tell what we actually should have
-+		 * flushed, flush everything in the given range.
-+		 */
-+		tlb->freed_tables = 1;
-+		tlb->cleared_ptes = 1;
-+		tlb->cleared_pmds = 1;
-+		tlb->cleared_puds = 1;
-+		tlb->cleared_p4ds = 1;
-+
-+		/*
-+		 * Some architectures, e.g. ARM, that have range invalidation
-+		 * and care about VM_EXEC for I-Cache invalidation, need force
-+		 * vma_exec set.
-+		 */
-+		tlb->vma_exec = 1;
-+
-+		/* Force vma_huge clear to guarantee safer flush */
-+		tlb->vma_huge = 0;
-+
-+		tlb->start = start;
-+		tlb->end = end;
- 	}
- 
- 	tlb_flush_mmu(tlb);
--- 
-1.8.3.1
-
+For more info write to <info@kernelci.org>
