@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BBC6191BE
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E00C7191D8
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbfEISvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44594 "EHLO mail.kernel.org"
+        id S1726977AbfEITBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728110AbfEISu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:50:59 -0400
+        id S1727469AbfEISvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:51:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 570652177E;
-        Thu,  9 May 2019 18:50:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2045F20578;
+        Thu,  9 May 2019 18:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427858;
-        bh=AIFK3L+c1H4rIB8vBSH4Xb25UaW6efGxn2GKIhav6QI=;
+        s=default; t=1557427861;
+        bh=eZl1+8NsCIrSH23CfGTDEItcXv8IxG4Dp1S/aTL9pgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZ+TbAopIeD8DaFCISMQ19StvlZ/0nwI1d9P3lXD2hkqOxkSrU1qs6mWfx0UusM9B
-         uXda0X2A1zlIumdm1kkSX7Mr/2eEffmdGJgw4M8wAZgD49LYAgL8sfdRriN0cA6L67
-         UCMRzYiSeFWo4ZnnCpmSD0qw5c91H7TxTKxT/FHg=
+        b=WIj4deTRPPSFu4whJRw/H3vMrgMboGlSI1Qh5cDVtdjwN74r/0362hf/oySyKSy2a
+         9oHwhjae+4bh5K0KKN7RA1xxxlOSILcnmk0aj6gwTqW36knwTvFC1Ybcko4PdOH6Np
+         OUeot79HoYXzo/HyzTVph9J4unScBSjiHoIi/UTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rui.silva@linaro.org>,
-        Johan Hovold <johan@kernel.org>,
-        Rui Miguel Silva <rmfrfs@gmail.com>
-Subject: [PATCH 5.0 04/95] staging: greybus: power_supply: fix prop-descriptor request size
-Date:   Thu,  9 May 2019 20:41:21 +0200
-Message-Id: <20190509181309.568987665@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Ajay Singh <ajay.kathat@microchip.com>,
+        Adham Abozaeid <adham.abozaeid@microchip.com>
+Subject: [PATCH 5.0 05/95] staging: wilc1000: Avoid GFP_KERNEL allocation from atomic context.
+Date:   Thu,  9 May 2019 20:41:22 +0200
+Message-Id: <20190509181309.679350751@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
 References: <20190509181309.180685671@linuxfoundation.org>
@@ -44,40 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 47830c1127ef166af787caf2f871f23089610a7f upstream.
+commit ae26aa844679cdf660e12c7055f958cb90889eb6 upstream.
 
-Since moving the message buffers off the stack, the dynamically
-allocated get-prop-descriptor request buffer is incorrectly sized due to
-using the pointer rather than request-struct size when creating the
-operation.
+Since wilc_set_multicast_list() is called with dev->addr_list_lock
+spinlock held, we can't use GFP_KERNEL memory allocation.
 
-Fortunately, the pointer size is always larger than this one-byte
-request, but this could still cause trouble on the remote end due to the
-unexpected message size.
-
-Fixes: 9d15134d067e ("greybus: power_supply: rework get descriptors")
-Cc: stable <stable@vger.kernel.org>     # 4.9
-Cc: Rui Miguel Silva <rui.silva@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: e624c58cf8eb ("staging: wilc1000: refactor code to avoid use of wilc_set_multicast_list global")
+Cc: Ajay Singh <ajay.kathat@microchip.com>
+Reviewed-by: Adham Abozaeid <adham.abozaeid@microchip.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/greybus/power_supply.c |    2 +-
+ drivers/staging/wilc1000/linux_wlan.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/greybus/power_supply.c
-+++ b/drivers/staging/greybus/power_supply.c
-@@ -520,7 +520,7 @@ static int gb_power_supply_prop_descript
+--- a/drivers/staging/wilc1000/linux_wlan.c
++++ b/drivers/staging/wilc1000/linux_wlan.c
+@@ -816,7 +816,7 @@ static void wilc_set_multicast_list(stru
+ 		return;
+ 	}
  
- 	op = gb_operation_create(connection,
- 				 GB_POWER_SUPPLY_TYPE_GET_PROP_DESCRIPTORS,
--				 sizeof(req), sizeof(*resp) + props_count *
-+				 sizeof(*req), sizeof(*resp) + props_count *
- 				 sizeof(struct gb_power_supply_props_desc),
- 				 GFP_KERNEL);
- 	if (!op)
+-	mc_list = kmalloc_array(dev->mc.count, ETH_ALEN, GFP_KERNEL);
++	mc_list = kmalloc_array(dev->mc.count, ETH_ALEN, GFP_ATOMIC);
+ 	if (!mc_list)
+ 		return;
+ 
 
 
