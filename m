@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 637B519283
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B8719110
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727260AbfEISpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:45:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S1727272AbfEISwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:52:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727221AbfEISpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:45:05 -0400
+        id S1728714AbfEISw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:52:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C5D7217F5;
-        Thu,  9 May 2019 18:45:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36FF12183E;
+        Thu,  9 May 2019 18:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427505;
-        bh=0TjL81IqbnAkiwaGUHAMMPYNKAiIgC8Ggtg0x3pthj8=;
+        s=default; t=1557427948;
+        bh=dzBOdXs1SpdMzjFnP+RGYqtfEUngwD8kCrHTrI4Zbvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7exAsSS9Fu9G0UggFJ0Cf7dJse9liUTOD5FMX5cWZi+RjuERf5dWxuONfc+dkBp9
-         ExV0fW4jKUsaFVX55Cgm08BE2gibplL5vhg1hDncJC/+gd5gN2keadaHeysd3efLjo
-         vA3LAwoyIYEGlQGNHqLhi5btNSJ8dih68q6X4NnU=
+        b=YGhXL1qdqfjHx1c9YjzaDVIPiRavmpMQ7F188Exn96JznSZ1kroWggVhibEKLikSl
+         aPQNdN4jzvscCbGUFqQxRhOWzad+bAMuoDThuX0lTK+Rex4MDsXGhZcUdCcI8Txqhd
+         c4YdwUFZ354TFKbDKbfyVfMdMQ1aA5m75EGKog9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 28/28] timer/debug: Change /proc/timer_stats from 0644 to 0600
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Imre Deak <imre.deak@intel.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 63/95] ALSA: hda: Fix racy display power access
 Date:   Thu,  9 May 2019 20:42:20 +0200
-Message-Id: <20190509181256.196790585@linuxfoundation.org>
+Message-Id: <20190509181313.889818220@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+[ Upstream commit d7a181da2dfa3190487c446042ba01e07d851c74 ]
 
-The timer_stats facility should filter and translate PIDs if opened
-from a non-initial PID namespace, to avoid leaking information about
-the wider system.  It should also not show kernel virtual addresses.
-Unfortunately it has now been removed upstream (as redundant)
-instead of being fixed.
+snd_hdac_display_power() doesn't handle the concurrent calls carefully
+enough, and it may lead to the doubly get_power or put_power calls,
+when a runtime PM and an async work get called in racy way.
 
-For stable, fix the leak by restricting access to root only.  A
-similar change was already made for the /proc/timer_list file.
+This patch addresses it by reusing the bus->lock mutex that has been
+used for protecting the link state change in ext bus code, so that it
+can protect against racy display state changes.  The initialization of
+bus->lock was moved from snd_hdac_ext_bus_init() to
+snd_hdac_bus_init() as well accordingly.
 
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Testcase: igt/i915_pm_rpm/module-reload #glk-dsi
+Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timer_stats.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/hda/ext/hdac_ext_bus.c | 1 -
+ sound/hda/hdac_bus.c         | 1 +
+ sound/hda/hdac_component.c   | 6 +++++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/kernel/time/timer_stats.c
-+++ b/kernel/time/timer_stats.c
-@@ -417,7 +417,7 @@ static int __init init_tstats_procfs(voi
- {
- 	struct proc_dir_entry *pe;
+diff --git a/sound/hda/ext/hdac_ext_bus.c b/sound/hda/ext/hdac_ext_bus.c
+index 9c37d9af3023f..ec7715c6b0c02 100644
+--- a/sound/hda/ext/hdac_ext_bus.c
++++ b/sound/hda/ext/hdac_ext_bus.c
+@@ -107,7 +107,6 @@ int snd_hdac_ext_bus_init(struct hdac_bus *bus, struct device *dev,
+ 	INIT_LIST_HEAD(&bus->hlink_list);
+ 	bus->idx = idx++;
  
--	pe = proc_create("timer_stats", 0644, NULL, &tstats_fops);
-+	pe = proc_create("timer_stats", 0600, NULL, &tstats_fops);
- 	if (!pe)
- 		return -ENOMEM;
+-	mutex_init(&bus->lock);
+ 	bus->cmd_dma_state = true;
+ 
  	return 0;
+diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
+index 012305177f682..ad8eee08013fb 100644
+--- a/sound/hda/hdac_bus.c
++++ b/sound/hda/hdac_bus.c
+@@ -38,6 +38,7 @@ int snd_hdac_bus_init(struct hdac_bus *bus, struct device *dev,
+ 	INIT_WORK(&bus->unsol_work, snd_hdac_bus_process_unsol_events);
+ 	spin_lock_init(&bus->reg_lock);
+ 	mutex_init(&bus->cmd_mutex);
++	mutex_init(&bus->lock);
+ 	bus->irq = -1;
+ 	return 0;
+ }
+diff --git a/sound/hda/hdac_component.c b/sound/hda/hdac_component.c
+index a6d37b9d6413f..6b5caee61c6e0 100644
+--- a/sound/hda/hdac_component.c
++++ b/sound/hda/hdac_component.c
+@@ -69,13 +69,15 @@ void snd_hdac_display_power(struct hdac_bus *bus, unsigned int idx, bool enable)
+ 
+ 	dev_dbg(bus->dev, "display power %s\n",
+ 		enable ? "enable" : "disable");
++
++	mutex_lock(&bus->lock);
+ 	if (enable)
+ 		set_bit(idx, &bus->display_power_status);
+ 	else
+ 		clear_bit(idx, &bus->display_power_status);
+ 
+ 	if (!acomp || !acomp->ops)
+-		return;
++		goto unlock;
+ 
+ 	if (bus->display_power_status) {
+ 		if (!bus->display_power_active) {
+@@ -92,6 +94,8 @@ void snd_hdac_display_power(struct hdac_bus *bus, unsigned int idx, bool enable)
+ 			bus->display_power_active = false;
+ 		}
+ 	}
++ unlock:
++	mutex_unlock(&bus->lock);
+ }
+ EXPORT_SYMBOL_GPL(snd_hdac_display_power);
+ 
+-- 
+2.20.1
+
 
 
