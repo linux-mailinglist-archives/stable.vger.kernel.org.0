@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9347190AF
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048AC19286
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727318AbfEISrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:47:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40422 "EHLO mail.kernel.org"
+        id S1727144AbfEISos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbfEISrn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:43 -0400
+        id S1727089AbfEISor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:44:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99FAC217F4;
-        Thu,  9 May 2019 18:47:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E82217F5;
+        Thu,  9 May 2019 18:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427663;
-        bh=mTZClnFqCCBmAW3TC0MUDg6DwdLkumXIHKHkr8/5FDM=;
+        s=default; t=1557427486;
+        bh=yYHa21ojdwKudFT6S38d3tz7aLJYodU4kGhvuKiqAHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msLoASfh57H6oyqyBCgXgIeTdsVs0mKslXkXzBm3Mq1d4rzkHOSDgVHnFMTfK7IsJ
-         kN+A+ws1gcBrD7+YmrTCY31L+UcmYtpPJvhTmh89LsW6f7/0LKFIFo3sw9XmbsMhgr
-         yO2H5wEwPMI0OsOTl1PGeswxD/C9v0AbfyoclyWk=
+        b=SdTN3SI1qGn3d89ESSxcU3IJv6eaa8ntY6nreTBaGcNrd5/iqQ9OECNrnqix8qHHK
+         fvUTwbmyRB6hpaOBKrsq/znJjvU6XstldGCWPB+lYywIByBQZGSbWqZZYmt1fmlokT
+         UQL5e0VopjPRmVP/5KlhRaYe/WojPTJ3SMD5YqQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/66] IB/hfi1: Eliminate opcode tests on mr deref
+Subject: [PATCH 4.9 07/28] IB/hfi1: Eliminate opcode tests on mr deref
 Date:   Thu,  9 May 2019 20:41:59 +0200
-Message-Id: <20190509181304.454656970@linuxfoundation.org>
+Message-Id: <20190509181251.841236459@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
-index 6f013a565353f..770c78c657306 100644
+index e8e0fa58cb713..b08786614c1b0 100644
 --- a/drivers/infiniband/hw/hfi1/rc.c
 +++ b/drivers/infiniband/hw/hfi1/rc.c
-@@ -2303,7 +2303,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
+@@ -2394,7 +2394,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
  			update_ack_queue(qp, next);
  		}
  		e = &qp->s_ack_queue[qp->r_head_ack_queue];
@@ -82,7 +82,7 @@ index 6f013a565353f..770c78c657306 100644
  			rvt_put_mr(e->rdma_sge.mr);
  			e->rdma_sge.mr = NULL;
  		}
-@@ -2377,7 +2377,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
+@@ -2469,7 +2469,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
  			update_ack_queue(qp, next);
  		}
  		e = &qp->s_ack_queue[qp->r_head_ack_queue];
