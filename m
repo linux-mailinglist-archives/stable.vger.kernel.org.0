@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B8719110
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573D419251
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727272AbfEISwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46588 "EHLO mail.kernel.org"
+        id S1727146AbfEISqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728714AbfEISw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:29 -0400
+        id S1727660AbfEISqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36FF12183E;
-        Thu,  9 May 2019 18:52:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8259B2182B;
+        Thu,  9 May 2019 18:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427948;
-        bh=dzBOdXs1SpdMzjFnP+RGYqtfEUngwD8kCrHTrI4Zbvw=;
+        s=default; t=1557427603;
+        bh=MOv2AaTh1w0/0TobC/dEXlg7Pdgap2FW3MINoZAneYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGhXL1qdqfjHx1c9YjzaDVIPiRavmpMQ7F188Exn96JznSZ1kroWggVhibEKLikSl
-         aPQNdN4jzvscCbGUFqQxRhOWzad+bAMuoDThuX0lTK+Rex4MDsXGhZcUdCcI8Txqhd
-         c4YdwUFZ354TFKbDKbfyVfMdMQ1aA5m75EGKog9w=
+        b=ho+mOrIN5Pk6KwYJ0A9+cC/az5Y9tvWDyoJEJYCL+3ZGnTunJZrarzicUEp9tigNz
+         IigufMwemH3VBt5ch06Gi/cQGsMGdsJrNMxBK91Zu9rofNxZfn80yx3HpZIDPwH6UD
+         nvEKSQggcnu65Ys52Cl4FeAbq//4DsjBpR9KFVqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Imre Deak <imre.deak@intel.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 63/95] ALSA: hda: Fix racy display power access
-Date:   Thu,  9 May 2019 20:42:20 +0200
-Message-Id: <20190509181313.889818220@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 32/42] USB: serial: f81232: fix interrupt worker not stop
+Date:   Thu,  9 May 2019 20:42:21 +0200
+Message-Id: <20190509181259.118772686@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d7a181da2dfa3190487c446042ba01e07d851c74 ]
+From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
 
-snd_hdac_display_power() doesn't handle the concurrent calls carefully
-enough, and it may lead to the doubly get_power or put_power calls,
-when a runtime PM and an async work get called in racy way.
+commit 804dbee1e49774918339c1e5a87400988c0819e8 upstream.
 
-This patch addresses it by reusing the bus->lock mutex that has been
-used for protecting the link state change in ext bus code, so that it
-can protect against racy display state changes.  The initialization of
-bus->lock was moved from snd_hdac_ext_bus_init() to
-snd_hdac_bus_init() as well accordingly.
+The F81232 will use interrupt worker to handle MSR change.
+This patch will fix the issue that interrupt work should stop
+in close() and suspend().
 
-Testcase: igt/i915_pm_rpm/module-reload #glk-dsi
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Imre Deak <imre.deak@intel.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This also fixes line-status events being disabled after a suspend cycle
+until the port is re-opened.
+
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+[ johan: amend commit message ]
+Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
+Cc: stable <stable@vger.kernel.org>	# 4.1
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/hda/ext/hdac_ext_bus.c | 1 -
- sound/hda/hdac_bus.c         | 1 +
- sound/hda/hdac_component.c   | 6 +++++-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/serial/f81232.c |   39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-diff --git a/sound/hda/ext/hdac_ext_bus.c b/sound/hda/ext/hdac_ext_bus.c
-index 9c37d9af3023f..ec7715c6b0c02 100644
---- a/sound/hda/ext/hdac_ext_bus.c
-+++ b/sound/hda/ext/hdac_ext_bus.c
-@@ -107,7 +107,6 @@ int snd_hdac_ext_bus_init(struct hdac_bus *bus, struct device *dev,
- 	INIT_LIST_HEAD(&bus->hlink_list);
- 	bus->idx = idx++;
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -560,9 +560,12 @@ static int f81232_open(struct tty_struct
  
--	mutex_init(&bus->lock);
- 	bus->cmd_dma_state = true;
- 
- 	return 0;
-diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
-index 012305177f682..ad8eee08013fb 100644
---- a/sound/hda/hdac_bus.c
-+++ b/sound/hda/hdac_bus.c
-@@ -38,6 +38,7 @@ int snd_hdac_bus_init(struct hdac_bus *bus, struct device *dev,
- 	INIT_WORK(&bus->unsol_work, snd_hdac_bus_process_unsol_events);
- 	spin_lock_init(&bus->reg_lock);
- 	mutex_init(&bus->cmd_mutex);
-+	mutex_init(&bus->lock);
- 	bus->irq = -1;
- 	return 0;
- }
-diff --git a/sound/hda/hdac_component.c b/sound/hda/hdac_component.c
-index a6d37b9d6413f..6b5caee61c6e0 100644
---- a/sound/hda/hdac_component.c
-+++ b/sound/hda/hdac_component.c
-@@ -69,13 +69,15 @@ void snd_hdac_display_power(struct hdac_bus *bus, unsigned int idx, bool enable)
- 
- 	dev_dbg(bus->dev, "display power %s\n",
- 		enable ? "enable" : "disable");
+ static void f81232_close(struct usb_serial_port *port)
+ {
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
 +
-+	mutex_lock(&bus->lock);
- 	if (enable)
- 		set_bit(idx, &bus->display_power_status);
- 	else
- 		clear_bit(idx, &bus->display_power_status);
- 
- 	if (!acomp || !acomp->ops)
--		return;
-+		goto unlock;
- 
- 	if (bus->display_power_status) {
- 		if (!bus->display_power_active) {
-@@ -92,6 +94,8 @@ void snd_hdac_display_power(struct hdac_bus *bus, unsigned int idx, bool enable)
- 			bus->display_power_active = false;
- 		}
- 	}
-+ unlock:
-+	mutex_unlock(&bus->lock);
+ 	f81232_port_disable(port);
+ 	usb_serial_generic_close(port);
+ 	usb_kill_urb(port->interrupt_in_urb);
++	flush_work(&port_priv->interrupt_work);
  }
- EXPORT_SYMBOL_GPL(snd_hdac_display_power);
  
--- 
-2.20.1
-
+ static void f81232_dtr_rts(struct usb_serial_port *port, int on)
+@@ -656,6 +659,40 @@ static int f81232_port_remove(struct usb
+ 	return 0;
+ }
+ 
++static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
++{
++	struct usb_serial_port *port = serial->port[0];
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
++		usb_kill_urb(port->read_urbs[i]);
++
++	usb_kill_urb(port->interrupt_in_urb);
++
++	if (port_priv)
++		flush_work(&port_priv->interrupt_work);
++
++	return 0;
++}
++
++static int f81232_resume(struct usb_serial *serial)
++{
++	struct usb_serial_port *port = serial->port[0];
++	int result;
++
++	if (tty_port_initialized(&port->port)) {
++		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
++		if (result) {
++			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
++					result);
++			return result;
++		}
++	}
++
++	return usb_serial_generic_resume(serial);
++}
++
+ static struct usb_serial_driver f81232_device = {
+ 	.driver = {
+ 		.owner =	THIS_MODULE,
+@@ -679,6 +716,8 @@ static struct usb_serial_driver f81232_d
+ 	.read_int_callback =	f81232_read_int_callback,
+ 	.port_probe =		f81232_port_probe,
+ 	.port_remove =		f81232_port_remove,
++	.suspend =		f81232_suspend,
++	.resume =		f81232_resume,
+ };
+ 
+ static struct usb_serial_driver * const serial_drivers[] = {
 
 
