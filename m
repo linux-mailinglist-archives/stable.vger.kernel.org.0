@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A531924A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142E3191ED
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726825AbfEITGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:06:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
+        id S1727627AbfEITCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:02:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727686AbfEISrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:04 -0400
+        id S1728417AbfEISu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FF4B2183E;
-        Thu,  9 May 2019 18:47:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EB312177E;
+        Thu,  9 May 2019 18:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427623;
-        bh=Ss5X+RIKrkfObLBIwJoE0jZwf0fTuAOXHaRiDfCHvfw=;
+        s=default; t=1557427826;
+        bh=0zZtPe/QZmm1wOMxxCB1OieNmsIUQ3UbVlb0wPX58Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3d6YlFgd4ZYlNlWeFwrcUgeMvtitS83IAheta+l3WE3MKDKn7Sjr/gaVYIl+q1hr
-         hvwNTnG5fJ8+2yR6wAZncjM1cvtinOsAww3QSlfuqZZ5djm3dUVVVwPuSGZmWTj7Gz
-         dt6I+Zj91Vqysdj5Gq7f8dUucPHUsEFm/IzxvoF4=
+        b=aO1v7cDneCplmkhOI93BcaexmUVhj/0tXCcHZe8Pw5QSXO+KwxLRpHSOWzzvIhWgh
+         Btw/+X/gZLoh4CU8CZL5UgivKdP8x0dbjYSLsLltjhsd+ui0N50R4fpLzQEQTyWIbH
+         4f+e9Ronjm/x89QJdKHRYFSyV67h4wqhqgMBboQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.19 01/66] net: stmmac: Use bfsize1 in ndesc_init_rx_desc
+        stable@vger.kernel.org, JaeChul Lee <jcsing.lee@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 19/95] ASoC: samsung: odroid: Fix clock configuration for 44100 sample rate
 Date:   Thu,  9 May 2019 20:41:36 +0200
-Message-Id: <20190509181301.896150656@linuxfoundation.org>
+Message-Id: <20190509181310.684874052@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,39 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+[ Upstream commit 2b13bee3884926cba22061efa75bd315e871de24 ]
 
-commit f87db4dbd52f2f8a170a2b51cb0926221ca7c9e2 upstream.
+After commit fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate
+handling") the audio root clock frequency is configured improperly for
+44100 sample rate. Due to clock rate rounding it's 20070401 Hz instead
+of 22579000 Hz. This results in a too low value of the PSR clock divider
+in the CPU DAI driver and too fast actual sample rate for fs=44100. E.g.
+1 kHz tone has actual 1780 Hz frequency (1 kHz * 20070401/22579000 * 2).
 
-gcc warn this:
+Fix this by increasing the correction passed to clk_set_rate() to take
+into account inaccuracy of the EPLL frequency properly.
 
-drivers/net/ethernet/stmicro/stmmac/norm_desc.c: In function ndesc_init_rx_desc:
-drivers/net/ethernet/stmicro/stmmac/norm_desc.c:138:6: warning: variable 'bfsize1' set but not used [-Wunused-but-set-variable]
-
-Like enh_desc_init_rx_desc, we should use bfsize1
-in ndesc_init_rx_desc to calculate 'p->des1'
-
-Fixes: 583e63614149 ("net: stmmac: use correct DMA buffer size in the RX descriptor")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate handling")
+Reported-by: JaeChul Lee <jcsing.lee@samsung.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/norm_desc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/samsung/odroid.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-@@ -140,7 +140,7 @@ static void ndesc_init_rx_desc(struct dm
- 	p->des0 |= cpu_to_le32(RDES0_OWN);
+diff --git a/sound/soc/samsung/odroid.c b/sound/soc/samsung/odroid.c
+index e7b371b072304..45c6d73967852 100644
+--- a/sound/soc/samsung/odroid.c
++++ b/sound/soc/samsung/odroid.c
+@@ -64,11 +64,11 @@ static int odroid_card_hw_params(struct snd_pcm_substream *substream,
+ 		return ret;
  
- 	bfsize1 = min(bfsize, BUF_SIZE_2KiB - 1);
--	p->des1 |= cpu_to_le32(bfsize & RDES1_BUFFER1_SIZE_MASK);
-+	p->des1 |= cpu_to_le32(bfsize1 & RDES1_BUFFER1_SIZE_MASK);
+ 	/*
+-	 *  We add 1 to the rclk_freq value in order to avoid too low clock
++	 *  We add 2 to the rclk_freq value in order to avoid too low clock
+ 	 *  frequency values due to the EPLL output frequency not being exact
+ 	 *  multiple of the audio sampling rate.
+ 	 */
+-	rclk_freq = params_rate(params) * rfs + 1;
++	rclk_freq = params_rate(params) * rfs + 2;
  
- 	if (mode == STMMAC_CHAIN_MODE)
- 		ndesc_rx_set_on_chain(p, end);
+ 	ret = clk_set_rate(priv->sclk_i2s, rclk_freq);
+ 	if (ret < 0)
+-- 
+2.20.1
+
 
 
