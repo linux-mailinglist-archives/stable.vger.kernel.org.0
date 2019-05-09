@@ -2,78 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C8418A86
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA9E18ABB
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbfEIN0w convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 9 May 2019 09:26:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42030 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726192AbfEIN0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 09:26:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 110F2AC5C;
-        Thu,  9 May 2019 13:26:51 +0000 (UTC)
-Date:   Thu, 9 May 2019 15:26:49 +0200
-From:   Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: Build failure in v4.4.y.queue (ppc:allmodconfig)
-Message-ID: <20190509152649.2e3ef94d@kitsune.suse.cz>
-In-Reply-To: <e8aa590e-a02f-19de-96df-6728ded7aab3@roeck-us.net>
-References: <20190508202642.GA28212@roeck-us.net>
-        <20190509065324.GA3864@kroah.com>
-        <20190509114923.696222cb@naga>
-        <e8aa590e-a02f-19de-96df-6728ded7aab3@roeck-us.net>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-suse-linux-gnu)
+        id S1726546AbfEINbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 09:31:17 -0400
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:52120 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726526AbfEINbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 09:31:16 -0400
+Received: by mail-wm1-f43.google.com with SMTP id o189so3313165wmb.1
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 06:31:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cLhAhIM1+usZ0x4GJqSNRiiS7MA9pKNbU5mSbz36ifI=;
+        b=gBOFj6jCqe1HQcks0CuUR+hwIiVEqvyNLw6eCl+t/CXwiQV7snwQS77epXxsy1f+1g
+         S98HyHGleYicWcfin4KTAzDN78aJ/wdWX9/6R2moX1hF0h5RwiTNN5x2uih+49yyQEfU
+         GiAH+fCRE3Rpy4ZtpAZbZT5at6lVjVX9HtNWt4EPJXHxy8GVPDI3fXXNSdFNPE8HvqO5
+         EgOxd+X+8wAxx/xUrhVItfZLkyfBVi1bJcA+HqaHWVS+QeMzzSZaZDDQmqeNUfOb9jJc
+         fIC20TAIaK/7XNHCNrsx+u9+0KBRiTXcNJioid+q0QWPejWsa9W6W4iHwPb4jluqK1B9
+         ROJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cLhAhIM1+usZ0x4GJqSNRiiS7MA9pKNbU5mSbz36ifI=;
+        b=Hm/lKgq8Ri/hHyF2v5l6+qP7E7senAsNdW4njUBp31EmGrmFIF0qzlxATY5asKNtK0
+         VZe8fRLeUpgG/8PPTwpCK2WgG3iQBQ7F4fnpmejDSiQbHpQZviAYyMJW6cH/13wd9YRA
+         f8afPyxt4ABocOVqF+dG3LQGip5Lm47yjuCXPJX1bdRAi231Ty4G09zpTbd/UCSou5iL
+         ok4sd5UFM+s8y5EhPYxt8GiIms4j7wZFqHxdOsTO0Ekgou3slujb8J4YmlV1RRx+LCxi
+         gJzrwhl0BemNCUR5T4Oi1g7A3NkpSK2BjDJkAwrLyz6e4qz7yMKoNN2vL9GzLJ/GOJwU
+         odRA==
+X-Gm-Message-State: APjAAAU77cur3jj9ceFEqlluLZ3pyJlLlpruDM59ejhFRsN7J7iPhF3w
+        AEyaSBJpGIDtNiYaKclbt11SU+SLvLzlpw==
+X-Google-Smtp-Source: APXvYqweo0+cwZo4jO0i46Q/PNpuWjUzNWoz4592P1WdsZkjWQ8b2XdicPaHY99aD6P2cQn7lhTzYA==
+X-Received: by 2002:a1c:f413:: with SMTP id z19mr3067546wma.71.1557408674276;
+        Thu, 09 May 2019 06:31:14 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u8sm3336970wmj.27.2019.05.09.06.31.13
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 06:31:13 -0700 (PDT)
+Message-ID: <5cd42ba1.1c69fb81.e650f.0333@mx.google.com>
+Date:   Thu, 09 May 2019 06:31:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.41
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 1 failed,
+ 129 passed with 1 conflict (v4.19.41)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 May 2019 06:07:31 -0700
-Guenter Roeck <linux@roeck-us.net> wrote:
+stable-rc/linux-4.19.y boot: 131 boots: 1 failed, 129 passed with 1 conflic=
+t (v4.19.41)
 
-> On 5/9/19 2:49 AM, Michal Suchánek wrote:
-> > On Thu, 9 May 2019 08:53:24 +0200
-> > Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> >   
-> >> On Wed, May 08, 2019 at 01:26:42PM -0700, Guenter Roeck wrote:  
-> >>> I see multiple instances of:
-> >>>
-> >>> arch/powerpc/kernel/exceptions-64s.S:839: Error:
-> >>> 	attempt to move .org backwards
-> >>>
-> >>> in v4.4.y.queue (v4.4.179-143-gc4db218e9451).
-> >>>
-> >>> This is due to commit 9b2d4e06d7f1 ("powerpc/64s: Add support for a store
-> >>> forwarding barrier at kernel entry/exit"), which is part of a large patch
-> >>> series and can not easily be reverted.
-> >>>
-> >>> Guess I'll stop doing ppc:allmodconfig builds in v4.4.y ?  
-> >>
-> >> Michael, I thought this patch series was supposed to fix ppc issues, not
-> >> add to them :)
-> >>
-> >> Any ideas on what to do here?  
-> > 
-> > What exact code do you build?
-> >  
-> $ make ARCH=powerpc CROSS_COMPILE=powerpc64-linux- allmodconfig
-> $ powerpc64-linux-gcc --version
-> powerpc64-linux-gcc (GCC) 8.3.0
->
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.41/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.41/
 
-Gcc should not see this file. I am asking because I do not see an .org
-directive at line 839 of 4.4.179. I probably need some different repo
-or extra patches to see the same code as you do.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.41
+Git Commit: 21de7eb67cff193e92a4556ae282a994e69b8499
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 70 unique boards, 25 SoC families, 15 builds out of 206
 
-Thanks
+Boot Regressions Detected:
 
-Michal
+arm:
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.19.40-100-gf897c76a3=
+47c)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
