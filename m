@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCE01915E
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 406661919F
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728192AbfEISyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:54:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49740 "EHLO mail.kernel.org"
+        id S1726769AbfEIS5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729132AbfEISyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:47 -0400
+        id S1728945AbfEISxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:53:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17205217D7;
-        Thu,  9 May 2019 18:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 459ED217D6;
+        Thu,  9 May 2019 18:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428086;
-        bh=Faki6XwGAvO7jC/Gd2Wg4MC+oVoEbsPi0NqOI0wM7gA=;
+        s=default; t=1557428028;
+        bh=M/WflKJ18bUUTjs4bfqR6PSZ0fvoLlGIFcH8OVmjCno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiVLGbJnP0BmK4V382MGXVtAOsaY3MDLlbiPsjQ6VAkK5X4F1Q/Ca0i4N/86v+Tyo
-         bKopJ2Cdeg2qgcHgkEyHlx/6yEi8F1GmBGC42irHdurgaNQ3RWRT+JbQYk7S6IEI5J
-         dFvxTbpN0yflas+J1cxCJNVqHn3IWN1D+xjxmD50=
+        b=gj5VXeE/cLonRAG/6WopegWBQfw6kA3W6tKpSincKQ5hL4soJ/yjiBsPC5ez8XoXV
+         8Id9oCSDG0HdC1EPQyuUSQ7SoiswNg1Txm3dlvEWu6Lv9cA9aI6QrfRNnsq162xGfr
+         mPvK+IspiSOut3pXXDE0J6QhW1My6LfBG7dR06KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giridhar Malavali <gmalavali@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.1 20/30] scsi: qla2xxx: Set remote port devloss timeout to 0
+        stable@vger.kernel.org, stable@kernel.org,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.0 95/95] arm64: futex: Bound number of LDXR/STXR loops in FUTEX_WAKE_OP
 Date:   Thu,  9 May 2019 20:42:52 +0200
-Message-Id: <20190509181255.266455565@linuxfoundation.org>
+Message-Id: <20190509181315.815947588@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
-References: <20190509181250.417203112@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giridhar Malavali <gmalavali@marvell.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit ffc81fc07efc94a04695a8c1d458a06aecaf9f30 upstream.
+commit 03110a5cb2161690ae5ac04994d47ed0cd6cef75 upstream.
 
-This patch sets remote_port_devloss value to 0. This indicates to FC-NVMe
-transport that driver is unloading and transport should not retry.
+Our futex implementation makes use of LDXR/STXR loops to perform atomic
+updates to user memory from atomic context. This can lead to latency
+problems if we end up spinning around the LL/SC sequence at the expense
+of doing something useful.
 
-Fixes: e476fe8af5ff ("scsi: qla2xxx: Fix unload when NVMe devices are configured")
-Cc: stable@vger.kernel.org
-Signed-off-by: Giridhar Malavali <gmalavali@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Rework our futex atomic operations so that we return -EAGAIN if we fail
+to update the futex word after 128 attempts. The core futex code will
+reschedule if necessary and we'll try again later.
+
+Cc: <stable@kernel.org>
+Fixes: 6170a97460db ("arm64: Atomic operations")
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_nvme.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ arch/arm64/include/asm/futex.h |   55 +++++++++++++++++++++++++----------------
+ 1 file changed, 34 insertions(+), 21 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -615,7 +615,6 @@ static void qla_nvme_unregister_remote_p
- 	struct fc_port *fcport = container_of(work, struct fc_port,
- 	    nvme_del_work);
- 	struct qla_nvme_rport *qla_rport, *trport;
--	scsi_qla_host_t *base_vha;
+--- a/arch/arm64/include/asm/futex.h
++++ b/arch/arm64/include/asm/futex.h
+@@ -23,26 +23,34 @@
  
- 	if (!IS_ENABLED(CONFIG_NVME_FC))
- 		return;
-@@ -623,23 +622,19 @@ static void qla_nvme_unregister_remote_p
- 	ql_log(ql_log_warn, NULL, 0x2112,
- 	    "%s: unregister remoteport on %p\n",__func__, fcport);
+ #include <asm/errno.h>
  
--	base_vha = pci_get_drvdata(fcport->vha->hw->pdev);
--	if (test_bit(PFLG_DRIVER_REMOVING, &base_vha->pci_flags)) {
--		ql_dbg(ql_dbg_disc, fcport->vha, 0x2114,
--		    "%s: Notify FC-NVMe transport, set devloss=0\n",
--		    __func__);
--
--		nvme_fc_set_remoteport_devloss(fcport->nvme_remote_port, 0);
--	}
--
- 	list_for_each_entry_safe(qla_rport, trport,
- 	    &fcport->vha->nvme_rport_list, list) {
- 		if (qla_rport->fcport == fcport) {
- 			ql_log(ql_log_info, fcport->vha, 0x2113,
- 			    "%s: fcport=%p\n", __func__, fcport);
-+			nvme_fc_set_remoteport_devloss
-+				(fcport->nvme_remote_port, 0);
- 			init_completion(&fcport->nvme_del_done);
--			nvme_fc_unregister_remoteport(
--			    fcport->nvme_remote_port);
-+			if (nvme_fc_unregister_remoteport
-+			    (fcport->nvme_remote_port))
-+				ql_log(ql_log_info, fcport->vha, 0x2114,
-+				    "%s: Failed to unregister nvme_remote_port\n",
-+				    __func__);
- 			wait_for_completion(&fcport->nvme_del_done);
- 			break;
- 		}
++#define FUTEX_MAX_LOOPS	128 /* What's the largest number you can think of? */
++
+ #define __futex_atomic_op(insn, ret, oldval, uaddr, tmp, oparg)		\
+ do {									\
++	unsigned int loops = FUTEX_MAX_LOOPS;				\
++									\
+ 	uaccess_enable();						\
+ 	asm volatile(							\
+ "	prfm	pstl1strm, %2\n"					\
+ "1:	ldxr	%w1, %2\n"						\
+ 	insn "\n"							\
+ "2:	stlxr	%w0, %w3, %2\n"						\
+-"	cbnz	%w0, 1b\n"						\
+-"	dmb	ish\n"							\
++"	cbz	%w0, 3f\n"						\
++"	sub	%w4, %w4, %w0\n"					\
++"	cbnz	%w4, 1b\n"						\
++"	mov	%w0, %w7\n"						\
+ "3:\n"									\
++"	dmb	ish\n"							\
+ "	.pushsection .fixup,\"ax\"\n"					\
+ "	.align	2\n"							\
+-"4:	mov	%w0, %w5\n"						\
++"4:	mov	%w0, %w6\n"						\
+ "	b	3b\n"							\
+ "	.popsection\n"							\
+ 	_ASM_EXTABLE(1b, 4b)						\
+ 	_ASM_EXTABLE(2b, 4b)						\
+-	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp)	\
+-	: "r" (oparg), "Ir" (-EFAULT)					\
++	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp),	\
++	  "+r" (loops)							\
++	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
+ 	: "memory");							\
+ 	uaccess_disable();						\
+ } while (0)
+@@ -57,23 +65,23 @@ arch_futex_atomic_op_inuser(int op, int
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+-		__futex_atomic_op("mov	%w3, %w4",
++		__futex_atomic_op("mov	%w3, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ADD:
+-		__futex_atomic_op("add	%w3, %w1, %w4",
++		__futex_atomic_op("add	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_OR:
+-		__futex_atomic_op("orr	%w3, %w1, %w4",
++		__futex_atomic_op("orr	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ANDN:
+-		__futex_atomic_op("and	%w3, %w1, %w4",
++		__futex_atomic_op("and	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, ~oparg);
+ 		break;
+ 	case FUTEX_OP_XOR:
+-		__futex_atomic_op("eor	%w3, %w1, %w4",
++		__futex_atomic_op("eor	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	default:
+@@ -93,6 +101,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 			      u32 oldval, u32 newval)
+ {
+ 	int ret = 0;
++	unsigned int loops = FUTEX_MAX_LOOPS;
+ 	u32 val, tmp;
+ 	u32 __user *uaddr;
+ 
+@@ -104,20 +113,24 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	asm volatile("// futex_atomic_cmpxchg_inatomic\n"
+ "	prfm	pstl1strm, %2\n"
+ "1:	ldxr	%w1, %2\n"
+-"	sub	%w3, %w1, %w4\n"
+-"	cbnz	%w3, 3f\n"
+-"2:	stlxr	%w3, %w5, %2\n"
+-"	cbnz	%w3, 1b\n"
+-"	dmb	ish\n"
++"	sub	%w3, %w1, %w5\n"
++"	cbnz	%w3, 4f\n"
++"2:	stlxr	%w3, %w6, %2\n"
++"	cbz	%w3, 3f\n"
++"	sub	%w4, %w4, %w3\n"
++"	cbnz	%w4, 1b\n"
++"	mov	%w0, %w8\n"
+ "3:\n"
++"	dmb	ish\n"
++"4:\n"
+ "	.pushsection .fixup,\"ax\"\n"
+-"4:	mov	%w0, %w6\n"
+-"	b	3b\n"
++"5:	mov	%w0, %w7\n"
++"	b	4b\n"
+ "	.popsection\n"
+-	_ASM_EXTABLE(1b, 4b)
+-	_ASM_EXTABLE(2b, 4b)
+-	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp)
+-	: "r" (oldval), "r" (newval), "Ir" (-EFAULT)
++	_ASM_EXTABLE(1b, 5b)
++	_ASM_EXTABLE(2b, 5b)
++	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
++	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
+ 	: "memory");
+ 	uaccess_disable();
+ 
 
 
