@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 310E519214
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDEA191DC
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727417AbfEITDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42172 "EHLO mail.kernel.org"
+        id S1728447AbfEISut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:50:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728123AbfEISs6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:48:58 -0400
+        id S1727068AbfEISus (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1622217D7;
-        Thu,  9 May 2019 18:48:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C455F20578;
+        Thu,  9 May 2019 18:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427737;
-        bh=tn/Owjpp3Jru80bpgmicmEK6vh4fN5P+SJ+VHX4bfv8=;
+        s=default; t=1557427848;
+        bh=DRhEhGyYWBssR7wYLehVy2xwuilR7RyWyiKA0TLdZbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUaWfVhutvxrMAc0KOYPDIcgmx/4tFsT5UqubDLeF108EG7ZAxUcZVJhu492Cc/5x
-         E0+w4yqXNqkg0umIHiAj4onJKg4+15emqBuwBH/Sx8CjkLVOQdDPg/jAI/on/cnSg8
-         ncn4hloQofF+2OB0cxuPpt4xSIIJmoox1mDOP7xc=
+        b=A5lHAxWqKfELNFuoEwIB4BkoGDzVYT3wlgLNnQMVymcqUln0MXBEqe4xyCMBpARIx
+         YhNP+5rkdCh1dMETK8N3gDMROGx11EJEkKqPgY55HzpDJDrorGxxe9gMYuX+3+IzLb
+         aNxxZyuhNhxG82fM2uTJJK+CuHs5bGr6B/W6eQOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Jyri Sarha <jsarha@ti.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/66] ASoC: hdmi-codec: fix S/PDIF DAI
+Subject: [PATCH 5.0 26/95] ASoC: stm32: dfsdm: fix debugfs warnings on entry creation
 Date:   Thu,  9 May 2019 20:41:43 +0200
-Message-Id: <20190509181302.758132382@linuxfoundation.org>
+Message-Id: <20190509181311.153520435@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,174 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e95f984aae4cf0608d0ba2189c756f2bd50b44a ]
+[ Upstream commit c47255b61129857b74b0d86eaf59335348be05e0 ]
 
-When using the S/PDIF DAI, there is no requirement to call
-snd_soc_dai_set_fmt() as there is no DAI format definition that defines
-S/PDIF.  In any case, S/PDIF does not have separate clocks, this is
-embedded into the data stream.
+Register platform component with a prefix, to avoid warnings
+on debugfs entries creation, due to component name
+redundancy.
 
-Consequently, when attempting to use TDA998x in S/PDIF mode, the attempt
-to configure TDA998x via the hw_params callback fails as the
-hdmi_codec_daifmt is left initialised to zero.
-
-Since the S/PDIF DAI will only be used by S/PDIF, prepare the
-hdmi_codec_daifmt structure for this format.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Jyri Sarha <jsarha@ti.com>
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdmi-codec.c | 118 +++++++++++++++++-----------------
- 1 file changed, 59 insertions(+), 59 deletions(-)
+ sound/soc/stm/stm32_adfsdm.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
-index e5b6769b97977..d5f73c8372817 100644
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -529,73 +529,71 @@ static int hdmi_codec_set_fmt(struct snd_soc_dai *dai,
+diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
+index 71d341b732a4d..24948b95eb19f 100644
+--- a/sound/soc/stm/stm32_adfsdm.c
++++ b/sound/soc/stm/stm32_adfsdm.c
+@@ -304,6 +304,7 @@ MODULE_DEVICE_TABLE(of, stm32_adfsdm_of_match);
+ static int stm32_adfsdm_probe(struct platform_device *pdev)
  {
- 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
- 	struct hdmi_codec_daifmt cf = { 0 };
--	int ret = 0;
+ 	struct stm32_adfsdm_priv *priv;
++	struct snd_soc_component *component;
+ 	int ret;
  
- 	dev_dbg(dai->dev, "%s()\n", __func__);
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+@@ -331,9 +332,15 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->iio_cb))
+ 		return PTR_ERR(priv->iio_cb);
  
--	if (dai->id == DAI_ID_SPDIF) {
--		cf.fmt = HDMI_SPDIF;
--	} else {
--		switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
--		case SND_SOC_DAIFMT_CBM_CFM:
--			cf.bit_clk_master = 1;
--			cf.frame_clk_master = 1;
--			break;
--		case SND_SOC_DAIFMT_CBS_CFM:
--			cf.frame_clk_master = 1;
--			break;
--		case SND_SOC_DAIFMT_CBM_CFS:
--			cf.bit_clk_master = 1;
--			break;
--		case SND_SOC_DAIFMT_CBS_CFS:
--			break;
--		default:
--			return -EINVAL;
--		}
-+	if (dai->id == DAI_ID_SPDIF)
-+		return 0;
+-	ret = devm_snd_soc_register_component(&pdev->dev,
+-					      &stm32_adfsdm_soc_platform,
+-					      NULL, 0);
++	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
++	if (!component)
++		return -ENOMEM;
++#ifdef CONFIG_DEBUG_FS
++	component->debugfs_prefix = "pcm";
++#endif
 +
-+	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
-+	case SND_SOC_DAIFMT_CBM_CFM:
-+		cf.bit_clk_master = 1;
-+		cf.frame_clk_master = 1;
-+		break;
-+	case SND_SOC_DAIFMT_CBS_CFM:
-+		cf.frame_clk_master = 1;
-+		break;
-+	case SND_SOC_DAIFMT_CBM_CFS:
-+		cf.bit_clk_master = 1;
-+		break;
-+	case SND_SOC_DAIFMT_CBS_CFS:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 
--		switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
--		case SND_SOC_DAIFMT_NB_NF:
--			break;
--		case SND_SOC_DAIFMT_NB_IF:
--			cf.frame_clk_inv = 1;
--			break;
--		case SND_SOC_DAIFMT_IB_NF:
--			cf.bit_clk_inv = 1;
--			break;
--		case SND_SOC_DAIFMT_IB_IF:
--			cf.frame_clk_inv = 1;
--			cf.bit_clk_inv = 1;
--			break;
--		}
-+	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
-+	case SND_SOC_DAIFMT_NB_NF:
-+		break;
-+	case SND_SOC_DAIFMT_NB_IF:
-+		cf.frame_clk_inv = 1;
-+		break;
-+	case SND_SOC_DAIFMT_IB_NF:
-+		cf.bit_clk_inv = 1;
-+		break;
-+	case SND_SOC_DAIFMT_IB_IF:
-+		cf.frame_clk_inv = 1;
-+		cf.bit_clk_inv = 1;
-+		break;
-+	}
- 
--		switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
--		case SND_SOC_DAIFMT_I2S:
--			cf.fmt = HDMI_I2S;
--			break;
--		case SND_SOC_DAIFMT_DSP_A:
--			cf.fmt = HDMI_DSP_A;
--			break;
--		case SND_SOC_DAIFMT_DSP_B:
--			cf.fmt = HDMI_DSP_B;
--			break;
--		case SND_SOC_DAIFMT_RIGHT_J:
--			cf.fmt = HDMI_RIGHT_J;
--			break;
--		case SND_SOC_DAIFMT_LEFT_J:
--			cf.fmt = HDMI_LEFT_J;
--			break;
--		case SND_SOC_DAIFMT_AC97:
--			cf.fmt = HDMI_AC97;
--			break;
--		default:
--			dev_err(dai->dev, "Invalid DAI interface format\n");
--			return -EINVAL;
--		}
-+	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
-+	case SND_SOC_DAIFMT_I2S:
-+		cf.fmt = HDMI_I2S;
-+		break;
-+	case SND_SOC_DAIFMT_DSP_A:
-+		cf.fmt = HDMI_DSP_A;
-+		break;
-+	case SND_SOC_DAIFMT_DSP_B:
-+		cf.fmt = HDMI_DSP_B;
-+		break;
-+	case SND_SOC_DAIFMT_RIGHT_J:
-+		cf.fmt = HDMI_RIGHT_J;
-+		break;
-+	case SND_SOC_DAIFMT_LEFT_J:
-+		cf.fmt = HDMI_LEFT_J;
-+		break;
-+	case SND_SOC_DAIFMT_AC97:
-+		cf.fmt = HDMI_AC97;
-+		break;
-+	default:
-+		dev_err(dai->dev, "Invalid DAI interface format\n");
-+		return -EINVAL;
- 	}
- 
- 	hcp->daifmt[dai->id] = cf;
- 
--	return ret;
-+	return 0;
++	ret = snd_soc_add_component(&pdev->dev, component,
++				    &stm32_adfsdm_soc_platform, NULL, 0);
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "%s: Failed to register PCM platform\n",
+ 			__func__);
+@@ -341,12 +348,20 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
+ 	return ret;
  }
  
- static int hdmi_codec_digital_mute(struct snd_soc_dai *dai, int mute)
-@@ -792,8 +790,10 @@ static int hdmi_codec_probe(struct platform_device *pdev)
- 		i++;
- 	}
++static int stm32_adfsdm_remove(struct platform_device *pdev)
++{
++	snd_soc_unregister_component(&pdev->dev);
++
++	return 0;
++}
++
+ static struct platform_driver stm32_adfsdm_driver = {
+ 	.driver = {
+ 		   .name = STM32_ADFSDM_DRV_NAME,
+ 		   .of_match_table = stm32_adfsdm_of_match,
+ 		   },
+ 	.probe = stm32_adfsdm_probe,
++	.remove = stm32_adfsdm_remove,
+ };
  
--	if (hcd->spdif)
-+	if (hcd->spdif) {
- 		hcp->daidrv[i] = hdmi_spdif_dai;
-+		hcp->daifmt[DAI_ID_SPDIF].fmt = HDMI_SPDIF;
-+	}
- 
- 	dev_set_drvdata(dev, hcp);
- 
+ module_platform_driver(stm32_adfsdm_driver);
 -- 
 2.20.1
 
