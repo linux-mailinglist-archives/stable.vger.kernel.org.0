@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ACE318B62
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 16:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D09818B57
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 16:13:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbfEIONz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 10:13:55 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46910 "EHLO
+        id S1726758AbfEIONL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 10:13:11 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46932 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726682AbfEIONK (ORCPT
+        by vger.kernel.org with ESMTP id S1726687AbfEIONK (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 10:13:10 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hOjnI-000126-Hb; Thu, 09 May 2019 15:13:08 +0100
+        id 1hOjnI-000125-H0; Thu, 09 May 2019 15:13:08 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hOjnI-0006MA-Ca; Thu, 09 May 2019 15:13:08 +0100
+        id 1hOjnI-0006M5-Bm; Thu, 09 May 2019 15:13:08 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
+CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Geert Uytterhoeven" <geert@linux-m68k.org>,
+        "Mark Brown" <broonie@linaro.org>,
+        "Nick Krause" <xerofoiffy@gmail.com>
 Date:   Thu, 09 May 2019 15:08:17 +0100
-Message-ID: <lsq.1557410897.455940790@decadent.org.uk>
+Message-ID: <lsq.1557410897.75263673@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 05/10] vxlan: Fix big-endian declaration of VNI
+Subject: [PATCH 3.16 04/10] spi: omap-100k: Remove unused definitions
 In-Reply-To: <lsq.1557410896.171359878@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -44,26 +47,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Nick Krause <xerofoiffy@gmail.com>
 
-In this version of the driver, VNIs are consistently kept in host
-order.  However vxlan_fdb_create() erroneously declares its vni
-parameter as __be32, which sparse warns about.  Change it to __u32.
+commit 9f5b8b4f56dd194fd33021810636879036d2acdd upstream.
 
-This was resolved upstream by commit 54bfd872bf16 "vxlan: keep flags
-and vni in network byte order".
+Remove unused definition which cause the following warnings
 
+drivers/spi/spi-omap-100k.c:73:0: warning: "WRITE" redefined [enabled by default]
+include/linux/fs.h:193:0: note: this is the location of the previous definition
+drivers/spi/spi-omap-100k.c:74:0: warning: "READ" redefined [enabled by default]
+include/linux/fs.h:192:0: note: this is the location of the previous definition
+
+Signed-off-by: Nick Krause <xerofoiffy@gmail.com>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Mark Brown <broonie@linaro.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -706,7 +706,7 @@ static struct vxlan_fdb *vxlan_fdb_alloc
- static int vxlan_fdb_create(struct vxlan_dev *vxlan,
- 			    const u8 *mac, union vxlan_addr *ip,
- 			    __u16 state, __be16 port,
--			    __be32 vni, __u32 ifindex, __u8 ndm_flags,
-+			    __u32 vni, __u32 ifindex, __u8 ndm_flags,
- 			    struct vxlan_fdb **fdb)
- {
- 	struct vxlan_rdst *rd = NULL;
+ drivers/spi/spi-omap-100k.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+--- a/drivers/spi/spi-omap-100k.c
++++ b/drivers/spi/spi-omap-100k.c
+@@ -70,10 +70,6 @@
+ #define SPI_STATUS_WE                   (1UL << 1)
+ #define SPI_STATUS_RD                   (1UL << 0)
+ 
+-#define WRITE 0
+-#define READ  1
+-
+-
+ /* use PIO for small transfers, avoiding DMA setup/teardown overhead and
+  * cache operations; better heuristics consider wordsize and bitrate.
+  */
 
