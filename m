@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 372E618981
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 14:11:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF24B18983
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 14:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726469AbfEIMLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 08:11:35 -0400
-Received: from mail-ot1-f47.google.com ([209.85.210.47]:46788 "EHLO
-        mail-ot1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbfEIMLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 08:11:35 -0400
-Received: by mail-ot1-f47.google.com with SMTP id v17so2001660otp.13
-        for <stable@vger.kernel.org>; Thu, 09 May 2019 05:11:34 -0700 (PDT)
+        id S1726449AbfEIMM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 08:12:58 -0400
+Received: from mail-oi1-f173.google.com ([209.85.167.173]:38096 "EHLO
+        mail-oi1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726141AbfEIMM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 08:12:57 -0400
+Received: by mail-oi1-f173.google.com with SMTP id u199so1703669oie.5
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 05:12:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=aKpWiBOaje2WtKyNHqzQdrI6vMoBcSMjEijFdUQ+0Sg=;
-        b=ZvOYHAStkia5T9qtAc4KLyWFMzP/aZrCNWDG+SU7ALtouvEjNZx38WjoLj8m1bhNec
-         4lb0T6eV79cGMNgYTamnRg6HXiUec21DB+1NCrvyeFlEJ3KAekoqMBTjC8J/eUvzOf91
-         3/VtGnPbllxAvvrYVbQoIHapEpLWxa5z7SPa/zx4gBW6VjpvVBjBY9LqGsPkLLTlUAaV
-         MBXabhyvOOeESRyBIBKYNtzKpYoPD+uOcG1ZREQXMD+VvmoEwgk0I+o1XGXUM8XouJZe
-         YKev0Yo9pJfMMXr7Zm8XXsJarozYM7aVhZILb+LpCLutqG5jhD4UdPZLmXwZYuY2jQUA
-         K10w==
-X-Gm-Message-State: APjAAAXypVOhszj5RIU2TJxr/wasaKzGN91wX6c7B/zd4H6i+y41jifP
-        fFRj0XezpcSOYFDgu+jIPHzQUsDZ4OI=
-X-Google-Smtp-Source: APXvYqwmKvMuMhmAPXPIBITpNQ+7U09VNaHy1iEj6zO1V5W44pGJ8UnmewSwj5w+Zl0hkQa7zOLc4g==
-X-Received: by 2002:a9d:1428:: with SMTP id h37mr2121721oth.248.1557403894032;
-        Thu, 09 May 2019 05:11:34 -0700 (PDT)
+        bh=NWaQHtIPM9/6yqmfLJjmGFvkuw7g7dNirpeYyV87cQE=;
+        b=Ai5Norkdhri14VcBbtJDU2l+H/2zyu7vdEyhFUU6+1qlUb/RsO3qSzjAtwXq9MwLHm
+         gzuwad++0LxcRfs/HCJIl+ECVZyNtlgDju60NTjs+eH2XyyA8dK4j0a1M9Whv+mWkPH7
+         uwCK5uyq5xXu0TtiQ54R05cB/+xeP0L0GfvwvMVVqydyqxyWoqjn2oLxlnU3sbDIvPi9
+         2sXP7XM0L6HgJTydQUnO7yAxXTtmnyzuKdwPd2Spl7IjPa3QUdq8NuvHOUEjmmYCFQRY
+         K1mEMIsd3GE9V/pXDWidFY8UIBj76TrV/tHGcNz6qpllALMfrqLSjt5rZhlF2gsBbm4z
+         RPzQ==
+X-Gm-Message-State: APjAAAWf8MJtEiHCRTzWGlcvGPScPwSOgfiPleo93rtoZ4YczyixmbGT
+        hXLrASFnUSQuIoLtas8TjevTXUU+zUQ=
+X-Google-Smtp-Source: APXvYqwyz16n6EIY1GH9Zs0Hiw+0BAZl6Qh/emdFVe4XpOj3qsHdXD7nMKczqiYiFJBqokbe83XY/w==
+X-Received: by 2002:aca:309:: with SMTP id 9mr1275766oid.94.1557403976496;
+        Thu, 09 May 2019 05:12:56 -0700 (PDT)
 Received: from [192.168.10.164] (cpe-24-243-36-151.satx.res.rr.com. [24.243.36.151])
-        by smtp.gmail.com with ESMTPSA id y9sm721323otk.20.2019.05.09.05.11.33
+        by smtp.gmail.com with ESMTPSA id r15sm37774oic.23.2019.05.09.05.12.55
         (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 May 2019 05:11:33 -0700 (PDT)
+        Thu, 09 May 2019 05:12:55 -0700 (PDT)
 Subject: =?UTF-8?Q?Re=3a_=e2=9c=85_PASS=3a_Test_report_for_kernel_4=2e19=2e4?=
- =?UTF-8?Q?1-3b27f7b=2ecki_=28stable=29?=
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        CKI Project <cki-project@redhat.com>
+ =?UTF-8?Q?1-rc1-721c545=2ecki_=28stable=29?=
+To:     Greg KH <greg@kroah.com>, CKI Project <cki-project@redhat.com>
 Cc:     Linux Stable maillist <stable@vger.kernel.org>
-References: <cki.1028419619.B2683TGTB9@redhat.com>
- <20190509114658.GA666@kroah.com>
+References: <cki.D9C3C37075.4ZHPVBFDGL@redhat.com>
+ <20190509065118.GB3255@kroah.com>
 From:   Major Hayden <major@redhat.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=major@redhat.com; prefer-encrypt=mutual; keydata=
@@ -85,12 +84,12 @@ Autocrypt: addr=major@redhat.com; prefer-encrypt=mutual; keydata=
  e2s395+Pj8ROBak+QNjQ7XHJvGYWkpfi5inUVtYC2IQ3Pe0U7mIKGvB+73N6BxVaVgbFIKMz
  LPZBkAja0BUdBqD2L/VubSxf+Zu+F1azwDDpw1xvmQ2UpM4OzXkLlVromiZjEUP6BdhP1Q6u
  BEEub1tT1RvyUxlFZsc9b51KHic/nMUqldFTxxCUvfe1aGqvfkWRgZsKViZ6Nt/x9faLQdT4 UNdR
-Message-ID: <08c0bce8-342c-50fa-9de7-94c829a54fb8@redhat.com>
-Date:   Thu, 9 May 2019 07:11:32 -0500
+Message-ID: <2e54d4c4-362d-bf66-6c03-e81acfae5ad0@redhat.com>
+Date:   Thu, 9 May 2019 07:12:55 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <20190509114658.GA666@kroah.com>
+In-Reply-To: <20190509065118.GB3255@kroah.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -99,10 +98,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/9/19 6:46 AM, Greg KH wrote:
-> You are not merging from the stable-queue any patches fro 4.19?
+On 5/9/19 1:51 AM, Greg KH wrote:
+> Here you are testing the linux-stable-rc.git tree, not the
+> linux-stable.git tree, like you do for the 5.0 queue.
+> 
+> Any reason why?
 
-I have that "queued" up for this morning. :)
+We're doing two types of tests right now on stable:
+
+  1) Tests against -rc releases that appear in linux-stable-rc
+  2) Tests against stable-queue patch lists (we apply them to the latest release in linux-stable)
+
+Should we adjust our testing approach?
 
 --
 Major Hayden
