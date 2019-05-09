@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 546B4191FC
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F9A19118
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728314AbfEIStv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
+        id S1726921AbfEISxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:53:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbfEIStv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:51 -0400
+        id S1728325AbfEISw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:52:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 060102182B;
-        Thu,  9 May 2019 18:49:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77142217D6;
+        Thu,  9 May 2019 18:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427790;
-        bh=e2WdOTtq1cWTYrUoe5cbqsxZTqaCYyB9YdErXWv3ZzU=;
+        s=default; t=1557427979;
+        bh=IDw46fZYrf8Ouu1BoNhchZFD0deoikTUfU2RsJt3vcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6HdvjDg5KNDWtH23AjboUBlwte7V3ygFHS3ihMyXA0wTUsZ/P3ZUjPqTo7N6Abin
-         MMxfY+1EER6vyuARRcdxFcyU4ApdfWrv4QkUxdnMR8fA+stTniG/A8h8IFpFhIc0Vx
-         bsgyjSdgYwlTodK1Z2yxDXO90FS2LczQzGjIysHs=
+        b=NPPAs9n4Lu80ttjonFcqYLScaJsBh9HWwHw0sgvNG5GX8P0NWn9boSm6Rc7oL2jIo
+         g8boIVA9r6E9Y+W8eMkhA7EIfFhc42kNdi+x+JiByB+ekGgnpCvybcUKN688yORJnI
+         9MNpfuHrAUbTzYhGIDP7jlwJjA3Yx9z5fcqwNefA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 4.19 51/66] usb: dwc3: Fix default lpm_nyet_threshold value
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 69/95] platform/x86: pmc_atom: Drop __initconst on dmi table
 Date:   Thu,  9 May 2019 20:42:26 +0200
-Message-Id: <20190509181307.014979807@linuxfoundation.org>
+Message-Id: <20190509181314.280484929@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+[ Upstream commit b995dcca7cf12f208cfd95fd9d5768dca7cccec7 ]
 
-commit 8d791929b2fbdf7734c1596d808e55cb457f4562 upstream.
+It's used by probe and that isn't an init function. Drop this so that we
+don't get a section mismatch.
 
-The max possible value for DCTL.LPM_NYET_THRES is 15 and not 255. Change
-the default value to 15.
-
-Cc: stable@vger.kernel.org
-Fixes: 80caf7d21adc ("usb: dwc3: add lpm erratum support")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: David Müller <dave.mueller@gmx.ch>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: 7c2e07130090 ("clk: x86: Add system specific quirk to mark clocks as critical")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c |    2 +-
+ drivers/platform/x86/pmc_atom.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1214,7 +1214,7 @@ static void dwc3_get_properties(struct d
- 	u8			tx_max_burst_prd;
- 
- 	/* default to highest possible threshold */
--	lpm_nyet_threshold = 0xff;
-+	lpm_nyet_threshold = 0xf;
- 
- 	/* default to -3.5dB de-emphasis */
- 	tx_de_emphasis = 1;
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index eaec2d306481c..c7039f52ad518 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -396,7 +396,7 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
+  * Some systems need one or more of their pmc_plt_clks to be
+  * marked as critical.
+  */
+-static const struct dmi_system_id critclk_systems[] __initconst = {
++static const struct dmi_system_id critclk_systems[] = {
+ 	{
+ 		.ident = "MPL CEC1x",
+ 		.matches = {
+-- 
+2.20.1
+
 
 
