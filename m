@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3792191FB
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB0D1924D
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727619AbfEIStt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
+        id S1727250AbfEISqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbfEISts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:48 -0400
+        id S1727686AbfEISqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C837217F9;
-        Thu,  9 May 2019 18:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFF59217F5;
+        Thu,  9 May 2019 18:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427787;
-        bh=zEkpSKpNxQ9eAA+mpyxf27JasOOiBzYr8WawKE5QZOU=;
+        s=default; t=1557427613;
+        bh=hEuToZTYTh+72tR79gRIV7bx32NRmE1y/XhSGpfYvRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUIDpJqlRDCd/dOiRIWP0/NPpcyvPgvIw79YfFGiL9qAFE+firaNrn+Yurjohivyg
-         xsaGe5DhmuKIid7JrAU8KsRTFe3oormP0TG9z2IB0RGQBrIz3VEgJyn+9h9oU0XONe
-         sO0+LVrQtyTQJyI+5aJ68zjrJty3wND2+1iqbmqE=
+        b=Td7+aMHwcGJwL1wasXIqtNhgVB2VdI6x9Vit7XpmsG+24KSu+BOU37aY+Z7r+azFU
+         ZDdBMuyUkfwADE1FxAT/JBu7iT7CVTnHObEEQxDRnH7YQvfcRWo7Vj9CwSD0BxyxDc
+         VKBY1oFmJ92zb9DXjHQz3oCkuwFjaW/pE1w58znc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>, marc.zyngier@arm.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/66] genirq: Prevent use-after-free and work list corruption
+        stable@vger.kernel.org, Andrew Vasquez <andrewv@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 36/42] scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS routines
 Date:   Thu,  9 May 2019 20:42:25 +0200
-Message-Id: <20190509181306.946889313@linuxfoundation.org>
+Message-Id: <20190509181259.749442448@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 59c39840f5abf4a71e1810a8da71aaccd6c17d26 ]
+From: Andrew Vasquez <andrewv@marvell.com>
 
-When irq_set_affinity_notifier() replaces the notifier, then the
-reference count on the old notifier is dropped which causes it to be
-freed. But nothing ensures that the old notifier is not longer queued
-in the work list. If it is queued this results in a use after free and
-possibly in work list corruption.
+commit 5cbdae10bf11f96e30b4d14de7b08c8b490e903c upstream.
 
-Ensure that the work is canceled before the reference is dropped.
+Commit e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs
+code") incorrectly set 'optrom_region_size' to 'start+size', which can
+overflow option-rom boundaries when 'start' is non-zero.  Continue setting
+optrom_region_size to the proper adjusted value of 'size'.
 
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: marc.zyngier@arm.com
-Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrew Vasquez <andrewv@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/irq/manage.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_attr.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 5c0ba5ca59308..cd4f9f3e8345c 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -356,8 +356,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
- 	desc->affinity_notify = notify;
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -345,7 +345,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
+ 		}
  
--	if (old_notify)
-+	if (old_notify) {
-+		cancel_work_sync(&old_notify->work);
- 		kref_put(&old_notify->kref, old_notify->release);
-+	}
+ 		ha->optrom_region_start = start;
+-		ha->optrom_region_size = start + size;
++		ha->optrom_region_size = size;
  
- 	return 0;
- }
--- 
-2.20.1
-
+ 		ha->optrom_state = QLA_SREADING;
+ 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+@@ -418,7 +418,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
+ 		}
+ 
+ 		ha->optrom_region_start = start;
+-		ha->optrom_region_size = start + size;
++		ha->optrom_region_size = size;
+ 
+ 		ha->optrom_state = QLA_SWRITING;
+ 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
 
 
