@@ -2,105 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C33186CD
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 10:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4B4186D9
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 10:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726084AbfEIIbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 04:31:17 -0400
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:35474 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725991AbfEIIbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 04:31:17 -0400
-Received: by mail-wm1-f46.google.com with SMTP id y197so2005379wmd.0;
-        Thu, 09 May 2019 01:31:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=FzWOYssN0isWIIe9zGhm6nETA9v2GV7Jir7OO9+o9Vw=;
-        b=E2kz1FMl83tN2ABjW1mJurOeaAAcQShe1pSdN0kxvumUhNTI+TqC+JXIZb1PePIKJJ
-         ysk3UkyIsJU1IyF0QX1bzY9ls8u7jx8KohqfGd2WpkooA64l95qf7m/i1PXKKqW34KQF
-         NNcpCM/IAQlJ5s4gyXGZ9cMqAAd7CUf1vozzxU8QOI5PMk0lgpQQKZzWT1hz9HGssOvu
-         uKSWLGBKVYuEifUSTdaTScT7ZUK/rBVNeKSLxaCEgLJEzr+DuN5HYR3Wm+13avez/Z+N
-         IK5ls6J3TdDfsYGUe0WoryVlVbiG8KYRYsN6OokIHADtlhOTcp6Zf1M8DSc7jpHqbyfy
-         gN6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=FzWOYssN0isWIIe9zGhm6nETA9v2GV7Jir7OO9+o9Vw=;
-        b=G+mHqoPaVIkhLpPYUKiUYAKh25vWzs3c/hGMLe/oXBgglU+XeLIymYF7f1KyU/6Woh
-         0wEgVrg8w5HHxUPOoa8dlzIh8WYC9zCgei61craZbdyrADQ93RcmcXCBoyNRgHdjc1OI
-         xB6vOSPk7s3F1hniqHtVZ8s1IT2T4YoSS86a0VjltW19gaa+rqSUoigYyQCspuZJcbaO
-         9385zNfnyGTSxNMmDxzC6oxbB41QxgIn/ajv91+LnqrMBcNT97x4fYM7JkQ4R1mii+f0
-         SlJEhEJkeD3v6z94GhRlitl2JHB7iOuid/fIIIrucCNQjtdnVP26BRcZGcWmTsaS1Kdn
-         Bm7Q==
-X-Gm-Message-State: APjAAAV8yQogelD4Is27GaBtbd2k8jcIsWAguwnsQjOWXK84TxjeXaCP
-        EAEWPrW0IqZTVYL3bBePAyUwz7oL
-X-Google-Smtp-Source: APXvYqwbP80+SsW7YO75fRTZDEwGG81tyowfGAEzJg/Pgbxk1mNQT7/K4RNdohJEwe6Atj6WEY8WAQ==
-X-Received: by 2002:a7b:c309:: with SMTP id k9mr1995617wmj.45.1557390675018;
-        Thu, 09 May 2019 01:31:15 -0700 (PDT)
-Received: from gmail.com (2E8B0CD5.catv.pool.telekom.hu. [46.139.12.213])
-        by smtp.gmail.com with ESMTPSA id x17sm1474400wru.27.2019.05.09.01.31.13
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 09 May 2019 01:31:14 -0700 (PDT)
-Date:   Thu, 9 May 2019 10:31:11 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Dave Hansen <dave.hansen@linux.intel.com>
-Cc:     linux-kernel@vger.kernel.org, rguenther@suse.de,
-        hjl.tools@gmail.com, yang.shi@linux.alibaba.com, mhocko@suse.com,
-        vbabka@suse.cz, luto@amacapital.net, x86@kernel.org,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-um@lists.infradead.org, benh@kernel.crashing.org,
-        paulus@samba.org, mpe@ellerman.id.au, linux-arch@vger.kernel.org,
-        gxt@pku.edu.cn, jdike@addtoit.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com
-Subject: Re: [PATCH] [v2] x86/mpx: fix recursive munmap() corruption
-Message-ID: <20190509083111.GA75918@gmail.com>
-References: <20190419194747.5E1AD6DC@viggo.jf.intel.com>
+        id S1725991AbfEIIf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 04:35:59 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42019 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725869AbfEIIf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 04:35:59 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id E35D622136;
+        Thu,  9 May 2019 04:35:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 09 May 2019 04:35:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yLRyiX
+        ojwolD9JIM85FzvCEUOC4cEI63FjhOi7RuDkU=; b=zVOpRhHvmig7YDtTM0H15R
+        KsyPDrf4sd2CNHQITzj6+h5AKSpgkrcf9+Fd8853XkqiS0duejeWLrkbulnLVHQX
+        1686PIEj1IyvqXqOr8Tuvymo2ANpzcaSMxxnqjEKngtqbdFmLsDNsN2OrZPVo54m
+        Fni+1nvdSSvyIB3guPdr1KII1Qbc00Vavejb2AEaj6gREIlOFz51zrVSw0ddj1Xg
+        MHz9lTXxPlzm9Zcg3ecqFmbDtUw/Z1MJtg8DNnf/WTY3JPlh/Yxtx6IwD4oJVpl/
+        WHGSoyynTYSExjmOj35dR599A+CWXcZ1yeotBLba3CSTH1h87FM73Vq85MFLQONw
+        ==
+X-ME-Sender: <xms:bebTXPgqW2iHPM7LklleGez80DooaTfPESz3Kf_9i4Zf-fr6m5iQKw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeehgddtiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:bebTXFMlvVNkRFcIQBFmgU2eTZlJ448ji130CW-87eL7UhrtYp0BSQ>
+    <xmx:bebTXJNXQ_fqNQ_nrYPmUFLDZj6efU216EN-AZ5D7ty41kfJr05WYQ>
+    <xmx:bebTXNKuATsiZJZDx8Hl1W7Y00mmc1NLlMPgMs9fGekwqRc7s6xj3g>
+    <xmx:bebTXNrmCMFET2v-J3hwxg-D0A1WvWnyYI3L4_MWhSzPxo56fJ2PFw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D580B1037C;
+        Thu,  9 May 2019 04:35:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] USB: serial: f81232: fix interrupt worker not stop" failed to apply to 4.4-stable tree
+To:     hpeter@gmail.com, hpeter+linux_kernel@gmail.com, johan@kernel.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 09 May 2019 10:35:55 +0200
+Message-ID: <155739095567236@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190419194747.5E1AD6DC@viggo.jf.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-* Dave Hansen <dave.hansen@linux.intel.com> wrote:
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> Reported-by: Richard Biener <rguenther@suse.de>
-> Reported-by: H.J. Lu <hjl.tools@gmail.com>
-> Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-> Cc: Yang Shi <yang.shi@linux.alibaba.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Andy Lutomirski <luto@amacapital.net>
-> Cc: x86@kernel.org
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> Cc: stable@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-um@lists.infradead.org
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linux-arch@vger.kernel.org
-> Cc: Guan Xuetao <gxt@pku.edu.cn>
-> Cc: Jeff Dike <jdike@addtoit.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+thanks,
 
-I've also added your:
+greg k-h
 
-  Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+------------------ original commit in Linus's tree ------------------
 
-Because I suppose you intended to sign off on it?
+From 804dbee1e49774918339c1e5a87400988c0819e8 Mon Sep 17 00:00:00 2001
+From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
+Date: Tue, 30 Apr 2019 09:22:29 +0800
+Subject: [PATCH] USB: serial: f81232: fix interrupt worker not stop
 
-Thanks,
+The F81232 will use interrupt worker to handle MSR change.
+This patch will fix the issue that interrupt work should stop
+in close() and suspend().
 
-	Ingo
+This also fixes line-status events being disabled after a suspend cycle
+until the port is re-opened.
+
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+[ johan: amend commit message ]
+Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
+Cc: stable <stable@vger.kernel.org>	# 4.1
+Signed-off-by: Johan Hovold <johan@kernel.org>
+
+diff --git a/drivers/usb/serial/f81232.c b/drivers/usb/serial/f81232.c
+index 0dcdcb4b2cde..dee6f2caf9b5 100644
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -556,9 +556,12 @@ static int f81232_open(struct tty_struct *tty, struct usb_serial_port *port)
+ 
+ static void f81232_close(struct usb_serial_port *port)
+ {
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++
+ 	f81232_port_disable(port);
+ 	usb_serial_generic_close(port);
+ 	usb_kill_urb(port->interrupt_in_urb);
++	flush_work(&port_priv->interrupt_work);
+ }
+ 
+ static void f81232_dtr_rts(struct usb_serial_port *port, int on)
+@@ -632,6 +635,40 @@ static int f81232_port_remove(struct usb_serial_port *port)
+ 	return 0;
+ }
+ 
++static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
++{
++	struct usb_serial_port *port = serial->port[0];
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
++		usb_kill_urb(port->read_urbs[i]);
++
++	usb_kill_urb(port->interrupt_in_urb);
++
++	if (port_priv)
++		flush_work(&port_priv->interrupt_work);
++
++	return 0;
++}
++
++static int f81232_resume(struct usb_serial *serial)
++{
++	struct usb_serial_port *port = serial->port[0];
++	int result;
++
++	if (tty_port_initialized(&port->port)) {
++		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
++		if (result) {
++			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
++					result);
++			return result;
++		}
++	}
++
++	return usb_serial_generic_resume(serial);
++}
++
+ static struct usb_serial_driver f81232_device = {
+ 	.driver = {
+ 		.owner =	THIS_MODULE,
+@@ -655,6 +692,8 @@ static struct usb_serial_driver f81232_device = {
+ 	.read_int_callback =	f81232_read_int_callback,
+ 	.port_probe =		f81232_port_probe,
+ 	.port_remove =		f81232_port_remove,
++	.suspend =		f81232_suspend,
++	.resume =		f81232_resume,
+ };
+ 
+ static struct usb_serial_driver * const serial_drivers[] = {
+
