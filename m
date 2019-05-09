@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8925B1926A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F360E1928A
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:08:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727495AbfEISqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38246 "EHLO mail.kernel.org"
+        id S1727188AbfEISo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727488AbfEISqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:46:03 -0400
+        id S1727198AbfEISo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:44:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DC192184C;
-        Thu,  9 May 2019 18:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94753217F5;
+        Thu,  9 May 2019 18:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427563;
-        bh=yC0K1TXT1Dg+h2IWUIu97lPsdjlyrA3kg/UjzugIvig=;
+        s=default; t=1557427497;
+        bh=jLuUJzS93NiFBMI63O+Gx7/+lKHwhvNKMTtWX26LwmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYQzVxxRnUGQMX9Jmpzkc5t1m7W58TuZnV+wGlHBuRiI6whGZ20UxN0w1AwPZeknh
-         8Yb6NqjgekjSE0BLRuu+l2rIm9RZbKw7ycRoN/zqM4i3QsUt9fg7LldLi5HLi72lo1
-         0NkoDu+wrICR0T2QftXmN45UnJp7kbo3wQfn7zNo=
+        b=Vb+3WYOLtV3ouAJsD+et/S/9sWx50nFIIMjXU3RDiaGq6N3g/lrmIqTWYZq9m6ia6
+         FBfTdp1KSUnUPMVuM7UXhcp4XwYpppV6gsHdo651rhSfdM09bFAhS1EttbV/wUEhzz
+         QwBwGaBY3bFL4TNjC0KEpEtDQ7OnTzK1qLkDhbK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        =?UTF-8?q?David=20M=C3=BCller?= <dave.mueller@gmx.ch>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/42] platform/x86: pmc_atom: Drop __initconst on dmi table
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>
+Subject: [PATCH 4.9 25/28] Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
 Date:   Thu,  9 May 2019 20:42:17 +0200
-Message-Id: <20190509181258.306404372@linuxfoundation.org>
+Message-Id: <20190509181255.579097161@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
-References: <20190509181252.616018683@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b995dcca7cf12f208cfd95fd9d5768dca7cccec7 ]
+From: Marcel Holtmann <marcel@holtmann.org>
 
-It's used by probe and that isn't an init function. Drop this so that we
-don't get a section mismatch.
+commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: David Müller <dave.mueller@gmx.ch>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Fixes: 7c2e07130090 ("clk: x86: Add system specific quirk to mark clocks as critical")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The minimum encryption key size for LE connections is 56 bits and to
+align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
+BR/EDR connections as well.
+
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/bluetooth/hci_core.h |    3 +++
+ net/bluetooth/hci_conn.c         |    8 ++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index 75f69cf0d45fa..50f2a125cd2c8 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -426,7 +426,7 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
-  * Some systems need one or more of their pmc_plt_clks to be
-  * marked as critical.
-  */
--static const struct dmi_system_id critclk_systems[] __initconst = {
-+static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		.ident = "MPL CEC1x",
- 		.matches = {
--- 
-2.20.1
-
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -176,6 +176,9 @@ struct adv_info {
+ 
+ #define HCI_MAX_SHORT_NAME_LENGTH	10
+ 
++/* Min encryption key size to match with SMP */
++#define HCI_MIN_ENC_KEY_SIZE		7
++
+ /* Default LE RPA expiry time, 15 minutes */
+ #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
+ 
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1165,6 +1165,14 @@ int hci_conn_check_link_mode(struct hci_
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+ 
++	/* The minimum encryption key size needs to be enforced by the
++	 * host stack before establishing any L2CAP connections. The
++	 * specification in theory allows a minimum of 1, but to align
++	 * BR/EDR and LE transports, a minimum of 7 is chosen.
++	 */
++	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
++		return 0;
++
+ 	return 1;
+ }
+ 
 
 
