@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C2619239
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CB21907B
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727454AbfEISrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:47:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40358 "EHLO mail.kernel.org"
+        id S1727285AbfEISpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727874AbfEISrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:47:41 -0400
+        id S1727281AbfEISpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 091A2217D7;
-        Thu,  9 May 2019 18:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45F9D21841;
+        Thu,  9 May 2019 18:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427660;
-        bh=KcBNhjf5N9TzoKLJ8rSU60ZB8nQ2vfmXWLvk1pOJ5Jk=;
+        s=default; t=1557427512;
+        bh=o9e+5S1SpqW12DKzjkV4b8hL9mapOfmvPq18dvpq0f8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRcdliTgGQNJ8VTa3m3gMCrsZOj7sYFAFO+nPe7gc1CV6y/OlP1p6w6HamFm9aSxl
-         SI0/UcuaibpbMG6TAhOQgwewxR1ciQ7rUNhwQIlOmJF+IzxU2Im1/622Pn2jNwY1aT
-         M1Qmc4q/xTqsrhYcDPG4rrVq+qNHEirj90kvtwX4=
+        b=ZImGvjLDPOQSaKT2qnA7eIBVAaBdLaBc0rFvm0sjOodFfOH6S3ybaOERZVUPgukkT
+         8naWlqTZ5qIheNQ+2hZ6bEuYF3QGHkST/uPvYlNdWuEypuYr8bOtW6IeT5yrLafC8u
+         oYI+bYM4UENL0ZFGqNHP6Kh9ANgMkvzDojhMqclk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Jyri Sarha <jsarha@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/66] drm/omap: hdmi4_cec: Fix CEC clock handling for PM
-Date:   Thu,  9 May 2019 20:41:58 +0200
-Message-Id: <20190509181304.343756327@linuxfoundation.org>
+Subject: [PATCH 4.14 10/42] ASoC: wm_adsp: Add locking to wm_adsp2_bus_error
+Date:   Thu,  9 May 2019 20:41:59 +0200
+Message-Id: <20190509181254.790281117@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,99 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 36a1da15b5df493241b0011d2185fdd724ac1ed1 ]
+[ Upstream commit a2225a6d155fcb247fe4c6d87f7c91807462966d ]
 
-If CONFIG_OMAP4_DSS_HDMI_CEC is enabled in .config, deeper SoC idle
-states are blocked because the CEC clock gets always enabled on init.
+Best to lock across handling the bus error to ensure the DSP doesn't
+change power state as we are reading the status registers.
 
-Let's fix the issue by moving the CEC clock handling to happen later in
-hdmi_cec_adap_enable() as suggested by Hans Verkuil <hverkuil@xs4all.nl>.
-This way the CEC clock gets only enabled when needed. This can be tested
-by doing cec-ctl --playback to enable the CEC, and doing cec-ctl --clear
-to disable it.
-
-Let's also fix the typo for "divider" in the comments while at it.
-
-Fixes: 8d7f934df8d8 ("omapdrm: hdmi4_cec: add OMAP4 HDMI CEC support")
-Suggested-by: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Jyri Sarha <jsarha@ti.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190326151438.32414-1-tony@atomide.com
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/hdmi4_cec.c | 26 ++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ sound/soc/codecs/wm_adsp.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/hdmi4_cec.c b/drivers/gpu/drm/omapdrm/dss/hdmi4_cec.c
-index 340383150fb98..ebf9c96d43eee 100644
---- a/drivers/gpu/drm/omapdrm/dss/hdmi4_cec.c
-+++ b/drivers/gpu/drm/omapdrm/dss/hdmi4_cec.c
-@@ -175,6 +175,7 @@ static int hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
- 		REG_FLD_MOD(core->base, HDMI_CORE_SYS_INTR_UNMASK4, 0, 3, 3);
- 		hdmi_wp_clear_irqenable(core->wp, HDMI_IRQ_CORE);
- 		hdmi_wp_set_irqstatus(core->wp, HDMI_IRQ_CORE);
-+		REG_FLD_MOD(core->wp->base, HDMI_WP_CLK, 0, 5, 0);
- 		hdmi4_core_disable(core);
- 		return 0;
- 	}
-@@ -182,16 +183,24 @@ static int hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
- 	if (err)
- 		return err;
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 67330b6ab204c..d632a0511d62a 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -3711,11 +3711,13 @@ irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
+ 	struct regmap *regmap = dsp->regmap;
+ 	int ret = 0;
  
-+	/*
-+	 * Initialize CEC clock divider: CEC needs 2MHz clock hence
-+	 * set the divider to 24 to get 48/24=2MHz clock
-+	 */
-+	REG_FLD_MOD(core->wp->base, HDMI_WP_CLK, 0x18, 5, 0);
++	mutex_lock(&dsp->pwr_lock);
 +
- 	/* Clear TX FIFO */
- 	if (!hdmi_cec_clear_tx_fifo(adap)) {
- 		pr_err("cec-%s: could not clear TX FIFO\n", adap->name);
--		return -EIO;
-+		err = -EIO;
-+		goto err_disable_clk;
+ 	ret = regmap_read(regmap, dsp->base + ADSP2_LOCK_REGION_CTRL, &val);
+ 	if (ret) {
+ 		adsp_err(dsp,
+ 			"Failed to read Region Lock Ctrl register: %d\n", ret);
+-		return IRQ_HANDLED;
++		goto error;
  	}
  
- 	/* Clear RX FIFO */
- 	if (!hdmi_cec_clear_rx_fifo(adap)) {
- 		pr_err("cec-%s: could not clear RX FIFO\n", adap->name);
--		return -EIO;
-+		err = -EIO;
-+		goto err_disable_clk;
- 	}
+ 	if (val & ADSP2_WDT_TIMEOUT_STS_MASK) {
+@@ -3734,7 +3736,7 @@ irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
+ 			adsp_err(dsp,
+ 				 "Failed to read Bus Err Addr register: %d\n",
+ 				 ret);
+-			return IRQ_HANDLED;
++			goto error;
+ 		}
  
- 	/* Clear CEC interrupts */
-@@ -236,6 +245,12 @@ static int hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
- 		hdmi_write_reg(core->base, HDMI_CEC_INT_STATUS_1, temp);
- 	}
- 	return 0;
+ 		adsp_err(dsp, "bus error address = 0x%x\n",
+@@ -3747,7 +3749,7 @@ irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
+ 			adsp_err(dsp,
+ 				 "Failed to read Pmem Xmem Err Addr register: %d\n",
+ 				 ret);
+-			return IRQ_HANDLED;
++			goto error;
+ 		}
+ 
+ 		adsp_err(dsp, "xmem error address = 0x%x\n",
+@@ -3760,6 +3762,9 @@ irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
+ 	regmap_update_bits(regmap, dsp->base + ADSP2_LOCK_REGION_CTRL,
+ 			   ADSP2_CTRL_ERR_EINT, ADSP2_CTRL_ERR_EINT);
+ 
++error:
++	mutex_unlock(&dsp->pwr_lock);
 +
-+err_disable_clk:
-+	REG_FLD_MOD(core->wp->base, HDMI_WP_CLK, 0, 5, 0);
-+	hdmi4_core_disable(core);
-+
-+	return err;
+ 	return IRQ_HANDLED;
  }
- 
- static int hdmi_cec_adap_log_addr(struct cec_adapter *adap, u8 log_addr)
-@@ -333,11 +348,8 @@ int hdmi4_cec_init(struct platform_device *pdev, struct hdmi_core_data *core,
- 		return ret;
- 	core->wp = wp;
- 
--	/*
--	 * Initialize CEC clock divider: CEC needs 2MHz clock hence
--	 * set the devider to 24 to get 48/24=2MHz clock
--	 */
--	REG_FLD_MOD(core->wp->base, HDMI_WP_CLK, 0x18, 5, 0);
-+	/* Disable clock initially, hdmi_cec_adap_enable() manages it */
-+	REG_FLD_MOD(core->wp->base, HDMI_WP_CLK, 0, 5, 0);
- 
- 	ret = cec_register_adapter(core->adap, &pdev->dev);
- 	if (ret < 0) {
+ EXPORT_SYMBOL_GPL(wm_adsp2_bus_error);
 -- 
 2.20.1
 
