@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40AA9191B6
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C9E1929B
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727778AbfEISwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
+        id S1727033AbfEITJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728431AbfEISwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:08 -0400
+        id S1727048AbfEISoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:44:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F73B2182B;
-        Thu,  9 May 2019 18:52:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B715217F5;
+        Thu,  9 May 2019 18:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427927;
-        bh=PF621POxl96TvW8L1WHZrw/qawrY+87wek/Aifqu8ag=;
+        s=default; t=1557427470;
+        bh=6n0GKdS7BlfEBRnyPq2cxQ+2dRUOf7IlbbWhpkO/mt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaYvIY4HKf2RBK6K2qXPcp6lhptw1M1dBNcMe32D8REPjEFPqUsh4O1/0wY3mH9NW
-         7Uxcr/0G4sg6nwGp6T9Z9DVud1iDn47dVl34yu652mABxEYxprlOwqfd18dLZ1WJ/F
-         Om5tHI+/pObbcY2UH11vFXhK0iotNWbJQqPkaqK0=
+        b=2CSvX8Nclut2pUEUyMZ0FYLasweJpxCkiI+VeaVJHTG4rQkjo0WyDQJe7UCN4UzM4
+         2IHCMr7jePgIflg010ImyyMr9aEEPWCMqu0WDYZejPxIYKrPNkBGEKW9uIefLndtZO
+         z7TUwTWeCngXAHdPruvoMAgp86pTtAvdKoj6Oink=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wangyan Wang <wangyan.wang@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 56/95] drm/mediatek: fix the rate and divder of hdmi phy for MT2701
-Date:   Thu,  9 May 2019 20:42:13 +0200
-Message-Id: <20190509181313.421305339@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Seth Bollinger <Seth.Bollinger@digi.com>,
+        Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH 4.9 22/28] usb-storage: Set virt_boundary_mask to avoid SG overflows
+Date:   Thu,  9 May 2019 20:42:14 +0200
+Message-Id: <20190509181254.988450875@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0c24613cda163dedfa229afc8eff6072e57fac8d ]
+From: Alan Stern <stern@rowland.harvard.edu>
 
-Due to a clerical error,there is one zero less for 12800000.
-Fix it for 128000000
-Fixes: 0fc721b2968e ("drm/mediatek: add hdmi driver for MT2701 and MT7623")
+commit 747668dbc061b3e62bc1982767a3a1f9815fcf0e upstream.
 
-Signed-off-by: Wangyan Wang <wangyan.wang@mediatek.com>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The USB subsystem has always had an unusual requirement for its
+scatter-gather transfers: Each element in the scatterlist (except the
+last one) must have a length divisible by the bulk maxpacket size.
+This is a particular issue for USB mass storage, which uses SG lists
+created by the block layer rather than setting up its own.
+
+So far we have scraped by okay because most devices have a logical
+block size of 512 bytes or larger, and the bulk maxpacket sizes for
+USB 2 and below are all <= 512.  However, USB 3 has a bulk maxpacket
+size of 1024.  Since the xhci-hcd driver includes native SG support,
+this hasn't mattered much.  But now people are trying to use USB-3
+mass storage devices with USBIP, and the vhci-hcd driver currently
+does not have full SG support.
+
+The result is an overflow error, when the driver attempts to implement
+an SG transfer of 63 512-byte blocks as a single
+3584-byte (7 blocks) transfer followed by seven 4096-byte (8 blocks)
+transfers.  The device instead sends 31 1024-byte packets followed by
+a 512-byte packet, and this overruns the first SG buffer.
+
+Ideally this would be fixed by adding better SG support to vhci-hcd.
+But for now it appears we can work around the problem by
+asking the block layer to respect the maxpacket limitation, through
+the use of the virt_boundary_mask.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Seth Bollinger <Seth.Bollinger@digi.com>
+Tested-by: Seth Bollinger <Seth.Bollinger@digi.com>
+CC: Ming Lei <tom.leiming@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/storage/scsiglue.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c b/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
-index fcc42dc6ea7fb..0746fc8877069 100644
---- a/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
-+++ b/drivers/gpu/drm/mediatek/mtk_mt2701_hdmi_phy.c
-@@ -116,8 +116,8 @@ static int mtk_hdmi_pll_set_rate(struct clk_hw *hw, unsigned long rate,
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -81,6 +81,7 @@ static const char* host_info(struct Scsi
+ static int slave_alloc (struct scsi_device *sdev)
+ {
+ 	struct us_data *us = host_to_us(sdev->host);
++	int maxp;
  
- 	if (rate <= 64000000)
- 		pos_div = 3;
--	else if (rate <= 12800000)
--		pos_div = 1;
-+	else if (rate <= 128000000)
-+		pos_div = 2;
- 	else
- 		pos_div = 1;
+ 	/*
+ 	 * Set the INQUIRY transfer length to 36.  We don't use any of
+@@ -90,20 +91,17 @@ static int slave_alloc (struct scsi_devi
+ 	sdev->inquiry_len = 36;
  
--- 
-2.20.1
-
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
+-	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * USB has unusual scatter-gather requirements: the length of each
++	 * scatterlist element except the last must be divisible by the
++	 * Bulk maxpacket value.  Fortunately this value is always a
++	 * power of 2.  Inform the block layer about this requirement.
++	 */
++	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
++
++	/*
++	 * Some host controllers may have alignment requirements.
++	 * We'll play it safe by requiring 512-byte alignment always.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
+ 
 
 
