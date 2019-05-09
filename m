@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDAE19183
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2D6E1907A
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728681AbfEISwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46314 "EHLO mail.kernel.org"
+        id S1727275AbfEISpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:45:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727414AbfEISwS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:18 -0400
+        id S1727269AbfEISpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:45:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B57172182B;
-        Thu,  9 May 2019 18:52:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25312217F9;
+        Thu,  9 May 2019 18:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427938;
-        bh=jjP8GWtlILrBRpdD3esKiF1H7/7VQZoK2gV4u4kBoAo=;
+        s=default; t=1557427507;
+        bh=m5v/VQDEu53kIn8smOqM7gN/gtLhfkr4W9EBM+BYU1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxzgR8G8u8cGZl8djERmTjKemfXzEc/6wlqbyZ5AqlUdD2EAVpY0jEtR4xHwgi5Dh
-         hUwhIYLjUrQkzFApSzLV8LuieVbm1ym+EjfkI3ZpadxxJKYiiViBKNwjC9zYxVJjUg
-         7HQyr0fbwMsU+0ieQbvZqRwSlP237frL/aGHb1YU=
+        b=MpzpTdOZIEM+pXsSPqaoE8MuzT52iDto1imwWBJsUsm3UdGVAsMmMJ4tAqRe5hlLX
+         1uMdr8ciAJSORsVP7Dp3qtffRXA5+zD3jWkt+MoQ+WS3tA93QjG83s5GsK1QfPpMQD
+         JQ4mERKwKgGdIsqN5RE+mlXXgRJRILxErrD+isYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wangyan Wang <wangyan.wang@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 59/95] drm/mediatek: using new factor for tvdpll for MT2701 hdmi phy
+        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.9 24/28] Bluetooth: hidp: fix buffer overflow
 Date:   Thu,  9 May 2019 20:42:16 +0200
-Message-Id: <20190509181313.618384753@linuxfoundation.org>
+Message-Id: <20190509181255.392576707@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
+References: <20190509181247.647767531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8eeb3946feeb00486ac0909e2309da87db8988a5 ]
+From: Young Xiao <YangX92@hotmail.com>
 
-This is the second step to make MT2701 HDMI stable.
-The factor depends on the divider of DPI in MT2701, therefore,
-we should fix this factor to the right and new one.
-Test: search ok
+commit a1616a5ac99ede5d605047a9012481ce7ff18b16 upstream.
 
-Signed-off-by: Wangyan Wang <wangyan.wang@mediatek.com>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Struct ca is copied from userspace. It is not checked whether the "name"
+field is NULL terminated, which allows local users to obtain potentially
+sensitive information from kernel stack memory, via a HIDPCONNADD command.
+
+This vulnerability is similar to CVE-2011-1079.
+
+Signed-off-by: Young Xiao <YangX92@hotmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/bluetooth/hidp/sock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index 62a9d47df9487..9160c55769f8d 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -662,13 +662,11 @@ static unsigned int mt8173_calculate_factor(int clock)
- static unsigned int mt2701_calculate_factor(int clock)
- {
- 	if (clock <= 64000)
--		return 16;
--	else if (clock <= 128000)
--		return 8;
--	else if (clock <= 256000)
- 		return 4;
--	else
-+	else if (clock <= 128000)
- 		return 2;
-+	else
-+		return 1;
- }
+--- a/net/bluetooth/hidp/sock.c
++++ b/net/bluetooth/hidp/sock.c
+@@ -76,6 +76,7 @@ static int hidp_sock_ioctl(struct socket
+ 			sockfd_put(csock);
+ 			return err;
+ 		}
++		ca.name[sizeof(ca.name)-1] = 0;
  
- static const struct mtk_dpi_conf mt8173_conf = {
--- 
-2.20.1
-
+ 		err = hidp_connection_add(&ca, csock, isock);
+ 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
 
 
