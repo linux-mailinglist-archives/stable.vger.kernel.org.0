@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 047AF19265
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5AF19221
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727399AbfEISpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:45:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
+        id S1727985AbfEISsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:48:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726768AbfEISpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:45:44 -0400
+        id S1727989AbfEISsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:48:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3818E21848;
-        Thu,  9 May 2019 18:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 736F320578;
+        Thu,  9 May 2019 18:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427543;
-        bh=z6EV2YqeNqyzk6UyHzkUV9Ct71LipZFSYBUnn+0Bhao=;
+        s=default; t=1557427696;
+        bh=O4EPrr34U2tRAfhad++Hrv38U/CglpjqXgiIyrFJ74o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2aeFfTcTG+NdkazBuxnfAQcPDchAExi8md8nkV4CYFfhx5FrMhHLwNeeBCspNiDu
-         jh225zk/mDsM3p9tGJy/PVUlv1Qb8sbCcvLyZdPecbX/SuekQ9SsFwykIsv2DCcc6V
-         701nK7sUZdGvOwRhS2qbk090FS74zzHppEkB00F0=
+        b=YpPjTKpxlT9xKpxG5quaPNNl0V/7LYuwLu79lcXHAVOqbTJuVREOSZlfCydUO7sKy
+         ZwXxYyQ2I7ugSk41lxKyqEiwdLwXhlCNbSKheGDMGD0lRpl0/cUnFiJVJea73NiHCV
+         iAIbLgGcBIjglGEnBWjZaT9eF8muzB4I0HuHg1XQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        "Tobin C. Harding" <tobin@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/42] slab: fix a crash by reading /proc/slab_allocators
+Subject: [PATCH 4.19 35/66] ASoC: cs35l35: Disable regulators on driver removal
 Date:   Thu,  9 May 2019 20:42:10 +0200
-Message-Id: <20190509181256.958774323@linuxfoundation.org>
+Message-Id: <20190509181305.727470185@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
-References: <20190509181252.616018683@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fcf88917dd435c6a4cb2830cb086ee58605a1d85 ]
+[ Upstream commit 47c4cc08cb5b34e93ab337b924c5ede77ca3c936 ]
 
-The commit 510ded33e075 ("slab: implement slab_root_caches list")
-changes the name of the list node within "struct kmem_cache" from "list"
-to "root_caches_node", but leaks_show() still use the "list" which
-causes a crash when reading /proc/slab_allocators.
+The chips main power supplies VA and VP are enabled during probe but
+then never disabled, this will cause warnings from the regulator
+framework on driver removal. Fix this by adding a remove callback and
+disabling the supplies, whilst doing so follow best practice and put the
+chip back into reset as well.
 
-You need to have CONFIG_SLAB=y and CONFIG_MEMCG=y to see the problem,
-because without MEMCG all slab caches are root caches, and the "list"
-node happens to be the right one.
-
-Fixes: 510ded33e075 ("slab: implement slab_root_caches list")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Tobin C. Harding <tobin@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/cs35l35.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index f4658468b23e1..843ecea9e336b 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -4299,7 +4299,8 @@ static void show_symbol(struct seq_file *m, unsigned long address)
+diff --git a/sound/soc/codecs/cs35l35.c b/sound/soc/codecs/cs35l35.c
+index bd6226bde45f6..17e0101081ef6 100644
+--- a/sound/soc/codecs/cs35l35.c
++++ b/sound/soc/codecs/cs35l35.c
+@@ -1634,6 +1634,16 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
+ 	return ret;
+ }
  
- static int leaks_show(struct seq_file *m, void *p)
- {
--	struct kmem_cache *cachep = list_entry(p, struct kmem_cache, list);
-+	struct kmem_cache *cachep = list_entry(p, struct kmem_cache,
-+					       root_caches_node);
- 	struct page *page;
- 	struct kmem_cache_node *n;
- 	const char *name;
++static int cs35l35_i2c_remove(struct i2c_client *i2c_client)
++{
++	struct cs35l35_private *cs35l35 = i2c_get_clientdata(i2c_client);
++
++	regulator_bulk_disable(cs35l35->num_supplies, cs35l35->supplies);
++	gpiod_set_value_cansleep(cs35l35->reset_gpio, 0);
++
++	return 0;
++}
++
+ static const struct of_device_id cs35l35_of_match[] = {
+ 	{.compatible = "cirrus,cs35l35"},
+ 	{},
+@@ -1654,6 +1664,7 @@ static struct i2c_driver cs35l35_i2c_driver = {
+ 	},
+ 	.id_table = cs35l35_id,
+ 	.probe = cs35l35_i2c_probe,
++	.remove = cs35l35_i2c_remove,
+ };
+ 
+ module_i2c_driver(cs35l35_i2c_driver);
 -- 
 2.20.1
 
