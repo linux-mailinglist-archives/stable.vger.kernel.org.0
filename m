@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C61371918C
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8F619217
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728757AbfEISwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:52:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46874 "EHLO mail.kernel.org"
+        id S1726787AbfEITEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728749AbfEISwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:42 -0400
+        id S1728101AbfEISsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:48:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2D4B217F5;
-        Thu,  9 May 2019 18:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FA47217D7;
+        Thu,  9 May 2019 18:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427961;
-        bh=NMYyZT0F0YGxz2ey2INVI3Xw3PP5AjmNPCWm6Y2eH8U=;
+        s=default; t=1557427729;
+        bh=0zZtPe/QZmm1wOMxxCB1OieNmsIUQ3UbVlb0wPX58Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1/jjW6rlUSLUXeFynj1CI7MUf4dDnMHsSjo9ihhlSLx8t7lx8qmm2iPqdf+vjFEN
-         XTT04+8pBayaBKVfiy+jz+uoyQxIUjKu4Rm1MV+V2HUNGs5xXdIabG6xh+p43Oujbf
-         F4U7OYTQVj7emrKigNtB+kN6fS3iItHT9msAmN4I=
+        b=bvsoTr7lZ1O98lEm5QYOCz82/wNwwkUI/aDdtQh2a7VzwlGQd+VHi0lpXRnXdWYAE
+         GVUxmFPyRzPiXbSvW7TwbTtworkneRGCpX1ThqdyLWIBsqMSMo01iWpRGatmDZR75L
+         mPG3Z8kKICaoK6XNP69QnuUoWPoSttQyxmGjiJ/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chong Qiao <qiaochong@loongson.cn>,
-        Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 33/95] MIPS: KGDB: fix kgdb support for SMP platforms.
+        stable@vger.kernel.org, JaeChul Lee <jcsing.lee@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/66] ASoC: samsung: odroid: Fix clock configuration for 44100 sample rate
 Date:   Thu,  9 May 2019 20:41:50 +0200
-Message-Id: <20190509181311.612414702@linuxfoundation.org>
+Message-Id: <20190509181303.530167536@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,51 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ab8a6d821179ab9bea1a9179f535ccba6330c1ed ]
+[ Upstream commit 2b13bee3884926cba22061efa75bd315e871de24 ]
 
-KGDB_call_nmi_hook is called by other cpu through smp call.
-MIPS smp call is processed in ipi irq handler and regs is saved in
- handle_int.
-So kgdb_call_nmi_hook get regs by get_irq_regs and regs will be passed
- to kgdb_cpu_enter.
+After commit fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate
+handling") the audio root clock frequency is configured improperly for
+44100 sample rate. Due to clock rate rounding it's 20070401 Hz instead
+of 22579000 Hz. This results in a too low value of the PSR clock divider
+in the CPU DAI driver and too fast actual sample rate for fs=44100. E.g.
+1 kHz tone has actual 1780 Hz frequency (1 kHz * 20070401/22579000 * 2).
 
-Signed-off-by: Chong Qiao <qiaochong@loongson.cn>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: QiaoChong <qiaochong@loongson.cn>
+Fix this by increasing the correction passed to clk_set_rate() to take
+into account inaccuracy of the EPLL frequency properly.
+
+Fixes: fbeec965b8d1c ("ASoC: samsung: odroid: Fix 32000 sample rate handling")
+Reported-by: JaeChul Lee <jcsing.lee@samsung.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/kgdb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/samsung/odroid.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/kernel/kgdb.c b/arch/mips/kernel/kgdb.c
-index 149100e1bc7c4..90f37626100fe 100644
---- a/arch/mips/kernel/kgdb.c
-+++ b/arch/mips/kernel/kgdb.c
-@@ -33,6 +33,7 @@
- #include <asm/processor.h>
- #include <asm/sigcontext.h>
- #include <linux/uaccess.h>
-+#include <asm/irq_regs.h>
+diff --git a/sound/soc/samsung/odroid.c b/sound/soc/samsung/odroid.c
+index e7b371b072304..45c6d73967852 100644
+--- a/sound/soc/samsung/odroid.c
++++ b/sound/soc/samsung/odroid.c
+@@ -64,11 +64,11 @@ static int odroid_card_hw_params(struct snd_pcm_substream *substream,
+ 		return ret;
  
- static struct hard_trap_info {
- 	unsigned char tt;	/* Trap type code for MIPS R3xxx and R4xxx */
-@@ -214,7 +215,7 @@ void kgdb_call_nmi_hook(void *ignored)
- 	old_fs = get_fs();
- 	set_fs(get_ds());
+ 	/*
+-	 *  We add 1 to the rclk_freq value in order to avoid too low clock
++	 *  We add 2 to the rclk_freq value in order to avoid too low clock
+ 	 *  frequency values due to the EPLL output frequency not being exact
+ 	 *  multiple of the audio sampling rate.
+ 	 */
+-	rclk_freq = params_rate(params) * rfs + 1;
++	rclk_freq = params_rate(params) * rfs + 2;
  
--	kgdb_nmicallback(raw_smp_processor_id(), NULL);
-+	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
- 
- 	set_fs(old_fs);
- }
+ 	ret = clk_set_rate(priv->sclk_i2s, rclk_freq);
+ 	if (ret < 0)
 -- 
 2.20.1
 
