@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C2919210
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3810E1917D
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726764AbfEITD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42544 "EHLO mail.kernel.org"
+        id S1728776AbfEISyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726715AbfEIStR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:49:17 -0400
+        id S1728749AbfEISyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:54:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38BE820578;
-        Thu,  9 May 2019 18:49:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 432DF2177E;
+        Thu,  9 May 2019 18:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427756;
-        bh=hEuToZTYTh+72tR79gRIV7bx32NRmE1y/XhSGpfYvRw=;
+        s=default; t=1557428047;
+        bh=k/TeH7BaKVX1u50l//zvo0KDlOFkKEQ+Vt+mzlbxyaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnrEnyXksrwKaGERCdlVjCwMO/g0vX9UfUryFdN3WwXqxo6w2sDaWX8Q9ZEhqzwRJ
-         86JS+pco6oK0oupnUL9kBPjJoKVe0JZsSXQmmt5M00n6gVqxlydNoO84OaxZbpSt+K
-         n3MY12nv0oUiu53gyqpKx48/wAun3OPY258tNZlc=
+        b=yKQqLticbjJAzqMEqmJ5E13XuMNUFZP3F4OFzq52x/J/VtuuasTF3F+XQ27acIlCc
+         JzivhFOpWQpcfschntm0bEV83ZyZNDovYjow5G0DSmQS3J0VqFlqF75DrzVmYnacjd
+         705XkVENIAiCx7VhP6PGEsqDCkXZn+OjHLYeEGFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Vasquez <andrewv@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 59/66] scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS routines
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.0 77/95] USB: cdc-acm: fix unthrottle races
 Date:   Thu,  9 May 2019 20:42:34 +0200
-Message-Id: <20190509181307.679020537@linuxfoundation.org>
+Message-Id: <20190509181314.737330384@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
+References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Vasquez <andrewv@marvell.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 5cbdae10bf11f96e30b4d14de7b08c8b490e903c upstream.
+commit 764478f41130f1b8d8057575b89e69980a0f600d upstream.
 
-Commit e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs
-code") incorrectly set 'optrom_region_size' to 'start+size', which can
-overflow option-rom boundaries when 'start' is non-zero.  Continue setting
-optrom_region_size to the proper adjusted value of 'size'.
+Fix two long-standing bugs which could potentially lead to memory
+corruption or leave the port throttled until it is reopened (on weakly
+ordered systems), respectively, when read-URB completion races with
+unthrottle().
 
-Fixes: e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrew Vasquez <andrewv@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+First, the URB must not be marked as free before processing is complete
+to prevent it from being submitted by unthrottle() on another CPU.
+
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  process_urb();
+	  smp_mb__before_atomic();
+	  set_bit(i, free);		  if (test_and_clear_bit(i, free))
+						  submit_urb();
+
+Second, the URB must be marked as free before checking the throttled
+flag to prevent unthrottle() on another CPU from failing to observe that
+the URB needs to be submitted if complete() sees that the throttled flag
+is set.
+
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  set_bit(i, free);		  throttled = 0;
+	  smp_mb__after_atomic();	  smp_mb();
+	  if (throttled)		  if (test_and_clear_bit(i, free))
+		  return;			  submit_urb();
+
+Note that test_and_clear_bit() only implies barriers when the test is
+successful. To handle the case where the URB is still in use an explicit
+barrier needs to be added to unthrottle() for the second race condition.
+
+Also note that the first race was fixed by 36e59e0d70d6 ("cdc-acm: fix
+race between callback and unthrottle") back in 2015, but the bug was
+reintroduced a year later.
+
+Fixes: 1aba579f3cf5 ("cdc-acm: handle read pipe errors")
+Fixes: 088c64f81284 ("USB: cdc-acm: re-write read processing")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_attr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c |   32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -345,7 +345,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -470,12 +470,12 @@ static void acm_read_bulk_callback(struc
+ 	struct acm *acm = rb->instance;
+ 	unsigned long flags;
+ 	int status = urb->status;
++	bool stopped = false;
++	bool stalled = false;
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+ 	dev_vdbg(&acm->data->dev, "got urb %d, len %d, status %d\n",
+ 		rb->index, urb->actual_length, status);
  
- 		ha->optrom_state = QLA_SREADING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-@@ -418,7 +418,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+-	set_bit(rb->index, &acm->read_urbs_free);
+-
+ 	if (!acm->dev) {
+ 		dev_dbg(&acm->data->dev, "%s - disconnected\n", __func__);
+ 		return;
+@@ -488,15 +488,16 @@ static void acm_read_bulk_callback(struc
+ 		break;
+ 	case -EPIPE:
+ 		set_bit(EVENT_RX_STALL, &acm->flags);
+-		schedule_work(&acm->work);
+-		return;
++		stalled = true;
++		break;
+ 	case -ENOENT:
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
+ 		dev_dbg(&acm->data->dev,
+ 			"%s - urb shutting down with status: %d\n",
+ 			__func__, status);
+-		return;
++		stopped = true;
++		break;
+ 	default:
+ 		dev_dbg(&acm->data->dev,
+ 			"%s - nonzero urb status received: %d\n",
+@@ -505,10 +506,24 @@ static void acm_read_bulk_callback(struc
+ 	}
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+ 	/*
+-	 * Unthrottle may run on another CPU which needs to see events
+-	 * in the same order. Submission has an implict barrier
++	 * Make sure URB processing is done before marking as free to avoid
++	 * racing with unthrottle() on another CPU. Matches the barriers
++	 * implied by the test_and_clear_bit() in acm_submit_read_urb().
+ 	 */
+ 	smp_mb__before_atomic();
++	set_bit(rb->index, &acm->read_urbs_free);
++	/*
++	 * Make sure URB is marked as free before checking the throttled flag
++	 * to avoid racing with unthrottle() on another CPU. Matches the
++	 * smp_mb() in unthrottle().
++	 */
++	smp_mb__after_atomic();
++
++	if (stopped || stalled) {
++		if (stalled)
++			schedule_work(&acm->work);
++		return;
++	}
  
- 		ha->optrom_state = QLA_SWRITING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+ 	/* throttle device if requested by tty */
+ 	spin_lock_irqsave(&acm->read_lock, flags);
+@@ -842,6 +857,9 @@ static void acm_tty_unthrottle(struct tt
+ 	acm->throttle_req = 0;
+ 	spin_unlock_irq(&acm->read_lock);
+ 
++	/* Matches the smp_mb__after_atomic() in acm_read_bulk_callback(). */
++	smp_mb();
++
+ 	if (was_throttled)
+ 		acm_submit_read_urbs(acm, GFP_KERNEL);
+ }
 
 
