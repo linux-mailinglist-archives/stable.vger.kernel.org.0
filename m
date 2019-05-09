@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD35B1917E
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2D719136
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727167AbfEISyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:54:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48734 "EHLO mail.kernel.org"
+        id S1728798AbfEISyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728256AbfEISyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:05 -0400
+        id S1728568AbfEISyN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:54:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94B9A204FD;
-        Thu,  9 May 2019 18:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E3D420578;
+        Thu,  9 May 2019 18:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428045;
-        bh=y588Izky8SnyNVqv+CaJcldVbCrc8tfq22LbV1mgVjI=;
+        s=default; t=1557428052;
+        bh=Kj5Z/o3GPzGUtGgwwDOoGylmwD5Ap/wDMMcXe3t9suE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THjV+UfxSchwZVtui26Lh8ba1PolQI48oxbVKUH95qKEEgFRVCRkEwldUTRG9KGM6
-         uZ+dOAQ7vF3NMXCpjXVOBtaXEek1/w5ClSM23QSYzfB3SEPZt4wKR5poS2zhWWPFGY
-         vyX+DpQY55k6ugKQ32ulWlBRE/zIQLeIRBBdkga8=
+        b=VlIv9XJiMXWRlNGo5CQOjTYla1Lqa6iWPMLsYQday98nSVK/J116piwXMgWehdSmr
+         twUjScTEkLZJYpVU3IZ6BrFzSy6WKW8by81p9w7qH/vhUwWMCjWRm1HTMbZ4r4wOCI
+         G5wj0gZfrFh1qrfNz3r3mszaJotmjyoLg5tqB71A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.0 76/95] USB: serial: f81232: fix interrupt worker not stop
+        stable@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.1 01/30] Drivers: hv: vmbus: Remove the undesired put_cpu_ptr() in hv_synic_cleanup()
 Date:   Thu,  9 May 2019 20:42:33 +0200
-Message-Id: <20190509181314.681328937@linuxfoundation.org>
+Message-Id: <20190509181250.759963229@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
+References: <20190509181250.417203112@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,92 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit 804dbee1e49774918339c1e5a87400988c0819e8 upstream.
+commit a0033bd1eae4650b69be07c17cb87393da584563 upstream.
 
-The F81232 will use interrupt worker to handle MSR change.
-This patch will fix the issue that interrupt work should stop
-in close() and suspend().
+With CONFIG_DEBUG_PREEMPT=y, the put_cpu_ptr() triggers an underflow
+warning in preempt_count_sub().
 
-This also fixes line-status events being disabled after a suspend cycle
-until the port is re-opened.
-
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-[ johan: amend commit message ]
-Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
-Cc: stable <stable@vger.kernel.org>	# 4.1
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 37cdd991fac8 ("vmbus: put related per-cpu variable together")
+Cc: stable@vger.kernel.org
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/f81232.c |   39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/hv/hv.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -556,9 +556,12 @@ static int f81232_open(struct tty_struct
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -408,7 +408,6 @@ int hv_synic_cleanup(unsigned int cpu)
  
- static void f81232_close(struct usb_serial_port *port)
- {
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+
- 	f81232_port_disable(port);
- 	usb_serial_generic_close(port);
- 	usb_kill_urb(port->interrupt_in_urb);
-+	flush_work(&port_priv->interrupt_work);
- }
+ 		clockevents_unbind_device(hv_cpu->clk_evt, cpu);
+ 		hv_ce_shutdown(hv_cpu->clk_evt);
+-		put_cpu_ptr(hv_cpu);
+ 	}
  
- static void f81232_dtr_rts(struct usb_serial_port *port, int on)
-@@ -632,6 +635,40 @@ static int f81232_port_remove(struct usb
- 	return 0;
- }
- 
-+static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
-+		usb_kill_urb(port->read_urbs[i]);
-+
-+	usb_kill_urb(port->interrupt_in_urb);
-+
-+	if (port_priv)
-+		flush_work(&port_priv->interrupt_work);
-+
-+	return 0;
-+}
-+
-+static int f81232_resume(struct usb_serial *serial)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	int result;
-+
-+	if (tty_port_initialized(&port->port)) {
-+		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
-+		if (result) {
-+			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
-+					result);
-+			return result;
-+		}
-+	}
-+
-+	return usb_serial_generic_resume(serial);
-+}
-+
- static struct usb_serial_driver f81232_device = {
- 	.driver = {
- 		.owner =	THIS_MODULE,
-@@ -655,6 +692,8 @@ static struct usb_serial_driver f81232_d
- 	.read_int_callback =	f81232_read_int_callback,
- 	.port_probe =		f81232_port_probe,
- 	.port_remove =		f81232_port_remove,
-+	.suspend =		f81232_suspend,
-+	.resume =		f81232_resume,
- };
- 
- static struct usb_serial_driver * const serial_drivers[] = {
+ 	hv_get_synint_state(VMBUS_MESSAGE_SINT, shared_sint.as_uint64);
 
 
