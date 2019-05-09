@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1E719121
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:53:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB9019175
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728853AbfEISxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47836 "EHLO mail.kernel.org"
+        id S1729053AbfEISyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:54:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726998AbfEISxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:53:21 -0400
+        id S1729045AbfEISyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:54:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0B8020578;
-        Thu,  9 May 2019 18:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCFA5204FD;
+        Thu,  9 May 2019 18:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428000;
-        bh=AvzCBlu9b21RH+Bn5XnyCH1lsWQ02IjRZ9x6cTTvQXM=;
+        s=default; t=1557428059;
+        bh=HwTDDQgpdyLKymq762qog44ANmbDGP/fSirsRKzlApc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsQiJH2P/SXUMPAXICC+/P2de+u5V6kwquKa9c7oR5eeUOpbuccHpVFNUYE+co3rU
-         gYjBh+qAuxb2OD2piqqKkQnn9WqqqYT2ACG8n9XBUtgWRn2e0KmehYDv2BN7XGinuD
-         EK7hhW1cJer4SawfBfh9r3raeONS4z+UdsSrua3k=
+        b=vka7yY1hGk8ejNNRjnINR3GTVxnsSQAgpgWHJF7jXvRMEq/Y1vEZMssBY0vqgoAfb
+         fwV6AAKuj6kv1EZerunuCx63EjrYot02ooeL6QEYa+BFoe1U4OgOpYHDHgf3DFRL89
+         7E8lJV6fOMbTl0rrO3YPI5S6MjucaHaN/QCnC7pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Vasquez <andrewv@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.0 85/95] scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS routines
-Date:   Thu,  9 May 2019 20:42:42 +0200
-Message-Id: <20190509181315.221891173@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Seth Bollinger <Seth.Bollinger@digi.com>,
+        Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH 5.1 11/30] usb-storage: Set virt_boundary_mask to avoid SG overflows
+Date:   Thu,  9 May 2019 20:42:43 +0200
+Message-Id: <20190509181253.129007884@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
+References: <20190509181250.417203112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Vasquez <andrewv@marvell.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 5cbdae10bf11f96e30b4d14de7b08c8b490e903c upstream.
+commit 747668dbc061b3e62bc1982767a3a1f9815fcf0e upstream.
 
-Commit e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs
-code") incorrectly set 'optrom_region_size' to 'start+size', which can
-overflow option-rom boundaries when 'start' is non-zero.  Continue setting
-optrom_region_size to the proper adjusted value of 'size'.
+The USB subsystem has always had an unusual requirement for its
+scatter-gather transfers: Each element in the scatterlist (except the
+last one) must have a length divisible by the bulk maxpacket size.
+This is a particular issue for USB mass storage, which uses SG lists
+created by the block layer rather than setting up its own.
 
-Fixes: e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrew Vasquez <andrewv@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+So far we have scraped by okay because most devices have a logical
+block size of 512 bytes or larger, and the bulk maxpacket sizes for
+USB 2 and below are all <= 512.  However, USB 3 has a bulk maxpacket
+size of 1024.  Since the xhci-hcd driver includes native SG support,
+this hasn't mattered much.  But now people are trying to use USB-3
+mass storage devices with USBIP, and the vhci-hcd driver currently
+does not have full SG support.
+
+The result is an overflow error, when the driver attempts to implement
+an SG transfer of 63 512-byte blocks as a single
+3584-byte (7 blocks) transfer followed by seven 4096-byte (8 blocks)
+transfers.  The device instead sends 31 1024-byte packets followed by
+a 512-byte packet, and this overruns the first SG buffer.
+
+Ideally this would be fixed by adding better SG support to vhci-hcd.
+But for now it appears we can work around the problem by
+asking the block layer to respect the maxpacket limitation, through
+the use of the virt_boundary_mask.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Seth Bollinger <Seth.Bollinger@digi.com>
+Tested-by: Seth Bollinger <Seth.Bollinger@digi.com>
+CC: Ming Lei <tom.leiming@gmail.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_attr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/storage/scsiglue.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -364,7 +364,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -65,6 +65,7 @@ static const char* host_info(struct Scsi
+ static int slave_alloc (struct scsi_device *sdev)
+ {
+ 	struct us_data *us = host_to_us(sdev->host);
++	int maxp;
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+ 	/*
+ 	 * Set the INQUIRY transfer length to 36.  We don't use any of
+@@ -74,20 +75,17 @@ static int slave_alloc (struct scsi_devi
+ 	sdev->inquiry_len = 36;
  
- 		ha->optrom_state = QLA_SREADING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-@@ -437,7 +437,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
+-	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * USB has unusual scatter-gather requirements: the length of each
++	 * scatterlist element except the last must be divisible by the
++	 * Bulk maxpacket value.  Fortunately this value is always a
++	 * power of 2.  Inform the block layer about this requirement.
++	 */
++	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
++
++	/*
++	 * Some host controllers may have alignment requirements.
++	 * We'll play it safe by requiring 512-byte alignment always.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
- 
- 		ha->optrom_state = QLA_SWRITING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
 
 
