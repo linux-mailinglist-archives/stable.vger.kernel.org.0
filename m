@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA54318FA7
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6348918FB3
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbfEIRwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 13:52:21 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49143 "EHLO
+        id S1726683AbfEIRzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 13:55:36 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58627 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726656AbfEIRwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:52:21 -0400
+        by vger.kernel.org with ESMTP id S1726632AbfEIRzg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:55:36 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 245BF220A5;
-        Thu,  9 May 2019 13:52:20 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id B6E9125ABB;
+        Thu,  9 May 2019 13:55:35 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 09 May 2019 13:52:20 -0400
+  by compute6.internal (MEProxy); Thu, 09 May 2019 13:55:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zxMmgZ
-        v5FF8AmXNHxl6fJevLpCG0+j9XBILErhiBLeI=; b=B16JtFdSSORIaweq/53/BV
-        qrfrFPJju4y/KKTozp0HOSa65/vQbMGH4dgfgPBgpry4Lc+IKUj/Np9kr5bOjLqU
-        tssFGsbqOKjcAooiCUdGkWk/qOrwsWUdZrV+vCQBQ7ZvE26bHYUuTFZy1FVP5ynY
-        4hD0CY5v7K30kowT2jMA5V5U/vE1PZPfWi41Qk31cKCcd4t1VBkAj4fpbOzkadBq
-        fJ0hsPCWTyeWTdVvZ81jHRI384WcQ3gFcnKfKlALWOIugea+aVrH058pt0LkNcpA
-        UYYxfhVw5epAXiLfFD2aKXqgCn5h05Yha5XuQp5hF/UfJIX9neN2lwOS4CfPdYpA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ENPDKC
+        F3nXbLg90xokVW16BdD8XzkXsqH3F/Bc5yNKg=; b=5tmvsCd0OGWLXmrs5YlF9q
+        yPUknvRINQQnL9U6UsQkv3bVpG5pVDgSCl2CE+nbTf0IWJW1yOa5KeCN4nw9gAEl
+        hmAzatgKkarw1X5AnfmNed5FsLgnNo/EJVyv3qbGVPT/kiKWjbA+oa/qeeTGmXpq
+        4L4PCp2ZWA+pYhL9E0NbDzkcBowxd/36TMesA1DpnCv6YkS/xM5071gx64p3p1wg
+        zmbdinzmqFfx7LnsVu+45cASvjPu5yp7GYMmHn9NzVXyaEsqJir0CQETEVaVNrgD
+        n+T/SJKadyBQvKIJxrnhu8VpeN296QI48IdcMR72+zv/7x6dXJoe0FEGeFnMokIw
         ==
-X-ME-Sender: <xms:02jUXHWjOEWLXBoaLLJe_38FP4nDOy54H-Z1CGl08jjWo4yOClxP9Q>
+X-ME-Sender: <xms:l2nUXACtsufvpS2H-8tNH01-JKCKRih9aRR7_lCkcVWf01FI6AzmmQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeeigdehjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
-X-ME-Proxy: <xmx:02jUXD2s-SJx3iHczMsLhRCrxIi8rBVASEqWCx40drXR8c2uKMqFVQ>
-    <xmx:02jUXOYQ9KRYN9H-tt85OS-vMEFP6PtbhBMNO1WnG7RNS7-sBbhSTg>
-    <xmx:02jUXGrfIJrhIafjB9KLlYLk8uAL6NGYgVckSo4KyW9KfuXH8eZY2g>
-    <xmx:1GjUXIpXXtWWT5PdrELiiiSbsdFYURJGLHxMBRSCOAXF83g0ul5Qlw>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
+X-ME-Proxy: <xmx:l2nUXHsBihEWc6GrnpgOT0PGflZhzRg03DTETPqWsB7L8vdKAi_qHA>
+    <xmx:l2nUXEL6xxcyz7SQoozXjFbgvH67LhSXhx7nVCdOUki4WJXPVP0KNQ>
+    <xmx:l2nUXBrSRoiGbSQXLGeYEtO01zJ3NVSopYS6HQ9VtXEhqzOc5rGmpQ>
+    <xmx:l2nUXC13_MzWjV6t8XS0Ko9IpDgpoSya3BdAF_bBz4Lp6EDEPJK0DA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 76B8D80064;
-        Thu,  9 May 2019 13:52:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: futex: Bound number of LDXR/STXR loops in" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E51598005A;
+        Thu,  9 May 2019 13:55:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero" failed to apply to 5.1-stable tree
 To:     will.deacon@arm.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 May 2019 19:52:09 +0200
-Message-ID: <155742432913562@kroah.com>
+Date:   Thu, 09 May 2019 19:55:33 +0200
+Message-ID: <1557424533205249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,140 +67,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 03110a5cb2161690ae5ac04994d47ed0cd6cef75 Mon Sep 17 00:00:00 2001
+From 84ff7a09c371bc7417eabfda19bf7f113ec917b6 Mon Sep 17 00:00:00 2001
 From: Will Deacon <will.deacon@arm.com>
-Date: Mon, 8 Apr 2019 14:23:17 +0100
-Subject: [PATCH] arm64: futex: Bound number of LDXR/STXR loops in
- FUTEX_WAKE_OP
+Date: Mon, 8 Apr 2019 12:45:09 +0100
+Subject: [PATCH] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero
+ result value
 
-Our futex implementation makes use of LDXR/STXR loops to perform atomic
-updates to user memory from atomic context. This can lead to latency
-problems if we end up spinning around the LL/SC sequence at the expense
-of doing something useful.
+Rather embarrassingly, our futex() FUTEX_WAKE_OP implementation doesn't
+explicitly set the return value on the non-faulting path and instead
+leaves it holding the result of the underlying atomic operation. This
+means that any FUTEX_WAKE_OP atomic operation which computes a non-zero
+value will be reported as having failed. Regrettably, I wrote the buggy
+code back in 2011 and it was upstreamed as part of the initial arm64
+support in 2012.
 
-Rework our futex atomic operations so that we return -EAGAIN if we fail
-to update the futex word after 128 attempts. The core futex code will
-reschedule if necessary and we'll try again later.
+The reasons we appear to get away with this are:
+
+  1. FUTEX_WAKE_OP is rarely used and therefore doesn't appear to get
+     exercised by futex() test applications
+
+  2. If the result of the atomic operation is zero, the system call
+     behaves correctly
+
+  3. Prior to version 2.25, the only operation used by GLIBC set the
+     futex to zero, and therefore worked as expected. From 2.25 onwards,
+     FUTEX_WAKE_OP is not used by GLIBC at all.
+
+Fix the implementation by ensuring that the return value is either 0
+to indicate that the atomic operation completed successfully, or -EFAULT
+if we encountered a fault when accessing the user mapping.
 
 Cc: <stable@kernel.org>
 Fixes: 6170a97460db ("arm64: Atomic operations")
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 
 diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
-index e1d95f08f8e1..2d78ea6932b7 100644
+index cccb83ad7fa8..e1d95f08f8e1 100644
 --- a/arch/arm64/include/asm/futex.h
 +++ b/arch/arm64/include/asm/futex.h
-@@ -23,26 +23,34 @@
- 
- #include <asm/errno.h>
- 
-+#define FUTEX_MAX_LOOPS	128 /* What's the largest number you can think of? */
-+
- #define __futex_atomic_op(insn, ret, oldval, uaddr, tmp, oparg)		\
- do {									\
-+	unsigned int loops = FUTEX_MAX_LOOPS;				\
-+									\
- 	uaccess_enable();						\
- 	asm volatile(							\
+@@ -30,8 +30,8 @@ do {									\
  "	prfm	pstl1strm, %2\n"					\
  "1:	ldxr	%w1, %2\n"						\
  	insn "\n"							\
- "2:	stlxr	%w0, %w3, %2\n"						\
--"	cbnz	%w0, 1b\n"						\
--"	dmb	ish\n"							\
-+"	cbz	%w0, 3f\n"						\
-+"	sub	%w4, %w4, %w0\n"					\
-+"	cbnz	%w4, 1b\n"						\
-+"	mov	%w0, %w7\n"						\
+-"2:	stlxr	%w3, %w0, %2\n"						\
+-"	cbnz	%w3, 1b\n"						\
++"2:	stlxr	%w0, %w3, %2\n"						\
++"	cbnz	%w0, 1b\n"						\
+ "	dmb	ish\n"							\
  "3:\n"									\
-+"	dmb	ish\n"							\
  "	.pushsection .fixup,\"ax\"\n"					\
- "	.align	2\n"							\
--"4:	mov	%w0, %w5\n"						\
-+"4:	mov	%w0, %w6\n"						\
- "	b	3b\n"							\
- "	.popsection\n"							\
- 	_ASM_EXTABLE(1b, 4b)						\
- 	_ASM_EXTABLE(2b, 4b)						\
--	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp)	\
--	: "r" (oparg), "Ir" (-EFAULT)					\
-+	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp),	\
-+	  "+r" (loops)							\
-+	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
- 	: "memory");							\
- 	uaccess_disable();						\
- } while (0)
-@@ -57,23 +65,23 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
+@@ -50,30 +50,30 @@ do {									\
+ static inline int
+ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
+ {
+-	int oldval = 0, ret, tmp;
++	int oldval, ret, tmp;
+ 	u32 __user *uaddr = __uaccess_mask_ptr(_uaddr);
+ 
+ 	pagefault_disable();
  
  	switch (op) {
  	case FUTEX_OP_SET:
--		__futex_atomic_op("mov	%w3, %w4",
-+		__futex_atomic_op("mov	%w3, %w5",
+-		__futex_atomic_op("mov	%w0, %w4",
++		__futex_atomic_op("mov	%w3, %w4",
  				  ret, oldval, uaddr, tmp, oparg);
  		break;
  	case FUTEX_OP_ADD:
--		__futex_atomic_op("add	%w3, %w1, %w4",
-+		__futex_atomic_op("add	%w3, %w1, %w5",
+-		__futex_atomic_op("add	%w0, %w1, %w4",
++		__futex_atomic_op("add	%w3, %w1, %w4",
  				  ret, oldval, uaddr, tmp, oparg);
  		break;
  	case FUTEX_OP_OR:
--		__futex_atomic_op("orr	%w3, %w1, %w4",
-+		__futex_atomic_op("orr	%w3, %w1, %w5",
+-		__futex_atomic_op("orr	%w0, %w1, %w4",
++		__futex_atomic_op("orr	%w3, %w1, %w4",
  				  ret, oldval, uaddr, tmp, oparg);
  		break;
  	case FUTEX_OP_ANDN:
--		__futex_atomic_op("and	%w3, %w1, %w4",
-+		__futex_atomic_op("and	%w3, %w1, %w5",
+-		__futex_atomic_op("and	%w0, %w1, %w4",
++		__futex_atomic_op("and	%w3, %w1, %w4",
  				  ret, oldval, uaddr, tmp, ~oparg);
  		break;
  	case FUTEX_OP_XOR:
--		__futex_atomic_op("eor	%w3, %w1, %w4",
-+		__futex_atomic_op("eor	%w3, %w1, %w5",
+-		__futex_atomic_op("eor	%w0, %w1, %w4",
++		__futex_atomic_op("eor	%w3, %w1, %w4",
  				  ret, oldval, uaddr, tmp, oparg);
  		break;
  	default:
-@@ -93,6 +101,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
- 			      u32 oldval, u32 newval)
- {
- 	int ret = 0;
-+	unsigned int loops = FUTEX_MAX_LOOPS;
- 	u32 val, tmp;
- 	u32 __user *uaddr;
- 
-@@ -104,20 +113,24 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
- 	asm volatile("// futex_atomic_cmpxchg_inatomic\n"
- "	prfm	pstl1strm, %2\n"
- "1:	ldxr	%w1, %2\n"
--"	sub	%w3, %w1, %w4\n"
--"	cbnz	%w3, 3f\n"
--"2:	stlxr	%w3, %w5, %2\n"
--"	cbnz	%w3, 1b\n"
--"	dmb	ish\n"
-+"	sub	%w3, %w1, %w5\n"
-+"	cbnz	%w3, 4f\n"
-+"2:	stlxr	%w3, %w6, %2\n"
-+"	cbz	%w3, 3f\n"
-+"	sub	%w4, %w4, %w3\n"
-+"	cbnz	%w4, 1b\n"
-+"	mov	%w0, %w8\n"
- "3:\n"
-+"	dmb	ish\n"
-+"4:\n"
- "	.pushsection .fixup,\"ax\"\n"
--"4:	mov	%w0, %w6\n"
--"	b	3b\n"
-+"5:	mov	%w0, %w7\n"
-+"	b	4b\n"
- "	.popsection\n"
--	_ASM_EXTABLE(1b, 4b)
--	_ASM_EXTABLE(2b, 4b)
--	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp)
--	: "r" (oldval), "r" (newval), "Ir" (-EFAULT)
-+	_ASM_EXTABLE(1b, 5b)
-+	_ASM_EXTABLE(2b, 5b)
-+	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
-+	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
- 	: "memory");
- 	uaccess_disable();
- 
 
