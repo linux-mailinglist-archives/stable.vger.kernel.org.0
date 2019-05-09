@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 573D419251
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6395E19206
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727146AbfEISqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
+        id S1727539AbfEIStb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727660AbfEISqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:46:43 -0400
+        id S1727783AbfEISta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8259B2182B;
-        Thu,  9 May 2019 18:46:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31C7E20578;
+        Thu,  9 May 2019 18:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427603;
-        bh=MOv2AaTh1w0/0TobC/dEXlg7Pdgap2FW3MINoZAneYU=;
+        s=default; t=1557427769;
+        bh=mESJRP+Mw6KkSs5rmMeYGTbvR9DiHjYe7Zp09k4ufj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ho+mOrIN5Pk6KwYJ0A9+cC/az5Y9tvWDyoJEJYCL+3ZGnTunJZrarzicUEp9tigNz
-         IigufMwemH3VBt5ch06Gi/cQGsMGdsJrNMxBK91Zu9rofNxZfn80yx3HpZIDPwH6UD
-         nvEKSQggcnu65Ys52Cl4FeAbq//4DsjBpR9KFVqE=
+        b=NOOj/HH+EnwMpMCwbo1EhjV4hg7mIiTrgbeiF62FmrAhonU8nLCroQ8Jj0Pkc1q3i
+         +88I3M/rTx1D8uVU1g9CdcNwjOKwDcFO16q+WuGZBf3P2QY70ijboEUkd2aywV4fXn
+         aLjlK1C61YvemM1mPB8V5buzOeGYvwViNUaq07Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 32/42] USB: serial: f81232: fix interrupt worker not stop
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 46/66] nvme-fc: correct csn initialization and increments on error
 Date:   Thu,  9 May 2019 20:42:21 +0200
-Message-Id: <20190509181259.118772686@linuxfoundation.org>
+Message-Id: <20190509181306.657565576@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
-References: <20190509181252.616018683@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+[ Upstream commit 67f471b6ed3b09033c4ac77ea03f92afdb1989fe ]
 
-commit 804dbee1e49774918339c1e5a87400988c0819e8 upstream.
+This patch fixes a long-standing bug that initialized the FC-NVME
+cmnd iu CSN value to 1. Early FC-NVME specs had the connection starting
+with CSN=1. By the time the spec reached approval, the language had
+changed to state a connection should start with CSN=0.  This patch
+corrects the initialization value for FC-NVME connections.
 
-The F81232 will use interrupt worker to handle MSR change.
-This patch will fix the issue that interrupt work should stop
-in close() and suspend().
+Additionally, in reviewing the transport, the CSN value is assigned to
+the new IU early in the start routine. It's possible that a later dma
+map request may fail, causing the command to never be sent to the
+controller.  Change the location of the assignment so that it is
+immediately prior to calling the lldd. Add a comment block to explain
+the impacts if the lldd were to additionally fail sending the command.
 
-This also fixes line-status events being disabled after a suspend cycle
-until the port is re-opened.
-
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-[ johan: amend commit message ]
-Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
-Cc: stable <stable@vger.kernel.org>	# 4.1
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/f81232.c |   39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/nvme/host/fc.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -560,9 +560,12 @@ static int f81232_open(struct tty_struct
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 9375fa705d829..67dec8860bf3c 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -1844,7 +1844,7 @@ nvme_fc_init_queue(struct nvme_fc_ctrl *ctrl, int idx)
+ 	memset(queue, 0, sizeof(*queue));
+ 	queue->ctrl = ctrl;
+ 	queue->qnum = idx;
+-	atomic_set(&queue->csn, 1);
++	atomic_set(&queue->csn, 0);
+ 	queue->dev = ctrl->dev;
  
- static void f81232_close(struct usb_serial_port *port)
+ 	if (idx > 0)
+@@ -1886,7 +1886,7 @@ nvme_fc_free_queue(struct nvme_fc_queue *queue)
+ 	 */
+ 
+ 	queue->connection_id = 0;
+-	atomic_set(&queue->csn, 1);
++	atomic_set(&queue->csn, 0);
+ }
+ 
+ static void
+@@ -2182,7 +2182,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
  {
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+
- 	f81232_port_disable(port);
- 	usb_serial_generic_close(port);
- 	usb_kill_urb(port->interrupt_in_urb);
-+	flush_work(&port_priv->interrupt_work);
- }
+ 	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
+ 	struct nvme_command *sqe = &cmdiu->sqe;
+-	u32 csn;
+ 	int ret, opstate;
  
- static void f81232_dtr_rts(struct usb_serial_port *port, int on)
-@@ -656,6 +659,40 @@ static int f81232_port_remove(struct usb
- 	return 0;
- }
+ 	/*
+@@ -2197,8 +2196,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
  
-+static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
-+		usb_kill_urb(port->read_urbs[i]);
-+
-+	usb_kill_urb(port->interrupt_in_urb);
-+
-+	if (port_priv)
-+		flush_work(&port_priv->interrupt_work);
-+
-+	return 0;
-+}
-+
-+static int f81232_resume(struct usb_serial *serial)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	int result;
-+
-+	if (tty_port_initialized(&port->port)) {
-+		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
-+		if (result) {
-+			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
-+					result);
-+			return result;
-+		}
-+	}
-+
-+	return usb_serial_generic_resume(serial);
-+}
-+
- static struct usb_serial_driver f81232_device = {
- 	.driver = {
- 		.owner =	THIS_MODULE,
-@@ -679,6 +716,8 @@ static struct usb_serial_driver f81232_d
- 	.read_int_callback =	f81232_read_int_callback,
- 	.port_probe =		f81232_port_probe,
- 	.port_remove =		f81232_port_remove,
-+	.suspend =		f81232_suspend,
-+	.resume =		f81232_resume,
- };
+ 	/* format the FC-NVME CMD IU and fcp_req */
+ 	cmdiu->connection_id = cpu_to_be64(queue->connection_id);
+-	csn = atomic_inc_return(&queue->csn);
+-	cmdiu->csn = cpu_to_be32(csn);
+ 	cmdiu->data_len = cpu_to_be32(data_len);
+ 	switch (io_dir) {
+ 	case NVMEFC_FCP_WRITE:
+@@ -2256,11 +2253,24 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
+ 	if (!(op->flags & FCOP_FLAGS_AEN))
+ 		blk_mq_start_request(op->rq);
  
- static struct usb_serial_driver * const serial_drivers[] = {
++	cmdiu->csn = cpu_to_be32(atomic_inc_return(&queue->csn));
+ 	ret = ctrl->lport->ops->fcp_io(&ctrl->lport->localport,
+ 					&ctrl->rport->remoteport,
+ 					queue->lldd_handle, &op->fcp_req);
+ 
+ 	if (ret) {
++		/*
++		 * If the lld fails to send the command is there an issue with
++		 * the csn value?  If the command that fails is the Connect,
++		 * no - as the connection won't be live.  If it is a command
++		 * post-connect, it's possible a gap in csn may be created.
++		 * Does this matter?  As Linux initiators don't send fused
++		 * commands, no.  The gap would exist, but as there's nothing
++		 * that depends on csn order to be delivered on the target
++		 * side, it shouldn't hurt.  It would be difficult for a
++		 * target to even detect the csn gap as it has no idea when the
++		 * cmd with the csn was supposed to arrive.
++		 */
+ 		opstate = atomic_xchg(&op->state, FCPOP_STATE_COMPLETE);
+ 		__nvme_fc_fcpop_chk_teardowns(ctrl, op, opstate);
+ 
+-- 
+2.20.1
+
 
 
