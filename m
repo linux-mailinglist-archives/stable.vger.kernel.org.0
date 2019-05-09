@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C21B19196
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CFB19204
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbfEISxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
+        id S1728244AbfEIStd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728844AbfEISxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:53:12 -0400
+        id S1728239AbfEIStc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 892C6204FD;
-        Thu,  9 May 2019 18:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C401320578;
+        Thu,  9 May 2019 18:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427992;
-        bh=qxNcQDxSh66X3XT1A9HlEwqB20CxHkhLaAHXQ69M1j4=;
+        s=default; t=1557427772;
+        bh=K7/Z7ULPaiMrGML8CskPhXEpmnsruK7vDzfr3sp2vPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ND2XEk6cRYf2A3huXYJ/OdoE6AEzZdD1t5v4cf1kXgqeeAMoD9k3rjIjva/J50PFY
-         EzysA24h04l85xu9lbb/7yRHDfm6XqahXZq4LXsd7Q33/Av/Jd8kzIBYeY8CDLmCUI
-         5uqhH/0D5Kl4TAlAZVSzPwj+ncS6JSTeVBayqM/E=
+        b=fbNp7PiylVii+xeuwG/HYvqNdmMtpG3aIqLCQZuXlabTNoCUPMzusH00cM1uvA/B+
+         Bqq+h72qtUqWZAV5GrmUUBtg9W09HTx09gKHuyWgEv1BRGZ2wLAzQfymEN7yJ4r7NT
+         e/j7kyWKRq/Q0FYzXUI5xVSQoGrVmMtjIqZWSY9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.0 82/95] ACPI / LPSS: Use acpi_lpss_* instead of acpi_subsys_* functions for hibernate
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 64/66] ASoC: Intel: avoid Oops if DMA setup fails
 Date:   Thu,  9 May 2019 20:42:39 +0200
-Message-Id: <20190509181315.038135125@linuxfoundation.org>
+Message-Id: <20190509181308.092615871@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ross Zwisler <zwisler@chromium.org>
 
-commit c8afd03486c26accdda4846e5561aa3f8e862a9d upstream.
+commit 0efa3334d65b7f421ba12382dfa58f6ff5bf83c4 upstream.
 
-Commit 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from
-resume_noirq") makes acpi_lpss_{suspend_late,resume_early}() bail early
-on BYT/CHT as resume_from_noirq is set.
+Currently in sst_dsp_new() if we get an error return from sst_dma_new()
+we just print an error message and then still complete the function
+successfully.  This means that we are trying to run without sst->dma
+properly set up, which will result in NULL pointer dereference when
+sst->dma is later used.  This was happening for me in
+sst_dsp_dma_get_channel():
 
-This means that on resume from hibernate dw_i2c_plat_resume() doesn't get
-called by the restore_early callback, acpi_lpss_resume_early(). Instead it
-should be called by the restore_noirq callback matching how things are done
-when resume_from_noirq is set and we are doing a regular resume.
+        struct sst_dma *dma = dsp->dma;
+	...
+        dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
 
-Change the restore_noirq callback to acpi_lpss_resume_noirq so that
-dw_i2c_plat_resume() gets properly called when resume_from_noirq is set
-and we are resuming from hibernate.
+This resulted in:
 
-Likewise also change the poweroff_noirq callback so that
-dw_i2c_plat_suspend gets called properly.
+   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+   IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202139
-Fixes: 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from resume_noirq")
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix this by adding proper error handling for the case where we fail to
+set up DMA.
+
+This change only affects Haswell and Broadwell systems.  Baytrail
+systems explicilty opt-out of DMA via sst->pdata->resindex_dma_base
+being set to -1.
+
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Cc: stable@vger.kernel.org
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_lpss.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/common/sst-firmware.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -1142,8 +1142,8 @@ static struct dev_pm_domain acpi_lpss_pm
- 		.thaw_noirq = acpi_subsys_thaw_noirq,
- 		.poweroff = acpi_subsys_suspend,
- 		.poweroff_late = acpi_lpss_suspend_late,
--		.poweroff_noirq = acpi_subsys_suspend_noirq,
--		.restore_noirq = acpi_subsys_resume_noirq,
-+		.poweroff_noirq = acpi_lpss_suspend_noirq,
-+		.restore_noirq = acpi_lpss_resume_noirq,
- 		.restore_early = acpi_lpss_resume_early,
- #endif
- 		.runtime_suspend = acpi_lpss_runtime_suspend,
+--- a/sound/soc/intel/common/sst-firmware.c
++++ b/sound/soc/intel/common/sst-firmware.c
+@@ -1251,11 +1251,15 @@ struct sst_dsp *sst_dsp_new(struct devic
+ 		goto irq_err;
+ 
+ 	err = sst_dma_new(sst);
+-	if (err)
+-		dev_warn(dev, "sst_dma_new failed %d\n", err);
++	if (err)  {
++		dev_err(dev, "sst_dma_new failed %d\n", err);
++		goto dma_err;
++	}
+ 
+ 	return sst;
+ 
++dma_err:
++	free_irq(sst->irq, sst);
+ irq_err:
+ 	if (sst->ops->free)
+ 		sst->ops->free(sst);
 
 
