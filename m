@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 497C419209
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FF01926B
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726979AbfEISsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42024 "EHLO mail.kernel.org"
+        id S1727507AbfEISqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726811AbfEISsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:48:52 -0400
+        id S1727474AbfEISqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3D4C217F5;
-        Thu,  9 May 2019 18:48:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31113217F9;
+        Thu,  9 May 2019 18:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427732;
-        bh=alTQxv/IZIHGOE6lLi9Gqr4JkGzvGVvbp3XilPxfFPc=;
+        s=default; t=1557427565;
+        bh=Re62/yqlEsr+zNIDQyZCR7n6Dos0mGOODH9pJfVwyRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJn+KU0mLfoEgjUcxV6zITVnfNU4EALBqrAskwY5SecQ3uNxnDvjc9I3Qm9YvpXK5
-         4PdNkH4b7LZ4DkFgqvikA72c/xMMblh2LUVKwz2LmLxepQBH9ZJpCZoxXakwOqoSkl
-         uDiUta7BzAB6Aiskv23b59wvmkhaFXfW5d7Kuyd8=
+        b=CvDdT+++q43YJSVhP53+nr6+XgRJNfT63aWX34HRLM1qTxn882Rfsk64B1ziOWu7z
+         ifhqalSIRwJUZ1x+ye7wHXnTY+Wp/7prjON4Gr8vqqS1VPe1odV+b5Rxa+c6cQaKek
+         2PJM+ItEA9tGPbzZDCsKR/Tuay1loLy3a6AnwCX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuming Fan <shumingf@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/66] ASoC: rt5682: recording has no sound after booting
-Date:   Thu,  9 May 2019 20:41:51 +0200
-Message-Id: <20190509181303.620096596@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>
+Subject: [PATCH 4.14 03/42] ubsan: Fix nasty -Wbuiltin-declaration-mismatch GCC-9 warnings
+Date:   Thu,  9 May 2019 20:41:52 +0200
+Message-Id: <20190509181253.152298880@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
+References: <20190509181252.616018683@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1c5b6a27e432e4fe170a924c8b41012271496a4c ]
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-If ASRC turns on, HW will use clk_dac as the reference clock
-whether recording or playback.
-Both of clk_dac and clk_adc should set proper clock while using ASRC.
+commit f0996bc2978e02d2ea898101462b960f6119b18f upstream.
 
-Signed-off-by: Shuming Fan <shumingf@realtek.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Building lib/ubsan.c with gcc-9 results in a ton of nasty warnings like
+this one:
+
+    lib/ubsan.c warning: conflicting types for built-in function
+         ‘__ubsan_handle_negate_overflow’; expected ‘void(void *, void *)’ [-Wbuiltin-declaration-mismatch]
+
+The kernel's declarations of __ubsan_handle_*() often uses 'unsigned
+long' types in parameters while GCC these parameters as 'void *' types,
+hence the mismatch.
+
+Fix this by using 'void *' to match GCC's declarations.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Fixes: c6d308534aef ("UBSAN: run-time undefined behavior sanity checker")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/rt5682.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ lib/ubsan.c |   49 +++++++++++++++++++++++--------------------------
+ 1 file changed, 23 insertions(+), 26 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index 79ebcc2397865..6f5dac09ceded 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -1196,7 +1196,7 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
- 	struct snd_soc_component *component =
- 		snd_soc_dapm_to_component(w->dapm);
- 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
--	int ref, val, reg, sft, mask, idx = -EINVAL;
-+	int ref, val, reg, idx = -EINVAL;
- 	static const int div_f[] = {1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48};
- 	static const int div_o[] = {1, 2, 4, 6, 8, 12, 16, 24, 32, 48};
+--- a/lib/ubsan.c
++++ b/lib/ubsan.c
+@@ -86,11 +86,13 @@ static bool is_inline_int(struct type_de
+ 	return bits <= inline_bits;
+ }
  
-@@ -1210,15 +1210,10 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
- 
- 	idx = rt5682_div_sel(rt5682, ref, div_f, ARRAY_SIZE(div_f));
- 
--	if (w->shift == RT5682_PWR_ADC_S1F_BIT) {
-+	if (w->shift == RT5682_PWR_ADC_S1F_BIT)
- 		reg = RT5682_PLL_TRACK_3;
--		sft = RT5682_ADC_OSR_SFT;
--		mask = RT5682_ADC_OSR_MASK;
--	} else {
-+	else
- 		reg = RT5682_PLL_TRACK_2;
--		sft = RT5682_DAC_OSR_SFT;
--		mask = RT5682_DAC_OSR_MASK;
--	}
- 
- 	snd_soc_component_update_bits(component, reg,
- 		RT5682_FILTER_CLK_DIV_MASK, idx << RT5682_FILTER_CLK_DIV_SFT);
-@@ -1230,7 +1225,8 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
+-static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
++static s_max get_signed_val(struct type_descriptor *type, void *val)
+ {
+ 	if (is_inline_int(type)) {
+ 		unsigned extra_bits = sizeof(s_max)*8 - type_bit_width(type);
+-		return ((s_max)val) << extra_bits >> extra_bits;
++		unsigned long ulong_val = (unsigned long)val;
++
++		return ((s_max)ulong_val) << extra_bits >> extra_bits;
  	}
  
- 	snd_soc_component_update_bits(component, RT5682_ADDA_CLK_1,
--		mask, idx << sft);
-+		RT5682_ADC_OSR_MASK | RT5682_DAC_OSR_MASK,
-+		(idx << RT5682_ADC_OSR_SFT) | (idx << RT5682_DAC_OSR_SFT));
- 
- 	return 0;
+ 	if (type_bit_width(type) == 64)
+@@ -99,15 +101,15 @@ static s_max get_signed_val(struct type_
+ 	return *(s_max *)val;
  }
--- 
-2.20.1
-
+ 
+-static bool val_is_negative(struct type_descriptor *type, unsigned long val)
++static bool val_is_negative(struct type_descriptor *type, void *val)
+ {
+ 	return type_is_signed(type) && get_signed_val(type, val) < 0;
+ }
+ 
+-static u_max get_unsigned_val(struct type_descriptor *type, unsigned long val)
++static u_max get_unsigned_val(struct type_descriptor *type, void *val)
+ {
+ 	if (is_inline_int(type))
+-		return val;
++		return (unsigned long)val;
+ 
+ 	if (type_bit_width(type) == 64)
+ 		return *(u64 *)val;
+@@ -116,7 +118,7 @@ static u_max get_unsigned_val(struct typ
+ }
+ 
+ static void val_to_string(char *str, size_t size, struct type_descriptor *type,
+-	unsigned long value)
++			void *value)
+ {
+ 	if (type_is_int(type)) {
+ 		if (type_bit_width(type) == 128) {
+@@ -168,8 +170,8 @@ static void ubsan_epilogue(unsigned long
+ 	current->in_ubsan--;
+ }
+ 
+-static void handle_overflow(struct overflow_data *data, unsigned long lhs,
+-			unsigned long rhs, char op)
++static void handle_overflow(struct overflow_data *data, void *lhs,
++			void *rhs, char op)
+ {
+ 
+ 	struct type_descriptor *type = data->type;
+@@ -196,8 +198,7 @@ static void handle_overflow(struct overf
+ }
+ 
+ void __ubsan_handle_add_overflow(struct overflow_data *data,
+-				unsigned long lhs,
+-				unsigned long rhs)
++				void *lhs, void *rhs)
+ {
+ 
+ 	handle_overflow(data, lhs, rhs, '+');
+@@ -205,23 +206,21 @@ void __ubsan_handle_add_overflow(struct
+ EXPORT_SYMBOL(__ubsan_handle_add_overflow);
+ 
+ void __ubsan_handle_sub_overflow(struct overflow_data *data,
+-				unsigned long lhs,
+-				unsigned long rhs)
++				void *lhs, void *rhs)
+ {
+ 	handle_overflow(data, lhs, rhs, '-');
+ }
+ EXPORT_SYMBOL(__ubsan_handle_sub_overflow);
+ 
+ void __ubsan_handle_mul_overflow(struct overflow_data *data,
+-				unsigned long lhs,
+-				unsigned long rhs)
++				void *lhs, void *rhs)
+ {
+ 	handle_overflow(data, lhs, rhs, '*');
+ }
+ EXPORT_SYMBOL(__ubsan_handle_mul_overflow);
+ 
+ void __ubsan_handle_negate_overflow(struct overflow_data *data,
+-				unsigned long old_val)
++				void *old_val)
+ {
+ 	unsigned long flags;
+ 	char old_val_str[VALUE_LENGTH];
+@@ -242,8 +241,7 @@ EXPORT_SYMBOL(__ubsan_handle_negate_over
+ 
+ 
+ void __ubsan_handle_divrem_overflow(struct overflow_data *data,
+-				unsigned long lhs,
+-				unsigned long rhs)
++				void *lhs, void *rhs)
+ {
+ 	unsigned long flags;
+ 	char rhs_val_str[VALUE_LENGTH];
+@@ -328,7 +326,7 @@ static void ubsan_type_mismatch_common(s
+ }
+ 
+ void __ubsan_handle_type_mismatch(struct type_mismatch_data *data,
+-				unsigned long ptr)
++				void *ptr)
+ {
+ 	struct type_mismatch_data_common common_data = {
+ 		.location = &data->location,
+@@ -337,12 +335,12 @@ void __ubsan_handle_type_mismatch(struct
+ 		.type_check_kind = data->type_check_kind
+ 	};
+ 
+-	ubsan_type_mismatch_common(&common_data, ptr);
++	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
+ }
+ EXPORT_SYMBOL(__ubsan_handle_type_mismatch);
+ 
+ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_data_v1 *data,
+-				unsigned long ptr)
++				void *ptr)
+ {
+ 
+ 	struct type_mismatch_data_common common_data = {
+@@ -352,7 +350,7 @@ void __ubsan_handle_type_mismatch_v1(str
+ 		.type_check_kind = data->type_check_kind
+ 	};
+ 
+-	ubsan_type_mismatch_common(&common_data, ptr);
++	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
+ }
+ EXPORT_SYMBOL(__ubsan_handle_type_mismatch_v1);
+ 
+@@ -376,7 +374,7 @@ void __ubsan_handle_nonnull_return(struc
+ EXPORT_SYMBOL(__ubsan_handle_nonnull_return);
+ 
+ void __ubsan_handle_vla_bound_not_positive(struct vla_bound_data *data,
+-					unsigned long bound)
++					void *bound)
+ {
+ 	unsigned long flags;
+ 	char bound_str[VALUE_LENGTH];
+@@ -393,8 +391,7 @@ void __ubsan_handle_vla_bound_not_positi
+ }
+ EXPORT_SYMBOL(__ubsan_handle_vla_bound_not_positive);
+ 
+-void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data,
+-				unsigned long index)
++void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data, void *index)
+ {
+ 	unsigned long flags;
+ 	char index_str[VALUE_LENGTH];
+@@ -412,7 +409,7 @@ void __ubsan_handle_out_of_bounds(struct
+ EXPORT_SYMBOL(__ubsan_handle_out_of_bounds);
+ 
+ void __ubsan_handle_shift_out_of_bounds(struct shift_out_of_bounds_data *data,
+-					unsigned long lhs, unsigned long rhs)
++					void *lhs, void *rhs)
+ {
+ 	unsigned long flags;
+ 	struct type_descriptor *rhs_type = data->rhs_type;
+@@ -463,7 +460,7 @@ void __ubsan_handle_builtin_unreachable(
+ EXPORT_SYMBOL(__ubsan_handle_builtin_unreachable);
+ 
+ void __ubsan_handle_load_invalid_value(struct invalid_value_data *data,
+-				unsigned long val)
++				void *val)
+ {
+ 	unsigned long flags;
+ 	char val_str[VALUE_LENGTH];
 
 
