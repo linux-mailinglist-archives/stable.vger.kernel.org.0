@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF7D191F6
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D54D191E4
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727850AbfEITCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43452 "EHLO mail.kernel.org"
+        id S1726968AbfEISua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:50:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727638AbfEISuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:50:01 -0400
+        id S1728406AbfEISu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:50:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55A16217F9;
-        Thu,  9 May 2019 18:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B606A20578;
+        Thu,  9 May 2019 18:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427800;
-        bh=Ss5X+RIKrkfObLBIwJoE0jZwf0fTuAOXHaRiDfCHvfw=;
+        s=default; t=1557427829;
+        bh=Kj5Z/o3GPzGUtGgwwDOoGylmwD5Ap/wDMMcXe3t9suE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjfUA13lZps4f8mATvd49TieczFrevjST4jVjIc7/+mMy66Ory/b3rZPZGqSl8p+E
-         /peTHNwbwaJQvEfteMcAuNrzN416n+lSRefZ7Xf/Z6RYj1fk6jUjF9D4SKH74UTI9D
-         oHMYyfgvq2K6Y5+WLzKmJawUV15CfZtxD5Dkb2xY=
+        b=qPRG/5ssA45yzio4ctLxgem5sXBe3Ld5segzsEKwQFF9a5PHVKfvZrIyBdx90S5GG
+         WZJdLMLOAcJkojVMfqOMCQYTEIoJZYu4muYoDAO5KQlzgrcq5YGkYFmZhGzM/wruI7
+         EX+vWlYj6zMq1nza8Zp/ypDgGlrObocaLO7X9BEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 5.0 01/95] net: stmmac: Use bfsize1 in ndesc_init_rx_desc
-Date:   Thu,  9 May 2019 20:41:18 +0200
-Message-Id: <20190509181309.290036807@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 5.0 02/95] Drivers: hv: vmbus: Remove the undesired put_cpu_ptr() in hv_synic_cleanup()
+Date:   Thu,  9 May 2019 20:41:19 +0200
+Message-Id: <20190509181309.409596283@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
 References: <20190509181309.180685671@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,39 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit f87db4dbd52f2f8a170a2b51cb0926221ca7c9e2 upstream.
+commit a0033bd1eae4650b69be07c17cb87393da584563 upstream.
 
-gcc warn this:
+With CONFIG_DEBUG_PREEMPT=y, the put_cpu_ptr() triggers an underflow
+warning in preempt_count_sub().
 
-drivers/net/ethernet/stmicro/stmmac/norm_desc.c: In function ndesc_init_rx_desc:
-drivers/net/ethernet/stmicro/stmmac/norm_desc.c:138:6: warning: variable 'bfsize1' set but not used [-Wunused-but-set-variable]
-
-Like enh_desc_init_rx_desc, we should use bfsize1
-in ndesc_init_rx_desc to calculate 'p->des1'
-
-Fixes: 583e63614149 ("net: stmmac: use correct DMA buffer size in the RX descriptor")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Fixes: 37cdd991fac8 ("vmbus: put related per-cpu variable together")
+Cc: stable@vger.kernel.org
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/stmicro/stmmac/norm_desc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hv/hv.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/norm_desc.c
-@@ -140,7 +140,7 @@ static void ndesc_init_rx_desc(struct dm
- 	p->des0 |= cpu_to_le32(RDES0_OWN);
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -408,7 +408,6 @@ int hv_synic_cleanup(unsigned int cpu)
  
- 	bfsize1 = min(bfsize, BUF_SIZE_2KiB - 1);
--	p->des1 |= cpu_to_le32(bfsize & RDES1_BUFFER1_SIZE_MASK);
-+	p->des1 |= cpu_to_le32(bfsize1 & RDES1_BUFFER1_SIZE_MASK);
+ 		clockevents_unbind_device(hv_cpu->clk_evt, cpu);
+ 		hv_ce_shutdown(hv_cpu->clk_evt);
+-		put_cpu_ptr(hv_cpu);
+ 	}
  
- 	if (mode == STMMAC_CHAIN_MODE)
- 		ndesc_rx_set_on_chain(p, end);
+ 	hv_get_synint_state(VMBUS_MESSAGE_SINT, shared_sint.as_uint64);
 
 
