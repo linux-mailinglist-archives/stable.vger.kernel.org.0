@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B67DB19197
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18DF719168
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728296AbfEISxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47702 "EHLO mail.kernel.org"
+        id S1729205AbfEISzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728853AbfEISxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:53:15 -0400
+        id S1729207AbfEISzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:55:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30405217F5;
-        Thu,  9 May 2019 18:53:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94619204FD;
+        Thu,  9 May 2019 18:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427994;
-        bh=if2nZ56rO+pMZc+Myfq3f0Ur5avwSADbbKcVIDE0cJU=;
+        s=default; t=1557428118;
+        bh=y588Izky8SnyNVqv+CaJcldVbCrc8tfq22LbV1mgVjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXWZZ94o9G3PtR2gtXpXdeyxqOnGhP+rUAbfIJ1LwVmxrHlrH2yXPbmnrAJGWsggW
-         qSjtQbnTHwUqimqMXX/OoxEd7MqEZ7tdEWowzHvoFvOfP690x30bzoJgWjXk3/05Ph
-         8z4NBmBRNtywuUWDw7k5lrKpa7n+kcXv57Iop27M=
+        b=IV3SICB2jPRBTVZkxd7osE81qH5b/NGBgFzeh7gIqvjmWKsOJQB6gojFDOYbg//6x
+         d0E3GG2qg96k5y26War3sdfPZ484TSPN3kn2TeTtowweI9SbJe/lJmLpKW3nJLA8fL
+         F5ZxDdkM0AMgVult3mvxZcrZ/S7UfDnobswCdmUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 5.0 83/95] soc: sunxi: Fix missing dependency on REGMAP_MMIO
-Date:   Thu,  9 May 2019 20:42:40 +0200
-Message-Id: <20190509181315.094360476@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.1 09/30] USB: serial: f81232: fix interrupt worker not stop
+Date:   Thu,  9 May 2019 20:42:41 +0200
+Message-Id: <20190509181252.590284425@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
+References: <20190509181250.417203112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
 
-commit a84014e1db35d8e7af09878d0b4bf30804fb17d5 upstream.
+commit 804dbee1e49774918339c1e5a87400988c0819e8 upstream.
 
-When enabling ARCH_SUNXI from allnoconfig, SUNXI_SRAM is enabled, but
-not REGMAP_MMIO, so the kernel fails to link with an undefined reference
-to __devm_regmap_init_mmio_clk. Select REGMAP_MMIO, as suggested in
-drivers/base/regmap/Kconfig.
+The F81232 will use interrupt worker to handle MSR change.
+This patch will fix the issue that interrupt work should stop
+in close() and suspend().
 
-This creates the following dependency loop:
+This also fixes line-status events being disabled after a suspend cycle
+until the port is re-opened.
 
-  drivers/of/Kconfig:68:                symbol OF_IRQ depends on IRQ_DOMAIN
-  kernel/irq/Kconfig:63:                symbol IRQ_DOMAIN is selected by REGMAP
-  drivers/base/regmap/Kconfig:7:        symbol REGMAP default is visible depending on REGMAP_MMIO
-  drivers/base/regmap/Kconfig:39:       symbol REGMAP_MMIO is selected by SUNXI_SRAM
-  drivers/soc/sunxi/Kconfig:4:          symbol SUNXI_SRAM is selected by USB_MUSB_SUNXI
-  drivers/usb/musb/Kconfig:63:          symbol USB_MUSB_SUNXI depends on GENERIC_PHY
-  drivers/phy/Kconfig:7:                symbol GENERIC_PHY is selected by PHY_BCM_NS_USB3
-  drivers/phy/broadcom/Kconfig:29:      symbol PHY_BCM_NS_USB3 depends on MDIO_BUS
-  drivers/net/phy/Kconfig:12:           symbol MDIO_BUS default is visible depending on PHYLIB
-  drivers/net/phy/Kconfig:181:          symbol PHYLIB is selected by ARC_EMAC_CORE
-  drivers/net/ethernet/arc/Kconfig:18:  symbol ARC_EMAC_CORE is selected by ARC_EMAC
-  drivers/net/ethernet/arc/Kconfig:24:  symbol ARC_EMAC depends on OF_IRQ
-
-To fix the circular dependency, make USB_MUSB_SUNXI select GENERIC_PHY
-instead of depending on it. This matches the use of GENERIC_PHY by all
-but two other drivers.
-
-Cc: <stable@vger.kernel.org> # 4.19
-Fixes: 5828729bebbb ("soc: sunxi: export a regmap for EMAC clock reg on A64")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+[ johan: amend commit message ]
+Fixes: 87fe5adcd8de ("USB: f81232: implement read IIR/MSR with endpoint")
+Cc: stable <stable@vger.kernel.org>	# 4.1
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/sunxi/Kconfig |    1 +
- drivers/usb/musb/Kconfig  |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/f81232.c |   39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
---- a/drivers/soc/sunxi/Kconfig
-+++ b/drivers/soc/sunxi/Kconfig
-@@ -4,6 +4,7 @@
- config SUNXI_SRAM
- 	bool
- 	default ARCH_SUNXI
-+	select REGMAP_MMIO
- 	help
- 	  Say y here to enable the SRAM controller support. This
- 	  device is responsible on mapping the SRAM in the sunXi SoCs
---- a/drivers/usb/musb/Kconfig
-+++ b/drivers/usb/musb/Kconfig
-@@ -66,7 +66,7 @@ config USB_MUSB_SUNXI
- 	depends on NOP_USB_XCEIV
- 	depends on PHY_SUN4I_USB
- 	depends on EXTCON
--	depends on GENERIC_PHY
-+	select GENERIC_PHY
- 	select SUNXI_SRAM
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -556,9 +556,12 @@ static int f81232_open(struct tty_struct
  
- config USB_MUSB_DAVINCI
+ static void f81232_close(struct usb_serial_port *port)
+ {
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++
+ 	f81232_port_disable(port);
+ 	usb_serial_generic_close(port);
+ 	usb_kill_urb(port->interrupt_in_urb);
++	flush_work(&port_priv->interrupt_work);
+ }
+ 
+ static void f81232_dtr_rts(struct usb_serial_port *port, int on)
+@@ -632,6 +635,40 @@ static int f81232_port_remove(struct usb
+ 	return 0;
+ }
+ 
++static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
++{
++	struct usb_serial_port *port = serial->port[0];
++	struct f81232_private *port_priv = usb_get_serial_port_data(port);
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
++		usb_kill_urb(port->read_urbs[i]);
++
++	usb_kill_urb(port->interrupt_in_urb);
++
++	if (port_priv)
++		flush_work(&port_priv->interrupt_work);
++
++	return 0;
++}
++
++static int f81232_resume(struct usb_serial *serial)
++{
++	struct usb_serial_port *port = serial->port[0];
++	int result;
++
++	if (tty_port_initialized(&port->port)) {
++		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
++		if (result) {
++			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
++					result);
++			return result;
++		}
++	}
++
++	return usb_serial_generic_resume(serial);
++}
++
+ static struct usb_serial_driver f81232_device = {
+ 	.driver = {
+ 		.owner =	THIS_MODULE,
+@@ -655,6 +692,8 @@ static struct usb_serial_driver f81232_d
+ 	.read_int_callback =	f81232_read_int_callback,
+ 	.port_probe =		f81232_port_probe,
+ 	.port_remove =		f81232_port_remove,
++	.suspend =		f81232_suspend,
++	.resume =		f81232_resume,
+ };
+ 
+ static struct usb_serial_driver * const serial_drivers[] = {
 
 
