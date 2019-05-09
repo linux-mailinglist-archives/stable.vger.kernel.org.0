@@ -2,212 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6611918BE9
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 16:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E641C18D0F
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 17:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726561AbfEIOfF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 9 May 2019 10:35:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46250 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726187AbfEIOfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 10:35:04 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 504D0ABD4;
-        Thu,  9 May 2019 14:35:03 +0000 (UTC)
-Date:   Thu, 9 May 2019 16:35:02 +0200
-From:   Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: Build failure in v4.4.y.queue (ppc:allmodconfig)
-Message-ID: <20190509163502.4a9e1f77@kitsune.suse.cz>
-In-Reply-To: <ace9aeac-f632-c004-1528-8c242def0904@roeck-us.net>
-References: <20190508202642.GA28212@roeck-us.net>
-        <20190509065324.GA3864@kroah.com>
-        <20190509114923.696222cb@naga>
-        <e8aa590e-a02f-19de-96df-6728ded7aab3@roeck-us.net>
-        <20190509152649.2e3ef94d@kitsune.suse.cz>
-        <ace9aeac-f632-c004-1528-8c242def0904@roeck-us.net>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-suse-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        id S1726469AbfEIPhw convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 9 May 2019 11:37:52 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53982 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726187AbfEIPhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 11:37:52 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 64B9C30B9DE7
+        for <stable@vger.kernel.org>; Thu,  9 May 2019 15:37:51 +0000 (UTC)
+Received: from [172.54.105.48] (cpt-0019.paas.prod.upshift.rdu2.redhat.com [10.0.18.96])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CD35D600C7;
+        Thu,  9 May 2019 15:37:48 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.4451184104.0D6O7RWBRF@redhat.com>
+X-Gitlab-Pipeline-ID: 9588
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9588
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Thu, 09 May 2019 15:37:51 +0000 (UTC)
+Date:   Thu, 9 May 2019 11:37:52 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 May 2019 07:06:32 -0700
-Guenter Roeck <linux@roeck-us.net> wrote:
+Hello,
 
-> On 5/9/19 6:26 AM, Michal Suchánek wrote:
-> > On Thu, 9 May 2019 06:07:31 -0700
-> > Guenter Roeck <linux@roeck-us.net> wrote:
-> >   
-> >> On 5/9/19 2:49 AM, Michal Suchánek wrote:  
-> >>> On Thu, 9 May 2019 08:53:24 +0200
-> >>> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> >>>      
-> >>>> On Wed, May 08, 2019 at 01:26:42PM -0700, Guenter Roeck wrote:  
-> >>>>> I see multiple instances of:
-> >>>>>
-> >>>>> arch/powerpc/kernel/exceptions-64s.S:839: Error:
-> >>>>> 	attempt to move .org backwards
-> >>>>>
-> >>>>> in v4.4.y.queue (v4.4.179-143-gc4db218e9451).
-> >>>>>
-> >>>>> This is due to commit 9b2d4e06d7f1 ("powerpc/64s: Add support for a store
-> >>>>> forwarding barrier at kernel entry/exit"), which is part of a large patch
-> >>>>> series and can not easily be reverted.
-> >>>>>
-> >>>>> Guess I'll stop doing ppc:allmodconfig builds in v4.4.y ?  
-> >>>>
-> >>>> Michael, I thought this patch series was supposed to fix ppc issues, not
-> >>>> add to them :)
-> >>>>
-> >>>> Any ideas on what to do here?  
-> >>>
-> >>> What exact code do you build?
-> >>>     
-> >> $ make ARCH=powerpc CROSS_COMPILE=powerpc64-linux- allmodconfig
-> >> $ powerpc64-linux-gcc --version
-> >> powerpc64-linux-gcc (GCC) 8.3.0
-> >>  
-> > 
-> > Gcc should not see this file. I am asking because I do not see an .org
-> > directive at line 839 of 4.4.179. I probably need some different repo
-> > or extra patches to see the same code as you do.
-> >   
-> v4.4.179-143-gc4db218e9451 from
-> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> branch linux-4.4.y
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Still don't see it. That branch is at 4.4.179 and c4db218e9451 does not
-exist after fetching from the repo.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: e93c9c99a629 - Linux 5.1
 
-Anyway, here is a patch (untested):
+The results of these automated tests are provided below.
 
-Subject: [PATCH] Move out-of-line exception handlers after relon exception
- handlers.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-The relon exception handlers need to be at specific location and code
-inflation in the common handler code can cause
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Error: attempt to move .org backwards
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/powerpc/kernel/exceptions-64s.S | 88 ++++++++++++++--------------
- 1 file changed, 44 insertions(+), 44 deletions(-)
+Merge testing
+-------------
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 938a30fef031..1d477d21ff09 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -772,50 +772,6 @@ kvmppc_skip_Hinterrupt:
- 	b	.
- #endif
- 
--/*
-- * Code from here down to __end_handlers is invoked from the
-- * exception prologs above.  Because the prologs assemble the
-- * addresses of these handlers using the LOAD_HANDLER macro,
-- * which uses an ori instruction, these handlers must be in
-- * the first 64k of the kernel image.
-- */
--
--/*** Common interrupt handlers ***/
--
--	STD_EXCEPTION_COMMON(0x100, system_reset, system_reset_exception)
--
--	STD_EXCEPTION_COMMON_ASYNC(0x500, hardware_interrupt, do_IRQ)
--	STD_EXCEPTION_COMMON_ASYNC(0x900, decrementer, timer_interrupt)
--	STD_EXCEPTION_COMMON(0x980, hdecrementer, hdec_interrupt)
--#ifdef CONFIG_PPC_DOORBELL
--	STD_EXCEPTION_COMMON_ASYNC(0xa00, doorbell_super, doorbell_exception)
--#else
--	STD_EXCEPTION_COMMON_ASYNC(0xa00, doorbell_super, unknown_exception)
--#endif
--	STD_EXCEPTION_COMMON(0xb00, trap_0b, unknown_exception)
--	STD_EXCEPTION_COMMON(0xd00, single_step, single_step_exception)
--	STD_EXCEPTION_COMMON(0xe00, trap_0e, unknown_exception)
--	STD_EXCEPTION_COMMON(0xe40, emulation_assist, emulation_assist_interrupt)
--	STD_EXCEPTION_COMMON_ASYNC(0xe60, hmi_exception, handle_hmi_exception)
--#ifdef CONFIG_PPC_DOORBELL
--	STD_EXCEPTION_COMMON_ASYNC(0xe80, h_doorbell, doorbell_exception)
--#else
--	STD_EXCEPTION_COMMON_ASYNC(0xe80, h_doorbell, unknown_exception)
--#endif
--	STD_EXCEPTION_COMMON_ASYNC(0xf00, performance_monitor, performance_monitor_exception)
--	STD_EXCEPTION_COMMON(0x1300, instruction_breakpoint, instruction_breakpoint_exception)
--	STD_EXCEPTION_COMMON(0x1502, denorm, unknown_exception)
--#ifdef CONFIG_ALTIVEC
--	STD_EXCEPTION_COMMON(0x1700, altivec_assist, altivec_assist_exception)
--#else
--	STD_EXCEPTION_COMMON(0x1700, altivec_assist, unknown_exception)
--#endif
--#ifdef CONFIG_CBE_RAS
--	STD_EXCEPTION_COMMON(0x1200, cbe_system_error, cbe_system_error_exception)
--	STD_EXCEPTION_COMMON(0x1600, cbe_maintenance, cbe_maintenance_exception)
--	STD_EXCEPTION_COMMON(0x1800, cbe_thermal, cbe_thermal_exception)
--#endif /* CONFIG_CBE_RAS */
--
- 	/*
- 	 * Relocation-on interrupts: A subset of the interrupts can be delivered
- 	 * with IR=1/DR=1, if AIL==2 and MSR.HV won't be changed by delivering
-@@ -969,6 +925,50 @@ system_call_entry:
- ppc64_runlatch_on_trampoline:
- 	b	__ppc64_runlatch_on
- 
-+/*
-+ * Code from here down to __end_handlers is invoked from the
-+ * exception prologs above.  Because the prologs assemble the
-+ * addresses of these handlers using the LOAD_HANDLER macro,
-+ * which uses an ori instruction, these handlers must be in
-+ * the first 64k of the kernel image.
-+ */
-+
-+/*** Common interrupt handlers ***/
-+
-+	STD_EXCEPTION_COMMON(0x100, system_reset, system_reset_exception)
-+
-+	STD_EXCEPTION_COMMON_ASYNC(0x500, hardware_interrupt, do_IRQ)
-+	STD_EXCEPTION_COMMON_ASYNC(0x900, decrementer, timer_interrupt)
-+	STD_EXCEPTION_COMMON(0x980, hdecrementer, hdec_interrupt)
-+#ifdef CONFIG_PPC_DOORBELL
-+	STD_EXCEPTION_COMMON_ASYNC(0xa00, doorbell_super, doorbell_exception)
-+#else
-+	STD_EXCEPTION_COMMON_ASYNC(0xa00, doorbell_super, unknown_exception)
-+#endif
-+	STD_EXCEPTION_COMMON(0xb00, trap_0b, unknown_exception)
-+	STD_EXCEPTION_COMMON(0xd00, single_step, single_step_exception)
-+	STD_EXCEPTION_COMMON(0xe00, trap_0e, unknown_exception)
-+	STD_EXCEPTION_COMMON(0xe40, emulation_assist, emulation_assist_interrupt)
-+	STD_EXCEPTION_COMMON_ASYNC(0xe60, hmi_exception, handle_hmi_exception)
-+#ifdef CONFIG_PPC_DOORBELL
-+	STD_EXCEPTION_COMMON_ASYNC(0xe80, h_doorbell, doorbell_exception)
-+#else
-+	STD_EXCEPTION_COMMON_ASYNC(0xe80, h_doorbell, unknown_exception)
-+#endif
-+	STD_EXCEPTION_COMMON_ASYNC(0xf00, performance_monitor, performance_monitor_exception)
-+	STD_EXCEPTION_COMMON(0x1300, instruction_breakpoint, instruction_breakpoint_exception)
-+	STD_EXCEPTION_COMMON(0x1502, denorm, unknown_exception)
-+#ifdef CONFIG_ALTIVEC
-+	STD_EXCEPTION_COMMON(0x1700, altivec_assist, altivec_assist_exception)
-+#else
-+	STD_EXCEPTION_COMMON(0x1700, altivec_assist, unknown_exception)
-+#endif
-+#ifdef CONFIG_CBE_RAS
-+	STD_EXCEPTION_COMMON(0x1200, cbe_system_error, cbe_system_error_exception)
-+	STD_EXCEPTION_COMMON(0x1600, cbe_maintenance, cbe_maintenance_exception)
-+	STD_EXCEPTION_COMMON(0x1800, cbe_thermal, cbe_thermal_exception)
-+#endif /* CONFIG_CBE_RAS */
-+
- /*
-  * Here r13 points to the paca, r9 contains the saved CR,
-  * SRR0 and SRR1 are saved in r11 and r12,
--- 
-2.20.1
+We cloned this repository and checked out the following commit:
 
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: e93c9c99a629 - Linux 5.1
+
+We then merged the patchset with `git am`:
+
+  drivers-hv-vmbus-remove-the-undesired-put_cpu_ptr-in-hv_synic_cleanup.patch
+  ubsan-fix-nasty-wbuiltin-declaration-mismatch-gcc-9-warnings.patch
+  staging-greybus-power_supply-fix-prop-descriptor-request-size.patch
+  staging-wilc1000-avoid-gfp_kernel-allocation-from-atomic-context.patch
+  staging-most-cdev-fix-chrdev_region-leak-in-mod_exit.patch
+  staging-most-sound-pass-correct-device-when-creating-a-sound-card.patch
+  usb-dwc3-allow-building-usb_dwc3_qcom-without-extcon.patch
+  usb-dwc3-fix-default-lpm_nyet_threshold-value.patch
+  usb-serial-f81232-fix-interrupt-worker-not-stop.patch
+  usb-cdc-acm-fix-unthrottle-races.patch
+  usb-storage-set-virt_boundary_mask-to-avoid-sg-overflows.patch
+  genirq-prevent-use-after-free-and-work-list-corruption.patch
+  intel_th-pci-add-comet-lake-support.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue-aarch64-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue-ppc64le-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue-s390x-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue-x86_64-9b3003cb856fab8fd7324bed53adbcf9c7ce7a9b.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     ✅ Usex - version 1.9-29 [6]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     ✅ Usex - version 1.9-29 [6]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     ✅ Usex - version 1.9-29 [6]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ httpd: mod_ssl smoke sanity [3]
+     ✅ iotop: sanity [4]
+     ✅ tuned: tune-processes-through-perf [5]
+     ✅ Usex - version 1.9-29 [6]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
