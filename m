@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF7919252
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35FE19254
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727136AbfEISqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39170 "EHLO mail.kernel.org"
+        id S1727675AbfEISqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727660AbfEISqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:46:47 -0400
+        id S1727177AbfEISqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:46:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27E00217F5;
-        Thu,  9 May 2019 18:46:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B90942182B;
+        Thu,  9 May 2019 18:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427605;
-        bh=CVwotYZSb9VThGydNuC3lmxwrUwXYgGzkVkJIb/UZ44=;
+        s=default; t=1557427608;
+        bh=6n0GKdS7BlfEBRnyPq2cxQ+2dRUOf7IlbbWhpkO/mt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5UKHE2Kc2d6HxCSz5o7ZaxKZsnd/SXoGTD9+C/t2EQRAJaQ3aDIRusQcS6POzrZO
-         nkYNh7+lXsmUXW6C5tVvqKksk42alwl9sT9i/3bKni+CuRVidMNBQKuvbPJafe3nb/
-         UvqTg47ZWBwtZNJshiuLb1gY5wUeQrLM4lzlSwiQ=
+        b=HR1avMLyHw+3Igs9yIKu6E2nJ/7ImGC+09QCREG6MtBVSG1vjNYb8LYzaxuDVK4sr
+         +ifaJlquEmzbL5IhrPdHMSLfqwyFbzmj9KhGnMNM07Ad1whJ7nsXLfZWMMobUEsVyX
+         lDxuiVSZqcDTCRJ3a00tXzR2DkQw9lRaR8s25fS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.14 33/42] USB: cdc-acm: fix unthrottle races
-Date:   Thu,  9 May 2019 20:42:22 +0200
-Message-Id: <20190509181259.287643107@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Seth Bollinger <Seth.Bollinger@digi.com>,
+        Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH 4.14 34/42] usb-storage: Set virt_boundary_mask to avoid SG overflows
+Date:   Thu,  9 May 2019 20:42:23 +0200
+Message-Id: <20190509181259.438586135@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181252.616018683@linuxfoundation.org>
 References: <20190509181252.616018683@linuxfoundation.org>
@@ -43,132 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 764478f41130f1b8d8057575b89e69980a0f600d upstream.
+commit 747668dbc061b3e62bc1982767a3a1f9815fcf0e upstream.
 
-Fix two long-standing bugs which could potentially lead to memory
-corruption or leave the port throttled until it is reopened (on weakly
-ordered systems), respectively, when read-URB completion races with
-unthrottle().
+The USB subsystem has always had an unusual requirement for its
+scatter-gather transfers: Each element in the scatterlist (except the
+last one) must have a length divisible by the bulk maxpacket size.
+This is a particular issue for USB mass storage, which uses SG lists
+created by the block layer rather than setting up its own.
 
-First, the URB must not be marked as free before processing is complete
-to prevent it from being submitted by unthrottle() on another CPU.
+So far we have scraped by okay because most devices have a logical
+block size of 512 bytes or larger, and the bulk maxpacket sizes for
+USB 2 and below are all <= 512.  However, USB 3 has a bulk maxpacket
+size of 1024.  Since the xhci-hcd driver includes native SG support,
+this hasn't mattered much.  But now people are trying to use USB-3
+mass storage devices with USBIP, and the vhci-hcd driver currently
+does not have full SG support.
 
-	CPU 1				CPU 2
-	================		================
-	complete()			unthrottle()
-	  process_urb();
-	  smp_mb__before_atomic();
-	  set_bit(i, free);		  if (test_and_clear_bit(i, free))
-						  submit_urb();
+The result is an overflow error, when the driver attempts to implement
+an SG transfer of 63 512-byte blocks as a single
+3584-byte (7 blocks) transfer followed by seven 4096-byte (8 blocks)
+transfers.  The device instead sends 31 1024-byte packets followed by
+a 512-byte packet, and this overruns the first SG buffer.
 
-Second, the URB must be marked as free before checking the throttled
-flag to prevent unthrottle() on another CPU from failing to observe that
-the URB needs to be submitted if complete() sees that the throttled flag
-is set.
+Ideally this would be fixed by adding better SG support to vhci-hcd.
+But for now it appears we can work around the problem by
+asking the block layer to respect the maxpacket limitation, through
+the use of the virt_boundary_mask.
 
-	CPU 1				CPU 2
-	================		================
-	complete()			unthrottle()
-	  set_bit(i, free);		  throttled = 0;
-	  smp_mb__after_atomic();	  smp_mb();
-	  if (throttled)		  if (test_and_clear_bit(i, free))
-		  return;			  submit_urb();
-
-Note that test_and_clear_bit() only implies barriers when the test is
-successful. To handle the case where the URB is still in use an explicit
-barrier needs to be added to unthrottle() for the second race condition.
-
-Also note that the first race was fixed by 36e59e0d70d6 ("cdc-acm: fix
-race between callback and unthrottle") back in 2015, but the bug was
-reintroduced a year later.
-
-Fixes: 1aba579f3cf5 ("cdc-acm: handle read pipe errors")
-Fixes: 088c64f81284 ("USB: cdc-acm: re-write read processing")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Seth Bollinger <Seth.Bollinger@digi.com>
+Tested-by: Seth Bollinger <Seth.Bollinger@digi.com>
+CC: Ming Lei <tom.leiming@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/usb/storage/scsiglue.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -482,12 +482,12 @@ static void acm_read_bulk_callback(struc
- 	struct acm *acm = rb->instance;
- 	unsigned long flags;
- 	int status = urb->status;
-+	bool stopped = false;
-+	bool stalled = false;
- 
- 	dev_vdbg(&acm->data->dev, "got urb %d, len %d, status %d\n",
- 		rb->index, urb->actual_length, status);
- 
--	set_bit(rb->index, &acm->read_urbs_free);
--
- 	if (!acm->dev) {
- 		dev_dbg(&acm->data->dev, "%s - disconnected\n", __func__);
- 		return;
-@@ -500,15 +500,16 @@ static void acm_read_bulk_callback(struc
- 		break;
- 	case -EPIPE:
- 		set_bit(EVENT_RX_STALL, &acm->flags);
--		schedule_work(&acm->work);
--		return;
-+		stalled = true;
-+		break;
- 	case -ENOENT:
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
- 		dev_dbg(&acm->data->dev,
- 			"%s - urb shutting down with status: %d\n",
- 			__func__, status);
--		return;
-+		stopped = true;
-+		break;
- 	default:
- 		dev_dbg(&acm->data->dev,
- 			"%s - nonzero urb status received: %d\n",
-@@ -517,10 +518,24 @@ static void acm_read_bulk_callback(struc
- 	}
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -81,6 +81,7 @@ static const char* host_info(struct Scsi
+ static int slave_alloc (struct scsi_device *sdev)
+ {
+ 	struct us_data *us = host_to_us(sdev->host);
++	int maxp;
  
  	/*
--	 * Unthrottle may run on another CPU which needs to see events
--	 * in the same order. Submission has an implict barrier
-+	 * Make sure URB processing is done before marking as free to avoid
-+	 * racing with unthrottle() on another CPU. Matches the barriers
-+	 * implied by the test_and_clear_bit() in acm_submit_read_urb().
- 	 */
- 	smp_mb__before_atomic();
-+	set_bit(rb->index, &acm->read_urbs_free);
-+	/*
-+	 * Make sure URB is marked as free before checking the throttled flag
-+	 * to avoid racing with unthrottle() on another CPU. Matches the
-+	 * smp_mb() in unthrottle().
+ 	 * Set the INQUIRY transfer length to 36.  We don't use any of
+@@ -90,20 +91,17 @@ static int slave_alloc (struct scsi_devi
+ 	sdev->inquiry_len = 36;
+ 
+ 	/*
+-	 * USB has unusual DMA-alignment requirements: Although the
+-	 * starting address of each scatter-gather element doesn't matter,
+-	 * the length of each element except the last must be divisible
+-	 * by the Bulk maxpacket value.  There's currently no way to
+-	 * express this by block-layer constraints, so we'll cop out
+-	 * and simply require addresses to be aligned at 512-byte
+-	 * boundaries.  This is okay since most block I/O involves
+-	 * hardware sectors that are multiples of 512 bytes in length,
+-	 * and since host controllers up through USB 2.0 have maxpacket
+-	 * values no larger than 512.
+-	 *
+-	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
+-	 * values can be as large as 2048.  To make that work properly
+-	 * will require changes to the block layer.
++	 * USB has unusual scatter-gather requirements: the length of each
++	 * scatterlist element except the last must be divisible by the
++	 * Bulk maxpacket value.  Fortunately this value is always a
++	 * power of 2.  Inform the block layer about this requirement.
 +	 */
-+	smp_mb__after_atomic();
++	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
++	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
 +
-+	if (stopped || stalled) {
-+		if (stalled)
-+			schedule_work(&acm->work);
-+		return;
-+	}
++	/*
++	 * Some host controllers may have alignment requirements.
++	 * We'll play it safe by requiring 512-byte alignment always.
+ 	 */
+ 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
  
- 	/* throttle device if requested by tty */
- 	spin_lock_irqsave(&acm->read_lock, flags);
-@@ -854,6 +869,9 @@ static void acm_tty_unthrottle(struct tt
- 	acm->throttle_req = 0;
- 	spin_unlock_irq(&acm->read_lock);
- 
-+	/* Matches the smp_mb__after_atomic() in acm_read_bulk_callback(). */
-+	smp_mb();
-+
- 	if (was_throttled)
- 		acm_submit_read_urbs(acm, GFP_KERNEL);
- }
 
 
