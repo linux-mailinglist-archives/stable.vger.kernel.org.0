@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C8F191C0
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADF9191D6
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbfEISvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44742 "EHLO mail.kernel.org"
+        id S1726914AbfEITBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728529AbfEISvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:51:07 -0400
+        id S1727913AbfEISvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:51:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DD4C20578;
-        Thu,  9 May 2019 18:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4994F20578;
+        Thu,  9 May 2019 18:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427867;
-        bh=gB4rxXtmZhaQAk8GNiRvnotbYsWheyhY6t08SUjxvUk=;
+        s=default; t=1557427869;
+        bh=Kwg4yaFslhIutCJAYEKJrQO/fw8f/IpuiNsONfVnzeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0HzF2CuPFFMZGpINi7xre6BSpLx3DanGYJlYoi/usEgpfoVZ9bCoGx5kyiMuPy8b
-         WiJ0kBq7Rpkolq/WSJeXoFWUWR/bfeX69fAAJKp/TgCQr3jeC3GMu5bTgR6XtQLjyU
-         sZS6AaKVU6alAox/vjLW6ir5yth10dRz/3YxrTZ0=
+        b=nQRz+oBv1flIRBfsYS4v8DzAVu1QsqwcFpE2d6PTUfeRfu7MuUH0LfhDE2meM2x7f
+         rqzI/08sT0t2x6nkGEB8eiJc1t8WWwTYrQ7aBjETdr+ncFhKWH1GY3Gp7mh2UpyCWt
+         jg3w8cFqYj+x19MC82uADEeaSFeE2CPcQrbI65SQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Christian Gromm <christian.gromm@microchip.com>
-Subject: [PATCH 5.0 07/95] staging: most: sound: pass correct device when creating a sound card
-Date:   Thu,  9 May 2019 20:41:24 +0200
-Message-Id: <20190509181309.829009338@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Philipp Puschmann <philipp.puschmann@emlix.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 08/95] ASoC: tlv320aic3x: fix reset gpio reference counting
+Date:   Thu,  9 May 2019 20:41:25 +0200
+Message-Id: <20190509181309.912685562@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
 References: <20190509181309.180685671@linuxfoundation.org>
@@ -43,33 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gromm <christian.gromm@microchip.com>
+[ Upstream commit 82ad759143ed77673db0d93d53c1cde7b99917ee ]
 
-commit 98592c1faca82a9024a64e4ecead68b19f81c299 upstream.
+This patch fixes a bug that prevents freeing the reset gpio on unloading
+the module.
 
-This patch fixes the usage of the wrong struct device when calling
-function snd_card_new.
+aic3x_i2c_probe is called when loading the module and it calls list_add
+with a probably uninitialized list entry aic3x->list (next = prev = NULL)).
+So even if list_del is called it does nothing and in the end the gpio_reset
+is not freed. Then a repeated module probing fails silently because
+gpio_request fails.
 
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Signed-off-by: Christian Gromm <christian.gromm@microchip.com>
-Fixes: 69c90cf1b2fa ("staging: most: sound: call snd_card_new with struct device")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When moving INIT_LIST_HEAD to aic3x_i2c_probe we also have to move
+list_del to aic3x_i2c_remove because aic3x_remove may be called
+multiple times without aic3x_i2c_remove being called which leads to
+a NULL pointer dereference.
 
+Signed-off-by: Philipp Puschmann <philipp.puschmann@emlix.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/sound/sound.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tlv320aic3x.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/most/sound/sound.c
-+++ b/drivers/staging/most/sound/sound.c
-@@ -622,7 +622,7 @@ static int audio_probe_channel(struct mo
- 	INIT_LIST_HEAD(&adpt->dev_list);
- 	iface->priv = adpt;
- 	list_add_tail(&adpt->list, &adpt_list);
--	ret = snd_card_new(&iface->dev, -1, "INIC", THIS_MODULE,
-+	ret = snd_card_new(iface->driver_dev, -1, "INIC", THIS_MODULE,
- 			   sizeof(*channel), &adpt->card);
- 	if (ret < 0)
- 		goto err_free_adpt;
+diff --git a/sound/soc/codecs/tlv320aic3x.c b/sound/soc/codecs/tlv320aic3x.c
+index 6aa0edf8c5ef9..cea3ebecdb12b 100644
+--- a/sound/soc/codecs/tlv320aic3x.c
++++ b/sound/soc/codecs/tlv320aic3x.c
+@@ -1609,7 +1609,6 @@ static int aic3x_probe(struct snd_soc_component *component)
+ 	struct aic3x_priv *aic3x = snd_soc_component_get_drvdata(component);
+ 	int ret, i;
+ 
+-	INIT_LIST_HEAD(&aic3x->list);
+ 	aic3x->component = component;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(aic3x->supplies); i++) {
+@@ -1692,7 +1691,6 @@ static void aic3x_remove(struct snd_soc_component *component)
+ 	struct aic3x_priv *aic3x = snd_soc_component_get_drvdata(component);
+ 	int i;
+ 
+-	list_del(&aic3x->list);
+ 	for (i = 0; i < ARRAY_SIZE(aic3x->supplies); i++)
+ 		regulator_unregister_notifier(aic3x->supplies[i].consumer,
+ 					      &aic3x->disable_nb[i].nb);
+@@ -1890,6 +1888,7 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
+ 	if (ret != 0)
+ 		goto err_gpio;
+ 
++	INIT_LIST_HEAD(&aic3x->list);
+ 	list_add(&aic3x->list, &reset_list);
+ 
+ 	return 0;
+@@ -1906,6 +1905,8 @@ static int aic3x_i2c_remove(struct i2c_client *client)
+ {
+ 	struct aic3x_priv *aic3x = i2c_get_clientdata(client);
+ 
++	list_del(&aic3x->list);
++
+ 	if (gpio_is_valid(aic3x->gpio_reset) &&
+ 	    !aic3x_is_shared_reset(aic3x)) {
+ 		gpio_set_value(aic3x->gpio_reset, 0);
+-- 
+2.20.1
+
 
 
