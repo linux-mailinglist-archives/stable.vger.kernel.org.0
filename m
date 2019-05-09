@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C4718FA3
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA54318FA7
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 19:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726686AbfEIRwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 13:52:11 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:60993 "EHLO
+        id S1726710AbfEIRwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 13:52:21 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49143 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726683AbfEIRwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:52:11 -0400
+        by vger.kernel.org with ESMTP id S1726656AbfEIRwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 13:52:21 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0DF3323956;
-        Thu,  9 May 2019 13:52:10 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 09 May 2019 13:52:10 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 245BF220A5;
+        Thu,  9 May 2019 13:52:20 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 09 May 2019 13:52:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9x3961
-        yWM2uMvzbuYatI8bQw206b4YLnn4JoZ9AWZec=; b=1dFo1MtvBCAWdVgsnhrcld
-        OfnzwJJGhI1Hhut7LUt+u4B8sPbyoh3uesDxZ90aIqapwdJkQtkiqzMJfPcXpjko
-        62bliOGRcuk6Kduo3eRIXg1L7AS/cO4/5S5jeHcqrWNgVkHiPtdIFEHFyPD6bYts
-        jdDxW3mytHquPUSrfBer1jy2bgKoLqRvOCjv/PA5e6P7u7QkscnNdvHU6aGNNqcZ
-        nrYmlOh8Vuyo5p5vzdcFpT9OgSkw7HI+9e8jcNlyHIeE0wOhyq/jNLtvLJoQhcNa
-        0AjObBfO2h20ORNMOxKe+jFJpgF2mnwYbl7yWnwLus9LlQKpHL+WqLL+Cp6Rsxqg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zxMmgZ
+        v5FF8AmXNHxl6fJevLpCG0+j9XBILErhiBLeI=; b=B16JtFdSSORIaweq/53/BV
+        qrfrFPJju4y/KKTozp0HOSa65/vQbMGH4dgfgPBgpry4Lc+IKUj/Np9kr5bOjLqU
+        tssFGsbqOKjcAooiCUdGkWk/qOrwsWUdZrV+vCQBQ7ZvE26bHYUuTFZy1FVP5ynY
+        4hD0CY5v7K30kowT2jMA5V5U/vE1PZPfWi41Qk31cKCcd4t1VBkAj4fpbOzkadBq
+        fJ0hsPCWTyeWTdVvZ81jHRI384WcQ3gFcnKfKlALWOIugea+aVrH058pt0LkNcpA
+        UYYxfhVw5epAXiLfFD2aKXqgCn5h05Yha5XuQp5hF/UfJIX9neN2lwOS4CfPdYpA
         ==
-X-ME-Sender: <xms:yWjUXGyUnreANAuU7KEEjrI4cnVW4MAwfl23EHiedAQ2LlB3ZEGaeA>
+X-ME-Sender: <xms:02jUXHWjOEWLXBoaLLJe_38FP4nDOy54H-Z1CGl08jjWo4yOClxP9Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeeigdehjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:yWjUXIyv-hT13A5AvEdUOKyPZ4zNpU9CGB1LK-4EAuGu6da426JeAw>
-    <xmx:yWjUXLgngcR5wTInNg1N6EZO4uZ0p6n6nqtxq_glSlbqN1t8Sy5kiQ>
-    <xmx:yWjUXGjOrSCFtATY6fkXTAvWdf1JlcKD_2AKO5td4CxAWjM7tVossw>
-    <xmx:ymjUXN15AQrH6i4178B6T2s-E6Yr6GxiF4GvS6CeDv_ciXUVPSYqQQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
+X-ME-Proxy: <xmx:02jUXD2s-SJx3iHczMsLhRCrxIi8rBVASEqWCx40drXR8c2uKMqFVQ>
+    <xmx:02jUXOYQ9KRYN9H-tt85OS-vMEFP6PtbhBMNO1WnG7RNS7-sBbhSTg>
+    <xmx:02jUXGrfIJrhIafjB9KLlYLk8uAL6NGYgVckSo4KyW9KfuXH8eZY2g>
+    <xmx:1GjUXIpXXtWWT5PdrELiiiSbsdFYURJGLHxMBRSCOAXF83g0ul5Qlw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4FC6D103CC;
-        Thu,  9 May 2019 13:52:09 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: futex: Bound number of LDXR/STXR loops in" failed to apply to 3.18-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 76B8D80064;
+        Thu,  9 May 2019 13:52:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: futex: Bound number of LDXR/STXR loops in" failed to apply to 4.9-stable tree
 To:     will.deacon@arm.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 May 2019 19:52:08 +0200
-Message-ID: <1557424328112101@kroah.com>
+Date:   Thu, 09 May 2019 19:52:09 +0200
+Message-ID: <155742432913562@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 3.18-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
