@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD81D18B4A
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 16:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6151918B59
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 16:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbfEIONK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 10:13:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46912 "EHLO
+        id S1726590AbfEIONL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 10:13:11 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46928 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726590AbfEIONK (ORCPT
+        by vger.kernel.org with ESMTP id S1726686AbfEIONK (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 10:13:10 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hOjnI-000124-Gr; Thu, 09 May 2019 15:13:08 +0100
+        id 1hOjnI-00012B-La; Thu, 09 May 2019 15:13:08 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hOjnI-0006M0-Ae; Thu, 09 May 2019 15:13:08 +0100
+        id 1hOjnI-0006MZ-Gw; Thu, 09 May 2019 15:13:08 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Amit Klein" <aksecurity@gmail.com>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Matteo Croce" <mcroce@redhat.com>,
+        "Dennis Zhou" <dennis@kernel.org>
 Date:   Thu, 09 May 2019 15:08:17 +0100
-Message-ID: <lsq.1557410897.931368180@decadent.org.uk>
+Message-ID: <lsq.1557410897.661826111@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 03/10] inet: update the IP ID generation algorithm to
- higher standards.
+Subject: [PATCH 3.16 10/10] percpu: stop printing kernel addresses
 In-Reply-To: <lsq.1557410896.171359878@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,62 +47,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Amit Klein <aksecurity@gmail.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-Commit 355b98553789 ("netns: provide pure entropy for net_hash_mix()")
-makes net_hash_mix() return a true 32 bits of entropy.  When used in the
-IP ID generation algorithm, this has the effect of extending the IP ID
-generation key from 32 bits to 64 bits.
+commit 00206a69ee32f03e6f40837684dcbe475ea02266 upstream.
 
-However, net_hash_mix() is only used for IP ID generation starting with
-kernel version 4.1.  Therefore, earlier kernels remain with 32-bit key
-no matter what the net_hash_mix() return value is.
+Since commit ad67b74d2469d9b8 ("printk: hash addresses printed with %p"),
+at boot "____ptrval____" is printed instead of actual addresses:
 
-This change addresses the issue by explicitly extending the key to 64
-bits for kernels older than 4.1.
+    percpu: Embedded 38 pages/cpu @(____ptrval____) s124376 r0 d31272 u524288
 
-Signed-off-by: Amit Klein <aksecurity@gmail.com>
+Instead of changing the print to "%px", and leaking kernel addresses,
+just remove the print completely, cfr. e.g. commit 071929dbdd865f77
+("arm64: Stop printing the virtual memory layout").
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/ipv4/route.c      | 4 +++-
- net/ipv6/ip6_output.c | 3 +++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ mm/percpu.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -487,13 +487,15 @@ EXPORT_SYMBOL(ip_idents_reserve);
- void __ip_select_ident(struct iphdr *iph, int segs)
- {
- 	static u32 ip_idents_hashrnd __read_mostly;
-+	static u32 ip_idents_hashrnd_extra __read_mostly;
- 	u32 hash, id;
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -1716,8 +1716,8 @@ int __init pcpu_embed_first_chunk(size_t
+ #endif
+ 	}
  
- 	net_get_random_once(&ip_idents_hashrnd, sizeof(ip_idents_hashrnd));
-+	net_get_random_once(&ip_idents_hashrnd_extra, sizeof(ip_idents_hashrnd_extra));
+-	pr_info("PERCPU: Embedded %zu pages/cpu @%p s%zu r%zu d%zu u%zu\n",
+-		PFN_DOWN(size_sum), base, ai->static_size, ai->reserved_size,
++	pr_info("PERCPU: Embedded %zu pages/cpu s%zu r%zu d%zu u%zu\n",
++		PFN_DOWN(size_sum), ai->static_size, ai->reserved_size,
+ 		ai->dyn_size, ai->unit_size);
  
- 	hash = jhash_3words((__force u32)iph->daddr,
- 			    (__force u32)iph->saddr,
--			    iph->protocol,
-+			    iph->protocol ^ ip_idents_hashrnd_extra,
- 			    ip_idents_hashrnd);
- 	id = ip_idents_reserve(hash, segs);
- 	iph->id = htons(id);
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -541,12 +541,15 @@ static void ip6_copy_metadata(struct sk_
- static void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
- {
- 	static u32 ip6_idents_hashrnd __read_mostly;
-+	static u32 ip6_idents_hashrnd_extra __read_mostly;
- 	u32 hash, id;
+ 	rc = pcpu_setup_first_chunk(ai, base);
+@@ -1830,8 +1830,8 @@ int __init pcpu_page_first_chunk(size_t
+ 	}
  
- 	net_get_random_once(&ip6_idents_hashrnd, sizeof(ip6_idents_hashrnd));
-+	net_get_random_once(&ip6_idents_hashrnd_extra, sizeof(ip6_idents_hashrnd_extra));
+ 	/* we're ready, commit */
+-	pr_info("PERCPU: %d %s pages/cpu @%p s%zu r%zu d%zu\n",
+-		unit_pages, psize_str, vm.addr, ai->static_size,
++	pr_info("PERCPU: %d %s pages/cpu s%zu r%zu d%zu\n",
++		unit_pages, psize_str, ai->static_size,
+ 		ai->reserved_size, ai->dyn_size);
  
- 	hash = __ipv6_addr_jhash(&rt->rt6i_dst.addr, ip6_idents_hashrnd);
- 	hash = __ipv6_addr_jhash(&rt->rt6i_src.addr, hash);
-+	hash = jhash_1word(hash, ip6_idents_hashrnd_extra);
- 
- 	id = ip_idents_reserve(hash, 1);
- 	fhdr->identification = htonl(id);
+ 	rc = pcpu_setup_first_chunk(ai, vm.addr);
 
