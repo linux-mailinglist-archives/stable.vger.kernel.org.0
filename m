@@ -2,98 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1555C191D0
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85440192A8
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbfEITAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 15:00:35 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49042 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726996AbfEITAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 15:00:34 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hOoHQ-0001b6-MT; Thu, 09 May 2019 20:00:32 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hOoHQ-0001rA-F2; Thu, 09 May 2019 20:00:32 +0100
-Message-ID: <3ac380160a8531fcb5db85e5985dcac19cdd8150.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 00/10] 3.16.67-rc1 review
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Date:   Thu, 09 May 2019 20:00:26 +0100
-In-Reply-To: <20190509173809.GA28365@roeck-us.net>
-References: <lsq.1557410896.171359878@decadent.org.uk>
-         <20190509173809.GA28365@roeck-us.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-D0ikVV8XcqjJkyFMem/j"
-User-Agent: Evolution 3.30.5-1 
+        id S1726870AbfEITKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 15:10:18 -0400
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:51028 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726784AbfEITKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 15:10:18 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07486;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0TRHKq3L_1557429003;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TRHKq3L_1557429003)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 10 May 2019 03:10:07 +0800
+Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Nadav Amit <namit@vmware.com>
+Cc:     Will Deacon <will.deacon@arm.com>,
+        "jstancek@redhat.com" <jstancek@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "aneesh.kumar@linux.vnet.ibm.com" <aneesh.kumar@linux.vnet.ibm.com>,
+        "npiggin@gmail.com" <npiggin@gmail.com>,
+        "minchan@kernel.org" <minchan@kernel.org>,
+        Mel Gorman <mgorman@suse.de>
+References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20190509083726.GA2209@brain-police>
+ <20190509103813.GP2589@hirez.programming.kicks-ass.net>
+ <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
+ <20190509182435.GA2623@hirez.programming.kicks-ass.net>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <84720bb8-bf3d-8c10-d675-0670f13b2efc@linux.alibaba.com>
+Date:   Thu, 9 May 2019 12:10:02 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+In-Reply-To: <20190509182435.GA2623@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---=-D0ikVV8XcqjJkyFMem/j
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2019-05-09 at 10:38 -0700, Guenter Roeck wrote:
-> On Thu, May 09, 2019 at 03:08:16PM +0100, Ben Hutchings wrote:
-> > This is the start of the stable review cycle for the 3.16.67 release.
-> > There are 10 patches in this series, which will be posted as responses
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >=20
-> > Responses should be made by Sat May 11 14:08:16 UTC 2019.
-> > Anything received after that time might be too late.
-> >=20
->=20
-> Build results:
-> 	total: 137 pass: 136 fail: 1
-> Failed builds:=20
-> 	i386:tools/perf=20
-> Qemu test results:
-> 	total: 226 pass: 226 fail: 0
+On 5/9/19 11:24 AM, Peter Zijlstra wrote:
+> On Thu, May 09, 2019 at 05:36:29PM +0000, Nadav Amit wrote:
+>>> On May 9, 2019, at 3:38 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+>>> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+>>> index 99740e1dd273..fe768f8d612e 100644
+>>> --- a/mm/mmu_gather.c
+>>> +++ b/mm/mmu_gather.c
+>>> @@ -244,15 +244,20 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+>>> 		unsigned long start, unsigned long end)
+>>> {
+>>> 	/*
+>>> -	 * If there are parallel threads are doing PTE changes on same range
+>>> -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
+>>> -	 * flush by batching, a thread has stable TLB entry can fail to flush
+>>> -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+>>> -	 * forcefully if we detect parallel PTE batching threads.
+>>> +	 * Sensible comment goes here..
+>>> 	 */
+>>> -	if (mm_tlb_flush_nested(tlb->mm)) {
+>>> -		__tlb_reset_range(tlb);
+>>> -		__tlb_adjust_range(tlb, start, end - start);
+>>> +	if (mm_tlb_flush_nested(tlb->mm) && !tlb->full_mm) {
+>>> +		/*
+>>> +		 * Since we're can't tell what we actually should have
+>>> +		 * flushed flush everything in the given range.
+>>> +		 */
+>>> +		tlb->start = start;
+>>> +		tlb->end = end;
+>>> +		tlb->freed_tables = 1;
+>>> +		tlb->cleared_ptes = 1;
+>>> +		tlb->cleared_pmds = 1;
+>>> +		tlb->cleared_puds = 1;
+>>> +		tlb->cleared_p4ds = 1;
+>>> 	}
+>>>
+>>> 	tlb_flush_mmu(tlb);
+>> As a simple optimization, I think it is possible to hold multiple nesting
+>> counters in the mm, similar to tlb_flush_pending, for freed_tables,
+>> cleared_ptes, etc.
+>>
+>> The first time you set tlb->freed_tables, you also atomically increase
+>> mm->tlb_flush_freed_tables. Then, in tlb_flush_mmu(), you just use
+>> mm->tlb_flush_freed_tables instead of tlb->freed_tables.
+> That sounds fraught with races and expensive; I would much prefer to not
+> go there for this arguably rare case.
+>
+> Consider such fun cases as where CPU-0 sees and clears a PTE, CPU-1
+> races and doesn't see that PTE. Therefore CPU-0 sets and counts
+> cleared_ptes. Then if CPU-1 flushes while CPU-0 is still in mmu_gather,
+> it will see cleared_ptes count increased and flush that granularity,
+> OTOH if CPU-1 flushes after CPU-0 completes, it will not and potentiall
+> miss an invalidate it should have had.
+>
+> This whole concurrent mmu_gather stuff is horrible.
+>
+>    /me ponders more....
+>
+> So I think the fundamental race here is this:
+>
+> 	CPU-0				CPU-1
+>
+> 	tlb_gather_mmu(.start=1,	tlb_gather_mmu(.start=2,
+> 		       .end=3);			       .end=4);
+>
+> 	ptep_get_and_clear_full(2)
+> 	tlb_remove_tlb_entry(2);
+> 	__tlb_remove_page();
+> 					if (pte_present(2)) // nope
+>
+> 					tlb_finish_mmu();
+>
+> 					// continue without TLBI(2)
+> 					// whoopsie
+>
+> 	tlb_finish_mmu();
+> 	  tlb_flush()		->	TLBI(2)
 
-Thanks for testing.
+I'm not quite sure if this is the case Jan really met. But, according to 
+his test, once correct tlb->freed_tables and tlb->cleared_* are set, his 
+test works well.
 
-Ben.
+>
+>
+> And we can fix that by having tlb_finish_mmu() sync up. Never let a
+> concurrent tlb_finish_mmu() complete until all concurrenct mmu_gathers
+> have completed.
 
---=20
-Ben Hutchings
-Any sufficiently advanced bug is indistinguishable from a feature.
+Not sure if this will scale well.
 
+>
+> This should not be too hard to make happen.
 
-
---=-D0ikVV8XcqjJkyFMem/j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAlzUeMsACgkQ57/I7JWG
-EQktMxAAtExddFOCnH8u+thgZQiE3IdloL5kzuWcAkRHGghxiDcT0CgXzcxDy+Ap
-NqG1y2x9TlU6ZiBrFpjXhR3+c2otDYbECnxfWrvA+09t5Wejja24MlyD+GAALojq
-HmsyIkHPWoNlHAnewDW28SUa423U8o/96/xhIh8a8Q+dRufD7iz+yOBCH1mw2hZA
-uL2eRSht3RPx+xlw1YSmSipv/07ingx/YZcuHYNhHAW/FFaquzoy/u4P56K+oZ+n
-Hk68nARwmSwarqHJYBw80ElOlF8r9UxxSnucXMHdgpVn1WNqOwL67czOWyfesrQi
-gde5BSguJQf6l7COILEh/pcTyYKVL9xUHgn5edkbrafCOnV6A1dkK+JT3KYEXv0f
-GDrwVDU8P3tfPlgT5t/WDWcoY7Wxcqrvk888CTxpMCVw9vjWyR5aSeYRm92dR5th
-uMIQOH3l5u9aSXqqv3JIpHLOfhtoOWyNdzyJpLUhaZ4AioogNUjweeL5Zilr8qGn
-VbXDMQamCGsciwBvHxq6UKXSf8s0Z2L0oHFDzHx/RAbjcXdCkS+kG6nVrHeCTlf9
-epOsa40K+74iK4h4S+HyZKuNBnn4aQpnx1MLy5uLzcgFu1QEC4cU1wCQz3TXgAYT
-nH7lmWDvwCMufFN7SIR4bt6ep707PGaw+GlnUNl9JNZM0bNsgGc=
-=fkEX
------END PGP SIGNATURE-----
-
---=-D0ikVV8XcqjJkyFMem/j--
