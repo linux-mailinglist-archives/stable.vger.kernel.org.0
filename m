@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ECF819156
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A8319154
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726896AbfEISzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50614 "EHLO mail.kernel.org"
+        id S1729231AbfEISzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:55:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729011AbfEISzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:55:32 -0400
+        id S1729252AbfEISze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:55:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6A11217F9;
-        Thu,  9 May 2019 18:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B582183F;
+        Thu,  9 May 2019 18:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428131;
-        bh=Wfv9nrCGeWkOdA/O6boT3BGMsJWo/SZ6eeZLUFJFHZM=;
+        s=default; t=1557428133;
+        bh=M/WflKJ18bUUTjs4bfqR6PSZ0fvoLlGIFcH8OVmjCno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKvlXgkm+K+sh3z7Oxa7j6MyfnXWSU5RTqFskPGtjq/oXAYE8mrGNN0klD2SqVatP
-         Tq3EiQrOU+vBjNJqJIIrzfWli8+py7Os8iaYF7hTuxTNS4rDZD6UUsddkxITtAa/5x
-         HGMCk+nvg4uK9LC4GU4Z5KzO82gZijhtf8cUJBM0=
+        b=MqX2ECYGyHWVHUInosHyqNpSsFxx8NTH5r/KTvpei+KGQpQsI60aRfNmVt9XYWgDM
+         3sYmoaW4CSPzrnWjf9Yug/8/fC2Ifp0JwdNQ7T8G7Ux7gjF+3D9416LUYRvI2vVUfW
+         WU6cUydGeAGaDRv/+UQhmup+Dl+nfDCmqtL3J+DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 5.1 29/30] locking/futex: Allow low-level atomic operations to return -EAGAIN
-Date:   Thu,  9 May 2019 20:43:01 +0200
-Message-Id: <20190509181257.188782248@linuxfoundation.org>
+Subject: [PATCH 5.1 30/30] arm64: futex: Bound number of LDXR/STXR loops in FUTEX_WAKE_OP
+Date:   Thu,  9 May 2019 20:43:02 +0200
+Message-Id: <20190509181257.397658621@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
 References: <20190509181250.417203112@linuxfoundation.org>
@@ -46,339 +45,140 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will.deacon@arm.com>
 
-commit 6b4f4bc9cb22875f97023984a625386f0c7cc1c0 upstream.
+commit 03110a5cb2161690ae5ac04994d47ed0cd6cef75 upstream.
 
-Some futex() operations, including FUTEX_WAKE_OP, require the kernel to
-perform an atomic read-modify-write of the futex word via the userspace
-mapping. These operations are implemented by each architecture in
-arch_futex_atomic_op_inuser() and futex_atomic_cmpxchg_inatomic(), which
-are called in atomic context with the relevant hash bucket locks held.
+Our futex implementation makes use of LDXR/STXR loops to perform atomic
+updates to user memory from atomic context. This can lead to latency
+problems if we end up spinning around the LL/SC sequence at the expense
+of doing something useful.
 
-Although these routines may return -EFAULT in response to a page fault
-generated when accessing userspace, they are expected to succeed (i.e.
-return 0) in all other cases. This poses a problem for architectures
-that do not provide bounded forward progress guarantees or fairness of
-contended atomic operations and can lead to starvation in some cases.
-
-In these problematic scenarios, we must return back to the core futex
-code so that we can drop the hash bucket locks and reschedule if
-necessary, much like we do in the case of a page fault.
-
-Allow architectures to return -EAGAIN from their implementations of
-arch_futex_atomic_op_inuser() and futex_atomic_cmpxchg_inatomic(), which
-will cause the core futex code to reschedule if necessary and return
-back to the architecture code later on.
+Rework our futex atomic operations so that we return -EAGAIN if we fail
+to update the futex word after 128 attempts. The core futex code will
+reschedule if necessary and we'll try again later.
 
 Cc: <stable@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: 6170a97460db ("arm64: Atomic operations")
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/futex.c |  188 +++++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 117 insertions(+), 71 deletions(-)
+ arch/arm64/include/asm/futex.h |   55 +++++++++++++++++++++++++----------------
+ 1 file changed, 34 insertions(+), 21 deletions(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1311,13 +1311,15 @@ static int lookup_pi_state(u32 __user *u
+--- a/arch/arm64/include/asm/futex.h
++++ b/arch/arm64/include/asm/futex.h
+@@ -23,26 +23,34 @@
  
- static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+ #include <asm/errno.h>
+ 
++#define FUTEX_MAX_LOOPS	128 /* What's the largest number you can think of? */
++
+ #define __futex_atomic_op(insn, ret, oldval, uaddr, tmp, oparg)		\
+ do {									\
++	unsigned int loops = FUTEX_MAX_LOOPS;				\
++									\
+ 	uaccess_enable();						\
+ 	asm volatile(							\
+ "	prfm	pstl1strm, %2\n"					\
+ "1:	ldxr	%w1, %2\n"						\
+ 	insn "\n"							\
+ "2:	stlxr	%w0, %w3, %2\n"						\
+-"	cbnz	%w0, 1b\n"						\
+-"	dmb	ish\n"							\
++"	cbz	%w0, 3f\n"						\
++"	sub	%w4, %w4, %w0\n"					\
++"	cbnz	%w4, 1b\n"						\
++"	mov	%w0, %w7\n"						\
+ "3:\n"									\
++"	dmb	ish\n"							\
+ "	.pushsection .fixup,\"ax\"\n"					\
+ "	.align	2\n"							\
+-"4:	mov	%w0, %w5\n"						\
++"4:	mov	%w0, %w6\n"						\
+ "	b	3b\n"							\
+ "	.popsection\n"							\
+ 	_ASM_EXTABLE(1b, 4b)						\
+ 	_ASM_EXTABLE(2b, 4b)						\
+-	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp)	\
+-	: "r" (oparg), "Ir" (-EFAULT)					\
++	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp),	\
++	  "+r" (loops)							\
++	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
+ 	: "memory");							\
+ 	uaccess_disable();						\
+ } while (0)
+@@ -57,23 +65,23 @@ arch_futex_atomic_op_inuser(int op, int
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+-		__futex_atomic_op("mov	%w3, %w4",
++		__futex_atomic_op("mov	%w3, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ADD:
+-		__futex_atomic_op("add	%w3, %w1, %w4",
++		__futex_atomic_op("add	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_OR:
+-		__futex_atomic_op("orr	%w3, %w1, %w4",
++		__futex_atomic_op("orr	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	case FUTEX_OP_ANDN:
+-		__futex_atomic_op("and	%w3, %w1, %w4",
++		__futex_atomic_op("and	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, ~oparg);
+ 		break;
+ 	case FUTEX_OP_XOR:
+-		__futex_atomic_op("eor	%w3, %w1, %w4",
++		__futex_atomic_op("eor	%w3, %w1, %w5",
+ 				  ret, oldval, uaddr, tmp, oparg);
+ 		break;
+ 	default:
+@@ -93,6 +101,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 			      u32 oldval, u32 newval)
  {
-+	int err;
- 	u32 uninitialized_var(curval);
+ 	int ret = 0;
++	unsigned int loops = FUTEX_MAX_LOOPS;
+ 	u32 val, tmp;
+ 	u32 __user *uaddr;
  
- 	if (unlikely(should_fail_futex(true)))
- 		return -EFAULT;
- 
--	if (unlikely(cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)))
--		return -EFAULT;
-+	err = cmpxchg_futex_value_locked(&curval, uaddr, uval, newval);
-+	if (unlikely(err))
-+		return err;
- 
- 	/* If user space value changed, let the caller retry */
- 	return curval != uval ? -EAGAIN : 0;
-@@ -1502,10 +1504,8 @@ static int wake_futex_pi(u32 __user *uad
- 	if (unlikely(should_fail_futex(true)))
- 		ret = -EFAULT;
- 
--	if (cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)) {
--		ret = -EFAULT;
--
--	} else if (curval != uval) {
-+	ret = cmpxchg_futex_value_locked(&curval, uaddr, uval, newval);
-+	if (!ret && (curval != uval)) {
- 		/*
- 		 * If a unconditional UNLOCK_PI operation (user space did not
- 		 * try the TID->0 transition) raced with a waiter setting the
-@@ -1700,32 +1700,32 @@ retry_private:
- 	double_lock_hb(hb1, hb2);
- 	op_ret = futex_atomic_op_inuser(op, uaddr2);
- 	if (unlikely(op_ret < 0)) {
--
- 		double_unlock_hb(hb1, hb2);
- 
--#ifndef CONFIG_MMU
--		/*
--		 * we don't get EFAULT from MMU faults if we don't have an MMU,
--		 * but we might get them from range checking
--		 */
--		ret = op_ret;
--		goto out_put_keys;
--#endif
--
--		if (unlikely(op_ret != -EFAULT)) {
-+		if (!IS_ENABLED(CONFIG_MMU) ||
-+		    unlikely(op_ret != -EFAULT && op_ret != -EAGAIN)) {
-+			/*
-+			 * we don't get EFAULT from MMU faults if we don't have
-+			 * an MMU, but we might get them from range checking
-+			 */
- 			ret = op_ret;
- 			goto out_put_keys;
- 		}
- 
--		ret = fault_in_user_writeable(uaddr2);
--		if (ret)
--			goto out_put_keys;
-+		if (op_ret == -EFAULT) {
-+			ret = fault_in_user_writeable(uaddr2);
-+			if (ret)
-+				goto out_put_keys;
-+		}
- 
--		if (!(flags & FLAGS_SHARED))
-+		if (!(flags & FLAGS_SHARED)) {
-+			cond_resched();
- 			goto retry_private;
-+		}
- 
- 		put_futex_key(&key2);
- 		put_futex_key(&key1);
-+		cond_resched();
- 		goto retry;
- 	}
- 
-@@ -2350,7 +2350,7 @@ static int fixup_pi_state_owner(u32 __us
- 	u32 uval, uninitialized_var(curval), newval;
- 	struct task_struct *oldowner, *newowner;
- 	u32 newtid;
--	int ret;
-+	int ret, err = 0;
- 
- 	lockdep_assert_held(q->lock_ptr);
- 
-@@ -2421,14 +2421,17 @@ retry:
- 	if (!pi_state->owner)
- 		newtid |= FUTEX_OWNER_DIED;
- 
--	if (get_futex_value_locked(&uval, uaddr))
--		goto handle_fault;
-+	err = get_futex_value_locked(&uval, uaddr);
-+	if (err)
-+		goto handle_err;
- 
- 	for (;;) {
- 		newval = (uval & FUTEX_OWNER_DIED) | newtid;
- 
--		if (cmpxchg_futex_value_locked(&curval, uaddr, uval, newval))
--			goto handle_fault;
-+		err = cmpxchg_futex_value_locked(&curval, uaddr, uval, newval);
-+		if (err)
-+			goto handle_err;
-+
- 		if (curval == uval)
- 			break;
- 		uval = curval;
-@@ -2456,23 +2459,37 @@ retry:
- 	return 0;
- 
- 	/*
--	 * To handle the page fault we need to drop the locks here. That gives
--	 * the other task (either the highest priority waiter itself or the
--	 * task which stole the rtmutex) the chance to try the fixup of the
--	 * pi_state. So once we are back from handling the fault we need to
--	 * check the pi_state after reacquiring the locks and before trying to
--	 * do another fixup. When the fixup has been done already we simply
--	 * return.
-+	 * In order to reschedule or handle a page fault, we need to drop the
-+	 * locks here. In the case of a fault, this gives the other task
-+	 * (either the highest priority waiter itself or the task which stole
-+	 * the rtmutex) the chance to try the fixup of the pi_state. So once we
-+	 * are back from handling the fault we need to check the pi_state after
-+	 * reacquiring the locks and before trying to do another fixup. When
-+	 * the fixup has been done already we simply return.
- 	 *
- 	 * Note: we hold both hb->lock and pi_mutex->wait_lock. We can safely
- 	 * drop hb->lock since the caller owns the hb -> futex_q relation.
- 	 * Dropping the pi_mutex->wait_lock requires the state revalidate.
- 	 */
--handle_fault:
-+handle_err:
- 	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
- 	spin_unlock(q->lock_ptr);
- 
--	ret = fault_in_user_writeable(uaddr);
-+	switch (err) {
-+	case -EFAULT:
-+		ret = fault_in_user_writeable(uaddr);
-+		break;
-+
-+	case -EAGAIN:
-+		cond_resched();
-+		ret = 0;
-+		break;
-+
-+	default:
-+		WARN_ON_ONCE(1);
-+		ret = err;
-+		break;
-+	}
- 
- 	spin_lock(q->lock_ptr);
- 	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
-@@ -3041,10 +3058,8 @@ retry:
- 		 * A unconditional UNLOCK_PI op raced against a waiter
- 		 * setting the FUTEX_WAITERS bit. Try again.
- 		 */
--		if (ret == -EAGAIN) {
--			put_futex_key(&key);
--			goto retry;
--		}
-+		if (ret == -EAGAIN)
-+			goto pi_retry;
- 		/*
- 		 * wake_futex_pi has detected invalid state. Tell user
- 		 * space.
-@@ -3059,9 +3074,19 @@ retry:
- 	 * preserve the WAITERS bit not the OWNER_DIED one. We are the
- 	 * owner.
- 	 */
--	if (cmpxchg_futex_value_locked(&curval, uaddr, uval, 0)) {
-+	if ((ret = cmpxchg_futex_value_locked(&curval, uaddr, uval, 0))) {
- 		spin_unlock(&hb->lock);
--		goto pi_faulted;
-+		switch (ret) {
-+		case -EFAULT:
-+			goto pi_faulted;
-+
-+		case -EAGAIN:
-+			goto pi_retry;
-+
-+		default:
-+			WARN_ON_ONCE(1);
-+			goto out_putkey;
-+		}
- 	}
- 
- 	/*
-@@ -3075,6 +3100,11 @@ out_putkey:
- 	put_futex_key(&key);
- 	return ret;
- 
-+pi_retry:
-+	put_futex_key(&key);
-+	cond_resched();
-+	goto retry;
-+
- pi_faulted:
- 	put_futex_key(&key);
- 
-@@ -3435,6 +3465,7 @@ err_unlock:
- static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi)
- {
- 	u32 uval, uninitialized_var(nval), mval;
-+	int err;
- 
- 	/* Futex address must be 32bit aligned */
- 	if ((((unsigned long)uaddr) % sizeof(*uaddr)) != 0)
-@@ -3444,42 +3475,57 @@ retry:
- 	if (get_user(uval, uaddr))
- 		return -1;
- 
--	if ((uval & FUTEX_TID_MASK) == task_pid_vnr(curr)) {
--		/*
--		 * Ok, this dying thread is truly holding a futex
--		 * of interest. Set the OWNER_DIED bit atomically
--		 * via cmpxchg, and if the value had FUTEX_WAITERS
--		 * set, wake up a waiter (if any). (We have to do a
--		 * futex_wake() even if OWNER_DIED is already set -
--		 * to handle the rare but possible case of recursive
--		 * thread-death.) The rest of the cleanup is done in
--		 * userspace.
--		 */
--		mval = (uval & FUTEX_WAITERS) | FUTEX_OWNER_DIED;
--		/*
--		 * We are not holding a lock here, but we want to have
--		 * the pagefault_disable/enable() protection because
--		 * we want to handle the fault gracefully. If the
--		 * access fails we try to fault in the futex with R/W
--		 * verification via get_user_pages. get_user() above
--		 * does not guarantee R/W access. If that fails we
--		 * give up and leave the futex locked.
--		 */
--		if (cmpxchg_futex_value_locked(&nval, uaddr, uval, mval)) {
-+	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
-+		return 0;
-+
-+	/*
-+	 * Ok, this dying thread is truly holding a futex
-+	 * of interest. Set the OWNER_DIED bit atomically
-+	 * via cmpxchg, and if the value had FUTEX_WAITERS
-+	 * set, wake up a waiter (if any). (We have to do a
-+	 * futex_wake() even if OWNER_DIED is already set -
-+	 * to handle the rare but possible case of recursive
-+	 * thread-death.) The rest of the cleanup is done in
-+	 * userspace.
-+	 */
-+	mval = (uval & FUTEX_WAITERS) | FUTEX_OWNER_DIED;
-+
-+	/*
-+	 * We are not holding a lock here, but we want to have
-+	 * the pagefault_disable/enable() protection because
-+	 * we want to handle the fault gracefully. If the
-+	 * access fails we try to fault in the futex with R/W
-+	 * verification via get_user_pages. get_user() above
-+	 * does not guarantee R/W access. If that fails we
-+	 * give up and leave the futex locked.
-+	 */
-+	if ((err = cmpxchg_futex_value_locked(&nval, uaddr, uval, mval))) {
-+		switch (err) {
-+		case -EFAULT:
- 			if (fault_in_user_writeable(uaddr))
- 				return -1;
- 			goto retry;
--		}
--		if (nval != uval)
-+
-+		case -EAGAIN:
-+			cond_resched();
- 			goto retry;
- 
--		/*
--		 * Wake robust non-PI futexes here. The wakeup of
--		 * PI futexes happens in exit_pi_state():
--		 */
--		if (!pi && (uval & FUTEX_WAITERS))
--			futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
-+		default:
-+			WARN_ON_ONCE(1);
-+			return err;
-+		}
- 	}
-+
-+	if (nval != uval)
-+		goto retry;
-+
-+	/*
-+	 * Wake robust non-PI futexes here. The wakeup of
-+	 * PI futexes happens in exit_pi_state():
-+	 */
-+	if (!pi && (uval & FUTEX_WAITERS))
-+		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
-+
- 	return 0;
- }
+@@ -104,20 +113,24 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	asm volatile("// futex_atomic_cmpxchg_inatomic\n"
+ "	prfm	pstl1strm, %2\n"
+ "1:	ldxr	%w1, %2\n"
+-"	sub	%w3, %w1, %w4\n"
+-"	cbnz	%w3, 3f\n"
+-"2:	stlxr	%w3, %w5, %2\n"
+-"	cbnz	%w3, 1b\n"
+-"	dmb	ish\n"
++"	sub	%w3, %w1, %w5\n"
++"	cbnz	%w3, 4f\n"
++"2:	stlxr	%w3, %w6, %2\n"
++"	cbz	%w3, 3f\n"
++"	sub	%w4, %w4, %w3\n"
++"	cbnz	%w4, 1b\n"
++"	mov	%w0, %w8\n"
+ "3:\n"
++"	dmb	ish\n"
++"4:\n"
+ "	.pushsection .fixup,\"ax\"\n"
+-"4:	mov	%w0, %w6\n"
+-"	b	3b\n"
++"5:	mov	%w0, %w7\n"
++"	b	4b\n"
+ "	.popsection\n"
+-	_ASM_EXTABLE(1b, 4b)
+-	_ASM_EXTABLE(2b, 4b)
+-	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp)
+-	: "r" (oldval), "r" (newval), "Ir" (-EFAULT)
++	_ASM_EXTABLE(1b, 5b)
++	_ASM_EXTABLE(2b, 5b)
++	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
++	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
+ 	: "memory");
+ 	uaccess_disable();
  
 
 
