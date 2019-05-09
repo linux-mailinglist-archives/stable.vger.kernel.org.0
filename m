@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 178CB19112
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3792191FB
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727784AbfEISwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S1727619AbfEIStt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726769AbfEISwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:52:39 -0400
+        id S1727883AbfEISts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DF5F217F5;
-        Thu,  9 May 2019 18:52:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C837217F9;
+        Thu,  9 May 2019 18:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557427958;
-        bh=elQt22/biHgS3BwJJnZmglVqRpzudAYH7FQIJFh32wo=;
+        s=default; t=1557427787;
+        bh=zEkpSKpNxQ9eAA+mpyxf27JasOOiBzYr8WawKE5QZOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVsYbYOOYRrTcF0mhsF8AsXVjOk9j75Mwjr/djHIxQDmcClGYdZ3OYTLk0v2CyK7i
-         MtsO9RiIIUaYJ2H2bz1UG6J0G3sPEQpWGxPK2x5BSRWu9hJ15zfoDco7Mlc2xKYk+X
-         28djoIhnMQdD8xOlnys+fDMmCnLRBXku5NTApZWE=
+        b=JUIDpJqlRDCd/dOiRIWP0/NPpcyvPgvIw79YfFGiL9qAFE+firaNrn+Yurjohivyg
+         xsaGe5DhmuKIid7JrAU8KsRTFe3oormP0TG9z2IB0RGQBrIz3VEgJyn+9h9oU0XONe
+         sO0+LVrQtyTQJyI+5aJ68zjrJty3wND2+1iqbmqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 67/95] nvme-fc: correct csn initialization and increments on error
-Date:   Thu,  9 May 2019 20:42:24 +0200
-Message-Id: <20190509181314.146030798@linuxfoundation.org>
+        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
+        Thomas Gleixner <tglx@linutronix.de>, marc.zyngier@arm.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 50/66] genirq: Prevent use-after-free and work list corruption
+Date:   Thu,  9 May 2019 20:42:25 +0200
+Message-Id: <20190509181306.946889313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 67f471b6ed3b09033c4ac77ea03f92afdb1989fe ]
+[ Upstream commit 59c39840f5abf4a71e1810a8da71aaccd6c17d26 ]
 
-This patch fixes a long-standing bug that initialized the FC-NVME
-cmnd iu CSN value to 1. Early FC-NVME specs had the connection starting
-with CSN=1. By the time the spec reached approval, the language had
-changed to state a connection should start with CSN=0.  This patch
-corrects the initialization value for FC-NVME connections.
+When irq_set_affinity_notifier() replaces the notifier, then the
+reference count on the old notifier is dropped which causes it to be
+freed. But nothing ensures that the old notifier is not longer queued
+in the work list. If it is queued this results in a use after free and
+possibly in work list corruption.
 
-Additionally, in reviewing the transport, the CSN value is assigned to
-the new IU early in the start routine. It's possible that a later dma
-map request may fail, causing the command to never be sent to the
-controller.  Change the location of the assignment so that it is
-immediately prior to calling the lldd. Add a comment block to explain
-the impacts if the lldd were to additionally fail sending the command.
+Ensure that the work is canceled before the reference is dropped.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: marc.zyngier@arm.com
+Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ kernel/irq/manage.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index c37d5bbd72ab6..8625b73d94bf7 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -1857,7 +1857,7 @@ nvme_fc_init_queue(struct nvme_fc_ctrl *ctrl, int idx)
- 	memset(queue, 0, sizeof(*queue));
- 	queue->ctrl = ctrl;
- 	queue->qnum = idx;
--	atomic_set(&queue->csn, 1);
-+	atomic_set(&queue->csn, 0);
- 	queue->dev = ctrl->dev;
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 5c0ba5ca59308..cd4f9f3e8345c 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -356,8 +356,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
+ 	desc->affinity_notify = notify;
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
  
- 	if (idx > 0)
-@@ -1899,7 +1899,7 @@ nvme_fc_free_queue(struct nvme_fc_queue *queue)
- 	 */
+-	if (old_notify)
++	if (old_notify) {
++		cancel_work_sync(&old_notify->work);
+ 		kref_put(&old_notify->kref, old_notify->release);
++	}
  
- 	queue->connection_id = 0;
--	atomic_set(&queue->csn, 1);
-+	atomic_set(&queue->csn, 0);
+ 	return 0;
  }
- 
- static void
-@@ -2195,7 +2195,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- {
- 	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
- 	struct nvme_command *sqe = &cmdiu->sqe;
--	u32 csn;
- 	int ret, opstate;
- 
- 	/*
-@@ -2210,8 +2209,6 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- 
- 	/* format the FC-NVME CMD IU and fcp_req */
- 	cmdiu->connection_id = cpu_to_be64(queue->connection_id);
--	csn = atomic_inc_return(&queue->csn);
--	cmdiu->csn = cpu_to_be32(csn);
- 	cmdiu->data_len = cpu_to_be32(data_len);
- 	switch (io_dir) {
- 	case NVMEFC_FCP_WRITE:
-@@ -2269,11 +2266,24 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
- 	if (!(op->flags & FCOP_FLAGS_AEN))
- 		blk_mq_start_request(op->rq);
- 
-+	cmdiu->csn = cpu_to_be32(atomic_inc_return(&queue->csn));
- 	ret = ctrl->lport->ops->fcp_io(&ctrl->lport->localport,
- 					&ctrl->rport->remoteport,
- 					queue->lldd_handle, &op->fcp_req);
- 
- 	if (ret) {
-+		/*
-+		 * If the lld fails to send the command is there an issue with
-+		 * the csn value?  If the command that fails is the Connect,
-+		 * no - as the connection won't be live.  If it is a command
-+		 * post-connect, it's possible a gap in csn may be created.
-+		 * Does this matter?  As Linux initiators don't send fused
-+		 * commands, no.  The gap would exist, but as there's nothing
-+		 * that depends on csn order to be delivered on the target
-+		 * side, it shouldn't hurt.  It would be difficult for a
-+		 * target to even detect the csn gap as it has no idea when the
-+		 * cmd with the csn was supposed to arrive.
-+		 */
- 		opstate = atomic_xchg(&op->state, FCPOP_STATE_COMPLETE);
- 		__nvme_fc_fcpop_chk_teardowns(ctrl, op, opstate);
- 
 -- 
 2.20.1
 
