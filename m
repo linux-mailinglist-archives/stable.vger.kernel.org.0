@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4750819158
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF4E81914C
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726888AbfEISz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:55:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50446 "EHLO mail.kernel.org"
+        id S1727575AbfEISz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbfEISzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:55:24 -0400
+        id S1729011AbfEISz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:55:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6E522177E;
-        Thu,  9 May 2019 18:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B1432177E;
+        Thu,  9 May 2019 18:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428123;
-        bh=hFGAcTGN8+exjIpw3elz3HCRPqeJPoKx3U8wzUVaBrI=;
+        s=default; t=1557428125;
+        bh=K7/Z7ULPaiMrGML8CskPhXEpmnsruK7vDzfr3sp2vPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ouUgs92g2DcbmRMaD2T8Bp88WJVS7rnIyc5roVrYyH+GIwwCaXA50fDj9WwZcEYg
-         SiUM+dwLdU6NJDk0dD25zDqZVPbLuSv1q40xjkelDxdODDwrcCEbc83V8f9IU7TCXE
-         +gojYpNRDB5O/c0YHU2AmVf5X6ZkVwmniEskn0nE=
+        b=Ickvzl07rWdrHRgouaVTh0rgN4EOFCgXx91yMtcFLOpJrlIbEefDK4ezs3WQWQphY
+         MglOhLcLZslJLQwNsg8OLigOkKRrs3zncflpnqlYS61fFYmDwhAidgMYM93/V0gFO5
+         hD2Qb4XSMd/M8n/mtlWKp4Ryw1ox2hUTQCVlQgc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.1 26/30] UAS: fix alignment of scatter/gather segments
-Date:   Thu,  9 May 2019 20:42:58 +0200
-Message-Id: <20190509181256.628727841@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.1 27/30] ASoC: Intel: avoid Oops if DMA setup fails
+Date:   Thu,  9 May 2019 20:42:59 +0200
+Message-Id: <20190509181256.790938036@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
 References: <20190509181250.417203112@linuxfoundation.org>
@@ -42,78 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Ross Zwisler <zwisler@chromium.org>
 
-commit 3ae62a42090f1ed48e2313ed256a1182a85fb575 upstream.
+commit 0efa3334d65b7f421ba12382dfa58f6ff5bf83c4 upstream.
 
-This is the UAS version of
+Currently in sst_dsp_new() if we get an error return from sst_dma_new()
+we just print an error message and then still complete the function
+successfully.  This means that we are trying to run without sst->dma
+properly set up, which will result in NULL pointer dereference when
+sst->dma is later used.  This was happening for me in
+sst_dsp_dma_get_channel():
 
-747668dbc061b3e62bc1982767a3a1f9815fcf0e
-usb-storage: Set virt_boundary_mask to avoid SG overflows
+        struct sst_dma *dma = dsp->dma;
+	...
+        dma->ch = dma_request_channel(mask, dma_chan_filter, dsp);
 
-We are not as likely to be vulnerable as storage, as it is unlikelier
-that UAS is run over a controller without native support for SG,
-but the issue exists.
-The issue has been existing since the inception of the driver.
+This resulted in:
 
-Fixes: 115bb1ffa54c ("USB: Add UAS driver")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+   IP: sst_dsp_dma_get_channel+0x4f/0x125 [snd_soc_sst_firmware]
+
+Fix this by adding proper error handling for the case where we fail to
+set up DMA.
+
+This change only affects Haswell and Broadwell systems.  Baytrail
+systems explicilty opt-out of DMA via sst->pdata->resindex_dma_base
+being set to -1.
+
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Cc: stable@vger.kernel.org
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |   35 ++++++++++++++++++++++-------------
- 1 file changed, 22 insertions(+), 13 deletions(-)
+ sound/soc/intel/common/sst-firmware.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -789,24 +789,33 @@ static int uas_slave_alloc(struct scsi_d
- {
- 	struct uas_dev_info *devinfo =
- 		(struct uas_dev_info *)sdev->host->hostdata;
-+	int maxp;
+--- a/sound/soc/intel/common/sst-firmware.c
++++ b/sound/soc/intel/common/sst-firmware.c
+@@ -1251,11 +1251,15 @@ struct sst_dsp *sst_dsp_new(struct devic
+ 		goto irq_err;
  
- 	sdev->hostdata = devinfo;
+ 	err = sst_dma_new(sst);
+-	if (err)
+-		dev_warn(dev, "sst_dma_new failed %d\n", err);
++	if (err)  {
++		dev_err(dev, "sst_dma_new failed %d\n", err);
++		goto dma_err;
++	}
  
- 	/*
--	 * USB has unusual DMA-alignment requirements: Although the
--	 * starting address of each scatter-gather element doesn't matter,
--	 * the length of each element except the last must be divisible
--	 * by the Bulk maxpacket value.  There's currently no way to
--	 * express this by block-layer constraints, so we'll cop out
--	 * and simply require addresses to be aligned at 512-byte
--	 * boundaries.  This is okay since most block I/O involves
--	 * hardware sectors that are multiples of 512 bytes in length,
--	 * and since host controllers up through USB 2.0 have maxpacket
--	 * values no larger than 512.
-+	 * We have two requirements here. We must satisfy the requirements
-+	 * of the physical HC and the demands of the protocol, as we
-+	 * definitely want no additional memory allocation in this path
-+	 * ruling out using bounce buffers.
- 	 *
--	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
--	 * values can be as large as 2048.  To make that work properly
--	 * will require changes to the block layer.
-+	 * For a transmission on USB to continue we must never send
-+	 * a package that is smaller than maxpacket. Hence the length of each
-+         * scatterlist element except the last must be divisible by the
-+         * Bulk maxpacket value.
-+	 * If the HC does not ensure that through SG,
-+	 * the upper layer must do that. We must assume nothing
-+	 * about the capabilities off the HC, so we use the most
-+	 * pessimistic requirement.
-+	 */
-+
-+	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
-+	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
-+
-+	/*
-+	 * The protocol has no requirements on alignment in the strict sense.
-+	 * Controllers may or may not have alignment restrictions.
-+	 * As this is not exported, we use an extremely conservative guess.
- 	 */
- 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
+ 	return sst;
  
++dma_err:
++	free_irq(sst->irq, sst);
+ irq_err:
+ 	if (sst->ops->free)
+ 		sst->ops->free(sst);
 
 
