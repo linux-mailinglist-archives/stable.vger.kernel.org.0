@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1421917F
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 20:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08AD1920C
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 21:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728523AbfEISyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 14:54:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48608 "EHLO mail.kernel.org"
+        id S1727704AbfEIStK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 14:49:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728739AbfEISyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 14:54:00 -0400
+        id S1727681AbfEIStI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 14:49:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 752FC217D7;
-        Thu,  9 May 2019 18:53:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F888217F5;
+        Thu,  9 May 2019 18:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557428039;
-        bh=isK2rf0/IT8c2FETlvHnOxrLiWeJ7JcUC9keULx5IcQ=;
+        s=default; t=1557427747;
+        bh=erub84zW5SlMt2EeVa3Z6abSx4S29rau3YDLlNndXu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWug2ZcEfcGcg8vld2wzEAHHVnLNipFePKV0dXMUNUCMA3GNp2KKE7kwEOz7PxtM2
-         Mpi5TskUmwCyYvYTR4lAkRtErzugsEJOXKyl8YLloLUsYS8Q3VMr5xMuCE/8RNIyW/
-         tmEJ1tSMzEtFH4umWBVkqlJaeTP8Yt9XTOnKiYj0=
+        b=OtzNXyfFGCMIna3SB9BCLXZXyo8+sd8KjyB+aJyBpQ8dg43+0/2exYzHGRrs90prV
+         o+sMzEH4VE5FT+yGswvHnRySAJeuZlhIEcNAXvVoAgbe3mHIBA9vfKszhCUIFtFcxG
+         iRU3UHzBouDlg5XA+BHBFjw+THNA4srpuLaYtoPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Gonzalez <marc.w.gonzalez@free.fr>
-Subject: [PATCH 5.0 74/95] usb: dwc3: Allow building USB_DWC3_QCOM without EXTCON
+        stable@vger.kernel.org,
+        Christian Neubert <christian.neubert.86@gmail.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 4.19 56/66] cpufreq: armada-37xx: fix frequency calculation for opp
 Date:   Thu,  9 May 2019 20:42:31 +0200
-Message-Id: <20190509181314.574862855@linuxfoundation.org>
+Message-Id: <20190509181307.425842082@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190509181309.180685671@linuxfoundation.org>
-References: <20190509181309.180685671@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+References: <20190509181301.719249738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Gonzalez <marc.w.gonzalez@free.fr>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-commit 77a4946516fe488b6a33390de6d749f934a243ba upstream.
+commit 8db82563451f976597ab7b282ec655e4390a4088 upstream.
 
-Keep EXTCON support optional, as some platforms do not need it.
+The frequency calculation was based on the current(max) frequency of the
+CPU. However for low frequency, the value used was already the parent
+frequency divided by a factor of 2.
 
-Do the same for USB_DWC3_OMAP while we're at it.
+Instead of using this frequency, this fix directly get the frequency from
+the parent clock.
 
-Fixes: 3def4031b3e3f ("usb: dwc3: add EXTCON dependency for qcom")
-Signed-off-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 92ce45fb875d ("cpufreq: Add DVFS support for Armada 37xx")
+Cc: <stable@vger.kernel.org>
+Reported-by: Christian Neubert <christian.neubert.86@gmail.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/Kconfig |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/cpufreq/armada-37xx-cpufreq.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/Kconfig
-+++ b/drivers/usb/dwc3/Kconfig
-@@ -52,7 +52,8 @@ comment "Platform Glue Driver Support"
+--- a/drivers/cpufreq/armada-37xx-cpufreq.c
++++ b/drivers/cpufreq/armada-37xx-cpufreq.c
+@@ -359,11 +359,11 @@ static int __init armada37xx_cpufreq_dri
+ 	struct armada_37xx_dvfs *dvfs;
+ 	struct platform_device *pdev;
+ 	unsigned long freq;
+-	unsigned int cur_frequency;
++	unsigned int cur_frequency, base_frequency;
+ 	struct regmap *nb_pm_base, *avs_base;
+ 	struct device *cpu_dev;
+ 	int load_lvl, ret;
+-	struct clk *clk;
++	struct clk *clk, *parent;
  
- config USB_DWC3_OMAP
- 	tristate "Texas Instruments OMAP5 and similar Platforms"
--	depends on EXTCON && (ARCH_OMAP2PLUS || COMPILE_TEST)
-+	depends on ARCH_OMAP2PLUS || COMPILE_TEST
-+	depends on EXTCON || !EXTCON
- 	depends on OF
- 	default USB_DWC3
- 	help
-@@ -113,7 +114,8 @@ config USB_DWC3_ST
+ 	nb_pm_base =
+ 		syscon_regmap_lookup_by_compatible("marvell,armada-3700-nb-pm");
+@@ -399,6 +399,22 @@ static int __init armada37xx_cpufreq_dri
+ 		return PTR_ERR(clk);
+ 	}
  
- config USB_DWC3_QCOM
- 	tristate "Qualcomm Platform"
--	depends on EXTCON && (ARCH_QCOM || COMPILE_TEST)
-+	depends on ARCH_QCOM || COMPILE_TEST
-+	depends on EXTCON || !EXTCON
- 	depends on OF
- 	default USB_DWC3
- 	help
++	parent = clk_get_parent(clk);
++	if (IS_ERR(parent)) {
++		dev_err(cpu_dev, "Cannot get parent clock for CPU0\n");
++		clk_put(clk);
++		return PTR_ERR(parent);
++	}
++
++	/* Get parent CPU frequency */
++	base_frequency =  clk_get_rate(parent);
++
++	if (!base_frequency) {
++		dev_err(cpu_dev, "Failed to get parent clock rate for CPU\n");
++		clk_put(clk);
++		return -EINVAL;
++	}
++
+ 	/* Get nominal (current) CPU frequency */
+ 	cur_frequency = clk_get_rate(clk);
+ 	if (!cur_frequency) {
+@@ -431,7 +447,7 @@ static int __init armada37xx_cpufreq_dri
+ 	for (load_lvl = ARMADA_37XX_DVFS_LOAD_0; load_lvl < LOAD_LEVEL_NR;
+ 	     load_lvl++) {
+ 		unsigned long u_volt = avs_map[dvfs->avs[load_lvl]] * 1000;
+-		freq = cur_frequency / dvfs->divider[load_lvl];
++		freq = base_frequency / dvfs->divider[load_lvl];
+ 		ret = dev_pm_opp_add(cpu_dev, freq, u_volt);
+ 		if (ret)
+ 			goto remove_opp;
 
 
