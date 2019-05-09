@@ -2,116 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A64E18A65
-	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E9918A80
+	for <lists+stable@lfdr.de>; Thu,  9 May 2019 15:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbfEINO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 09:14:58 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:59957 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726054AbfEINO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 09:14:58 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id ACA9121E92;
-        Thu,  9 May 2019 09:14:57 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 09 May 2019 09:14:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=NK8Ku5ztCV8GJzsPqf2QvMpwRRT
-        WZXhWukZnuXwhy70=; b=q6vtObarfbDLpNpAvFKs2tJOqYVOQvuHNja4JRFMX5z
-        +U98zMJUEtHFqXrC6Ne7zj9wxDXDwkwGY9s0zzomz+89C20Oe1qWrPRpHlSYQetz
-        7eJ4T89yESTJRUc0WzTQm74ACcLS2qzrNN/uU6nJyYgOO+u6iaY6AeWWT6K9A3vp
-        N4jNeR2KRJjFgma9lu3NKueM1q3JTMEVx5mzGWtcgDz2WJ3aBIESEMDlcSlwDRZ2
-        cqNP4xSLoy3JWc17Yzs5PH4zW+QFwt36h5F/PGNpACon4mF3hFOdQD5pRhxw10qJ
-        SB15vYSiW9+e96JKcyjJ3/PDslqwf8fMfEt/GKkDqnw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NK8Ku5
-        ztCV8GJzsPqf2QvMpwRRTWZXhWukZnuXwhy70=; b=6uvWH5eX52b7imOlnClA7H
-        Ghvz4VqZjWpw+3KPa2Sxct2E65lReIS4Sb4zWwosm1dXiq5WNjSKixWut8PkWrkv
-        0Yq/gYb8D32hMCVn6oEqx9ZbhNYXUJ7m15zc6Z5YR6dxBjfI/Vy9LNhYRuDvPLvl
-        8g49rEbhxBnFWAogd+vUxTKCj1IWOFvqNIYEFvuqhWMa3yg2h8qgDfe2yivicw0O
-        arvZQvstYoc3qMzgwV5lqI7LwFpLTKw2viXPIvblyMXi6sehFVd+e9WO5XjqStUd
-        zhf5Z7RLV2sf4AwVBCwuw9mGUO9oCEOk8g2jHHaC5tjB7jbNDqEcm3rGGZIKMyGg
-        ==
-X-ME-Sender: <xms:0SfUXJtlha_1020rEXotMU_Ssvxvwe44QXJ_dXHMtFNfucJ3D8ObMw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrkeehgdeivdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrd
-    horhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
-    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:0SfUXDA5qrzft2J0UIquYCd4ptp5A4hXTfXegNS_OBmiuYUsjU-iAw>
-    <xmx:0SfUXIKMLQfhp3ekbCLsRYlLBpgV-0fPE60jz3IvXvtb1q9JnrvORg>
-    <xmx:0SfUXC2sE39ktQ0DURdOVZeERfb1PIzzNiWxzu_rB9dGviyIPpFwzg>
-    <xmx:0SfUXHcNukrq7wRx-x87Vcev-JIQzi9AabIUpfHGrvQ0g_GxFi5H1Q>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9A4BF103D0;
-        Thu,  9 May 2019 09:14:56 -0400 (EDT)
-Date:   Thu, 9 May 2019 15:14:54 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Major Hayden <major@redhat.com>
+        id S1726415AbfEINYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 09:24:42 -0400
+Received: from mail-oi1-f171.google.com ([209.85.167.171]:37457 "EHLO
+        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726251AbfEINYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 09:24:42 -0400
+Received: by mail-oi1-f171.google.com with SMTP id 143so1874452oii.4
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 06:24:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=gPOR/COjn4S99gr0sj8nBIMVB1H1+efExrAEXtuREQs=;
+        b=bmvDMedfzuV9u/K99XO9ZIUHMWYGLEAi5WUWGcThWJBh3A2VP6Hm4P7uR8UOj2Ua/W
+         zPBNPom4h/tMH99mDmeaQVxZY2hP8OkDdbMpZyC7B5fYdltLy3EwXnMqRez22e+ucziI
+         q4XxyQSRRYGKZ5KEec9kYGsP1UiFKoO1wgPruKOkBnq6kswTB1jlT/QK0dC5fdE0ARls
+         IM2cmoVNbeCl+kcRIAvarKRnt7Ze7fLbmC3DVPlwkSo13oOYqWsMCagD/8wzKWNlWFGt
+         SlL67kvlZ6Fn9Mbzke6vy67oy+QUfkgX01+r+0oIsro4tbi7oXxOPzd1ulqQmKVOg7xJ
+         1Cgg==
+X-Gm-Message-State: APjAAAUgAhU/9N0JSAfB08FwUYPMOlqGr8N83yb5oA50X+CTLxoUdUbp
+        KSAHQDXnnP/P8ZstiDmu1BBv45PdoKY=
+X-Google-Smtp-Source: APXvYqyVVMDMeOmREVLZ6wf3T5u0ZcMLHHLkW2lm5Rse8AmiFY1sHzscGArbfPKm9Hb/vqzdiYfSKg==
+X-Received: by 2002:aca:32c2:: with SMTP id y185mr1587820oiy.177.1557408281254;
+        Thu, 09 May 2019 06:24:41 -0700 (PDT)
+Received: from [192.168.10.164] (cpe-24-243-36-151.satx.res.rr.com. [24.243.36.151])
+        by smtp.gmail.com with ESMTPSA id m124sm825736oia.3.2019.05.09.06.24.40
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 06:24:40 -0700 (PDT)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8e_FAIL=3a_Stable_queue=3a_queue-5=2e1?=
+To:     Greg KH <greg@kroah.com>
 Cc:     CKI Project <cki-project@redhat.com>,
         Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2OIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.1
-Message-ID: <20190509131454.GA19094@kroah.com>
 References: <cki.3BBF192F8F.43W986GZZQ@redhat.com>
  <8eb2f12e-818e-caf9-ac64-6652ec6beaf6@redhat.com>
+ <20190509131454.GA19094@kroah.com>
+From:   Major Hayden <major@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=major@redhat.com; prefer-encrypt=mutual; keydata=
+ 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 UNdR
+Message-ID: <dec0b531-4b89-ce6c-52db-8ad99bdbda9f@redhat.com>
+Date:   Thu, 9 May 2019 08:24:40 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8eb2f12e-818e-caf9-ac64-6652ec6beaf6@redhat.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190509131454.GA19094@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 09, 2019 at 07:49:52AM -0500, Major Hayden wrote:
-> On 5/9/19 7:47 AM, CKI Project wrote:
-> > We ran automated tests on a patchset that was proposed for merging into this
-> > kernel tree. The patches were applied to:
-> > 
-> >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-> >             Commit: e93c9c99a629 - Linux 5.1
-> > 
-> > The results of these automated tests are provided below.
-> > 
-> >     Overall result: FAILED (see details below)
-> >              Merge: FAILED
-> > 
-> > When we attempted to merge the patchset, we received an error:
-> > 
-> >   Patch is empty.
-> > 
-> > We hope that these logs can help you find the problem quickly. For the full
-> > detail on our testing procedures, please scroll to the bottom of this message.
-> > 
-> > Please reply to this email if you have any questions about the tests that we
-> > ran or if you have any suggestions on how to make future tests more effective.
-> > 
-> >         ,-.   ,-.
-> >        ( C ) ( K )  Continuous
-> >         `-',-.`-'   Kernel
-> >           ( I )     Integration
-> >            `-'
-> > ______________________________________________________________________________
-> > 
-> > Merge testing
-> > -------------
-> > 
-> > We cloned this repository and checked out the following commit:
-> > 
-> >   Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-> >   Commit: e93c9c99a629 - Linux 5.1
-> > 
-> > We then merged the patchset with `git am`:
-> 
-> It looks like one of the patches moved away between the time our test began and when we tried to merge the patches. :)
+On 5/9/19 8:14 AM, Greg KH wrote:
+>> It looks like one of the patches moved away between the time our test began and when we tried to merge the patches. :)
+> Moved on the kernel.org side?  I haven't removed any 5.1 patches from
+> the queue.
 
-Moved on the kernel.org side?  I haven't removed any 5.1 patches from
-the queue.
+Okay, we saw a 404 for one of the patches. We will go back and review the logs to make sure we aren't getting our wires crossed with 4.19 and 5.1 testing.
 
+--
+Major Hayden
