@@ -2,133 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC82019625
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 03:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2606119661
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 03:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726734AbfEJB1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 21:27:16 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:45081 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726765AbfEJB1P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 21:27:15 -0400
-Received: by mail-wr1-f68.google.com with SMTP id s15so5501391wra.12
-        for <stable@vger.kernel.org>; Thu, 09 May 2019 18:27:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=ftpViN5j8NFAV54qkkJMS7+epm3RTRKzoNYTV0PlOJg=;
-        b=YsbrPpzThe4ctLjXBEevMymgL7213QNtGRyA4NrhC/5eFu1pyt3lW/UZ9d17gTCDTe
-         cxjxY5wuZvYTvsPg63uXO6fb8U2qf2Z9W6szny5MPL+YlAgyy6ccdGA+ar7+cZFO9McZ
-         y41ypt9ziLd8y7qNcRXbWU2h/+PlgGG8U9JSGEoP9VByZ5Jyl2Z8f5aRP22ZUcSrvaRo
-         /yFeAYlKjku7bjVMt9rpSbt2hKQj3HXZ20RvInP61VxxC6RQan4LlMUzPdm3e7SIjr7A
-         UvGEb/rQyFNedzX+6b7nXTX7TtEWxDu6/K3yp8xoM/5TQBxrcICMrXxYsxTJTmtzLr2k
-         zc/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=ftpViN5j8NFAV54qkkJMS7+epm3RTRKzoNYTV0PlOJg=;
-        b=GmbI2k1uamakDi2lcawko0Nkh18biBxYTMra/seSih9MkR84GhoJhqTIQcG8jsQI9L
-         vN1ce0lXXc1qX+MHPFmTYTWfuXDmnlYd1luD3w5kRSbNobtwZUr3o+K/tLiO5Nez9eIb
-         wRexX+LyN2PYnnv0gdrNDlxAOEJV0SZYerL7iamsBrFk9SVrBmYQUXVbb4qrNxnG32MP
-         JVzufWsgolb01seWWXztB1UbJGmW/iPB8StJ58uz7G6mIARfrlmWgd/a9MjbS+CHvPtD
-         s6ajLpeaBQopRwQbPDuYKvGwn3gFRZNkeEko3QZfXv5tv4y1L/xbnxAo+UKZ/Zjt5ncp
-         dX0Q==
-X-Gm-Message-State: APjAAAWUGTsxiEZmJP9b2c0wBD4nIREVdwYMODXFld2/5zc9oy/LEEhM
-        2VCPPbgc/o7ex6l+cOsGnx5Mgg==
-X-Google-Smtp-Source: APXvYqyarNorOi0XwqzYDk1kJrd9ttGSJJRIcSk1u7eamncDsxys6dMt/bwjjnDvEdJygFoWQSRtPA==
-X-Received: by 2002:adf:83c6:: with SMTP id 64mr5627489wre.81.1557451634115;
-        Thu, 09 May 2019 18:27:14 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x1sm493646wrp.35.2019.05.09.18.27.13
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 May 2019 18:27:13 -0700 (PDT)
-Message-ID: <5cd4d371.1c69fb81.c575f.2868@mx.google.com>
-Date:   Thu, 09 May 2019 18:27:13 -0700 (PDT)
+        id S1726866AbfEJByf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 21:54:35 -0400
+Received: from asrmicro.com ([210.13.118.86]:64131 "EHLO mail2012.asrmicro.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726864AbfEJByf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 May 2019 21:54:35 -0400
+Received: from mail2012.asrmicro.com (10.1.24.123) by mail2012.asrmicro.com
+ (10.1.24.123) with Microsoft SMTP Server (TLS) id 15.0.847.32; Fri, 10 May
+ 2019 09:54:13 +0800
+Received: from mail2012.asrmicro.com ([fe80::7c1a:96dd:1a6b:c97b]) by
+ mail2012.asrmicro.com ([fe80::7c1a:96dd:1a6b:c97b%16]) with mapi id
+ 15.00.0847.030; Fri, 10 May 2019 09:54:13 +0800
+From:   =?utf-8?B?RmFuZyBIb25namllKOaWuea0quadsCk=?= 
+        <hongjiefang@asrmicro.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+CC:     "tytso@mit.edu" <tytso@mit.edu>,
+        "jaegeuk@kernel.org" <jaegeuk@kernel.org>,
+        "linux-fscrypt@vger.kernel.org" <linux-fscrypt@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH V2] fscrypt: don't set policy for a dead directory
+Thread-Topic: [PATCH V2] fscrypt: don't set policy for a dead directory
+Thread-Index: AQHVBYBJy3fqnmNKcU2QpNU9A2v1K6ZiqoQAgADuo8A=
+Date:   Fri, 10 May 2019 01:54:12 +0000
+Message-ID: <24aabc8896dc4b8c94375a11bd95450f@mail2012.asrmicro.com>
+References: <1557307654-673-1-git-send-email-hongjiefang@asrmicro.com>
+ <20190509193135.GB42815@gmail.com>
+In-Reply-To: <20190509193135.GB42815@gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.1.170.195]
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.174-29-g50bbfeb1e2a3
-In-Reply-To: <20190509181247.647767531@linuxfoundation.org>
-References: <20190509181247.647767531@linuxfoundation.org>
-Subject: Re: [PATCH 4.9 00/28] 4.9.175-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 112 boots: 0 failed, 107 passed with 2 offline,=
- 3 conflicts (v4.9.174-29-g50bbfeb1e2a3)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.174-29-g50bbfeb1e2a3/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.174-29-g50bbfeb1e2a3/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.174-29-g50bbfeb1e2a3
-Git Commit: 50bbfeb1e2a357db99ff35681cfa95341b33103a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
-
-Boot Regressions Detected:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.9.174)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v4.9.174)
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    omap2plus_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
-arm64:
-    defconfig:
-        meson-gxbb-p200:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+DQo+IEZyb206IEVyaWMgQmlnZ2VycyBbbWFpbHRvOmViaWdnZXJzQGtlcm5lbC5vcmddDQo+IFNl
+bnQ6IEZyaWRheSwgTWF5IDEwLCAyMDE5IDM6MzIgQU0NCj4gVG86IEZhbmcgSG9uZ2ppZSjmlrnm
+tKrmnbApDQo+IENjOiB0eXRzb0BtaXQuZWR1OyBqYWVnZXVrQGtlcm5lbC5vcmc7IGxpbnV4LWZz
+Y3J5cHRAdmdlci5rZXJuZWwub3JnOw0KPiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0ggVjJdIGZzY3J5cHQ6IGRvbid0IHNldCBwb2xpY3kgZm9yIGEgZGVhZCBk
+aXJlY3RvcnkNCj4gDQo+IE9uIFdlZCwgTWF5IDA4LCAyMDE5IGF0IDA1OjI3OjM0UE0gKzA4MDAs
+IGhvbmdqaWVmYW5nIHdyb3RlOg0KPiA+IHRoZSBkaXJlY3RvcnkgbWF5YmUgaGFzIGJlZW4gcmVt
+b3ZlZCB3aGVuIGVudGVyIGZzY3J5cHRfaW9jdGxfc2V0X3BvbGljeSgpLg0KPiA+IGl0IHRoaXMg
+Y2FzZSwgdGhlIGVtcHR5X2RpcigpIGNoZWNrIHdpbGwgcmV0dXJuIGVycm9yIGZvciBleHQ0IGZp
+bGUgc3lzdGVtLg0KPiA+DQo+ID4gZXh0NF9ybWRpcigpIHNldHMgaV9zaXplID0gMCwgdGhlbiBl
+eHQ0X2VtcHR5X2RpcigpIHJlcG9ydHMgYW4gZXJyb3INCj4gPiBiZWNhdXNlICdpbm9kZS0+aV9z
+aXplIDwgRVhUNF9ESVJfUkVDX0xFTigxKSArIEVYVDRfRElSX1JFQ19MRU4oMiknLg0KPiA+IGlm
+IHRoZSBmcyBpcyBtb3VudGVkIHdpdGggZXJyb3JzPXBhbmljLCBpdCB3aWxsIHRyaWdnZXIgYSBw
+YW5pYyBpc3N1ZS4NCj4gPg0KPiA+IGFkZCB0aGUgY2hlY2sgSVNfREVBRERJUigpIHRvIGZpeCB0
+aGlzIHByb2JsZW0uDQo+ID4NCj4gPiBGaXhlczogOWJkODIxMmY5ODFlICgiZXh0NCBjcnlwdG86
+IGFkZCBlbmNyeXB0aW9uIHBvbGljeSBhbmQgcGFzc3dvcmQgc2FsdA0KPiBzdXBwb3J0IikNCj4g
+PiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgdjQuMSsNCj4gPiBTaWduZWQtb2ZmLWJ5
+OiBob25namllZmFuZyA8aG9uZ2ppZWZhbmdAYXNybWljcm8uY29tPg0KPiANCj4gUmV2aWV3ZWQt
+Ynk6IEVyaWMgQmlnZ2VycyA8ZWJpZ2dlcnNAZ29vZ2xlLmNvbT4NCj4gDQo+IEZZSSwgdGhlIHBh
+cnQgb2YgdGhlIEF1dGhvciBhbmQgU2lnbmVkLW9mZi1ieSBsaW5lcyBvdXRzaWRlIHRoZSBlbWFp
+bCBhZGRyZXNzDQo+IHNob3VsZCBiZSB5b3VyIG5hbWUgcHJvcGVybHkgZm9ybWF0dGVkLCBub3Qg
+dGhlIGVtYWlsIGFkZHJlc3MgYWdhaW4uICBJIHNlZSB0aGUNCj4gZm9sbG93aW5nIGluIGFub3Ro
+ZXIga2VybmVsIGNvbW1pdCBmcm9tIHlvdTsgaXMgaXQgY29ycmVjdD8NCj4gDQo+IAlIb25namll
+IEZhbmcgPGhvbmdqaWVmYW5nQGFzcm1pY3JvLmNvbT4NCj4gDQo+IElmIHNvLCBwbGVhc2Ugc2V0
+IHVzZXIubmFtZSBhY2NvcmRpbmdseSBpbiB5b3VyIC5naXRjb25maWcuICBUaGFua3MhDQoNClRo
+YW5rcyBmb3IgeW91ciByZW1pbmRlci4NCkkgd2lsbCB1cGRhdGUgdGhlbS4NCg0KPiANCj4gLSBF
+cmljDQo+IA0KPiA+IC0tLQ0KPiA+ICBmcy9jcnlwdG8vcG9saWN5LmMgfCAyICsrDQo+ID4gIDEg
+ZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9mcy9j
+cnlwdG8vcG9saWN5LmMgYi9mcy9jcnlwdG8vcG9saWN5LmMNCj4gPiBpbmRleCBiZDdlYWY5Li5h
+NGVjYTZlIDEwMDY0NA0KPiA+IC0tLSBhL2ZzL2NyeXB0by9wb2xpY3kuYw0KPiA+ICsrKyBiL2Zz
+L2NyeXB0by9wb2xpY3kuYw0KPiA+IEBAIC04MSw2ICs4MSw4IEBAIGludCBmc2NyeXB0X2lvY3Rs
+X3NldF9wb2xpY3koc3RydWN0IGZpbGUgKmZpbHAsIGNvbnN0IHZvaWQgX191c2VyDQo+ICphcmcp
+DQo+ID4gIAlpZiAocmV0ID09IC1FTk9EQVRBKSB7DQo+ID4gIAkJaWYgKCFTX0lTRElSKGlub2Rl
+LT5pX21vZGUpKQ0KPiA+ICAJCQlyZXQgPSAtRU5PVERJUjsNCj4gPiArCQllbHNlIGlmIChJU19E
+RUFERElSKGlub2RlKSkNCj4gPiArCQkJcmV0ID0gLUVOT0VOVDsNCj4gPiAgCQllbHNlIGlmICgh
+aW5vZGUtPmlfc2ItPnNfY29wLT5lbXB0eV9kaXIoaW5vZGUpKQ0KPiA+ICAJCQlyZXQgPSAtRU5P
+VEVNUFRZOw0KPiA+ICAJCWVsc2UNCj4gPiAtLQ0KPiA+IDEuOS4xDQo+ID4NCg==
