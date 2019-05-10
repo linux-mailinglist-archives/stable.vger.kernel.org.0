@@ -2,125 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C4B1A2CA
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 20:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D021A37A
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 21:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727968AbfEJSDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 May 2019 14:03:23 -0400
-Received: from mx.ewheeler.net ([66.155.3.69]:53094 "EHLO mx.ewheeler.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727709AbfEJSDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 May 2019 14:03:23 -0400
-X-Greylist: delayed 389 seconds by postgrey-1.27 at vger.kernel.org; Fri, 10 May 2019 14:03:22 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mx.ewheeler.net (Postfix) with ESMTP id 6279AA0692;
-        Fri, 10 May 2019 17:56:53 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at ewheeler.net
-Received: from mx.ewheeler.net ([127.0.0.1])
-        by localhost (mx.ewheeler.net [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id KZQof3t99O87; Fri, 10 May 2019 17:56:52 +0000 (UTC)
-Received: from el7-dev.ewi (unknown [209.180.175.76])
-        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx.ewheeler.net (Postfix) with ESMTPSA id 359B3A067D;
-        Fri, 10 May 2019 17:56:52 +0000 (UTC)
-From:   Eric Wheeler <stable@lists.ewheeler.net>
-To:     Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org (open list:BFQ I/O SCHEDULER),
-        linux-kernel@vger.kernel.org (open list)
-Cc:     Eric Wheeler <bfq@linux.ewheeler.net>, stable@vger.kernel.org
-Subject: [PATCH] bfq: backport: update internal depth state when queue depth changes
-Date:   Fri, 10 May 2019 10:56:32 -0700
-Message-Id: <1557510992-18506-1-git-send-email-stable@lists.ewheeler.net>
-X-Mailer: git-send-email 1.8.3.1
+        id S1727828AbfEJTr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 May 2019 15:47:29 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:34879 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727656AbfEJTr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 May 2019 15:47:29 -0400
+Received: by mail-wr1-f68.google.com with SMTP id w12so9130391wrp.2;
+        Fri, 10 May 2019 12:47:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to:cc;
+        bh=+Z10X2I8eWBUsmYd5fEEytGWYHdbZjr+b9Ewl7br5hM=;
+        b=A0Gg2fY0s9hY42vX5j2KULfzxQcaBQfMx391RVaUMNZ4l1KN/zmOn79swxosX8kHuA
+         h7YB+C0uNpYY0bpzbh/1xsFI97XBqlff3Whag+XDQiXALrkk0IQKkTz022jpzeDnNdV9
+         nAn2w2dAgg6WMayPBBRPqQwsqnUO4XpnENr4Vl+f3BGp1EBbuy1sNu8uNmWEor2iZ1Ri
+         B7M38KLJJrZPRw1XvNwQXEeYRuyUnPEqncD+gGQon7I+Y0LjWOXqXovJRhmz0SVhqTkG
+         V9gQw7OoLXa1q4NaY9wo1xoPGRvDMmFqDlhum09JsgFJA+D95bBDUBPemfzuXaPhZHCN
+         0mYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=+Z10X2I8eWBUsmYd5fEEytGWYHdbZjr+b9Ewl7br5hM=;
+        b=j4B+U2WaNQNM8/lhI8JlR9z0lUE8GVappPbXOenTdQ570PbOLJLUDMPGPci0/7gBM8
+         XOW74HHkTfq1OwDM3EiTsVbIOQmHCGo/pLND1DL8C+95gc4JQHAw7SGca6tqSQS0hzxG
+         S7wLGM1a2Y6QkRwq1I7YesgD0p9mDdeAuCPOVict1OqPgC9xCEOQMrW/XhXwTKOGLAyK
+         SNQEhBvPl3F+ONb3HXxMIAMaTfqoYFqNDV9WNTMgko5+10sANHwiLpvI358IrRk8bnLF
+         B/XpH19OG6a1LjUar+6NrBFztFANRVBp0eXxNVhlccdWKi3qzj71ntJMangrBmFHHwWf
+         +o4g==
+X-Gm-Message-State: APjAAAUHoW7kWnDnKpSt8QLpBWUQU9yCYFXKT//rCcrryfHBHN0y6Lp7
+        R7M5DBO6ADJIdlBUW15n3H7vAUff2uoD70ECEdA=
+X-Google-Smtp-Source: APXvYqwjVyCRx5QvqmlrGwC/WUsOpuy4IIJ23H6/koVE0IynXyNioRq4vIzayTZzqnsMGY+js8kuSHG6QWa6T1oPXAc=
+X-Received: by 2002:a5d:518d:: with SMTP id k13mr7782838wrv.285.1557517647382;
+ Fri, 10 May 2019 12:47:27 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Fri, 10 May 2019 21:47:14 +0200
+Message-ID: <CA+icZUWSJSnKcoYeh__v_BLnXP5O0XGewLdGenz13extauRr_w@mail.gmail.com>
+Subject: Linux v5.1.1
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+Hi Greg,
 
-commit 77f1e0a52d26242b6c2dba019f6ebebfb9ff701e upstream
+I have seen that all other Linux-stable Git branches got a new release.
 
-A previous commit moved the shallow depth and BFQ depth map calculations
-to be done at init time, moving it outside of the hotter IO path. This
-potentially causes hangs if the users changes the depth of the scheduler
-map, by writing to the 'nr_requests' sysfs file for that device.
+What happened to Linux-stable-5.1.y and v5.1.1 release?
 
-Add a blk-mq-sched hook that allows blk-mq to inform the scheduler if
-the depth changes, so that the scheduler can update its internal state.
+Is there a show-stopper?
 
-Signed-off-by: Eric Wheeler <bfq@linux.ewheeler.net>
-Tested-by: Kai Krakow <kai@kaishome.de>
-Reported-by: Paolo Valente <paolo.valente@linaro.org>
-Fixes: f0635b8a416e ("bfq: calculate shallow depths at init time")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: stable@vger.kernel.org
----
- block/bfq-iosched.c      | 8 +++++++-
- block/blk-mq.c           | 2 ++
- include/linux/elevator.h | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+Thanks.
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 653100f..0f7cdbc 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5223,7 +5223,7 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	return min_shallow;
- }
- 
--static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
-+static void bfq_depth_updated(struct blk_mq_hw_ctx *hctx)
- {
- 	struct bfq_data *bfqd = hctx->queue->elevator->elevator_data;
- 	struct blk_mq_tags *tags = hctx->sched_tags;
-@@ -5231,6 +5231,11 @@ static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
- 
- 	min_shallow = bfq_update_depths(bfqd, &tags->bitmap_tags);
- 	sbitmap_queue_min_shallow_depth(&tags->bitmap_tags, min_shallow);
-+}
-+
-+static int bfq_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int index)
-+{
-+	bfq_depth_updated(hctx);
- 	return 0;
- }
- 
-@@ -5653,6 +5658,7 @@ static ssize_t bfq_low_latency_store(struct elevator_queue *e,
- 		.requests_merged	= bfq_requests_merged,
- 		.request_merged		= bfq_request_merged,
- 		.has_work		= bfq_has_work,
-+		.depth_updated		= bfq_depth_updated,
- 		.init_hctx		= bfq_init_hctx,
- 		.init_sched		= bfq_init_queue,
- 		.exit_sched		= bfq_exit_queue,
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index e3c39ea..7a57368 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2878,6 +2878,8 @@ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr)
- 		}
- 		if (ret)
- 			break;
-+		if (q->elevator && q->elevator->type->ops.mq.depth_updated)
-+			q->elevator->type->ops.mq.depth_updated(hctx);
- 	}
- 
- 	if (!ret)
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index a02deea..a2bf4a6 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -99,6 +99,7 @@ struct elevator_mq_ops {
- 	void (*exit_sched)(struct elevator_queue *);
- 	int (*init_hctx)(struct blk_mq_hw_ctx *, unsigned int);
- 	void (*exit_hctx)(struct blk_mq_hw_ctx *, unsigned int);
-+	void (*depth_updated)(struct blk_mq_hw_ctx *);
- 
- 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
- 	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *);
--- 
-1.8.3.1
+Regards,
+- Sedat -
 
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/
