@@ -2,66 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E904419859
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 08:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABA019866
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 08:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726851AbfEJGZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 May 2019 02:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726808AbfEJGZY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 May 2019 02:25:24 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7F9B217D6;
-        Fri, 10 May 2019 06:25:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557469524;
-        bh=xCyIuPEcqKdpdBDeoKypAEdjrtjwfp4VH1BUPkegH80=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FiRY9DuruDcwKWvOXqpN3jKQqnB4xiqy9Nty2e6e0BOWTFviDQtiWzbptmkcKxzSD
-         nP/wlYefoVuHOueZ+JSQULEq/A98qqvDWpw8QpcTMn1dA/1+QTFe2BHxiXdb2GyoK/
-         YX5+Irq7dzoAs+l9Tp6+uCsnRP33jC3mAV8uoYp8=
-Date:   Fri, 10 May 2019 08:25:21 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "kernelci.org bot" <bot@kernelci.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.0 00/95] 5.0.15-stable review
-Message-ID: <20190510062521.GC18014@kroah.com>
-References: <20190509181309.180685671@linuxfoundation.org>
- <5cd4c561.1c69fb81.ca185.0137@mx.google.com>
+        id S1726924AbfEJGer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 May 2019 02:34:47 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40824 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726870AbfEJGer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 May 2019 02:34:47 -0400
+Received: by mail-lj1-f194.google.com with SMTP id d15so4099631ljc.7
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 23:34:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=BAEbwR8QRpMgjcJjAAVA2B4jt0AWF7IWj+Gsp1Up3jA=;
+        b=Wsf8MuELCRvBk4EVLunFK6oxmiTHv+0fZJHzT6xl7314UO2UmnFYBAkAwD3hwAMsxz
+         ZltavBvKemX/EUKsoR5C5SDVYsvL7fBL7dK1ZCSNKgE09ewByoK1OV6z70piqM/MQr/U
+         lyrX2hGJ2L/HLv8zZH3xYJ/pBvGgux9dHxVgCbSQ/GE/NhBokzVq0ciAdfUCImhbuDvy
+         D32QesRuRowtkVkZGgahXPYBFRvofvEN1uCnz1YtmNzb+cJ5kBdRFH48dY2JyudGl8l/
+         G6WtyPCF4HlUFlgTzL9V8F/zg242xGWA3agoqm+J7fI2vyN0UD/6RqVmvNgHOcIOnhMS
+         pnKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=BAEbwR8QRpMgjcJjAAVA2B4jt0AWF7IWj+Gsp1Up3jA=;
+        b=JgETAdQxx7NUmvG+mvZuFaIH5kmVbU6tyS6Hrc3ahQfJdqJzCArnNsAK5XyRJaL82w
+         t7S78Ph4XG7aNDoUhhGV+uErKx50dUDj/PbStZpBrj7OavsoL+h/uoqiApiqh05efgYB
+         /qG4HBVP1cdxFjwwBGpSgIl/Srjtzl1BfUfw3W7xmChf1Ru00f/gw7rwV22qexm9ayYr
+         NvK21uVYYbnLbzKyTyyw0JbHD0FaHVktAo7YYYQt9CI/0LrsS+7ldlUDGK0WfK7JVLEO
+         xVcE7wHVZ0X2ejpOMnAxAKJp13Twd76GIprtakZ1Vg8WN9yysHPlZfsL0GR1Vd0UZzWq
+         hw5A==
+X-Gm-Message-State: APjAAAUzV3nI05478AHEq68x5LS9Ok+fHY8Ib8pgAva9HLabk/EJcWcW
+        fvrQGQHhro53Lx4Bbb8Z+RfYFm81hroWbLi2lIKHF5dS3IY=
+X-Google-Smtp-Source: APXvYqyqSG7veyoUigRuOnafdOxwB/aTbJK1YNxE3BCd2WT2SrMTyti3XYmHl5WYfP0Op6ThILiyoK/xNS1L9TPpMVA=
+X-Received: by 2002:a2e:9193:: with SMTP id f19mr4600756ljg.111.1557470084980;
+ Thu, 09 May 2019 23:34:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5cd4c561.1c69fb81.ca185.0137@mx.google.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190509181301.719249738@linuxfoundation.org>
+In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 10 May 2019 12:04:33 +0530
+Message-ID: <CA+G9fYsJQsTaeFGpHqO2EH=67TfXB5KaUTWcfuk=88Ma+bL07Q@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/66] 4.19.42-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 09, 2019 at 05:27:13PM -0700, kernelci.org bot wrote:
-> stable-rc/linux-5.0.y boot: 143 boots: 1 failed, 141 passed with 1 untried/unknown (v5.0.14-96-gdf1376651d49)
-> 
-> Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux-5.0.y/kernel/v5.0.14-96-gdf1376651d49/
-> Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y/kernel/v5.0.14-96-gdf1376651d49/
-> 
-> Tree: stable-rc
-> Branch: linux-5.0.y
-> Git Describe: v5.0.14-96-gdf1376651d49
-> Git Commit: df1376651d496484d341d374c3d2566a089b1969
-> Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> Tested: 77 unique boards, 25 SoC families, 15 builds out of 208
-> 
-> Boot Failure Detected:
-> 
-> arm:
->     multi_v7_defconfig:
->         gcc-8:
->             stih410-b2120: 1 failed lab
+On Fri, 10 May 2019 at 00:35, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.42 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 11 May 2019 06:11:18 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.42-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Is this a "real" issue?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.42-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 82fd2fd59cffa3045f205da555c0defe8bb35912
+git describe: v4.19.41-67-g82fd2fd59cff
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.41-67-g82fd2fd59cff
+
+No regressions (compared to build v4.19.41)
+
+No fixes (compared to build v4.19.41)
+
+Ran 24988 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
