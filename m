@@ -2,97 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 113CF19B6F
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 12:18:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1197E19BC6
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 12:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727392AbfEJKSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 May 2019 06:18:14 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:1247 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727053AbfEJKSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 May 2019 06:18:14 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5cd54fed0000>; Fri, 10 May 2019 03:18:21 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 10 May 2019 03:18:13 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 10 May 2019 03:18:13 -0700
-Received: from [10.26.11.182] (172.20.13.39) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 10 May
- 2019 10:18:09 +0000
-Subject: Re: [PATCH 5.1 00/30] 5.1.1-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190509181250.417203112@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <61c05635-32ea-cb62-cf3a-44d9c57836d7@nvidia.com>
-Date:   Fri, 10 May 2019 11:18:07 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1727477AbfEJKjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 May 2019 06:39:33 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:43287 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727251AbfEJKjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 May 2019 06:39:32 -0400
+Received: by mail-lj1-f194.google.com with SMTP id z5so4648910lji.10
+        for <stable@vger.kernel.org>; Fri, 10 May 2019 03:39:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=Ediw95mdCETPNdr5dgYKvIAhkIPCq746BFpu7Xu9s1U=;
+        b=Ep2uz0buxbKBSGuZOHqvyLPEFnPl7wY+o599BIvzrC2DcMW+Knqof5L4USwsDf99xR
+         baIYpXDiK4XyrQZe43diIP0CkaVZQxvn6e55fxKkHfI5lUlg7f76zQ30Fl6bYnvosujL
+         STB1vWsq+WkUOXuSxZ66NIoczLbLlHUbRTbC89GUSaWagfwjVSgipIRpydZ7P4m2FQnP
+         FblbBVYlzNVzAl+3JB/JyuLoaeNLip+oQfeOjAiN5gXQ6skuTfB4cP8xEn9Klv9cyQjj
+         RDTxcMJOUCavX5mU3nEEgUl6HvQE0Ooa977hyqHoJChb+AP0x16SlJ3c9nvrsLFA6edN
+         92gg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=Ediw95mdCETPNdr5dgYKvIAhkIPCq746BFpu7Xu9s1U=;
+        b=cZfkaOTZBZXx/fRL6Vk/LwQ/oWsESjh4G7Qj2dfXLkyRAmF3459GB73ajbwPiNmvQJ
+         RuRQRusb6sNydkCl1thLMfskWkS2kiXpm3k4LpNx42f+RnLirqutmgZnc5HxiKTKc7Xq
+         6DIbEZ7aLfWR92nLsQqqxt6q1DZjw6eaUOQoO4ztmoaA+QgJnpfgp3Wul2NFT0q/h268
+         p03+pI2K+Q9znEmwhBYLlgkKTKJhqptTyCR+HhnSDK1k9ssQKUr9dlND7TJe3+kUD4bH
+         SbQi7R42GHPwoBc4pYkqAo8RsncvgG7qjtkis280fDGlk4VZ0wff7DzI58AUzyysg3cf
+         MmoQ==
+X-Gm-Message-State: APjAAAWNzb+7GDJVO6S3fiYNvkAV6pRE1AWRCBUtL6qZjiDJncwybkHH
+        ODpyjnhP5o5uoR/aa3GSUYr6TjBOnBBz3Tq7Pkw=
+X-Google-Smtp-Source: APXvYqxRj7zKryOr6aQ+lR25SsXhFWGr20Lu6DW8LiYWgWEL+64T8QymxPpPgQ/cJssWTLglbZcRLDVgaITsanyTq3A=
+X-Received: by 2002:a2e:9ec6:: with SMTP id h6mr3199951ljk.169.1557484770523;
+ Fri, 10 May 2019 03:39:30 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190509181250.417203112@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL103.nvidia.com (172.20.187.11) To
- HQMAIL101.nvidia.com (172.20.187.10)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1557483501; bh=EHIaXWy07l2y+vYZHMO/8PoiOfNesW7mmbCh1xMUVmI=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=LrXy4WKzyqVTZ68M2R11FdDX1JUMGUBA1Jian945X7wwIgL+Lus8cilcf4QTiwHhB
-         rJSyXj8ueDPx96gm1+RLECjFk+ZxByXILvYXuU6F3gCuAbRSFD5wS8KnyJfmZps69k
-         m3BqT/TcCuLQAozRSlTTvekfw6/Ch+NadEgg0SJSRdmRhHZ252PY0r6PgI5xWO5Mvk
-         /LpOtkeuPIR747qEWjR9gNGWICEYw9ieznBWMgAmuZ+ViqPOcV023K7c7YkvQ5YyKg
-         tNy1vq9Vx+TiCsBxX9na60SEKp92e8mH2dY7gHb98mz2m3vZ88nZThdnV8sH7RNG/9
-         zmElSATMhG5ew==
+Received: by 2002:a2e:5c42:0:0:0:0:0 with HTTP; Fri, 10 May 2019 03:39:29
+ -0700 (PDT)
+Reply-To: united_nations201920@yahoo.com
+From:   united nations <adamsmoyo12@gmail.com>
+Date:   Fri, 10 May 2019 11:39:29 +0100
+Message-ID: <CAJHo-xnpw6unOZzckOwbhksvgLF2P38RAiPnVmZPJR7e5vzdkA@mail.gmail.com>
+Subject: United Nations Compensation Unit
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+--=20
+UNITED NATIONS COMPENSATION UNIT.IN AFFILIATION WITH WORLD BANK
 
-On 09/05/2019 19:42, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.1 release.
-> There are 30 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 11 May 2019 06:11:35 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+ATTENTION BENEFICIARY:
 
-All tests are passing for Tegra ...
+Congratulations, This mail is to inform you that your name is among
+those United Nation is compensating for the time and money paid to
+some officials in Africa with out receiving your fund. This
+compensation must be paid withing 7 working days. You are advice to
+reconfirm your home address and your direct mobile numbers to enable
+us send your  ATM VISAS CARD worth of $850,000.to you. Your urgent
+reply is highly needed.
 
-Test results for stable-v5.1:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+You are advised to send your communication particulars,
 
-Linux version:	5.1.1-rc1-ge4f05f7
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+Full Names:
+Age:
+Occupation:
+Country:
+Telephone:
+Fax numbers:
+Mailing Address:
 
-Cheers
-Jon
+Yours Faithfully,
+Ant=C3=B3nio Guterres
+Secretary United Nations
 
--- 
-nvpublic
+=E2=80=A6
