@@ -2,119 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9DC195B1
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 01:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841CA195ED
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 02:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbfEIXcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 19:32:19 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:45076 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726108AbfEIXcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 19:32:19 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x49NOFCS051217;
-        Thu, 9 May 2019 23:32:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2018-07-02;
- bh=C9aIasraSha+Unahg2EAZJgXu4Vii1PBVVz7t26PHMo=;
- b=y2nCTlnf47trHDM7FlSPumjUEArfp40Mam9pSSNWxp9tuaJdDpHfRlBbsNprh6FslJfZ
- CvffXORALuUweL8ITV6SGhxWVWMt2j6NrHdSPkZHRCipnwSD3grZ15DUe+bjBfe5am5x
- SXCqanmEWrfk9VJwiMvC25XHGG7jzJ5zPOQdrVRqQR2/I/MnYgCPVdAPNy8tW/rq8+qW
- zmNbRVRI0WtRAy0cYaYpH9+07mv5C38mtNYXtZpE0xWroBvWiWhm4bTc0qSaeSW6kFI7
- 7M2N6W29+txJqiVcRhJ0MTLSmTxAHH1heZY68DbVfcRUPRsENUrC7pbw8x18yZp0yV76 +g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 2s94b6e0e9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 09 May 2019 23:32:07 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x49NVUVU125728;
-        Thu, 9 May 2019 23:32:06 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 2s94ah2qat-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 09 May 2019 23:32:05 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x49NW3rL010577;
-        Thu, 9 May 2019 23:32:04 GMT
-Received: from [192.168.1.222] (/71.63.128.209)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 09 May 2019 16:32:03 -0700
-Subject: Re: [PATCH] hugetlbfs: always use address space in inode for resv_map
- pointer
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     yuyufen <yuyufen@huawei.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        stable@vger.kernel.org
-References: <20190416065058.GB11561@dhcp22.suse.cz>
- <20190419204435.16984-1-mike.kravetz@oracle.com>
- <fafe9985-7db1-b65c-523d-875ab4b3b3b8@huawei.com>
- <5d7dc0d5-7cd3-eb95-a1e7-9c68fe393647@oracle.com>
- <20190509161135.00b542e5b4d0996b5089ea02@linux-foundation.org>
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <31754605-5425-a2aa-b16f-ad89772c27b9@oracle.com>
-Date:   Thu, 9 May 2019 16:32:02 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726948AbfEJAA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 20:00:59 -0400
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:46936 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726902AbfEJAA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 20:00:58 -0400
+Received: by mail-wr1-f48.google.com with SMTP id r7so4698971wrr.13
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 17:00:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=x/CXGRp80IRiXeAmAwY4ABp5f377aFe0bLcL5F214gE=;
+        b=MRRofAjZFYnaIpoOtASUYvVx3kesdLvsD1nsFpy6CvWlA2XxD7r01rohAdXPbK6TyL
+         CBGma3ORM/Exr/uYjEAeKrG6YJkB/yKjrY+D1l0vL/kb+H0UoZRqxH0Qip2SLSjir5oU
+         eExp/DsTZFtIv/Np72EEH68ck20Cj7I52qSCiBK4q3avLexbQfhmJ0AMBab3pEgzjkpL
+         v0mPzWsl5CfkMte71sWoG/UADzS60dRYUgSDHiPz5czVcZHVsesnAjdvetphuddNAutg
+         94tNgpj/K+eQQ5hM+I25upUz50Vrhg9GFw0eBQiDTP2zDJV5/t2PLFIBSZXPbDt5TsMa
+         3JYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=x/CXGRp80IRiXeAmAwY4ABp5f377aFe0bLcL5F214gE=;
+        b=hMu7rNxPxTtbIDnCwsbOLfFgOzWWKM5hjw17pk4i3yHM3adFSOqJamii+nnr4lsQ07
+         hYzbYgUpJiZJBnfqCvC5fyKYNqyP1v7RQ2eqWuJeH1mvzWYLiP569KhUXaIoMkRbe2b4
+         8u58V2tuEofOqbiLU4aEiJ0oni39zQ50LYh7NE2cln73LdFQ+Qnpegv2I6vGdy4OhCW9
+         OFxGSkUWp2bymjrLk4PcbaP34waoACd36LSEYz/9ZorEAlgqpg8OFTelmuxh0Ym7HgkX
+         fvq8b57pvzhzEB0z7Vd4isf8MZO82rHmZs2UChZc/S80mfsTrWpL4acChP85n2A6zVRy
+         p1CA==
+X-Gm-Message-State: APjAAAX11G5/jr/TfjtlMsZBNH99jqzeQVIlGKNYYQh58KM/WJ2nkLRV
+        IjQZmmx9pfDQsDwlMAcdmLZiwb96nXi0oA==
+X-Google-Smtp-Source: APXvYqygerwA4926KxSGyZ/KcATNNkdDOoi0d8S/CeLNc63ZE7YZqZ+lnh+AZUWqbW4W2B90yYiORQ==
+X-Received: by 2002:adf:eb89:: with SMTP id t9mr736368wrn.109.1557446456750;
+        Thu, 09 May 2019 17:00:56 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s11sm10202177wrb.71.2019.05.09.17.00.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 May 2019 17:00:56 -0700 (PDT)
+Message-ID: <5cd4bf38.1c69fb81.fd5b1.1766@mx.google.com>
+Date:   Thu, 09 May 2019 17:00:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190509161135.00b542e5b4d0996b5089ea02@linux-foundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9252 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=735
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1905090134
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9252 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=805 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1905090134
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.41-67-g82fd2fd59cff
+Subject: stable-rc/linux-4.19.y boot: 135 boots: 1 failed,
+ 132 passed with 2 conflicts (v4.19.41-67-g82fd2fd59cff)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/9/19 4:11 PM, Andrew Morton wrote:
-> On Wed, 8 May 2019 13:16:09 -0700 Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> 
->>> I think it is better to add fixes label, like:
->>> Fixes: 58b6e5e8f1ad ("hugetlbfs: fix memory leak for resv_map")
->>>
->>> Since the commit 58b6e5e8f1a has been merged to stable, this patch also be needed.
->>> https://www.spinics.net/lists/stable/msg298740.html
->>
->> It must have been the AI that decided 58b6e5e8f1a needed to go to stable.
-> 
-> grr.
-> 
->> Even though this technically does not fix 58b6e5e8f1a, I'm OK with adding
->> the Fixes: to force this to go to the same stable trees.
-> 
-> Why are we bothering with any of this, given that
-> 
-> : Luckily, private_data is NULL for address spaces in all such cases
-> : today but, there is no guarantee this will continue.
-> 
-> ?
+stable-rc/linux-4.19.y boot: 135 boots: 1 failed, 132 passed with 2 conflic=
+ts (v4.19.41-67-g82fd2fd59cff)
 
-You are right.  For stable releases, I do not see any way for this to
-be an issue.  We are lucky today (and in the past).  The patch is there
-to guard against code changes which may cause this condition to change
-in the future.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.41-67-g82fd2fd59cff/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.41-67-g82fd2fd59cff/
 
-Yufen Yu, do you see this actually fixing a problem in stable releases?
-I believe you originally said this is not a problem today, which would
-also imply older releases.  Just want to make sure I am not missing something.
--- 
-Mike Kravetz
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.41-67-g82fd2fd59cff
+Git Commit: 82fd2fd59cffa3045f205da555c0defe8bb35912
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 71 unique boards, 25 SoC families, 15 builds out of 206
 
-> Even though 58b6e5e8f1ad was inappropriately backported, the above
-> still holds, so what problem does a backport of "hugetlbfs: always use
-> address space in inode for resv_map pointer" actually solve?
-> 
-> And yes, some review of this would be nice
+Boot Regressions Detected:
+
+arm:
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: failing since 1 day (last pass: v4.19.40-100-gf=
+897c76a347c - first fail: v4.19.41)
+
+x86_64:
+
+    x86_64_defconfig:
+        gcc-8:
+          qemu:
+              lab-collabora: new failure (last pass: v4.19.41-56-g487b15502=
+665)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-baylibre: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
