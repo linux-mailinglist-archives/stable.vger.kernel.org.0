@@ -2,84 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDB519732
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 05:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3B31981D
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 07:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726883AbfEJDlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 23:41:14 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:34182 "EHLO mx1.redhat.com"
+        id S1726675AbfEJFh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 May 2019 01:37:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbfEJDlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 23:41:14 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725927AbfEJFh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 May 2019 01:37:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A79E33082E5F;
-        Fri, 10 May 2019 03:41:13 +0000 (UTC)
-Received: from ming.t460p (ovpn-8-19.pek2.redhat.com [10.72.8.19])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B12761A267;
-        Fri, 10 May 2019 03:41:07 +0000 (UTC)
-Date:   Fri, 10 May 2019 11:41:02 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Andrea Parri <andrea.parri@amarulasolutions.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, Omar Sandoval <osandov@fb.com>,
-        linux-block@vger.kernel.org
-Subject: Re: [PATCH 3/5] sbitmap: fix improper use of smp_mb__before_atomic()
-Message-ID: <20190510034101.GC27944@ming.t460p>
-References: <1556568902-12464-1-git-send-email-andrea.parri@amarulasolutions.com>
- <1556568902-12464-4-git-send-email-andrea.parri@amarulasolutions.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B10921479;
+        Fri, 10 May 2019 05:37:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557466675;
+        bh=9SxKlwKnRueCbd6NZcNmhuNg8tsA7y8WA+UCqE/CVL0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CsGKDcVlmnP1hAg49QVXnjRheBxNPWXqLLx5OqrudNEwGnyZRhan/4f3v9dgqdwOv
+         gMXohdYbGpchyC4XoSPJrvT2SR/Pl37IkI3Lkoh5sq3wF3DHDvLnIfNi9gLQCIwFqO
+         vTSipACLBYeo+wXVkVM8+WhPBD4Zv81PSajlYqX4=
+Date:   Fri, 10 May 2019 07:37:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Quoc Tran <qtran@marvell.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Quinn Tran <qutran@marvell.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: [EXT] [PATCH 4.19 60/66] scsi: qla2xxx: Fix device staying in
+ blocked state
+Message-ID: <20190510053753.GA8481@kroah.com>
+References: <20190509181301.719249738@linuxfoundation.org>
+ <20190509181307.754166157@linuxfoundation.org>
+ <MWHPR18MB1552A7E447C11875F5FDD31FA0330@MWHPR18MB1552.namprd18.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1556568902-12464-4-git-send-email-andrea.parri@amarulasolutions.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Fri, 10 May 2019 03:41:13 +0000 (UTC)
+In-Reply-To: <MWHPR18MB1552A7E447C11875F5FDD31FA0330@MWHPR18MB1552.namprd18.prod.outlook.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 29, 2019 at 10:14:59PM +0200, Andrea Parri wrote:
-> This barrier only applies to the read-modify-write operations; in
-> particular, it does not apply to the atomic_set() primitive.
+On Thu, May 09, 2019 at 08:28:29PM +0000, Quoc Tran wrote:
+> Hi All,
 > 
-> Replace the barrier with an smp_mb().
-> 
-> Fixes: 6c0ca7ae292ad ("sbitmap: fix wakeup hang after sbq resize")
-> Cc: stable@vger.kernel.org
-> Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
-> Reported-by: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Cc: Omar Sandoval <osandov@fb.com>
-> Cc: linux-block@vger.kernel.org
-> ---
->  lib/sbitmap.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/sbitmap.c b/lib/sbitmap.c
-> index 155fe38756ecf..4a7fc4915dfc6 100644
-> --- a/lib/sbitmap.c
-> +++ b/lib/sbitmap.c
-> @@ -435,7 +435,7 @@ static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
->  		 * to ensure that the batch size is updated before the wait
->  		 * counts.
->  		 */
-> -		smp_mb__before_atomic();
-> +		smp_mb();
->  		for (i = 0; i < SBQ_WAIT_QUEUES; i++)
->  			atomic_set(&sbq->ws[i].wait_cnt, 1);
->  	}
-> -- 
-> 2.7.4
-> 
+> Please, remove Quoc Tran (qtran@marvell.com) from this email.  I think the correct contact is Quinn Tran (qutran@marvell.com)
 
-sbitmap_queue_update_wake_batch() won't be called in fast path, and
-the fix is correct too, so:
+I can't go back and rewrite git history, sorry.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-
-thanks,
-Ming
+greg k-h
