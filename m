@@ -2,66 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB7B19698
-	for <lists+stable@lfdr.de>; Fri, 10 May 2019 04:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CBCB196B4
+	for <lists+stable@lfdr.de>; Fri, 10 May 2019 04:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726842AbfEJCFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 May 2019 22:05:40 -0400
-Received: from asrmicro.com ([210.13.118.86]:28100 "EHLO mail2012.asrmicro.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726795AbfEJCFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 May 2019 22:05:40 -0400
-Received: from localhost (10.1.170.159) by mail2012.asrmicro.com (10.1.24.123)
- with Microsoft SMTP Server (TLS) id 15.0.847.32; Fri, 10 May 2019 10:05:32
- +0800
-From:   Hongjie Fang <hongjiefang@asrmicro.com>
-To:     <tytso@mit.edu>, <jaegeuk@kernel.org>, <ebiggers@kernel.org>
-CC:     <linux-fscrypt@vger.kernel.org>,
-        Hongjie Fang <hongjiefang@asrmicro.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH V3] fscrypt: don't set policy for a dead directory
-Date:   Fri, 10 May 2019 10:05:23 +0800
-Message-ID: <1557453923-5286-1-git-send-email-hongjiefang@asrmicro.com>
-X-Mailer: git-send-email 1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.1.170.159]
-X-ClientProxiedBy: mail2012.asrmicro.com (10.1.24.123) To
- mail2012.asrmicro.com (10.1.24.123)
+        id S1726924AbfEJCd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 May 2019 22:33:58 -0400
+Received: from mail-qk1-f202.google.com ([209.85.222.202]:42816 "EHLO
+        mail-qk1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726806AbfEJCd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 May 2019 22:33:57 -0400
+Received: by mail-qk1-f202.google.com with SMTP id f82so4135438qkb.9
+        for <stable@vger.kernel.org>; Thu, 09 May 2019 19:33:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=mGuCACXMov7W3BwH4y6oNYAc9W4ThFxzn4lKrzck6NA=;
+        b=Bhj0+d7KDgyGqHThBrOkufEI2ydIenVSEY8DgSAeLumsuRN8vo4MzhIcachz6AwyEw
+         aGE4ZU3lnl8gM/tSH1kdsFXSJ7JNbybGZHwe/lDt0IknVsk9mP9q1Gy41xZcOrjKTnET
+         ayH5ZhXvTVRa11eXeAZNSy/WIcq8MAPHzHdgAtN67oaAzc6q/CA0y8lF7MxGD7EixfKA
+         ck0MjvzImKxxiRe90+GMCg+F9TAbdUKEo3oedtHaDAqxE2r2MdthG0WLGUiy7obfML0L
+         +fDstCI/8ne6UoPD/OGGRSqTwvB9alvGwCVCd0YLTi3Y3q0dU6EBV4dZ/YSIUGMnwJWE
+         5GQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=mGuCACXMov7W3BwH4y6oNYAc9W4ThFxzn4lKrzck6NA=;
+        b=lBiRxYZ0/KwxdDmZCoja908GIdhtylRJgra0IsFleIeNfHIOy/iyVJVVzP9JK1+i9B
+         akvofo3i59FPsY18mcNESI21gu5vIj9rZdcXTvyUmvkfXB92XQGiA86nnM7JyGSb+Vsi
+         m2shCHRgbDrfJSQa1LMncBKtwODVbfOKpjEqUWYDDAvtMe3yF6FJZqP1P8P9fQxhdf67
+         4u6wz4/N37h/30/i2fNo0DPtx/GXQdrnXEcgPmVsCw6ifekyIo6KIRsdYQzf9AkkwiAz
+         0n6Myaa5amXcqLVlnu6VufKaL66Cweuo3NJbd8EjCt9Ywz7ImEz3SjzkisqslNwt9ley
+         LY1A==
+X-Gm-Message-State: APjAAAX5c3nRDvalH02wxWNxtb6PF7T5SOTE2rs9kDVn6C63gEwAtfrm
+        gVye0k8Dq5j+o01wZzPUoCDRZOs2A6lDzoRgNRqlaXreI3xFx4f3ZrQsqL7uvmeJtHFPzICFzn6
+        AqRKq0QsSIKpq8MCBH2LkY8O8+vt401mI2+Gq/9tU37tGvonoF9AF3iAdW+Y=
+X-Google-Smtp-Source: APXvYqxQl/7T+fYZ7AIUIusjAzpP6FyPhkZTtsYZGYDiOjx+8zykYmumg8j+bO0hTQJZ5i7VDNi0hPJ9Ow==
+X-Received: by 2002:ac8:35fb:: with SMTP id l56mr7123668qtb.130.1557455636895;
+ Thu, 09 May 2019 19:33:56 -0700 (PDT)
+Date:   Thu,  9 May 2019 19:33:53 -0700
+Message-Id: <20190510023354.182171-1-fengc@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
+Subject: [stable 4.9.y 1/2] bpf: fix struct htab_elem layout
+From:   Chenbo Feng <fengc@google.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, kernel-team@android.com,
+        maze@google.com, lorenzo@google.com,
+        Jonathan Perry <jonperry@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Chenbo Feng <fengc@google.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-the directory maybe has been removed when enter fscrypt_ioctl_set_policy().
-it this case, the empty_dir() check will return error for ext4 file system.
+From: Alexei Starovoitov <ast@fb.com>
 
-ext4_rmdir() sets i_size = 0, then ext4_empty_dir() reports an error
-because 'inode->i_size < EXT4_DIR_REC_LEN(1) + EXT4_DIR_REC_LEN(2)'.
-if the fs is mounted with errors=panic, it will trigger a panic issue.
+commit 9f691549f76d488a0c74397b3e51e943865ea01f upstream.
 
-add the check IS_DEADDIR() to fix this problem.
+when htab_elem is removed from the bucket list the htab_elem.hash_node.next
+field should not be overridden too early otherwise we have a tiny race window
+between lookup and delete.
+The bug was discovered by manual code analysis and reproducible
+only with explicit udelay() in lookup_elem_raw().
 
-Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
-Cc: <stable@vger.kernel.org> # v4.1+
-Signed-off-by: Hongjie Fang <hongjiefang@asrmicro.com>
+Fixes: 6c9059817432 ("bpf: pre-allocate hash map elements")
+Reported-by: Jonathan Perry <jonperry@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chenbo Feng <fengc@google.com>
 ---
- fs/crypto/policy.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/bpf/hashtab.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
-index bd7eaf9..a4eca6e 100644
---- a/fs/crypto/policy.c
-+++ b/fs/crypto/policy.c
-@@ -81,6 +81,8 @@ int fscrypt_ioctl_set_policy(struct file *filp, const void __user *arg)
- 	if (ret == -ENODATA) {
- 		if (!S_ISDIR(inode->i_mode))
- 			ret = -ENOTDIR;
-+		else if (IS_DEADDIR(inode))
-+			ret = -ENOENT;
- 		else if (!inode->i_sb->s_cop->empty_dir(inode))
- 			ret = -ENOTEMPTY;
- 		else
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index a36a532c056d..f9d53ac57f64 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -41,8 +41,13 @@ enum extra_elem_state {
+ struct htab_elem {
+ 	union {
+ 		struct hlist_node hash_node;
+-		struct bpf_htab *htab;
+-		struct pcpu_freelist_node fnode;
++		struct {
++			void *padding;
++			union {
++				struct bpf_htab *htab;
++				struct pcpu_freelist_node fnode;
++			};
++		};
+ 	};
+ 	union {
+ 		struct rcu_head rcu;
+@@ -114,8 +119,10 @@ static int prealloc_elems_and_freelist(struct bpf_htab *htab)
+ 	if (err)
+ 		goto free_elems;
+ 
+-	pcpu_freelist_populate(&htab->freelist, htab->elems, htab->elem_size,
+-			       htab->map.max_entries);
++	pcpu_freelist_populate(&htab->freelist,
++			       htab->elems + offsetof(struct htab_elem, fnode),
++			       htab->elem_size, htab->map.max_entries);
++
+ 	return 0;
+ 
+ free_elems:
+@@ -148,6 +155,11 @@ static struct bpf_map *htab_map_alloc(union bpf_attr *attr)
+ 	int err, i;
+ 	u64 cost;
+ 
++	BUILD_BUG_ON(offsetof(struct htab_elem, htab) !=
++		     offsetof(struct htab_elem, hash_node.pprev));
++	BUILD_BUG_ON(offsetof(struct htab_elem, fnode.next) !=
++		     offsetof(struct htab_elem, hash_node.pprev));
++
+ 	if (attr->map_flags & ~BPF_F_NO_PREALLOC)
+ 		/* reserved bits should not be used */
+ 		return ERR_PTR(-EINVAL);
+@@ -429,9 +441,13 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
+ 	int err = 0;
+ 
+ 	if (prealloc) {
+-		l_new = (struct htab_elem *)pcpu_freelist_pop(&htab->freelist);
+-		if (!l_new)
++		struct pcpu_freelist_node *l;
++
++		l = pcpu_freelist_pop(&htab->freelist);
++		if (!l)
+ 			err = -E2BIG;
++		else
++			l_new = container_of(l, struct htab_elem, fnode);
+ 	} else {
+ 		if (atomic_inc_return(&htab->count) > htab->map.max_entries) {
+ 			atomic_dec(&htab->count);
 -- 
-1.9.1
+2.21.0.1020.gf2820cf01a-goog
 
