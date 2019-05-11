@@ -2,143 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 870FC1A80A
-	for <lists+stable@lfdr.de>; Sat, 11 May 2019 15:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9FA1A9C1
+	for <lists+stable@lfdr.de>; Sun, 12 May 2019 01:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726294AbfEKN7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 May 2019 09:59:39 -0400
-Received: from mail-wm1-f44.google.com ([209.85.128.44]:35521 "EHLO
-        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726016AbfEKN7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 May 2019 09:59:39 -0400
-Received: by mail-wm1-f44.google.com with SMTP id q15so5863654wmj.0
-        for <stable@vger.kernel.org>; Sat, 11 May 2019 06:59:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6d7VXRkZ2hKgbr/HMzO56/dC5vUefhGGUJcSv8WL1x4=;
-        b=eg28veJzk1AjQ736vT5Ek3BX61kp3Au4mgOU3WWByNG7qhHZ34Yj9HnY/U4ItfOTso
-         gFRYwpe/HDTDWHus2cupiOWtbb02uhO3yGt5+Uq/gLsimKxVmWrWqyjiivVjjau34YmO
-         9PNhCo1vkxAHZtUKK4vnBy7uWL+uWJEsIMtyblt0BSF+gC7Cralj5BrV9koSW/CV5k7L
-         2Plkqh6/MaCSyyOKWlBq6DmNq6KZR9pChgx8cnUlV6LFqa77hSYBuPpbPPRXt9BA/xZb
-         1mdnXC8OdF7/+HPH/z9p9/ENW3iizcZpQJKlqQ9qlP/jeq+uJo+YgyAzWo2eAkHRSJw1
-         cVAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6d7VXRkZ2hKgbr/HMzO56/dC5vUefhGGUJcSv8WL1x4=;
-        b=NeCNlvB7ecejUVRomnMGNojg46AzY8lpCLAEVJCOUTxJwxLezcYEQzpMV9JX8in8Il
-         DlpfMe94veR4F6keHeY3v+VtWzb6EZBoZnobbLlD/tv2hNjp1F+TpS5n1LJWKi6MWOCG
-         yNBkvhzs3giyGOLB1uvfkWkfmC41OWVX1RkzUz36ghufj4QXY0/uxsPyUY43955xIi5X
-         OztGXSlmCrdJoJ4AAmn/f5l1AqJFa3fnakq44wtjlPVNH1RB2FgMnK2ZyAG34rxir+7f
-         JsRnSkywzR9Gm6UTuLu8SSfaEG07h8tmW8TuAq2g83wDz+zFX/swFw7jZFUhdV17H5Ua
-         CcNg==
-X-Gm-Message-State: APjAAAWZO2HEstklS7md1O24ZQFKmeFqVIFkRCEvsYBRbGdDdWiUHAUJ
-        zYbCFBNDGVzpW2PW+5ZGY9oNGUpHyGm6Vg==
-X-Google-Smtp-Source: APXvYqycCJAk9GJY2Y/VOK3aMIkUyLAdzegyjYAZdNnkWkRyJL6hAias+ZF2jUTIiURbThS+VTm65g==
-X-Received: by 2002:a05:600c:24d2:: with SMTP id 18mr10841295wmu.117.1557583177373;
-        Sat, 11 May 2019 06:59:37 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r64sm19862884wmr.0.2019.05.11.06.59.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 May 2019 06:59:36 -0700 (PDT)
-Message-ID: <5cd6d548.1c69fb81.68158.5c7c@mx.google.com>
-Date:   Sat, 11 May 2019 06:59:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726121AbfEKXMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 May 2019 19:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50108 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726033AbfEKXMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 May 2019 19:12:41 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB46D20896;
+        Sat, 11 May 2019 23:12:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557616360;
+        bh=/d+ZYR0uF96VwB4FDEBAyQxlf/xyowNdoJDh7uGxY4g=;
+        h=Date:From:To:Subject:From;
+        b=zc+RTxhCf5e6Qhd+oFfLmfXpB7lr3axkVxNBgj0vDHCUrWsEsKjE8aqy1nMDt+0sl
+         qqKNsD7V85OH6yiB6zkGly/iU0c57b2ZZwBCN+yPR8sUg2qDF/TCiowe9+qRf7Itz1
+         QYoEZAeyy3KEOnZ89MOV21dNW3ubT3wc33Y3bGLQ=
+Date:   Sat, 11 May 2019 16:12:39 -0700
+From:   akpm@linux-foundation.org
+To:     jiufei.xue@linux.alibaba.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, tj@kernel.org
+Subject:  +
+ =?US-ASCII?Q?fs-writeback-use-rcu=5Fbarrier-to-wait-for-inflight-wb-swi?=
+ =?US-ASCII?Q?tches-going-into-workqueue-when-umount.patch?= added to -mm
+ tree
+Message-ID: <20190511231239.Euu00WAJe%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.175
-Subject: stable-rc/linux-4.9.y boot: 112 boots: 0 failed,
- 106 passed with 2 offline, 4 conflicts (v4.9.175)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 112 boots: 0 failed, 106 passed with 2 offline,=
- 4 conflicts (v4.9.175)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.175/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.175/
+The patch titled
+     Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+has been added to the -mm tree.  Its filename is
+     fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.175
-Git Commit: bb4f008d1e075986888ad01579c21f79b62f5775
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
 
-Boot Regressions Detected:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    multi_v7_defconfig:
-        gcc-8:
-          meson8b-odroidc1:
-              lab-baylibre: new failure (last pass: v4.9.174-29-g50bbfeb1e2=
-a3)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v4.9.174 - firs=
-t fail: v4.9.174-29-g50bbfeb1e2a3)
+------------------------------------------------------
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 
-arm64:
+synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb switch
+may not go to the workqueue after synchronize_rcu().  Thus previous
+scheduled switches was not finished even flushing the workqueue, which
+will cause a NULL pointer dereferenced followed below.
 
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: failing since 1 day (last pass: v4.9.174 - firs=
-t fail: v4.9.174-29-g50bbfeb1e2a3)
+VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
+[<ffffffff8126a303>] evict+0xb3/0x180
+[<ffffffff8126a760>] iput+0x1b0/0x230
+[<ffffffff8127c690>] inode_switch_wbs_work_fn+0x3c0/0x6a0
+[<ffffffff810a5b2e>] worker_thread+0x4e/0x490
+[<ffffffff810a5ae0>] ? process_one_work+0x410/0x410
+[<ffffffff810ac056>] kthread+0xe6/0x100
+[<ffffffff8173c199>] ret_from_fork+0x39/0x50
 
-Offline Platforms:
+Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
+pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu() in
+inode_switch_wbs() to make more sense.
 
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    omap2plus_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    multi_v7_defconfig:
-        meson8b-odroidc1:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
-arm64:
-    defconfig:
-        meson-gxbb-p200:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
+Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Suggested-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ fs/fs-writeback.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+--- a/fs/fs-writeback.c~fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount
++++ a/fs/fs-writeback.c
+@@ -523,8 +523,6 @@ static void inode_switch_wbs(struct inod
+ 
+ 	isw->inode = inode;
+ 
+-	atomic_inc(&isw_nr_in_flight);
+-
+ 	/*
+ 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+ 	 * the RCU protected stat update paths to grab the i_page
+@@ -532,6 +530,9 @@ static void inode_switch_wbs(struct inod
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
++
++	atomic_inc(&isw_nr_in_flight);
++
+ 	goto out_unlock;
+ 
+ out_free:
+@@ -901,7 +902,11 @@ restart:
+ void cgroup_writeback_umount(void)
+ {
+ 	if (atomic_read(&isw_nr_in_flight)) {
+-		synchronize_rcu();
++		/*
++		 * Use rcu_barrier() to wait for all pending callbacks to
++		 * ensure that all in-flight wb switches are in the workqueue.
++		 */
++		rcu_barrier();
+ 		flush_workqueue(isw_wq);
+ 	}
+ }
+_
+
+Patches currently in -mm which might be from jiufei.xue@linux.alibaba.com are
+
+fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
+
