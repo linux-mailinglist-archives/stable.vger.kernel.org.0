@@ -2,62 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 478DC1A6DB
-	for <lists+stable@lfdr.de>; Sat, 11 May 2019 08:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCAFA1A6E9
+	for <lists+stable@lfdr.de>; Sat, 11 May 2019 08:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726502AbfEKGUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 May 2019 02:20:48 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:34208 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725874AbfEKGUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 May 2019 02:20:48 -0400
-Received: by mail-pf1-f195.google.com with SMTP id n19so4365718pfa.1;
-        Fri, 10 May 2019 23:20:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=qJ6baBOhjbTgfhgQ7m0z/YKuXkTsd3b70o/ipcNU1J0=;
-        b=l/abIgi17jUI7sh4Ke8I0OIwPiOLxb7fi1Dlc6rsou7M0rz/nMXkjJvZyWy6AmSXVe
-         nTEPSIDwapqVlf0hkZz3Jc0GlyzIryKQ8tmfo18Mbm4X5SfZzUtVlOyq0lmcTxI2/V+X
-         tzKpCQHJT1uBuP9ORtt3W6rSrcXd1dToueekCEmhj0feNm6Z3V2o4p7pM0CER/7dNaK+
-         rxQjOa7r4di5+Wu0ODcjZKAYPrRkBTMRJe5QA7+bRmnQLzUBnYnP0lZenChnlaD4BQsv
-         GS7wvRAyab5J85T5ccvosSO/Kj9H6IbYyzdbZSNs96FAFYGHjlNe62+Jf7MF6jYvFTP4
-         WURw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=qJ6baBOhjbTgfhgQ7m0z/YKuXkTsd3b70o/ipcNU1J0=;
-        b=SXXoHslxi+/l00N0BOtWKyO/BsHz3hBff1JW5QfHHv44G2EQnewua0mGPeOcUvbKH3
-         uuK4ckH0jxFtyqTh7Hwz+vgfHDIOUODZmHYxDA7z/P/r/s96MyQ0CGQC+P01YCrzYqok
-         /FzXVx2DMh4HQf8Ld6zgdr3SzO6wwdiWcp94b3dPvut0iikhovL/d7H31y0deqIIVTjO
-         An0I9HX+bWhiWxTHrVN3UA9fDbl5W8uumbzSaRxqzrcOYT7fbcgMF0X1GpvvfYa5dHhh
-         og0uB2oBp3veoMcfF/J4hey4f9OBvZkRv5i6Bs2l6I/bvzTJza/DN4dsydJU8J3Teo1J
-         0iSA==
-X-Gm-Message-State: APjAAAXD+jXm7JkqTImSl4vLs98tPSbeA+y2y5X0rPUnC8BBjuXxqycI
-        tpBG2dJn07sWlz9hrR4ibkA=
-X-Google-Smtp-Source: APXvYqxZ6WWkgD3Uu87LcJG0AWsxWGz9OUOcMujZFe/mKEoTSFbmXY9lfsPMxpsDVWnE+SkB6Aj2wg==
-X-Received: by 2002:a62:5103:: with SMTP id f3mr20323036pfb.146.1557555647336;
-        Fri, 10 May 2019 23:20:47 -0700 (PDT)
-Received: from NixOS ([103.231.91.38])
-        by smtp.gmail.com with ESMTPSA id y10sm10284128pfm.27.2019.05.10.23.20.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 10 May 2019 23:20:45 -0700 (PDT)
-Date:   Sat, 11 May 2019 11:50:35 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sedat Dilek <sedat.dilek@gmail.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: Linux v5.1.1
-Message-ID: <20190511062035.GA1827@NixOS>
-References: <CA+icZUWSJSnKcoYeh__v_BLnXP5O0XGewLdGenz13extauRr_w@mail.gmail.com>
- <20190511055210.GF14153@kroah.com>
+        id S1727045AbfEKGs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 May 2019 02:48:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41972 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726849AbfEKGs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 May 2019 02:48:57 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E6A62173B;
+        Sat, 11 May 2019 06:48:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557557336;
+        bh=pDuluf7nsW8VikVd8v4p3ngM14Ned6ar+uHkIfVZgp0=;
+        h=Date:From:To:Cc:Subject:From;
+        b=LYQwYQwqjcG8ubX0uEgaGbc1wDgbuT6bP2djqcpPgJinbIMj5Up6S3jpe54rZc3ZA
+         sEOxNNN08uzQzNka4Ej8PI/6dbt5QeRsvColDKVrRXCgja2H6LSj6oxbtj800Gltmu
+         pb71eFEzojScsmdI8XOD1z4KVMbxoPKkJKwEuRMw=
+Date:   Sat, 11 May 2019 08:48:53 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.9.175
+Message-ID: <20190511064853.GA27200@kroah.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
 Content-Disposition: inline
-In-Reply-To: <20190511055210.GF14153@kroah.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -65,47 +42,165 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-"Dinner happened before I could get to them all :)" he he he he Greg! :) RO=
-FL=20
+I'm announcing the release of the 4.9.175 kernel.
 
-On 07:52 Sat 11 May , Greg Kroah-Hartman wrote:
->On Fri, May 10, 2019 at 09:47:14PM +0200, Sedat Dilek wrote:
->> Hi Greg,
->>
->> I have seen that all other Linux-stable Git branches got a new release.
->>
->> What happened to Linux-stable-5.1.y and v5.1.1 release?
->
->Dinner happened before I could get to them all :)
->
->> Is there a show-stopper?
->
->Nope, nothing was "supposed" to be released until today, according to
->the -rc announcement, so there's no real issue.
->
->Dealing with 5 stable trees at once is not trivial, please give us a
->chance...
->
->greg k-h
+All users of the 4.9 kernel series must upgrade.
 
---fdj2RfSjLxBAspz7
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                               |    2 -
+ arch/arm/boot/compressed/efi-header.S  |    3 +-
+ arch/x86/events/intel/core.c           |    2 -
+ drivers/block/virtio_blk.c             |    2 +
+ drivers/gpu/drm/mediatek/mtk_hdmi.c    |    2 -
+ drivers/infiniband/hw/hfi1/rc.c        |    4 +-
+ drivers/iommu/amd_iommu_init.c         |    2 -
+ drivers/scsi/csiostor/csio_scsi.c      |    5 ++-
+ drivers/scsi/libsas/sas_expander.c     |    9 ++----
+ drivers/scsi/qla2xxx/qla_attr.c        |    4 +-
+ drivers/staging/greybus/power_supply.c |    2 -
+ drivers/usb/dwc3/core.c                |    2 -
+ drivers/usb/serial/f81232.c            |   39 ++++++++++++++++++++++++++
+ drivers/usb/storage/scsiglue.c         |   26 ++++++++---------
+ drivers/usb/storage/uas.c              |   35 ++++++++++++++---------
+ include/linux/kernel.h                 |    4 +-
+ include/linux/mm.h                     |    9 ++++++
+ include/net/bluetooth/hci_core.h       |    3 ++
+ kernel/irq/manage.c                    |    4 ++
+ kernel/time/timer_stats.c              |    2 -
+ lib/ubsan.c                            |   49 +++++++++++++++-------------=
+-----
+ net/bluetooth/hci_conn.c               |    8 +++++
+ net/bluetooth/hidp/sock.c              |    1=20
+ sound/soc/codecs/cs4270.c              |    1=20
+ sound/soc/codecs/nau8810.c             |    4 +-
+ sound/soc/codecs/tlv320aic32x4.c       |    2 +
+ sound/soc/intel/common/sst-firmware.c  |    8 ++++-
+ sound/soc/soc-pcm.c                    |    7 +++-
+ 28 files changed, 161 insertions(+), 80 deletions(-)
+
+Alan Stern (1):
+      usb-storage: Set virt_boundary_mask to avoid SG overflows
+
+Andrew Vasquez (1):
+      scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS rout=
+ines
+
+Andrey Ryabinin (1):
+      ubsan: Fix nasty -Wbuiltin-declaration-mismatch GCC-9 warnings
+
+Annaliese McDermond (1):
+      ASoC: tlv320aic32x4: Fix Common Pins
+
+Ard Biesheuvel (1):
+      ARM: 8680/1: boot/compressed: fix inappropriate Thumb2 mnemonic for _=
+_nop
+
+Ben Hutchings (1):
+      timer/debug: Change /proc/timer_stats from 0644 to 0600
+
+Dan Carpenter (1):
+      drm/mediatek: Fix an error code in mtk_hdmi_dt_parse_pdata()
+
+Daniel Mack (1):
+      ASoC: cs4270: Set auto-increment bit for register writes
+
+Dongli Zhang (1):
+      virtio-blk: limit number of hw queues by nr_cpu_ids
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.175
+
+Jann Horn (1):
+      linux/kernel.h: Use parentheses around argument in u64_to_user_ptr()
+
+Jason Yan (1):
+      scsi: libsas: fix a race condition when smp task timeout
+
+Ji-Ze Hong (Peter Hong) (1):
+      USB: serial: f81232: fix interrupt worker not stop
+
+Joerg Roedel (1):
+      iommu/amd: Set exclusion range correctly
+
+Johan Hovold (1):
+      staging: greybus: power_supply: fix prop-descriptor request size
+
+John Hsu (1):
+      ASoC: nau8810: fix the issue of widget with prefixed name
+
+Kaike Wan (1):
+      IB/hfi1: Eliminate opcode tests on mr deref
+
+Linus Torvalds (1):
+      mm: add 'try_get_page()' helper function
+
+Marcel Holtmann (1):
+      Bluetooth: Align minimum encryption key size for LE and BR/EDR connec=
+tions
+
+Oliver Neukum (1):
+      UAS: fix alignment of scatter/gather segments
+
+Prasad Sodagudi (1):
+      genirq: Prevent use-after-free and work list corruption
+
+Rander Wang (1):
+      ASoC:soc-pcm:fix a codec fixup issue in TDM case
+
+Ross Zwisler (1):
+      ASoC: Intel: avoid Oops if DMA setup fails
+
+Stephane Eranian (1):
+      perf/x86/intel: Fix handling of wakeup_events for multi-entry PEBS
+
+Thinh Nguyen (1):
+      usb: dwc3: Fix default lpm_nyet_threshold value
+
+Varun Prakash (1):
+      scsi: csiostor: fix missing data copy in csio_scsi_err_handler()
+
+Wen Yang (1):
+      drm/mediatek: fix possible object reference leak
+
+Young Xiao (1):
+      Bluetooth: hidp: fix buffer overflow
+
+
+--FCuugMFkClbJLl1L
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAlzWaa0ACgkQsjqdtxFL
-KRWGuwf/cQgzTbFCkLqcszTWEUmPw3cbO/COTclMJT9rExEO1hwelLwPYQKQavhC
-/oCKp1Nr09qvZDJla2O4HW9CjyBBVPaO93ClIb6ydGBLYkvib0H127o0SKRFEk7p
-oGGKE5uaHqib6TAgH+hS3KlxtCsM5oVyEGFRj/rKYzo4ZebLzM6cs7qT6C5DAsQ2
-0SjccrsLBHDQCjGl2d7/wzhAA1v/+V80wgJDphQ5OYAJfTQfGJLV5O/d0mRVTitE
-Z+dNIsKsgT2O23ffJ12hDobccih3QQuOtBpCdBLfFj2KgmSGfPCfN50obuvaL+G9
-gkF/BzH0RqPE1niXoUjM15GKA+WjOw==
-=+ZYm
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAlzWcFIACgkQONu9yGCS
+aT5EPg//Ty3sP2nIE1cbRjlW6tQS96S6V97r8v4pvKy9BkuzJCfVr5XUKt7XXLt9
+9aaSkfestVWGyv+wxd28OLp3KCRyJPbw5mMHf3MClV+X2svYx/EfDG0AfZUeYtof
+Pjjs8OkM/jdRvwRdbcpmavrNWivMQWgUicGvfg8umNQ+6Ss6hDvfIlHuI7mlL1jb
+kio5wtxliSDpA3aBQfhl3JNty8s1Kdk3bXgiLced6/5wyOT2CNy82jyIB0zPMuBg
+knpfLayDV1akvdVsENkBNSEHQUpK+R61sBWNkAoIbhrY5iDFAY3oVHe+ckegh19L
+kUJdSDpuizaBq03KitIjnt/UD/VfnXZKzCwqosqBz6rhqkknntVEGx8QfjKhX3xf
+n5qlPQHLBruCIEa/4xmCI9wec46L/9mBsrXyJu28J/a8rEadO7TNdNoJy+XU3Oho
+fXRI7DEA6wi2w7O4/iRPejZQ7ysm2vVCzy+4uT0rPGONMjjJHKiXX5cVO+noacdS
+kRyK3WO/+tscxXIqjJ9s0SRRxVQ96Htiibu5W9qRhe19PXxRuJ6yhRrd96dSIL6L
+DGr4+W+syXpobzxDpEEfkYiW+pHvaksD4pcVEclSzgminNhB52nDibocc3HG/2Wa
+DMLOZSnAEBtrITHR1uDrEpLkOpFqQTP2T6NCtkfUNEug1v+eijQ=
+=WNEk
 -----END PGP SIGNATURE-----
 
---fdj2RfSjLxBAspz7--
+--FCuugMFkClbJLl1L--
