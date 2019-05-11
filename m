@@ -2,149 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 439FA1A7A7
-	for <lists+stable@lfdr.de>; Sat, 11 May 2019 13:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2421A7D5
+	for <lists+stable@lfdr.de>; Sat, 11 May 2019 14:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728520AbfEKLTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 May 2019 07:19:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:60909 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728518AbfEKLTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 May 2019 07:19:46 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id DA7AE8033F; Sat, 11 May 2019 13:19:32 +0200 (CEST)
-Date:   Sat, 11 May 2019 13:19:45 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/66] 4.19.42-stable review
-Message-ID: <20190511111945.GA27538@amd>
-References: <20190509181301.719249738@linuxfoundation.org>
+        id S1728552AbfEKMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 May 2019 08:36:18 -0400
+Received: from mail-wm1-f41.google.com ([209.85.128.41]:35821 "EHLO
+        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726240AbfEKMgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 May 2019 08:36:18 -0400
+Received: by mail-wm1-f41.google.com with SMTP id q15so5758878wmj.0
+        for <stable@vger.kernel.org>; Sat, 11 May 2019 05:36:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8w7ybH3A1EMg7uBbgo8WJlqHuSv0+3OcsAOFlYeeXbQ=;
+        b=dl1uDZOPgsWqZnp/Gk57ch+PBHoZ3NI9/rE2mWMmjrvs05Hq8Dh5JCvy921gwx1xlX
+         vH47jMtbkTJDUJcKtrpvnB/jxRBmU3lExNqg/pTJcAQyBbhikd/1nYzD7kks4M++1vLg
+         TKnRk4NG8uxHT6hBlQVdXcMqCvRIsVOSXlqFcV3I4KawQVSNw9OXrAbThCDHFPCiiicw
+         cp+wtWS9EjhPPXKzZW/chU5FdSRzk97rhqTlgn8qBkSAhEIGIsCRN8YV/iVALbjk9K4y
+         0s3wsUPmBg14IvGWkM+clTppf7uRsQckKF6huP4LaYM6lWv8bH/A9mMC97xdqk3Ndx8d
+         uxVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8w7ybH3A1EMg7uBbgo8WJlqHuSv0+3OcsAOFlYeeXbQ=;
+        b=ZaiYN6qJ9MgCAPR64lSfJCGcN380rUnj6H9TTpATb1gmBOFgrqQ3pZswVetjBJ+3Bh
+         pbfxHm4DUxG0xb9Kh2QACDfm+F73iYOQ4nm+OjCYTKlOPVpvNZUcQCnUlBw67MPd59ex
+         N/tulq+knkyNALEwu+xMQU/ffcgH+1DYcsWaouNFYBpeI1PHpzL3ydn2U40obpFScqCJ
+         Puz19lbeAfzyZDqUcGykW/DPtFTGsx1dAIQAVWgvPQl0NTLJP4iGhMYrn0mDfMz9LgCY
+         /5tjdg9e4djSbGTrAwpZaslniwkB57bQ/+zL7LZfQWOiOGKXMm3QuKwarsJHaBUsDyg0
+         yTKA==
+X-Gm-Message-State: APjAAAXuZY2vCRVszgXj6rrFzPL5DKCmKsxyONPqZ4+HBkQpPO2fRVXm
+        AKhU/V90sHlhv2Fn95uLPwWciKmaldUIvQ==
+X-Google-Smtp-Source: APXvYqwbLPkZlCXjfNiIn3vLIdPBfD7CYW+ltEyGCdGuq+R/wISxP422B1dCVYzUw7Qb/T+crNfzpQ==
+X-Received: by 2002:a1c:c004:: with SMTP id q4mr9494186wmf.131.1557578176460;
+        Sat, 11 May 2019 05:36:16 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t2sm5828187wma.13.2019.05.11.05.36.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 11 May 2019 05:36:15 -0700 (PDT)
+Message-ID: <5cd6c1bf.1c69fb81.b0bd0.d371@mx.google.com>
+Date:   Sat, 11 May 2019 05:36:15 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <20190509181301.719249738@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.42
+Subject: stable-rc/linux-4.19.y boot: 132 boots: 1 failed,
+ 124 passed with 3 offline, 3 untried/unknown, 1 conflict (v4.19.42)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 132 boots: 1 failed, 124 passed with 3 offline=
+, 3 untried/unknown, 1 conflict (v4.19.42)
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.42/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.42/
 
-Hi!
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.42
+Git Commit: 9c2556f428cfdbf9a18f4452c510aba93d224c8b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 23 SoC families, 14 builds out of 206
 
-> This is the start of the stable review cycle for the 4.19.42 release.
-> There are 66 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Sat 11 May 2019 06:11:18 PM UTC.
-> Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.42=
--rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-4.19.y
-> and the diffstat can be found below.
+Boot Regressions Detected:
 
-I reviewed these patches and found them ok:
+arm:
 
-    /- commit in linux-stable-rc.git linux-4.19.
-    |            /- mainline commit it references.
-a | c9849e7b0d19 03110a5cb216 | arm64: futex: Bound number of LDXR/STXR loo=
-ps in FUTEX_WAKE_OP
-a | 7f70094a664c 0efa3334d65b | ASoC: Intel: avoid Oops if DMA setup fails
-a diff has whitespace problems | b47e4bc2c6bf 3ae62a42090f | UAS: fix align=
-ment of scatter/gather segments
-a | d93b3794e11d a1616a5ac99e | Bluetooth: hidp: fix buffer overflow
-a | 390fb51f14ed 2137490f2147 | scsi: qla2xxx: Fix device staying in blocke=
-d state
-a | 648efce413c9 5cbdae10bf11 | scsi: qla2xxx: Fix incorrect region-size se=
-tting in optrom SYSFS routines
-a | de4ed47623d2 a84014e1db35 | soc: sunxi: Fix missing dependency on REGMA=
-P_MMIO
-a | cfccebbba945 8db82563451f | cpufreq: armada-37xx: fix frequency calcula=
-tion for opp
-a | a747d98ffde8 e60e9a4b231a | intel_th: pci: Add Comet Lake support
-a | 79c5c7d9ce07 747668dbc061 | usb-storage: Set virt_boundary_mask to avoi=
-d SG overflows
-a | 841f47e3548c 764478f41130 | USB: cdc-acm: fix unthrottle races
-a | 14fa060959b0 8d791929b2fb | usb: dwc3: Fix default lpm_nyet_threshold v=
-alue
-a | 3b34dc57f585 59c39840f5ab | genirq: Prevent use-after-free and work lis=
-t corruption
-a | 2b02d3a95527 b995dcca7cf1 | platform/x86: pmc_atom: Drop __initconst on=
- dmi table
-a | 997718a02d82 d6ba3f815bc5 | ASoC: Intel: kbl: fix wrong number of chann=
-els
-a | 1483cfcf3c9f 4772e03d2394 | RDMA/hns: Fix bug that caused srq creation =
-to fail
-a | 506a0e6862e1 6a8aae68c873 | virtio_pci: fix a NULL pointer reference in=
- vp_del_vqs
-a | 02fd02c489cc 1a07a94b47b1 | drm/sun4i: tcon top: Fix NULL/invalid point=
-er dereference in sun8i_tcon_top_un/bind
-a | 71ad65f5bb67 fcf88917dd43 | slab: fix a crash by reading /proc/slab_all=
-ocators
-a | b5d7ac566868 c85064435fe7 | ASoC: rockchip: pdm: fix regmap_ops hang is=
-sue
-a | eaa1d16862ee d7262457e35d | perf/x86/intel: Initialize TFA MSR
-a | 378151a25204 583feb08e7f7 | perf/x86/intel: Fix handling of wakeup_even=
-ts for multi-entry PEBS
-a | 0c56a7078088 2d85978341e6 | drm/mediatek: Fix an error code in mtk_hdmi=
-_dt_parse_pdata()
-a | adbf3d1f3ed8 c63adb28f6d9 | ASoC: tlv320aic32x4: Fix Common Pins
-a | b9cdb2937e9a ab8a6d821179 | MIPS: KGDB: fix kgdb support for SMP platfo=
-rms.
-a | de583e633e02 a8639a79e85c | IB/hfi1: Eliminate opcode tests on mr deref
-a typo: inaudile | b13ae59295e9 c899df3e9b0b | ASoC:intel:skl:fix a simulta=
-neous playback & capture issue on hda platform
-a | 3161876cbf97 570f18b6a8d1 | ASoC:soc-pcm:fix a codec fixup issue in TDM=
- case
-a wrong reference counting, not terribly serious; noone unloads these anywa=
-y | d978c80542e6 af708900e9a4 | ee3b6ffe3302 82ad759143ed | ASoC: tlv320aic=
-3x: fix reset gpio reference counting
-a "))" in changelog | e275c9a0765b 47830c1127ef | staging: greybus: power_s=
-upply: fix prop-descriptor request size
-a | c211648a4906 a0033bd1eae4 | Drivers: hv: vmbus: Remove the undesired pu=
-t_cpu_ptr() in hv_synic_cleanup()
-a | 97aec5cea4fa b90cd6f2b905 | scsi: libsas: fix a race condition when smp=
- task timeout
-a | bf78d2cb30eb f87db4dbd52f | net: stmmac: Use bfsize1 in ndesc_init_rx_d=
-esc
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.19.41-67-g82fd2fd59c=
+ff)
 
-A lot of the autosel patches do not seem to match stable criteria to
-me. It would be good to synchronize documentation with actual practice here.
+arm64:
 
-Best regards,
-								Pavel
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v4.19.41-67-g82fd2fd59c=
+ff)
 
+Boot Failure Detected:
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
 
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Offline Platforms:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+arm:
 
-iEYEARECAAYFAlzWr9EACgkQMOfwapXb+vIG+wCfVo//MbW8Cjw53FocurDod4dz
-vaQAoKtaVJMMkCuqkYPWiCuX/SazVt22
-=HEpk
------END PGP SIGNATURE-----
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
 
---AhhlLboLdkugWU4S--
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm64:
+    defconfig:
+        meson-gxbb-p200:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
