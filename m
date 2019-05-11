@@ -2,771 +2,254 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF27F1A6EB
-	for <lists+stable@lfdr.de>; Sat, 11 May 2019 08:49:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AA71A6EE
+	for <lists+stable@lfdr.de>; Sat, 11 May 2019 08:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728438AbfEKGtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 May 2019 02:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42150 "EHLO mail.kernel.org"
+        id S1728284AbfEKGt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 May 2019 02:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726849AbfEKGtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 May 2019 02:49:06 -0400
+        id S1726849AbfEKGt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 May 2019 02:49:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B276F2173B;
-        Sat, 11 May 2019 06:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C112D2173B;
+        Sat, 11 May 2019 06:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557557344;
-        bh=c8MqyePMF+fm0FrPLipSiKANHaVZM7V8nlwYBVSSJ9A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dICQXU6C4L2yS6euhd6N5+MEfZrMqmqOlfX0qk91YfdxdpMe4e0D4ZbSYCrvNiP/J
-         3LfixPxWIm/AfdTPG24XPbcLKFj2SAx9bz2lEkmTc28JxJf8u7+RF2bDeEzzWyEXvZ
-         ekMlq5V2LlY9oZG3hYQ3tROsYMSycvKvb2kv4k8U=
-Date:   Sat, 11 May 2019 08:49:01 +0200
+        s=default; t=1557557366;
+        bh=ITxz8GKt+mgE/o6eRTUp3pYhjarXsbIVEV+uhwFNtDo=;
+        h=Date:From:To:Cc:Subject:From;
+        b=SdIer95E7CsiQfIUOjA9eAwIHQPuy1gS0xeMtbeIB5U8ZEz9MYIrBuA15RGFK7MWX
+         j54YkZdxfWurJqSSBpu2hr1dqPzPZhcb5fVOlZUIi4NxO+vmhUeuYUOVfarnPUXW5Z
+         YnquSE+Qv/j2JwKVWV/Jr8mhteS7qs4ZeTmVT9gk=
+Date:   Sat, 11 May 2019 08:49:23 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 4.9.175
-Message-ID: <20190511064901.GB27200@kroah.com>
-References: <20190511064853.GA27200@kroah.com>
+Subject: Linux 4.14.118
+Message-ID: <20190511064923.GA27372@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
-In-Reply-To: <20190511064853.GA27200@kroah.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f5836837df15..e52b0579e176 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 174
-+SUBLEVEL = 175
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/arm/boot/compressed/efi-header.S b/arch/arm/boot/compressed/efi-header.S
-index 3f7d1b74c5e0..a17ca8d78656 100644
---- a/arch/arm/boot/compressed/efi-header.S
-+++ b/arch/arm/boot/compressed/efi-header.S
-@@ -17,7 +17,8 @@
- 		@ there.
- 		.inst	'M' | ('Z' << 8) | (0x1310 << 16)   @ tstne r0, #0x4d000
- #else
--		W(mov)	r0, r0
-+ AR_CLASS(	mov	r0, r0		)
-+  M_CLASS(	nop.w			)
- #endif
- 		.endm
- 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 098ab775135f..a30829052a00 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -2867,7 +2867,7 @@ static int intel_pmu_hw_config(struct perf_event *event)
- 		return ret;
- 
- 	if (event->attr.precise_ip) {
--		if (!event->attr.freq) {
-+		if (!(event->attr.freq || event->attr.wakeup_events)) {
- 			event->hw.flags |= PERF_X86_EVENT_AUTO_RELOAD;
- 			if (!(event->attr.sample_type &
- 			      ~intel_pmu_free_running_flags(event)))
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 10332c24f961..44ef1d66caa6 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -392,6 +392,8 @@ static int init_vq(struct virtio_blk *vblk)
- 	if (err)
- 		num_vqs = 1;
- 
-+	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
-+
- 	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
- 	if (!vblk->vqs)
- 		return -ENOMEM;
-diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi.c b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-index 863d030786e5..e7a6651ceeab 100644
---- a/drivers/gpu/drm/mediatek/mtk_hdmi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-@@ -1473,7 +1473,6 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
- 	if (IS_ERR(regmap))
- 		ret = PTR_ERR(regmap);
- 	if (ret) {
--		ret = PTR_ERR(regmap);
- 		dev_err(dev,
- 			"Failed to get system configuration registers: %d\n",
- 			ret);
-@@ -1529,6 +1528,7 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
- 	of_node_put(remote);
- 
- 	hdmi->ddc_adpt = of_find_i2c_adapter_by_node(i2c_np);
-+	of_node_put(i2c_np);
- 	if (!hdmi->ddc_adpt) {
- 		dev_err(dev, "Failed to get ddc i2c adapter by node\n");
- 		return -EINVAL;
-diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
-index e8e0fa58cb71..b08786614c1b 100644
---- a/drivers/infiniband/hw/hfi1/rc.c
-+++ b/drivers/infiniband/hw/hfi1/rc.c
-@@ -2394,7 +2394,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
- 			update_ack_queue(qp, next);
- 		}
- 		e = &qp->s_ack_queue[qp->r_head_ack_queue];
--		if (e->opcode == OP(RDMA_READ_REQUEST) && e->rdma_sge.mr) {
-+		if (e->rdma_sge.mr) {
- 			rvt_put_mr(e->rdma_sge.mr);
- 			e->rdma_sge.mr = NULL;
- 		}
-@@ -2469,7 +2469,7 @@ void hfi1_rc_rcv(struct hfi1_packet *packet)
- 			update_ack_queue(qp, next);
- 		}
- 		e = &qp->s_ack_queue[qp->r_head_ack_queue];
--		if (e->opcode == OP(RDMA_READ_REQUEST) && e->rdma_sge.mr) {
-+		if (e->rdma_sge.mr) {
- 			rvt_put_mr(e->rdma_sge.mr);
- 			e->rdma_sge.mr = NULL;
- 		}
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 157e93421fb8..13bbe5795e4e 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -318,7 +318,7 @@ static void iommu_write_l2(struct amd_iommu *iommu, u8 address, u32 val)
- static void iommu_set_exclusion_range(struct amd_iommu *iommu)
- {
- 	u64 start = iommu->exclusion_start & PAGE_MASK;
--	u64 limit = (start + iommu->exclusion_length) & PAGE_MASK;
-+	u64 limit = (start + iommu->exclusion_length - 1) & PAGE_MASK;
- 	u64 entry;
- 
- 	if (!iommu->exclusion_start)
-diff --git a/drivers/scsi/csiostor/csio_scsi.c b/drivers/scsi/csiostor/csio_scsi.c
-index 89a52b941ea8..894d97e4ace5 100644
---- a/drivers/scsi/csiostor/csio_scsi.c
-+++ b/drivers/scsi/csiostor/csio_scsi.c
-@@ -1713,8 +1713,11 @@ csio_scsi_err_handler(struct csio_hw *hw, struct csio_ioreq *req)
- 	}
- 
- out:
--	if (req->nsge > 0)
-+	if (req->nsge > 0) {
- 		scsi_dma_unmap(cmnd);
-+		if (req->dcopy && (host_status == DID_OK))
-+			host_status = csio_scsi_copy_to_sgl(hw, req);
-+	}
- 
- 	cmnd->result = (((host_status) << 16) | scsi_status);
- 	cmnd->scsi_done(cmnd);
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index 7be581f7c35d..1a6f65db615e 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -47,17 +47,16 @@ static void smp_task_timedout(unsigned long _task)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&task->task_state_lock, flags);
--	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
-+	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
- 		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
-+		complete(&task->slow_task->completion);
-+	}
- 	spin_unlock_irqrestore(&task->task_state_lock, flags);
--
--	complete(&task->slow_task->completion);
- }
- 
- static void smp_task_done(struct sas_task *task)
- {
--	if (!del_timer(&task->slow_task->timer))
--		return;
-+	del_timer(&task->slow_task->timer);
- 	complete(&task->slow_task->completion);
- }
- 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index 9a34afcb1c4c..5c3dfd92ea02 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -345,7 +345,7 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
- 		}
- 
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
- 
- 		ha->optrom_state = QLA_SREADING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-@@ -418,7 +418,7 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
- 		}
- 
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
- 
- 		ha->optrom_state = QLA_SWRITING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-diff --git a/drivers/staging/greybus/power_supply.c b/drivers/staging/greybus/power_supply.c
-index e85c988b7034..adea629b8065 100644
---- a/drivers/staging/greybus/power_supply.c
-+++ b/drivers/staging/greybus/power_supply.c
-@@ -521,7 +521,7 @@ static int gb_power_supply_prop_descriptors_get(struct gb_power_supply *gbpsy)
- 
- 	op = gb_operation_create(connection,
- 				 GB_POWER_SUPPLY_TYPE_GET_PROP_DESCRIPTORS,
--				 sizeof(req), sizeof(*resp) + props_count *
-+				 sizeof(*req), sizeof(*resp) + props_count *
- 				 sizeof(struct gb_power_supply_props_desc),
- 				 GFP_KERNEL);
- 	if (!op)
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 1e91b803ee4e..73dc5a6c6108 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -991,7 +991,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc->regs_size	= resource_size(res);
- 
- 	/* default to highest possible threshold */
--	lpm_nyet_threshold = 0xff;
-+	lpm_nyet_threshold = 0xf;
- 
- 	/* default to -3.5dB de-emphasis */
- 	tx_de_emphasis = 1;
-diff --git a/drivers/usb/serial/f81232.c b/drivers/usb/serial/f81232.c
-index 972f5a5fe577..1f20fa0a67c0 100644
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -560,9 +560,12 @@ static int f81232_open(struct tty_struct *tty, struct usb_serial_port *port)
- 
- static void f81232_close(struct usb_serial_port *port)
- {
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+
- 	f81232_port_disable(port);
- 	usb_serial_generic_close(port);
- 	usb_kill_urb(port->interrupt_in_urb);
-+	flush_work(&port_priv->interrupt_work);
- }
- 
- static void f81232_dtr_rts(struct usb_serial_port *port, int on)
-@@ -656,6 +659,40 @@ static int f81232_port_remove(struct usb_serial_port *port)
- 	return 0;
- }
- 
-+static int f81232_suspend(struct usb_serial *serial, pm_message_t message)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	struct f81232_private *port_priv = usb_get_serial_port_data(port);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i)
-+		usb_kill_urb(port->read_urbs[i]);
-+
-+	usb_kill_urb(port->interrupt_in_urb);
-+
-+	if (port_priv)
-+		flush_work(&port_priv->interrupt_work);
-+
-+	return 0;
-+}
-+
-+static int f81232_resume(struct usb_serial *serial)
-+{
-+	struct usb_serial_port *port = serial->port[0];
-+	int result;
-+
-+	if (tty_port_initialized(&port->port)) {
-+		result = usb_submit_urb(port->interrupt_in_urb, GFP_NOIO);
-+		if (result) {
-+			dev_err(&port->dev, "submit interrupt urb failed: %d\n",
-+					result);
-+			return result;
-+		}
-+	}
-+
-+	return usb_serial_generic_resume(serial);
-+}
-+
- static struct usb_serial_driver f81232_device = {
- 	.driver = {
- 		.owner =	THIS_MODULE,
-@@ -679,6 +716,8 @@ static struct usb_serial_driver f81232_device = {
- 	.read_int_callback =	f81232_read_int_callback,
- 	.port_probe =		f81232_port_probe,
- 	.port_remove =		f81232_port_remove,
-+	.suspend =		f81232_suspend,
-+	.resume =		f81232_resume,
- };
- 
- static struct usb_serial_driver * const serial_drivers[] = {
-diff --git a/drivers/usb/storage/scsiglue.c b/drivers/usb/storage/scsiglue.c
-index 13f2c051dbf2..afb4b0bf47b3 100644
---- a/drivers/usb/storage/scsiglue.c
-+++ b/drivers/usb/storage/scsiglue.c
-@@ -81,6 +81,7 @@ static const char* host_info(struct Scsi_Host *host)
- static int slave_alloc (struct scsi_device *sdev)
- {
- 	struct us_data *us = host_to_us(sdev->host);
-+	int maxp;
- 
- 	/*
- 	 * Set the INQUIRY transfer length to 36.  We don't use any of
-@@ -90,20 +91,17 @@ static int slave_alloc (struct scsi_device *sdev)
- 	sdev->inquiry_len = 36;
- 
- 	/*
--	 * USB has unusual DMA-alignment requirements: Although the
--	 * starting address of each scatter-gather element doesn't matter,
--	 * the length of each element except the last must be divisible
--	 * by the Bulk maxpacket value.  There's currently no way to
--	 * express this by block-layer constraints, so we'll cop out
--	 * and simply require addresses to be aligned at 512-byte
--	 * boundaries.  This is okay since most block I/O involves
--	 * hardware sectors that are multiples of 512 bytes in length,
--	 * and since host controllers up through USB 2.0 have maxpacket
--	 * values no larger than 512.
--	 *
--	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
--	 * values can be as large as 2048.  To make that work properly
--	 * will require changes to the block layer.
-+	 * USB has unusual scatter-gather requirements: the length of each
-+	 * scatterlist element except the last must be divisible by the
-+	 * Bulk maxpacket value.  Fortunately this value is always a
-+	 * power of 2.  Inform the block layer about this requirement.
-+	 */
-+	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
-+	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
-+
-+	/*
-+	 * Some host controllers may have alignment requirements.
-+	 * We'll play it safe by requiring 512-byte alignment always.
- 	 */
- 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
- 
-diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
-index 64af88977b03..97621e5bdad7 100644
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -796,24 +796,33 @@ static int uas_slave_alloc(struct scsi_device *sdev)
- {
- 	struct uas_dev_info *devinfo =
- 		(struct uas_dev_info *)sdev->host->hostdata;
-+	int maxp;
- 
- 	sdev->hostdata = devinfo;
- 
- 	/*
--	 * USB has unusual DMA-alignment requirements: Although the
--	 * starting address of each scatter-gather element doesn't matter,
--	 * the length of each element except the last must be divisible
--	 * by the Bulk maxpacket value.  There's currently no way to
--	 * express this by block-layer constraints, so we'll cop out
--	 * and simply require addresses to be aligned at 512-byte
--	 * boundaries.  This is okay since most block I/O involves
--	 * hardware sectors that are multiples of 512 bytes in length,
--	 * and since host controllers up through USB 2.0 have maxpacket
--	 * values no larger than 512.
-+	 * We have two requirements here. We must satisfy the requirements
-+	 * of the physical HC and the demands of the protocol, as we
-+	 * definitely want no additional memory allocation in this path
-+	 * ruling out using bounce buffers.
- 	 *
--	 * But it doesn't suffice for Wireless USB, where Bulk maxpacket
--	 * values can be as large as 2048.  To make that work properly
--	 * will require changes to the block layer.
-+	 * For a transmission on USB to continue we must never send
-+	 * a package that is smaller than maxpacket. Hence the length of each
-+         * scatterlist element except the last must be divisible by the
-+         * Bulk maxpacket value.
-+	 * If the HC does not ensure that through SG,
-+	 * the upper layer must do that. We must assume nothing
-+	 * about the capabilities off the HC, so we use the most
-+	 * pessimistic requirement.
-+	 */
-+
-+	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
-+	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
-+
-+	/*
-+	 * The protocol has no requirements on alignment in the strict sense.
-+	 * Controllers may or may not have alignment restrictions.
-+	 * As this is not exported, we use an extremely conservative guess.
- 	 */
- 	blk_queue_update_dma_alignment(sdev->request_queue, (512 - 1));
- 
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 61054f12be7c..d83fc669eeac 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -55,8 +55,8 @@
- 
- #define u64_to_user_ptr(x) (		\
- {					\
--	typecheck(u64, x);		\
--	(void __user *)(uintptr_t)x;	\
-+	typecheck(u64, (x));		\
-+	(void __user *)(uintptr_t)(x);	\
- }					\
- )
- 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 11a5a46ce72b..e3c8d40a18b5 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -777,6 +777,15 @@ static inline void get_page(struct page *page)
- 		get_zone_device_page(page);
- }
- 
-+static inline __must_check bool try_get_page(struct page *page)
-+{
-+	page = compound_head(page);
-+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
-+		return false;
-+	page_ref_inc(page);
-+	return true;
-+}
-+
- static inline void put_page(struct page *page)
- {
- 	page = compound_head(page);
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 4931787193c3..57a7dba49d29 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -176,6 +176,9 @@ struct adv_info {
- 
- #define HCI_MAX_SHORT_NAME_LENGTH	10
- 
-+/* Min encryption key size to match with SMP */
-+#define HCI_MIN_ENC_KEY_SIZE		7
-+
- /* Default LE RPA expiry time, 15 minutes */
- #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
- 
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index cf94460504bb..be7f489788e2 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -332,8 +332,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
- 	desc->affinity_notify = notify;
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- 
--	if (old_notify)
-+	if (old_notify) {
-+		cancel_work_sync(&old_notify->work);
- 		kref_put(&old_notify->kref, old_notify->release);
-+	}
- 
- 	return 0;
- }
-diff --git a/kernel/time/timer_stats.c b/kernel/time/timer_stats.c
-index 087204c733eb..c74920f318c5 100644
---- a/kernel/time/timer_stats.c
-+++ b/kernel/time/timer_stats.c
-@@ -417,7 +417,7 @@ static int __init init_tstats_procfs(void)
- {
- 	struct proc_dir_entry *pe;
- 
--	pe = proc_create("timer_stats", 0644, NULL, &tstats_fops);
-+	pe = proc_create("timer_stats", 0600, NULL, &tstats_fops);
- 	if (!pe)
- 		return -ENOMEM;
- 	return 0;
-diff --git a/lib/ubsan.c b/lib/ubsan.c
-index 60e108c5c173..c652b4a820cc 100644
---- a/lib/ubsan.c
-+++ b/lib/ubsan.c
-@@ -86,11 +86,13 @@ static bool is_inline_int(struct type_descriptor *type)
- 	return bits <= inline_bits;
- }
- 
--static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
-+static s_max get_signed_val(struct type_descriptor *type, void *val)
- {
- 	if (is_inline_int(type)) {
- 		unsigned extra_bits = sizeof(s_max)*8 - type_bit_width(type);
--		return ((s_max)val) << extra_bits >> extra_bits;
-+		unsigned long ulong_val = (unsigned long)val;
-+
-+		return ((s_max)ulong_val) << extra_bits >> extra_bits;
- 	}
- 
- 	if (type_bit_width(type) == 64)
-@@ -99,15 +101,15 @@ static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
- 	return *(s_max *)val;
- }
- 
--static bool val_is_negative(struct type_descriptor *type, unsigned long val)
-+static bool val_is_negative(struct type_descriptor *type, void *val)
- {
- 	return type_is_signed(type) && get_signed_val(type, val) < 0;
- }
- 
--static u_max get_unsigned_val(struct type_descriptor *type, unsigned long val)
-+static u_max get_unsigned_val(struct type_descriptor *type, void *val)
- {
- 	if (is_inline_int(type))
--		return val;
-+		return (unsigned long)val;
- 
- 	if (type_bit_width(type) == 64)
- 		return *(u64 *)val;
-@@ -116,7 +118,7 @@ static u_max get_unsigned_val(struct type_descriptor *type, unsigned long val)
- }
- 
- static void val_to_string(char *str, size_t size, struct type_descriptor *type,
--	unsigned long value)
-+			void *value)
- {
- 	if (type_is_int(type)) {
- 		if (type_bit_width(type) == 128) {
-@@ -168,8 +170,8 @@ static void ubsan_epilogue(unsigned long *flags)
- 	current->in_ubsan--;
- }
- 
--static void handle_overflow(struct overflow_data *data, unsigned long lhs,
--			unsigned long rhs, char op)
-+static void handle_overflow(struct overflow_data *data, void *lhs,
-+			void *rhs, char op)
- {
- 
- 	struct type_descriptor *type = data->type;
-@@ -196,8 +198,7 @@ static void handle_overflow(struct overflow_data *data, unsigned long lhs,
- }
- 
- void __ubsan_handle_add_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 
- 	handle_overflow(data, lhs, rhs, '+');
-@@ -205,23 +206,21 @@ void __ubsan_handle_add_overflow(struct overflow_data *data,
- EXPORT_SYMBOL(__ubsan_handle_add_overflow);
- 
- void __ubsan_handle_sub_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	handle_overflow(data, lhs, rhs, '-');
- }
- EXPORT_SYMBOL(__ubsan_handle_sub_overflow);
- 
- void __ubsan_handle_mul_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	handle_overflow(data, lhs, rhs, '*');
- }
- EXPORT_SYMBOL(__ubsan_handle_mul_overflow);
- 
- void __ubsan_handle_negate_overflow(struct overflow_data *data,
--				unsigned long old_val)
-+				void *old_val)
- {
- 	unsigned long flags;
- 	char old_val_str[VALUE_LENGTH];
-@@ -242,8 +241,7 @@ EXPORT_SYMBOL(__ubsan_handle_negate_overflow);
- 
- 
- void __ubsan_handle_divrem_overflow(struct overflow_data *data,
--				unsigned long lhs,
--				unsigned long rhs)
-+				void *lhs, void *rhs)
- {
- 	unsigned long flags;
- 	char rhs_val_str[VALUE_LENGTH];
-@@ -328,7 +326,7 @@ static void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
- }
- 
- void __ubsan_handle_type_mismatch(struct type_mismatch_data *data,
--				unsigned long ptr)
-+				void *ptr)
- {
- 	struct type_mismatch_data_common common_data = {
- 		.location = &data->location,
-@@ -337,12 +335,12 @@ void __ubsan_handle_type_mismatch(struct type_mismatch_data *data,
- 		.type_check_kind = data->type_check_kind
- 	};
- 
--	ubsan_type_mismatch_common(&common_data, ptr);
-+	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
- }
- EXPORT_SYMBOL(__ubsan_handle_type_mismatch);
- 
- void __ubsan_handle_type_mismatch_v1(struct type_mismatch_data_v1 *data,
--				unsigned long ptr)
-+				void *ptr)
- {
- 
- 	struct type_mismatch_data_common common_data = {
-@@ -352,7 +350,7 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_data_v1 *data,
- 		.type_check_kind = data->type_check_kind
- 	};
- 
--	ubsan_type_mismatch_common(&common_data, ptr);
-+	ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
- }
- EXPORT_SYMBOL(__ubsan_handle_type_mismatch_v1);
- 
-@@ -376,7 +374,7 @@ void __ubsan_handle_nonnull_return(struct nonnull_return_data *data)
- EXPORT_SYMBOL(__ubsan_handle_nonnull_return);
- 
- void __ubsan_handle_vla_bound_not_positive(struct vla_bound_data *data,
--					unsigned long bound)
-+					void *bound)
- {
- 	unsigned long flags;
- 	char bound_str[VALUE_LENGTH];
-@@ -393,8 +391,7 @@ void __ubsan_handle_vla_bound_not_positive(struct vla_bound_data *data,
- }
- EXPORT_SYMBOL(__ubsan_handle_vla_bound_not_positive);
- 
--void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data,
--				unsigned long index)
-+void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data, void *index)
- {
- 	unsigned long flags;
- 	char index_str[VALUE_LENGTH];
-@@ -412,7 +409,7 @@ void __ubsan_handle_out_of_bounds(struct out_of_bounds_data *data,
- EXPORT_SYMBOL(__ubsan_handle_out_of_bounds);
- 
- void __ubsan_handle_shift_out_of_bounds(struct shift_out_of_bounds_data *data,
--					unsigned long lhs, unsigned long rhs)
-+					void *lhs, void *rhs)
- {
- 	unsigned long flags;
- 	struct type_descriptor *rhs_type = data->rhs_type;
-@@ -463,7 +460,7 @@ void __ubsan_handle_builtin_unreachable(struct unreachable_data *data)
- EXPORT_SYMBOL(__ubsan_handle_builtin_unreachable);
- 
- void __ubsan_handle_load_invalid_value(struct invalid_value_data *data,
--				unsigned long val)
-+				void *val)
- {
- 	unsigned long flags;
- 	char val_str[VALUE_LENGTH];
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index cc061495f653..fe4fb0c1fa61 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1165,6 +1165,14 @@ int hci_conn_check_link_mode(struct hci_conn *conn)
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
- 
-+	/* The minimum encryption key size needs to be enforced by the
-+	 * host stack before establishing any L2CAP connections. The
-+	 * specification in theory allows a minimum of 1, but to align
-+	 * BR/EDR and LE transports, a minimum of 7 is chosen.
-+	 */
-+	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
-+		return 0;
-+
- 	return 1;
- }
- 
-diff --git a/net/bluetooth/hidp/sock.c b/net/bluetooth/hidp/sock.c
-index 008ba439bd62..cc80c76177b6 100644
---- a/net/bluetooth/hidp/sock.c
-+++ b/net/bluetooth/hidp/sock.c
-@@ -76,6 +76,7 @@ static int hidp_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long
- 			sockfd_put(csock);
- 			return err;
- 		}
-+		ca.name[sizeof(ca.name)-1] = 0;
- 
- 		err = hidp_connection_add(&ca, csock, isock);
- 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
-diff --git a/sound/soc/codecs/cs4270.c b/sound/soc/codecs/cs4270.c
-index 84f86745c30e..828bc615a190 100644
---- a/sound/soc/codecs/cs4270.c
-+++ b/sound/soc/codecs/cs4270.c
-@@ -643,6 +643,7 @@ static const struct regmap_config cs4270_regmap = {
- 	.reg_defaults =		cs4270_reg_defaults,
- 	.num_reg_defaults =	ARRAY_SIZE(cs4270_reg_defaults),
- 	.cache_type =		REGCACHE_RBTREE,
-+	.write_flag_mask =	CS4270_I2C_INCR,
- 
- 	.readable_reg =		cs4270_reg_is_readable,
- 	.volatile_reg =		cs4270_reg_is_volatile,
-diff --git a/sound/soc/codecs/nau8810.c b/sound/soc/codecs/nau8810.c
-index e45518629968..2234d0c04165 100644
---- a/sound/soc/codecs/nau8810.c
-+++ b/sound/soc/codecs/nau8810.c
-@@ -414,9 +414,9 @@ static const struct snd_soc_dapm_widget nau8810_dapm_widgets[] = {
- 	SND_SOC_DAPM_MIXER("Mono Mixer", NAU8810_REG_POWER3,
- 		NAU8810_MOUTMX_EN_SFT, 0, &nau8810_mono_mixer_controls[0],
- 		ARRAY_SIZE(nau8810_mono_mixer_controls)),
--	SND_SOC_DAPM_DAC("DAC", "HiFi Playback", NAU8810_REG_POWER3,
-+	SND_SOC_DAPM_DAC("DAC", "Playback", NAU8810_REG_POWER3,
- 		NAU8810_DAC_EN_SFT, 0),
--	SND_SOC_DAPM_ADC("ADC", "HiFi Capture", NAU8810_REG_POWER2,
-+	SND_SOC_DAPM_ADC("ADC", "Capture", NAU8810_REG_POWER2,
- 		NAU8810_ADC_EN_SFT, 0),
- 	SND_SOC_DAPM_PGA("SpkN Out", NAU8810_REG_POWER3,
- 		NAU8810_NSPK_EN_SFT, 0, NULL, 0),
-diff --git a/sound/soc/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32x4.c
-index 28fdfc5ec544..c27e3476848a 100644
---- a/sound/soc/codecs/tlv320aic32x4.c
-+++ b/sound/soc/codecs/tlv320aic32x4.c
-@@ -316,6 +316,8 @@ static const struct snd_soc_dapm_widget aic32x4_dapm_widgets[] = {
- 	SND_SOC_DAPM_INPUT("IN2_R"),
- 	SND_SOC_DAPM_INPUT("IN3_L"),
- 	SND_SOC_DAPM_INPUT("IN3_R"),
-+	SND_SOC_DAPM_INPUT("CM_L"),
-+	SND_SOC_DAPM_INPUT("CM_R"),
- };
- 
- static const struct snd_soc_dapm_route aic32x4_dapm_routes[] = {
-diff --git a/sound/soc/intel/common/sst-firmware.c b/sound/soc/intel/common/sst-firmware.c
-index 79a9fdf94d38..582b30a5118d 100644
---- a/sound/soc/intel/common/sst-firmware.c
-+++ b/sound/soc/intel/common/sst-firmware.c
-@@ -1252,11 +1252,15 @@ struct sst_dsp *sst_dsp_new(struct device *dev,
- 		goto irq_err;
- 
- 	err = sst_dma_new(sst);
--	if (err)
--		dev_warn(dev, "sst_dma_new failed %d\n", err);
-+	if (err)  {
-+		dev_err(dev, "sst_dma_new failed %d\n", err);
-+		goto dma_err;
-+	}
- 
- 	return sst;
- 
-+dma_err:
-+	free_irq(sst->irq, sst);
- irq_err:
- 	if (sst->ops->free)
- 		sst->ops->free(sst);
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index b111ecda6439..1dbcdc99dbe3 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -894,10 +894,13 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
- 		codec_params = *params;
- 
- 		/* fixup params based on TDM slot masks */
--		if (codec_dai->tx_mask)
-+		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
-+		    codec_dai->tx_mask)
- 			soc_pcm_codec_params_fixup(&codec_params,
- 						   codec_dai->tx_mask);
--		if (codec_dai->rx_mask)
-+
-+		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
-+		    codec_dai->rx_mask)
- 			soc_pcm_codec_params_fixup(&codec_params,
- 						   codec_dai->rx_mask);
- 
+
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 4.14.118 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                            |    2=20
+ arch/arm64/include/asm/futex.h                      |   55 +++--
+ arch/mips/kernel/kgdb.c                             |    3=20
+ arch/x86/events/intel/core.c                        |    8=20
+ drivers/block/virtio_blk.c                          |    2=20
+ drivers/gpu/drm/mediatek/mtk_hdmi.c                 |    2=20
+ drivers/hv/hv.c                                     |    1=20
+ drivers/hwtracing/intel_th/pci.c                    |    5=20
+ drivers/infiniband/hw/hfi1/rc.c                     |    4=20
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c      |    2=20
+ drivers/iommu/amd_iommu_init.c                      |    2=20
+ drivers/platform/x86/pmc_atom.c                     |    2=20
+ drivers/scsi/csiostor/csio_scsi.c                   |    5=20
+ drivers/scsi/libsas/sas_expander.c                  |    9=20
+ drivers/scsi/qla2xxx/qla_attr.c                     |    4=20
+ drivers/staging/greybus/power_supply.c              |    2=20
+ drivers/usb/class/cdc-acm.c                         |   32 ++-
+ drivers/usb/dwc3/core.c                             |    2=20
+ drivers/usb/serial/f81232.c                         |   39 ++++
+ drivers/usb/storage/scsiglue.c                      |   26 +-
+ drivers/usb/storage/uas.c                           |   35 ++-
+ drivers/virtio/virtio_pci_common.c                  |    8=20
+ include/linux/kernel.h                              |    4=20
+ include/net/bluetooth/hci_core.h                    |    3=20
+ kernel/futex.c                                      |  188 ++++++++++++---=
+-----
+ kernel/irq/manage.c                                 |    4=20
+ lib/ubsan.c                                         |   49 ++---
+ mm/slab.c                                           |    3=20
+ net/bluetooth/hci_conn.c                            |    8=20
+ net/bluetooth/hidp/sock.c                           |    1=20
+ sound/soc/codecs/cs4270.c                           |    1=20
+ sound/soc/codecs/hdmi-codec.c                       |  118 ++++++------
+ sound/soc/codecs/nau8810.c                          |    4=20
+ sound/soc/codecs/nau8824.c                          |   46 ++++
+ sound/soc/codecs/tlv320aic32x4.c                    |    2=20
+ sound/soc/codecs/wm_adsp.c                          |   11 -
+ sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c |    2=20
+ sound/soc/intel/common/sst-firmware.c               |    8=20
+ sound/soc/rockchip/rockchip_pdm.c                   |    2=20
+ sound/soc/samsung/odroid.c                          |    4=20
+ sound/soc/soc-pcm.c                                 |    7=20
+ 41 files changed, 458 insertions(+), 257 deletions(-)
+
+Alan Stern (1):
+      usb-storage: Set virt_boundary_mask to avoid SG overflows
+
+Alexander Shishkin (1):
+      intel_th: pci: Add Comet Lake support
+
+Andrew Vasquez (1):
+      scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS rout=
+ines
+
+Andrey Ryabinin (1):
+      ubsan: Fix nasty -Wbuiltin-declaration-mismatch GCC-9 warnings
+
+Annaliese McDermond (1):
+      ASoC: tlv320aic32x4: Fix Common Pins
+
+Charles Keepax (1):
+      ASoC: wm_adsp: Add locking to wm_adsp2_bus_error
+
+Chong Qiao (1):
+      MIPS: KGDB: fix kgdb support for SMP platforms.
+
+Dan Carpenter (1):
+      drm/mediatek: Fix an error code in mtk_hdmi_dt_parse_pdata()
+
+Daniel Mack (1):
+      ASoC: cs4270: Set auto-increment bit for register writes
+
+Dexuan Cui (1):
+      Drivers: hv: vmbus: Remove the undesired put_cpu_ptr() in hv_synic_cl=
+eanup()
+
+Dongli Zhang (1):
+      virtio-blk: limit number of hw queues by nr_cpu_ids
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.118
+
+Jann Horn (1):
+      linux/kernel.h: Use parentheses around argument in u64_to_user_ptr()
+
+Jason Yan (1):
+      scsi: libsas: fix a race condition when smp task timeout
+
+Ji-Ze Hong (Peter Hong) (1):
+      USB: serial: f81232: fix interrupt worker not stop
+
+Joerg Roedel (1):
+      iommu/amd: Set exclusion range correctly
+
+Johan Hovold (2):
+      staging: greybus: power_supply: fix prop-descriptor request size
+      USB: cdc-acm: fix unthrottle races
+
+John Hsu (2):
+      ASoC: nau8824: fix the issue of the widget with prefix name
+      ASoC: nau8810: fix the issue of widget with prefixed name
+
+Kaike Wan (1):
+      IB/hfi1: Eliminate opcode tests on mr deref
+
+Kamal Heib (1):
+      RDMA/vmw_pvrdma: Fix memory leak on pvrdma_pci_remove
+
+Longpeng (1):
+      virtio_pci: fix a NULL pointer reference in vp_del_vqs
+
+Marcel Holtmann (1):
+      Bluetooth: Align minimum encryption key size for LE and BR/EDR connec=
+tions
+
+Oliver Neukum (1):
+      UAS: fix alignment of scatter/gather segments
+
+Peter Zijlstra (1):
+      perf/x86/intel: Initialize TFA MSR
+
+Prasad Sodagudi (1):
+      genirq: Prevent use-after-free and work list corruption
+
+Qian Cai (1):
+      slab: fix a crash by reading /proc/slab_allocators
+
+Rander Wang (1):
+      ASoC:soc-pcm:fix a codec fixup issue in TDM case
+
+Ross Zwisler (1):
+      ASoC: Intel: avoid Oops if DMA setup fails
+
+Russell King (1):
+      ASoC: hdmi-codec: fix S/PDIF DAI
+
+Stephane Eranian (1):
+      perf/x86/intel: Fix handling of wakeup_events for multi-entry PEBS
+
+Stephen Boyd (1):
+      platform/x86: pmc_atom: Drop __initconst on dmi table
+
+Sugar Zhang (1):
+      ASoC: rockchip: pdm: fix regmap_ops hang issue
+
+Sylwester Nawrocki (1):
+      ASoC: samsung: odroid: Fix clock configuration for 44100 sample rate
+
+Thinh Nguyen (1):
+      usb: dwc3: Fix default lpm_nyet_threshold value
+
+Tzung-Bi Shih (1):
+      ASoC: Intel: kbl: fix wrong number of channels
+
+Varun Prakash (1):
+      scsi: csiostor: fix missing data copy in csio_scsi_err_handler()
+
+Wen Yang (1):
+      drm/mediatek: fix possible object reference leak
+
+Will Deacon (2):
+      locking/futex: Allow low-level atomic operations to return -EAGAIN
+      arm64: futex: Bound number of LDXR/STXR loops in FUTEX_WAKE_OP
+
+Young Xiao (1):
+      Bluetooth: hidp: fix buffer overflow
+
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAlzWcHMACgkQONu9yGCS
+aT5wGQ/7BH5b5kIG1REIeQIZLcMpT8lUDSrnpWHPjwvrZzSKYc7+Oi1iiFcGxc4y
+ay+oAktP2NwhpSAoIy2HTtq3NPJusbaQfU2Hv8KMN7NmUyJhbch++GLoaYxmWxtQ
+fTjqz8g22ERe+/MK0ckdI0ZrCqbTg9WI8X5XicClMVPADsUz/nwpqr1DiZnj6Hjy
+OExmfjQLcjpuuQKOcTCEgTq0ocbhrzDW0QuA/3fz1Tv1YVTw8xos9Vm/Gc4JA6Bn
+mbyZWJvYn5EuO3XfzHsaFqbFgz5f5hC83OmMyECGG4BDxO/mtDZBTe1AC9n4aRSu
+Xpl5ePmRvSsOx8/AIDFhgOwGsZT8S75DYbZjKerklRyzT5cDB0s9KW6X2sFIuVVM
+MCHYM51uRrIRHEpH0IKRxNsUPlLBUsebXR545K94snb8wbb4irQEvIkpTvMZbfPw
+gYm0VaTD8/fVZ2aEO1BoMeXbdrueIEehwwtO5F8hdFi+iZaU8ek/7g7QH/vC3ny1
+TS1myeuqygMjt3NAsjSKj9c5NjLf3SBP0Pej9XLx9Oum19+X9+PpHzXwLqQQqoiq
+6YevpBKmXZAbHroLWkE1QPJbV1HMse57eOapP312LvqFrkRUY90RI0Lq40XT0Nno
+CkZhX6vJmZwQJar4wSIng8FauESLm1Ave9uGkkB65uppzPoa9k0=
+=qoXA
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
