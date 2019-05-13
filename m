@@ -2,177 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BA11B56D
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 14:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC941B65D
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 14:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbfEMMCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 08:02:21 -0400
-Received: from 13.mo7.mail-out.ovh.net ([87.98.150.175]:38103 "EHLO
-        13.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726218AbfEMMCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 08:02:20 -0400
-X-Greylist: delayed 361 seconds by postgrey-1.27 at vger.kernel.org; Mon, 13 May 2019 08:02:18 EDT
-Received: from player729.ha.ovh.net (unknown [10.109.159.248])
-        by mo7.mail-out.ovh.net (Postfix) with ESMTP id 0D6551187D2
-        for <stable@vger.kernel.org>; Mon, 13 May 2019 13:56:15 +0200 (CEST)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player729.ha.ovh.net (Postfix) with ESMTPSA id 1EAF25D72366;
-        Mon, 13 May 2019 11:56:07 +0000 (UTC)
-Date:   Mon, 13 May 2019 13:56:06 +0200
-From:   Greg Kurz <groug@kaod.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>
-Subject: Re: [PATCH] powerpc/powernv/npu: Fix reference leak
-Message-ID: <20190513135606.7d9a0902@bahia.lan>
-In-Reply-To: <20190429123659.00c0622b@bahia.lan>
-References: <155568805354.600470.13376593185688810607.stgit@bahia.lan>
-        <962c1d9e-719c-cb82-cabc-1cf619e1510b@ozlabs.ru>
-        <20190429123659.00c0622b@bahia.lan>
-X-Mailer: Claws Mail 3.16.0 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1729437AbfEMMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 08:49:35 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:44476 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729556AbfEMMtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 08:49:35 -0400
+Received: by mail-vs1-f66.google.com with SMTP id j184so7878538vsd.11
+        for <stable@vger.kernel.org>; Mon, 13 May 2019 05:49:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=5YqRRfFo0bI+5hKVMB6JI8Z/WKSCKqBCeTAg1xPZAhY=;
+        b=sauNa90SGKG/3RiZqZIwgPZXlUr2+2S+zq/qWuGDtwnH1YXzLOhR8SYL7h4MWW0iDR
+         dg+e8djcaJTnsJTiSo49mEMhf2xIo94d5hw0WAh7XnRUurbXgBtKv2umFnQduNugdWu/
+         FX6oO8uTYURJOpGh8DWN980V23+cj/c6e5qspdsWo2XjHpn8jVaVYwC4HMCA5wxcCOFV
+         NDrVUQV5J/VRQi1jJklZ9MSF6QIAa2zVJ1YKCjjV1WXDsnD/VkvtDlypBoNXtfv/mOLm
+         bnzTkf/wkidOB1RingrGOWlbwriAP2RmdMDm9KJRCrfSH4p46RBZWayIcHPAduWbq+4k
+         9oBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=5YqRRfFo0bI+5hKVMB6JI8Z/WKSCKqBCeTAg1xPZAhY=;
+        b=Vyp+whF5PMCNY74qFwv9be8DSAoH2O/EnoLCNV+f2804vV9pCiD8FTS5501urcRDII
+         X0ZbjjsP7ZDzcETb9Ppd6CaIgqCnYeRBJqeQQyvNQ8CQ0SpEnggN2IyYTl5bKXKQLgsB
+         hOsNDVquS/hkfYZgSOFbICmm9Zu5tyZF3kdyMDFqQXZbIsGy5AbHUemNbKvDCU1ONHQb
+         xw3ZGF9CsrhhqU8yIeueUjI5SppSrZJPC1uev//vaVCzDIkOuXe5cv0rPAF17Lu8g7Z6
+         2YHR+kXQGbsroitPVsTPMPK0RWX6GjJfxjPFEbOdueaa7aXh4bZFk6DMF8/Oro7crXSo
+         jHSg==
+X-Gm-Message-State: APjAAAVySi1WV/q2h1rwBcFHbj/oHutANxe59Oow498sy/PIF1x5yced
+        s0M0mky3Nn2tupJ1E25XkuAy2tkRCzgdsM23Op0=
+X-Google-Smtp-Source: APXvYqwjeTzYDL29oMYeQtCpFrdNIJOk+xhHFDz8qWmZNj/qMN/dSDJptD62PSbPefQyP/hlz7nDLj36oAoivj1gEIY=
+X-Received: by 2002:a67:99c3:: with SMTP id b186mr13380924vse.50.1557751774118;
+ Mon, 13 May 2019 05:49:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Ovh-Tracer-Id: 6583981181895154097
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddrleeggdegiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+Received: by 2002:a67:1343:0:0:0:0:0 with HTTP; Mon, 13 May 2019 05:49:32
+ -0700 (PDT)
+From:   abdul uzun <abduluzun6060@gmail.com>
+Date:   Mon, 13 May 2019 05:49:32 -0700
+Message-ID: <CALVLmF97QpNOoS-ZLpHprn2e4QeaxoJoB71D69kgR=3hTMnwPw@mail.gmail.com>
+Subject: OUR GOLDEN OPPORTUNITY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Michael,
+OUR GOLDEN OPPORTUNITY
 
-Any comments on this patch ? Should I repost with a shorter comment
-as suggested by Alexey ?
+Dear Friend,
 
-Cheers,
+Let me start by introducing myself,I am Mr Abdul Uzun=C2=A0 Manager of Bank
+Of Africa Burkina faso.
 
---
-Greg
+I am writting you this letter based on the latest development at my
+Department which I will like to bring to your personal
+edification.(18.5 million U.S Dollars transfer claims).
 
-On Mon, 29 Apr 2019 12:36:59 +0200
-Greg Kurz <groug@kaod.org> wrote:
+This is a legitimate transaction and I agreed to offer you 40% of this
+money as my foreign partner after confirmation of the fund in your
+bank account, If you are interested, get back to me with the following
+details below.
 
-> On Mon, 29 Apr 2019 16:01:29 +1000
-> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:
-> 
-> > On 20/04/2019 01:34, Greg Kurz wrote:  
-> > > Since 902bdc57451c, get_pci_dev() calls pci_get_domain_bus_and_slot(). This
-> > > has the effect of incrementing the reference count of the PCI device, as
-> > > explained in drivers/pci/search.c:
-> > > 
-> > >  * Given a PCI domain, bus, and slot/function number, the desired PCI
-> > >  * device is located in the list of PCI devices. If the device is
-> > >  * found, its reference count is increased and this function returns a
-> > >  * pointer to its data structure.  The caller must decrement the
-> > >  * reference count by calling pci_dev_put().  If no device is found,
-> > >  * %NULL is returned.
-> > > 
-> > > Nothing was done to call pci_dev_put() and the reference count of GPU and
-> > > NPU PCI devices rockets up.
-> > > 
-> > > A natural way to fix this would be to teach the callers about the change,
-> > > so that they call pci_dev_put() when done with the pointer. This turns
-> > > out to be quite intrusive, as it affects many paths in npu-dma.c,
-> > > pci-ioda.c and vfio_pci_nvlink2.c.    
-> > 
-> > 
-> > afaict this referencing is only done to protect the current traverser
-> > and what you've done is actually a natural way (and the generic
-> > pci_get_dev_by_id() does exactly the same), although this looks a bit weird.
-> >   
-> 
-> Not exactly the same: pci_get_dev_by_id() always increment the refcount
-> of the returned PCI device. The refcount is only decremented when this
-> device is passed to pci_get_dev_by_id() to continue searching.
-> 
-> That means that the users of the PCI device pointer returned by
-> pci_get_dev_by_id() or its exported variants pci_get_subsys(),
-> pci_get_device() and pci_get_class() do handle the refcount. They
-> all pass the pointer to pci_dev_put() or continue the search,
-> which calls pci_dev_put() internally.
-> 
-> Direct and indirect callers of get_pci_dev() don't care for the
-> refcount at all unless I'm missing something.
-> 
-> >   
-> > > Also, the issue appeared in 4.16 and
-> > > some affected code got moved around since then: it would be problematic
-> > > to backport the fix to stable releases.
-> > > 
-> > > All that code never cared for reference counting anyway. Call pci_dev_put()
-> > > from get_pci_dev() to revert to the previous behavior.    
-> > >> Fixes: 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary pcidev    
-> > from pci_dn")  
-> > > Cc: stable@vger.kernel.org # v4.16
-> > > Signed-off-by: Greg Kurz <groug@kaod.org>
-> > > ---
-> > >  arch/powerpc/platforms/powernv/npu-dma.c |   15 ++++++++++++++-
-> > >  1 file changed, 14 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/arch/powerpc/platforms/powernv/npu-dma.c b/arch/powerpc/platforms/powernv/npu-dma.c
-> > > index e713ade30087..d8f3647e8fb2 100644
-> > > --- a/arch/powerpc/platforms/powernv/npu-dma.c
-> > > +++ b/arch/powerpc/platforms/powernv/npu-dma.c
-> > > @@ -31,9 +31,22 @@ static DEFINE_SPINLOCK(npu_context_lock);
-> > >  static struct pci_dev *get_pci_dev(struct device_node *dn)
-> > >  {
-> > >  	struct pci_dn *pdn = PCI_DN(dn);
-> > > +	struct pci_dev *pdev;
-> > >  
-> > > -	return pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
-> > > +	pdev = pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
-> > >  					   pdn->busno, pdn->devfn);
-> > > +
-> > > +	/*
-> > > +	 * pci_get_domain_bus_and_slot() increased the reference count of
-> > > +	 * the PCI device, but callers don't need that actually as the PE
-> > > +	 * already holds a reference to the device.    
-> > 
-> > Imho this would be just enough.
-> > 
-> > Anyway,
-> > 
-> > Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-> >   
-> 
-> Thanks !
-> 
-> I now realize that I forgot to add the --cc option for stable on my stgit
-> command line :-\.
-> 
-> Cc'ing now.
-> 
-> > 
-> > How did you find it? :)
-> >   
-> 
-> While reading code to find some inspiration for OpenCAPI passthrough. :)
-> 
-> I saw the following in vfio_pci_ibm_npu2_init():
-> 
-> 	if (!pnv_pci_get_gpu_dev(vdev->pdev))
-> 		return -ENODEV;
-> 
-> and simply followed the function calls.
-> 
-> >   
-> > > Since callers aren't
-> > > +	 * aware of the reference count change, call pci_dev_put() now to
-> > > +	 * avoid leaks.
-> > > +	 */
-> > > +	if (pdev)
-> > > +		pci_dev_put(pdev);
-> > > +
-> > > +	return pdev;
-> > >  }
-> > >  
-> > >  /* Given a NPU device get the associated PCI device. */
-> > >     
-> >   
-> 
+(1)Your age=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=
+=E2=80=A6=E2=80=A6
 
+(2)Your occupation: =E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=
+=E2=80=A6=E2=80=A6=E2=80=A6
+
+(3)Your marital status: =E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=
+=A6=E2=80=A6=E2=80=A6=E2=80=A6
+
+(4)Your full residential address: =E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=
+=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6
+
+
+(5)Your private phone and fax number and your complete name=E2=80=A6=E2=80=
+=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6
+
+As soon as I receive these data's, I will forward to you the
+application form which you will send to the bank, get back to me
+through this my private email address (abduluzun4040@gmail.com)
+
+If you are interested then it is compulsory you reach me through my
+private email address below
+(abduluzun4040@gmail.com)
+
+Best Regard
+Mr Abdul Uzun
