@@ -2,120 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EFC1B0AB
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 09:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED1F1B0B2
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 09:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726181AbfEMHCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 03:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54948 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725980AbfEMHCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 May 2019 03:02:17 -0400
+        id S1726132AbfEMHDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 03:03:46 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:46871 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725980AbfEMHDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 03:03:45 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 4120221540;
+        Mon, 13 May 2019 03:03:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 13 May 2019 03:03:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=EUprfd4oTQRMt24J3KzcRvPKyEC
+        6+T0VwqaT8sTkVCE=; b=O+pqQVhZvmV60GYSMSAkdPunsYnKVKX9Ef6sOa/m7bH
+        FFjRERT88Z92kd/CJrXq8YU/aCGRL21/I9HEr2GkxCk0PEc4Ny9HxEyvAuJZdZDq
+        68lKzzGRnJ5YeR3QvBLtWW0zmfESSVIVSgTtziPOAgoeuhlO5prPkrTVNmjI5FwL
+        2ahAmU4T5HiRg+LFlZYRBCu6Cq5BHsfdhIciVjMpCB1b02DKxzBzv4v9fXs0xc12
+        7lsqCgDQjLIYZNaU2gZb9bJ65T7P1SG8ySOB4ZstvBWSMa+vxPc7uuWVqsd+D6uY
+        9LTr3nurXg/+zqGxvCOevMb/LonFmNFrzcnL12NhWdA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EUprfd
+        4oTQRMt24J3KzcRvPKyEC6+T0VwqaT8sTkVCE=; b=u0ZrxH9qkt4z4EjTNRDODL
+        Nw2XJzCfLQi0IbMnaeIfXHSd3+q2eXRR8fjSxBNCphRPb+8Jds4FBA9wOg4WQlvx
+        8fo530OWzq4Ir3lIh0CULIadj2ukGJ7Rka/aBFe4Uk/ovIBZ7BVmEVJ1zfmYDsiL
+        DWYh9i+r38cQQlndCZcYIwD0h4DQK7idZXVSRGMMmyDclKfZU7ruQEsAqEC+PJAp
+        I/wqeDo5OlnuN5LUMTqpNk2zWy3XmTQY65xf51DqpGQDMt6gKNWN2tlicffqH9oE
+        RAv8q+Rj2RXbEVr3pKYhNccroYFZBtlrRNw/wRkOnLaaDUToOcPz+JsL9z0qxZLQ
+        ==
+X-ME-Sender: <xms:zRbZXLzqJ6SRUcN14pdUw-yHesimMyunYQR1B4kiUAgaH0CTtkh8rg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleefgdduuddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:zRbZXHjPWNDPxewBJDvxqj-z39TJJ0IrAuJ9-uS8rR_bmqXcW4asfQ>
+    <xmx:zRbZXAUTgZTMszS4BYXjbSlITbDwcxoLDNJ1CilQb-2sXy2YHnQfzQ>
+    <xmx:zRbZXJ2gph_4YGi1uevcIR1MChzLcwTYod5gsE_apHM288U8OipE3w>
+    <xmx:zhbZXLgJN03WNlHmVvMlA9YX97qzWTX5D3Qkj5UxPOtI2rXMAx_vnA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E960E20B7C;
-        Mon, 13 May 2019 07:02:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557730936;
-        bh=bT3ak87mHPOn/6qzmCm3Jho7/L4DKAETYvoo3+eBUqY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jO7KprTNDJQMrxqqhWUNHHaFgScJGY1zYd9dCxmZPvnK+wiWF//WbPh18bDM/24nO
-         G5LYSxV2L7+/5DpYnaMegQlQSmMQdZzDOlhIAFkFgGLlzPhelwohmSgOmZYBtlAJAI
-         SRhqybZbIHjOEJecBGeqjLtEYL0NGJ7wxbbbdIRE=
-Date:   Mon, 13 May 2019 09:02:14 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Daniel Wagner <wagi@monom.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rt-users@vger.kernel.org
-Subject: Re: [PATCH v4.4.y] mm, vmstat: make quiet_vmstat lighter
-Message-ID: <20190513070214.GA26553@kroah.com>
-References: <20190513061237.4915-1-wagi@monom.org>
+        by mail.messagingengine.com (Postfix) with ESMTPA id D03EF80060;
+        Mon, 13 May 2019 03:03:40 -0400 (EDT)
+Date:   Mon, 13 May 2019 09:03:37 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Eric Wheeler <stable@lists.ewheeler.net>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        "open list:BFQ I/O SCHEDULER" <linux-block@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Eric Wheeler <bfq@linux.ewheeler.net>, stable@vger.kernel.org
+Subject: Re: [PATCH] bfq: backport: update internal depth state when queue
+ depth changes
+Message-ID: <20190513070337.GB26553@kroah.com>
+References: <1557510992-18506-1-git-send-email-stable@lists.ewheeler.net>
+ <20190510201855.GB14410@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190513061237.4915-1-wagi@monom.org>
+In-Reply-To: <20190510201855.GB14410@sasha-vm>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 13, 2019 at 08:12:37AM +0200, Daniel Wagner wrote:
-> From: Michal Hocko <mhocko@suse.com>
+On Fri, May 10, 2019 at 04:18:55PM -0400, Sasha Levin wrote:
+> On Fri, May 10, 2019 at 10:56:32AM -0700, Eric Wheeler wrote:
+> > From: Jens Axboe <axboe@kernel.dk>
+> > 
+> > commit 77f1e0a52d26242b6c2dba019f6ebebfb9ff701e upstream
+> > 
+> > A previous commit moved the shallow depth and BFQ depth map calculations
+> > to be done at init time, moving it outside of the hotter IO path. This
+> > potentially causes hangs if the users changes the depth of the scheduler
+> > map, by writing to the 'nr_requests' sysfs file for that device.
+> > 
+> > Add a blk-mq-sched hook that allows blk-mq to inform the scheduler if
+> > the depth changes, so that the scheduler can update its internal state.
+> > 
+> > Signed-off-by: Eric Wheeler <bfq@linux.ewheeler.net>
+> > Tested-by: Kai Krakow <kai@kaishome.de>
+> > Reported-by: Paolo Valente <paolo.valente@linaro.org>
+> > Fixes: f0635b8a416e ("bfq: calculate shallow depths at init time")
+> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > Cc: stable@vger.kernel.org
 > 
-> [ Upstream commit f01f17d3705bb6081c9e5728078f64067982be36 ]
-> 
-> Mike has reported a considerable overhead of refresh_cpu_vm_stats from
-> the idle entry during pipe test:
-> 
->     12.89%  [kernel]       [k] refresh_cpu_vm_stats.isra.12
->      4.75%  [kernel]       [k] __schedule
->      4.70%  [kernel]       [k] mutex_unlock
->      3.14%  [kernel]       [k] __switch_to
-> 
-> This is caused by commit 0eb77e988032 ("vmstat: make vmstat_updater
-> deferrable again and shut down on idle") which has placed quiet_vmstat
-> into cpu_idle_loop.  The main reason here seems to be that the idle
-> entry has to get over all zones and perform atomic operations for each
-> vmstat entry even though there might be no per cpu diffs.  This is a
-> pointless overhead for _each_ idle entry.
-> 
-> Make sure that quiet_vmstat is as light as possible.
-> 
-> First of all it doesn't make any sense to do any local sync if the
-> current cpu is already set in oncpu_stat_off because vmstat_update puts
-> itself there only if there is nothing to do.
-> 
-> Then we can check need_update which should be a cheap way to check for
-> potential per-cpu diffs and only then do refresh_cpu_vm_stats.
-> 
-> The original patch also did cancel_delayed_work which we are not doing
-> here.  There are two reasons for that.  Firstly cancel_delayed_work from
-> idle context will blow up on RT kernels (reported by Mike):
-> 
->   CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.5.0-rt3 #7
->   Hardware name: MEDION MS-7848/MS-7848, BIOS M7848W08.20C 09/23/2013
->   Call Trace:
->     dump_stack+0x49/0x67
->     ___might_sleep+0xf5/0x180
->     rt_spin_lock+0x20/0x50
->     try_to_grab_pending+0x69/0x240
->     cancel_delayed_work+0x26/0xe0
->     quiet_vmstat+0x75/0xa0
->     cpu_idle_loop+0x38/0x3e0
->     cpu_startup_entry+0x13/0x20
->     start_secondary+0x114/0x140
-> 
-> And secondly, even on !RT kernels it might add some non trivial overhead
-> which is not necessary.  Even if the vmstat worker wakes up and preempts
-> idle then it will be most likely a single shot noop because the stats
-> were already synced and so it would end up on the oncpu_stat_off anyway.
-> We just need to teach both vmstat_shepherd and vmstat_update to stop
-> scheduling the worker if there is nothing to do.
-> 
-> [mgalbraith@suse.de: cancel pending work of the cpu_stat_off CPU]
-> Signed-off-by: Michal Hocko <mhocko@suse.com>
-> Reported-by: Mike Galbraith <umgwanakikbuti@gmail.com>
-> Acked-by: Christoph Lameter <cl@linux.com>
-> Signed-off-by: Mike Galbraith <mgalbraith@suse.de>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Daniel Wagner <wagi@monom.org>
-> ---
-> Hi Greg,
-> 
-> Upstream commmit 0eb77e988032 ("vmstat: make vmstat_updater deferrable
-> again and shut down on idle") was back ported in v4.4.178
-> (bdf3c006b9a2). For -rt we definitely need the bugfix f01f17d3705b
-> ("mm, vmstat: make quiet_vmstat lighter") as well.
-> 
-> Since the offending patch was back ported to v4.4 stable only, the
-> other stable branches don't need an update (offending patch and bug
-> fix are already in).
-> 
-> Could you please queue the above patch for v4.4.y?
+> I wasn't clear on what was backported here, so I've queued the upstream
+> version on 4.19 and 4.14, it doesn't seem to be relevant to older
+> branches.
 
-Now queued up, thanks.
+I only see this added to the 5.0 and 4.19 queues, did you forget to push
+the 4.14 update?
+
+thanks,
 
 greg k-h
