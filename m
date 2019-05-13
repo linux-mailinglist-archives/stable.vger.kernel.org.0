@@ -2,91 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 460841BA59
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 17:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D68911BB10
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 18:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728650AbfEMPsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 11:48:22 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:37325 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbfEMPsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 11:48:22 -0400
-Received: from svr-orw-mbx-01.mgc.mentorg.com ([147.34.90.201])
-        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
-        id 1hQDBb-00024C-CH from George_Davis@mentor.com ; Mon, 13 May 2019 08:48:19 -0700
-Received: from localhost (147.34.91.1) by svr-orw-mbx-01.mgc.mentorg.com
- (147.34.90.201) with Microsoft SMTP Server (TLS) id 15.0.1320.4; Mon, 13 May
- 2019 08:48:17 -0700
-From:   "George G. Davis" <george_davis@mentor.com>
-To:     Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-CC:     Chris Brandt <chris.brandt@renesas.com>,
-        Ulrich Hecht <ulrich.hecht+renesas@gmail.com>,
-        Andy Lowe <andy_lowe@mentor.com>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS 
-        <devicetree@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "George G. Davis" <george_davis@mentor.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] serial: sh-sci: disable DMA for uart_console
-Date:   Mon, 13 May 2019 11:47:26 -0400
-Message-ID: <1557762446-23811-1-git-send-email-george_davis@mentor.com>
-X-Mailer: git-send-email 2.7.4
+        id S1730178AbfEMQiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 12:38:00 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:32988 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728639AbfEMQiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 May 2019 12:38:00 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 65A81341;
+        Mon, 13 May 2019 09:37:59 -0700 (PDT)
+Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5067A3F71E;
+        Mon, 13 May 2019 09:37:57 -0700 (PDT)
+Date:   Mon, 13 May 2019 17:37:52 +0100
+From:   Will Deacon <will.deacon@arm.com>
+To:     Nadav Amit <namit@vmware.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        "jstancek@redhat.com" <jstancek@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Nick Piggin <npiggin@gmail.com>,
+        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Message-ID: <20190513163752.GA10754@fuggles.cambridge.arm.com>
+References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20190509083726.GA2209@brain-police>
+ <20190509103813.GP2589@hirez.programming.kicks-ass.net>
+ <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
+ <20190509182435.GA2623@hirez.programming.kicks-ass.net>
+ <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
+ <20190509191120.GD2623@hirez.programming.kicks-ass.net>
+ <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
+ <20190513083606.GL2623@hirez.programming.kicks-ass.net>
+ <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: svr-orw-mbx-02.mgc.mentorg.com (147.34.90.202) To
- svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
+User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As noted in commit 84b40e3b57ee ("serial: 8250: omap: Disable DMA for
-console UART"), UART console lines use low-level PIO only access functions
-which will conflict with use of the line when DMA is enabled, e.g. when
-the console line is also used for systemd messages. So disable DMA
-support for UART console lines.
+On Mon, May 13, 2019 at 09:11:38AM +0000, Nadav Amit wrote:
+> > On May 13, 2019, at 1:36 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+> > 
+> > On Thu, May 09, 2019 at 09:21:35PM +0000, Nadav Amit wrote:
+> > 
+> >>>>> And we can fix that by having tlb_finish_mmu() sync up. Never let a
+> >>>>> concurrent tlb_finish_mmu() complete until all concurrenct mmu_gathers
+> >>>>> have completed.
+> >>>>> 
+> >>>>> This should not be too hard to make happen.
+> >>>> 
+> >>>> This synchronization sounds much more expensive than what I proposed. But I
+> >>>> agree that cache-lines that move from one CPU to another might become an
+> >>>> issue. But I think that the scheme I suggested would minimize this overhead.
+> >>> 
+> >>> Well, it would have a lot more unconditional atomic ops. My scheme only
+> >>> waits when there is actual concurrency.
+> >> 
+> >> Well, something has to give. I didn’t think that if the same core does the
+> >> atomic op it would be too expensive.
+> > 
+> > They're still at least 20 cycles a pop, uncontended.
+> > 
+> >>> I _think_ something like the below ought to work, but its not even been
+> >>> near a compiler. The only problem is the unconditional wakeup; we can
+> >>> play games to avoid that if we want to continue with this.
+> >>> 
+> >>> Ideally we'd only do this when there's been actual overlap, but I've not
+> >>> found a sensible way to detect that.
+> >>> 
+> >>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> >>> index 4ef4bbe78a1d..b70e35792d29 100644
+> >>> --- a/include/linux/mm_types.h
+> >>> +++ b/include/linux/mm_types.h
+> >>> @@ -590,7 +590,12 @@ static inline void dec_tlb_flush_pending(struct mm_struct *mm)
+> >>> 	 *
+> >>> 	 * Therefore we must rely on tlb_flush_*() to guarantee order.
+> >>> 	 */
+> >>> -	atomic_dec(&mm->tlb_flush_pending);
+> >>> +	if (atomic_dec_and_test(&mm->tlb_flush_pending)) {
+> >>> +		wake_up_var(&mm->tlb_flush_pending);
+> >>> +	} else {
+> >>> +		wait_event_var(&mm->tlb_flush_pending,
+> >>> +			       !atomic_read_acquire(&mm->tlb_flush_pending));
+> >>> +	}
+> >>> }
+> >> 
+> >> It still seems very expensive to me, at least for certain workloads (e.g.,
+> >> Apache with multithreaded MPM).
+> > 
+> > Is that Apache-MPM workload triggering this lots? Having a known
+> > benchmark for this stuff is good for when someone has time to play with
+> > things.
+> 
+> Setting Apache2 with mpm_worker causes every request to go through
+> mmap-writev-munmap flow on every thread. I didn’t run this workload after
+> the patches that downgrade the mmap_sem to read before the page-table
+> zapping were introduced. I presume these patches would allow the page-table
+> zapping to be done concurrently, and therefore would hit this flow.
 
-Fixes: https://patchwork.kernel.org/patch/10929511/
-Reported-by: Michael Rodin <mrodin@de.adit-jv.com>
-Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: George G. Davis <george_davis@mentor.com>
----
-v2: Clarify comment regarding DMA support on kernel console,
-    add {Tested,Reviewed}-by:, and Cc: linux-stable lines.
----
- drivers/tty/serial/sh-sci.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Hmm, I don't think so: munmap() still has to take the semaphore for write
+initially, so it will be serialised against other munmap() threads even
+after they've downgraded afaict.
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 3cd139752d3f..abc705716aa0 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1557,6 +1557,13 @@ static void sci_request_dma(struct uart_port *port)
- 
- 	dev_dbg(port->dev, "%s: port %d\n", __func__, port->line);
- 
-+	/*
-+	 * DMA on console may interfere with Kernel log messages which use
-+	 * plain putchar(). So, simply don't use it with a console.
-+	 */
-+	if (uart_console(port))
-+		return;
-+
- 	if (!port->dev->of_node)
- 		return;
- 
--- 
-2.7.4
+The initial bug report was about concurrent madvise() vs munmap().
 
+Will
