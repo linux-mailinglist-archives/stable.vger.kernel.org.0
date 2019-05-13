@@ -2,122 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D68911BB10
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 18:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0D21BB17
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 18:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730178AbfEMQiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 12:38:00 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:32988 "EHLO
-        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728639AbfEMQiA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 May 2019 12:38:00 -0400
+        id S1730498AbfEMQiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 12:38:09 -0400
+Received: from foss.arm.com ([217.140.101.70]:33012 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730490AbfEMQiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 May 2019 12:38:08 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 65A81341;
-        Mon, 13 May 2019 09:37:59 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 609C0341;
+        Mon, 13 May 2019 09:38:08 -0700 (PDT)
 Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5067A3F71E;
-        Mon, 13 May 2019 09:37:57 -0700 (PDT)
-Date:   Mon, 13 May 2019 17:37:52 +0100
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B73A03F71E;
+        Mon, 13 May 2019 09:38:06 -0700 (PDT)
+Date:   Mon, 13 May 2019 17:38:04 +0100
 From:   Will Deacon <will.deacon@arm.com>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        "jstancek@redhat.com" <jstancek@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Nick Piggin <npiggin@gmail.com>,
-        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     jstancek@redhat.com, peterz@infradead.org, namit@vmware.com,
+        minchan@kernel.org, mgorman@suse.de, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
  flush
-Message-ID: <20190513163752.GA10754@fuggles.cambridge.arm.com>
-References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
- <20190509083726.GA2209@brain-police>
- <20190509103813.GP2589@hirez.programming.kicks-ass.net>
- <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
- <20190509182435.GA2623@hirez.programming.kicks-ass.net>
- <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
- <20190509191120.GD2623@hirez.programming.kicks-ass.net>
- <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
- <20190513083606.GL2623@hirez.programming.kicks-ass.net>
- <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
+Message-ID: <20190513163804.GB10754@fuggles.cambridge.arm.com>
+References: <1557444414-12090-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
+In-Reply-To: <1557444414-12090-1-git-send-email-yang.shi@linux.alibaba.com>
 User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 13, 2019 at 09:11:38AM +0000, Nadav Amit wrote:
-> > On May 13, 2019, at 1:36 AM, Peter Zijlstra <peterz@infradead.org> wrote:
-> > 
-> > On Thu, May 09, 2019 at 09:21:35PM +0000, Nadav Amit wrote:
-> > 
-> >>>>> And we can fix that by having tlb_finish_mmu() sync up. Never let a
-> >>>>> concurrent tlb_finish_mmu() complete until all concurrenct mmu_gathers
-> >>>>> have completed.
-> >>>>> 
-> >>>>> This should not be too hard to make happen.
-> >>>> 
-> >>>> This synchronization sounds much more expensive than what I proposed. But I
-> >>>> agree that cache-lines that move from one CPU to another might become an
-> >>>> issue. But I think that the scheme I suggested would minimize this overhead.
-> >>> 
-> >>> Well, it would have a lot more unconditional atomic ops. My scheme only
-> >>> waits when there is actual concurrency.
-> >> 
-> >> Well, something has to give. I didn’t think that if the same core does the
-> >> atomic op it would be too expensive.
-> > 
-> > They're still at least 20 cycles a pop, uncontended.
-> > 
-> >>> I _think_ something like the below ought to work, but its not even been
-> >>> near a compiler. The only problem is the unconditional wakeup; we can
-> >>> play games to avoid that if we want to continue with this.
-> >>> 
-> >>> Ideally we'd only do this when there's been actual overlap, but I've not
-> >>> found a sensible way to detect that.
-> >>> 
-> >>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> >>> index 4ef4bbe78a1d..b70e35792d29 100644
-> >>> --- a/include/linux/mm_types.h
-> >>> +++ b/include/linux/mm_types.h
-> >>> @@ -590,7 +590,12 @@ static inline void dec_tlb_flush_pending(struct mm_struct *mm)
-> >>> 	 *
-> >>> 	 * Therefore we must rely on tlb_flush_*() to guarantee order.
-> >>> 	 */
-> >>> -	atomic_dec(&mm->tlb_flush_pending);
-> >>> +	if (atomic_dec_and_test(&mm->tlb_flush_pending)) {
-> >>> +		wake_up_var(&mm->tlb_flush_pending);
-> >>> +	} else {
-> >>> +		wait_event_var(&mm->tlb_flush_pending,
-> >>> +			       !atomic_read_acquire(&mm->tlb_flush_pending));
-> >>> +	}
-> >>> }
-> >> 
-> >> It still seems very expensive to me, at least for certain workloads (e.g.,
-> >> Apache with multithreaded MPM).
-> > 
-> > Is that Apache-MPM workload triggering this lots? Having a known
-> > benchmark for this stuff is good for when someone has time to play with
-> > things.
-> 
-> Setting Apache2 with mpm_worker causes every request to go through
-> mmap-writev-munmap flow on every thread. I didn’t run this workload after
-> the patches that downgrade the mmap_sem to read before the page-table
-> zapping were introduced. I presume these patches would allow the page-table
-> zapping to be done concurrently, and therefore would hit this flow.
+On Fri, May 10, 2019 at 07:26:54AM +0800, Yang Shi wrote:
+> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+> index 99740e1..469492d 100644
+> --- a/mm/mmu_gather.c
+> +++ b/mm/mmu_gather.c
+> @@ -245,14 +245,39 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+>  {
+>  	/*
+>  	 * If there are parallel threads are doing PTE changes on same range
+> -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
+> -	 * flush by batching, a thread has stable TLB entry can fail to flush
+> -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+> -	 * forcefully if we detect parallel PTE batching threads.
+> +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
+> +	 * flush by batching, one thread may end up seeing inconsistent PTEs
+> +	 * and result in having stale TLB entries.  So flush TLB forcefully
+> +	 * if we detect parallel PTE batching threads.
+> +	 *
+> +	 * However, some syscalls, e.g. munmap(), may free page tables, this
+> +	 * needs force flush everything in the given range. Otherwise this
+> +	 * may result in having stale TLB entries for some architectures,
+> +	 * e.g. aarch64, that could specify flush what level TLB.
+>  	 */
+> -	if (mm_tlb_flush_nested(tlb->mm)) {
+> -		__tlb_reset_range(tlb);
+> -		__tlb_adjust_range(tlb, start, end - start);
+> +	if (mm_tlb_flush_nested(tlb->mm) && !tlb->fullmm) {
+> +		/*
+> +		 * Since we can't tell what we actually should have
+> +		 * flushed, flush everything in the given range.
+> +		 */
+> +		tlb->freed_tables = 1;
+> +		tlb->cleared_ptes = 1;
+> +		tlb->cleared_pmds = 1;
+> +		tlb->cleared_puds = 1;
+> +		tlb->cleared_p4ds = 1;
+> +
+> +		/*
+> +		 * Some architectures, e.g. ARM, that have range invalidation
+> +		 * and care about VM_EXEC for I-Cache invalidation, need force
+> +		 * vma_exec set.
+> +		 */
+> +		tlb->vma_exec = 1;
+> +
+> +		/* Force vma_huge clear to guarantee safer flush */
+> +		tlb->vma_huge = 0;
+> +
+> +		tlb->start = start;
+> +		tlb->end = end;
+>  	}
 
-Hmm, I don't think so: munmap() still has to take the semaphore for write
-initially, so it will be serialised against other munmap() threads even
-after they've downgraded afaict.
+Whilst I think this is correct, it would be interesting to see whether
+or not it's actually faster than just nuking the whole mm, as I mentioned
+before.
 
-The initial bug report was about concurrent madvise() vs munmap().
+At least in terms of getting a short-term fix, I'd prefer the diff below
+if it's not measurably worse.
 
 Will
+
+--->8
+
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index 99740e1dd273..cc251422d307 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -251,8 +251,9 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+ 	 * forcefully if we detect parallel PTE batching threads.
+ 	 */
+ 	if (mm_tlb_flush_nested(tlb->mm)) {
++		tlb->fullmm = 1;
+ 		__tlb_reset_range(tlb);
+-		__tlb_adjust_range(tlb, start, end - start);
++		tlb->freed_tables = 1;
+ 	}
+ 
+ 	tlb_flush_mmu(tlb);
