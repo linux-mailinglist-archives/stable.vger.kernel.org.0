@@ -2,167 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F251BB26
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 18:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4581BB87
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 19:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729061AbfEMQlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 12:41:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57106 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728226AbfEMQlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 May 2019 12:41:03 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67D472084E;
-        Mon, 13 May 2019 16:41:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557765661;
-        bh=z2nY4PqK998hnVfcOEshBMYqpLqdsTjrZu4GVVYQteE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iVDSpidIKANfGQqtt3ZtJUqlGDJE0KggG7Mslt/GxyYWV1nw/dbzBGsX7rXu2zcNZ
-         8EknEhl3iqkqP0Kcm70VkYbVgW1jKbRq3HTQhCF3bXUtFKcuJAw0rlns/txTX/grIV
-         chF/xpOzEyQobS5tvSSOdPn+1uC0z0TdzvhAeQHg=
-Date:   Mon, 13 May 2019 12:41:00 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Oded Gabbay <oded.gabbay@gmail.com>
-Cc:     Tomer Tayar <ttayar@habana.ai>,
-        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] habanalabs: Avoid using a non-initialized MMU cache mutex
-Message-ID: <20190513164100.GE11972@sasha-vm>
-References: <20190513113237.22425-1-oded.gabbay@gmail.com>
- <20190513141010.8EC6820862@mail.kernel.org>
- <CAFCwf10Ve9jpDZ8LnvFr=85ytHN8nhyBu9YJft0acTy5q3V_rg@mail.gmail.com>
+        id S1730358AbfEMRGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 13:06:18 -0400
+Received: from mail-eopbgr720074.outbound.protection.outlook.com ([40.107.72.74]:64209
+        "EHLO NAM05-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730268AbfEMRGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 May 2019 13:06:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eHLpfnWoWujPeilq2Vzxl8f6Oekfsot30OspAFhCnvA=;
+ b=zIss71+oKy+qkYWnO8iIPsiuerwJqUgQAT2ySU5TZnFJjPDu/z3rLw92rugKfP4UWcIj1sZH5gCZQA4oLBtTu6DLY+9kF9iDVNt6msCq9uLPwySXwaj7bsm8NamJEO+S+j1gr8hdDDJnyHxrL2XE2qT9S7hwNTI7vS0XFsqRxtw=
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com (52.135.233.146) by
+ BYAPR05MB5029.namprd05.prod.outlook.com (20.177.230.211) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1900.14; Mon, 13 May 2019 17:06:03 +0000
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::b057:917a:f098:6098]) by BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::b057:917a:f098:6098%7]) with mapi id 15.20.1900.010; Mon, 13 May 2019
+ 17:06:03 +0000
+From:   Nadav Amit <namit@vmware.com>
+To:     Will Deacon <will.deacon@arm.com>
+CC:     Peter Zijlstra <peterz@infradead.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        "jstancek@redhat.com" <jstancek@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Nick Piggin <npiggin@gmail.com>,
+        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Thread-Topic: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Thread-Index: AQHVBlNcdgyGQHvMg0ymTH6Y7O8srKZjDs8AgAANcoCAAAcZgIAABfcAgAAkYwCABXN1AIAACeyAgAB8rgCAAAfegA==
+Date:   Mon, 13 May 2019 17:06:03 +0000
+Message-ID: <43638259-8EDB-4B8D-A93D-A2E86D8B2489@vmware.com>
+References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20190509083726.GA2209@brain-police>
+ <20190509103813.GP2589@hirez.programming.kicks-ass.net>
+ <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
+ <20190509182435.GA2623@hirez.programming.kicks-ass.net>
+ <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
+ <20190509191120.GD2623@hirez.programming.kicks-ass.net>
+ <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
+ <20190513083606.GL2623@hirez.programming.kicks-ass.net>
+ <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
+ <20190513163752.GA10754@fuggles.cambridge.arm.com>
+In-Reply-To: <20190513163752.GA10754@fuggles.cambridge.arm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=namit@vmware.com; 
+x-originating-ip: [50.204.119.4]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 47297cbe-ed62-467f-e6aa-08d6d7c547c8
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(2017052603328)(7193020);SRVR:BYAPR05MB5029;
+x-ms-traffictypediagnostic: BYAPR05MB5029:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <BYAPR05MB50293E7CEBC629E4E9DC7419D00F0@BYAPR05MB5029.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 0036736630
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(376002)(346002)(39860400002)(396003)(366004)(51444003)(199004)(189003)(6306002)(66476007)(66556008)(64756008)(66446008)(66946007)(33656002)(54906003)(53546011)(4326008)(229853002)(2906002)(6506007)(14454004)(76116006)(83716004)(53936002)(73956011)(478600001)(486006)(76176011)(99286004)(476003)(966005)(3846002)(6116002)(14444005)(256004)(6512007)(6246003)(6916009)(102836004)(7416002)(36756003)(71190400001)(2616005)(305945005)(68736007)(316002)(66066001)(11346002)(71200400001)(6436002)(25786009)(5660300002)(446003)(86362001)(26005)(81166006)(6486002)(186003)(82746002)(7736002)(8676002)(81156014)(8936002);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR05MB5029;H:BYAPR05MB4776.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: M3YMOwND2CWU6vsD5LVIT2NkqoWdZ80ZU1tBtqKXZPzu8maZSifKTkZZjd8cYNNk3+58zbxpU6wvvVxjdBGtSSA5ve9wjXbnQHUxihk0Pmz5qh+6yXgmnz4KeraotmRDkNtc2J411Wv+88sjkMYtpn4oCiul8LBmqQEASl+JUgUl1O3/8urnOisBFN3JGrdsQKPibL9o/xG1Cl122bPDDmGa37B8JkS8bvWJHL6XE5hJhETE/qavChdxvZ7GrQ5bBHHek82u/o3pKnmVnw9L1zbwlNxnoHfQTfzXYYcjrASIOmdsXjeiKxohaCcDY9DB2JQxSInuMGAcRg5Y/v3cRw5g8GYh+YNtGWtz2YWW/pFDNQiF20aRaAAFUWoWfqJIGRbl2+phHDO2wHhe1O2LcApMOjKS3eQjUeWL59zTte8=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <CE53F45D5AB1584CAB1191AD54213E73@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAFCwf10Ve9jpDZ8LnvFr=85ytHN8nhyBu9YJft0acTy5q3V_rg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 47297cbe-ed62-467f-e6aa-08d6d7c547c8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 May 2019 17:06:03.1242
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB5029
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 13, 2019 at 05:22:30PM +0300, Oded Gabbay wrote:
->On Mon, May 13, 2019 at 5:10 PM Sasha Levin <sashal@kernel.org> wrote:
->>
->> Hi,
->>
->> [This is an automated email]
->>
->> This commit has been processed because it contains a -stable tag.
->> The stable tag indicates that it's relevant for the following trees: all
->>
->> The bot has tested the following trees: v5.0.15, v4.19.42, v4.14.118, v4.9.175, v4.4.179, v3.18.139.
->>
->> v5.0.15: Failed to apply! Possible dependencies:
->>     0861e41de530 ("habanalabs: add context and ASID modules")
->>     839c48030d27 ("habanalabs: add basic Goya h/w initialization")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     99b9d7b4970c ("habanalabs: add basic Goya support")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     d91389bc839d ("habanalabs: add sysfs and hwmon support")
->>     eff6f4a0e70b ("habanalabs: add command submission module")
->>
->> v4.19.42: Failed to apply! Possible dependencies:
->>     0861e41de530 ("habanalabs: add context and ASID modules")
->>     839c48030d27 ("habanalabs: add basic Goya h/w initialization")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     99b9d7b4970c ("habanalabs: add basic Goya support")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     fcb418cd567f ("pvpanic: move pvpanic to misc as common driver")
->>
->> v4.14.118: Failed to apply! Possible dependencies:
->>     01451ad47e27 ("powerpc/powermac: Use setup_timer() helper")
->>     8275b77a1513 ("mfd: rts5249: Add support for RTS5250S power saving")
->>     83ad1e6a1dc0 ("powerpc/oprofile: Use setup_timer() helper")
->>     8d6b1bf20f61 ("powerpc/6xx: Use setup_timer() helper")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
->>     b9eaf1872222 ("treewide: init_timer() -> setup_timer()")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     cd414f3d9316 ("drm/msm: Move memptrs to msm_gpu")
->>     e455b69ddf9b ("misc: rtsx: Move Realtek Card Reader Driver to misc")
->>     e629cfa36ea0 ("MIPS: Lasat: Use setup_timer() helper")
->>     e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
->>     f97decac5f4c ("drm/msm: Support multiple ringbuffers")
->>
->> v4.9.175: Failed to apply! Possible dependencies:
->>     01451ad47e27 ("powerpc/powermac: Use setup_timer() helper")
->>     118f6523793d ("mfd: rtsx: Convert forgotten dev_info() statement to pcr_dbg()")
->>     53460c53b761 ("[media] au0828: Add timer to restart TS stream if no data arrives on bulk endpoint")
->>     7c96f59e0caf ("[media] s5p-mfc: Fix initialization of internal structures")
->>     8275b77a1513 ("mfd: rts5249: Add support for RTS5250S power saving")
->>     83ad1e6a1dc0 ("powerpc/oprofile: Use setup_timer() helper")
->>     87d284443d07 ("mfd: rtsx: Do retry when DMA transfer error")
->>     8d6b1bf20f61 ("powerpc/6xx: Use setup_timer() helper")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     b9eaf1872222 ("treewide: init_timer() -> setup_timer()")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     cf43e6be865a ("block: add scalable completion tracking of requests")
->>     e26ae3660b9c ("mfd: rtsx: Make arrays depth and cd_mask static const")
->>     e455b69ddf9b ("misc: rtsx: Move Realtek Card Reader Driver to misc")
->>     e629cfa36ea0 ("MIPS: Lasat: Use setup_timer() helper")
->>     e806402130c9 ("block: split out request-only flags into a new namespace")
->>     e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
->>
->> v4.4.179: Failed to apply! Possible dependencies:
->>     118f6523793d ("mfd: rtsx: Convert forgotten dev_info() statement to pcr_dbg()")
->>     53460c53b761 ("[media] au0828: Add timer to restart TS stream if no data arrives on bulk endpoint")
->>     7c96f59e0caf ("[media] s5p-mfc: Fix initialization of internal structures")
->>     80c1bce9aa31 ("[media] au0828: Refactoring for start_urb_transfer()")
->>     8275b77a1513 ("mfd: rts5249: Add support for RTS5250S power saving")
->>     87d284443d07 ("mfd: rtsx: Do retry when DMA transfer error")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     9815c7cf22da ("NFC: pn533: Separate physical layer from the core implementation")
->>     b9eaf1872222 ("treewide: init_timer() -> setup_timer()")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     e26ae3660b9c ("mfd: rtsx: Make arrays depth and cd_mask static const")
->>     e455b69ddf9b ("misc: rtsx: Move Realtek Card Reader Driver to misc")
->>     e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
->>
->> v3.18.139: Failed to apply! Possible dependencies:
->>     0523b8f41473 ("mfd: rtsx: Using pcr_dbg replace dev_dbg")
->>     0b271258544b ("mfd: rt5033: Add Richtek RT5033 driver core.")
->>     19f3bd548f27 ("mfd: rtsx: Remove LCTLR defination")
->>     338a12814297 ("mfd: Add support for Diolan DLN-2 devices")
->>     5cb5d9616a47 ("mfd: rtsx: Fix PM suspend for 5227 & 5249")
->>     663c425f2c8d ("mfd: rtsx: Add support for rts524A")
->>     8275b77a1513 ("mfd: rts5249: Add support for RTS5250S power saving")
->>     9494a8dd8d22 ("habanalabs: add h/w queues module")
->>     9e33ce79f828 ("mfd: rtsx: Update PETXCFG address")
->>     a3b63979f8a3 ("mfd: rtsx: Add func to split u32 into register")
->>     b038538104d5 ("mfd: rtsx: Update phy register")
->>     b158b69a3765 ("mfd: rtsx: Simplify function return logic")
->>     be5d926b5c10 ("habanalabs: add command buffer module")
->>     c4d66343a46a ("habanalabs: add skeleton driver")
->>     ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
->>     e455b69ddf9b ("misc: rtsx: Move Realtek Card Reader Driver to misc")
->>     e89f231826a7 ("mfd: rtsx: Update driving settings")
->>
->>
->> How should we proceed with this patch?
->>
->> --
->> Thanks,
->> Sasha
->
->ok, I see my mistake.
->How do I specify a specific kernel version ?
->Because this applies only to future 5.1.X, that aren't available yet.
-
-Take a look at
-https://www.kernel.org/doc/Documentation/process/stable-kernel-rules.rst
-
-A "Fixes" tag also helps a lot.
-
---
-Thanks,
-Sasha
+PiBPbiBNYXkgMTMsIDIwMTksIGF0IDk6MzcgQU0sIFdpbGwgRGVhY29uIDx3aWxsLmRlYWNvbkBh
+cm0uY29tPiB3cm90ZToNCj4gDQo+IE9uIE1vbiwgTWF5IDEzLCAyMDE5IGF0IDA5OjExOjM4QU0g
+KzAwMDAsIE5hZGF2IEFtaXQgd3JvdGU6DQo+Pj4gT24gTWF5IDEzLCAyMDE5LCBhdCAxOjM2IEFN
+LCBQZXRlciBaaWpsc3RyYSA8cGV0ZXJ6QGluZnJhZGVhZC5vcmc+IHdyb3RlOg0KPj4+IA0KPj4+
+IE9uIFRodSwgTWF5IDA5LCAyMDE5IGF0IDA5OjIxOjM1UE0gKzAwMDAsIE5hZGF2IEFtaXQgd3Jv
+dGU6DQo+Pj4gDQo+Pj4+Pj4+IEFuZCB3ZSBjYW4gZml4IHRoYXQgYnkgaGF2aW5nIHRsYl9maW5p
+c2hfbW11KCkgc3luYyB1cC4gTmV2ZXIgbGV0IGENCj4+Pj4+Pj4gY29uY3VycmVudCB0bGJfZmlu
+aXNoX21tdSgpIGNvbXBsZXRlIHVudGlsIGFsbCBjb25jdXJyZW5jdCBtbXVfZ2F0aGVycw0KPj4+
+Pj4+PiBoYXZlIGNvbXBsZXRlZC4NCj4+Pj4+Pj4gDQo+Pj4+Pj4+IFRoaXMgc2hvdWxkIG5vdCBi
+ZSB0b28gaGFyZCB0byBtYWtlIGhhcHBlbi4NCj4+Pj4+PiANCj4+Pj4+PiBUaGlzIHN5bmNocm9u
+aXphdGlvbiBzb3VuZHMgbXVjaCBtb3JlIGV4cGVuc2l2ZSB0aGFuIHdoYXQgSSBwcm9wb3NlZC4g
+QnV0IEkNCj4+Pj4+PiBhZ3JlZSB0aGF0IGNhY2hlLWxpbmVzIHRoYXQgbW92ZSBmcm9tIG9uZSBD
+UFUgdG8gYW5vdGhlciBtaWdodCBiZWNvbWUgYW4NCj4+Pj4+PiBpc3N1ZS4gQnV0IEkgdGhpbmsg
+dGhhdCB0aGUgc2NoZW1lIEkgc3VnZ2VzdGVkIHdvdWxkIG1pbmltaXplIHRoaXMgb3ZlcmhlYWQu
+DQo+Pj4+PiANCj4+Pj4+IFdlbGwsIGl0IHdvdWxkIGhhdmUgYSBsb3QgbW9yZSB1bmNvbmRpdGlv
+bmFsIGF0b21pYyBvcHMuIE15IHNjaGVtZSBvbmx5DQo+Pj4+PiB3YWl0cyB3aGVuIHRoZXJlIGlz
+IGFjdHVhbCBjb25jdXJyZW5jeS4NCj4+Pj4gDQo+Pj4+IFdlbGwsIHNvbWV0aGluZyBoYXMgdG8g
+Z2l2ZS4gSSBkaWRu4oCZdCB0aGluayB0aGF0IGlmIHRoZSBzYW1lIGNvcmUgZG9lcyB0aGUNCj4+
+Pj4gYXRvbWljIG9wIGl0IHdvdWxkIGJlIHRvbyBleHBlbnNpdmUuDQo+Pj4gDQo+Pj4gVGhleSdy
+ZSBzdGlsbCBhdCBsZWFzdCAyMCBjeWNsZXMgYSBwb3AsIHVuY29udGVuZGVkLg0KPj4+IA0KPj4+
+Pj4gSSBfdGhpbmtfIHNvbWV0aGluZyBsaWtlIHRoZSBiZWxvdyBvdWdodCB0byB3b3JrLCBidXQg
+aXRzIG5vdCBldmVuIGJlZW4NCj4+Pj4+IG5lYXIgYSBjb21waWxlci4gVGhlIG9ubHkgcHJvYmxl
+bSBpcyB0aGUgdW5jb25kaXRpb25hbCB3YWtldXA7IHdlIGNhbg0KPj4+Pj4gcGxheSBnYW1lcyB0
+byBhdm9pZCB0aGF0IGlmIHdlIHdhbnQgdG8gY29udGludWUgd2l0aCB0aGlzLg0KPj4+Pj4gDQo+
+Pj4+PiBJZGVhbGx5IHdlJ2Qgb25seSBkbyB0aGlzIHdoZW4gdGhlcmUncyBiZWVuIGFjdHVhbCBv
+dmVybGFwLCBidXQgSSd2ZSBub3QNCj4+Pj4+IGZvdW5kIGEgc2Vuc2libGUgd2F5IHRvIGRldGVj
+dCB0aGF0Lg0KPj4+Pj4gDQo+Pj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9tbV90eXBl
+cy5oIGIvaW5jbHVkZS9saW51eC9tbV90eXBlcy5oDQo+Pj4+PiBpbmRleCA0ZWY0YmJlNzhhMWQu
+LmI3MGUzNTc5MmQyOSAxMDA2NDQNCj4+Pj4+IC0tLSBhL2luY2x1ZGUvbGludXgvbW1fdHlwZXMu
+aA0KPj4+Pj4gKysrIGIvaW5jbHVkZS9saW51eC9tbV90eXBlcy5oDQo+Pj4+PiBAQCAtNTkwLDcg
+KzU5MCwxMiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgZGVjX3RsYl9mbHVzaF9wZW5kaW5nKHN0cnVj
+dCBtbV9zdHJ1Y3QgKm1tKQ0KPj4+Pj4gCSAqDQo+Pj4+PiAJICogVGhlcmVmb3JlIHdlIG11c3Qg
+cmVseSBvbiB0bGJfZmx1c2hfKigpIHRvIGd1YXJhbnRlZSBvcmRlci4NCj4+Pj4+IAkgKi8NCj4+
+Pj4+IC0JYXRvbWljX2RlYygmbW0tPnRsYl9mbHVzaF9wZW5kaW5nKTsNCj4+Pj4+ICsJaWYgKGF0
+b21pY19kZWNfYW5kX3Rlc3QoJm1tLT50bGJfZmx1c2hfcGVuZGluZykpIHsNCj4+Pj4+ICsJCXdh
+a2VfdXBfdmFyKCZtbS0+dGxiX2ZsdXNoX3BlbmRpbmcpOw0KPj4+Pj4gKwl9IGVsc2Ugew0KPj4+
+Pj4gKwkJd2FpdF9ldmVudF92YXIoJm1tLT50bGJfZmx1c2hfcGVuZGluZywNCj4+Pj4+ICsJCQkg
+ICAgICAgIWF0b21pY19yZWFkX2FjcXVpcmUoJm1tLT50bGJfZmx1c2hfcGVuZGluZykpOw0KPj4+
+Pj4gKwl9DQo+Pj4+PiB9DQo+Pj4+IA0KPj4+PiBJdCBzdGlsbCBzZWVtcyB2ZXJ5IGV4cGVuc2l2
+ZSB0byBtZSwgYXQgbGVhc3QgZm9yIGNlcnRhaW4gd29ya2xvYWRzIChlLmcuLA0KPj4+PiBBcGFj
+aGUgd2l0aCBtdWx0aXRocmVhZGVkIE1QTSkuDQo+Pj4gDQo+Pj4gSXMgdGhhdCBBcGFjaGUtTVBN
+IHdvcmtsb2FkIHRyaWdnZXJpbmcgdGhpcyBsb3RzPyBIYXZpbmcgYSBrbm93bg0KPj4+IGJlbmNo
+bWFyayBmb3IgdGhpcyBzdHVmZiBpcyBnb29kIGZvciB3aGVuIHNvbWVvbmUgaGFzIHRpbWUgdG8g
+cGxheSB3aXRoDQo+Pj4gdGhpbmdzLg0KPj4gDQo+PiBTZXR0aW5nIEFwYWNoZTIgd2l0aCBtcG1f
+d29ya2VyIGNhdXNlcyBldmVyeSByZXF1ZXN0IHRvIGdvIHRocm91Z2gNCj4+IG1tYXAtd3JpdGV2
+LW11bm1hcCBmbG93IG9uIGV2ZXJ5IHRocmVhZC4gSSBkaWRu4oCZdCBydW4gdGhpcyB3b3JrbG9h
+ZCBhZnRlcg0KPj4gdGhlIHBhdGNoZXMgdGhhdCBkb3duZ3JhZGUgdGhlIG1tYXBfc2VtIHRvIHJl
+YWQgYmVmb3JlIHRoZSBwYWdlLXRhYmxlDQo+PiB6YXBwaW5nIHdlcmUgaW50cm9kdWNlZC4gSSBw
+cmVzdW1lIHRoZXNlIHBhdGNoZXMgd291bGQgYWxsb3cgdGhlIHBhZ2UtdGFibGUNCj4+IHphcHBp
+bmcgdG8gYmUgZG9uZSBjb25jdXJyZW50bHksIGFuZCB0aGVyZWZvcmUgd291bGQgaGl0IHRoaXMg
+Zmxvdy4NCj4gDQo+IEhtbSwgSSBkb24ndCB0aGluayBzbzogbXVubWFwKCkgc3RpbGwgaGFzIHRv
+IHRha2UgdGhlIHNlbWFwaG9yZSBmb3Igd3JpdGUNCj4gaW5pdGlhbGx5LCBzbyBpdCB3aWxsIGJl
+IHNlcmlhbGlzZWQgYWdhaW5zdCBvdGhlciBtdW5tYXAoKSB0aHJlYWRzIGV2ZW4NCj4gYWZ0ZXIg
+dGhleSd2ZSBkb3duZ3JhZGVkIGFmYWljdC4NCj4gDQo+IFRoZSBpbml0aWFsIGJ1ZyByZXBvcnQg
+d2FzIGFib3V0IGNvbmN1cnJlbnQgbWFkdmlzZSgpIHZzIG11bm1hcCgpLg0KDQpJIGd1ZXNzIHlv
+dSBhcmUgcmlnaHQgKGFuZCBJ4oCZbSB3cm9uZykuDQoNClNob3J0IHNlYXJjaCBzdWdnZXN0cyB0
+aGF0IGViaXp6eSBtaWdodCBiZSBhZmZlY3RlZCAoYSB0aHJlYWQgYnkgTWVsDQpHb3JtYW4pOiBo
+dHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS8yLzIvNDkzDQoNCg==
