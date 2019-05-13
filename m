@@ -2,77 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B91A1B4EB
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 13:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A7B1B4F6
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 13:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728783AbfEMLaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 07:30:16 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:53710 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726866AbfEMLaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 07:30:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=tSqs9AMTThdU8qxkTIlNJvkPD11kfEkOfLcrJZGQml0=; b=mKtDdwldcN/kKtSFZ0OV1rUjFo
-        L0YIrcHbDGvnobIZdBJsGGRK/3OtPHsv+pwLV+N1crHBYJixbIy69FalNoT/p/4bcCN1cV5IHVsPx
-        1dNG/4Vk/9aCZc92b8CJgD+YNhgSRAcPNl3KZ/TLk9E74FIR2Az+lbD+LU+GGH7oobSmE/E+yuxCj
-        3pUqBNcyeOrlFbqTfaU5n1OAQ1KlarZ24EXN5aLfmwf9029FrgMZyw06lw2T8ATqOEKpW1Zl5e5dr
-        XA37mg6cSNUgXrYFzhKxP6jHEXXxL378IkxE64xhKU9bPeNOsQZxvzCakjNE7FqeoqOM0Usnku0qB
-        J1UbWAYw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hQ99k-0006em-4j; Mon, 13 May 2019 11:30:08 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id E04FD2029F87D; Mon, 13 May 2019 13:30:06 +0200 (CEST)
-Date:   Mon, 13 May 2019 13:30:06 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Yang Shi <yang.shi@linux.alibaba.com>,
-        "jstancek@redhat.com" <jstancek@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Nick Piggin <npiggin@gmail.com>,
-        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>,
-        Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
- flush
-Message-ID: <20190513113006.GP2623@hirez.programming.kicks-ass.net>
-References: <1557264889-109594-1-git-send-email-yang.shi@linux.alibaba.com>
- <20190509083726.GA2209@brain-police>
- <20190509103813.GP2589@hirez.programming.kicks-ass.net>
- <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
- <20190509182435.GA2623@hirez.programming.kicks-ass.net>
- <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
- <20190509191120.GD2623@hirez.programming.kicks-ass.net>
- <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
- <20190513083606.GL2623@hirez.programming.kicks-ass.net>
- <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1729016AbfEMLco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 07:32:44 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:34318 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729011AbfEMLco (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 07:32:44 -0400
+Received: by mail-wm1-f67.google.com with SMTP id j187so381858wma.1;
+        Mon, 13 May 2019 04:32:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=N3vik7kpNTRsh9J9JkdfJ7K6hkNP+zMhP7dl5wnKl8s=;
+        b=Qi76d3v88ocTYTCeV0AfqxPxLEUoZsoX3hkDUIgiYFqdlyRcMDO65M4cRs8h9NpMEZ
+         LJuySd9GY2AEdUoSqpEXoj5GDn2omBnCUyg6P5GyQwbOAYL/e6LAuLZ33vXmZuQOZ8+m
+         oVl6LIXL2B1rYPFarJ21X3WfUu8sgKaHj2FrLy0Pwmfc/QGfL/3Wmw38ubqS4hsIPzyq
+         bTas3hE+l6miSrOkBWQWXfF5I3YZ8/6APE/fz5z3XaFK9xb/Iu5hRI9MErNvCeowD4E9
+         vYR92gHiAJ7u3QHPxaJxqK2hbm5iUJzlnK95PoNqe1jh1+yIdQlUnBZDAaKaZg15P2uv
+         h37A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=N3vik7kpNTRsh9J9JkdfJ7K6hkNP+zMhP7dl5wnKl8s=;
+        b=Gja8YOcfPDSL9Xl0m+R0K+ecDKjkXOlN+Mz/qH6I/BuFzRV4fWQE6ylijaQjhL5/6Y
+         YfAhP9WlVyuj4ejLPhzXEKyunfbWMIudgoczOGnmZCU+IIFRDvbwGeg+rbDlViinV61y
+         DiRVg4X4K0zRrRlfd8ZM2tLZ8Juunfp/xtS5LoKWr4tW6dYKA1T50FXqLi+kGOASfu7j
+         /F2VC987QEHPVnNJYQUX+aajBWVhctLRP+khH4jLxk6y747pfgEOct375RUrkC5QCUvw
+         h8rfwzcZWggdUQf4DgwbrbAHyewHLz9ZgULzaZE2Lf6lh9HOrIl19e26Ukjq/KCdolJY
+         Sy3w==
+X-Gm-Message-State: APjAAAXC/sSGtoQ67xSgtjI9ZohXfSNkc10dKH9lK26ZKiL7jGZfXsJq
+        3rZpbp/lJLjc1pgfGB4X4sVKGhZB
+X-Google-Smtp-Source: APXvYqyYyD6s1aVp6uZBLdmwopzTtyrO5j2w+tKQdDKQ0lz6v13YWVg0CYZRe3bMLP52qwSQJGZkWg==
+X-Received: by 2002:a1c:f311:: with SMTP id q17mr15514866wmq.144.1557747161635;
+        Mon, 13 May 2019 04:32:41 -0700 (PDT)
+Received: from ogabbay-VM.habana-labs.com ([31.154.190.6])
+        by smtp.gmail.com with ESMTPSA id n15sm15989536wmi.42.2019.05.13.04.32.40
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 13 May 2019 04:32:40 -0700 (PDT)
+From:   Oded Gabbay <oded.gabbay@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, Tomer Tayar <ttayar@habana.ai>,
+        stable@vger.kernel.org
+Subject: [PATCH] habanalabs: Avoid using a non-initialized MMU cache mutex
+Date:   Mon, 13 May 2019 14:32:37 +0300
+Message-Id: <20190513113237.22425-1-oded.gabbay@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 13, 2019 at 09:11:38AM +0000, Nadav Amit wrote:
-> BTW: sometimes you don’t see the effect of these full TLB flushes as much in
-> VMs. I encountered a strange phenomenon at the time - INVLPG for an
-> arbitrary page cause my Haswell machine flush the entire TLB, when the
-> INVLPG was issued inside a VM. It took me quite some time to analyze this
-> problem. Eventually Intel told me that’s part of what is called “page
-> fracturing” - if the host uses 4k pages in the EPT, they (usually) need to
-> flush the entire TLB for any INVLPG. That’s happens since they don’t know
-> the size of the flushed page.
+From: Tomer Tayar <ttayar@habana.ai>
 
-Cute... if only they'd given us an interface to tell them... :-)
+The MMU cache mutex is used in the ASIC hw_init() functions, but it is
+initialized only later in hl_mmu_init().
+This patch prevents it by moving the initialization to the
+device_early_init() function.
+
+Signed-off-by: Tomer Tayar <ttayar@habana.ai>
+Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/misc/habanalabs/device.c | 2 ++
+ drivers/misc/habanalabs/mmu.c    | 8 +-------
+ 2 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/misc/habanalabs/device.c b/drivers/misc/habanalabs/device.c
+index 91a9e47a3482..0b19d3eefb98 100644
+--- a/drivers/misc/habanalabs/device.c
++++ b/drivers/misc/habanalabs/device.c
+@@ -231,6 +231,7 @@ static int device_early_init(struct hl_device *hdev)
+ 
+ 	mutex_init(&hdev->fd_open_cnt_lock);
+ 	mutex_init(&hdev->send_cpu_message_lock);
++	mutex_init(&hdev->mmu_cache_lock);
+ 	INIT_LIST_HEAD(&hdev->hw_queues_mirror_list);
+ 	spin_lock_init(&hdev->hw_queues_mirror_lock);
+ 	atomic_set(&hdev->in_reset, 0);
+@@ -260,6 +261,7 @@ static int device_early_init(struct hl_device *hdev)
+  */
+ static void device_early_fini(struct hl_device *hdev)
+ {
++	mutex_destroy(&hdev->mmu_cache_lock);
+ 	mutex_destroy(&hdev->send_cpu_message_lock);
+ 
+ 	hl_cb_mgr_fini(hdev, &hdev->kernel_cb_mgr);
+diff --git a/drivers/misc/habanalabs/mmu.c b/drivers/misc/habanalabs/mmu.c
+index 533d9315b6fb..10aee3141444 100644
+--- a/drivers/misc/habanalabs/mmu.c
++++ b/drivers/misc/habanalabs/mmu.c
+@@ -404,15 +404,12 @@ int hl_mmu_init(struct hl_device *hdev)
+ 
+ 	/* MMU H/W init was already done in device hw_init() */
+ 
+-	mutex_init(&hdev->mmu_cache_lock);
+-
+ 	hdev->mmu_pgt_pool =
+ 			gen_pool_create(__ffs(prop->mmu_hop_table_size), -1);
+ 
+ 	if (!hdev->mmu_pgt_pool) {
+ 		dev_err(hdev->dev, "Failed to create page gen pool\n");
+-		rc = -ENOMEM;
+-		goto err_pool_create;
++		return -ENOMEM;
+ 	}
+ 
+ 	rc = gen_pool_add(hdev->mmu_pgt_pool, prop->mmu_pgt_addr +
+@@ -436,8 +433,6 @@ int hl_mmu_init(struct hl_device *hdev)
+ 
+ err_pool_add:
+ 	gen_pool_destroy(hdev->mmu_pgt_pool);
+-err_pool_create:
+-	mutex_destroy(&hdev->mmu_cache_lock);
+ 
+ 	return rc;
+ }
+@@ -459,7 +454,6 @@ void hl_mmu_fini(struct hl_device *hdev)
+ 
+ 	kvfree(hdev->mmu_shadow_hop0);
+ 	gen_pool_destroy(hdev->mmu_pgt_pool);
+-	mutex_destroy(&hdev->mmu_cache_lock);
+ 
+ 	/* MMU H/W fini will be done in device hw_fini() */
+ }
+-- 
+2.17.1
+
