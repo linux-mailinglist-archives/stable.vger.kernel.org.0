@@ -2,283 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DA21BBA6
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 19:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF641BC20
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 19:41:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728118AbfEMRSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 13:18:55 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:41960 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726709AbfEMRSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 13:18:55 -0400
-Received: from svr-orw-mbx-01.mgc.mentorg.com ([147.34.90.201])
-        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
-        id 1hQEat-0003zZ-7u from George_Davis@mentor.com ; Mon, 13 May 2019 10:18:31 -0700
-Received: from localhost (147.34.91.1) by svr-orw-mbx-01.mgc.mentorg.com
- (147.34.90.201) with Microsoft SMTP Server (TLS) id 15.0.1320.4; Mon, 13 May
- 2019 10:18:28 -0700
-Date:   Mon, 13 May 2019 13:18:27 -0400
-From:   "George G. Davis" <george_davis@mentor.com>
-To:     Fabio Estevam <festevam@gmail.com>, <stable@vger.kernel.org>
-CC:     <shawnguo@kernel.org>, <andrew@lunn.ch>, <baruch@tkos.co.il>,
-        <ken.lin@advantech.com>, <smoch@web.de>,
-        <stwiss.opensource@diasemi.com>, <linux-imx@nxp.com>,
-        <kernel@pengutronix.de>, Marc Kleine-Budde <mkl@pengutronix.de>,
-        <aford173@gmail.com>, <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v3] ARM: dts: imx: Fix the AR803X phy-mode
-Message-ID: <20190513171826.GA18591@mam-gdavis-lt>
-References: <20190403221241.4753-1-festevam@gmail.com>
+        id S1728225AbfEMRln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 13:41:43 -0400
+Received: from mail-eopbgr790085.outbound.protection.outlook.com ([40.107.79.85]:28727
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729463AbfEMRlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 May 2019 13:41:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QCdbNKQVEXtBCsICcQ6WoQ37OvkxU+sGCSZ5BQuMfes=;
+ b=dFmnXGFlevaBZ2dLXVCg5wcKuD0OpK1mmvimOLfvRLpQe0mBzcVeG6/X45ur+tARD0kGSffc0NJXLadvUtRrkqyQca01JC7JLuT6EC1/13QX+9y6uuyC88PQyFATLjU+5y6sPmyMECTJIW9bHJ6KIvHF2fUT3CRag1C8t0dqSaA=
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com (52.135.233.146) by
+ BYAPR05MB5109.namprd05.prod.outlook.com (20.177.231.15) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1900.5; Mon, 13 May 2019 17:41:38 +0000
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::b057:917a:f098:6098]) by BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::b057:917a:f098:6098%7]) with mapi id 15.20.1900.010; Mon, 13 May 2019
+ 17:41:38 +0000
+From:   Nadav Amit <namit@vmware.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+CC:     Yang Shi <yang.shi@linux.alibaba.com>,
+        "jstancek@redhat.com" <jstancek@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Nick Piggin <npiggin@gmail.com>,
+        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>,
+        Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Thread-Topic: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Thread-Index: AQHVBlNcdgyGQHvMg0ymTH6Y7O8srKZjDs8AgAANcoCAAAcZgIAABfcAgAAkYwCABXN1AIAACg2AgAACfYCAACNEAIAAaJyA
+Date:   Mon, 13 May 2019 17:41:38 +0000
+Message-ID: <CEC6786F-C6DB-438D-AAA1-33DBEA8B8F0B@vmware.com>
+References: <20190509083726.GA2209@brain-police>
+ <20190509103813.GP2589@hirez.programming.kicks-ass.net>
+ <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
+ <20190509182435.GA2623@hirez.programming.kicks-ass.net>
+ <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
+ <20190509191120.GD2623@hirez.programming.kicks-ass.net>
+ <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
+ <20190513083606.GL2623@hirez.programming.kicks-ass.net>
+ <20190513091205.GO2650@hirez.programming.kicks-ass.net>
+ <847D4C2F-BD26-4BE0-A5BA-3C690D11BF77@vmware.com>
+ <20190513112712.GO2623@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190513112712.GO2623@hirez.programming.kicks-ass.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=namit@vmware.com; 
+x-originating-ip: [50.204.119.4]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 94711ab4-18b1-4e7a-2b4a-08d6d7ca409d
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(2017052603328)(7193020);SRVR:BYAPR05MB5109;
+x-ms-traffictypediagnostic: BYAPR05MB5109:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <BYAPR05MB5109C0A12AB457ED96A6C044D00F0@BYAPR05MB5109.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0036736630
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(376002)(39860400002)(346002)(396003)(136003)(189003)(199004)(81156014)(66556008)(64756008)(68736007)(73956011)(66946007)(66446008)(66066001)(66476007)(2906002)(6436002)(81166006)(36756003)(99286004)(53936002)(76116006)(6512007)(6306002)(102836004)(305945005)(53546011)(6506007)(6246003)(7736002)(486006)(11346002)(3846002)(6116002)(476003)(6486002)(4326008)(446003)(2616005)(5660300002)(25786009)(8936002)(229853002)(478600001)(76176011)(86362001)(966005)(14454004)(71200400001)(26005)(71190400001)(83716004)(7416002)(54906003)(82746002)(316002)(186003)(14444005)(33656002)(6916009)(256004)(8676002);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR05MB5109;H:BYAPR05MB4776.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: 3Dlf80AsbmCfH5zyGa7hrpnk+u9p+CchJUgpFYTIbS5aCVABSFLimvILifMkc09z3EKRI8dUFlqa3c9JUZVLhQY9CWG2FHp03CvKkwrLFFaXMoRQVa9uWQhcyyzrMgtxocmTBMZgmC7sL8RoOzZTNZ3l6j9c9Wzjj0iUDHYWm5dAJvoE7tOAMznHVP25fnEMLIYIXIUnjS1ullnKrliZU6up7/e4+jo8Fy9tj/Rx0kwb847jc9IcDF2MjAl7yfcaoXk+9BxeeCB1WoVS85pMsIrO8Vpwf/T9SqB1M+2h4rwIlB0uixgBe0+uROMde2GeMdJQiCf4vucsdP9jzTYeqZQZK/2h5PXJok4AhQy3jEKzvYfNI4sLMPbheyCzn5YbfSuJqiHwIsaJTus9cipwUJ3Yyh+88+zNXmiMnQc6l4M=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <FEF401722DAF4E4FBB3E0E89AB5F04E4@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20190403221241.4753-1-festevam@gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-ClientProxiedBy: svr-orw-mbx-03.mgc.mentorg.com (147.34.90.203) To
- svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201)
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 94711ab4-18b1-4e7a-2b4a-08d6d7ca409d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 May 2019 17:41:38.4103
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB5109
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-On Wed, Apr 03, 2019 at 07:12:41PM -0300, Fabio Estevam wrote:
-> Commit 6d4cd041f0af ("net: phy: at803x: disable delay only for RGMII mode")
-> exposed an issue on imx DTS files using AR8031/AR8035 PHYs.
-> 
-> The end result is that the boards can no longer obtain an IP address
-> via UDHCP, for example.
-> 
-> Quoting Andrew Lunn:
-> 
-> "The problem here is, all the DTs were broken since day 0. However,
-> because the PHY driver was also broken, nobody noticed and it
-> worked. Now that the PHY driver has been fixed, all the bugs in the
-> DTs now become an issue"
-> 
-> To fix this problem, the phy-mode property needs to be "rgmii-id",  which
-> has the following meaning as per 
-> Documentation/devicetree/bindings/net/ethernet.txt:
-> 
-> "RGMII with internal RX and TX delays provided by the PHY, the MAC should
-> not add the RX or TX delays in this case)"
-> 
-> Tested on imx6-sabresd, imx6sx-sdb and imx7d-pico boards with
-> successfully restored networking.
-> 
-> Based on the initial submission from Steve Twiss for the
-> imx6qdl-sabresd.
-> 
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> Tested-by: Baruch Siach <baruch@tkos.co.il>
-> Tested-by: Soeren Moch <smoch@web.de>
-> Tested-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> Tested-by: Adam Thomson <Adam.Thomson@diasemi.com>
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> ---
-> Changes since v2:
-> - Also fixed imx6q-ba16
-> - Removed stable tag as it does not apply cleanly on older
-> stable trees. I can manually generate versions for stable
-> trees after this one hits mainline.
-
-Please add this commit to the v5.1.x stable queue to resolve NFS root breakage
-in v5.1. I can confirm that it applies cleanly to v5.1.1 and resolves NFS root
-breakage that occurs on i.MX6 boards in v5.1.x, tested on imx6q-sabreauto.dts
-and imx6q-sabresd.dts. Although the fix should be backported to pre-v5.1.x
-stable series as well, it does not cause problems for pre-v5.1 but results in
-NFS root breakage for v5.1.x.
-
-TIA!
-
-> 
->  arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi | 2 +-
->  arch/arm/boot/dts/imx6dl-riotboard.dts        | 2 +-
->  arch/arm/boot/dts/imx6q-ba16.dtsi             | 2 +-
->  arch/arm/boot/dts/imx6q-marsboard.dts         | 2 +-
->  arch/arm/boot/dts/imx6q-tbs2910.dts           | 2 +-
->  arch/arm/boot/dts/imx6qdl-apf6.dtsi           | 2 +-
->  arch/arm/boot/dts/imx6qdl-sabreauto.dtsi      | 2 +-
->  arch/arm/boot/dts/imx6qdl-sabresd.dtsi        | 2 +-
->  arch/arm/boot/dts/imx6qdl-sr-som.dtsi         | 2 +-
->  arch/arm/boot/dts/imx6qdl-wandboard.dtsi      | 2 +-
->  arch/arm/boot/dts/imx6sx-sabreauto.dts        | 2 +-
->  arch/arm/boot/dts/imx6sx-sdb.dtsi             | 2 +-
->  arch/arm/boot/dts/imx7d-pico.dtsi             | 2 +-
->  13 files changed, 13 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-> index fb01fa6e4224..3cae139e6396 100644
-> --- a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-> +++ b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-> @@ -216,7 +216,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-duration = <10>;
->  	phy-reset-gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
->  	phy-supply = <&reg_enet>;
-> diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
-> index 65c184bb8fb0..d9de49efa802 100644
-> --- a/arch/arm/boot/dts/imx6dl-riotboard.dts
-> +++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
-> @@ -92,7 +92,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
->  	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
->  			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
-> diff --git a/arch/arm/boot/dts/imx6q-ba16.dtsi b/arch/arm/boot/dts/imx6q-ba16.dtsi
-> index adc9455e42c7..37c63402157b 100644
-> --- a/arch/arm/boot/dts/imx6q-ba16.dtsi
-> +++ b/arch/arm/boot/dts/imx6q-ba16.dtsi
-> @@ -171,7 +171,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	status = "okay";
->  };
->  
-> diff --git a/arch/arm/boot/dts/imx6q-marsboard.dts b/arch/arm/boot/dts/imx6q-marsboard.dts
-> index d8ccb533b6b7..84b30bd6908f 100644
-> --- a/arch/arm/boot/dts/imx6q-marsboard.dts
-> +++ b/arch/arm/boot/dts/imx6q-marsboard.dts
-> @@ -110,7 +110,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
->  	status = "okay";
->  };
-> diff --git a/arch/arm/boot/dts/imx6q-tbs2910.dts b/arch/arm/boot/dts/imx6q-tbs2910.dts
-> index 2ce8399a10ba..bfff87ce2e1f 100644
-> --- a/arch/arm/boot/dts/imx6q-tbs2910.dts
-> +++ b/arch/arm/boot/dts/imx6q-tbs2910.dts
-> @@ -98,7 +98,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
->  	status = "okay";
->  };
-> diff --git a/arch/arm/boot/dts/imx6qdl-apf6.dtsi b/arch/arm/boot/dts/imx6qdl-apf6.dtsi
-> index 1ebf29f43a24..4738c3c1ab50 100644
-> --- a/arch/arm/boot/dts/imx6qdl-apf6.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-apf6.dtsi
-> @@ -51,7 +51,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-duration = <10>;
->  	phy-reset-gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
->  	status = "okay";
-> diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-> index 1280de50a984..f3404dd10537 100644
-> --- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-> @@ -292,7 +292,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
->  			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
->  	fsl,err006687-workaround-present;
-> diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-> index a0705066ccba..185fb17a3500 100644
-> --- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-> @@ -202,7 +202,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
->  	status = "okay";
->  };
-> diff --git a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-> index 4ccb7afc4b35..6d7f6b9035bc 100644
-> --- a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-> @@ -53,7 +53,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_microsom_enet_ar8035>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-duration = <2>;
->  	phy-reset-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
->  	status = "okay";
-> diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-> index b7d5fb421404..50d9a989e06a 100644
-> --- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-> +++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-> @@ -224,7 +224,7 @@
->  &fec {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-reset-gpios = <&gpio3 29 GPIO_ACTIVE_LOW>;
->  	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
->  			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
-> diff --git a/arch/arm/boot/dts/imx6sx-sabreauto.dts b/arch/arm/boot/dts/imx6sx-sabreauto.dts
-> index b0ee324afe58..315044ccd65f 100644
-> --- a/arch/arm/boot/dts/imx6sx-sabreauto.dts
-> +++ b/arch/arm/boot/dts/imx6sx-sabreauto.dts
-> @@ -75,7 +75,7 @@
->  &fec1 {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet1>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-handle = <&ethphy1>;
->  	fsl,magic-packet;
->  	status = "okay";
-> diff --git a/arch/arm/boot/dts/imx6sx-sdb.dtsi b/arch/arm/boot/dts/imx6sx-sdb.dtsi
-> index 08ede56c3f10..f6972deb5e39 100644
-> --- a/arch/arm/boot/dts/imx6sx-sdb.dtsi
-> +++ b/arch/arm/boot/dts/imx6sx-sdb.dtsi
-> @@ -191,7 +191,7 @@
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_enet1>;
->  	phy-supply = <&reg_enet_3v3>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-handle = <&ethphy1>;
->  	phy-reset-gpios = <&gpio2 7 GPIO_ACTIVE_LOW>;
->  	status = "okay";
-> diff --git a/arch/arm/boot/dts/imx7d-pico.dtsi b/arch/arm/boot/dts/imx7d-pico.dtsi
-> index 3fd595a71202..6f50ebf31a0a 100644
-> --- a/arch/arm/boot/dts/imx7d-pico.dtsi
-> +++ b/arch/arm/boot/dts/imx7d-pico.dtsi
-> @@ -92,7 +92,7 @@
->  			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
->  	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
->  	assigned-clock-rates = <0>, <100000000>;
-> -	phy-mode = "rgmii";
-> +	phy-mode = "rgmii-id";
->  	phy-handle = <&ethphy0>;
->  	fsl,magic-packet;
->  	phy-reset-gpios = <&gpio6 11 GPIO_ACTIVE_LOW>;
-
--- 
-Regards,
-George
+PiBPbiBNYXkgMTMsIDIwMTksIGF0IDQ6MjcgQU0sIFBldGVyIFppamxzdHJhIDxwZXRlcnpAaW5m
+cmFkZWFkLm9yZz4gd3JvdGU6DQo+IA0KPiBPbiBNb24sIE1heSAxMywgMjAxOSBhdCAwOToyMTow
+MUFNICswMDAwLCBOYWRhdiBBbWl0IHdyb3RlOg0KPj4+IE9uIE1heSAxMywgMjAxOSwgYXQgMjox
+MiBBTSwgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBpbmZyYWRlYWQub3JnPiB3cm90ZToNCj4gDQo+
+Pj4+IFRoZSBvdGhlciB0aGluZyBJIHdhcyB0aGlua2luZyBvZiBpcyB0cnlpbmcgdG8gZGV0ZWN0
+IG92ZXJsYXAgdGhyb3VnaA0KPj4+PiB0aGUgcGFnZS10YWJsZXMgdGhlbXNlbHZlcywgYnV0IHdl
+IGhhdmUgYSBkaXN0aW5jdCBsYWNrIG9mIHN0b3JhZ2UNCj4+Pj4gdGhlcmUuDQo+Pj4gDQo+Pj4g
+V2UgbWlnaHQganVzdCB1c2Ugc29tZSBzdGF0ZSBpbiB0aGUgcG1kLCB0aGVyZSdzIHN0aWxsIDIg
+X3B0X3BhZF9bMTJdIGluDQo+Pj4gc3RydWN0IHBhZ2UgdG8gJ3VzZScuIFNvIHdlIGNvdWxkIGNv
+bWUgdXAgd2l0aCBzb21lIHRsYiBnZW5lcmF0aW9uDQo+Pj4gc2NoZW1lIHRoYXQgd291bGQgZGV0
+ZWN0IGNvbmZsaWN0Lg0KPj4gDQo+PiBJdCBpcyByYXRoZXIgZWFzeSB0byBjb21lIHVwIHdpdGgg
+YSBzY2hlbWUgKGFuZCBJIGRpZCBzaW1pbGFyIHRoaW5ncykgaWYgeW91DQo+PiBmbHVzaCB0aGUg
+dGFibGUgd2hpbGUgeW91IGhvbGQgdGhlIHBhZ2UtdGFibGVzIGxvY2suIEJ1dCBpZiB5b3UgYmF0
+Y2ggYWNyb3NzDQo+PiBwYWdlLXRhYmxlcyBpdCBiZWNvbWVzIGhhcmRlci4NCj4gDQo+IFllYWg7
+IGZpbmRpbmcgdGhhdCBvdXQgbm93LiBJIGtlZXAgZmluZGluZyBob2xlcyA6Lw0KDQpZb3UgY2Fu
+IHVzZSBVaGxpZ+KAmXMgZGlzc2VydGF0aW9uIGZvciBpbnNwaXJhdGlvbiAoU2VjdGlvbiA0LjQp
+Lg0KDQpbMV0gaHR0cHM6Ly93d3cucmVzZWFyY2hnYXRlLm5ldC9wdWJsaWNhdGlvbi8zNjQ1MDQ4
+Ml9TY2FsYWJpbGl0eV9vZl9taWNyb2tlcm5lbC1iYXNlZF9zeXN0ZW1zL2Rvd25sb2FkDQoNCj4g
+DQo+PiBUaGlua2luZyBhYm91dCBpdCB3aGlsZSB0eXBpbmcsIHBlcmhhcHMgaXQgaXMgc2ltcGxl
+ciB0aGFuIEkgdGhpbmsgLSBpZiB5b3UNCj4+IG5lZWQgdG8gZmx1c2ggcmFuZ2UgdGhhdCBydW5z
+IGFjcm9zcyBtb3JlIHRoYW4gYSBzaW5nbGUgdGFibGUsIHlvdSBhcmUgdmVyeQ0KPj4gbGlrZWx5
+IHRvIGZsdXNoIGEgcmFuZ2Ugb2YgbW9yZSB0aGFuIDMzIGVudHJpZXMsIHNvIGFueWhvdyB5b3Ug
+YXJlIGxpa2VseSB0bw0KPj4gZG8gYSBmdWxsIFRMQiBmbHVzaC4NCj4gDQo+IFdlIGNhbid0IHJl
+bHkgb24gdGhlIDMzLCB0aGF0IHg4NiBzcGVjaWZpYy4gT3RoZXIgYXJjaGl0ZWN0dXJlcyBjYW4g
+aGF2ZQ0KPiBhbm90aGVyIChvciBubykgbGltaXQgb24gdGhhdC4NCg0KSSB3b25kZXIgd2hldGhl
+ciB0aGVyZSBhcmUgYXJjaGl0ZWN0dXJlcyB0aGF0IGRvIG5vIGludmFsaWRhdGUgdGhlIFRMQiBl
+bnRyeQ0KYnkgZW50cnksIGV4cGVyaWVuY2luZyB0aGVzZSBraW5kIG9mIG92ZXJoZWFkcy4NCg0K
+Pj4gU28gcGVyaGFwcyBqdXN0IGF2b2lkaW5nIHRoZSBiYXRjaGluZyBpZiBvbmx5IGVudHJpZXMg
+ZnJvbSBhIHNpbmdsZSB0YWJsZQ0KPj4gYXJlIGZsdXNoZWQgd291bGQgYmUgZW5vdWdoLg0KPiAN
+Cj4gVGhhdCdzIG5lYXIgdG8gd2hhdCBXaWxsIHN1Z2dlc3RlZCBpbml0aWFsbHksIGp1c3QgZmx1
+c2ggdGhlIGVudGlyZQ0KPiB0aGluZyB3aGVuIHRoZXJlJ3MgYSBjb25mbGljdC4NCg0KT25lIHF1
+ZXN0aW9uIGlzIGhvdyB5b3UgZGVmaW5lIGEgY29uZmxpY3QuIElJVUMsIFdpbGwgc3VnZ2VzdHMg
+c2FtZSBtbSBtYXJrcw0KYSBjb25mbGljdC4gSW4gYWRkaXRpb24sIEkgc3VnZ2VzdCB0aGF0IGlm
+IHlvdSBvbmx5IHJlbW92ZSBhIHNpbmdsZSBlbnRyeQ0KKG9yIGZldyBvbmVzKSwgeW91IHdvdWxk
+IGp1c3Qgbm90IGJhdGNoIGFuZCBkbyB0aGUgZmx1c2hpbmcgd2hpbGUgaG9sZGluZw0KdGhlIHBh
+Z2UtdGFibGUgbG9jay4NCg0K
