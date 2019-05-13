@@ -2,123 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2499F1BD35
-	for <lists+stable@lfdr.de>; Mon, 13 May 2019 20:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A221B1BDD9
+	for <lists+stable@lfdr.de>; Mon, 13 May 2019 21:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726728AbfEMSfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 May 2019 14:35:09 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:49575 "EHLO
-        terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726537AbfEMSfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 14:35:09 -0400
-Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x4DIYjI03649489
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Mon, 13 May 2019 11:34:45 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x4DIYjI03649489
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019041745; t=1557772485;
-        bh=SOzzQJcYo51zQC+3BSfdHvIPa2/VPPcwOb5ONMErzm4=;
-        h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=a77cpkDgAHv1CwSbe8+zwqYD2ClbkVEWJ+f6agXrhg1YhCUt5kbOTT6r8j8gCuIwC
-         qTLu9EViny/0pi45DRqLqgv6jL4EnV/eoOP+85skhZ56ul7C0i2mv/y2H7JKbl0SXo
-         hsWNynWNpH18vKug7/zOPMME04qA3PVo+WUKwgQjN/zuuwpWiyYEmLvUi0qGaHU3+a
-         +n77VtSXiniqAzuJcS7PnQMTH8sAnT8LswCl3OZ/I4jylFXUAfch8vOV61YkkghVlD
-         X9MAUCkXzPlXsxqePbBCabk2T9I7LzuCnKXYAtqNFpZdYCzD7iMuVzIpLjQlOBsSOQ
-         PA/QWzlSqs00g==
-Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x4DIYiEp3649486;
-        Mon, 13 May 2019 11:34:44 -0700
-Date:   Mon, 13 May 2019 11:34:44 -0700
-X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
-From:   tip-bot for Josh Poimboeuf <tipbot@zytor.com>
-Message-ID: <tip-e6f393bc939d566ce3def71232d8013de9aaadde@git.kernel.org>
-Cc:     jpoimboe@redhat.com, linux-kernel@vger.kernel.org,
-        tglx@linutronix.de, mingo@kernel.org, stable@vger.kernel.org,
-        lkp@intel.com, torvalds@linux-foundation.org, hpa@zytor.com,
-        peterz@infradead.org
-Reply-To: jpoimboe@redhat.com, mingo@kernel.org, tglx@linutronix.de,
-          linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-          lkp@intel.com, torvalds@linux-foundation.org,
-          peterz@infradead.org, hpa@zytor.com
-In-Reply-To: <546d143820cd08a46624ae8440d093dd6c902cae.1557766718.git.jpoimboe@redhat.com>
-References: <546d143820cd08a46624ae8440d093dd6c902cae.1557766718.git.jpoimboe@redhat.com>
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:core/urgent] objtool: Fix function fallthrough detection
-Git-Commit-ID: e6f393bc939d566ce3def71232d8013de9aaadde
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot.git.kernel.org>
-Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
- these emails
+        id S1726928AbfEMTZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 May 2019 15:25:57 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:46866 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726931AbfEMTZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 May 2019 15:25:57 -0400
+Received: from localhost.localdomain (unknown [IPv6:2804:431:9719:d573:a076:d1fd:3417:b195])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: koike)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id C545F281DC5;
+        Mon, 13 May 2019 20:25:52 +0100 (BST)
+From:   Helen Koike <helen.koike@collabora.com>
+To:     dm-devel@redhat.com
+Cc:     kernel@collabora.com, Helen Koike <helen.koike@collabora.com>,
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
+        linux-kernel@vger.kernel.org, Alasdair Kergon <agk@redhat.com>
+Subject: [PATCH] dm ioctl: fix hang in early create error condition
+Date:   Mon, 13 May 2019 16:25:30 -0300
+Message-Id: <20190513192530.1167-1-helen.koike@collabora.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-3.1 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        T_DATE_IN_FUTURE_96_Q autolearn=ham autolearn_force=no version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on terminus.zytor.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  e6f393bc939d566ce3def71232d8013de9aaadde
-Gitweb:     https://git.kernel.org/tip/e6f393bc939d566ce3def71232d8013de9aaadde
-Author:     Josh Poimboeuf <jpoimboe@redhat.com>
-AuthorDate: Mon, 13 May 2019 12:01:32 -0500
-Committer:  Ingo Molnar <mingo@kernel.org>
-CommitDate: Mon, 13 May 2019 20:31:17 +0200
+The dm_early_create() function (which deals with "dm-mod.create=" kernel
+command line option) calls dm_hash_insert() who gets an extra reference
+to the md object.
 
-objtool: Fix function fallthrough detection
+In case of failure, this reference wasn't being released, causing
+dm_destroy() to hang, thus hanging the whole boot process.
 
-When a function falls through to the next function due to a compiler
-bug, objtool prints some obscure warnings.  For example:
+Fix this by calling __hash_remove() in the error path.
 
-  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x95: return with modified stack frame
-  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x0: stack state mismatch: cfa1=7+32 cfa2=7+8
+Fixes: 6bbc923dfcf57d ("dm: add support to directly boot to a mapped device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
 
-Instead it should be printing:
-
-  drivers/regulator/core.o: warning: objtool: regulator_supply_is_couple() falls through to next function regulator_count_voltages()
-
-This used to work, but was broken by the following commit:
-
-  13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
-
-The padding nops at the end of a function aren't actually part of the
-function, as defined by the symbol table.  So the 'func' variable in
-validate_branch() is getting cleared to NULL when a padding nop is
-encountered, breaking the fallthrough detection.
-
-If the current instruction doesn't have a function associated with it,
-just consider it to be part of the previously detected function by not
-overwriting the previous value of 'func'.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
-Link: http://lkml.kernel.org/r/546d143820cd08a46624ae8440d093dd6c902cae.1557766718.git.jpoimboe@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- tools/objtool/check.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Hi,
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 90226791df6b..7325d89ccad9 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1959,7 +1959,8 @@ static int validate_branch(struct objtool_file *file, struct instruction *first,
- 			return 1;
- 		}
+I tested this patch by adding a new test case in the following test
+script:
+
+https://gitlab.collabora.com/koike/dm-cmdline-test/commit/d2d7a0ee4a49931cdb59f08a837b516c2d5d743d
+
+This test was failing, but with this patch it works correctly.
+
+Thanks
+Helen
+
+ drivers/md/dm-ioctl.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
+index c740153b4e52..31da18611a21 100644
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -205,7 +205,8 @@ static void free_cell(struct hash_cell *hc)
+  * The kdev_t and uuid of a device can never change once it is
+  * initially inserted.
+  */
+-static int dm_hash_insert(const char *name, const char *uuid, struct mapped_device *md)
++static struct hash_cell *dm_hash_insert(const char *name, const char *uuid,
++					struct mapped_device *md)
+ {
+ 	struct hash_cell *cell, *hc;
  
--		func = insn->func ? insn->func->pfunc : NULL;
-+		if (insn->func)
-+			func = insn->func->pfunc;
+@@ -214,7 +215,7 @@ static int dm_hash_insert(const char *name, const char *uuid, struct mapped_devi
+ 	 */
+ 	cell = alloc_cell(name, uuid, md);
+ 	if (!cell)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
  
- 		if (func && insn->ignore) {
- 			WARN_FUNC("BUG: why am I validating an ignored function?",
+ 	/*
+ 	 * Insert the cell into both hash tables.
+@@ -243,12 +244,12 @@ static int dm_hash_insert(const char *name, const char *uuid, struct mapped_devi
+ 	mutex_unlock(&dm_hash_cells_mutex);
+ 	up_write(&_hash_lock);
+ 
+-	return 0;
++	return cell;
+ 
+  bad:
+ 	up_write(&_hash_lock);
+ 	free_cell(cell);
+-	return -EBUSY;
++	return ERR_PTR(-EBUSY);
+ }
+ 
+ static struct dm_table *__hash_remove(struct hash_cell *hc)
+@@ -747,6 +748,7 @@ static int dev_create(struct file *filp, struct dm_ioctl *param, size_t param_si
+ {
+ 	int r, m = DM_ANY_MINOR;
+ 	struct mapped_device *md;
++	struct hash_cell *hc;
+ 
+ 	r = check_name(param->name);
+ 	if (r)
+@@ -759,11 +761,11 @@ static int dev_create(struct file *filp, struct dm_ioctl *param, size_t param_si
+ 	if (r)
+ 		return r;
+ 
+-	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
+-	if (r) {
++	hc = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
++	if (IS_ERR(hc)) {
+ 		dm_put(md);
+ 		dm_destroy(md);
+-		return r;
++		return PTR_ERR(hc);
+ 	}
+ 
+ 	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+@@ -2044,6 +2046,7 @@ int __init dm_early_create(struct dm_ioctl *dmi,
+ 	int r, m = DM_ANY_MINOR;
+ 	struct dm_table *t, *old_map;
+ 	struct mapped_device *md;
++	struct hash_cell *hc;
+ 	unsigned int i;
+ 
+ 	if (!dmi->target_count)
+@@ -2062,14 +2065,14 @@ int __init dm_early_create(struct dm_ioctl *dmi,
+ 		return r;
+ 
+ 	/* hash insert */
+-	r = dm_hash_insert(dmi->name, *dmi->uuid ? dmi->uuid : NULL, md);
+-	if (r)
++	hc = dm_hash_insert(dmi->name, *dmi->uuid ? dmi->uuid : NULL, md);
++	if (IS_ERR(hc))
+ 		goto err_destroy_dm;
+ 
+ 	/* alloc table */
+ 	r = dm_table_create(&t, get_mode(dmi), dmi->target_count, md);
+ 	if (r)
+-		goto err_destroy_dm;
++		goto err_hash_remove;
+ 
+ 	/* add targets */
+ 	for (i = 0; i < dmi->target_count; i++) {
+@@ -2116,6 +2119,8 @@ int __init dm_early_create(struct dm_ioctl *dmi,
+ 
+ err_destroy_table:
+ 	dm_table_destroy(t);
++err_hash_remove:
++	__hash_remove(hc);
+ err_destroy_dm:
+ 	dm_put(md);
+ 	dm_destroy(md);
+-- 
+2.20.1
+
