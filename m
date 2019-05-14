@@ -2,272 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AEA1C867
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 14:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C09A1CD9E
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 19:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726248AbfENMUl convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 14 May 2019 08:20:41 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:59384 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726221AbfENMUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 08:20:40 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 2996D3086237
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 12:20:40 +0000 (UTC)
-Received: from [172.54.121.115] (cpt-large-cpu-04.paas.prod.upshift.rdu2.redhat.com [10.0.18.60])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 668E962723;
-        Tue, 14 May 2019 12:20:37 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726610AbfENRMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 13:12:09 -0400
+Received: from 15.mo5.mail-out.ovh.net ([178.33.107.29]:49275 "EHLO
+        15.mo5.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726603AbfENRMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 13:12:09 -0400
+X-Greylist: delayed 12593 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 May 2019 13:12:08 EDT
+Received: from player688.ha.ovh.net (unknown [10.108.42.184])
+        by mo5.mail-out.ovh.net (Postfix) with ESMTP id A15BA237B41
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 14:25:34 +0200 (CEST)
+Received: from kaod.org (deibp9eh1--blueice1n4.emea.ibm.com [195.212.29.166])
+        (Authenticated sender: groug@kaod.org)
+        by player688.ha.ovh.net (Postfix) with ESMTPSA id 5B3775A70662;
+        Tue, 14 May 2019 12:25:26 +0000 (UTC)
+Date:   Tue, 14 May 2019 14:25:24 +0200
+From:   Greg Kurz <groug@kaod.org>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: Re: [PATCH] powerpc/powernv/npu: Fix reference leak
+Message-ID: <20190514142524.76c0417f@bahia.lan>
+In-Reply-To: <87sgths2zf.fsf@concordia.ellerman.id.au>
+References: <155568805354.600470.13376593185688810607.stgit@bahia.lan>
+        <962c1d9e-719c-cb82-cabc-1cf619e1510b@ozlabs.ru>
+        <20190429123659.00c0622b@bahia.lan>
+        <20190513135606.7d9a0902@bahia.lan>
+        <87sgths2zf.fsf@concordia.ellerman.id.au>
+X-Mailer: Claws Mail 3.16.0 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.6E2BB57DE3.HOMX7MZLUC@redhat.com>
-X-Gitlab-Pipeline-ID: 9925
-X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9925
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Tue, 14 May 2019 12:20:40 +0000 (UTC)
-Date:   Tue, 14 May 2019 08:20:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 12951789578739882417
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddrleeigdehvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Tue, 14 May 2019 21:13:40 +1000
+Michael Ellerman <mpe@ellerman.id.au> wrote:
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+> Greg Kurz <groug@kaod.org> writes:
+> > Michael,
+> >
+> > Any comments on this patch ? Should I repost with a shorter comment
+> > as suggested by Alexey ?  
+> 
+> No the longer comment seems fine to me.
+> 
+> I'm not a big fan of the patch, it's basically a hack :)
+> 
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 9c2556f428cf - Linux 4.19.42
+Yeah :)
 
-The results of these automated tests are provided below.
+> But for a backportable fix I guess it is OK.
+> 
+> I would be happier though if we eventually fix up the code to do the
+> refcounting properly.
+> 
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+I had started to do just that before deciding to go for the backportable
+hack. Should I rebase the other patches I have on top of this patch and
+repost the whole thing, so that we have both the ugly fix for stable and
+the pretty one for 5.2 ?
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Cheers,
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+--
+Greg
 
-Merge testing
--------------
+> cheers
+> 
+> > On Mon, 29 Apr 2019 12:36:59 +0200
+> > Greg Kurz <groug@kaod.org> wrote:  
+> >> On Mon, 29 Apr 2019 16:01:29 +1000
+> >> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:
+> >>   
+> >> > On 20/04/2019 01:34, Greg Kurz wrote:    
+> >> > > Since 902bdc57451c, get_pci_dev() calls pci_get_domain_bus_and_slot(). This
+> >> > > has the effect of incrementing the reference count of the PCI device, as
+> >> > > explained in drivers/pci/search.c:
+> >> > > 
+> >> > >  * Given a PCI domain, bus, and slot/function number, the desired PCI
+> >> > >  * device is located in the list of PCI devices. If the device is
+> >> > >  * found, its reference count is increased and this function returns a
+> >> > >  * pointer to its data structure.  The caller must decrement the
+> >> > >  * reference count by calling pci_dev_put().  If no device is found,
+> >> > >  * %NULL is returned.
+> >> > > 
+> >> > > Nothing was done to call pci_dev_put() and the reference count of GPU and
+> >> > > NPU PCI devices rockets up.
+> >> > > 
+> >> > > A natural way to fix this would be to teach the callers about the change,
+> >> > > so that they call pci_dev_put() when done with the pointer. This turns
+> >> > > out to be quite intrusive, as it affects many paths in npu-dma.c,
+> >> > > pci-ioda.c and vfio_pci_nvlink2.c.      
+> >> > 
+> >> > 
+> >> > afaict this referencing is only done to protect the current traverser
+> >> > and what you've done is actually a natural way (and the generic
+> >> > pci_get_dev_by_id() does exactly the same), although this looks a bit weird.
+> >> >     
+> >> 
+> >> Not exactly the same: pci_get_dev_by_id() always increment the refcount
+> >> of the returned PCI device. The refcount is only decremented when this
+> >> device is passed to pci_get_dev_by_id() to continue searching.
+> >> 
+> >> That means that the users of the PCI device pointer returned by
+> >> pci_get_dev_by_id() or its exported variants pci_get_subsys(),
+> >> pci_get_device() and pci_get_class() do handle the refcount. They
+> >> all pass the pointer to pci_dev_put() or continue the search,
+> >> which calls pci_dev_put() internally.
+> >> 
+> >> Direct and indirect callers of get_pci_dev() don't care for the
+> >> refcount at all unless I'm missing something.
+> >>   
+> >> >     
+> >> > > Also, the issue appeared in 4.16 and
+> >> > > some affected code got moved around since then: it would be problematic
+> >> > > to backport the fix to stable releases.
+> >> > > 
+> >> > > All that code never cared for reference counting anyway. Call pci_dev_put()
+> >> > > from get_pci_dev() to revert to the previous behavior.      
+> >> > >> Fixes: 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary pcidev      
+> >> > from pci_dn")    
+> >> > > Cc: stable@vger.kernel.org # v4.16
+> >> > > Signed-off-by: Greg Kurz <groug@kaod.org>
+> >> > > ---
+> >> > >  arch/powerpc/platforms/powernv/npu-dma.c |   15 ++++++++++++++-
+> >> > >  1 file changed, 14 insertions(+), 1 deletion(-)
+> >> > > 
+> >> > > diff --git a/arch/powerpc/platforms/powernv/npu-dma.c b/arch/powerpc/platforms/powernv/npu-dma.c
+> >> > > index e713ade30087..d8f3647e8fb2 100644
+> >> > > --- a/arch/powerpc/platforms/powernv/npu-dma.c
+> >> > > +++ b/arch/powerpc/platforms/powernv/npu-dma.c
+> >> > > @@ -31,9 +31,22 @@ static DEFINE_SPINLOCK(npu_context_lock);
+> >> > >  static struct pci_dev *get_pci_dev(struct device_node *dn)
+> >> > >  {
+> >> > >  	struct pci_dn *pdn = PCI_DN(dn);
+> >> > > +	struct pci_dev *pdev;
+> >> > >  
+> >> > > -	return pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
+> >> > > +	pdev = pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
+> >> > >  					   pdn->busno, pdn->devfn);
+> >> > > +
+> >> > > +	/*
+> >> > > +	 * pci_get_domain_bus_and_slot() increased the reference count of
+> >> > > +	 * the PCI device, but callers don't need that actually as the PE
+> >> > > +	 * already holds a reference to the device.      
+> >> > 
+> >> > Imho this would be just enough.
+> >> > 
+> >> > Anyway,
+> >> > 
+> >> > Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+> >> >     
+> >> 
+> >> Thanks !
+> >> 
+> >> I now realize that I forgot to add the --cc option for stable on my stgit
+> >> command line :-\.
+> >> 
+> >> Cc'ing now.
+> >>   
+> >> > 
+> >> > How did you find it? :)
+> >> >     
+> >> 
+> >> While reading code to find some inspiration for OpenCAPI passthrough. :)
+> >> 
+> >> I saw the following in vfio_pci_ibm_npu2_init():
+> >> 
+> >> 	if (!pnv_pci_get_gpu_dev(vdev->pdev))
+> >> 		return -ENODEV;
+> >> 
+> >> and simply followed the function calls.
+> >>   
+> >> >     
+> >> > > Since callers aren't
+> >> > > +	 * aware of the reference count change, call pci_dev_put() now to
+> >> > > +	 * avoid leaks.
+> >> > > +	 */
+> >> > > +	if (pdev)
+> >> > > +		pci_dev_put(pdev);
+> >> > > +
+> >> > > +	return pdev;
+> >> > >  }
+> >> > >  
+> >> > >  /* Given a NPU device get the associated PCI device. */
+> >> > >       
+> >> >     
+> >>   
 
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 9c2556f428cf - Linux 4.19.42
-
-We then merged the patchset with `git am`:
-
-  bfq-update-internal-depth-state-when-queue-depth-cha.patch
-  platform-x86-sony-laptop-fix-unintentional-fall-through.patch
-  platform-x86-thinkpad_acpi-disable-bluetooth-for-some-machines.patch
-  platform-x86-dell-laptop-fix-rfkill-functionality.patch
-  hwmon-pwm-fan-disable-pwm-if-fetching-cooling-data-fails.patch
-  kernfs-fix-barrier-usage-in-__kernfs_new_node.patch
-  virt-vbox-sanity-check-parameter-types-for-hgcm-calls-coming-from-userspace.patch
-  usb-serial-fix-unthrottle-races.patch
-  iio-adc-xilinx-fix-potential-use-after-free-on-remov.patch
-  iio-adc-xilinx-fix-potential-use-after-free-on-probe.patch
-  iio-adc-xilinx-prevent-touching-unclocked-h-w-on-rem.patch
-  acpi-nfit-always-dump-_dsm-output-payload.patch
-  libnvdimm-namespace-fix-a-potential-null-pointer-der.patch
-  hid-input-add-mapping-for-expose-overview-key.patch
-  hid-input-add-mapping-for-keyboard-brightness-up-dow.patch
-  hid-input-add-mapping-for-toggle-display-key.patch
-  libnvdimm-btt-fix-a-kmemdup-failure-check.patch
-  s390-dasd-fix-capacity-calculation-for-large-volumes.patch
-  mac80211-fix-unaligned-access-in-mesh-table-hash-fun.patch
-  mac80211-increase-max_msg_len.patch
-  cfg80211-handle-wmm-rules-in-regulatory-domain-inter.patch
-  mac80211-fix-memory-accounting-with-a-msdu-aggregati.patch
-  nl80211-add-nl80211_flag_clear_skb-flag-for-other-nl.patch
-  libnvdimm-pmem-fix-a-possible-oob-access-when-read-a.patch
-  s390-3270-fix-lockdep-false-positive-on-view-lock.patch
-  drm-amd-display-extending-aux-sw-timeout.patch
-  clocksource-drivers-npcm-select-timer_of.patch
-  clocksource-drivers-oxnas-fix-ox820-compatible.patch
-  selftests-fib_tests-fix-command-line-is-not-complete.patch
-  misdn-check-address-length-before-reading-address-fa.patch
-  vxge-fix-return-of-a-free-d-memblock-on-a-failed-dma.patch
-  qede-fix-write-to-free-d-pointer-error-and-double-fr.patch
-  afs-unlock-pages-for-__pagevec_release.patch
-  drm-amd-display-if-one-stream-full-updates-full-upda.patch
-  s390-pkey-add-one-more-argument-space-for-debug-feat.patch
-  x86-build-lto-fix-truncated-.bss-with-fdata-sections.patch
-  x86-reboot-efi-use-efi-reboot-for-acer-travelmate-x5.patch
-  kvm-fix-spectrev1-gadgets.patch
-  kvm-x86-avoid-misreporting-level-triggered-irqs-as-e.patch
-  tools-lib-traceevent-fix-missing-equality-check-for-.patch
-  ipmi-ipmi_si_hardcode.c-init-si_type-array-to-fix-a-.patch
-  ocelot-don-t-sleep-in-atomic-context-irqs_disabled.patch
-  scsi-aic7xxx-fix-eisa-support.patch
-  mm-fix-inactive-list-balancing-between-numa-nodes-an.patch
-  init-initialize-jump-labels-before-command-line-opti.patch
-  selftests-netfilter-check-icmp-pkttoobig-errors-are-.patch
-  ipvs-do-not-schedule-icmp-errors-from-tunnels.patch
-  netfilter-ctnetlink-don-t-use-conntrack-expect-objec.patch
-  netfilter-nf_tables-prevent-shift-wrap-in-nft_chain_.patch
-  mips-perf-ath79-fix-perfcount-irq-assignment.patch
-  s390-ctcm-fix-ctcm_new_device-error-return-code.patch
-  drm-sun4i-set-device-driver-data-at-bind-time-for-us.patch
-  drm-sun4i-fix-component-unbinding-and-component-mast.patch
-  selftests-net-correct-the-return-value-for-run_netso.patch
-  netfilter-fix-nf_l4proto_log_invalid-to-log-invalid-.patch
-  gpu-ipu-v3-dp-fix-csc-handling.patch
-  drm-imx-don-t-skip-dp-channel-disable-for-background.patch
-  arm-8856-1-nommu-fix-ccr-register-faulty-initializat.patch
-  spi-micrel-eth-switch-declare-missing-of-table.patch
-  spi-st-st95hf-nfc-declare-missing-of-table.patch
-  drm-sun4i-unbind-components-before-releasing-drm-and.patch
-  input-synaptics-rmi4-fix-possible-double-free.patch
-  rdma-hns-bugfix-for-mapping-user-db.patch
-  mm-memory_hotplug.c-drop-memory-device-reference-aft.patch
-  powerpc-smp-fix-nmi-ipi-timeout.patch
-  powerpc-smp-fix-nmi-ipi-xmon-timeout.patch
-  net-dsa-mv88e6xxx-fix-few-issues-in-mv88e6390x_port_.patch
-  mm-memory.c-fix-modifying-of-page-protection-by-inse.patch
-  usb-typec-fix-unchecked-return-value.patch
-  netfilter-nf_tables-use-after-free-in-dynamic-operat.patch
-  netfilter-nf_tables-add-missing-release_ops-in-error.patch
-  net-fec-manage-ahb-clock-in-runtime-pm.patch
-  mlxsw-spectrum_switchdev-add-mdb-entries-in-prepare-.patch
-  mlxsw-core-do-not-use-wq_mem_reclaim-for-emad-workqu.patch
-  mlxsw-core-do-not-use-wq_mem_reclaim-for-mlxsw-order.patch
-  mlxsw-core-do-not-use-wq_mem_reclaim-for-mlxsw-workq.patch
-  net-tls-fix-the-iv-leaks.patch
-  net-strparser-partially-revert-strparser-call-skb_un.patch
-  nfc-nci-add-some-bounds-checking-in-nci_hci_cmd_rece.patch
-  nfc-nci-potential-off-by-one-in-pipes-array.patch
-  x86-kprobes-avoid-kretprobe-recursion-bug.patch
-  cw1200-fix-missing-unlock-on-error-in-cw1200_hw_scan.patch
-  mwl8k-fix-rate_idx-underflow.patch
-  rtlwifi-rtl8723ae-fix-missing-break-in-switch-statement.patch
-  don-t-jump-to-compute_result-state-from-check_result-state.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-8500f03a8b3d7de88efd1cd0e1da5430a8e546f5.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ Ethernet drivers sanity [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ lvm thinp sanity [9]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [10]
-     🚧 ✅ stress: stress-ng [11]
-     🚧 ✅ selinux-policy: serge-testsuite [12]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ Ethernet drivers sanity [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ lvm thinp sanity [9]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [10]
-     🚧 ✅ stress: stress-ng [11]
-     🚧 ✅ selinux-policy: serge-testsuite [12]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Ethernet drivers sanity [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ lvm thinp sanity [9]
-     🚧 ✅ selinux-policy: serge-testsuite [12]
-     🚧 ✅ audit: audit testsuite test [10]
-     🚧 ✅ stress: stress-ng [11]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ Ethernet drivers sanity [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ lvm thinp sanity [9]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [10]
-     🚧 ✅ stress: stress-ng [11]
-     🚧 ✅ selinux-policy: serge-testsuite [12]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
