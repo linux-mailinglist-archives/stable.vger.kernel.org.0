@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F191CF8F
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 21:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 957EC1CF9F
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 21:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbfENTEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 15:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57740 "EHLO mail.kernel.org"
+        id S1726525AbfENTHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 15:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726261AbfENTEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 15:04:35 -0400
+        id S1726261AbfENTHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 15:07:45 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA39821473;
-        Tue, 14 May 2019 19:04:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA77C20879;
+        Tue, 14 May 2019 19:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557860674;
-        bh=yUVtsAxih5qWKdllOlOV6aiO/HfjlGc4a4QqKljqHFg=;
+        s=default; t=1557860864;
+        bh=/DfVCHjOyaGlDiczmLDzcLEtUz+p936dFElTqSM5dLo=;
         h=Date:From:To:Subject:From;
-        b=2L46JF/bjo5/BtIL0COWGoWv6XPGEOaQ6Bb8sbnIzjfGKhvak2Rz4AheMfVVsMGwO
-         HR72+CeYN34KglmX9jMAj2U00AGIHKok1gNfZVysHqxpMrNnipc9frw9VDy+rFz+lO
-         0DhO5UdvDiMSsUpto08rFCXM1MUBG2NYau+/CJzk=
-Date:   Tue, 14 May 2019 12:04:33 -0700
+        b=k/1LePI8RkNxALiTNqRuMTc849waGJaPNzF2F8iPLYoftsl9rgyvrG7M7Ae5rqf8E
+         HSq716tW+2eb/GczYR03VPGYze0ZXXAKYn1Y4lXeUd/9Q0YPMhWXxVc5vwmvX6s8Hz
+         Baf72qi++WF0hcOC8dAZW08jh8X5RcIwyNRztJTM=
+Date:   Tue, 14 May 2019 12:07:43 -0700
 From:   akpm@linux-foundation.org
-To:     gechangwei@live.cn, ghe@suse.com, jiangqi903@gmail.com,
-        jlbec@evilplan.org, junxiao.bi@oracle.com, mark@fasheh.com,
-        mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable@vger.kernel.org, sunny.s.zhang@oracle.com
+To:     dbueso@suse.de, iamjoonsoo.kim@lge.com,
+        kirill.shutemov@linux.intel.com, mhocko@kernel.org,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        n-horiguchi@ah.jp.nec.com, stable@vger.kernel.org
 Subject:  [merged]
- ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget.patch removed from -mm
- tree
-Message-ID: <20190514190433.ago11m7Mj%akpm@linux-foundation.org>
+ hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings.patch
+ removed from -mm tree
+Message-ID: <20190514190743.cBtJ8xUiq%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,187 +41,184 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ocfs2: fix ocfs2 read inode data panic in ocfs2_iget
+     Subject: hugetlb: use same fault hash key for shared and private mappings
 has been removed from the -mm tree.  Its filename was
-     ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget.patch
+     hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Shuning Zhang <sunny.s.zhang@oracle.com>
-Subject: ocfs2: fix ocfs2 read inode data panic in ocfs2_iget
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: hugetlb: use same fault hash key for shared and private mappings
 
-In some cases, ocfs2_iget() reads the data of inode, which has been
-deleted for some reason.  That will make the system panic.  So We should
-judge whether this inode has been deleted, and tell the caller that the
-inode is a bad inode.
+hugetlb uses a fault mutex hash table to prevent page faults of the
+same pages concurrently.  The key for shared and private mappings is
+different.  Shared keys off address_space and file index.  Private keys
+off mm and virtual address.  Consider a private mappings of a populated
+hugetlbfs file.  A fault will map the page from the file and if needed
+do a COW to map a writable page.
 
-For example, the ocfs2 is used as the backed of nfs, and the client is
-nfsv3.  This issue can be reproduced by the following steps.
+Hugetlbfs hole punch uses the fault mutex to prevent mappings of file
+pages.  It uses the address_space file index key.  However, private
+mappings will use a different key and could race with this code to map
+the file page.  This causes problems (BUG) for the page cache remove
+code as it expects the page to be unmapped.  A sample stack is:
 
-on the nfs server side,
-..../patha/pathb
+page dumped because: VM_BUG_ON_PAGE(page_mapped(page))
+kernel BUG at mm/filemap.c:169!
+...
+RIP: 0010:unaccount_page_cache_page+0x1b8/0x200
+...
+Call Trace:
+__delete_from_page_cache+0x39/0x220
+delete_from_page_cache+0x45/0x70
+remove_inode_hugepages+0x13c/0x380
+? __add_to_page_cache_locked+0x162/0x380
+hugetlbfs_fallocate+0x403/0x540
+? _cond_resched+0x15/0x30
+? __inode_security_revalidate+0x5d/0x70
+? selinux_file_permission+0x100/0x130
+vfs_fallocate+0x13f/0x270
+ksys_fallocate+0x3c/0x80
+__x64_sys_fallocate+0x1a/0x20
+do_syscall_64+0x5b/0x180
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Step 1: The process A was scheduled before calling the function fh_verify.
+There seems to be another potential COW issue/race with this approach
+of different private and shared keys as noted in commit 8382d914ebf7
+("mm, hugetlb: improve page-fault scalability").
 
-Step 2: The process B is removing the 'pathb', and just completed the call
-to function dput.  Then the dentry of 'pathb' has been deleted from the
-dcache, and all ancestors have been deleted also.  The relationship of
-dentry and inode was deleted through the function hlist_del_init.  The
-following is the call stack. 
-dentry_iput->hlist_del_init(&dentry->d_u.d_alias)
+Since every hugetlb mapping (even anon and private) is actually a file
+mapping, just use the address_space index key for all mappings.  This
+results in potentially more hash collisions.  However, this should not
+be the common case.
 
-At this time, the inode is still in the dcache.
-
-Step 3: The process A call the function ocfs2_get_dentry, which get the
-inode from dcache.  Then the refcount of inode is 1.  The following is the
-call stack. 
-nfsd3_proc_getacl->fh_verify->exportfs_decode_fh->fh_to_dentry(ocfs2_get_dentry)
-
-Step 4: Dirty pages are flushed by bdi threads.  So the inode of 'patha'
-is evicted, and this directory was deleted.  But the inode of 'pathb'
-can't be evicted, because the refcount of the inode was 1.
-
-Step 5: The process A keep running, and call the function
-reconnect_path(in exportfs_decode_fh), which call function
-ocfs2_get_parent of ocfs2.  Get the block number of parent
-directory(patha) by the name of ...  Then read the data from disk by the
-block number.  But this inode has been deleted, so the system panic.
-
-Process A                                             Process B
-1. in nfsd3_proc_getacl                   |
-2.                                        |        dput
-3. fh_to_dentry(ocfs2_get_dentry)         |
-4. bdi flush dirty cache                  |
-5. ocfs2_iget                             |
-
-[283465.542049] OCFS2: ERROR (device sdp): ocfs2_validate_inode_block:
-Invalid dinode #580640: OCFS2_VALID_FL not set
-
-[283465.545490] Kernel panic - not syncing: OCFS2: (device sdp): panic forced
-after error
-
-[283465.546889] CPU: 5 PID: 12416 Comm: nfsd Tainted: G        W
-4.1.12-124.18.6.el6uek.bug28762940v3.x86_64 #2
-[283465.548382] Hardware name: VMware, Inc. VMware Virtual Platform/440BX
-Desktop Reference Platform, BIOS 6.00 09/21/2015
-[283465.549657]  0000000000000000 ffff8800a56fb7b8 ffffffff816e839c
-ffffffffa0514758
-[283465.550392]  000000000008dc20 ffff8800a56fb838 ffffffff816e62d3
-0000000000000008
-[283465.551056]  ffff880000000010 ffff8800a56fb848 ffff8800a56fb7e8
-ffff88005df9f000
-[283465.551710] Call Trace:
-[283465.552516]  [<ffffffff816e839c>] dump_stack+0x63/0x81
-[283465.553291]  [<ffffffff816e62d3>] panic+0xcb/0x21b
-[283465.554037]  [<ffffffffa04e66b0>] ocfs2_handle_error+0xf0/0xf0 [ocfs2]
-[283465.554882]  [<ffffffffa04e7737>] __ocfs2_error+0x67/0x70 [ocfs2]
-[283465.555768]  [<ffffffffa049c0f9>] ocfs2_validate_inode_block+0x229/0x230
-[ocfs2]
-[283465.556683]  [<ffffffffa047bcbc>] ocfs2_read_blocks+0x46c/0x7b0 [ocfs2]
-[283465.557408]  [<ffffffffa049bed0>] ? ocfs2_inode_cache_io_unlock+0x20/0x20
-[ocfs2]
-[283465.557973]  [<ffffffffa049f0eb>] ocfs2_read_inode_block_full+0x3b/0x60
-[ocfs2]
-[283465.558525]  [<ffffffffa049f5ba>] ocfs2_iget+0x4aa/0x880 [ocfs2]
-[283465.559082]  [<ffffffffa049146e>] ocfs2_get_parent+0x9e/0x220 [ocfs2]
-[283465.559622]  [<ffffffff81297c05>] reconnect_path+0xb5/0x300
-[283465.560156]  [<ffffffff81297f46>] exportfs_decode_fh+0xf6/0x2b0
-[283465.560708]  [<ffffffffa062faf0>] ? nfsd_proc_getattr+0xa0/0xa0 [nfsd]
-[283465.561262]  [<ffffffff810a8196>] ? prepare_creds+0x26/0x110
-[283465.561932]  [<ffffffffa0630860>] fh_verify+0x350/0x660 [nfsd]
-[283465.562862]  [<ffffffffa0637804>] ? nfsd_cache_lookup+0x44/0x630 [nfsd]
-[283465.563697]  [<ffffffffa063a8b9>] nfsd3_proc_getattr+0x69/0xf0 [nfsd]
-[283465.564510]  [<ffffffffa062cf60>] nfsd_dispatch+0xe0/0x290 [nfsd]
-[283465.565358]  [<ffffffffa05eb892>] ? svc_tcp_adjust_wspace+0x12/0x30
-[sunrpc]
-[283465.566272]  [<ffffffffa05ea652>] svc_process_common+0x412/0x6a0 [sunrpc]
-[283465.567155]  [<ffffffffa05eaa03>] svc_process+0x123/0x210 [sunrpc]
-[283465.568020]  [<ffffffffa062c90f>] nfsd+0xff/0x170 [nfsd]
-[283465.568962]  [<ffffffffa062c810>] ? nfsd_destroy+0x80/0x80 [nfsd]
-[283465.570112]  [<ffffffff810a622b>] kthread+0xcb/0xf0
-[283465.571099]  [<ffffffff810a6160>] ? kthread_create_on_node+0x180/0x180
-[283465.572114]  [<ffffffff816f11b8>] ret_from_fork+0x58/0x90
-[283465.573156]  [<ffffffff810a6160>] ? kthread_create_on_node+0x180/0x180
-
-Link: http://lkml.kernel.org/r/1554185919-3010-1-git-send-email-sunny.s.zhang@oracle.com
-Signed-off-by: Shuning Zhang <sunny.s.zhang@oracle.com>
-Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: piaojun <piaojun@huawei.com>
-Cc: "Gang He" <ghe@suse.com>
+Link: http://lkml.kernel.org/r/20190328234704.27083-3-mike.kravetz@oracle.com
+Link: http://lkml.kernel.org/r/20190412165235.t4sscoujczfhuiyt@linux-r8p5
+Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/export.c |   30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c    |    7 ++-----
+ include/linux/hugetlb.h |    4 +---
+ mm/hugetlb.c            |   22 ++++++----------------
+ mm/userfaultfd.c        |    3 +--
+ 4 files changed, 10 insertions(+), 26 deletions(-)
 
---- a/fs/ocfs2/export.c~ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget
-+++ a/fs/ocfs2/export.c
-@@ -148,16 +148,24 @@ static struct dentry *ocfs2_get_parent(s
- 	u64 blkno;
- 	struct dentry *parent;
- 	struct inode *dir = d_inode(child);
-+	int set;
+--- a/fs/hugetlbfs/inode.c~hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings
++++ a/fs/hugetlbfs/inode.c
+@@ -440,9 +440,7 @@ static void remove_inode_hugepages(struc
+ 			u32 hash;
  
- 	trace_ocfs2_get_parent(child, child->d_name.len, child->d_name.name,
- 			       (unsigned long long)OCFS2_I(dir)->ip_blkno);
+ 			index = page->index;
+-			hash = hugetlb_fault_mutex_hash(h, current->mm,
+-							&pseudo_vma,
+-							mapping, index, 0);
++			hash = hugetlb_fault_mutex_hash(h, mapping, index, 0);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
  
-+	status = ocfs2_nfs_sync_lock(OCFS2_SB(dir->i_sb), 1);
-+	if (status < 0) {
-+		mlog(ML_ERROR, "getting nfs sync lock(EX) failed %d\n", status);
-+		parent = ERR_PTR(status);
-+		goto bail;
-+	}
-+
- 	status = ocfs2_inode_lock(dir, NULL, 0);
- 	if (status < 0) {
- 		if (status != -ENOENT)
- 			mlog_errno(status);
- 		parent = ERR_PTR(status);
--		goto bail;
-+		goto unlock_nfs_sync;
- 	}
+ 			/*
+@@ -639,8 +637,7 @@ static long hugetlbfs_fallocate(struct f
+ 		addr = index * hpage_size;
  
- 	status = ocfs2_lookup_ino_from_name(dir, "..", 2, &blkno);
-@@ -166,11 +174,31 @@ static struct dentry *ocfs2_get_parent(s
- 		goto bail_unlock;
- 	}
+ 		/* mutex taken here, fault path and hole punch */
+-		hash = hugetlb_fault_mutex_hash(h, mm, &pseudo_vma, mapping,
+-						index, addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
  
-+	status = ocfs2_test_inode_bit(OCFS2_SB(dir->i_sb), blkno, &set);
-+	if (status < 0) {
-+		if (status == -EINVAL) {
-+			status = -ESTALE;
-+		} else
-+			mlog(ML_ERROR, "test inode bit failed %d\n", status);
-+		parent = ERR_PTR(status);
-+		goto bail_unlock;
-+	}
-+
-+	trace_ocfs2_get_dentry_test_bit(status, set);
-+	if (!set) {
-+		status = -ESTALE;
-+		parent = ERR_PTR(status);
-+		goto bail_unlock;
-+	}
-+
- 	parent = d_obtain_alias(ocfs2_iget(OCFS2_SB(dir->i_sb), blkno, 0, 0));
+ 		/* See if already present in mapping to avoid alloc/free */
+--- a/include/linux/hugetlb.h~hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings
++++ a/include/linux/hugetlb.h
+@@ -123,9 +123,7 @@ void move_hugetlb_state(struct page *old
+ void free_huge_page(struct page *page);
+ void hugetlb_fix_reserve_counts(struct inode *inode);
+ extern struct mutex *hugetlb_fault_mutex_table;
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-				struct vm_area_struct *vma,
+-				struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 				pgoff_t idx, unsigned long address);
  
- bail_unlock:
- 	ocfs2_inode_unlock(dir, 0);
+ pte_t *huge_pmd_share(struct mm_struct *mm, unsigned long addr, pud_t *pud);
+--- a/mm/hugetlb.c~hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings
++++ a/mm/hugetlb.c
+@@ -3824,8 +3824,7 @@ retry:
+ 			 * handling userfault.  Reacquire after handling
+ 			 * fault to make calling code simpler.
+ 			 */
+-			hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping,
+-							idx, haddr);
++			hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+@@ -3933,21 +3932,14 @@ backout_unlocked:
+ }
  
-+unlock_nfs_sync:
-+	ocfs2_nfs_sync_unlock(OCFS2_SB(dir->i_sb), 1);
-+
- bail:
- 	trace_ocfs2_get_parent_end(parent);
+ #ifdef CONFIG_SMP
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-			    struct vm_area_struct *vma,
+-			    struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 			    pgoff_t idx, unsigned long address)
+ {
+ 	unsigned long key[2];
+ 	u32 hash;
  
+-	if (vma->vm_flags & VM_SHARED) {
+-		key[0] = (unsigned long) mapping;
+-		key[1] = idx;
+-	} else {
+-		key[0] = (unsigned long) mm;
+-		key[1] = address >> huge_page_shift(h);
+-	}
++	key[0] = (unsigned long) mapping;
++	key[1] = idx;
+ 
+ 	hash = jhash2((u32 *)&key, sizeof(key)/sizeof(u32), 0);
+ 
+@@ -3958,9 +3950,7 @@ u32 hugetlb_fault_mutex_hash(struct hsta
+  * For uniprocesor systems we always use a single mutex, so just
+  * return 0 and avoid the hashing overhead.
+  */
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-			    struct vm_area_struct *vma,
+-			    struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 			    pgoff_t idx, unsigned long address)
+ {
+ 	return 0;
+@@ -4005,7 +3995,7 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 	 * get spurious allocation failures if two CPUs race to instantiate
+ 	 * the same page in the page cache.
+ 	 */
+-	hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping, idx, haddr);
++	hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
+ 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 	entry = huge_ptep_get(ptep);
+--- a/mm/userfaultfd.c~hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings
++++ a/mm/userfaultfd.c
+@@ -271,8 +271,7 @@ retry:
+ 		 */
+ 		idx = linear_page_index(dst_vma, dst_addr);
+ 		mapping = dst_vma->vm_file->f_mapping;
+-		hash = hugetlb_fault_mutex_hash(h, dst_mm, dst_vma, mapping,
+-								idx, dst_addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, idx, dst_addr);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 		err = -ENOMEM;
 _
 
-Patches currently in -mm which might be from sunny.s.zhang@oracle.com are
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
 
 
