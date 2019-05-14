@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C73A31C5F4
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 11:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBF71C5F5
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 11:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbfENJWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 05:22:48 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:33061 "EHLO
+        id S1726220AbfENJWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 05:22:50 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50227 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725916AbfENJWs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 05:22:48 -0400
+        by vger.kernel.org with ESMTP id S1725916AbfENJWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 05:22:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id CDFB72444D;
-        Tue, 14 May 2019 05:22:46 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 14 May 2019 05:22:46 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 97F15244B4;
+        Tue, 14 May 2019 05:22:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 14 May 2019 05:22:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cNwARL
-        XM6+0SdYG++O9uxt2O11CJ38Mo+bJy13XdHrs=; b=l1jDiDbRhSVtoZQqfn1IS/
-        LZp96fj6IgC50bqgXGNjctHiR7Kr63gCUzq9ICOttceljjnWslVYB+rpWYZRFT82
-        TbGTdBspwJiOQsXCx9yQbNRvNtElAoyrtzTljq3aoxtsG4S6wf95UMva0S1S41vM
-        hZJ0GE1trkrY5S1pqbyZo7o1AzzvDlU1uYWTdOLqV85QnXjWjYH9YEtlI0y3q7aB
-        j23Hj41B9MZ1gq8H14sQkc/svg8xLboyTISijHY8N7JAeTcjeMxee2WBuJYFpnqU
-        8GPBiQW+LhlgECxWwR0663DQeN6PqnwhPpzkQwhCUE1X4ZaFnFvMa8umdD4pOYqg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GTrp+6
+        PhhOzBSrqJ+LzHNsYFhEFVgtbJ8f7QIXMBQB0=; b=HMihYLtXdGdLOBkb1s8jEP
+        sR1ZvvOu75bcidBeCKsuHrL6iI427pEuhYopSKQKTeNotRwnTjzNguk/25myHCH8
+        aj8Z4QlbdZSYvEJDJN6F6ipHsAJN5PT0+JNXaG7z1tMBT4x4Wolbgk670OppdVM2
+        gDPxIsFfQl8YKkoBP7AGyXWEIimlYdM21j3LSCmAuTxpUyI7a4KeRoEQdtOe0IQp
+        LEbyVxeHikMvFYx6HDBwEqTX/kfIvj/ekiaNbiCA+IxkvKaAo3Bhajo4Nn2UNouC
+        BLoUJo97ZfFrio8somGdsEScRbxoIrrgEdV/kRKwDp66aNSDIoE5ugZ+dePg4pPA
         ==
-X-ME-Sender: <xms:5ojaXA8DOUmxhhbmTYBu_Sm3q1hty8JL2KhnY8RLpghxIQmcSHjauA>
+X-ME-Sender: <xms:6YjaXMFAR82it9uaPv9_zEUHF-RJM717l3_laRaR9lV7XyduIalqBw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleeigddugecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepohhpvghnfihrthdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:5ojaXFC0hPuerLXsiwQYvwgTh-dGHBmPOGXJhxMC3wo1fDAUo1vpQg>
-    <xmx:5ojaXIyvP_oQAOxQAhkVkU6KjPALc6vL3ukyoruesaWiwQXX5ixqnA>
-    <xmx:5ojaXCQmedq3ERonyN6SfHxMCz3hvUlSeWnUuAl4RvKLWmqu6k8WMQ>
-    <xmx:5ojaXAuP9oB7pFJ9QsyGvVLPy6dmNgwkIj0d1C9aKi3vJlW1dqziSA>
+    ucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:6YjaXJS3JheMIK5eYVDYSYZV88P-IDiTcsM00Z6x4cdEr0uwViZjOg>
+    <xmx:6YjaXKvY0TyHWacXmbmqljYutolYXfmaAydxZqUNjUPfo_7LywjfSA>
+    <xmx:6YjaXGDsTIs7b8M9EjcPHKfXaj_wXAtFRwAthvH7VEyrGBUIjSSC3g>
+    <xmx:6YjaXGBC26ovyNVMJEToSx6tiB_9sAG5xIYzfwTUqF-rPfJkWrx4lg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3C5F480061;
-        Tue, 14 May 2019 05:22:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mwl8k: Fix rate_idx underflow" failed to apply to 3.18-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id F040410379;
+        Tue, 14 May 2019 05:22:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mwl8k: Fix rate_idx underflow" failed to apply to 4.4-stable tree
 To:     ynezz@true.cz, bunnier@gmail.com, kvalo@codeaurora.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 14 May 2019 11:22:37 +0200
-Message-ID: <1557825757219104@kroah.com>
+Message-ID: <1557825757144200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 3.18-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
