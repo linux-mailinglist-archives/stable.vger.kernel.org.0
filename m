@@ -2,218 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC211C3C4
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 09:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30F991C3DA
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 09:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfENHVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 03:21:36 -0400
-Received: from mail-eopbgr810072.outbound.protection.outlook.com ([40.107.81.72]:23049
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726491AbfENHVg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 03:21:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7I0I7EqMp9u8qoAqgsPq2edPo34Jt6gf97q8PQTA6gw=;
- b=HvR8LkL7t2fasfzTvvJk3WsltZRAIkASXXTez6W9A1wJ3YR6+fCBX+sgjGqs/DZFRbRpgNBZKMzZKGGOG7vr1QsotKorQtf/Nth5ybtw5SovtyMivfhc+MXJNgfDThE4252qz8Klhv2I77wPR/j+e7z7eLUEEmEVUq8gR+tX/qc=
-Received: from BYAPR05MB4776.namprd05.prod.outlook.com (52.135.233.146) by
- BYAPR05MB5173.namprd05.prod.outlook.com (20.177.231.31) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1900.4; Tue, 14 May 2019 07:21:33 +0000
-Received: from BYAPR05MB4776.namprd05.prod.outlook.com
- ([fe80::b057:917a:f098:6098]) by BYAPR05MB4776.namprd05.prod.outlook.com
- ([fe80::b057:917a:f098:6098%7]) with mapi id 15.20.1900.010; Tue, 14 May 2019
- 07:21:33 +0000
-From:   Nadav Amit <namit@vmware.com>
-To:     Jan Stancek <jstancek@redhat.com>
-CC:     Yang Shi <yang.shi@linux.alibaba.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "minchan@kernel.org" <minchan@kernel.org>,
-        "mgorman@suse.de" <mgorman@suse.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
- flush
-Thread-Topic: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
- flush
-Thread-Index: AQHVCfj1/ZS8SZ4p0ke1CH5gp1S1IPlIMumfrSIEdAA=
-Date:   Tue, 14 May 2019 07:21:33 +0000
-Message-ID: <9E536319-815D-4425-B4B6-8786D415442C@vmware.com>
-References: <45c6096e-c3e0-4058-8669-75fbba415e07@email.android.com>
- <914836977.22577826.1557818139522.JavaMail.zimbra@redhat.com>
-In-Reply-To: <914836977.22577826.1557818139522.JavaMail.zimbra@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=namit@vmware.com; 
-x-originating-ip: [50.204.119.4]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ac502c48-e668-4174-56e5-08d6d83ccac7
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(2017052603328)(7193020);SRVR:BYAPR05MB5173;
-x-ms-traffictypediagnostic: BYAPR05MB5173:
-x-microsoft-antispam-prvs: <BYAPR05MB5173E2C0864A692094A3A104D0080@BYAPR05MB5173.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1332;
-x-forefront-prvs: 0037FD6480
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(396003)(346002)(136003)(376002)(366004)(51444003)(13464003)(189003)(199004)(26005)(6916009)(76116006)(486006)(82746002)(8936002)(11346002)(446003)(476003)(2616005)(53546011)(6506007)(3846002)(6116002)(8676002)(102836004)(64756008)(66946007)(86362001)(478600001)(66476007)(66556008)(99286004)(66446008)(76176011)(73956011)(2906002)(186003)(305945005)(33656002)(81166006)(81156014)(54906003)(14444005)(7736002)(25786009)(256004)(66066001)(4326008)(68736007)(83716004)(14454004)(71190400001)(71200400001)(6246003)(316002)(6436002)(5660300002)(6486002)(53936002)(229853002)(36756003)(6512007);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR05MB5173;H:BYAPR05MB4776.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: jjvcp9/FuCA+7L2BLRNXI2KVPUCKVLkqEiABBUAolJOx08v596JYEHvi8zyej5TMk//dNwHPC0vzjiDo5fdGgG8mKoSw/LOPTRQSBlXWnirIGyuLD34jckMdDkxKt/2KThV1le9URf+Rya6TPXtbRIZEDHUIlgwYBpQ0s4c0dJPhdSlqgTMgyjlRNIvCFJe9umdHHhibwwfH9uPPj/UWdAnfHZaN4MNvve9gg8TLo2alcjFkCF0RPGYmpkdRm2aEkepPJq0cI2Hf7NIcFxWOzHAA+Txw4Ux+0T0ZS3Tm1pEI/aqxDBBJNcaRbcLegFZupiq6we1WvtE8zBneMUe1Cc67keYOdH69ZwHfXsgnLKbqbV5g0rNHMgrvEA8q/0zaHsvbiJzCXH2A01wrQMxqUm64PoDlJJjzeD/rWHu+TsE=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <92DBC1E19E9DE0418FCBE6C11065680D@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1726274AbfENHfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 03:35:23 -0400
+Received: from mo-csw1116.securemx.jp ([210.130.202.158]:38482 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725946AbfENHfX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 03:35:23 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1116) id x4E7Yj7B010201; Tue, 14 May 2019 16:34:45 +0900
+X-Iguazu-Qid: 2wHHEpXClbsTjtms6d
+X-Iguazu-QSIG: v=2; s=0; t=1557819284; q=2wHHEpXClbsTjtms6d; m=F82ggJGZLfRaicC9CZfHMd4t9YzOSScwG0DHWN4fYsg=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1110) id x4E7Yg4r035359;
+        Tue, 14 May 2019 16:34:42 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id x4E7YggH022162;
+        Tue, 14 May 2019 16:34:42 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id x4E7YfD0013109;
+        Tue, 14 May 2019 16:34:41 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Alistair Strachan <astrachan@google.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Carlos O'Donell" <carlos@redhat.com>,
+        "H. J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Laura Abbott <labbott@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        kernel-team@android.com, stable <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH for 4.4, 4.9 and 4.14] x86/vdso: Pass --eh-frame-hdr to the linker
+Date:   Tue, 14 May 2019 16:34:29 +0900
+X-TSB-HOP: ON
+Message-Id: <20190514073429.17537-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ac502c48-e668-4174-56e5-08d6d83ccac7
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 May 2019 07:21:33.0143
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB5173
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> On May 14, 2019, at 12:15 AM, Jan Stancek <jstancek@redhat.com> wrote:
->=20
->=20
-> ----- Original Message -----
->> On May 13, 2019 4:01 PM, Yang Shi <yang.shi@linux.alibaba.com> wrote:
->>=20
->>=20
->> On 5/13/19 9:38 AM, Will Deacon wrote:
->>> On Fri, May 10, 2019 at 07:26:54AM +0800, Yang Shi wrote:
->>>> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
->>>> index 99740e1..469492d 100644
->>>> --- a/mm/mmu_gather.c
->>>> +++ b/mm/mmu_gather.c
->>>> @@ -245,14 +245,39 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
->>>>  {
->>>>      /*
->>>>       * If there are parallel threads are doing PTE changes on same ra=
-nge
->>>> -     * under non-exclusive lock(e.g., mmap_sem read-side) but defer T=
-LB
->>>> -     * flush by batching, a thread has stable TLB entry can fail to f=
-lush
->>>> -     * the TLB by observing pte_none|!pte_dirty, for example so flush=
- TLB
->>>> -     * forcefully if we detect parallel PTE batching threads.
->>>> +     * under non-exclusive lock (e.g., mmap_sem read-side) but defer =
-TLB
->>>> +     * flush by batching, one thread may end up seeing inconsistent P=
-TEs
->>>> +     * and result in having stale TLB entries.  So flush TLB forceful=
-ly
->>>> +     * if we detect parallel PTE batching threads.
->>>> +     *
->>>> +     * However, some syscalls, e.g. munmap(), may free page tables, t=
-his
->>>> +     * needs force flush everything in the given range. Otherwise thi=
-s
->>>> +     * may result in having stale TLB entries for some architectures,
->>>> +     * e.g. aarch64, that could specify flush what level TLB.
->>>>       */
->>>> -    if (mm_tlb_flush_nested(tlb->mm)) {
->>>> -            __tlb_reset_range(tlb);
->>>> -            __tlb_adjust_range(tlb, start, end - start);
->>>> +    if (mm_tlb_flush_nested(tlb->mm) && !tlb->fullmm) {
->>>> +            /*
->>>> +             * Since we can't tell what we actually should have
->>>> +             * flushed, flush everything in the given range.
->>>> +             */
->>>> +            tlb->freed_tables =3D 1;
->>>> +            tlb->cleared_ptes =3D 1;
->>>> +            tlb->cleared_pmds =3D 1;
->>>> +            tlb->cleared_puds =3D 1;
->>>> +            tlb->cleared_p4ds =3D 1;
->>>> +
->>>> +            /*
->>>> +             * Some architectures, e.g. ARM, that have range invalida=
-tion
->>>> +             * and care about VM_EXEC for I-Cache invalidation, need
->>>> force
->>>> +             * vma_exec set.
->>>> +             */
->>>> +            tlb->vma_exec =3D 1;
->>>> +
->>>> +            /* Force vma_huge clear to guarantee safer flush */
->>>> +            tlb->vma_huge =3D 0;
->>>> +
->>>> +            tlb->start =3D start;
->>>> +            tlb->end =3D end;
->>>>      }
->>> Whilst I think this is correct, it would be interesting to see whether
->>> or not it's actually faster than just nuking the whole mm, as I mention=
-ed
->>> before.
->>>=20
->>> At least in terms of getting a short-term fix, I'd prefer the diff belo=
-w
->>> if it's not measurably worse.
->>=20
->> I did a quick test with ebizzy (96 threads with 5 iterations) on my x86
->> VM, it shows slightly slowdown on records/s but much more sys time spent
->> with fullmm flush, the below is the data.
->>=20
->>                                     nofullmm                 fullmm
->> ops (records/s)              225606                  225119
->> sys (s)                            0.69                        1.14
->>=20
->> It looks the slight reduction of records/s is caused by the increase of
->> sys time.
->>=20
->>> Will
->>>=20
->>> --->8
->>>=20
->>> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
->>> index 99740e1dd273..cc251422d307 100644
->>> --- a/mm/mmu_gather.c
->>> +++ b/mm/mmu_gather.c
->>> @@ -251,8 +251,9 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
->>>        * forcefully if we detect parallel PTE batching threads.
->>>        */
->>>       if (mm_tlb_flush_nested(tlb->mm)) {
->>> +             tlb->fullmm =3D 1;
->>>               __tlb_reset_range(tlb);
->>> -             __tlb_adjust_range(tlb, start, end - start);
->>> +             tlb->freed_tables =3D 1;
->>>       }
->>>=20
->>>       tlb_flush_mmu(tlb);
->>=20
->>=20
->> I think that this should have set need_flush_all and not fullmm.
->=20
-> Wouldn't that skip the flush?
->=20
-> If fulmm =3D=3D 0, then __tlb_reset_range() sets tlb->end =3D 0.
->  tlb_flush_mmu
->    tlb_flush_mmu_tlbonly
->      if (!tlb->end)
->         return
->=20
-> Replacing fullmm with need_flush_all, brings the problem back / reproduce=
-r hangs.
+From: Alistair Strachan <astrachan@google.com>
 
-Maybe setting need_flush_all does not have the right effect, but setting
-fullmm and then calling __tlb_reset_range() when the PTEs were already
-zapped seems strange.
+commit cd01544a268ad8ee5b1dfe42c4393f1095f86879 upstream.
 
-fullmm is described as:
+Commit
 
-        /*
-         * we are in the middle of an operation to clear
-         * a full mm and can make some optimizations
-         */
+  379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
 
-And this not the case.
+accidentally broke unwinding from userspace, because ld would strip the
+.eh_frame sections when linking.
+
+Originally, the compiler would implicitly add --eh-frame-hdr when
+invoking the linker, but when this Makefile was converted from invoking
+ld via the compiler, to invoking it directly (like vmlinux does),
+the flag was missed. (The EH_FRAME section is important for the VDSO
+shared libraries, but not for vmlinux.)
+
+Fix the problem by explicitly specifying --eh-frame-hdr, which restores
+parity with the old method.
+
+See relevant bug reports for additional info:
+
+  https://bugzilla.kernel.org/show_bug.cgi?id=201741
+  https://bugzilla.redhat.com/show_bug.cgi?id=1659295
+
+Fixes: 379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
+Reported-by: Florian Weimer <fweimer@redhat.com>
+Reported-by: Carlos O'Donell <carlos@redhat.com>
+Reported-by: "H. J. Lu" <hjl.tools@gmail.com>
+Signed-off-by: Alistair Strachan <astrachan@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Laura Abbott <labbott@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Carlos O'Donell <carlos@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: kernel-team@android.com
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: X86 ML <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20181214223637.35954-1-astrachan@google.com
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ arch/x86/entry/vdso/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 297dda4d5947..15ed35f5097d 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -159,7 +159,8 @@ quiet_cmd_vdso = VDSO    $@
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+ VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
+-	$(call ld-option, --build-id) -Bsymbolic
++	$(call ld-option, --build-id) $(call ld-option, --eh-frame-hdr) \
++	-Bsymbolic
+ GCOV_PROFILE := n
+ 
+ #
+-- 
+2.20.1
 
