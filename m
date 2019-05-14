@@ -2,115 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 288BA1C8CA
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 14:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3BC1C8CD
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 14:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726036AbfENMcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 08:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
+        id S1726211AbfENMdx convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 14 May 2019 08:33:53 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56356 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725893AbfENMcw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 08:32:52 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725893AbfENMdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 08:33:52 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4876208CA;
-        Tue, 14 May 2019 12:32:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557837171;
-        bh=FBI8sebGiHHQorlFx9iGAfDIgT6MrqdaT27lcYUbLlc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HQCUM09H+3A2FhBQYPq6wffmZa+9GShOKaFllRdHKWMBqGx8p41JDgjysPqcm+uAe
-         ysZG7f8DtzJScq3gQD/zzdl8Q1r2qCL7YG/THA/LjbnyVEAXH3qT2LF5xpUkUGPZwu
-         d+E7xdU6KtV4WReOg+kVngS0QNaAwoDx0Lrndcp0=
-Date:   Tue, 14 May 2019 08:32:49 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        stable@kernel.org, Alistair Strachan <astrachan@google.com>,
-        Florian Weimer <fweimer@redhat.com>,
-        Carlos O'Donell <carlos@redhat.com>,
-        "H. J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
-        Laura Abbott <labbott@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        kernel-team@android.com, stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>
-Subject: Re: [PATCH for 4.4, 4.9 and 4.14] x86/vdso: Pass --eh-frame-hdr to
- the linker
-Message-ID: <20190514123249.GK11972@sasha-vm>
-References: <20190514073429.17537-1-nobuhiro1.iwamatsu@toshiba.co.jp>
- <20190514075004.GD27017@kroah.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id 3804B3092659
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 12:33:52 +0000 (UTC)
+Received: from [172.54.121.115] (cpt-large-cpu-04.paas.prod.upshift.rdu2.redhat.com [10.0.18.60])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C25605D6A6;
+        Tue, 14 May 2019 12:33:49 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190514075004.GD27017@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.AB24423427.PAZJI3WLR2@redhat.com>
+X-Gitlab-Pipeline-ID: 9926
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/9926
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Tue, 14 May 2019 12:33:52 +0000 (UTC)
+Date:   Tue, 14 May 2019 08:33:52 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 14, 2019 at 09:50:04AM +0200, Greg Kroah-Hartman wrote:
->On Tue, May 14, 2019 at 04:34:29PM +0900, Nobuhiro Iwamatsu wrote:
->> From: Alistair Strachan <astrachan@google.com>
->>
->> commit cd01544a268ad8ee5b1dfe42c4393f1095f86879 upstream.
->>
->> Commit
->>
->>   379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
->>
->> accidentally broke unwinding from userspace, because ld would strip the
->> .eh_frame sections when linking.
->>
->> Originally, the compiler would implicitly add --eh-frame-hdr when
->> invoking the linker, but when this Makefile was converted from invoking
->> ld via the compiler, to invoking it directly (like vmlinux does),
->> the flag was missed. (The EH_FRAME section is important for the VDSO
->> shared libraries, but not for vmlinux.)
->>
->> Fix the problem by explicitly specifying --eh-frame-hdr, which restores
->> parity with the old method.
->>
->> See relevant bug reports for additional info:
->>
->>   https://bugzilla.kernel.org/show_bug.cgi?id=201741
->>   https://bugzilla.redhat.com/show_bug.cgi?id=1659295
->>
->> Fixes: 379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
->> Reported-by: Florian Weimer <fweimer@redhat.com>
->> Reported-by: Carlos O'Donell <carlos@redhat.com>
->> Reported-by: "H. J. Lu" <hjl.tools@gmail.com>
->> Signed-off-by: Alistair Strachan <astrachan@google.com>
->> Signed-off-by: Borislav Petkov <bp@suse.de>
->> Tested-by: Laura Abbott <labbott@redhat.com>
->> Cc: Andy Lutomirski <luto@kernel.org>
->> Cc: Carlos O'Donell <carlos@redhat.com>
->> Cc: "H. Peter Anvin" <hpa@zytor.com>
->> Cc: Ingo Molnar <mingo@redhat.com>
->> Cc: Joel Fernandes <joel@joelfernandes.org>
->> Cc: kernel-team@android.com
->> Cc: Laura Abbott <labbott@redhat.com>
->> Cc: stable <stable@vger.kernel.org>
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: X86 ML <x86@kernel.org>
->> Link: https://lkml.kernel.org/r/20181214223637.35954-1-astrachan@google.com
->> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
->> ---
->>  arch/x86/entry/vdso/Makefile | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->
->This is already in the 4.14 stable queue.
->
->Sasha, how did you tools miss it for 4.4 and 4.9?
+Hello,
 
-This commit claims it fixes 379d98ddf413 ("x86: vdso: Use $LD instead of
-$CC to link"), which is not in 4.9 nor 4.4, nor does 379d98ddf413 apply
-cleanly to 4.9 or 4.4, and neither does the backport of 379d98ddf413
-for 4.14 provided to us by the google folks. That's how :)
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
---
-Thanks,
-Sasha
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: b724e9356404 - Linux 5.1.1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: b724e9356404 - Linux 5.1.1
+
+We then merged the patchset with `git am`:
+
+  platform-x86-sony-laptop-fix-unintentional-fall-through.patch
+  platform-x86-thinkpad_acpi-disable-bluetooth-for-some-machines.patch
+  platform-x86-dell-laptop-fix-rfkill-functionality.patch
+  hwmon-pwm-fan-disable-pwm-if-fetching-cooling-data-fails.patch
+  hwmon-occ-fix-extended-status-bits.patch
+  selftests-seccomp-handle-namespace-failures-gracefully.patch
+  i2c-core-ratelimit-transfer-when-suspended-errors.patch
+  kernfs-fix-barrier-usage-in-__kernfs_new_node.patch
+  virt-vbox-sanity-check-parameter-types-for-hgcm-calls-coming-from-userspace.patch
+  usb-serial-fix-unthrottle-races.patch
+  mwl8k-fix-rate_idx-underflow.patch
+  rtlwifi-rtl8723ae-fix-missing-break-in-switch-statement.patch
+  mm-memory_hotplug-do-not-unlock-when-fails-to-take-the-device_hotplug_lock.patch
+  don-t-jump-to-compute_result-state-from-check_result-state.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-07cde30453c1504213fb40197c87ab1b38e25d15.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-07cde30453c1504213fb40197c87ab1b38e25d15.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-07cde30453c1504213fb40197c87ab1b38e25d15.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-07cde30453c1504213fb40197c87ab1b38e25d15.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-07cde30453c1504213fb40197c87ab1b38e25d15.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-07cde30453c1504213fb40197c87ab1b38e25d15.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-07cde30453c1504213fb40197c87ab1b38e25d15.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-07cde30453c1504213fb40197c87ab1b38e25d15.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Boot test [0]
+     🚧 ✅ audit: audit testsuite test [8]
+     🚧 ✅ stress: stress-ng [9]
+     🚧 ✅ selinux-policy: serge-testsuite [7]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
