@@ -2,170 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CE21E539
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 00:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A691E541
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 00:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726201AbfENWkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 18:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbfENWkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 18:40:49 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5700320873;
-        Tue, 14 May 2019 22:40:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557873647;
-        bh=jrMSV+j6sJroPnlFDZCfz6fSoaJX59efEzNHIq6kCM4=;
-        h=Date:From:To:Subject:From;
-        b=mNbl34NsidTvBNivFsMuDGEtLIJPZFrHlc8OWM0yOIrXhgPgM5l+Kh8vDcmcLz8HL
-         2RT57ijOezYD3OM8Dfkol8j7ulYzidk5KxbNIJ6VsogT5mksy4kO9w/QEBn78L5Ez+
-         YUg/WlYF+uC7Q9mTf5LxaLIu7pG90iwEsUH0MxGY=
-Date:   Tue, 14 May 2019 15:40:46 -0700
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, akpm@linux-foundation.org, hughd@google.com,
-        jannh@google.com, jgg@mellanox.com,
-        kirill.shutemov@linux.intel.com, mhocko@suse.com,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        oleg@redhat.com, peterx@redhat.com, rppt@linux.vnet.ibm.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        zhongjiang@huawei.com
-Subject:  [patch 002/126] userfaultfd: use RCU to free the task
- struct when fork fails
-Message-ID: <20190514224046.PuG0ahnFz%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726174AbfENWlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 18:41:49 -0400
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:52234 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726148AbfENWls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 18:41:48 -0400
+Received: by mail-wm1-f45.google.com with SMTP id y3so650013wmm.2
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 15:41:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7nEilbM0DckSPwWnJlbi9Ou8y05n8Msd31QdQz/aK68=;
+        b=oX72fA3V5pXfO3dxQ1i9gTJZCDp+R0e+BTg2ZxEsWslsQapFNWOc83dBo5kcyQhl2H
+         tS0PUmGWcg0uz26fyHvX03CJt+wQsVcskQBnIIe4tOTr/xTtE/YrV7s3zfJHFSn6rSc8
+         yEser4CMrxyjIjlv86JtvkEnMXTCJYy+qsDYaA1cNmo8TFGLLwfwO/F9jlMaFVsbNlRW
+         S8kltiZ12X71DcbFzFKPdPkm7KlQ1c9qgQLQCA5X87QedjXQgtI9830QmzRs94pA2Yod
+         kyRIZtcYZPCLIXos1vk6TI/rC2Kc4BC/mls0TkKQ+MZvbHdThbJgyvE0lE1mtnwRsfxM
+         ESVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7nEilbM0DckSPwWnJlbi9Ou8y05n8Msd31QdQz/aK68=;
+        b=hbhl2ZLIhzPE1VfXrRnsnXDnivJeBdT2AYrSCT9/CHWY0Tplz6t4I7NlA6Ei76+N+y
+         48T7OpV0E2/d205+HZQ3PInRNqq7Qip0ZZiuzLZFGBv98NKNd2m76s9aB0gGYCRyfEzg
+         9ba6w1HKPy+ZR0JqNez1Rp5MJOTxLf8VJQDymhv78FsT0mIVS8A9KkpqcjjAd/8pvk9q
+         DIZXsOh0Kh5q/I2jqOt+CnbDRrj5sMKw0Og4bP2FfYqSKivk8tc7KP3XGF1bFLZXzZlT
+         eya+iVoNKlhUmktObaaNLQYGldOE+vMnqCRub7bTLOwYiilnY8V6LmxKgbBhUKrXfL9h
+         aiZA==
+X-Gm-Message-State: APjAAAVEvvYX/2cjTVDJ1iJfVUPSD6QFyqWBqf6CA4wBiXZQncrUtK/b
+        LRBfIU7Pxvn/Ba60huvGqU6jA4oRD32CaQ==
+X-Google-Smtp-Source: APXvYqzLGVQlrZhmKVna6f8pLuP82kHla4ChUL5foBmbuzsIHEzTUg7bg8XCWfp9r4PP9xOqTuKVRQ==
+X-Received: by 2002:a1c:4087:: with SMTP id n129mr20622495wma.14.1557873706222;
+        Tue, 14 May 2019 15:41:46 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r14sm196393wrm.21.2019.05.14.15.41.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 May 2019 15:41:45 -0700 (PDT)
+Message-ID: <5cdb4429.1c69fb81.b271a.12a6@mx.google.com>
+Date:   Tue, 14 May 2019 15:41:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.43
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 0 failed,
+ 127 passed with 2 offline, 1 untried/unknown, 1 conflict (v4.19.43)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: userfaultfd: use RCU to free the task struct when fork fails
+stable-rc/linux-4.19.y boot: 131 boots: 0 failed, 127 passed with 2 offline=
+, 1 untried/unknown, 1 conflict (v4.19.43)
 
-The task structure is freed while get_mem_cgroup_from_mm() holds
-rcu_read_lock() and dereferences mm->owner.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.43/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.43/
 
-get_mem_cgroup_from_mm()                failing fork()
-----                                    ---
-task = mm->owner
-                                        mm->owner = NULL;
-                                        free(task)
-if (task) *task; /* use after free */
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.43
+Git Commit: 3351e9d39947881910230a73be77e6f29ab8b72e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
 
-The fix consists in freeing the task with RCU also in the fork failure
-case, exactly like it always happens for the regular exit(2) path.  That
-is enough to make the rcu_read_lock hold in get_mem_cgroup_from_mm() (left
-side above) effective to avoid a use after free when dereferencing the
-task structure.
+Boot Regressions Detected:
 
-An alternate possible fix would be to defer the delivery of the
-userfaultfd contexts to the monitor until after fork() is guaranteed to
-succeed.  Such a change would require more changes because it would create
-a strict ordering dependency where the uffd methods would need to be
-called beyond the last potentially failing branch in order to be safe. 
-This solution as opposed only adds the dependency to common code to set
-mm->owner to NULL and to free the task struct that was pointed by
-mm->owner with RCU, if fork ends up failing.  The userfaultfd methods can
-still be called anywhere during the fork runtime and the monitor will keep
-discarding orphaned "mm" coming from failed forks in userland.
+arm:
 
-This race condition couldn't trigger if CONFIG_MEMCG was set =n at build
-time.
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.19.42-86-gc8e3be30c4=
+b6)
 
-[aarcange@redhat.com: improve changelog, reduce #ifdefs per Michal]
-  Link: http://lkml.kernel.org/r/20190429035752.4508-1-aarcange@redhat.com
-Link: http://lkml.kernel.org/r/20190325225636.11635-2-aarcange@redhat.com
-Fixes: 893e26e61d04 ("userfaultfd: non-cooperative: Add fork() event")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Tested-by: zhong jiang <zhongjiang@huawei.com>
-Reported-by: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: zhong jiang <zhongjiang@huawei.com>
-Cc: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
 ---
-
- kernel/fork.c |   31 +++++++++++++++++++++++++++++--
- 1 file changed, 29 insertions(+), 2 deletions(-)
-
---- a/kernel/fork.c~userfaultfd-use-rcu-to-free-the-task-struct-when-fork-fails
-+++ a/kernel/fork.c
-@@ -955,6 +955,15 @@ static void mm_init_aio(struct mm_struct
- #endif
- }
- 
-+static __always_inline void mm_clear_owner(struct mm_struct *mm,
-+					   struct task_struct *p)
-+{
-+#ifdef CONFIG_MEMCG
-+	if (mm->owner == p)
-+		WRITE_ONCE(mm->owner, NULL);
-+#endif
-+}
-+
- static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
- {
- #ifdef CONFIG_MEMCG
-@@ -1343,6 +1352,7 @@ static struct mm_struct *dup_mm(struct t
- free_pt:
- 	/* don't put binfmt in mmput, we haven't got module yet */
- 	mm->binfmt = NULL;
-+	mm_init_owner(mm, NULL);
- 	mmput(mm);
- 
- fail_nomem:
-@@ -1726,6 +1736,21 @@ static int pidfd_create(struct pid *pid)
- 	return fd;
- }
- 
-+static void __delayed_free_task(struct rcu_head *rhp)
-+{
-+	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
-+
-+	free_task(tsk);
-+}
-+
-+static __always_inline void delayed_free_task(struct task_struct *tsk)
-+{
-+	if (IS_ENABLED(CONFIG_MEMCG))
-+		call_rcu(&tsk->rcu, __delayed_free_task);
-+	else
-+		free_task(tsk);
-+}
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-@@ -2233,8 +2258,10 @@ bad_fork_cleanup_io:
- bad_fork_cleanup_namespaces:
- 	exit_task_namespaces(p);
- bad_fork_cleanup_mm:
--	if (p->mm)
-+	if (p->mm) {
-+		mm_clear_owner(p->mm, p);
- 		mmput(p->mm);
-+	}
- bad_fork_cleanup_signal:
- 	if (!(clone_flags & CLONE_THREAD))
- 		free_signal_struct(p->signal);
-@@ -2265,7 +2292,7 @@ bad_fork_cleanup_count:
- bad_fork_free:
- 	p->state = TASK_DEAD;
- 	put_task_stack(p);
--	free_task(p);
-+	delayed_free_task(p);
- fork_out:
- 	spin_lock_irq(&current->sighand->siglock);
- 	hlist_del_init(&delayed.node);
-_
+For more info write to <info@kernelci.org>
