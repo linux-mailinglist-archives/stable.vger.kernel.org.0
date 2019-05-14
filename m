@@ -2,186 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8921D0B8
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 22:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D192B1D0DE
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 22:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfENUer convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 14 May 2019 16:34:47 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55680 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726134AbfENUer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 16:34:47 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B0AF33079B94
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 20:34:46 +0000 (UTC)
-Received: from [172.54.252.220] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 73ED85D710;
-        Tue, 14 May 2019 20:34:46 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726143AbfENUxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 16:53:07 -0400
+Received: from mailoutvs31.siol.net ([185.57.226.222]:33481 "EHLO
+        mail.siol.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726089AbfENUxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 16:53:07 -0400
+X-Greylist: delayed 557 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 May 2019 16:53:06 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.siol.net (Postfix) with ESMTP id 1FCCB521E15;
+        Tue, 14 May 2019 22:43:48 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at psrvmta09.zcs-production.pri
+Received: from mail.siol.net ([127.0.0.1])
+        by localhost (psrvmta09.zcs-production.pri [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id P6TEBCYv139H; Tue, 14 May 2019 22:43:47 +0200 (CEST)
+Received: from mail.siol.net (localhost [127.0.0.1])
+        by mail.siol.net (Postfix) with ESMTPS id 7A8BB521E08;
+        Tue, 14 May 2019 22:43:47 +0200 (CEST)
+Received: from localhost.localdomain (cpe-86-58-52-202.static.triera.net [86.58.52.202])
+        (Authenticated sender: 031275009)
+        by mail.siol.net (Postfix) with ESMTPSA id AEE1E521E34;
+        Tue, 14 May 2019 22:43:44 +0200 (CEST)
+From:   Jernej Skrabec <jernej.skrabec@siol.net>
+To:     maxime.ripard@bootlin.com, wens@csie.org
+Cc:     airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/sun4i: Fix sun8i HDMI PHY clock initialization
+Date:   Tue, 14 May 2019 22:43:36 +0200
+Message-Id: <20190514204337.11068-2-jernej.skrabec@siol.net>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190514204337.11068-1-jernej.skrabec@siol.net>
+References: <20190514204337.11068-1-jernej.skrabec@siol.net>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.4BFF810B35.893G9WCWJE@redhat.com>
-X-Gitlab-Pipeline-ID: 10057
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10057?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Tue, 14 May 2019 20:34:46 +0000 (UTC)
-Date:   Tue, 14 May 2019 16:34:47 -0400
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Current code initializes HDMI PHY clock driver before reset line is
+deasserted and clocks enabled. Because of that, initial readout of
+clock divider is incorrect (0 instead of 2). This causes any clock
+rate with divider 1 (register value 0) to be set incorrectly.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Fix this by moving initialization of HDMI PHY clock driver after reset
+line is deasserted and clocks enabled.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: eb5d65a82f5c - Linux 5.1.2
+Cc: stable@vger.kernel.org # 4.17+
+Fixes: 4f86e81748fe ("drm/sun4i: Add support for H3 HDMI PHY variant")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+---
+ drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-The results of these automated tests are provided below.
+diff --git a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c b/drivers/gpu/drm/sun=
+4i/sun8i_hdmi_phy.c
+index 66ea3a902e36..afc6d4a9c20b 100644
+--- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
++++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
+@@ -672,22 +672,13 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi=
+, struct device_node *node)
+ 				goto err_put_clk_pll0;
+ 			}
+ 		}
+-
+-		ret =3D sun8i_phy_clk_create(phy, dev,
+-					   phy->variant->has_second_pll);
+-		if (ret) {
+-			dev_err(dev, "Couldn't create the PHY clock\n");
+-			goto err_put_clk_pll1;
+-		}
+-
+-		clk_prepare_enable(phy->clk_phy);
+ 	}
+=20
+ 	phy->rst_phy =3D of_reset_control_get_shared(node, "phy");
+ 	if (IS_ERR(phy->rst_phy)) {
+ 		dev_err(dev, "Could not get phy reset control\n");
+ 		ret =3D PTR_ERR(phy->rst_phy);
+-		goto err_disable_clk_phy;
++		goto err_put_clk_pll1;
+ 	}
+=20
+ 	ret =3D reset_control_deassert(phy->rst_phy);
+@@ -708,18 +699,29 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi=
+, struct device_node *node)
+ 		goto err_disable_clk_bus;
+ 	}
+=20
++	if (phy->variant->has_phy_clk) {
++		ret =3D sun8i_phy_clk_create(phy, dev,
++					   phy->variant->has_second_pll);
++		if (ret) {
++			dev_err(dev, "Couldn't create the PHY clock\n");
++			goto err_disable_clk_mod;
++		}
++
++		clk_prepare_enable(phy->clk_phy);
++	}
++
+ 	hdmi->phy =3D phy;
+=20
+ 	return 0;
+=20
++err_disable_clk_mod:
++	clk_disable_unprepare(phy->clk_mod);
+ err_disable_clk_bus:
+ 	clk_disable_unprepare(phy->clk_bus);
+ err_deassert_rst_phy:
+ 	reset_control_assert(phy->rst_phy);
+ err_put_rst_phy:
+ 	reset_control_put(phy->rst_phy);
+-err_disable_clk_phy:
+-	clk_disable_unprepare(phy->clk_phy);
+ err_put_clk_pll1:
+ 	clk_put(phy->clk_pll1);
+ err_put_clk_pll0:
+--=20
+2.21.0
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: eb5d65a82f5c - Linux 5.1.2
-
-We then merged the patchset with `git am`:
-
-  platform-x86-sony-laptop-fix-unintentional-fall-through.patch
-  platform-x86-thinkpad_acpi-disable-bluetooth-for-some-machines.patch
-  platform-x86-dell-laptop-fix-rfkill-functionality.patch
-  hwmon-pwm-fan-disable-pwm-if-fetching-cooling-data-fails.patch
-  hwmon-occ-fix-extended-status-bits.patch
-  selftests-seccomp-handle-namespace-failures-gracefully.patch
-  i2c-core-ratelimit-transfer-when-suspended-errors.patch
-  kernfs-fix-barrier-usage-in-__kernfs_new_node.patch
-  virt-vbox-sanity-check-parameter-types-for-hgcm-calls-coming-from-userspace.patch
-  usb-serial-fix-unthrottle-races.patch
-  mwl8k-fix-rate_idx-underflow.patch
-  rtlwifi-rtl8723ae-fix-missing-break-in-switch-statement.patch
-  don-t-jump-to-compute_result-state-from-check_result-state.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-954ffa62c767b53c896b03b99e7c4f501be79cee.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-954ffa62c767b53c896b03b99e7c4f501be79cee.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-954ffa62c767b53c896b03b99e7c4f501be79cee.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-954ffa62c767b53c896b03b99e7c4f501be79cee.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-954ffa62c767b53c896b03b99e7c4f501be79cee.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-954ffa62c767b53c896b03b99e7c4f501be79cee.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-954ffa62c767b53c896b03b99e7c4f501be79cee.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-954ffa62c767b53c896b03b99e7c4f501be79cee.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Boot test [0]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     🚧 ✅ selinux-policy: serge-testsuite [7]
-     🚧 ✅ audit: audit testsuite test [8]
-     🚧 ✅ stress: stress-ng [9]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
