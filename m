@@ -2,126 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 692C91E595
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 01:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32CC21E59F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 01:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726180AbfENXaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 19:30:10 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:44130 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726330AbfENXaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 19:30:09 -0400
-Received: by mail-pg1-f195.google.com with SMTP id z16so317846pgv.11
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 16:30:09 -0700 (PDT)
+        id S1726195AbfENXdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 19:33:31 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:40665 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726180AbfENXdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 19:33:31 -0400
+Received: by mail-wr1-f45.google.com with SMTP id h4so570913wre.7
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 16:33:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=dr0wEYjOsuwMkb0C7b01iPZFdmbTDV/YOBzLh8vitqk=;
-        b=JBcRlSGstwulLHIt6Ogy6o6t1rhwuzuWBvXh9EEQ4jLWv8XMz6eL5JJPx3FkwmM1v8
-         RV1mav5MwQ1+DxaAkYD25sM8lCwZTK3i74o+upCQL/pVJuWktp+zRAkAmfl+S4+s8k92
-         VmvENyV6ge9AZkbIj03Kzh74NWF2mPywHnNiI=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MxSt3g1TzfGFC+apYkXAIT6dx3OEb4SFcQqIIDnE7hQ=;
+        b=AaxP5cqquUYcLk8PL1Jpn392qyaAhw4F9prI05/kUTrwMEgVzQqAky2mvbOkx36YOe
+         ZZPYRSpqkRgPqU7lgaRaxtJO550mL6PCLE3W7tdwhr3nw68yXODZ7mIEQyiFasqZA/Iw
+         Pg8Vbi+IXOAVL1tqHcXLPGfWVhLF/0XLntufIs5ePa8rxZqRByc726EnfQOjapQG8qUu
+         HsIGG22z1fkMgoANaTEuPk4RmeFZOCoZhGaKRs9oi6JPnidCcWS3XYwB116rLtdxos/P
+         TUtljbhj3oRYXPHch0Ori+sNrhaqecYAYn2LGKbT5XBS4E+fDAcBFOew1bpNM87zsXwt
+         9HcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=dr0wEYjOsuwMkb0C7b01iPZFdmbTDV/YOBzLh8vitqk=;
-        b=sbQtwpbQQfn5HFyuL+FVNIO4dqQjSFGu/EFVOKnAD0si/uJU0K5QHxv8SFp7pTEp8F
-         Cnpz6fLEHkAXOSkzvX0YC0TkfAm4f8PQSucfUiBS92jfWFsqkKjcJzpsFfqaEFq0NFzA
-         Mqx/lnZ19VJE7Lpog8yUhF5rbDJiX8MtpresaKunyoXHUugnnKljK4ySW0351fxO1mKM
-         r1T2MacidS3TDWHIyNCTFDqVrsDATniLQu8AcROAYe+0T6SsnUCudivqjrrGyXH+W9j8
-         YbKvYH+fT51MKBCDvyHRCgBXPMNNHpAEM8vuUM9dBBl0OsM0RMBfk2qer1kWarHlOxtL
-         u4HQ==
-X-Gm-Message-State: APjAAAWo67W2LAMvNBxOB9FSePxxCFipknPolOb2BTcy3dfZ3ltXVXQU
-        LpiaK8q8ha4Sdg7jFbAC/cwCAzaBLGg=
-X-Google-Smtp-Source: APXvYqzCTYmrXIqVdifKvgQD1uMB4RIOkfPXRyOr1prDPNgAW4iOV27TXXqdLy8fcVROp3ZMhWdS+A==
-X-Received: by 2002:aa7:8f22:: with SMTP id y2mr31978285pfr.22.1557876609003;
-        Tue, 14 May 2019 16:30:09 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 125sm215710pge.45.2019.05.14.16.30.07
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 14 May 2019 16:30:07 -0700 (PDT)
-Date:   Tue, 14 May 2019 16:30:06 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-crypto@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: hash - fix incorrect HASH_MAX_DESCSIZE
-Message-ID: <201905141629.12E8DDADF@keescook>
-References: <20190514231315.7729-1-ebiggers@kernel.org>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MxSt3g1TzfGFC+apYkXAIT6dx3OEb4SFcQqIIDnE7hQ=;
+        b=aVFEzYyhjMTiKL7WFFH3pJRtg58qEo7ibFkhud4L7i772v5WwOfg8h0t55VaBAgfkH
+         MBtDgepO6z8GBkccy7H6iDQLKMar8979PERuWypr8lr4onMjzPHIPCq1is3bFfTD0oZG
+         KntYGMw6hf1yyIShPizYQ592hw0+tiJ82WPkH0/BQnUYT9KsamPQ/xd3hpKlA9LhNdux
+         7CEqvKhpYTj7uPQ2IDbAFnhsvXMj0vJGaBHK0a8nSVuYQit2qWofuPd1ijgHH8fVvjI3
+         PSpB/+cbW06fmfcBsdpZTl6hPYzJRDICVGgi6T5JK2uaDpII9F1bXrvT1EPf+/cVfHou
+         shUQ==
+X-Gm-Message-State: APjAAAWpw3aOF4/U8jnhYdLwwoL9NUwCJk3Z3A1DrazzaHSmqW1+dwIU
+        DwqK4/rOFV1QoRxfJDBlhmqsgmjP/4By3Q==
+X-Google-Smtp-Source: APXvYqwJKrQrwllgQHtEbbfnS0g56rTP9RM5o2/fdoRlP4q2F87U+QYwX0/kuQXPbxEkfWf5PjeEiA==
+X-Received: by 2002:adf:fa03:: with SMTP id m3mr22676163wrr.323.1557876809928;
+        Tue, 14 May 2019 16:33:29 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c130sm605481wmf.47.2019.05.14.16.33.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 May 2019 16:33:29 -0700 (PDT)
+Message-ID: <5cdb5049.1c69fb81.b277c.3931@mx.google.com>
+Date:   Tue, 14 May 2019 16:33:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190514231315.7729-1-ebiggers@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.16
+Subject: stable/linux-5.0.y boot: 68 boots: 1 failed, 67 passed (v5.0.16)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 14, 2019 at 04:13:15PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> The "hmac(sha3-224-generic)" algorithm has a descsize of 368 bytes,
-> which is greater than HASH_MAX_DESCSIZE (360) which is only enough for
-> sha3-224-generic.  The check in shash_prepare_alg() doesn't catch this
-> because the HMAC template doesn't set descsize on the algorithms, but
-> rather sets it on each individual HMAC transform.
-> 
-> This causes a stack buffer overflow when SHASH_DESC_ON_STACK() is used
-> with hmac(sha3-224-generic).
-> 
-> Fix it by increasing HASH_MAX_DESCSIZE to the real maximum.  Also add a
-> sanity check to hmac_init().
-> 
-> This was detected by the improved crypto self-tests in v5.2, by loading
-> the tcrypt module with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y enabled.  I
-> didn't notice this bug when I ran the self-tests by requesting the
-> algorithms via AF_ALG (i.e., not using tcrypt), probably because the
-> stack layout differs in the two cases and that made a difference here.
-> 
-> KASAN report:
-> 
->     BUG: KASAN: stack-out-of-bounds in memcpy include/linux/string.h:359 [inline]
->     BUG: KASAN: stack-out-of-bounds in shash_default_import+0x52/0x80 crypto/shash.c:223
->     Write of size 360 at addr ffff8880651defc8 by task insmod/3689
-> 
->     CPU: 2 PID: 3689 Comm: insmod Tainted: G            E     5.1.0-10741-g35c99ffa20edd #11
->     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
->     Call Trace:
->      __dump_stack lib/dump_stack.c:77 [inline]
->      dump_stack+0x86/0xc5 lib/dump_stack.c:113
->      print_address_description+0x7f/0x260 mm/kasan/report.c:188
->      __kasan_report+0x144/0x187 mm/kasan/report.c:317
->      kasan_report+0x12/0x20 mm/kasan/common.c:614
->      check_memory_region_inline mm/kasan/generic.c:185 [inline]
->      check_memory_region+0x137/0x190 mm/kasan/generic.c:191
->      memcpy+0x37/0x50 mm/kasan/common.c:125
->      memcpy include/linux/string.h:359 [inline]
->      shash_default_import+0x52/0x80 crypto/shash.c:223
->      crypto_shash_import include/crypto/hash.h:880 [inline]
->      hmac_import+0x184/0x240 crypto/hmac.c:102
->      hmac_init+0x96/0xc0 crypto/hmac.c:107
->      crypto_shash_init include/crypto/hash.h:902 [inline]
->      shash_digest_unaligned+0x9f/0xf0 crypto/shash.c:194
->      crypto_shash_digest+0xe9/0x1b0 crypto/shash.c:211
->      generate_random_hash_testvec.constprop.11+0x1ec/0x5b0 crypto/testmgr.c:1331
->      test_hash_vs_generic_impl+0x3f7/0x5c0 crypto/testmgr.c:1420
->      __alg_test_hash+0x26d/0x340 crypto/testmgr.c:1502
->      alg_test_hash+0x22e/0x330 crypto/testmgr.c:1552
->      alg_test.part.7+0x132/0x610 crypto/testmgr.c:4931
->      alg_test+0x1f/0x40 crypto/testmgr.c:4952
-> 
-> Fixes: b68a7ec1e9a3 ("crypto: hash - Remove VLA usage")
-> Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Cc: Kees Cook <keescook@chromium.org>
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
+stable/linux-5.0.y boot: 68 boots: 1 failed, 67 passed (v5.0.16)
 
-Ah, yikes! Nice catch. Thanks for fixing this. :)
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+0.y/kernel/v5.0.16/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
+rnel/v5.0.16/
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Tree: stable
+Branch: linux-5.0.y
+Git Describe: v5.0.16
+Git Commit: 89e11ec0280be9132b81e4cba5ea6c10a8012038
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 35 unique boards, 15 SoC families, 11 builds out of 208
 
--- 
-Kees Cook
+Boot Regressions Detected:
+
+arm:
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: failing since 3 days (last pass: v5.0.14 - firs=
+t fail: v5.0.15)
+
+Boot Failure Detected:
+
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap4-panda: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
