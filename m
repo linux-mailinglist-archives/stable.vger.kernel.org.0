@@ -2,146 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CBF71C5F5
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 11:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4381C6E7
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 12:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726220AbfENJWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 05:22:50 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50227 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725916AbfENJWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 05:22:50 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 97F15244B4;
-        Tue, 14 May 2019 05:22:49 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 14 May 2019 05:22:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GTrp+6
-        PhhOzBSrqJ+LzHNsYFhEFVgtbJ8f7QIXMBQB0=; b=HMihYLtXdGdLOBkb1s8jEP
-        sR1ZvvOu75bcidBeCKsuHrL6iI427pEuhYopSKQKTeNotRwnTjzNguk/25myHCH8
-        aj8Z4QlbdZSYvEJDJN6F6ipHsAJN5PT0+JNXaG7z1tMBT4x4Wolbgk670OppdVM2
-        gDPxIsFfQl8YKkoBP7AGyXWEIimlYdM21j3LSCmAuTxpUyI7a4KeRoEQdtOe0IQp
-        LEbyVxeHikMvFYx6HDBwEqTX/kfIvj/ekiaNbiCA+IxkvKaAo3Bhajo4Nn2UNouC
-        BLoUJo97ZfFrio8somGdsEScRbxoIrrgEdV/kRKwDp66aNSDIoE5ugZ+dePg4pPA
-        ==
-X-ME-Sender: <xms:6YjaXMFAR82it9uaPv9_zEUHF-RJM717l3_laRaR9lV7XyduIalqBw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleeigddugecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepohhpvghnfihrthdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:6YjaXJS3JheMIK5eYVDYSYZV88P-IDiTcsM00Z6x4cdEr0uwViZjOg>
-    <xmx:6YjaXKvY0TyHWacXmbmqljYutolYXfmaAydxZqUNjUPfo_7LywjfSA>
-    <xmx:6YjaXGDsTIs7b8M9EjcPHKfXaj_wXAtFRwAthvH7VEyrGBUIjSSC3g>
-    <xmx:6YjaXGBC26ovyNVMJEToSx6tiB_9sAG5xIYzfwTUqF-rPfJkWrx4lg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F040410379;
-        Tue, 14 May 2019 05:22:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mwl8k: Fix rate_idx underflow" failed to apply to 4.4-stable tree
-To:     ynezz@true.cz, bunnier@gmail.com, kvalo@codeaurora.org,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 May 2019 11:22:37 +0200
-Message-ID: <1557825757144200@kroah.com>
+        id S1726281AbfENKUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 06:20:12 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:33807 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725881AbfENKUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 06:20:12 -0400
+Received: by mail-pf1-f195.google.com with SMTP id n19so8906235pfa.1
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 03:20:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=researchut.com; s=google;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kSvbP/JUEyjknkS6lpDdv2UR88rYqz8vK8aOSF/0SV0=;
+        b=w+nl5EeDp2p7umtRRO82DdYvY0tL1DucblxdSv7fnksZ69dMEf0m7sodXpjJxQ96Dq
+         bFP5MdEo7Q/dpKeslQSssn2MLoHlqz5ncNj01LtWuAOrnicfjFHFyetqQyp2ByYOQCxr
+         as2nZOoe6Gug4MHocGs6HxjfiaiPx2L5HHaYg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=kSvbP/JUEyjknkS6lpDdv2UR88rYqz8vK8aOSF/0SV0=;
+        b=ZoUtC3KS1tRwiBIywEnPekCfTUTHlmFKTq42VBLJXfRg0DctGhGmLTsnXST247CaOh
+         sVeK0i9AYUdPDQ3yDfs3jSEsv5dQh5NxwxL92+s/LXxByXXdTJBVnJfpNaaznh3gM3Rn
+         iNz0i970ItxW9VaTrzpS614YOK/MH+kYDmgczJGY6M2pEGstE3/mrnS7qIkcDl2z8LJC
+         LsfRiNCPKUvlCs81RRbN565LT09i1l4D4TCGfLBxYJ7R+Yau8u7Zjyi8x7TozmLJ0JEl
+         qeeyksmvX9h9aUSDy0uR3/LTogSdtDoMbj8/nsnZaczty1cTIlVwe5XGkdl8lk8jBpBD
+         sV9w==
+X-Gm-Message-State: APjAAAVHApx/cLA9FXqAmycYdItYvs8EQUZfwuYtsTFxO4houKcXjYhn
+        hVQRcl/rBImfIMhzLKV36nmm8rv9mLk=
+X-Google-Smtp-Source: APXvYqxgtnsOnwpKzzwuu+UtI2PENo1P06Fk75O7J31mPCuBiNOLb4RxYgbS6iVkgesBMmK2xeZ/Fg==
+X-Received: by 2002:a63:1d02:: with SMTP id d2mr37704091pgd.26.1557829211409;
+        Tue, 14 May 2019 03:20:11 -0700 (PDT)
+Received: from priyasi ([157.45.46.216])
+        by smtp.gmail.com with ESMTPSA id k9sm22337550pfa.180.2019.05.14.03.20.10
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 14 May 2019 03:20:10 -0700 (PDT)
+Received: from [127.0.0.1] (helo=priyasi.researchut.com)
+        by priyasi with esmtp (Exim 4.92)
+        (envelope-from <rrs@debian.org>)
+        id 1hQUXM-0002h9-F0; Tue, 14 May 2019 15:49:56 +0530
+From:   Ritesh Raj Sarraf <rrs@debian.org>
+To:     stable@vger.kernel.org
+Cc:     debian-kernel@lists.debian.org, Ritesh Raj Sarraf <rrs@debian.org>,
+        Ritesh Raj Sarraf <rrs@researchut.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH] um: Don't hardcode path as it is architecture dependent
+Date:   Tue, 14 May 2019 15:46:57 +0530
+Message-Id: <20190514101656.10228-1-rrs@debian.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Stable Team,
+Request for inclusion into the stable branches of Linux. This change
+went into 4.20 but 4.19 is the LTS release that many of the Linux
+Vendors are rebasing on. Hence, it'd be nice to see this part of the LTS
+releases, at least 4.19.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+The current code fails to run on amd64 because of hardcoded reference to
+i386
 
-greg k-h
+Signed-off-by: Ritesh Raj Sarraf <rrs@researchut.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ arch/um/drivers/port_user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
------------------- original commit in Linus's tree ------------------
-
-From 6b583201fa219b7b1b6aebd8966c8fd9357ef9f4 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
-Date: Thu, 11 Apr 2019 20:13:30 +0200
-Subject: [PATCH] mwl8k: Fix rate_idx underflow
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-It was reported on OpenWrt bug tracking system[1], that several users
-are affected by the endless reboot of their routers if they configure
-5GHz interface with channel 44 or 48.
-
-The reboot loop is caused by the following excessive number of WARN_ON
-messages:
-
- WARNING: CPU: 0 PID: 0 at backports-4.19.23-1/net/mac80211/rx.c:4516
-                             ieee80211_rx_napi+0x1fc/0xa54 [mac80211]
-
-as the messages are being correctly emitted by the following guard:
-
- case RX_ENC_LEGACY:
-      if (WARN_ON(status->rate_idx >= sband->n_bitrates))
-
-as the rate_idx is in this case erroneously set to 251 (0xfb). This fix
-simply converts previously used magic number to proper constant and
-guards against substraction which is leading to the currently observed
-underflow.
-
-1. https://bugs.openwrt.org/index.php?do=details&task_id=2218
-
-Fixes: 854783444bab ("mwl8k: properly set receive status rate index on 5 GHz receive")
-Cc: <stable@vger.kernel.org>
-Tested-by: Eubert Bao <bunnier@gmail.com>
-Reported-by: Eubert Bao <bunnier@gmail.com>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-
-diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
-index e0df51b62e97..70e69305197a 100644
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -441,6 +441,9 @@ static const struct ieee80211_rate mwl8k_rates_50[] = {
- #define MWL8K_CMD_UPDATE_STADB		0x1123
- #define MWL8K_CMD_BASTREAM		0x1125
- 
-+#define MWL8K_LEGACY_5G_RATE_OFFSET \
-+	(ARRAY_SIZE(mwl8k_rates_24) - ARRAY_SIZE(mwl8k_rates_50))
-+
- static const char *mwl8k_cmd_name(__le16 cmd, char *buf, int bufsize)
+diff --git a/arch/um/drivers/port_user.c b/arch/um/drivers/port_user.c
+index 9a8e1b64c22e..5f56d11b886f 100644
+--- a/arch/um/drivers/port_user.c
++++ b/arch/um/drivers/port_user.c
+@@ -168,7 +168,7 @@ int port_connection(int fd, int *socket, int *pid_out)
  {
- 	u16 command = le16_to_cpu(cmd);
-@@ -1016,8 +1019,9 @@ mwl8k_rxd_ap_process(void *_rxd, struct ieee80211_rx_status *status,
+ 	int new, err;
+ 	char *argv[] = { "/usr/sbin/in.telnetd", "-L",
+-			 "/usr/lib/uml/port-helper", NULL };
++			 OS_LIB_PATH "/uml/port-helper", NULL };
+ 	struct port_pre_exec_data data;
  
- 	if (rxd->channel > 14) {
- 		status->band = NL80211_BAND_5GHZ;
--		if (!(status->encoding == RX_ENC_HT))
--			status->rate_idx -= 5;
-+		if (!(status->encoding == RX_ENC_HT) &&
-+		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
-+			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
- 	} else {
- 		status->band = NL80211_BAND_2GHZ;
- 	}
-@@ -1124,8 +1128,9 @@ mwl8k_rxd_sta_process(void *_rxd, struct ieee80211_rx_status *status,
- 
- 	if (rxd->channel > 14) {
- 		status->band = NL80211_BAND_5GHZ;
--		if (!(status->encoding == RX_ENC_HT))
--			status->rate_idx -= 5;
-+		if (!(status->encoding == RX_ENC_HT) &&
-+		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
-+			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
- 	} else {
- 		status->band = NL80211_BAND_2GHZ;
- 	}
+ 	new = accept(fd, NULL, 0);
+-- 
+2.20.1
 
