@@ -2,25 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA461CBE5
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 17:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5965C1CC48
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 17:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726107AbfENPab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 11:30:31 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:42752 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725901AbfENPab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 11:30:31 -0400
-Received: from svr-orw-mbx-01.mgc.mentorg.com ([147.34.90.201])
-        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
-        id 1hQZNp-0002lK-D1 from George_Davis@mentor.com ; Tue, 14 May 2019 08:30:25 -0700
-Received: from localhost (147.34.91.1) by svr-orw-mbx-01.mgc.mentorg.com
- (147.34.90.201) with Microsoft SMTP Server (TLS) id 15.0.1320.4; Tue, 14 May
- 2019 08:30:23 -0700
-Date:   Tue, 14 May 2019 11:30:22 -0400
-From:   "George G. Davis" <george_davis@mentor.com>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
+        id S1726148AbfENPyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 11:54:54 -0400
+Received: from sauhun.de ([88.99.104.3]:48886 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725901AbfENPyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 11:54:54 -0400
+Received: from localhost (p54B3310E.dip0.t-ipconnect.de [84.179.49.14])
+        by pokefinder.org (Postfix) with ESMTPSA id 580052C2868;
+        Tue, 14 May 2019 17:54:51 +0200 (CEST)
+Date:   Tue, 14 May 2019 17:54:51 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     "George G. Davis" <george_davis@mentor.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
         Simon Horman <horms+renesas@verge.net.au>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,81 +35,63 @@ CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
         Mark Rutland <mark.rutland@arm.com>,
         stable <stable@vger.kernel.org>
 Subject: Re: [PATCH v2] serial: sh-sci: disable DMA for uart_console
-Message-ID: <20190514153021.GC18528@mam-gdavis-lt>
+Message-ID: <20190514155450.GB6508@kunai>
 References: <1557762446-23811-1-git-send-email-george_davis@mentor.com>
  <CAMuHMdVaNWa=Q-7K-+_rM-8yYWB0-+4_o4hgACK6o-4BOrY07A@mail.gmail.com>
+ <20190514153021.GC18528@mam-gdavis-lt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdVaNWa=Q-7K-+_rM-8yYWB0-+4_o4hgACK6o-4BOrY07A@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-ClientProxiedBy: svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201) To
- svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201)
+In-Reply-To: <20190514153021.GC18528@mam-gdavis-lt>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Geert,
 
-On Tue, May 14, 2019 at 10:28:34AM +0200, Geert Uytterhoeven wrote:
-> Hi George,
-> 
-> On Mon, May 13, 2019 at 5:48 PM George G. Davis <george_davis@mentor.com> wrote:
-> > As noted in commit 84b40e3b57ee ("serial: 8250: omap: Disable DMA for
-> > console UART"), UART console lines use low-level PIO only access functions
-> > which will conflict with use of the line when DMA is enabled, e.g. when
-> > the console line is also used for systemd messages. So disable DMA
-> > support for UART console lines.
-> >
-> > Fixes: https://patchwork.kernel.org/patch/10929511/
-> 
-> I don't think this is an appropriate reference, as it points to a patch that
-> was never applied.
-
-I included it as a link to an upstream problem report similar to other commits
-that I previewed. The link provides the extra context that I was perhaps to
-lazy to note in the commit header.
-
-> As the problem has basically existed forever,
-
-Agreed
-
-> IMHO no Fixes tag
-> is needed.
-
-I've dropped the Fixes line.
-
-> > Reported-by: Michael Rodin <mrodin@de.adit-jv.com>
-> > Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-> > Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-> > Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: George G. Davis <george_davis@mentor.com>
-> > ---
-> > v2: Clarify comment regarding DMA support on kernel console,
-> >     add {Tested,Reviewed}-by:, and Cc: linux-stable lines.
-> 
-> Thanks for the update!
-
-Thanks!
+--kXdP64Ggrk/fb43R
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-I'll submit v3 later today.
+> > > Fixes: https://patchwork.kernel.org/patch/10929511/
+> >=20
+> > I don't think this is an appropriate reference, as it points to a patch=
+ that
+> > was never applied.
+>=20
+> I included it as a link to an upstream problem report similar to other co=
+mmits
+> that I previewed. The link provides the extra context that I was perhaps =
+to
+> lazy to note in the commit header.
 
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> -- 
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+We have a "Link:" tag for things like this, e.g.:
 
--- 
-Regards,
-George
+Link: https://patchwork.kernel.org/patch/10929511/
+
+
+--kXdP64Ggrk/fb43R
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlza5MYACgkQFA3kzBSg
+KbbkfQ/+PL1lLGOvBp4WLSQof0j9gnQWmDJDxCG61/wtuAsqm6CkBe4BlgZIhoDq
+ZgOk6lcFvge3gPJPP+DOiPVa9Uebjx84+gJV8t/hJx5EkZ5d/VBzxLS9C74ae9KQ
+yC1BN8slbFbu4aS4bzbOoYCOGjRq2Wh7Se6MtdV5pCHZA6DxV60KvbrwvgVD8DrT
+2YgoyE5pVyou/2gn4FxoUVzKDPTxvFr7rTTcJLHdEBXiXxy5x+5gBIGsl0521+qy
+XIsJdaQXkI1wyssp/gRrUhZiAf/Du8W9MW0g4vXTC0a7nX8O5ENKW23FyV6FrzoX
+BpPl7ICCxAarMabDkaNvhlO+TCC8f88yhYaiZ8UZ2ZyzIg8MPGJBQ0jdOTOeWjkU
+DoLS5eVr8C2N9jT6iFY/f2UI/RfJlCx2gjdpgX23dUtn2uAkGjeFke4hXN0hmNnF
+HYHyfTDOODnfnM3QzowRGaMOHE9nVcUcTcR5VKK8M0GtnzKHr8yBzfFJJkfKeiHi
+CLjR9N37CcCUCKe5qDhIxwnmkXjJoUp6rgZxAS2hewGiv/CKi0WtfCvk6BzEkUV9
+Eg3rZ1Ipeqt0fSHK4EK4ltIrs+iSZp+nhx7W61UE2teWQ6IG+weOdVvBCHpe9FUN
+6RMlFFMcVzfvFKw2z+Q8uua9EPlKFFnUe7SAbydWO7d81KNyUGI=
+=BcaQ
+-----END PGP SIGNATURE-----
+
+--kXdP64Ggrk/fb43R--
