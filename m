@@ -2,112 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E231CA59
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 16:28:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3701CAEE
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 16:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725928AbfENO2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 10:28:42 -0400
-Received: from mail-wm1-f53.google.com ([209.85.128.53]:50931 "EHLO
-        mail-wm1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726148AbfENO2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 10:28:41 -0400
-Received: by mail-wm1-f53.google.com with SMTP id f204so3132737wme.0
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 07:28:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FgviNWbR68aZKeTkZLmp6ocFGNcnajNp4+yXVnqMOMA=;
-        b=l0PlTwXhxSWBt5MO+MZgIYwwL7eJnsMLnn9DrSUJfAlgh9uL9NBvQfum12DdZbi1wO
-         owNHYe4pnHlFjYCAH8xGXV+ch2vKnAeWwOg9nCEkf0rC7rCahb4cam5E/7z4q5YU+vfb
-         kuP7txakVa4sT3gTohU4aHmp9WBrS1GnrI+Li1IO/wbETYC62BaEpxffsyofGU66V5PB
-         pncRvJItcL/TmnkuCxmwyvlaRz8oifYMyE7xdq41AzH/ETHEWT41wxbWDC1JncPi2gBm
-         VrWwl02P2NBgjRmO9A0+XA/w49a8Av8nFlJdO69PjvJOKU755HqkrMj+eAlEI9hLr0B7
-         tncw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FgviNWbR68aZKeTkZLmp6ocFGNcnajNp4+yXVnqMOMA=;
-        b=gdPC/qfeHNGqkFDUNa7ThvEZVavaqecQmqxcsiNGcxyLEKQRQLPgCFS6VqgS+hmvzh
-         8XI2bfufft1e4d758M7YbXD4wHaFXkn3XS/DGZc2vtWs3+vQd6T2Zp3z5KI9jeFu5BvN
-         FVglG7S4HFOyQI9C9L7WTBKCAuM7uWeyKade3Sr/BHwLmYUP2vcBdx1GDdyCV+abTCib
-         Gz/XbgAThX1UiWkP+5QQEEqPIhnR+VTK/6BDr6KHHl8ycP+cwLkU12EV355p0Vy5fnMn
-         gg8ykctf1Yh2K9Y0f/ojjsSeW/TJU1UrZknqCm61YKyvmiSzATyRKyOoRoXcfzLXxOEf
-         cXKQ==
-X-Gm-Message-State: APjAAAVlUORV6h2azCRcNn/7wL10eIkRTQEoVJ65C42A+pJc9wbvDQsG
-        d+lE+IHQFFenc1ceyd2+WnuAZVmWay8pXQ==
-X-Google-Smtp-Source: APXvYqzpX5J4WRvkWLVxhil1Vo6+kYeBt52L9+ASDlvC8v89AAJLTtCzoE21FR1mcBftOgEc3d9c+g==
-X-Received: by 2002:a7b:c301:: with SMTP id k1mr19123903wmj.37.1557844120018;
-        Tue, 14 May 2019 07:28:40 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f6sm2896746wmh.13.2019.05.14.07.28.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 May 2019 07:28:39 -0700 (PDT)
-Message-ID: <5cdad097.1c69fb81.8abf1.ef73@mx.google.com>
-Date:   Tue, 14 May 2019 07:28:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726009AbfENOyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 10:54:50 -0400
+Received: from foss.arm.com ([217.140.101.70]:57230 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725901AbfENOyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 10:54:50 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CC259374;
+        Tue, 14 May 2019 07:54:49 -0700 (PDT)
+Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2CC6F3F703;
+        Tue, 14 May 2019 07:54:48 -0700 (PDT)
+Date:   Tue, 14 May 2019 15:54:45 +0100
+From:   Will Deacon <will.deacon@arm.com>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     jstancek@redhat.com, peterz@infradead.org, namit@vmware.com,
+        minchan@kernel.org, mgorman@suse.de, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+Message-ID: <20190514145445.GB2825@fuggles.cambridge.arm.com>
+References: <1557444414-12090-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20190513163804.GB10754@fuggles.cambridge.arm.com>
+ <360170d7-b16f-f130-f930-bfe54be9747a@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.42-86-gc8e3be30c4b6
-Subject: stable-rc/linux-4.19.y boot: 127 boots: 1 failed,
- 120 passed with 5 offline, 1 untried/unknown (v4.19.42-86-gc8e3be30c4b6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <360170d7-b16f-f130-f930-bfe54be9747a@linux.alibaba.com>
+User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 127 boots: 1 failed, 120 passed with 5 offline=
-, 1 untried/unknown (v4.19.42-86-gc8e3be30c4b6)
+On Mon, May 13, 2019 at 04:01:09PM -0700, Yang Shi wrote:
+> 
+> 
+> On 5/13/19 9:38 AM, Will Deacon wrote:
+> > On Fri, May 10, 2019 at 07:26:54AM +0800, Yang Shi wrote:
+> > > diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+> > > index 99740e1..469492d 100644
+> > > --- a/mm/mmu_gather.c
+> > > +++ b/mm/mmu_gather.c
+> > > @@ -245,14 +245,39 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
+> > >   {
+> > >   	/*
+> > >   	 * If there are parallel threads are doing PTE changes on same range
+> > > -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
+> > > -	 * flush by batching, a thread has stable TLB entry can fail to flush
+> > > -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+> > > -	 * forcefully if we detect parallel PTE batching threads.
+> > > +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
+> > > +	 * flush by batching, one thread may end up seeing inconsistent PTEs
+> > > +	 * and result in having stale TLB entries.  So flush TLB forcefully
+> > > +	 * if we detect parallel PTE batching threads.
+> > > +	 *
+> > > +	 * However, some syscalls, e.g. munmap(), may free page tables, this
+> > > +	 * needs force flush everything in the given range. Otherwise this
+> > > +	 * may result in having stale TLB entries for some architectures,
+> > > +	 * e.g. aarch64, that could specify flush what level TLB.
+> > >   	 */
+> > > -	if (mm_tlb_flush_nested(tlb->mm)) {
+> > > -		__tlb_reset_range(tlb);
+> > > -		__tlb_adjust_range(tlb, start, end - start);
+> > > +	if (mm_tlb_flush_nested(tlb->mm) && !tlb->fullmm) {
+> > > +		/*
+> > > +		 * Since we can't tell what we actually should have
+> > > +		 * flushed, flush everything in the given range.
+> > > +		 */
+> > > +		tlb->freed_tables = 1;
+> > > +		tlb->cleared_ptes = 1;
+> > > +		tlb->cleared_pmds = 1;
+> > > +		tlb->cleared_puds = 1;
+> > > +		tlb->cleared_p4ds = 1;
+> > > +
+> > > +		/*
+> > > +		 * Some architectures, e.g. ARM, that have range invalidation
+> > > +		 * and care about VM_EXEC for I-Cache invalidation, need force
+> > > +		 * vma_exec set.
+> > > +		 */
+> > > +		tlb->vma_exec = 1;
+> > > +
+> > > +		/* Force vma_huge clear to guarantee safer flush */
+> > > +		tlb->vma_huge = 0;
+> > > +
+> > > +		tlb->start = start;
+> > > +		tlb->end = end;
+> > >   	}
+> > Whilst I think this is correct, it would be interesting to see whether
+> > or not it's actually faster than just nuking the whole mm, as I mentioned
+> > before.
+> > 
+> > At least in terms of getting a short-term fix, I'd prefer the diff below
+> > if it's not measurably worse.
+> 
+> I did a quick test with ebizzy (96 threads with 5 iterations) on my x86 VM,
+> it shows slightly slowdown on records/s but much more sys time spent with
+> fullmm flush, the below is the data.
+> 
+>                                     nofullmm                 fullmm
+> ops (records/s)              225606                  225119
+> sys (s)                            0.69                        1.14
+> 
+> It looks the slight reduction of records/s is caused by the increase of sys
+> time.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.42-86-gc8e3be30c4b6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.42-86-gc8e3be30c4b6/
+That's not what I expected, and I'm unable to explain why moving to fullmm
+would /increase/ the system time. I would've thought the time spent doing
+the invalidation would decrease, with the downside that the TLB is cold
+when returning back to userspace.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.42-86-gc8e3be30c4b6
-Git Commit: c8e3be30c4b609f2f7c587d1a2ae32d1a1d8f9c9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 23 SoC families, 14 builds out of 206
+FWIW, I ran 10 iterations of ebizzy on my arm64 box using a vanilla 5.1
+kernel and the numbers are all over the place (see below). I think
+deducing anything meaningful from this benchmark will be a challenge.
 
-Boot Failure Detected:
+Will
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
+--->8
 
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-            meson-gxl-s905x-libretech-cc: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+306090 records/s
+real 10.00 s
+user 1227.55 s
+sys   0.54 s
+323547 records/s
+real 10.00 s
+user 1262.95 s
+sys   0.82 s
+409148 records/s
+real 10.00 s
+user 1266.54 s
+sys   0.94 s
+341507 records/s
+real 10.00 s
+user 1263.49 s
+sys   0.66 s
+375910 records/s
+real 10.00 s
+user 1259.87 s
+sys   0.82 s
+376152 records/s
+real 10.00 s
+user 1265.76 s
+sys   0.96 s
+358862 records/s
+real 10.00 s
+user 1251.13 s
+sys   0.72 s
+358164 records/s
+real 10.00 s
+user 1243.48 s
+sys   0.85 s
+332148 records/s
+real 10.00 s
+user 1260.93 s
+sys   0.70 s
+367021 records/s
+real 10.00 s
+user 1264.06 s
+sys   1.43 s
