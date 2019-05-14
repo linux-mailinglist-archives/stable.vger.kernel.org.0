@@ -2,122 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9A91C772
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 13:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F23CF1C77F
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 13:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbfENLGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 07:06:49 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:33857 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726036AbfENLGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 07:06:48 -0400
-Received: by mail-pg1-f195.google.com with SMTP id c13so8472545pgt.1
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 04:06:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=researchut.com; s=google;
-        h=sender:message-id:subject:from:reply-to:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version;
-        bh=kF4p+PLc6PZq4xFYLsNSRMvLS4CosrKkFxDaMx5qmNw=;
-        b=Es05UnvC7oUZz20SzvVw8IJ5OfVN+FEf2AfjS8xtysBGnEVuon9qrtxElywnlx4ag7
-         gNo4ZxQWaW+Jpzh4xWUXSVu8kJw2H9rAMDOqdQkttXWpC0dNajIcZzcOYMleYDNuwY5P
-         IO1TtQT2+g3XskBUUO5NNffDtlN09cg+ojsh0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:message-id:subject:from:reply-to:to:cc
-         :date:in-reply-to:references:organization:user-agent:mime-version;
-        bh=kF4p+PLc6PZq4xFYLsNSRMvLS4CosrKkFxDaMx5qmNw=;
-        b=jnlqjAmJHpqOn36C3jqEhX+Mck57EHTPp5GFA5BxCWu0Vuc6pWROO0IefGL9+yOjpp
-         3wPRoFqOrNZpl/JE4U83anByKNeDFY8+UGZEoP6ShLmxe0iH6U79++8drOnIdaH/mlXd
-         nzTjvZ/q6VLG11vTTdfd7lD0rxGo2tGBsKukGqWZMK2S2bNZRINEPSbw8FN3haBq/Yyf
-         6suHqx755pVc92/D/YWJP09fT0VT/QIRTE1SS5pgF65v7Dyr+1WUtM/9NGBflLeHADm3
-         i3VQns2Ue6cTIwdsNkAOiwle2mpEUXwi20vHuHyRvuef/zGWdbjP/Qca2CE3wXEev48/
-         cdbQ==
-X-Gm-Message-State: APjAAAXhk7T1XYLwnUBEeWyoiknSUk0O3KvgeVplYp7UGX0AC4ogaBiN
-        Jqp2cRtyYTfg3dPl7/L3Q8d4Pw==
-X-Google-Smtp-Source: APXvYqxx+GzooYIpzZKPpiNR1iurdcRXx9NeaAqAGvgyzLEpXmRXijmvdMCz2j/2KdcUGVEZTJ31bw==
-X-Received: by 2002:a63:4a66:: with SMTP id j38mr18412606pgl.199.1557832007943;
-        Tue, 14 May 2019 04:06:47 -0700 (PDT)
-Received: from priyasi ([157.45.46.216])
-        by smtp.gmail.com with ESMTPSA id q20sm28742402pfi.166.2019.05.14.04.06.46
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 14 May 2019 04:06:47 -0700 (PDT)
-Received: from [127.0.0.1] (helo=localhost)
-        by priyasi with esmtp (Exim 4.92)
-        (envelope-from <rrs@debian.org>)
-        id 1hQVGZ-0003Gq-Ii; Tue, 14 May 2019 16:36:39 +0530
-Message-ID: <ae549525ebe4075c9598d8598d39e7d3d088878a.camel@debian.org>
-Subject: Re: [PATCH] um: Don't hardcode path as it is architecture dependent
-From:   Ritesh Raj Sarraf <rrs@debian.org>
-Reply-To: rrs@debian.org
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, debian-kernel@lists.debian.org,
-        Richard Weinberger <richard@nod.at>
-Date:   Tue, 14 May 2019 16:36:38 +0530
-In-Reply-To: <20190514102645.GA6845@kroah.com>
-References: <20190514101656.10228-1-rrs@debian.org>
-         <20190514102645.GA6845@kroah.com>
-Organization: Debian
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-UAt7QqTyq0lm73lKYdDn"
-User-Agent: Evolution 3.30.5-1 
+        id S1726254AbfENLNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 07:13:44 -0400
+Received: from ozlabs.org ([203.11.71.1]:50163 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725892AbfENLNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 07:13:44 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 453FRn6GwHz9sNf;
+        Tue, 14 May 2019 21:13:41 +1000 (AEST)
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Greg Kurz <groug@kaod.org>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: Re: [PATCH] powerpc/powernv/npu: Fix reference leak
+In-Reply-To: <20190513135606.7d9a0902@bahia.lan>
+References: <155568805354.600470.13376593185688810607.stgit@bahia.lan> <962c1d9e-719c-cb82-cabc-1cf619e1510b@ozlabs.ru> <20190429123659.00c0622b@bahia.lan> <20190513135606.7d9a0902@bahia.lan>
+Date:   Tue, 14 May 2019 21:13:40 +1000
+Message-ID: <87sgths2zf.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greg Kurz <groug@kaod.org> writes:
+> Michael,
+>
+> Any comments on this patch ? Should I repost with a shorter comment
+> as suggested by Alexey ?
 
---=-UAt7QqTyq0lm73lKYdDn
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+No the longer comment seems fine to me.
 
-Hello Greg,
+I'm not a big fan of the patch, it's basically a hack :)
 
-On Tue, 2019-05-14 at 12:26 +0200, Greg KH wrote:
-> On Tue, May 14, 2019 at 03:46:57PM +0530, Ritesh Raj Sarraf wrote:
-> > The current code fails to run on amd64 because of hardcoded
-> > reference to
-> > i386
-> >=20
-> > Signed-off-by: Ritesh Raj Sarraf <rrs@researchut.com>
-> > Signed-off-by: Richard Weinberger <richard@nod.at>
-> > ---
-> >   arch/um/drivers/port_user.c | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> What is the git commit id of this patch in Linus's tree?
+But for a backportable fix I guess it is OK.
 
-The git commit id should be: 9ca19a3a3e2482916c475b90f3d7fa2a03d8e5ed
-The web url is:=20
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
-id=3D9ca19a3a3e2482916c475b90f3d7fa2a03d8e5ed
+I would be happier though if we eventually fix up the code to do the
+refcounting properly.
 
+cheers
 
---=20
-Ritesh Raj Sarraf | http://people.debian.org/~rrs
-Debian - The Universal Operating System
-
---=-UAt7QqTyq0lm73lKYdDn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEQCVDstmIVAB/Yn02pjpYo/LhdWkFAlzaoT4ACgkQpjpYo/Lh
-dWl1dRAAjcOHf3sqZgAIqXqVpYvrPb5m5gREuHQ/zYqAKAQY8LPblKHy7uY944xW
-wBusMft1XqVcaKNMjfwfjGg5SL3vbaR/KbPtdXv82C7kg17OO1ujbw68hwpbmXmY
-gXtI77dY3BP1dy9mvvYmD3j0howd9LGgr9NRPjf40E4Go1Pvgr6CSrVWLpBkRaA9
-q4RvirWPEhUQUXgSRufWPvqHqiWefKeCSFlXPv42RsXIP87Ls1yY8aZxykWID/s2
-azMhLiMfxgfk7N0rjPR/MXoO6GI0EM7gaETj6waUhe9sxb2qWTPPHhUTkEyvR1US
-GvX98jrKtL1hxGJ6UH6XtG20nGSxGl7sIUTwMyq3VPIMwayyzPKHeaMqduJDJIn3
-jnEHUdExZ50F1FRhVWtkACLISFWxo2Ixx9rbKtFKBaPIGK/ks9tuxL4RnOc8Mmh1
-jXklnyTpdQq5B/z45O0CJoyNwh0JCtIENB/nEIij4UID6BTio5ptnFjKYIpNPAfo
-mYIyIOIdCV8OUSAsAduUuuvg90LW4n660eajNC2MjlyLeBkcuG0J7WbR9bL7iFiK
-qHmPLA7rRyyjHcpyXf1PS87v9yD7sN1ebVxnQ08oHpjLbHTDPRnHDncVJFcybsX0
-QRqnBmn0P2rKlbKvKyZFedM+cCcNGoCeoNBxWKjILEwWMH/3TGg=
-=pL6H
------END PGP SIGNATURE-----
-
---=-UAt7QqTyq0lm73lKYdDn--
-
+> On Mon, 29 Apr 2019 12:36:59 +0200
+> Greg Kurz <groug@kaod.org> wrote:
+>> On Mon, 29 Apr 2019 16:01:29 +1000
+>> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:
+>> 
+>> > On 20/04/2019 01:34, Greg Kurz wrote:  
+>> > > Since 902bdc57451c, get_pci_dev() calls pci_get_domain_bus_and_slot(). This
+>> > > has the effect of incrementing the reference count of the PCI device, as
+>> > > explained in drivers/pci/search.c:
+>> > > 
+>> > >  * Given a PCI domain, bus, and slot/function number, the desired PCI
+>> > >  * device is located in the list of PCI devices. If the device is
+>> > >  * found, its reference count is increased and this function returns a
+>> > >  * pointer to its data structure.  The caller must decrement the
+>> > >  * reference count by calling pci_dev_put().  If no device is found,
+>> > >  * %NULL is returned.
+>> > > 
+>> > > Nothing was done to call pci_dev_put() and the reference count of GPU and
+>> > > NPU PCI devices rockets up.
+>> > > 
+>> > > A natural way to fix this would be to teach the callers about the change,
+>> > > so that they call pci_dev_put() when done with the pointer. This turns
+>> > > out to be quite intrusive, as it affects many paths in npu-dma.c,
+>> > > pci-ioda.c and vfio_pci_nvlink2.c.    
+>> > 
+>> > 
+>> > afaict this referencing is only done to protect the current traverser
+>> > and what you've done is actually a natural way (and the generic
+>> > pci_get_dev_by_id() does exactly the same), although this looks a bit weird.
+>> >   
+>> 
+>> Not exactly the same: pci_get_dev_by_id() always increment the refcount
+>> of the returned PCI device. The refcount is only decremented when this
+>> device is passed to pci_get_dev_by_id() to continue searching.
+>> 
+>> That means that the users of the PCI device pointer returned by
+>> pci_get_dev_by_id() or its exported variants pci_get_subsys(),
+>> pci_get_device() and pci_get_class() do handle the refcount. They
+>> all pass the pointer to pci_dev_put() or continue the search,
+>> which calls pci_dev_put() internally.
+>> 
+>> Direct and indirect callers of get_pci_dev() don't care for the
+>> refcount at all unless I'm missing something.
+>> 
+>> >   
+>> > > Also, the issue appeared in 4.16 and
+>> > > some affected code got moved around since then: it would be problematic
+>> > > to backport the fix to stable releases.
+>> > > 
+>> > > All that code never cared for reference counting anyway. Call pci_dev_put()
+>> > > from get_pci_dev() to revert to the previous behavior.    
+>> > >> Fixes: 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary pcidev    
+>> > from pci_dn")  
+>> > > Cc: stable@vger.kernel.org # v4.16
+>> > > Signed-off-by: Greg Kurz <groug@kaod.org>
+>> > > ---
+>> > >  arch/powerpc/platforms/powernv/npu-dma.c |   15 ++++++++++++++-
+>> > >  1 file changed, 14 insertions(+), 1 deletion(-)
+>> > > 
+>> > > diff --git a/arch/powerpc/platforms/powernv/npu-dma.c b/arch/powerpc/platforms/powernv/npu-dma.c
+>> > > index e713ade30087..d8f3647e8fb2 100644
+>> > > --- a/arch/powerpc/platforms/powernv/npu-dma.c
+>> > > +++ b/arch/powerpc/platforms/powernv/npu-dma.c
+>> > > @@ -31,9 +31,22 @@ static DEFINE_SPINLOCK(npu_context_lock);
+>> > >  static struct pci_dev *get_pci_dev(struct device_node *dn)
+>> > >  {
+>> > >  	struct pci_dn *pdn = PCI_DN(dn);
+>> > > +	struct pci_dev *pdev;
+>> > >  
+>> > > -	return pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
+>> > > +	pdev = pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
+>> > >  					   pdn->busno, pdn->devfn);
+>> > > +
+>> > > +	/*
+>> > > +	 * pci_get_domain_bus_and_slot() increased the reference count of
+>> > > +	 * the PCI device, but callers don't need that actually as the PE
+>> > > +	 * already holds a reference to the device.    
+>> > 
+>> > Imho this would be just enough.
+>> > 
+>> > Anyway,
+>> > 
+>> > Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+>> >   
+>> 
+>> Thanks !
+>> 
+>> I now realize that I forgot to add the --cc option for stable on my stgit
+>> command line :-\.
+>> 
+>> Cc'ing now.
+>> 
+>> > 
+>> > How did you find it? :)
+>> >   
+>> 
+>> While reading code to find some inspiration for OpenCAPI passthrough. :)
+>> 
+>> I saw the following in vfio_pci_ibm_npu2_init():
+>> 
+>> 	if (!pnv_pci_get_gpu_dev(vdev->pdev))
+>> 		return -ENODEV;
+>> 
+>> and simply followed the function calls.
+>> 
+>> >   
+>> > > Since callers aren't
+>> > > +	 * aware of the reference count change, call pci_dev_put() now to
+>> > > +	 * avoid leaks.
+>> > > +	 */
+>> > > +	if (pdev)
+>> > > +		pci_dev_put(pdev);
+>> > > +
+>> > > +	return pdev;
+>> > >  }
+>> > >  
+>> > >  /* Given a NPU device get the associated PCI device. */
+>> > >     
+>> >   
+>> 
