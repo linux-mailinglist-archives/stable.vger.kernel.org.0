@@ -2,113 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A691E541
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 00:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35DB81E54A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 00:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbfENWlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 18:41:49 -0400
-Received: from mail-wm1-f45.google.com ([209.85.128.45]:52234 "EHLO
-        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726148AbfENWls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 18:41:48 -0400
-Received: by mail-wm1-f45.google.com with SMTP id y3so650013wmm.2
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 15:41:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7nEilbM0DckSPwWnJlbi9Ou8y05n8Msd31QdQz/aK68=;
-        b=oX72fA3V5pXfO3dxQ1i9gTJZCDp+R0e+BTg2ZxEsWslsQapFNWOc83dBo5kcyQhl2H
-         tS0PUmGWcg0uz26fyHvX03CJt+wQsVcskQBnIIe4tOTr/xTtE/YrV7s3zfJHFSn6rSc8
-         yEser4CMrxyjIjlv86JtvkEnMXTCJYy+qsDYaA1cNmo8TFGLLwfwO/F9jlMaFVsbNlRW
-         S8kltiZ12X71DcbFzFKPdPkm7KlQ1c9qgQLQCA5X87QedjXQgtI9830QmzRs94pA2Yod
-         kyRIZtcYZPCLIXos1vk6TI/rC2Kc4BC/mls0TkKQ+MZvbHdThbJgyvE0lE1mtnwRsfxM
-         ESVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7nEilbM0DckSPwWnJlbi9Ou8y05n8Msd31QdQz/aK68=;
-        b=hbhl2ZLIhzPE1VfXrRnsnXDnivJeBdT2AYrSCT9/CHWY0Tplz6t4I7NlA6Ei76+N+y
-         48T7OpV0E2/d205+HZQ3PInRNqq7Qip0ZZiuzLZFGBv98NKNd2m76s9aB0gGYCRyfEzg
-         9ba6w1HKPy+ZR0JqNez1Rp5MJOTxLf8VJQDymhv78FsT0mIVS8A9KkpqcjjAd/8pvk9q
-         DIZXsOh0Kh5q/I2jqOt+CnbDRrj5sMKw0Og4bP2FfYqSKivk8tc7KP3XGF1bFLZXzZlT
-         eya+iVoNKlhUmktObaaNLQYGldOE+vMnqCRub7bTLOwYiilnY8V6LmxKgbBhUKrXfL9h
-         aiZA==
-X-Gm-Message-State: APjAAAVEvvYX/2cjTVDJ1iJfVUPSD6QFyqWBqf6CA4wBiXZQncrUtK/b
-        LRBfIU7Pxvn/Ba60huvGqU6jA4oRD32CaQ==
-X-Google-Smtp-Source: APXvYqzLGVQlrZhmKVna6f8pLuP82kHla4ChUL5foBmbuzsIHEzTUg7bg8XCWfp9r4PP9xOqTuKVRQ==
-X-Received: by 2002:a1c:4087:: with SMTP id n129mr20622495wma.14.1557873706222;
-        Tue, 14 May 2019 15:41:46 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r14sm196393wrm.21.2019.05.14.15.41.44
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 May 2019 15:41:45 -0700 (PDT)
-Message-ID: <5cdb4429.1c69fb81.b271a.12a6@mx.google.com>
-Date:   Tue, 14 May 2019 15:41:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.43
-Subject: stable-rc/linux-4.19.y boot: 131 boots: 0 failed,
- 127 passed with 2 offline, 1 untried/unknown, 1 conflict (v4.19.43)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726348AbfENWrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 18:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726148AbfENWrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 18:47:02 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0ACBB20873;
+        Tue, 14 May 2019 22:47:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557874021;
+        bh=PrgaOY1/49I9NHSqXEBWVTZLmX86myiyLyj4i5D4EpQ=;
+        h=Date:From:To:Subject:From;
+        b=NhS+JtMe6ijd4NLcdcnJcrS0RQjjUY8hcATsdSDTvhuVBtws3ToxLYCWFi4iqPANV
+         JZidM85I3bn+ThbVAfjEIo2mTW3bIX4E5wHtLBwhkhk+EoVuquowALbA1GNidw8XT0
+         RnBosO1rHkZZc9lbYzBKAoFW4sLaXe9+16obmoYU=
+Date:   Tue, 14 May 2019 15:47:00 -0700
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, dan.carpenter@oracle.com,
+        galak@kernel.crashing.org, mihai.caraman@freescale.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        timur@freescale.com, torvalds@linux-foundation.org
+Subject:  [patch 121/126] drivers/virt/fsl_hypervisor.c:
+ dereferencing error pointers in ioctl
+Message-ID: <20190514224700.fNCksvjNu%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 131 boots: 0 failed, 127 passed with 2 offline=
-, 1 untried/unknown, 1 conflict (v4.19.43)
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.43/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.43/
+strndup_user() returns error pointers on error, and then in the error
+handling we pass the error pointers to kfree().  It will cause an Oops.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.43
-Git Commit: 3351e9d39947881910230a73be77e6f29ab8b72e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.19.42-86-gc8e3be30c4=
-b6)
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    omap2plus_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
+Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Timur Tabi <timur@freescale.com>
+Cc: Mihai Caraman <mihai.caraman@freescale.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+--- a/drivers/virt/fsl_hypervisor.c~fsl_hypervisor-dereferencing-error-pointers-in-ioctl
++++ a/drivers/virt/fsl_hypervisor.c
+@@ -331,8 +331,8 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	struct fsl_hv_ioctl_prop param;
+ 	char __user *upath, *upropname;
+ 	void __user *upropval;
+-	char *path = NULL, *propname = NULL;
+-	void *propval = NULL;
++	char *path, *propname;
++	void *propval;
+ 	int ret = 0;
+ 
+ 	/* Get the parameters from the user. */
+@@ -344,32 +344,30 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	upropval = (void __user *)(uintptr_t)param.propval;
+ 
+ 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
+-	if (IS_ERR(path)) {
+-		ret = PTR_ERR(path);
+-		goto out;
+-	}
++	if (IS_ERR(path))
++		return PTR_ERR(path);
+ 
+ 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
+ 	if (IS_ERR(propname)) {
+ 		ret = PTR_ERR(propname);
+-		goto out;
++		goto err_free_path;
+ 	}
+ 
+ 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	propval = kmalloc(param.proplen, GFP_KERNEL);
+ 	if (!propval) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	if (set) {
+ 		if (copy_from_user(propval, upropval, param.proplen)) {
+ 			ret = -EFAULT;
+-			goto out;
++			goto err_free_propval;
+ 		}
+ 
+ 		param.ret = fh_partition_set_dtprop(param.handle,
+@@ -388,7 +386,7 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 			if (copy_to_user(upropval, propval, param.proplen) ||
+ 			    put_user(param.proplen, &p->proplen)) {
+ 				ret = -EFAULT;
+-				goto out;
++				goto err_free_propval;
+ 			}
+ 		}
+ 	}
+@@ -396,10 +394,12 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	if (put_user(param.ret, &p->ret))
+ 		ret = -EFAULT;
+ 
+-out:
+-	kfree(path);
++err_free_propval:
+ 	kfree(propval);
++err_free_propname:
+ 	kfree(propname);
++err_free_path:
++	kfree(path);
+ 
+ 	return ret;
+ }
+_
