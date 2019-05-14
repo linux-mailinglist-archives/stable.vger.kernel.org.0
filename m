@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FAED1D129
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 23:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D491E415
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 23:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbfENVTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 17:19:14 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:43574 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726134AbfENVTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 17:19:14 -0400
-Received: by mail-wr1-f45.google.com with SMTP id r4so316902wro.10
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 14:18:51 -0700 (PDT)
+        id S1726180AbfENVlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 17:41:11 -0400
+Received: from mail-wr1-f44.google.com ([209.85.221.44]:44860 "EHLO
+        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726211AbfENVlL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 17:41:11 -0400
+Received: by mail-wr1-f44.google.com with SMTP id c5so354352wrs.11
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 14:40:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=gfFR4BVmsTssLqCu4Fjh5VqsFuUwD5cWBWx7ISn+XR4=;
-        b=Yh/732v2nmYfa/zsr1Tgo2gd6qbkLkR0NWNgSfliHU+3RP5PNKTzapQqLGEQi3i1WG
-         bkCg+099QlGmqntPNhVweWpbZsGcqAdyePomo9BzFxC57aWCmqyUH1VX8KkrbHf7SKlH
-         aLeQfj98RUV5BLlOhSGREx2or8LE5ClRk7tXR3reby1YKWLioH202iKcrdHdrodNyBM8
-         uGkTGkDhLPpQvqT5aeWToQffVhX/jN6IC+Ps8qVfO6kfcCWjDv51g05z90h1ivfQIZMh
-         UBgmLqeYVKu69HLwhpoRPW4wneJ9cUe+k+Ymx2+uRQaXVP5FEI5hsoFd/uANazfRT3ex
-         NIvQ==
+        bh=vmbhxo4DgbAzlZiwEPMjbcXUYkfj7Q/BmaKHewx5wEg=;
+        b=yM7hcQuy6m2KeRYmF+pZUTJmxm03Zgd01JjNSG5ma6Ux0Q2A4VaKxHgWPc/8IdIzPN
+         Crow3eU/sJLqzdoyJJ3jbbU6Cj4rLZ2CXuvGbK4yWoSpPwYncJRhMh2jjo5Plu0JnWOS
+         q0fk5sEM9Yca4qiCAOAry2NjtT5Eddm5KL0OsR17GLaUrwqYQOqu0A+mHc+lV1E2XRaD
+         0kzH87PZLwCHIkhXVRrDkfKcATv+GbzNXEnfbEGy4uz2qT72o+adMK2FjSaOm6MfQb/Z
+         Ac9xfSDO1wkXuOreEOl/OyrntUZbNi5v7VtgqEdfm7I2c8zE/0/4KxpgtGIgh9NMSTbL
+         9vlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=gfFR4BVmsTssLqCu4Fjh5VqsFuUwD5cWBWx7ISn+XR4=;
-        b=kO+Q5FIWRk4a27iolNLNd0LAqw01UjzqOPKzIHP6bZt0UcES78oPD3OVExylnftBBh
-         gKSmfEXjpwhyYfEsXiUzzwQHcs/SVd7f0BseZfDRXYsbBdbPVXwZ0oL2N9tkbmzrGRjL
-         LHUwm6Wzqnzc4LGY4rQY0jgsWBN4KLe47wvantdv+teuE4Ykx6mT3I9CjV7nrO82Oitl
-         0/Rte6s8Zw2TfMau5BTE1WROz6Tc0SYZqGS1VhVxuM8qdKUsQyx2WANE7RH3+npliIe0
-         RldtJan+nHPGFdkVrACt6ONAMql3LmV+7i/es22hkUsaOcWUq+oyswicaJIYRllJHeYw
-         q7Uw==
-X-Gm-Message-State: APjAAAU57sMr8d80O/S3t3oSxz4SxP6C9P+lDS+nGSwv1HczzOCbaFCR
-        /QXeykQn9P2srUJG9WprJxzDdLbww8Wseg==
-X-Google-Smtp-Source: APXvYqwxkuedueqdmCtfjm3xYDx1bObmn3GxN5WtqH+taTs08+Krv2iBCGhfBkv5NOIwfvAG39qPiA==
-X-Received: by 2002:a5d:4649:: with SMTP id j9mr23260332wrs.64.1557868729221;
-        Tue, 14 May 2019 14:18:49 -0700 (PDT)
+        bh=vmbhxo4DgbAzlZiwEPMjbcXUYkfj7Q/BmaKHewx5wEg=;
+        b=PTrHIwrgnI/vUg9ypKrgsmuUeZQ7hVSbtzk1Xjffw7TYJ47AESDot8PHOD59da040X
+         0HT8OEIlKEmBpEq9FcvtR1rJBYMuc6v9UDhOabSzjLS54XD3BwrKDfhUqVHi5zHdW8p0
+         7Va87g7XMylaQap31SkLoJ+QXQj/JQg75kcGzXrmR3tOcvazuGVNhKPoZs70wOPA/MiN
+         yZ98UYcYPg3EBSDE1JLvEVzF3TDqUDxXq3opQ0kd7DGi7yzj7/zGa/23+c5q36h9Orp6
+         0OUETW2798tSOxgr9PxaKgsoLqD88ib3T0oToYG9p2BTYtYqoO+5El8anD4YfgpWMF71
+         7c3A==
+X-Gm-Message-State: APjAAAUzVJLpgyU/ZVIiJwxv/3Nhlp9W6V6aKHxCABoa414NohX+wVOM
+        5JTXegHGoXIvEKKexgKQO7woOLZHezFFPQ==
+X-Google-Smtp-Source: APXvYqyMRPjus9mrIXZ1WqvnYbpwiaN3PC++uviINrHTADv7LXfe/4r1EIXDgw+9jocqqA4P1Xp8wQ==
+X-Received: by 2002:adf:fdc1:: with SMTP id i1mr4293984wrs.103.1557870045414;
+        Tue, 14 May 2019 14:40:45 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x22sm357842wmi.4.2019.05.14.14.18.47
+        by smtp.gmail.com with ESMTPSA id c131sm163191wma.31.2019.05.14.14.40.43
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 May 2019 14:18:48 -0700 (PDT)
-Message-ID: <5cdb30b8.1c69fb81.64c1f.23f2@mx.google.com>
-Date:   Tue, 14 May 2019 14:18:48 -0700 (PDT)
+        Tue, 14 May 2019 14:40:44 -0700 (PDT)
+Message-ID: <5cdb35dc.1c69fb81.7d28c.0f8f@mx.google.com>
+Date:   Tue, 14 May 2019 14:40:44 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable
+X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.176
-Subject: stable/linux-4.9.y build: 197 builds: 6 failed, 191 passed, 5 errors,
- 3135 warnings (v4.9.176)
+X-Kernelci-Kernel: v4.9.176-35-g6194f35e779b
+Subject: stable-rc/linux-4.9.y build: 197 builds: 6 failed, 191 passed,
+ 5 errors, 3135 warnings (v4.9.176-35-g6194f35e779b)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,18 +63,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y build: 197 builds: 6 failed, 191 passed, 5 errors, 3135 =
-warnings (v4.9.176)
+stable-rc/linux-4.9.y build: 197 builds: 6 failed, 191 passed, 5 errors, 31=
+35 warnings (v4.9.176-35-g6194f35e779b)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.176/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.176-35-g6194f35e779b/
 
-Tree: stable
+Tree: stable-rc
 Branch: linux-4.9.y
-Git Describe: v4.9.176
-Git Commit: ffe8cffc8be1ae47c08cbc3571bed6b5b0fa53ad
+Git Describe: v4.9.176-35-g6194f35e779b
+Git Commit: 6194f35e779bce6fc83f12e0406422dc480c09cf
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 6 unique architectures
 
 Build Failures Detected:
@@ -772,6 +772,8 @@ ction [-Wreturn-type]
 ction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
 ction [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
 ction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
@@ -782,18 +784,16 @@ ction [-Wreturn-type]
 ction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
 ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
-    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
-nction [-Wreturn-type]
-    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
-tion [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
 non-void function [-Wreturn-type]
 
@@ -803,37 +803,37 @@ axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 =
 section mismatches
 
 Warnings:
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
     kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
     block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
 ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
     net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
 tion [-Wreturn-type]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
-[-Wreturn-type]
-    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
 non-void function [-Wreturn-type]
@@ -5452,12 +5452,12 @@ Warnings:
 nction [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
-    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
-tion [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
 non-void function [-Wreturn-type]
 
@@ -5469,15 +5469,15 @@ nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings=
 Warnings:
     kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
     net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
 tion [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
-    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
-[-Wreturn-type]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
 non-void function [-Wreturn-type]
@@ -7192,18 +7192,8 @@ ction mismatches
 Warnings:
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
     kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
     block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
@@ -7216,10 +7206,20 @@ ction [-Wreturn-type]
 ction [-Wreturn-type]
     net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
 tion [-Wreturn-type]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
 non-void function [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
@@ -7233,10 +7233,6 @@ vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 18 warnings, =
 Warnings:
     arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
 ot used [-Wunused-function]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
-    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
-ction [-Wreturn-type]
     kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
@@ -7253,16 +7249,20 @@ ction [-Wreturn-type]
 ction [-Wreturn-type]
     fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
 ction [-Wreturn-type]
-    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
-nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
-    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
-tion [-Wreturn-type]
     arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
 ed [-Wunused-value]
     fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
     lib/cpumask.c:211:1: warning: control reaches end of non-void function =
 [-Wreturn-type]
     include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
