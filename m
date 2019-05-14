@@ -2,78 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFA661E54B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 00:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 783851E565
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 01:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726180AbfENWrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 18:47:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbfENWrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 18:47:05 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 141CD20644;
-        Tue, 14 May 2019 22:47:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557874024;
-        bh=bsYkileagRGTkTUzkLu+KXz5X5Ro1lrwWEy2sUMLRTw=;
-        h=Date:From:To:Subject:From;
-        b=xSZNaRcZihp3B1IZGMgynYX2fbHcmWwhrXJxF3FqmurWATfPA9ig6TY0Mfj2KaKKV
-         CIH+oATDeizNqBDAegvEAtgMwd5h0u4tzVd6BnBvfzNMl28ksdJ5OyEr2kisvAN9Xp
-         dsRqHuPOazMe4FPCCfjTEDsQrVPiaLwhA4Bzb2xw=
-Date:   Tue, 14 May 2019 15:47:03 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, dan.carpenter@oracle.com,
-        galak@kernel.crashing.org, mihai.caraman@freescale.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        timur@freescale.com, torvalds@linux-foundation.org
-Subject:  [patch 122/126] drivers/virt/fsl_hypervisor.c: prevent
- integer overflow in ioctl
-Message-ID: <20190514224703.Hm3SdHBTn%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726339AbfENXBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 19:01:31 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:34786 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726251AbfENXBb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 19:01:31 -0400
+Received: by mail-wr1-f45.google.com with SMTP id f8so553405wrt.1
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 16:01:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DbiFlCiAZGgcyYTsKuzsxJT0uetcazClUVamOnt1pyc=;
+        b=TxG0Ra5dd8EpbtkwzSROIB4RL+PUHAM0cMnU2qgUneoXXYWmqSrqirf6pV0wxjC4/d
+         il1CgNUyEkrDWYWcYNINEVmBua1WMCk1FCUbQwn7NR2eLjPLOllg4zdhs7csw58i3bU+
+         y4a85yozLgRGr9/P99i5VG13kOrvlSHFpxBmrtlt/GCqt7t/y/GstxnJ4vL3QeHNMRTZ
+         xKO7D6F6hCzdoZxHc90Kp9F11YRLLK+5mkAXApcKKpVa3PuxehVK2I0ytT2onOuxv7qS
+         9BkgySo6ik2lcV0fbDvnmpDX86SaY0ZafMXZkkqoA1VOniFBnADdxGULJ7ImwxDUl2N3
+         JfJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DbiFlCiAZGgcyYTsKuzsxJT0uetcazClUVamOnt1pyc=;
+        b=Qytiw3kOQNFiKkl+tdIXp+kgO/c3mlUyouxT+HzQ7L2kcfPcLxaj2c7rPzMd4dQVaR
+         JD5+Mwy+vET2P6Q1o+IQG2cOhK70a87z2yLLCQCTo7GBuMAL+d+FM0qr32UBZtKGlX2l
+         N4ROiq8Sn+0MNmDkbdTZaW7IpLzLfMEyDbmRJbybhjkmtzI+F8hxzwj9ktwJk8IuKZaP
+         CNmyg7pRyrPbxjZ4zI13zuc2eUAFWQZJYfmxmLtUms74i7A2V7+osMMeBeLHFkj+VqB3
+         NOsmdlRo+ZcRH9kDi2U6E/cgyYH9oYLymHQXQtqLVP8IUy9UF9Kez1v7V7rMcUnbNkn0
+         di4Q==
+X-Gm-Message-State: APjAAAUcRyvXBHVfERdN0XfjCabbtQMeDBgJsJOlE7KGF+VftkUE8qZh
+        0+wO8fT5ZItwzYv27aC+VuG4mPjVByKKyQ==
+X-Google-Smtp-Source: APXvYqxlCc5EqvXcTg/W4DKvpnnf/9zDAGIy/Sbf3CGfk7xIpWKsrzEijpRVzuG5sGkEEiRXKRUZAg==
+X-Received: by 2002:adf:e44b:: with SMTP id t11mr8239613wrm.151.1557874890184;
+        Tue, 14 May 2019 16:01:30 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id i185sm765893wmg.32.2019.05.14.16.01.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 May 2019 16:01:29 -0700 (PDT)
+Message-ID: <5cdb48c9.1c69fb81.97ae6.484a@mx.google.com>
+Date:   Tue, 14 May 2019 16:01:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.119
+Subject: stable/linux-4.14.y boot: 62 boots: 1 failed,
+ 59 passed with 2 untried/unknown (v4.14.119)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
+stable/linux-4.14.y boot: 62 boots: 1 failed, 59 passed with 2 untried/unkn=
+own (v4.14.119)
 
-The "param.count" value is a u64 thatcomes from the user.  The code later
-in the function assumes that param.count is at least one and if it's not
-then it leads to an Oops when we dereference the ZERO_SIZE_PTR.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.119/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.119/
 
-Also the addition can have an integer overflow which would lead us to
-allocate a smaller "pages" array than required.  I can't immediately tell
-what the possible run times implications are, but it's safest to prevent
-the overflow.
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.119
+Git Commit: 2af67d29b6fec54b86bcdb3e0a616640eeea5302
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 15 SoC families, 11 builds out of 201
 
-Link: http://lkml.kernel.org/r/20181218082129.GE32567@kadam
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Timur Tabi <timur@freescale.com>
-Cc: Mihai Caraman <mihai.caraman@freescale.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.14.118)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap4-panda: 1 failed lab
+
 ---
-
- drivers/virt/fsl_hypervisor.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- a/drivers/virt/fsl_hypervisor.c~fsl_hypervisor-prevent-integer-overflow-in-ioctl
-+++ a/drivers/virt/fsl_hypervisor.c
-@@ -215,6 +215,9 @@ static long ioctl_memcpy(struct fsl_hv_i
- 	 * hypervisor.
- 	 */
- 	lb_offset = param.local_vaddr & (PAGE_SIZE - 1);
-+	if (param.count == 0 ||
-+	    param.count > U64_MAX - lb_offset - PAGE_SIZE + 1)
-+		return -EINVAL;
- 	num_pages = (param.count + lb_offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 
- 	/* Allocate the buffers we need */
-_
+For more info write to <info@kernelci.org>
