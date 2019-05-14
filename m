@@ -2,136 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F071C576
-	for <lists+stable@lfdr.de>; Tue, 14 May 2019 10:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42491C5DC
+	for <lists+stable@lfdr.de>; Tue, 14 May 2019 11:19:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725916AbfENI6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 04:58:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47916 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726084AbfENI6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 May 2019 04:58:22 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 68BF8AE1C;
-        Tue, 14 May 2019 08:58:20 +0000 (UTC)
-Date:   Tue, 14 May 2019 09:58:16 +0100
-From:   Mel Gorman <mgorman@suse.de>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Will Deacon <will.deacon@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        "jstancek@redhat.com" <jstancek@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Nick Piggin <npiggin@gmail.com>,
-        Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
- flush
-Message-ID: <20190514085816.GB23719@suse.de>
-References: <20190509103813.GP2589@hirez.programming.kicks-ass.net>
- <F22533A7-016F-4506-809A-7E86BAF24D5A@vmware.com>
- <20190509182435.GA2623@hirez.programming.kicks-ass.net>
- <04668E51-FD87-4D53-A066-5A35ABC3A0D6@vmware.com>
- <20190509191120.GD2623@hirez.programming.kicks-ass.net>
- <7DA60772-3EE3-4882-B26F-2A900690DA15@vmware.com>
- <20190513083606.GL2623@hirez.programming.kicks-ass.net>
- <75FD46B2-2E0C-41F2-9308-AB68C8780E33@vmware.com>
- <20190513163752.GA10754@fuggles.cambridge.arm.com>
- <43638259-8EDB-4B8D-A93D-A2E86D8B2489@vmware.com>
+        id S1726211AbfENJTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 05:19:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726135AbfENJTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 05:19:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77C8820879;
+        Tue, 14 May 2019 09:19:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557825577;
+        bh=KzWHzPF6qTJdJ1HjeQq9jL7ZD+wyZQC4ElC0ezzJBB0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Crd4575xdmMVku3L4i+u5kU2q+uiLLVy6qIxJMnDFuVIeSk8Jt3c6oE/FhwLYgWK5
+         pWlstUAK0VhERYI2e8f2fZJSM0Ut20Yji3DwlxNdmLWwNpfSeqwAR6KgsRUzNIkNli
+         r9Yo/LlRB7SeV99rr7JSNwehZ5sIKXfk8vp2wmKk=
+Date:   Tue, 14 May 2019 11:19:34 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Raul E Rangel <rrangel@chromium.org>
+Cc:     stable@vger.kernel.org, linux-mmc@vger.kernel.org,
+        djkurtz@google.com, adrian.hunter@intel.com, zwisler@chromium.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-kernel@vger.kernel.org, Chris Boot <bootc@bootc.net>,
+        =?iso-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [stable/4.14.y PATCH 0/3] mmc: Fix a potential resource leak
+ when shutting down request queue.
+Message-ID: <20190514091933.GA27269@kroah.com>
+References: <20190513175521.84955-1-rrangel@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43638259-8EDB-4B8D-A93D-A2E86D8B2489@vmware.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190513175521.84955-1-rrangel@chromium.org>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 13, 2019 at 05:06:03PM +0000, Nadav Amit wrote:
-> > On May 13, 2019, at 9:37 AM, Will Deacon <will.deacon@arm.com> wrote:
-> > 
-> > On Mon, May 13, 2019 at 09:11:38AM +0000, Nadav Amit wrote:
-> >>> On May 13, 2019, at 1:36 AM, Peter Zijlstra <peterz@infradead.org> wrote:
-> >>> 
-> >>> On Thu, May 09, 2019 at 09:21:35PM +0000, Nadav Amit wrote:
-> >>> 
-> >>>>>>> And we can fix that by having tlb_finish_mmu() sync up. Never let a
-> >>>>>>> concurrent tlb_finish_mmu() complete until all concurrenct mmu_gathers
-> >>>>>>> have completed.
-> >>>>>>> 
-> >>>>>>> This should not be too hard to make happen.
-> >>>>>> 
-> >>>>>> This synchronization sounds much more expensive than what I proposed. But I
-> >>>>>> agree that cache-lines that move from one CPU to another might become an
-> >>>>>> issue. But I think that the scheme I suggested would minimize this overhead.
-> >>>>> 
-> >>>>> Well, it would have a lot more unconditional atomic ops. My scheme only
-> >>>>> waits when there is actual concurrency.
-> >>>> 
-> >>>> Well, something has to give. I didn???t think that if the same core does the
-> >>>> atomic op it would be too expensive.
-> >>> 
-> >>> They're still at least 20 cycles a pop, uncontended.
-> >>> 
-> >>>>> I _think_ something like the below ought to work, but its not even been
-> >>>>> near a compiler. The only problem is the unconditional wakeup; we can
-> >>>>> play games to avoid that if we want to continue with this.
-> >>>>> 
-> >>>>> Ideally we'd only do this when there's been actual overlap, but I've not
-> >>>>> found a sensible way to detect that.
-> >>>>> 
-> >>>>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> >>>>> index 4ef4bbe78a1d..b70e35792d29 100644
-> >>>>> --- a/include/linux/mm_types.h
-> >>>>> +++ b/include/linux/mm_types.h
-> >>>>> @@ -590,7 +590,12 @@ static inline void dec_tlb_flush_pending(struct mm_struct *mm)
-> >>>>> 	 *
-> >>>>> 	 * Therefore we must rely on tlb_flush_*() to guarantee order.
-> >>>>> 	 */
-> >>>>> -	atomic_dec(&mm->tlb_flush_pending);
-> >>>>> +	if (atomic_dec_and_test(&mm->tlb_flush_pending)) {
-> >>>>> +		wake_up_var(&mm->tlb_flush_pending);
-> >>>>> +	} else {
-> >>>>> +		wait_event_var(&mm->tlb_flush_pending,
-> >>>>> +			       !atomic_read_acquire(&mm->tlb_flush_pending));
-> >>>>> +	}
-> >>>>> }
-> >>>> 
-> >>>> It still seems very expensive to me, at least for certain workloads (e.g.,
-> >>>> Apache with multithreaded MPM).
-> >>> 
-> >>> Is that Apache-MPM workload triggering this lots? Having a known
-> >>> benchmark for this stuff is good for when someone has time to play with
-> >>> things.
-> >> 
-> >> Setting Apache2 with mpm_worker causes every request to go through
-> >> mmap-writev-munmap flow on every thread. I didn???t run this workload after
-> >> the patches that downgrade the mmap_sem to read before the page-table
-> >> zapping were introduced. I presume these patches would allow the page-table
-> >> zapping to be done concurrently, and therefore would hit this flow.
-> > 
-> > Hmm, I don't think so: munmap() still has to take the semaphore for write
-> > initially, so it will be serialised against other munmap() threads even
-> > after they've downgraded afaict.
-> > 
-> > The initial bug report was about concurrent madvise() vs munmap().
-> 
-> I guess you are right (and I???m wrong).
-> 
-> Short search suggests that ebizzy might be affected (a thread by Mel
-> Gorman): https://lkml.org/lkml/2015/2/2/493
-> 
+On Mon, May 13, 2019 at 11:55:18AM -0600, Raul E Rangel wrote:
+> I think we should cherry-pick 41e3efd07d5a02c80f503e29d755aa1bbb4245de
+> https://lore.kernel.org/patchwork/patch/856512/ into 4.14. It fixes a
+> potential resource leak when shutting down the request queue.
 
-Glibc has since been fixed to be less munmap/mmap intensive and the
-system CPU usage of ebizzy is generally negligible unless configured so
-specifically use mmap/munmap instead of malloc/free which is unrealistic
-for good application behaviour.
+Potential meaning "it does happen", or "it can happen if we do this", or
+just "maybe it might happen, we really do not know?"
 
--- 
-Mel Gorman
-SUSE Labs
+> Once this patch is applied, there is a potential for a null pointer dereference.
+> That's what the second patch fixes.
+
+What is the git id of that upstream fix?
+
+> The third patch is just an optimization to stop processing earlier.
+
+That's not how stable kernels work :(
+
+> See https://patchwork.kernel.org/patch/10925469/ for the initial motivation.
+
+I don't understand the motivation from that link at all :(
+
+> This commit applies to v4.14.116. It is already included in 4.19. 4.19 doesn't
+> suffer from the null pointer dereference because later commits migrate the mmc
+> stack to blk-mq.
+
+What are those later commits?
+
+> I tested this patch set by randomly connecting/disconnecting the SD
+> card. I got over 189650 itarations without a problem.
+
+And if you do not have these patches, on 4.14.y, how many iterations
+cause a problem?  If you just apply the first patch, does that work?
+
+_EVERY_ time we take a patch that is not upstream, something usually is
+broken and needs to be fixed.  We have a long long long history of this,
+so if you want to have a patch that is not upstream applied to a stable
+kernel release, you need a whole lot of justification and explanation
+and begging.  And you need to be around to fix the fallout for when it
+breaks :)
+
+thanks,
+
+greg k-h
