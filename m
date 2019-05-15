@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9619B1EF43
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B9F1EF95
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731811AbfEOLb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43718 "EHLO mail.kernel.org"
+        id S1733102AbfEOLcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732431AbfEOLb4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:56 -0400
+        id S1732775AbfEOLcw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11269206BF;
-        Wed, 15 May 2019 11:31:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB311206BF;
+        Wed, 15 May 2019 11:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919915;
-        bh=okYy+GU6/N0t4Tvh74P9xri3NwBQ8lf9DQZpI4Zyqi4=;
+        s=default; t=1557919971;
+        bh=jCr5E9mYj5Y12c0OTwClqPN7fBXur6cUro7uk/3mmKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rk6cQB68BZCk1xPk5p5MF3Qkq0e25ytpvqyeOukfny8+QnDyqMI1fElohO0H8LtZJ
-         ibBxBTEbR71/qYXsPiMflDfMGgDXncU4FD51q2UcZl8E0wzDB9HSxiO4axzicQRFzg
-         G6YjSU1estpfdEis+U3XQbaCh5ayikiwBnfqXboI=
+        b=kDA/GFS/m3PuMIcYY9aYackl/ZaYoD1GEj0YAUW4n69lxbnqKWlr5orv04Fs3DT6s
+         gGkTZ95nwZJTC2hRqzwja/qMt4NZG6SzEwQJHrmxgwJ+iAezeRCVHAu8L2BjATHKpt
+         AsCEl5uiwmAahelpMzIhAzA36OKNaNAc7NlGS17g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Timur Tabi <timur@freescale.com>,
-        Mihai Caraman <mihai.caraman@freescale.com>,
-        Kumar Gala <galak@kernel.crashing.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.0 128/137] drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
+        stable@vger.kernel.org, Tom Deseyn <tdeseyn@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 25/46] selinux: do not report error on connect(AF_UNSPEC)
 Date:   Wed, 15 May 2019 12:56:49 +0200
-Message-Id: <20190515090703.193844260@linuxfoundation.org>
+Message-Id: <20190515090625.114193357@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,104 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit c8ea3663f7a8e6996d44500ee818c9330ac4fd88 upstream.
+[ Upstream commit c7e0d6cca86581092cbbf2cd868b3601495554cf ]
 
-strndup_user() returns error pointers on error, and then in the error
-handling we pass the error pointers to kfree().  It will cause an Oops.
+calling connect(AF_UNSPEC) on an already connected TCP socket is an
+established way to disconnect() such socket. After commit 68741a8adab9
+("selinux: Fix ltp test connect-syscall failure") it no longer works
+and, in the above scenario connect() fails with EAFNOSUPPORT.
 
-Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Timur Tabi <timur@freescale.com>
-Cc: Mihai Caraman <mihai.caraman@freescale.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix the above falling back to the generic/old code when the address family
+is not AF_INET{4,6}, but leave the SCTP code path untouched, as it has
+specific constraints.
+
+Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
+Reported-by: Tom Deseyn <tdeseyn@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ security/selinux/hooks.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -331,8 +331,8 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	struct fsl_hv_ioctl_prop param;
- 	char __user *upath, *upropname;
- 	void __user *upropval;
--	char *path = NULL, *propname = NULL;
--	void *propval = NULL;
-+	char *path, *propname;
-+	void *propval;
- 	int ret = 0;
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4572,7 +4572,7 @@ static int selinux_socket_connect_helper
+ 		struct lsm_network_audit net = {0,};
+ 		struct sockaddr_in *addr4 = NULL;
+ 		struct sockaddr_in6 *addr6 = NULL;
+-		unsigned short snum;
++		unsigned short snum = 0;
+ 		u32 sid, perm;
  
- 	/* Get the parameters from the user. */
-@@ -344,32 +344,30 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	upropval = (void __user *)(uintptr_t)param.propval;
- 
- 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
--	if (IS_ERR(path)) {
--		ret = PTR_ERR(path);
--		goto out;
--	}
-+	if (IS_ERR(path))
-+		return PTR_ERR(path);
- 
- 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
- 	if (IS_ERR(propname)) {
- 		ret = PTR_ERR(propname);
--		goto out;
-+		goto err_free_path;
- 	}
- 
- 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
- 		ret = -EINVAL;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	propval = kmalloc(param.proplen, GFP_KERNEL);
- 	if (!propval) {
- 		ret = -ENOMEM;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	if (set) {
- 		if (copy_from_user(propval, upropval, param.proplen)) {
- 			ret = -EFAULT;
--			goto out;
-+			goto err_free_propval;
+ 		/* sctp_connectx(3) calls via selinux_sctp_bind_connect()
+@@ -4595,12 +4595,12 @@ static int selinux_socket_connect_helper
+ 			break;
+ 		default:
+ 			/* Note that SCTP services expect -EINVAL, whereas
+-			 * others expect -EAFNOSUPPORT.
++			 * others must handle this at the protocol level:
++			 * connect(AF_UNSPEC) on a connected socket is
++			 * a documented way disconnect the socket.
+ 			 */
+ 			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+ 				return -EINVAL;
+-			else
+-				return -EAFNOSUPPORT;
  		}
  
- 		param.ret = fh_partition_set_dtprop(param.handle,
-@@ -388,7 +386,7 @@ static long ioctl_dtprop(struct fsl_hv_i
- 			if (copy_to_user(upropval, propval, param.proplen) ||
- 			    put_user(param.proplen, &p->proplen)) {
- 				ret = -EFAULT;
--				goto out;
-+				goto err_free_propval;
- 			}
- 		}
- 	}
-@@ -396,10 +394,12 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	if (put_user(param.ret, &p->ret))
- 		ret = -EFAULT;
- 
--out:
--	kfree(path);
-+err_free_propval:
- 	kfree(propval);
-+err_free_propname:
- 	kfree(propname);
-+err_free_path:
-+	kfree(path);
- 
- 	return ret;
- }
+ 		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
 
 
