@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61DAB1EFE7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CCB1EF4A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732442AbfEOLas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42404 "EHLO mail.kernel.org"
+        id S1730728AbfEOLcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732779AbfEOLas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:48 -0400
+        id S1732514AbfEOLcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B9132084A;
-        Wed, 15 May 2019 11:30:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1672320881;
+        Wed, 15 May 2019 11:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919846;
-        bh=5FMtJThSLK+F+z4iXDndoqJkNHDhzMBT/XAonkQGkOs=;
+        s=default; t=1557919931;
+        bh=dVQBo5mtvrTupR7EEWhapQ5svi0kusxcNoYyTDZh03o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjsFxTd/TAYQCshSmccDtLiK9d3S3muTmEd+ARiYxvqzSgzXEQt/Q6oKXYqOowo29
-         cO0yINWGYUmMX90sfSvCGABzefWipZm4KfyguY2PbOvRzmXzS/eNFutgtcb+3gr9EE
-         23RrqQMyK3ALlx9boUJwoyIyljKuY+AOrD0/JJnM=
+        b=J92v7wfr1/tgFluT3UnbIPTy3pQ6huuFyBrM27zjC3zpS03Pk1NohfL7/M70CeqzU
+         UKvl0Bm8MRTSZlL0l98NHldd3uBy8p5O9mq95ykdhnq85zju7TCwTelQX9GZcZanKp
+         tb05DWr4f1lihpBmyHAn1ApYs4lna53koYag7VLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 114/137] net: ucc_geth - fix Oops when changing number of buffers in the ring
+        stable@vger.kernel.org, Eubert Bao <bunnier@gmail.com>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.1 11/46] mwl8k: Fix rate_idx underflow
 Date:   Wed, 15 May 2019 12:56:35 +0200
-Message-Id: <20190515090701.892913844@linuxfoundation.org>
+Message-Id: <20190515090621.817267128@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Petr Štetiar <ynezz@true.cz>
 
-[ Upstream commit ee0df19305d9fabd9479b785918966f6e25b733b ]
+commit 6b583201fa219b7b1b6aebd8966c8fd9357ef9f4 upstream.
 
-When changing the number of buffers in the RX ring while the interface
-is running, the following Oops is encountered due to the new number
-of buffers being taken into account immediately while their allocation
-is done when opening the device only.
+It was reported on OpenWrt bug tracking system[1], that several users
+are affected by the endless reboot of their routers if they configure
+5GHz interface with channel 44 or 48.
 
-[   69.882706] Unable to handle kernel paging request for data at address 0xf0000100
-[   69.890172] Faulting instruction address: 0xc033e164
-[   69.895122] Oops: Kernel access of bad area, sig: 11 [#1]
-[   69.900494] BE PREEMPT CMPCPRO
-[   69.907120] CPU: 0 PID: 0 Comm: swapper Not tainted 4.14.115-00006-g179ade8ce3-dirty #269
-[   69.915956] task: c0684310 task.stack: c06da000
-[   69.920470] NIP:  c033e164 LR: c02e44d0 CTR: c02e41fc
-[   69.925504] REGS: dfff1e20 TRAP: 0300   Not tainted  (4.14.115-00006-g179ade8ce3-dirty)
-[   69.934161] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 22004428  XER: 20000000
-[   69.940869] DAR: f0000100 DSISR: 20000000
-[   69.940869] GPR00: c0352d70 dfff1ed0 c0684310 f00000a4 00000040 dfff1f68 00000000 0000001f
-[   69.940869] GPR08: df53f410 1cc00040 00000021 c0781640 42004424 100c82b6 f00000a4 df53f5b0
-[   69.940869] GPR16: df53f6c0 c05daf84 00000040 00000000 00000040 c0782be4 00000000 00000001
-[   69.940869] GPR24: 00000000 df53f400 000001b0 df53f410 df53f000 0000003f df708220 1cc00044
-[   69.978348] NIP [c033e164] skb_put+0x0/0x5c
-[   69.982528] LR [c02e44d0] ucc_geth_poll+0x2d4/0x3f8
-[   69.987384] Call Trace:
-[   69.989830] [dfff1ed0] [c02e4554] ucc_geth_poll+0x358/0x3f8 (unreliable)
-[   69.996522] [dfff1f20] [c0352d70] net_rx_action+0x248/0x30c
-[   70.002099] [dfff1f80] [c04e93e4] __do_softirq+0xfc/0x310
-[   70.007492] [dfff1fe0] [c0021124] irq_exit+0xd0/0xd4
-[   70.012458] [dfff1ff0] [c000e7e0] call_do_irq+0x24/0x3c
-[   70.017683] [c06dbe80] [c0006bac] do_IRQ+0x64/0xc4
-[   70.022474] [c06dbea0] [c001097c] ret_from_except+0x0/0x14
-[   70.027964] --- interrupt: 501 at rcu_idle_exit+0x84/0x90
-[   70.027964]     LR = rcu_idle_exit+0x74/0x90
-[   70.037585] [c06dbf60] [20000000] 0x20000000 (unreliable)
-[   70.042984] [c06dbf80] [c004bb0c] do_idle+0xb4/0x11c
-[   70.047945] [c06dbfa0] [c004bd14] cpu_startup_entry+0x18/0x1c
-[   70.053682] [c06dbfb0] [c05fb034] start_kernel+0x370/0x384
-[   70.059153] [c06dbff0] [00003438] 0x3438
-[   70.063062] Instruction dump:
-[   70.066023] 38a00000 38800000 90010014 4bfff015 80010014 7c0803a6 3123ffff 7c691910
-[   70.073767] 38210010 4e800020 38600000 4e800020 <80e3005c> 80c30098 3107ffff 7d083910
-[   70.081690] ---[ end trace be7ccd9c1e1a9f12 ]---
+The reboot loop is caused by the following excessive number of WARN_ON
+messages:
 
-This patch forbids the modification of the number of buffers in the
-ring while the interface is running.
+ WARNING: CPU: 0 PID: 0 at backports-4.19.23-1/net/mac80211/rx.c:4516
+                             ieee80211_rx_napi+0x1fc/0xa54 [mac80211]
 
-Fixes: ac421852b3a0 ("ucc_geth: add ethtool support")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+as the messages are being correctly emitted by the following guard:
+
+ case RX_ENC_LEGACY:
+      if (WARN_ON(status->rate_idx >= sband->n_bitrates))
+
+as the rate_idx is in this case erroneously set to 251 (0xfb). This fix
+simply converts previously used magic number to proper constant and
+guards against substraction which is leading to the currently observed
+underflow.
+
+1. https://bugs.openwrt.org/index.php?do=details&task_id=2218
+
+Fixes: 854783444bab ("mwl8k: properly set receive status rate index on 5 GHz receive")
+Cc: <stable@vger.kernel.org>
+Tested-by: Eubert Bao <bunnier@gmail.com>
+Reported-by: Eubert Bao <bunnier@gmail.com>
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/freescale/ucc_geth_ethtool.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-+++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-@@ -252,14 +252,12 @@ uec_set_ringparam(struct net_device *net
- 		return -EINVAL;
- 	}
+---
+ drivers/net/wireless/marvell/mwl8k.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+--- a/drivers/net/wireless/marvell/mwl8k.c
++++ b/drivers/net/wireless/marvell/mwl8k.c
+@@ -441,6 +441,9 @@ static const struct ieee80211_rate mwl8k
+ #define MWL8K_CMD_UPDATE_STADB		0x1123
+ #define MWL8K_CMD_BASTREAM		0x1125
  
-+	if (netif_running(netdev))
-+		return -EBUSY;
++#define MWL8K_LEGACY_5G_RATE_OFFSET \
++	(ARRAY_SIZE(mwl8k_rates_24) - ARRAY_SIZE(mwl8k_rates_50))
 +
- 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
- 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
+ static const char *mwl8k_cmd_name(__le16 cmd, char *buf, int bufsize)
+ {
+ 	u16 command = le16_to_cpu(cmd);
+@@ -1016,8 +1019,9 @@ mwl8k_rxd_ap_process(void *_rxd, struct
  
--	if (netif_running(netdev)) {
--		/* FIXME: restart automatically */
--		netdev_info(netdev, "Please re-open the interface\n");
--	}
--
- 	return ret;
- }
+ 	if (rxd->channel > 14) {
+ 		status->band = NL80211_BAND_5GHZ;
+-		if (!(status->encoding == RX_ENC_HT))
+-			status->rate_idx -= 5;
++		if (!(status->encoding == RX_ENC_HT) &&
++		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
++			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
+ 	} else {
+ 		status->band = NL80211_BAND_2GHZ;
+ 	}
+@@ -1124,8 +1128,9 @@ mwl8k_rxd_sta_process(void *_rxd, struct
  
+ 	if (rxd->channel > 14) {
+ 		status->band = NL80211_BAND_5GHZ;
+-		if (!(status->encoding == RX_ENC_HT))
+-			status->rate_idx -= 5;
++		if (!(status->encoding == RX_ENC_HT) &&
++		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
++			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
+ 	} else {
+ 		status->band = NL80211_BAND_2GHZ;
+ 	}
 
 
