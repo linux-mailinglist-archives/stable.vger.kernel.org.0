@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9150D1EFC2
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 182171EF9F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727483AbfEOLfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45060 "EHLO mail.kernel.org"
+        id S1726467AbfEOLdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733146AbfEOLdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:33:07 -0400
+        id S1733156AbfEOLdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:33:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45A212053B;
-        Wed, 15 May 2019 11:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D319E2084A;
+        Wed, 15 May 2019 11:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919986;
-        bh=Pbj+UVCC4TYDkmXlwC5abIs+I5M6h3icEkPBubW8FrI=;
+        s=default; t=1557919989;
+        bh=f+/E2dM8tseZgOi6tp1gOUPwluA21xqL5ItupbIbfPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGEuemmkPfXrr50iddCckDnyVjhRYukU5F9GjUB4X3kXrHTIHQbrpkcCEMQ3cPE3E
-         muO5eGJdvUBL3eJDPP1jDcTL7kD2nhOOVn67gJq5cHOjknU/BEyX9Z87MpwIi+PcZk
-         sBZQ5vITvyVOv8N1zIMAcqUmUQ9VPUHkpk3gCxuc=
+        b=b3fCV9URAHaZBRgG6uXo6MTSPmJBbF53xAqgpBp+Ak1OmukRmW7hEhl2C4xJQSr6G
+         utwxQ9a1T8i1Wq0+YOZiRvij1SU7jfSuBjKdR/0aZJ/J8RYbkzWax2k99Mgo2hlmdA
+         d3trL2ZSjDTN7RnDUClNDaBXsgcNo/uWHS5ztFzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 30/46] aqc111: fix writing to the phy on BE
-Date:   Wed, 15 May 2019 12:56:54 +0200
-Message-Id: <20190515090626.165408904@linuxfoundation.org>
+Subject: [PATCH 5.1 31/46] aqc111: fix double endianness swap on BE
+Date:   Wed, 15 May 2019 12:56:55 +0200
+Message-Id: <20190515090626.291728022@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
 References: <20190515090616.670410738@linuxfoundation.org>
@@ -45,120 +45,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 369b46e9fbcfa5136f2cb5f486c90e5f7fa92630 ]
+[ Upstream commit 2cf672709beb005f6e90cb4edbed6f2218ba953e ]
 
-When writing to the phy on BE architectures an internal data structure
-was directly given, leading to it being byte swapped in the wrong
-way for the CPU in 50% of all cases. A temporary buffer must be used.
+If you are using a function that does a swap in place,
+you cannot just reuse the buffer on the assumption that it has
+not been changed.
 
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/aqc111.c |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/net/usb/aqc111.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/usb/aqc111.c
 +++ b/drivers/net/usb/aqc111.c
-@@ -320,6 +320,7 @@ static int aqc111_get_link_ksettings(str
- static void aqc111_set_phy_speed(struct usbnet *dev, u8 autoneg, u16 speed)
+@@ -1428,7 +1428,7 @@ static int aqc111_resume(struct usb_inte
  {
+ 	struct usbnet *dev = usb_get_intfdata(intf);
  	struct aqc111_data *aqc111_data = dev->driver_priv;
-+	u32 phy_on_the_wire;
- 
- 	aqc111_data->phy_cfg &= ~AQ_ADV_MASK;
- 	aqc111_data->phy_cfg |= AQ_PAUSE;
-@@ -361,7 +362,8 @@ static void aqc111_set_phy_speed(struct
- 		}
- 	}
- 
--	aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0, &aqc111_data->phy_cfg);
-+	phy_on_the_wire = aqc111_data->phy_cfg;
-+	aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0, &phy_on_the_wire);
- }
- 
- static int aqc111_set_link_ksettings(struct net_device *net,
-@@ -755,6 +757,7 @@ static void aqc111_unbind(struct usbnet
- {
- 	struct aqc111_data *aqc111_data = dev->driver_priv;
- 	u16 reg16;
-+	u32 phy_on_the_wire;
- 
- 	/* Force bz */
- 	reg16 = SFR_PHYPWR_RSTCTL_BZ;
-@@ -768,8 +771,9 @@ static void aqc111_unbind(struct usbnet
- 	aqc111_data->phy_cfg &= ~AQ_ADV_MASK;
- 	aqc111_data->phy_cfg |= AQ_LOW_POWER;
- 	aqc111_data->phy_cfg &= ~AQ_PHY_POWER_EN;
-+	phy_on_the_wire = aqc111_data->phy_cfg;
- 	aqc111_write32_cmd_nopm(dev, AQ_PHY_OPS, 0, 0,
--				&aqc111_data->phy_cfg);
-+				&phy_on_the_wire);
- 
- 	kfree(aqc111_data);
- }
-@@ -992,6 +996,7 @@ static int aqc111_reset(struct usbnet *d
- {
- 	struct aqc111_data *aqc111_data = dev->driver_priv;
- 	u8 reg8 = 0;
-+	u32 phy_on_the_wire;
- 
- 	dev->rx_urb_size = URB_SIZE;
- 
-@@ -1004,8 +1009,9 @@ static int aqc111_reset(struct usbnet *d
- 
- 	/* Power up ethernet PHY */
- 	aqc111_data->phy_cfg = AQ_PHY_POWER_EN;
-+	phy_on_the_wire = aqc111_data->phy_cfg;
- 	aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0,
--			   &aqc111_data->phy_cfg);
-+			   &phy_on_the_wire);
- 
- 	/* Set the MAC address */
- 	aqc111_write_cmd(dev, AQ_ACCESS_MAC, SFR_NODE_ID, ETH_ALEN,
-@@ -1036,6 +1042,7 @@ static int aqc111_stop(struct usbnet *de
- {
- 	struct aqc111_data *aqc111_data = dev->driver_priv;
- 	u16 reg16 = 0;
-+	u32 phy_on_the_wire;
- 
- 	aqc111_read16_cmd(dev, AQ_ACCESS_MAC, SFR_MEDIUM_STATUS_MODE,
- 			  2, &reg16);
-@@ -1047,8 +1054,9 @@ static int aqc111_stop(struct usbnet *de
- 
- 	/* Put PHY to low power*/
- 	aqc111_data->phy_cfg |= AQ_LOW_POWER;
-+	phy_on_the_wire = aqc111_data->phy_cfg;
- 	aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0,
--			   &aqc111_data->phy_cfg);
-+			   &phy_on_the_wire);
+-	u16 reg16;
++	u16 reg16, oldreg16;
+ 	u8 reg8;
  
  	netif_carrier_off(dev->net);
+@@ -1444,9 +1444,11 @@ static int aqc111_resume(struct usb_inte
+ 	/* Configure RX control register => start operation */
+ 	reg16 = aqc111_data->rxctl;
+ 	reg16 &= ~SFR_RX_CTL_START;
++	/* needs to be saved in case endianness is swapped */
++	oldreg16 = reg16;
+ 	aqc111_write16_cmd_nopm(dev, AQ_ACCESS_MAC, SFR_RX_CTL, 2, &reg16);
  
-@@ -1324,6 +1332,7 @@ static int aqc111_suspend(struct usb_int
- 	u16 temp_rx_ctrl = 0x00;
- 	u16 reg16;
- 	u8 reg8;
-+	u32 phy_on_the_wire;
+-	reg16 |= SFR_RX_CTL_START;
++	reg16 = oldreg16 | SFR_RX_CTL_START;
+ 	aqc111_write16_cmd_nopm(dev, AQ_ACCESS_MAC, SFR_RX_CTL, 2, &reg16);
  
- 	usbnet_suspend(intf, message);
- 
-@@ -1395,12 +1404,14 @@ static int aqc111_suspend(struct usb_int
- 
- 		aqc111_write_cmd(dev, AQ_WOL_CFG, 0, 0,
- 				 WOL_CFG_SIZE, &wol_cfg);
-+		phy_on_the_wire = aqc111_data->phy_cfg;
- 		aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0,
--				   &aqc111_data->phy_cfg);
-+				   &phy_on_the_wire);
- 	} else {
- 		aqc111_data->phy_cfg |= AQ_LOW_POWER;
-+		phy_on_the_wire = aqc111_data->phy_cfg;
- 		aqc111_write32_cmd(dev, AQ_PHY_OPS, 0, 0,
--				   &aqc111_data->phy_cfg);
-+				   &phy_on_the_wire);
- 
- 		/* Disable RX path */
- 		aqc111_read16_cmd_nopm(dev, AQ_ACCESS_MAC,
+ 	aqc111_set_phy_speed(dev, aqc111_data->autoneg,
 
 
