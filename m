@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A28371F0A1
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97DAE1F115
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729557AbfEOLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
+        id S1730653AbfEOLUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732038AbfEOLZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:47 -0400
+        id S1730947AbfEOLUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCBFC20818;
-        Wed, 15 May 2019 11:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B481206BF;
+        Wed, 15 May 2019 11:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919546;
-        bh=kndu8SAtUtlE6O5XFX8Lvk1NrcXtcxLc7hvEAE7f7uk=;
+        s=default; t=1557919238;
+        bh=mmGx9nuyYK0Z3uaZTIzF0eWLA+6eKo+Wh2LzkIO1VY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrVGil3f0xxXfuHmiHR/UnBzhU5L2qSZxHM8STjL3nO3pHCiCxpu1wxO1XzcMhark
-         Hq+saB1mK0OYYwg+97ZDpxC5N1bfHdJGZR01PKgIrI5R4slNTLZ5+VDu/LsnQuMnnF
-         P9px8e88EQAXHUkO16HBs3JXC/qgnftaXr0PF4GQ=
+        b=lrkvV/62mUS+rocEBM64kTg0JeB3nLh5XieilkKzt+IE7KDxf3s1no5dDkpQyBtYM
+         81VGr5NXwkbzZ22dL3vtKn/bvek6inhBpFrv8LimOtydaKfEIbAuRWN7RNVVBDKdLB
+         M2qD+7xFJB5u5MrZKCM4V943IcOYMDfuBYq4iqtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Haller <thaller@redhat.com>,
         Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 091/113] fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied
+Subject: [PATCH 4.14 102/115] fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied
 Date:   Wed, 15 May 2019 12:56:22 +0200
-Message-Id: <20190515090700.540421230@linuxfoundation.org>
+Message-Id: <20190515090706.526248412@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,9 +74,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/core/fib_rules.c
 +++ b/net/core/fib_rules.c
-@@ -756,9 +756,9 @@ int fib_nl_newrule(struct sk_buff *skb,
- 	if (err)
- 		goto errout;
+@@ -563,9 +563,9 @@ int fib_nl_newrule(struct sk_buff *skb,
+ 		rule->uid_range = fib_kuid_range_unset;
+ 	}
  
 -	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
 -	    rule_exists(ops, frh, tb, rule)) {
