@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E101F167
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF441EDBE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730919AbfEOLxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:53:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57150 "EHLO mail.kernel.org"
+        id S1729901AbfEOLNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730963AbfEOLT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:27 -0400
+        id S1729896AbfEOLNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:13:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69C7120843;
-        Wed, 15 May 2019 11:19:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29BA820644;
+        Wed, 15 May 2019 11:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919166;
-        bh=h3xdNg/q9zhRaJaNp3VWSoaqbdpc4FxgzygEbgsDw2c=;
+        s=default; t=1557918780;
+        bh=dA8wClFlcVmH5G+TxKZZMt7dnaDSO9bdLEfH2ZHkTi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsZQBtRe+sJxpZpx5a4OtpG+Xf1VE5ZQTmVKejEQUPhYv+RubP9HZcgVt1FqhWfNy
-         ANu/laCs0dxkXlJDb9I+qAMz7JIX/H8gyNi8/JW7QWmH4JhYvDiJQWTqFFNIk1mTwU
-         KCWPtabiamskDeLLiFJA8zJUXbr1Wx6qTb6yWTLY=
+        b=Vc9PotsvNWtge+zCqAkR0blxlroZS3b0go992ZpAKMvwYXHwZKdZUJ2zC59a6lGuM
+         LZC3S7k7sZ71GGPGWVgZ1mgQqYp13Bqjof/Gzolg5UUVMJYcum0NfbmETyplspTaSa
+         n/DzP8HyqGYfKoooD7B8hp+NwqhsmZNtVq1h9Y1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 091/115] NFC: nci: Add some bounds checking in nci_hci_cmd_received()
+        Andrew Morton <akpm@linux-foundation.org>,
+        Timur Tabi <timur@freescale.com>,
+        Mihai Caraman <mihai.caraman@freescale.com>,
+        Kumar Gala <galak@kernel.crashing.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 264/266] drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
 Date:   Wed, 15 May 2019 12:56:11 +0200
-Message-Id: <20190515090705.861199865@linuxfoundation.org>
+Message-Id: <20190515090731.948065390@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d7ee81ad09f072eab1681877fc71ec05f9c1ae92 ]
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-This is similar to commit 674d9de02aa7 ("NFC: Fix possible memory
-corruption when handling SHDLC I-Frame commands").
+commit c8ea3663f7a8e6996d44500ee818c9330ac4fd88 upstream.
 
-I'm not totally sure, but I think that commit description may have
-overstated the danger.  I was under the impression that this data came
-from the firmware?  If you can't trust your networking firmware, then
-you're already in trouble.
+strndup_user() returns error pointers on error, and then in the error
+handling we pass the error pointers to kfree().  It will cause an Oops.
 
-Anyway, these days we add bounds checking where ever we can and we call
-it kernel hardening.  Better safe than sorry.
-
-Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Timur Tabi <timur@freescale.com>
+Cc: Mihai Caraman <mihai.caraman@freescale.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/nfc/nci/hci.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index ddfc52ac1f9b4..c0d323b58e732 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -312,6 +312,10 @@ static void nci_hci_cmd_received(struct nci_dev *ndev, u8 pipe,
- 		create_info = (struct nci_hci_create_pipe_resp *)skb->data;
- 		dest_gate = create_info->dest_gate;
- 		new_pipe = create_info->pipe;
-+		if (new_pipe >= NCI_HCI_MAX_PIPES) {
-+			status = NCI_HCI_ANY_E_NOK;
-+			goto exit;
-+		}
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -335,8 +335,8 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	struct fsl_hv_ioctl_prop param;
+ 	char __user *upath, *upropname;
+ 	void __user *upropval;
+-	char *path = NULL, *propname = NULL;
+-	void *propval = NULL;
++	char *path, *propname;
++	void *propval;
+ 	int ret = 0;
  
- 		/* Save the new created pipe and bind with local gate,
- 		 * the description for skb->data[3] is destination gate id
-@@ -336,6 +340,10 @@ static void nci_hci_cmd_received(struct nci_dev *ndev, u8 pipe,
- 			goto exit;
+ 	/* Get the parameters from the user. */
+@@ -348,32 +348,30 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	upropval = (void __user *)(uintptr_t)param.propval;
+ 
+ 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
+-	if (IS_ERR(path)) {
+-		ret = PTR_ERR(path);
+-		goto out;
+-	}
++	if (IS_ERR(path))
++		return PTR_ERR(path);
+ 
+ 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
+ 	if (IS_ERR(propname)) {
+ 		ret = PTR_ERR(propname);
+-		goto out;
++		goto err_free_path;
+ 	}
+ 
+ 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	propval = kmalloc(param.proplen, GFP_KERNEL);
+ 	if (!propval) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	if (set) {
+ 		if (copy_from_user(propval, upropval, param.proplen)) {
+ 			ret = -EFAULT;
+-			goto out;
++			goto err_free_propval;
  		}
- 		delete_info = (struct nci_hci_delete_pipe_noti *)skb->data;
-+		if (delete_info->pipe >= NCI_HCI_MAX_PIPES) {
-+			status = NCI_HCI_ANY_E_NOK;
-+			goto exit;
-+		}
  
- 		ndev->hci_dev->pipes[delete_info->pipe].gate =
- 						NCI_HCI_INVALID_GATE;
--- 
-2.20.1
-
+ 		param.ret = fh_partition_set_dtprop(param.handle,
+@@ -392,7 +390,7 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 			if (copy_to_user(upropval, propval, param.proplen) ||
+ 			    put_user(param.proplen, &p->proplen)) {
+ 				ret = -EFAULT;
+-				goto out;
++				goto err_free_propval;
+ 			}
+ 		}
+ 	}
+@@ -400,10 +398,12 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	if (put_user(param.ret, &p->ret))
+ 		ret = -EFAULT;
+ 
+-out:
+-	kfree(path);
++err_free_propval:
+ 	kfree(propval);
++err_free_propname:
+ 	kfree(propname);
++err_free_path:
++	kfree(path);
+ 
+ 	return ret;
+ }
 
 
