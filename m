@@ -2,136 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C8D1E622
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 02:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84551E662
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 02:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726314AbfEOA37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 20:29:59 -0400
-Received: from dc8-smtprelay2.synopsys.com ([198.182.47.102]:38602 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726319AbfEOA36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 20:29:58 -0400
-Received: from mailhost.synopsys.com (dc8-mailhost1.synopsys.com [10.13.135.209])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 79857C125A;
-        Wed, 15 May 2019 00:30:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1557880203; bh=c+tBAWKr/xKiZA4fRxsv2x0bDL2srnRGcv7daF0X8oU=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=fm8wJJTRYvByHd81d5Z5I9rzlO3TJp/3oPm3BJr7Q2pL+QY82ToWFR8FvRXXNZzVO
-         AC9KoJovQdsJWDB/o3C5Lp+YSD8G5FztED2SkH56d1JpgEzdF7mqo86yJye/L7Nt3r
-         DwgF1YwoMyFwgBj0POwA+4ywtkEMRXV4zS7Yit4HVNy6JA/kKWVEdOxcmcnCdoYAAE
-         qVzKE66HS7Tlv88d4rnQa2/+dxprK3Ke29tSTdBnxgddP5e/q9ZOkviyAJDu2XWVNB
-         9V+gT1d+/dkMtlkPDs4WejwVBZRy9txAF2qEmOTeMbtWo6YqWzD6+gMnEa3aurgEa6
-         xbRq0T9YfkvUQ==
-Received: from US01WEHTC2.internal.synopsys.com (us01wehtc2.internal.synopsys.com [10.12.239.237])
-        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 0751CA023C;
-        Wed, 15 May 2019 00:29:58 +0000 (UTC)
-Received: from IN01WEHTCB.internal.synopsys.com (10.144.199.106) by
- US01WEHTC2.internal.synopsys.com (10.12.239.237) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Tue, 14 May 2019 17:29:57 -0700
-Received: from IN01WEHTCA.internal.synopsys.com (10.144.199.103) by
- IN01WEHTCB.internal.synopsys.com (10.144.199.105) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Wed, 15 May 2019 05:59:54 +0530
-Received: from vineetg-Latitude-E7450.internal.synopsys.com (10.13.182.230) by
- IN01WEHTCA.internal.synopsys.com (10.144.199.243) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Wed, 15 May 2019 06:00:05 +0530
-From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
-To:     <linux-snps-arc@lists.infradead.org>
-CC:     <paltsev@snyopsys.com>, <linux-kernel@vger.kernel.org>,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        <stable@vger.kernel.org>, Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Subject: [PATCH 1/9] ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
-Date:   Tue, 14 May 2019 17:29:28 -0700
-Message-ID: <1557880176-24964-2-git-send-email-vgupta@synopsys.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1557880176-24964-1-git-send-email-vgupta@synopsys.com>
-References: <1557880176-24964-1-git-send-email-vgupta@synopsys.com>
+        id S1726302AbfEOAsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 20:48:09 -0400
+Received: from mail-wm1-f53.google.com ([209.85.128.53]:54436 "EHLO
+        mail-wm1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726044AbfEOAsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 20:48:09 -0400
+Received: by mail-wm1-f53.google.com with SMTP id i3so812048wml.4
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 17:48:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2iCzu71lOoBcoLpd3Qv32XsJw0P8tV0+HkD2oQh/QO8=;
+        b=N/GowtOGVvp7gQzEt5IAWq5lXDFhlg6rvYyCysup1O6/s9j6H8MU6WCzP+Qv3x0lua
+         QiPCRL9VbvfvMlrhEeqzFawhJmtYrpUiWAXAGJlCSEWsjdBHDadGT/XI6C4xvQpTAqGO
+         ze5XwVuSmWkDOOOWartlac2RBOg6S6Yo9FGX7QJOjQ0nDMHmr9vOtt0se91UPsXmbQrs
+         m13r6nxU4FCRnwVGSb0egsGPF8ykSo00dSWpyCrKysYd8v+Bnwx/OsE6MA07zoz2fflt
+         9sHo8zvlPBhJpsfbsGqYIviCwJWQXolByioHPy6xS7InujmiyfarI/0+MgpXBw7mzk+t
+         +8rg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2iCzu71lOoBcoLpd3Qv32XsJw0P8tV0+HkD2oQh/QO8=;
+        b=k7rfS69bR/VDfe3WnVRe45vRpmpIa0YR7mOvwqNY6XUvYqarkVCQWAcNer8LX/GwBr
+         R4vNiu7vHwj2UeV7K7xu6yjIxk9vXScheahAb7KmVlJX0+H5H70YDUuRi/43T+DeVdMK
+         1JwOYv/oHuZjShH5Wq0sk26ch2aPxXN0WBCOM92Eu3+4MeazWgiHHkmapLDfjK3b3usE
+         fsKjam+mGTCR/lU8ZAGRW/ZpCDvTnuCR0Ve2OW1exA0GgycRD9iBiXkLyYabQzmKdGP9
+         oGUAmG5gYNXcHj4P/taixtPf+DHqgE8tpRgNT1V4Jlynf3URcIyuDd6kz5G9lIsjr4/e
+         S49A==
+X-Gm-Message-State: APjAAAUz4fta+L83BFilR5Epw4IL8TGBUOB0K1ulTCKHEMYmWOYpLZrq
+        da7L3utOffxHvtJxBz1oMZ608p9Awi4e3g==
+X-Google-Smtp-Source: APXvYqx1vDkHncLV7a52CSeIbQdcahEkDb5MZIS6QLn5UxNNlxpL8K6W9iB34x11KLMGtw0gk2pjcw==
+X-Received: by 2002:a1c:a745:: with SMTP id q66mr11971744wme.83.1557881287494;
+        Tue, 14 May 2019 17:48:07 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l21sm418406wmh.35.2019.05.14.17.48.06
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 May 2019 17:48:06 -0700 (PDT)
+Message-ID: <5cdb61c6.1c69fb81.8909a.257b@mx.google.com>
+Date:   Tue, 14 May 2019 17:48:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.13.182.230]
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.16-105-gcedd923508e9
+Subject: stable-rc/linux-5.0.y boot: 139 boots: 0 failed,
+ 135 passed with 1 offline, 2 untried/unknown,
+ 1 conflict (v5.0.16-105-gcedd923508e9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+stable-rc/linux-5.0.y boot: 139 boots: 0 failed, 135 passed with 1 offline,=
+ 2 untried/unknown, 1 conflict (v5.0.16-105-gcedd923508e9)
 
-As of today if userspace process tries to access a kernel virtual addres
-(0x7000_0000 to 0x7ffff_ffff) such that a legit kernel mapping already
-exists, that process hangs instead of being killed with SIGSEGV
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.0.y/kernel/v5.0.16-105-gcedd923508e9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
+/kernel/v5.0.16-105-gcedd923508e9/
 
-Fix that by ensuring that do_page_fault() handles kenrel vaddr only if
-in kernel mode.
+Tree: stable-rc
+Branch: linux-5.0.y
+Git Describe: v5.0.16-105-gcedd923508e9
+Git Commit: cedd923508e9e753fdc8b237f2344eea4a84fb57
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 23 SoC families, 14 builds out of 208
 
-And given this, we can also simplify the code a bit. Now a vmalloc fault
-implies kernel mode so its failure (for some reason) can reuse the
-@no_context label and we can remove @bad_area_nosemaphore.
+Boot Regressions Detected:
 
-Reproduce user test for original problem:
+arm:
 
------------------------->8-----------------
- #include <stdlib.h>
- #include <stdint.h>
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v5.0.15-106-gfaddc6604e=
+c4)
 
- int main(int argc, char *argv[])
- {
- 	volatile uint32_t temp;
+Offline Platforms:
 
- 	temp = *(uint32_t *)(0x70000000);
- }
------------------------->8-----------------
+arm:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
 ---
- arch/arc/mm/fault.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
-index 8df1638259f3..6836095251ed 100644
---- a/arch/arc/mm/fault.c
-+++ b/arch/arc/mm/fault.c
-@@ -66,7 +66,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
- 	struct vm_area_struct *vma = NULL;
- 	struct task_struct *tsk = current;
- 	struct mm_struct *mm = tsk->mm;
--	int si_code = 0;
-+	int si_code = SEGV_MAPERR;
- 	int ret;
- 	vm_fault_t fault;
- 	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
-@@ -81,16 +81,14 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
- 	 * only copy the information from the master page table,
- 	 * nothing more.
- 	 */
--	if (address >= VMALLOC_START) {
-+	if (address >= VMALLOC_START && !user_mode(regs)) {
- 		ret = handle_kernel_vaddr_fault(address);
- 		if (unlikely(ret))
--			goto bad_area_nosemaphore;
-+			goto no_context;
- 		else
- 			return;
- 	}
- 
--	si_code = SEGV_MAPERR;
--
- 	/*
- 	 * If we're in an interrupt or have no user
- 	 * context, we must not take the fault..
-@@ -198,7 +196,6 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
- bad_area:
- 	up_read(&mm->mmap_sem);
- 
--bad_area_nosemaphore:
- 	/* User mode accesses just cause a SIGSEGV */
- 	if (user_mode(regs)) {
- 		tsk->thread.fault_address = address;
--- 
-2.7.4
-
+For more info write to <info@kernelci.org>
