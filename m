@@ -2,92 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C50DF1F8F7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 18:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526C21F8FC
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 18:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727112AbfEOQvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 12:51:21 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:33020 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726325AbfEOQvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 12:51:21 -0400
-Received: from localhost.localdomain (unknown [IPv6:2804:431:9719:d573:a076:d1fd:3417:b195])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: koike)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id EDED326D7C1;
-        Wed, 15 May 2019 17:51:16 +0100 (BST)
-From:   Helen Koike <helen.koike@collabora.com>
-To:     dm-devel@redhat.com
-Cc:     kernel@collabora.com, Helen Koike <helen.koike@collabora.com>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
-        linux-kernel@vger.kernel.org, Alasdair Kergon <agk@redhat.com>
-Subject: [PATCH v2] dm ioctl: fix hang in early create error condition
-Date:   Wed, 15 May 2019 13:50:54 -0300
-Message-Id: <20190515165054.12680-1-helen.koike@collabora.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726462AbfEOQxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 12:53:13 -0400
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:47852 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726325AbfEOQxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 12:53:13 -0400
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id x4FGr8GT017796;
+        Wed, 15 May 2019 11:53:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1557939188;
+        bh=MBUGSwtcGNVv+kUWmNhLbcATs6MA1bSJk8Q1+Wfqq28=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=d+yK8UiALG3lfRJQOeT7/COaQh3mlcaTdYWpWH/yYFm/Of46oSqP0siT7+5pY/rS0
+         NsjySLFZllLNHTGoSK9mFMeCTolt6W3Mvss3949syJCWFpOuK/n1W58iyj7QgnoHXn
+         6gqJ4iAj9M/bjeLpnLRtwf8m/LdqxWRLEdIhbFHI=
+Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x4FGr8eZ074139
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 15 May 2019 11:53:08 -0500
+Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE112.ent.ti.com
+ (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Wed, 15
+ May 2019 11:53:08 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE102.ent.ti.com
+ (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Wed, 15 May 2019 11:53:08 -0500
+Received: from [10.247.19.177] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id x4FGr89s094977;
+        Wed, 15 May 2019 11:53:08 -0500
+Subject: Re: [PATCH 4.14 053/115] i2c: omap: Enable for ARCH_K3
+To:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <alexander.levin@microsoft.com>
+References: <20190515090659.123121100@linuxfoundation.org>
+ <20190515090703.440094029@linuxfoundation.org>
+ <b97de7c6-fb95-33a9-3ac6-4df45eec82c5@ti.com>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <a6eecb36-a0ae-753a-6582-0afdac04c4b5@ti.com>
+Date:   Wed, 15 May 2019 11:53:08 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <b97de7c6-fb95-33a9-3ac6-4df45eec82c5@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The dm_early_create() function (which deals with "dm-mod.create=" kernel
-command line option) calls dm_hash_insert() who gets an extra reference
-to the md object.
 
-In case of failure, this reference wasn't being released, causing
-dm_destroy() to hang, thus hanging the whole boot process.
 
-Fix this by calling __hash_remove() in the error path.
+On 15/05/19 6:28 AM, Grygorii Strashko wrote:
+> Hi Greg,
+> 
+> On 15.05.19 13:55, Greg Kroah-Hartman wrote:
+>> [ Upstream commit 5b277402deac0691226a947df71c581686bd4020 ]
+>>
+>> Allow I2C_OMAP to be built for K3 platforms.
+>>
+>> Signed-off-by: Vignesh R <vigneshr@ti.com>
+>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+>> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+>> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+> 
+> This is not v4.14 material as there no support for ARCH_K3.
+> Could you drop it pls.
+> 
 
-Fixes: 6bbc923dfcf57d ("dm: add support to directly boot to a mapped device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Yes, I had informed not to backport this patch before during other
+stable reviews as well:
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1811579.html
 
----
-Hi,
-
-I also tested this patch version with the new test case in the following test
-script:
-
-https://gitlab.collabora.com/koike/dm-cmdline-test/commit/d2d7a0ee4a49931cdb59f08a837b516c2d5d743d
-
-Thanks
-Helen
-
-Changes in v2:
-- instead of modifying dm_hash_insert() to return the hash cell, use
-__get_name_cell(dmi->name) instead.
-
- drivers/md/dm-ioctl.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index c740153b4e52..1e03bc89e20f 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -2069,7 +2069,7 @@ int __init dm_early_create(struct dm_ioctl *dmi,
- 	/* alloc table */
- 	r = dm_table_create(&t, get_mode(dmi), dmi->target_count, md);
- 	if (r)
--		goto err_destroy_dm;
-+		goto err_hash_remove;
- 
- 	/* add targets */
- 	for (i = 0; i < dmi->target_count; i++) {
-@@ -2116,6 +2116,10 @@ int __init dm_early_create(struct dm_ioctl *dmi,
- 
- err_destroy_table:
- 	dm_table_destroy(t);
-+err_hash_remove:
-+	(void) __hash_remove(__get_name_cell(dmi->name));
-+	/* release reference from __get_name_cell */
-+	dm_put(md);
- err_destroy_dm:
- 	dm_put(md);
- 	dm_destroy(md);
--- 
-2.20.1
-
+Please drop the patch.
