@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12CE61F0E6
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36CE31F409
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731206AbfEOLXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34052 "EHLO mail.kernel.org"
+        id S1727508AbfEOMSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731146AbfEOLXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:23:38 -0400
+        id S1727644AbfEOLBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C94DC206BF;
-        Wed, 15 May 2019 11:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87DD720881;
+        Wed, 15 May 2019 11:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919417;
-        bh=kWtr6FzKjaWPfHKVSImpDJZdsyMw1mqvtfvNhv6cC+8=;
+        s=default; t=1557918074;
+        bh=ZSxDdku1pIRQ+plPPBMgrIp8eq/1m2CAf4sNxgHP3kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SKiGbxSgiXg+DNfJU2j+sHYxlefhD4RqUfDB2QOyOjgIA2nZch0TpxknfChizxi2
-         2PB7UMRJZ3JjR1aC14D4Vlb0dvM04cC14IGswNpT3LTpH023hxNDRBY3Gvah2VXwLg
-         j6Zd9fiwgLG7y81Fc1Tt/PY4lIwh61OAZfPnA0ec=
+        b=qr0/DdqjfnjZHffF1FUQkZk4v09/95wZTuMnHwLiWSj1Zw+G6VK8GbezBMrbCWvor
+         lh1nzQ4lj7duItNBzowG3AnR3r1ytVW+0oMtKvyFaMHv2yY99s1p6cnFjHhXCOScl5
+         Nr39eYGJSYo6Dv22/lBZtSdKfh+Ng88bE72lIIM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.19 067/113] net: dsa: mv88e6xxx: fix few issues in mv88e6390x_port_set_cmode
-Date:   Wed, 15 May 2019 12:55:58 +0200
-Message-Id: <20190515090658.621165565@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 3.18 82/86] ipv4: Fix raw socket lookup for local traffic
+Date:   Wed, 15 May 2019 12:55:59 +0200
+Message-Id: <20190515090655.943557607@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5ceaeb99ffb4dc002d20f6ac243c19a85e2c7a76 ]
+From: David Ahern <dsahern@gmail.com>
 
-This patches fixes few issues in mv88e6390x_port_set_cmode().
+[ Upstream commit 19e4e768064a87b073a4b4c138b55db70e0cfb9f ]
 
-1. When entering the function the old cmode may be 0, in this case
-   mv88e6390x_serdes_get_lane() returns -ENODEV. As result we bail
-   out and have no chance to set a new mode. Therefore deal properly
-   with -ENODEV.
+inet_iif should be used for the raw socket lookup. inet_iif considers
+rt_iif which handles the case of local traffic.
 
-2. Once we have disabled power and irq, let's set the cached cmode to 0.
-   This reflects the actual status and is cleaner if we bail out with an
-   error in the following function calls.
+As it stands, ping to a local address with the '-I <dev>' option fails
+ever since ping was changed to use SO_BINDTODEVICE instead of
+cmsg + IP_PKTINFO.
 
-3. The cached cmode is used by mv88e6390x_serdes_get_lane(),
-   mv88e6390_serdes_power_lane() and mv88e6390_serdes_irq_enable().
-   Currently we set the cached mode to the new one at the very end of
-   the function only, means until then we use the old one what may be
-   wrong.
+IPv6 works fine.
 
-4. When calling mv88e6390_serdes_irq_enable() we use the lane value
-   belonging to the old cmode. Get the lane belonging to the new cmode
-   before calling this function.
-
-It's hard to provide a good "Fixes" tag because quite a few smaller
-changes have been done to the code in question recently.
-
-Fixes: d235c48b40d3 ("net: dsa: mv88e6xxx: power serdes on/off for 10G interfaces on 6390X")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/port.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ net/ipv4/raw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
-index 7fffce734f0a5..fdeddbfa829da 100644
---- a/drivers/net/dsa/mv88e6xxx/port.c
-+++ b/drivers/net/dsa/mv88e6xxx/port.c
-@@ -379,18 +379,22 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		return 0;
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -158,6 +158,7 @@ static int icmp_filter(const struct sock
+  */
+ static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
+ {
++	int dif = inet_iif(skb);
+ 	struct sock *sk;
+ 	struct hlist_head *head;
+ 	int delivered = 0;
+@@ -170,8 +171,7 @@ static int raw_v4_input(struct sk_buff *
  
- 	lane = mv88e6390x_serdes_get_lane(chip, port);
--	if (lane < 0)
-+	if (lane < 0 && lane != -ENODEV)
- 		return lane;
+ 	net = dev_net(skb->dev);
+ 	sk = __raw_v4_lookup(net, __sk_head(head), iph->protocol,
+-			     iph->saddr, iph->daddr,
+-			     skb->dev->ifindex);
++			     iph->saddr, iph->daddr, dif);
  
--	if (chip->ports[port].serdes_irq) {
--		err = mv88e6390_serdes_irq_disable(chip, port, lane);
-+	if (lane >= 0) {
-+		if (chip->ports[port].serdes_irq) {
-+			err = mv88e6390_serdes_irq_disable(chip, port, lane);
-+			if (err)
-+				return err;
-+		}
-+
-+		err = mv88e6390x_serdes_power(chip, port, false);
- 		if (err)
- 			return err;
- 	}
- 
--	err = mv88e6390x_serdes_power(chip, port, false);
--	if (err)
--		return err;
-+	chip->ports[port].cmode = 0;
- 
- 	if (cmode) {
- 		err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_STS, &reg);
-@@ -404,6 +408,12 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		if (err)
- 			return err;
- 
-+		chip->ports[port].cmode = cmode;
-+
-+		lane = mv88e6390x_serdes_get_lane(chip, port);
-+		if (lane < 0)
-+			return lane;
-+
- 		err = mv88e6390x_serdes_power(chip, port, true);
- 		if (err)
- 			return err;
-@@ -415,8 +425,6 @@ int mv88e6390x_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
- 		}
- 	}
- 
--	chip->ports[port].cmode = cmode;
--
- 	return 0;
- }
- 
--- 
-2.20.1
-
+ 	while (sk) {
+ 		delivered = 1;
 
 
