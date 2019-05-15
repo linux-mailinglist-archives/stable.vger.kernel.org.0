@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3D41EFA5
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2C71EE5B
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbfEOLdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45446 "EHLO mail.kernel.org"
+        id S1731107AbfEOLU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733198AbfEOLda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:33:30 -0400
+        id S1731105AbfEOLU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1BBB216F4;
-        Wed, 15 May 2019 11:33:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD5120843;
+        Wed, 15 May 2019 11:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557920010;
-        bh=vVfQY6gZu/OlDcM6tuuouwA74XHWGJMpGlcOZoThUis=;
+        s=default; t=1557919227;
+        bh=okYy+GU6/N0t4Tvh74P9xri3NwBQ8lf9DQZpI4Zyqi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvINDw37tx838gtZKpa3rYKoh1xan3FjVdd4plSWha+WqSV9jWrSPkTtbhb24JCXt
-         wdtGoOZhUquLYRhC6qKx73IfIolwExKQSKt7CsKo2peBOzT97AuAc8AQ4J62NnMmTj
-         tKkdOj2xrC/Q5cFXE+QJd1CjX756ZXHpvRvNsIE8=
+        b=L3WrBawMsSjbskiuii0HKkJABjaC1kvgBCnDteMoKpIAisMxvFc2XepQQAm0zR9Oi
+         cOtxy/OrmTIbVm2ZmO0kQyCEYpa/H/zhfo0hzdbojuZMLc2qPZUo137rsUMLkDH6mA
+         5sIq1RnMyCfv9KWAARaLaXb0B0Nci+s+GbiISlMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.1 08/46] kernfs: fix barrier usage in __kernfs_new_node()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Timur Tabi <timur@freescale.com>,
+        Mihai Caraman <mihai.caraman@freescale.com>,
+        Kumar Gala <galak@kernel.crashing.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 112/115] drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
 Date:   Wed, 15 May 2019 12:56:32 +0200
-Message-Id: <20190515090620.977136874@linuxfoundation.org>
+Message-Id: <20190515090707.177030343@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri <andrea.parri@amarulasolutions.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 998267900cee901c5d1dfa029a6304d00acbc29f upstream.
+commit c8ea3663f7a8e6996d44500ee818c9330ac4fd88 upstream.
 
-smp_mb__before_atomic() can not be applied to atomic_set().  Remove the
-barrier and rely on RELEASE synchronization.
+strndup_user() returns error pointers on error, and then in the error
+handling we pass the error pointers to kfree().  It will cause an Oops.
 
-Fixes: ba16b2846a8c6 ("kernfs: add an API to get kernfs node from inode number")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
-Acked-by: Tejun Heo <tj@kernel.org>
+Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Timur Tabi <timur@freescale.com>
+Cc: Mihai Caraman <mihai.caraman@freescale.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/kernfs/dir.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -650,11 +650,10 @@ static struct kernfs_node *__kernfs_new_
- 	kn->id.generation = gen;
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -331,8 +331,8 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	struct fsl_hv_ioctl_prop param;
+ 	char __user *upath, *upropname;
+ 	void __user *upropval;
+-	char *path = NULL, *propname = NULL;
+-	void *propval = NULL;
++	char *path, *propname;
++	void *propval;
+ 	int ret = 0;
  
- 	/*
--	 * set ino first. This barrier is paired with atomic_inc_not_zero in
-+	 * set ino first. This RELEASE is paired with atomic_inc_not_zero in
- 	 * kernfs_find_and_get_node_by_ino
- 	 */
--	smp_mb__before_atomic();
--	atomic_set(&kn->count, 1);
-+	atomic_set_release(&kn->count, 1);
- 	atomic_set(&kn->active, KN_DEACTIVATED_BIAS);
- 	RB_CLEAR_NODE(&kn->rb);
+ 	/* Get the parameters from the user. */
+@@ -344,32 +344,30 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	upropval = (void __user *)(uintptr_t)param.propval;
  
+ 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
+-	if (IS_ERR(path)) {
+-		ret = PTR_ERR(path);
+-		goto out;
+-	}
++	if (IS_ERR(path))
++		return PTR_ERR(path);
+ 
+ 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
+ 	if (IS_ERR(propname)) {
+ 		ret = PTR_ERR(propname);
+-		goto out;
++		goto err_free_path;
+ 	}
+ 
+ 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	propval = kmalloc(param.proplen, GFP_KERNEL);
+ 	if (!propval) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	if (set) {
+ 		if (copy_from_user(propval, upropval, param.proplen)) {
+ 			ret = -EFAULT;
+-			goto out;
++			goto err_free_propval;
+ 		}
+ 
+ 		param.ret = fh_partition_set_dtprop(param.handle,
+@@ -388,7 +386,7 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 			if (copy_to_user(upropval, propval, param.proplen) ||
+ 			    put_user(param.proplen, &p->proplen)) {
+ 				ret = -EFAULT;
+-				goto out;
++				goto err_free_propval;
+ 			}
+ 		}
+ 	}
+@@ -396,10 +394,12 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	if (put_user(param.ret, &p->ret))
+ 		ret = -EFAULT;
+ 
+-out:
+-	kfree(path);
++err_free_propval:
+ 	kfree(propval);
++err_free_propname:
+ 	kfree(propname);
++err_free_path:
++	kfree(path);
+ 
+ 	return ret;
+ }
 
 
