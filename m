@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B231F130
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AFE1F41D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731129AbfEOLVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:21:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
+        id S1727145AbfEOK7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:59:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731114AbfEOLVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:21:50 -0400
+        id S1727142AbfEOK7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:59:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D041420818;
-        Wed, 15 May 2019 11:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21B852084E;
+        Wed, 15 May 2019 10:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919309;
-        bh=NljyWHJE3LHl1R3hTGZPKriz1RfsS+DAErMLb5Fbkpk=;
+        s=default; t=1557917962;
+        bh=iHx3Ka/phA/8s7Iny4Bl/gW1DnuS8OKqP7Z7MljoNhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BumWJI2AZcq7b9qXda8LJ5gxXpJ1PrJ+x2QStChgPeDGRZrK5vBBhLPqO36D6ZVg2
-         T+Hd4wq8BtwYskD//QJpZ8bcoKTa9ynvZcefTcFU9lXAHUEdDMXk1m9E1oyJXIifGj
-         YoVXRVi0e244ntGFmptWzAFdL0cXg4NzpxOgSxxk=
+        b=Yf3cDIfGUdrBGINWjIb/M+P6drXH9dAPCY74ZLYEFUd7Hsf8aZ8LUF+Vg9/hqiIaz
+         sPai4tq/dYq2VBreC9uPLIwOIwsMUaIfO8HXhc2n2CJ0u2A3kJnkC0Wpsvz/I33IHn
+         BbFMiaK6We5fVou6e+VMgSpHWVAVS/zNlJBCGAyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Leung <martin.leung@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>,
-        Joshua Aberback <Joshua.Aberback@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 026/113] drm/amd/display: extending AUX SW Timeout
-Date:   Wed, 15 May 2019 12:55:17 +0200
-Message-Id: <20190515090655.490560298@linuxfoundation.org>
+Subject: [PATCH 3.18 41/86] jffs2: fix use-after-free on symlink traversal
+Date:   Wed, 15 May 2019 12:55:18 +0200
+Message-Id: <20190515090650.702530211@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4bbebf8e7eb4d294b040ab2d2ba71e70e69b930 ]
+[ Upstream commit 4fdcfab5b5537c21891e22e65996d4d0dd8ab4ca ]
 
-[Why]
-AUX takes longer to reply when using active DP-DVI dongle on some asics
-resulting in up to 2000+ us edid read (timeout).
+free the symlink body after the same RCU delay we have for freeing the
+struct inode itself, so that traversal during RCU pathwalk wouldn't step
+into freed memory.
 
-[How]
-1. Adjust AUX poll to match spec
-2. Extend the SW timeout. This does not affect normal
-operation since we exit the loop as soon as AUX acks.
-
-Signed-off-by: Martin Leung <martin.leung@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Joshua Aberback <Joshua.Aberback@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_aux.c | 9 ++++++---
- drivers/gpu/drm/amd/display/dc/dce/dce_aux.h | 6 +++---
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ fs/jffs2/readinode.c | 5 -----
+ fs/jffs2/super.c     | 5 ++++-
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-index 3f5b2e6f7553f..df936edac5c76 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-@@ -189,6 +189,12 @@ static void submit_channel_request(
- 				1,
- 				0);
- 	}
-+
-+	REG_UPDATE(AUX_INTERRUPT_CONTROL, AUX_SW_DONE_ACK, 1);
-+
-+	REG_WAIT(AUX_SW_STATUS, AUX_SW_DONE, 0,
-+				10, aux110->timeout_period/10);
-+
- 	/* set the delay and the number of bytes to write */
+diff --git a/fs/jffs2/readinode.c b/fs/jffs2/readinode.c
+index 386303dca382..4f390be71723 100644
+--- a/fs/jffs2/readinode.c
++++ b/fs/jffs2/readinode.c
+@@ -1429,11 +1429,6 @@ void jffs2_do_clear_inode(struct jffs2_sb_info *c, struct jffs2_inode_info *f)
  
- 	/* The length include
-@@ -241,9 +247,6 @@ static void submit_channel_request(
- 		}
- 	}
+ 	jffs2_kill_fragtree(&f->fragtree, deleted?c:NULL);
  
--	REG_UPDATE(AUX_INTERRUPT_CONTROL, AUX_SW_DONE_ACK, 1);
--	REG_WAIT(AUX_SW_STATUS, AUX_SW_DONE, 0,
--				10, aux110->timeout_period/10);
- 	REG_UPDATE(AUX_SW_CONTROL, AUX_SW_GO, 1);
+-	if (f->target) {
+-		kfree(f->target);
+-		f->target = NULL;
+-	}
+-
+ 	fds = f->dents;
+ 	while(fds) {
+ 		fd = fds;
+diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
+index 0bbc31d10857..d1be5991bb66 100644
+--- a/fs/jffs2/super.c
++++ b/fs/jffs2/super.c
+@@ -47,7 +47,10 @@ static struct inode *jffs2_alloc_inode(struct super_block *sb)
+ static void jffs2_i_callback(struct rcu_head *head)
+ {
+ 	struct inode *inode = container_of(head, struct inode, i_rcu);
+-	kmem_cache_free(jffs2_inode_cachep, JFFS2_INODE_INFO(inode));
++	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
++
++	kfree(f->target);
++	kmem_cache_free(jffs2_inode_cachep, f);
  }
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
-index f7caab85dc801..2c6f50b4245a4 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.h
-@@ -69,11 +69,11 @@ enum {	/* This is the timeout as defined in DP 1.2a,
- 	 * at most within ~240usec. That means,
- 	 * increasing this timeout will not affect normal operation,
- 	 * and we'll timeout after
--	 * SW_AUX_TIMEOUT_PERIOD_MULTIPLIER * AUX_TIMEOUT_PERIOD = 1600usec.
-+	 * SW_AUX_TIMEOUT_PERIOD_MULTIPLIER * AUX_TIMEOUT_PERIOD = 2400usec.
- 	 * This timeout is especially important for
--	 * resume from S3 and CTS.
-+	 * converters, resume from S3, and CTS.
- 	 */
--	SW_AUX_TIMEOUT_PERIOD_MULTIPLIER = 4
-+	SW_AUX_TIMEOUT_PERIOD_MULTIPLIER = 6
- };
- struct aux_engine_dce110 {
- 	struct aux_engine base;
+ static void jffs2_destroy_inode(struct inode *inode)
 -- 
 2.20.1
 
