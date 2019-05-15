@@ -2,52 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B26BF1F178
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CDF1F0DE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730889AbfEOLTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
+        id S1728928AbfEOLsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:48:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730426AbfEOLTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:07 -0400
+        id S1731044AbfEOLX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:23:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37F93206BF;
-        Wed, 15 May 2019 11:19:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35DEF2089E;
+        Wed, 15 May 2019 11:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919145;
-        bh=0GxLroJ9rQ01BD2T/uvBVOf+RDZZi4rcMmYmjtAm53Y=;
+        s=default; t=1557919435;
+        bh=mm+4p/CDHlIOW4P9dnJH9ZwrZ+oZpM1uzBgx3qcwYew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueXhQOs+GJM6Bq/v2xEx+0GifPch1BmYqZ19LLUSvUdb8mHUBWA262DlE1XAyc9aZ
-         c3wUo0S2+3cIbmvdKztP1BKlZEgEDVZijzCnMO/G/VNHXf5yPTem5AWtXUPk4UYBZr
-         lR+FMTGy4meIEr0+NepeOt9DMiTyXf+MhfgMqM8Y=
+        b=YAhswP9KSPnOk7i6l+KFXMA/GcmJNGAYw6AQtwx23X3KNYDKvxl1B56fDJBzwu5Ym
+         Vp8VPiEVqkiQmKGDsj6J4Cs+GU+ujBs1kfcyujxBg1V41nZ0ON3gnewSqDhABEzLnY
+         LsfAdIegOA1AZKoXXjGdieRt3oFoHelo3vpdQDTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Rik van Riel <riel@surriel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        kvm ML <kvm@vger.kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Alex Kushnarov <alexanderk@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 083/115] x86/fpu: Dont export __kernel_fpu_{begin,end}()
-Date:   Wed, 15 May 2019 12:56:03 +0200
-Message-Id: <20190515090705.368088327@linuxfoundation.org>
+Subject: [PATCH 4.19 073/113] mlxsw: spectrum_switchdev: Add MDB entries in prepare phase
+Date:   Wed, 15 May 2019 12:56:04 +0200
+Message-Id: <20190515090659.078978131@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,131 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 12209993e98c5fa1855c467f22a24e3d5b8be205 ]
+[ Upstream commit d4d0e40977ac450f32f2db5e4d8e23c9d2578899 ]
 
-There is one user of __kernel_fpu_begin() and before invoking it,
-it invokes preempt_disable(). So it could invoke kernel_fpu_begin()
-right away. The 32bit version of arch_efi_call_virt_setup() and
-arch_efi_call_virt_teardown() does this already.
+The driver cannot guarantee in the prepare phase that it will be able to
+write an MDB entry to the device. In case the driver returned success
+during the prepare phase, but then failed to add the entry in the commit
+phase, a WARNING [1] will be generated by the switchdev core.
 
-The comment above *kernel_fpu*() claims that before invoking
-__kernel_fpu_begin() preemption should be disabled and that KVM is a
-good example of doing it. Well, KVM doesn't do that since commit
+Fix this by doing the work in the prepare phase instead.
 
-  f775b13eedee2 ("x86,kvm: move qemu/guest FPU switching out to vcpu_run")
+[1]
+[  358.544486] swp12s0: Commit of object (id=2) failed.
+[  358.550061] WARNING: CPU: 0 PID: 30 at net/switchdev/switchdev.c:281 switchdev_port_obj_add_now+0x9b/0xe0
+[  358.560754] CPU: 0 PID: 30 Comm: kworker/0:1 Not tainted 5.0.0-custom-13382-gf2449babf221 #1350
+[  358.570472] Hardware name: Mellanox Technologies Ltd. MSN2100-CB2FO/SA001017, BIOS 5.6.5 06/07/2016
+[  358.580582] Workqueue: events switchdev_deferred_process_work
+[  358.587001] RIP: 0010:switchdev_port_obj_add_now+0x9b/0xe0
+...
+[  358.614109] RSP: 0018:ffffa6b900d6fe18 EFLAGS: 00010286
+[  358.619943] RAX: 0000000000000000 RBX: ffff8b00797ff000 RCX: 0000000000000000
+[  358.627912] RDX: ffff8b00b7a1d4c0 RSI: ffff8b00b7a152e8 RDI: ffff8b00b7a152e8
+[  358.635881] RBP: ffff8b005c3f5bc0 R08: 000000000000022b R09: 0000000000000000
+[  358.643850] R10: 0000000000000000 R11: ffffa6b900d6fcc8 R12: 0000000000000000
+[  358.651819] R13: dead000000000100 R14: ffff8b00b65a23c0 R15: 0ffff8b00b7a2200
+[  358.659790] FS:  0000000000000000(0000) GS:ffff8b00b7a00000(0000) knlGS:0000000000000000
+[  358.668820] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  358.675228] CR2: 00007f00aad90de0 CR3: 00000001ca80d000 CR4: 00000000001006f0
+[  358.683188] Call Trace:
+[  358.685918]  switchdev_port_obj_add_deferred+0x13/0x60
+[  358.691655]  switchdev_deferred_process+0x6b/0xf0
+[  358.696907]  switchdev_deferred_process_work+0xa/0x10
+[  358.702548]  process_one_work+0x1f5/0x3f0
+[  358.707022]  worker_thread+0x28/0x3c0
+[  358.711099]  ? process_one_work+0x3f0/0x3f0
+[  358.715768]  kthread+0x10d/0x130
+[  358.719369]  ? __kthread_create_on_node+0x180/0x180
+[  358.724815]  ret_from_fork+0x35/0x40
 
-so it is not an example anymore.
-
-With EFI gone as the last user of __kernel_fpu_{begin|end}(), both can
-be made static and not exported anymore.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: kvm ML <kvm@vger.kernel.org>
-Cc: linux-efi <linux-efi@vger.kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20181129150210.2k4mawt37ow6c2vq@linutronix.de
+Fixes: 3a49b4fde2a1 ("mlxsw: Adding layer 2 multicast support")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alex Kushnarov <alexanderk@mellanox.com>
+Tested-by: Alex Kushnarov <alexanderk@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/include/asm/efi.h     |  6 ++----
- arch/x86/include/asm/fpu/api.h | 15 +++++----------
- arch/x86/kernel/fpu/core.c     |  6 ++----
- 3 files changed, 9 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/efi.h b/arch/x86/include/asm/efi.h
-index a399c1ebf6f0e..96fd0251f8f57 100644
---- a/arch/x86/include/asm/efi.h
-+++ b/arch/x86/include/asm/efi.h
-@@ -82,8 +82,7 @@ struct efi_scratch {
- #define arch_efi_call_virt_setup()					\
- ({									\
- 	efi_sync_low_kernel_mappings();					\
--	preempt_disable();						\
--	__kernel_fpu_begin();						\
-+	kernel_fpu_begin();						\
- 	firmware_restrict_branch_speculation_start();			\
- 									\
- 	if (efi_scratch.use_pgd) {					\
-@@ -104,8 +103,7 @@ struct efi_scratch {
- 	}								\
- 									\
- 	firmware_restrict_branch_speculation_end();			\
--	__kernel_fpu_end();						\
--	preempt_enable();						\
-+	kernel_fpu_end();						\
- })
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index af673abdb4823..a4f237f815d1a 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1585,7 +1585,7 @@ static int mlxsw_sp_port_mdb_add(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	u16 fid_index;
+ 	int err = 0;
  
- extern void __iomem *__init efi_ioremap(unsigned long addr, unsigned long size,
-diff --git a/arch/x86/include/asm/fpu/api.h b/arch/x86/include/asm/fpu/api.h
-index a9caac9d4a729..b56d504af6545 100644
---- a/arch/x86/include/asm/fpu/api.h
-+++ b/arch/x86/include/asm/fpu/api.h
-@@ -12,17 +12,12 @@
- #define _ASM_X86_FPU_API_H
+-	if (switchdev_trans_ph_prepare(trans))
++	if (switchdev_trans_ph_commit(trans))
+ 		return 0;
  
- /*
-- * Careful: __kernel_fpu_begin/end() must be called with preempt disabled
-- * and they don't touch the preempt state on their own.
-- * If you enable preemption after __kernel_fpu_begin(), preempt notifier
-- * should call the __kernel_fpu_end() to prevent the kernel/user FPU
-- * state from getting corrupted. KVM for example uses this model.
-- *
-- * All other cases use kernel_fpu_begin/end() which disable preemption
-- * during kernel FPU usage.
-+ * Use kernel_fpu_begin/end() if you intend to use FPU in kernel context. It
-+ * disables preemption so be careful if you intend to use it for long periods
-+ * of time.
-+ * If you intend to use the FPU in softirq you need to check first with
-+ * irq_fpu_usable() if it is possible.
-  */
--extern void __kernel_fpu_begin(void);
--extern void __kernel_fpu_end(void);
- extern void kernel_fpu_begin(void);
- extern void kernel_fpu_end(void);
- extern bool irq_fpu_usable(void);
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 2ea85b32421a0..2e5003fef51a9 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -93,7 +93,7 @@ bool irq_fpu_usable(void)
- }
- EXPORT_SYMBOL(irq_fpu_usable);
- 
--void __kernel_fpu_begin(void)
-+static void __kernel_fpu_begin(void)
- {
- 	struct fpu *fpu = &current->thread.fpu;
- 
-@@ -111,9 +111,8 @@ void __kernel_fpu_begin(void)
- 		__cpu_invalidate_fpregs_state();
- 	}
- }
--EXPORT_SYMBOL(__kernel_fpu_begin);
- 
--void __kernel_fpu_end(void)
-+static void __kernel_fpu_end(void)
- {
- 	struct fpu *fpu = &current->thread.fpu;
- 
-@@ -122,7 +121,6 @@ void __kernel_fpu_end(void)
- 
- 	kernel_fpu_enable();
- }
--EXPORT_SYMBOL(__kernel_fpu_end);
- 
- void kernel_fpu_begin(void)
- {
+ 	bridge_port = mlxsw_sp_bridge_port_find(mlxsw_sp->bridge, orig_dev);
 -- 
 2.20.1
 
