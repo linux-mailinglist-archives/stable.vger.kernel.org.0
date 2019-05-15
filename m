@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 931EC1F071
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8793F1F1EC
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728980AbfEOL0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:26:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
+        id S1726717AbfEOL6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:58:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729499AbfEOL0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:39 -0400
+        id S1727222AbfEOLQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:16:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 869D520843;
-        Wed, 15 May 2019 11:26:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B50322084E;
+        Wed, 15 May 2019 11:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919599;
-        bh=FEcgngtZEuyg9UX8fft4+eshJZJxiuhsK5c2ub4emgc=;
+        s=default; t=1557918982;
+        bh=LbQpxIztwr/8bF5oi72p2pDfyuGFhwEhoZpWbI683ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGvCWY7Cte65FuTR1pMC7vQ1SPvQ2xgFOxKmrcA02tX+vGRI21UvDe+Wuq+YYlfKa
-         tP0u5sTh6g63s5WAQT3CP7yDk6wZP5wNMYUXQdnr/NQBwdFPar3blLp8ZlCVugaVlW
-         wC2vhJOEaA0K50GdV13cqpnv61Dw5Ui4JHZ8qLgg=
+        b=BDGprfq+oSk24K1mHAQozDGSr4LoJ/ncBVC0lkpZTIfzLo/DivvpwGNJHVlnxuAAe
+         pHmufL7m6F/IISNTCJJ7ms1bLbcXbDMbPgkskoJkkCq0u2JPEijECQYJLsJfJm0sHJ
+         6BodQDQrO7CXyjTJUhrpmJmDvORCkPtEN+/cVD0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrei Otcheretianski <andrei.otcheretianski@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 022/137] mac80211: Increase MAX_MSG_LEN
+Subject: [PATCH 4.14 023/115] KVM: fix spectrev1 gadgets
 Date:   Wed, 15 May 2019 12:55:03 +0200
-Message-Id: <20190515090654.879914351@linuxfoundation.org>
+Message-Id: <20190515090700.957801365@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78be2d21cc1cd3069c6138dcfecec62583130171 ]
+[ Upstream commit 1d487e9bf8ba66a7174c56a0029c54b1eca8f99c ]
 
-Looks that 100 chars isn't enough for messages, as we keep getting
-warnings popping from different places due to message shortening.
-Instead of trying to shorten the prints, just increase the buffer size.
+These were found with smatch, and then generalized when applicable.
 
-Signed-off-by: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/trace_msg.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c     |  4 +++-
+ include/linux/kvm_host.h | 10 ++++++----
+ virt/kvm/irqchip.c       |  5 +++--
+ virt/kvm/kvm_main.c      |  6 ++++--
+ 4 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/net/mac80211/trace_msg.h b/net/mac80211/trace_msg.h
-index 366b9e6f043e2..40141df09f255 100644
---- a/net/mac80211/trace_msg.h
-+++ b/net/mac80211/trace_msg.h
-@@ -1,4 +1,9 @@
- /* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Portions of this file
-+ * Copyright (C) 2019 Intel Corporation
-+ */
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index f7c34184342a5..053e4937af0cb 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -133,6 +133,7 @@ static inline bool kvm_apic_map_get_logical_dest(struct kvm_apic_map *map,
+ 		if (offset <= max_apic_id) {
+ 			u8 cluster_size = min(max_apic_id - offset + 1, 16U);
+ 
++			offset = array_index_nospec(offset, map->max_apic_id + 1);
+ 			*cluster = &map->phys_map[offset];
+ 			*mask = dest_id & (0xffff >> (16 - cluster_size));
+ 		} else {
+@@ -829,7 +830,8 @@ static inline bool kvm_apic_map_get_dest_lapic(struct kvm *kvm,
+ 		if (irq->dest_id > map->max_apic_id) {
+ 			*bitmap = 0;
+ 		} else {
+-			*dst = &map->phys_map[irq->dest_id];
++			u32 dest_id = array_index_nospec(irq->dest_id, map->max_apic_id + 1);
++			*dst = &map->phys_map[dest_id];
+ 			*bitmap = 1;
+ 		}
+ 		return true;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 753c16633bac5..026615e242d8e 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -27,6 +27,7 @@
+ #include <linux/irqbypass.h>
+ #include <linux/swait.h>
+ #include <linux/refcount.h>
++#include <linux/nospec.h>
+ #include <asm/signal.h>
+ 
+ #include <linux/kvm.h>
+@@ -483,10 +484,10 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
+ 
+ static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
+ {
+-	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
+-	 * the caller has read kvm->online_vcpus before (as is the case
+-	 * for kvm_for_each_vcpu, for example).
+-	 */
++	int num_vcpus = atomic_read(&kvm->online_vcpus);
++	i = array_index_nospec(i, num_vcpus);
 +
- #ifdef CONFIG_MAC80211_MESSAGE_TRACING
++	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  */
+ 	smp_rmb();
+ 	return kvm->vcpus[i];
+ }
+@@ -570,6 +571,7 @@ void kvm_put_kvm(struct kvm *kvm);
  
- #if !defined(__MAC80211_MSG_DRIVER_TRACE) || defined(TRACE_HEADER_MULTI_READ)
-@@ -11,7 +16,7 @@
- #undef TRACE_SYSTEM
- #define TRACE_SYSTEM mac80211_msg
+ static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
+ {
++	as_id = array_index_nospec(as_id, KVM_ADDRESS_SPACE_NUM);
+ 	return srcu_dereference_check(kvm->memslots[as_id], &kvm->srcu,
+ 			lockdep_is_held(&kvm->slots_lock) ||
+ 			!refcount_read(&kvm->users_count));
+diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
+index b1286c4e07122..0bd0683640bdf 100644
+--- a/virt/kvm/irqchip.c
++++ b/virt/kvm/irqchip.c
+@@ -144,18 +144,19 @@ static int setup_routing_entry(struct kvm *kvm,
+ {
+ 	struct kvm_kernel_irq_routing_entry *ei;
+ 	int r;
++	u32 gsi = array_index_nospec(ue->gsi, KVM_MAX_IRQ_ROUTES);
  
--#define MAX_MSG_LEN	100
-+#define MAX_MSG_LEN	120
+ 	/*
+ 	 * Do not allow GSI to be mapped to the same irqchip more than once.
+ 	 * Allow only one to one mapping between GSI and non-irqchip routing.
+ 	 */
+-	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
++	hlist_for_each_entry(ei, &rt->map[gsi], link)
+ 		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
+ 		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
+ 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
+ 			return -EINVAL;
  
- DECLARE_EVENT_CLASS(mac80211_msg_event,
- 	TP_PROTO(struct va_format *vaf),
+-	e->gsi = ue->gsi;
++	e->gsi = gsi;
+ 	e->type = ue->type;
+ 	r = kvm_set_routing_entry(kvm, e, ue);
+ 	if (r)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index a373c60ef1c06..b91716b1b428e 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2886,12 +2886,14 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 	struct kvm_device_ops *ops = NULL;
+ 	struct kvm_device *dev;
+ 	bool test = cd->flags & KVM_CREATE_DEVICE_TEST;
++	int type;
+ 	int ret;
+ 
+ 	if (cd->type >= ARRAY_SIZE(kvm_device_ops_table))
+ 		return -ENODEV;
+ 
+-	ops = kvm_device_ops_table[cd->type];
++	type = array_index_nospec(cd->type, ARRAY_SIZE(kvm_device_ops_table));
++	ops = kvm_device_ops_table[type];
+ 	if (ops == NULL)
+ 		return -ENODEV;
+ 
+@@ -2906,7 +2908,7 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 	dev->kvm = kvm;
+ 
+ 	mutex_lock(&kvm->lock);
+-	ret = ops->create(dev, cd->type);
++	ret = ops->create(dev, type);
+ 	if (ret < 0) {
+ 		mutex_unlock(&kvm->lock);
+ 		kfree(dev);
 -- 
 2.20.1
 
