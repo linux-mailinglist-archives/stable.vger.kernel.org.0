@@ -2,76 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 451981F649
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 16:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF2C1F665
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 16:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728006AbfEOOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 10:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37718 "EHLO mail.kernel.org"
+        id S1727150AbfEOOSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 10:18:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726766AbfEOOQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 10:16:08 -0400
+        id S1725953AbfEOOSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 10:18:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE5462084E;
-        Wed, 15 May 2019 14:16:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 482262084E;
+        Wed, 15 May 2019 14:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557929767;
-        bh=nBsn7/9SkqhQaLs4aJMbNED/PvzJuaH0Nvbb1xhB1ds=;
+        s=default; t=1557929911;
+        bh=fhtXysbtrB4Z/20Qhee0D7pQxR0XGyrYHkDHHmLIO0U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WN0knMRvCCL1HFnQ8nQFtCpu4hbzkZzP0UtfAlnjItM1hQW429xwlxGPIuFUPBrD8
-         BTqh9i+pGG9kqYAVI3zEBcpAZ6FxAxalF2be+eBc2h6MGk1lr00rjglbQAKN+mj19e
-         K8loKcIQ3jwFdqT6d3iCtSycnkYwWlCjgbY21BZI=
-Date:   Wed, 15 May 2019 16:16:04 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christophe Leroy <christophe.leroy@c-s.fr>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>, erhard_f@mailbox.org,
-        Michael Neuling <mikey@neuling.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH stable 4.4] powerpc/lib: fix book3s/32 boot failure due
- to code patching
-Message-ID: <20190515141604.GB8999@kroah.com>
-References: <71dbc8bdad5da9f6cb0446535fb2a29c68fccf80.1557926850.git.christophe.leroy@c-s.fr>
+        b=IhJWBor9rlI5x96L4OeVRWXOHQIFCKzjDy1DSwtOot2qDt8r+7U1bsuWUg2qFKMlw
+         cYsjy6wXgzns22owI3uXWSHzuDdne4S5ISfzHGFwA9KSRbuVHgZniMSbmldiveAZ0N
+         hjUyPj3+RTd6AdFRk+JJ+Zc3CcM4s6ref7Ejax7I=
+Date:   Wed, 15 May 2019 16:18:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Igor Russkikh <Igor.Russkikh@aquantia.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: Re: [PATCH 5.1 00/46] 5.1.3-stable review
+Message-ID: <20190515141829.GC8999@kroah.com>
+References: <20190515090616.670410738@linuxfoundation.org>
+ <583de1c8-585c-e656-6251-84b6e563af42@aquantia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <71dbc8bdad5da9f6cb0446535fb2a29c68fccf80.1557926850.git.christophe.leroy@c-s.fr>
+In-Reply-To: <583de1c8-585c-e656-6251-84b6e563af42@aquantia.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 15, 2019 at 01:30:42PM +0000, Christophe Leroy wrote:
-> [Backport of upstream commit b45ba4a51cde29b2939365ef0c07ad34c8321789]
+On Wed, May 15, 2019 at 01:56:47PM +0000, Igor Russkikh wrote:
 > 
-> On powerpc32, patch_instruction() is called by apply_feature_fixups()
-> which is called from early_init()
 > 
-> There is the following note in front of early_init():
->  * Note that the kernel may be running at an address which is different
->  * from the address that it was linked at, so we must use RELOC/PTRRELOC
->  * to access static data (including strings).  -- paulus
+> On 15.05.2019 13:56, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.1.3 release.
+> > There are 46 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > 
-> Therefore init_mem_is_free must be accessed with PTRRELOC()
+> ...
 > 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=203597
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> > Oliver Neukum <oneukum@suse.com>
+> >     aqc111: fix double endianness swap on BE
+> > 
+> > Oliver Neukum <oneukum@suse.com>
+> >     aqc111: fix writing to the phy on BE
+> > 
+> > Oliver Neukum <oneukum@suse.com>
+> >     aqc111: fix endianness issue in aqc111_change_mtu
 > 
-> ---
-> Can't apply the upstream commit as such due to several other unrelated stuff
-> like for instance STRICT_KERNEL_RWX which are missing.
-> So instead, using same approach as for commit 252eb55816a6f69ef9464cad303cdb3326cdc61d
+> Hello Greg,
 > 
-> Removed the Fixes: tag as I don't know yet the commit Id of the fixed commit on 4.4 branch.
-> ---
->  arch/powerpc/lib/code-patching.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Could you please drop these three patches from the queue?
+> They are invalid and will be reverted in net tree.
+> 
+> https://lore.kernel.org/netdev/1557839644.11261.4.camel@suse.com/
 
-Now added, thanks.
+Now dropped from the 5.0 and 5.1 queues.
+
+thanks,
 
 greg k-h
