@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F3A1F368
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 444431F369
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727675AbfEOLEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33968 "EHLO mail.kernel.org"
+        id S1728432AbfEOLE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728432AbfEOLEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:04:24 -0400
+        id S1727753AbfEOLE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:04:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B03B2084F;
-        Wed, 15 May 2019 11:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B022E2084F;
+        Wed, 15 May 2019 11:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918263;
-        bh=yNF5fBcZBeHofcbFX4RGA8qq7oiAsCqYqoSBSysuYh8=;
+        s=default; t=1557918266;
+        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6A5rPv48JI5jyp7vEaX3/HInQYRIUZH5wvxc2HUBF9te1kwgHe06A87uMrYXrz4C
-         jo7H+2S/rCErIhD0EFY8K5KTUVXCIOb4JFkh2GUxKZ/888dbkWS2c8dW+wPX2gB7PT
-         /ZC4Vw8ZgIF+tPjue+j0nBtZhslhdYqbyJCj/Tn0=
+        b=xKbr4ltNPoHZ+Ep7GjIYp1ewWz4SxLeB3KbhV6g0n8XP6vnKhQfC+6TjrLjHt3L2U
+         mhNNAbG2pvGdf2v8wbQz277KstYExDcTRpDqd0Hcw6CVqMQAGXke7ovJUsAQAAPKxp
+         wbHervbi/10ifjsiPzecxyV1LtlCWLwCc8aFYNSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 065/266] tipc: handle the err returned from cmd header function
-Date:   Wed, 15 May 2019 12:52:52 +0200
-Message-Id: <20190515090724.638985599@linuxfoundation.org>
+        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 066/266] slip: make slhc_free() silently accept an error pointer
+Date:   Wed, 15 May 2019 12:52:53 +0200
+Message-Id: <20190515090724.672954939@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,77 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
+commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
 
-Syzbot found a crash:
+This way, slhc_free() accepts what slhc_init() returns, whether that is
+an error or not.
 
-  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-  Call Trace:
-    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
-    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
-    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
-    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
-    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
-    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
-    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
-    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
-    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
-    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
-    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
-    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
+In particular, the pattern in sl_alloc_bufs() is
 
-  Uninit was created at:
-    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
-    alloc_skb include/linux/skbuff.h:1012 [inline]
-    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
-    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
-    sock_sendmsg_nosec net/socket.c:622 [inline]
-    sock_sendmsg net/socket.c:632 [inline]
+        slcomp = slhc_init(16, 16);
+        ...
+        slhc_free(slcomp);
 
-It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
-in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
-in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
-ahead of tipc_nl_compat_name_table_dump().
+for the error handling path, and rather than complicate that code, just
+make it ok to always free what was returned by the init function.
 
-However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
-header function. It means even when the check added in that fix fails, it
-won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
-triggered again.
+That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
+Validate VJ compression slot parameters completely") when slhc_init()
+just returned NULL for the error case, with no actual indication of the
+details of the error.
 
-So this patch is to add the process for the err returned from cmd header
-function in tipc_nl_compat_dumpit().
-
-Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
+Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/netlink_compat.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/slip/slhc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -262,8 +262,14 @@ static int tipc_nl_compat_dumpit(struct
- 	if (msg->rep_type)
- 		tipc_tlv_init(msg->rep, msg->rep_type);
+--- a/drivers/net/slip/slhc.c
++++ b/drivers/net/slip/slhc.c
+@@ -153,7 +153,7 @@ out_fail:
+ void
+ slhc_free(struct slcompress *comp)
+ {
+-	if ( comp == NULLSLCOMPR )
++	if ( IS_ERR_OR_NULL(comp) )
+ 		return;
  
--	if (cmd->header)
--		(*cmd->header)(msg);
-+	if (cmd->header) {
-+		err = (*cmd->header)(msg);
-+		if (err) {
-+			kfree_skb(msg->rep);
-+			msg->rep = NULL;
-+			return err;
-+		}
-+	}
- 
- 	arg = nlmsg_new(0, GFP_KERNEL);
- 	if (!arg) {
+ 	if ( comp->tstate != NULLSLSTATE )
 
 
