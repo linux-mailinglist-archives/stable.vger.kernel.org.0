@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 827DA1EDCB
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3941F1C4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729524AbfEOLNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
+        id S1730776AbfEOLSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:18:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730000AbfEOLNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:37 -0400
+        id S1728176AbfEOLST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2423B20644;
-        Wed, 15 May 2019 11:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68322084F;
+        Wed, 15 May 2019 11:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918816;
-        bh=HQ+lJteZp8Yv+EUVj4S5b2W0pIBl6pcps4eBLWe9F1I=;
+        s=default; t=1557919098;
+        bh=D7EnULU8oBcN9EbF/XpSx7OzJ9YpRX7s1ZUymWx+6Kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANn2FzshAEAtqwLiU+izkwsU1C6ahd4RphwEVzLRoGD7A1g8wfuu8GsMdZuPexKhW
-         vH5sDVMx/g2pY0OEi0GjSvWBJgQU9+5dIGSl1WA74l0A/NppxRYoNpIZV92/itX+W2
-         ItPs3N//MhcQflOa2FkAf3e1hDUFjbYA9mvmNtjg=
+        b=tOANTBhpF0pJx+iDYa03Op/YAxr/PEirzv0phTAbhoUEyhfIc7rtnaeqPLpaaZtOb
+         9UAXiWqaZ6UIRnSq7/iLjKtIS1WnIzMn42jAmx8Fe9PpJM0QiBH+T/hIkhHJ0F5Mqa
+         Bctgz8fJD4/uR55dBE0WCsew8Ntc4VRdxiWFBo74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/51] libnvdimm/btt: Fix a kmemdup failure check
-Date:   Wed, 15 May 2019 12:55:46 +0200
-Message-Id: <20190515090620.710701999@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 067/115] crypto: testmgr - add AES-CFB tests
+Date:   Wed, 15 May 2019 12:55:47 +0200
+Message-Id: <20190515090704.367472403@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 486fa92df4707b5df58d6508728bdb9321a59766 ]
+[ Upstream commit 7da66670775d201f633577f5b15a4bbeebaaa2b0 ]
 
-In case kmemdup fails, the fix releases resources and returns to
-avoid the NULL pointer dereference.
+Add AES128/192/256-CFB testvectors from NIST SP800-38A.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/nvdimm/btt_devs.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ crypto/tcrypt.c  |  5 ++++
+ crypto/testmgr.c |  7 +++++
+ crypto/testmgr.h | 76 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 88 insertions(+)
 
-diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
-index 97dd2925ed6e9..5d2c766828488 100644
---- a/drivers/nvdimm/btt_devs.c
-+++ b/drivers/nvdimm/btt_devs.c
-@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index f7affe7cf0b47..76df552f099ba 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -1099,6 +1099,7 @@ static int do_test(const char *alg, u32 type, u32 mask, int m)
+ 		ret += tcrypt_test("xts(aes)");
+ 		ret += tcrypt_test("ctr(aes)");
+ 		ret += tcrypt_test("rfc3686(ctr(aes))");
++		ret += tcrypt_test("cfb(aes)");
+ 		break;
  
- 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
--	if (nd_btt->id < 0) {
--		kfree(nd_btt);
--		return NULL;
--	}
-+	if (nd_btt->id < 0)
-+		goto out_nd_btt;
+ 	case 11:
+@@ -1422,6 +1423,10 @@ static int do_test(const char *alg, u32 type, u32 mask, int m)
+ 				speed_template_16_24_32);
+ 		test_cipher_speed("ctr(aes)", DECRYPT, sec, NULL, 0,
+ 				speed_template_16_24_32);
++		test_cipher_speed("cfb(aes)", ENCRYPT, sec, NULL, 0,
++				speed_template_16_24_32);
++		test_cipher_speed("cfb(aes)", DECRYPT, sec, NULL, 0,
++				speed_template_16_24_32);
+ 		break;
  
- 	nd_btt->lbasize = lbasize;
--	if (uuid)
-+	if (uuid) {
- 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
-+		if (!uuid)
-+			goto out_put_id;
-+	}
- 	nd_btt->uuid = uuid;
- 	dev = &nd_btt->dev;
- 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
-@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 	}
- 	return dev;
+ 	case 201:
+diff --git a/crypto/testmgr.c b/crypto/testmgr.c
+index d91278c01ea89..e65c8228ea47a 100644
+--- a/crypto/testmgr.c
++++ b/crypto/testmgr.c
+@@ -2631,6 +2631,13 @@ static const struct alg_test_desc alg_test_descs[] = {
+ 				.dec = __VECS(aes_ccm_dec_tv_template)
+ 			}
+ 		}
++	}, {
++		.alg = "cfb(aes)",
++		.test = alg_test_skcipher,
++		.fips_allowed = 1,
++		.suite = {
++			.cipher = __VECS(aes_cfb_tv_template)
++		},
+ 	}, {
+ 		.alg = "chacha20",
+ 		.test = alg_test_skcipher,
+diff --git a/crypto/testmgr.h b/crypto/testmgr.h
+index 12835f072614f..5bd9c1400fee0 100644
+--- a/crypto/testmgr.h
++++ b/crypto/testmgr.h
+@@ -16071,6 +16071,82 @@ static const struct cipher_testvec aes_cbc_dec_tv_template[] = {
+ 	},
+ };
+ 
++static const struct cipher_testvec aes_cfb_tv_template[] = {
++	{ /* From NIST SP800-38A */
++		.key	= "\x2b\x7e\x15\x16\x28\xae\xd2\xa6"
++			  "\xab\xf7\x15\x88\x09\xcf\x4f\x3c",
++		.klen	= 16,
++		.iv	= "\x00\x01\x02\x03\x04\x05\x06\x07"
++			  "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
++		.ptext	= "\x6b\xc1\xbe\xe2\x2e\x40\x9f\x96"
++			  "\xe9\x3d\x7e\x11\x73\x93\x17\x2a"
++			  "\xae\x2d\x8a\x57\x1e\x03\xac\x9c"
++			  "\x9e\xb7\x6f\xac\x45\xaf\x8e\x51"
++			  "\x30\xc8\x1c\x46\xa3\x5c\xe4\x11"
++			  "\xe5\xfb\xc1\x19\x1a\x0a\x52\xef"
++			  "\xf6\x9f\x24\x45\xdf\x4f\x9b\x17"
++			  "\xad\x2b\x41\x7b\xe6\x6c\x37\x10",
++		.ctext	= "\x3b\x3f\xd9\x2e\xb7\x2d\xad\x20"
++			  "\x33\x34\x49\xf8\xe8\x3c\xfb\x4a"
++			  "\xc8\xa6\x45\x37\xa0\xb3\xa9\x3f"
++			  "\xcd\xe3\xcd\xad\x9f\x1c\xe5\x8b"
++			  "\x26\x75\x1f\x67\xa3\xcb\xb1\x40"
++			  "\xb1\x80\x8c\xf1\x87\xa4\xf4\xdf"
++			  "\xc0\x4b\x05\x35\x7c\x5d\x1c\x0e"
++			  "\xea\xc4\xc6\x6f\x9f\xf7\xf2\xe6",
++		.len	= 64,
++	}, {
++		.key	= "\x8e\x73\xb0\xf7\xda\x0e\x64\x52"
++			  "\xc8\x10\xf3\x2b\x80\x90\x79\xe5"
++			  "\x62\xf8\xea\xd2\x52\x2c\x6b\x7b",
++		.klen	= 24,
++		.iv	= "\x00\x01\x02\x03\x04\x05\x06\x07"
++			  "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
++		.ptext	= "\x6b\xc1\xbe\xe2\x2e\x40\x9f\x96"
++			  "\xe9\x3d\x7e\x11\x73\x93\x17\x2a"
++			  "\xae\x2d\x8a\x57\x1e\x03\xac\x9c"
++			  "\x9e\xb7\x6f\xac\x45\xaf\x8e\x51"
++			  "\x30\xc8\x1c\x46\xa3\x5c\xe4\x11"
++			  "\xe5\xfb\xc1\x19\x1a\x0a\x52\xef"
++			  "\xf6\x9f\x24\x45\xdf\x4f\x9b\x17"
++			  "\xad\x2b\x41\x7b\xe6\x6c\x37\x10",
++		.ctext	= "\xcd\xc8\x0d\x6f\xdd\xf1\x8c\xab"
++			  "\x34\xc2\x59\x09\xc9\x9a\x41\x74"
++			  "\x67\xce\x7f\x7f\x81\x17\x36\x21"
++			  "\x96\x1a\x2b\x70\x17\x1d\x3d\x7a"
++			  "\x2e\x1e\x8a\x1d\xd5\x9b\x88\xb1"
++			  "\xc8\xe6\x0f\xed\x1e\xfa\xc4\xc9"
++			  "\xc0\x5f\x9f\x9c\xa9\x83\x4f\xa0"
++			  "\x42\xae\x8f\xba\x58\x4b\x09\xff",
++		.len	= 64,
++	}, {
++		.key	= "\x60\x3d\xeb\x10\x15\xca\x71\xbe"
++			  "\x2b\x73\xae\xf0\x85\x7d\x77\x81"
++			  "\x1f\x35\x2c\x07\x3b\x61\x08\xd7"
++			  "\x2d\x98\x10\xa3\x09\x14\xdf\xf4",
++		.klen	= 32,
++		.iv	= "\x00\x01\x02\x03\x04\x05\x06\x07"
++			  "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
++		.ptext	= "\x6b\xc1\xbe\xe2\x2e\x40\x9f\x96"
++			  "\xe9\x3d\x7e\x11\x73\x93\x17\x2a"
++			  "\xae\x2d\x8a\x57\x1e\x03\xac\x9c"
++			  "\x9e\xb7\x6f\xac\x45\xaf\x8e\x51"
++			  "\x30\xc8\x1c\x46\xa3\x5c\xe4\x11"
++			  "\xe5\xfb\xc1\x19\x1a\x0a\x52\xef"
++			  "\xf6\x9f\x24\x45\xdf\x4f\x9b\x17"
++			  "\xad\x2b\x41\x7b\xe6\x6c\x37\x10",
++		.ctext	= "\xdc\x7e\x84\xbf\xda\x79\x16\x4b"
++			  "\x7e\xcd\x84\x86\x98\x5d\x38\x60"
++			  "\x39\xff\xed\x14\x3b\x28\xb1\xc8"
++			  "\x32\x11\x3c\x63\x31\xe5\x40\x7b"
++			  "\xdf\x10\x13\x24\x15\xe5\x4b\x92"
++			  "\xa1\x3e\xd0\xa8\x26\x7a\xe2\xf9"
++			  "\x75\xa3\x85\x74\x1a\xb9\xce\xf8"
++			  "\x20\x31\x62\x3d\x55\xb1\xe4\x71",
++		.len	= 64,
++	},
++};
 +
-+out_put_id:
-+	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
-+
-+out_nd_btt:
-+	kfree(nd_btt);
-+	return NULL;
- }
- 
- struct device *nd_btt_create(struct nd_region *nd_region)
+ static const struct aead_testvec hmac_md5_ecb_cipher_null_enc_tv_template[] = {
+ 	{ /* Input data from RFC 2410 Case 1 */
+ #ifdef __LITTLE_ENDIAN
 -- 
 2.20.1
 
