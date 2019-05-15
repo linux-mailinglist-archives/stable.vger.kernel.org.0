@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5B21F199
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194461F2B6
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730154AbfEOLQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:16:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52716 "EHLO mail.kernel.org"
+        id S1728858AbfEOLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbfEOLQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:05 -0400
+        id S1729104AbfEOLJr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:09:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E464520843;
-        Wed, 15 May 2019 11:16:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94A702084E;
+        Wed, 15 May 2019 11:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918964;
-        bh=yIyJkzzQjrTWbjqp2MxSyWJme/g22/0eI+Om+vpCOBE=;
+        s=default; t=1557918587;
+        bh=PkryYENoIwkRY8gFUuxRQ7rev2NbfZre0BXHHFrzexU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEWZA4jQ2vtK8oDPUJmd8RxUEovTU+jF5QNKiJ7G66KtYLy3sMDL9myVHMEHv0ALo
-         3VoGZA1ciLFeqK6DCQa1JVFgAYB3zrthfQ7BWDuV5FhzyrYoe7ocMCuBG5GhuGSa2f
-         jRpYaljmanfH/o1DzSKRNM7CzqJR0oZSdY+AyBsg=
+        b=u/tZZfTfzqAL+oZoeyxcdyh+KizIKAgsEIsxRzjpgud8QM8Hp/KCjBSBAM3MA+/Ym
+         r2uftRxI3WhgR+8n2X1/djmV9aIYVEQnmw/WHlmtdl6bVJI8B4SH/8B01YJXZ1BJZF
+         gHz5D511ULuc/LbIY5FPEYX24CdLweCdbUGw6czE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 016/115] mac80211: fix memory accounting with A-MSDU aggregation
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
+        KarimAllah Ahmed <karahmed@amazon.de>,
+        andrew.cooper3@citrix.com, "H. Peter Anvin" <hpa@zytor.com>,
+        Borislav Petkov <bp@suse.de>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 189/266] x86/bugs: Switch the selection of mitigation from CPU vendor to CPU features
 Date:   Wed, 15 May 2019 12:54:56 +0200
-Message-Id: <20190515090700.479527633@linuxfoundation.org>
+Message-Id: <20190515090729.335325918@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +50,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eb9b64e3a9f8483e6e54f4e03b2ae14ae5db2690 ]
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-skb->truesize can change due to memory reallocation or when adding extra
-fragments. Adjust fq->memory_usage accordingly
+commit 108fab4b5c8f12064ef86e02cb0459992affb30f upstream.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Both AMD and Intel can have SPEC_CTRL_MSR for SSBD.
+
+However AMD also has two more other ways of doing it - which
+are !SPEC_CTRL MSR ways.
+
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: kvm@vger.kernel.org
+Cc: KarimAllah Ahmed <karahmed@amazon.de>
+Cc: andrew.cooper3@citrix.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Link: https://lkml.kernel.org/r/20180601145921.9500-4-konrad.wilk@oracle.com
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/tx.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 305a4655f23e1..09c7aa519ca82 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3125,6 +3125,7 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
- 	u8 max_subframes = sta->sta.max_amsdu_subframes;
- 	int max_frags = local->hw.max_tx_fragments;
- 	int max_amsdu_len = sta->sta.max_amsdu_len;
-+	int orig_truesize;
- 	__be16 len;
- 	void *data;
- 	bool ret = false;
-@@ -3158,6 +3159,7 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
- 	if (!head)
- 		goto out;
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -526,17 +526,12 @@ static enum ssb_mitigation __init __ssb_
+ 		 * Intel uses the SPEC CTRL MSR Bit(2) for this, while AMD may
+ 		 * use a completely different MSR and bit dependent on family.
+ 		 */
+-		switch (boot_cpu_data.x86_vendor) {
+-		case X86_VENDOR_INTEL:
+-		case X86_VENDOR_AMD:
+-			if (!static_cpu_has(X86_FEATURE_MSR_SPEC_CTRL)) {
+-				x86_amd_ssb_disable();
+-				break;
+-			}
++		if (!static_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
++			x86_amd_ssb_disable();
++		else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+ 			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+-			break;
+ 		}
+ 	}
  
-+	orig_truesize = head->truesize;
- 	orig_len = head->len;
- 
- 	if (skb->len + head->len > max_amsdu_len)
-@@ -3212,6 +3214,7 @@ static bool ieee80211_amsdu_aggregate(struct ieee80211_sub_if_data *sdata,
- 	*frag_tail = skb;
- 
- out_recalc:
-+	fq->memory_usage += head->truesize - orig_truesize;
- 	if (head->len != orig_len) {
- 		flow->backlog += head->len - orig_len;
- 		tin->backlog_bytes += head->len - orig_len;
--- 
-2.20.1
-
 
 
