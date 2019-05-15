@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2B91ECF4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A001ECF6
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728216AbfEOLDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32980 "EHLO mail.kernel.org"
+        id S1728243AbfEOLDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:03:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727336AbfEOLDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:03:39 -0400
+        id S1728233AbfEOLDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:03:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 472F920881;
-        Wed, 15 May 2019 11:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0443C2084F;
+        Wed, 15 May 2019 11:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918218;
-        bh=pI3Nrf7RMqFhLtRxtIesr5/VGQzifFxpPtHO/H0ku4o=;
+        s=default; t=1557918221;
+        bh=++UBiiiSza5chgC0MTfNpc7+6jP7+knBuzcFNRQ+J0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cH9XPaAr3eivUaqz69kRm0Dt+jh3dlamVbXxE15amWbBkJychFguX4cM4D1yVNlrE
-         xBzO/Ig7BaZNHqPrQl3l0ClXqHT2zKI1YBoZwhtJaG7U0K6sX2c1fJbVK/bjUDXDQi
-         KwmMqsDTg6B0jgyOfger0pQz/WrkJhLw22ieK9KU=
+        b=2PfEU2K1YVwfLhpv/5vmb+xXKusDRuBEfXb6rF7vyKSI/J3x3JOjxhpiH221+Vfig
+         MIiwxtxxdwuylkH0rv5AnicUV7/gkGQfCUGdeJ/0AgYWl7zxm6n7HazJFpdshmHBGH
+         EJtcV8gnw97i77L78eqCex+wXwf7RzPPfoSFQsHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Diana Craciun <diana.craciun@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 050/266] powerpc/fsl: Add barrier_nospec implementation for NXP PowerPC Book3E
-Date:   Wed, 15 May 2019 12:52:37 +0200
-Message-Id: <20190515090724.143101907@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 051/266] powerpc/asm: Add a patch_site macro & helpers for patching instructions
+Date:   Wed, 15 May 2019 12:52:38 +0200
+Message-Id: <20190515090724.174251222@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -43,106 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diana Craciun <diana.craciun@nxp.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit ebcd1bfc33c7a90df941df68a6e5d4018c022fba upstream.
+commit 06d0bbc6d0f56dacac3a79900e9a9a0d5972d818 upstream.
 
-Implement the barrier_nospec as a isync;sync instruction sequence.
-The implementation uses the infrastructure built for BOOK3S 64.
+Add a macro and some helper C functions for patching single asm
+instructions.
 
-Signed-off-by: Diana Craciun <diana.craciun@nxp.com>
-[mpe: Add PPC_INST_ISYNC for backport]
+The gas macro means we can do something like:
+
+  1:	nop
+  	patch_site 1b, patch__foo
+
+Which is less visually distracting than defining a GLOBAL symbol at 1,
+and also doesn't pollute the symbol table which can confuse eg. perf.
+
+These are obviously similar to our existing feature sections, but are
+not automatically patched based on CPU/MMU features, rather they are
+designed to be manually patched by C code at some arbitrary point.
+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Kconfig                  |    2 +-
- arch/powerpc/include/asm/barrier.h    |    8 +++++++-
- arch/powerpc/include/asm/ppc-opcode.h |    1 +
- arch/powerpc/lib/feature-fixups.c     |   31 +++++++++++++++++++++++++++++++
- 4 files changed, 40 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/code-patching-asm.h |   18 ++++++++++++++++++
+ arch/powerpc/include/asm/code-patching.h     |    2 ++
+ arch/powerpc/lib/code-patching.c             |   16 ++++++++++++++++
+ 3 files changed, 36 insertions(+)
+ create mode 100644 arch/powerpc/include/asm/code-patching-asm.h
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -165,7 +165,7 @@ config PPC
- config PPC_BARRIER_NOSPEC
-     bool
-     default y
--    depends on PPC_BOOK3S_64
-+    depends on PPC_BOOK3S_64 || PPC_FSL_BOOK3E
- 
- config GENERIC_CSUM
- 	def_bool CPU_LITTLE_ENDIAN
---- a/arch/powerpc/include/asm/barrier.h
-+++ b/arch/powerpc/include/asm/barrier.h
-@@ -92,12 +92,18 @@ do {									\
- #define smp_mb__after_atomic()      smp_mb()
- #define smp_mb__before_spinlock()   smp_mb()
- 
-+#ifdef CONFIG_PPC_BOOK3S_64
-+#define NOSPEC_BARRIER_SLOT   nop
-+#elif defined(CONFIG_PPC_FSL_BOOK3E)
-+#define NOSPEC_BARRIER_SLOT   nop; nop
-+#endif
+--- /dev/null
++++ b/arch/powerpc/include/asm/code-patching-asm.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2018, Michael Ellerman, IBM Corporation.
++ */
++#ifndef _ASM_POWERPC_CODE_PATCHING_ASM_H
++#define _ASM_POWERPC_CODE_PATCHING_ASM_H
 +
- #ifdef CONFIG_PPC_BARRIER_NOSPEC
- /*
-  * Prevent execution of subsequent instructions until preceding branches have
-  * been fully resolved and are no longer executing speculatively.
-  */
--#define barrier_nospec_asm NOSPEC_BARRIER_FIXUP_SECTION; nop
-+#define barrier_nospec_asm NOSPEC_BARRIER_FIXUP_SECTION; NOSPEC_BARRIER_SLOT
++/* Define a "site" that can be patched */
++.macro patch_site label name
++	.pushsection ".rodata"
++	.balign 4
++	.global \name
++\name:
++	.4byte	\label - .
++	.popsection
++.endm
++
++#endif /* _ASM_POWERPC_CODE_PATCHING_ASM_H */
+--- a/arch/powerpc/include/asm/code-patching.h
++++ b/arch/powerpc/include/asm/code-patching.h
+@@ -28,6 +28,8 @@ unsigned int create_cond_branch(const un
+ 				unsigned long target, int flags);
+ int patch_branch(unsigned int *addr, unsigned long target, int flags);
+ int patch_instruction(unsigned int *addr, unsigned int instr);
++int patch_instruction_site(s32 *addr, unsigned int instr);
++int patch_branch_site(s32 *site, unsigned long target, int flags);
  
- // This also acts as a compiler barrier due to the memory clobber.
- #define barrier_nospec() asm (stringify_in_c(barrier_nospec_asm) ::: "memory")
---- a/arch/powerpc/include/asm/ppc-opcode.h
-+++ b/arch/powerpc/include/asm/ppc-opcode.h
-@@ -147,6 +147,7 @@
- #define PPC_INST_LWSYNC			0x7c2004ac
- #define PPC_INST_SYNC			0x7c0004ac
- #define PPC_INST_SYNC_MASK		0xfc0007fe
-+#define PPC_INST_ISYNC			0x4c00012c
- #define PPC_INST_LXVD2X			0x7c000698
- #define PPC_INST_MCRXR			0x7c000400
- #define PPC_INST_MCRXR_MASK		0xfc0007fe
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -315,6 +315,37 @@ void do_barrier_nospec_fixups(bool enabl
+ int instr_is_relative_branch(unsigned int instr);
+ int instr_is_branch_to_addr(const unsigned int *instr, unsigned long addr);
+--- a/arch/powerpc/lib/code-patching.c
++++ b/arch/powerpc/lib/code-patching.c
+@@ -32,6 +32,22 @@ int patch_branch(unsigned int *addr, uns
+ 	return patch_instruction(addr, create_branch(addr, target, flags));
  }
- #endif /* CONFIG_PPC_BARRIER_NOSPEC */
  
-+#ifdef CONFIG_PPC_FSL_BOOK3E
-+void do_barrier_nospec_fixups_range(bool enable, void *fixup_start, void *fixup_end)
++int patch_branch_site(s32 *site, unsigned long target, int flags)
 +{
-+	unsigned int instr[2], *dest;
-+	long *start, *end;
-+	int i;
++	unsigned int *addr;
 +
-+	start = fixup_start;
-+	end = fixup_end;
-+
-+	instr[0] = PPC_INST_NOP;
-+	instr[1] = PPC_INST_NOP;
-+
-+	if (enable) {
-+		pr_info("barrier-nospec: using isync; sync as speculation barrier\n");
-+		instr[0] = PPC_INST_ISYNC;
-+		instr[1] = PPC_INST_SYNC;
-+	}
-+
-+	for (i = 0; start < end; start++, i++) {
-+		dest = (void *)start + *start;
-+
-+		pr_devel("patching dest %lx\n", (unsigned long)dest);
-+		patch_instruction(dest, instr[0]);
-+		patch_instruction(dest + 1, instr[1]);
-+	}
-+
-+	printk(KERN_DEBUG "barrier-nospec: patched %d locations\n", i);
++	addr = (unsigned int *)((unsigned long)site + *site);
++	return patch_instruction(addr, create_branch(addr, target, flags));
 +}
-+#endif /* CONFIG_PPC_FSL_BOOK3E */
 +
- void do_lwsync_fixups(unsigned long value, void *fixup_start, void *fixup_end)
++int patch_instruction_site(s32 *site, unsigned int instr)
++{
++	unsigned int *addr;
++
++	addr = (unsigned int *)((unsigned long)site + *site);
++	return patch_instruction(addr, instr);
++}
++
+ unsigned int create_branch(const unsigned int *addr,
+ 			   unsigned long target, int flags)
  {
- 	long *start, *end;
 
 
