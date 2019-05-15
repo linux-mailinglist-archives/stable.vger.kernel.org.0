@@ -2,98 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4071E7BC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 06:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13171E7C1
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 06:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725933AbfEOExX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 00:53:23 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45877 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725876AbfEOExX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 00:53:23 -0400
-Received: by mail-pg1-f194.google.com with SMTP id i21so693120pgi.12;
-        Tue, 14 May 2019 21:53:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=P/nPH78rMZi+N42kFDUtjB2yFcI3lwn1M6vMbllJuVg=;
-        b=k9cSPMsLXKJRS3JccoESqEluJdmibEefjgOjob0u2Go+/fMrse21E1o+Dorl8uf/ze
-         Mu1XlT85aiOUX+BzfHAHvmA5TP/3eWnd8pa8fPGMGfQjFxKMhaRTnmww7Qz+Qx6EnRoC
-         RCNrhqO2SX1ZCV0b2a2u2v+BiyMqX87Eb0Sczd/bHeqwO52vqofl03dmnhp/aqMjVaDA
-         93ngqjvzhuBbDS7zGuSNy+1aOM/Te1hQaHHPEBIuNgpEfEpUzThNr8hv9NEwG1mJV11L
-         3rbK514Wv0owmyRA5K2oyE2xW079xCt7yHT1lLPkJpyr21h9sawi2hhac4P4+0fRIwdT
-         t5qQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=P/nPH78rMZi+N42kFDUtjB2yFcI3lwn1M6vMbllJuVg=;
-        b=o9FQnRSr+EaN+VAoMI41rKL/2X7M1QYN9gJqoxhagxOE5lqd5PBz+YQEaTGQOj8C+j
-         1s21nqQckg8oM6dYSlLmsfJHOQTrGTIYyGPySy7IaMpaW2n9tkrZrBjY1eaGd3BT8TDa
-         hjmn7aw8novo13uT3hGj27OCR++EnKC1dJa54//ROywXXKsBzs6Zc6ryi9xXYOIi4P/x
-         AHUgVdOmgWJ54gmX0/C153vemiWzlMiL8GiBKsZr8tU//eM/M1QycI0RBk0815XuoLkl
-         UhZLDwNnm+soThBf5wh4BH12wMuPtf4hUeIlerWdByoITnZV0QD0eDp2/8P3aSlKiKQd
-         1x2w==
-X-Gm-Message-State: APjAAAVMZ6MGETwKW4XqtYtJgZ0yeKdU5iNQuY5ZgvKBPSaU5YWva3mi
-        m7uOpmunM1rwXk3OQghQD4U=
-X-Google-Smtp-Source: APXvYqwfckTGIbynQBCAqX7EmODSFULXGqw2TQrQAdQutgLvuNuKnB2EA6YgNm1nFV6iR6fVjRB5cA==
-X-Received: by 2002:aa7:8e46:: with SMTP id d6mr16566727pfr.91.1557896002038;
-        Tue, 14 May 2019 21:53:22 -0700 (PDT)
-Received: from voyager.jms.id.au ([36.255.48.244])
-        by smtp.gmail.com with ESMTPSA id f29sm1296247pfq.11.2019.05.14.21.53.17
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 14 May 2019 21:53:20 -0700 (PDT)
-Received: by voyager.jms.id.au (sSMTP sendmail emulation); Wed, 15 May 2019 14:23:14 +0930
-From:   Joel Stanley <joel@jms.id.au>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH] powerpc/security: Fix build break
-Date:   Wed, 15 May 2019 14:22:06 +0930
-Message-Id: <20190515045206.10610-1-joel@jms.id.au>
-X-Mailer: git-send-email 2.20.1
+        id S1725877AbfEOE5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 00:57:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38298 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725876AbfEOE5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 00:57:15 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6783F20862;
+        Wed, 15 May 2019 04:57:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557896234;
+        bh=3zRyvWEiloPg/6g3Sltz36heTPMDdlNYexVj2wJeyTU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aeWNp4d9UTdbzDEeN+3D+koBzSHjEdcdblK4rpQYtX42uf/DP8leBU7QH8nNs4pYd
+         b7vRfIksXJTCIV3iMz+6p7f9YmCrTaYBisTh93vRETSqEIR+eYHN+CWv9hbqKF5HEk
+         e1SCGUrIA9JCcPzhOL17th3OXYDK6dNaLndfGwiU=
+Date:   Wed, 15 May 2019 06:57:11 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Schmauss, Erik" <erik.schmauss@intel.com>
+Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+ interpreter: add region addresses...")
+Message-ID: <20190515045711.GA16452@kroah.com>
+References: <20190505194448.GA2649@windriver.com>
+ <20190506084145.GA23991@kroah.com>
+ <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a build break introduced in with the recent round of CPU
-bug patches.
+On Wed, May 15, 2019 at 01:17:28AM +0000, Schmauss, Erik wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Greg Kroah-Hartman [mailto:gregkh@linuxfoundation.org]
+> > Sent: Monday, May 6, 2019 1:42 AM
+> > To: Paul Gortmaker <paul.gortmaker@windriver.com>; Wysocki, Rafael J
+> > <rafael.j.wysocki@intel.com>
+> > Cc: stable@vger.kernel.org; Schmauss, Erik <erik.schmauss@intel.com>
+> > Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+> > interpreter: add region addresses...")
+> > 
+> > On Sun, May 05, 2019 at 03:44:48PM -0400, Paul Gortmaker wrote:
+> > > I noticed 4.19.35 got a backport of mainline 4abb951b, but it appears
+> > > to be a duplicate backport that landed in the wrong function.  We can
+> > > see this in the stable-queue repo:
+> > >
+> > > stable-queue$ find . -name '*acpica-aml-interpreter-add-region-addr*'
+> > > |grep 4.19
+> > > ./releases/4.19.6/acpica-aml-interpreter-add-region-addresses-in-globa
+> > > l-list-during-initialization.patch
+> > > ./releases/4.19.3/revert-acpica-aml-interpreter-add-region-addresses-i
+> > > n.patch
+> > > ./releases/4.19.35/acpica-aml-interpreter-add-region-addresses-in-glob
+> > > al-list-during-initialization.patch
+> > > ./releases/4.19.2/acpica-aml-interpreter-add-region-addresses-in-globa
+> > > l-list-during-initialization.patch
+> > >
+> > > So it was added to 4.19.2, reverted in .3, re-added in .6, and then
+> > > finally patched into a similar looking but wrong function in .35
+> > >
+> > > If we diff the .6 and .35 versions, we see the function difference:
+> > >
+> > > -@@ -417,6 +417,10 @@ acpi_ds_eval_region_operands(struct acpi
+> > > +@@ -523,6 +523,10 @@ acpi_ds_eval_table_region_operands(struc
+> > >
+> > > I don't know what the history is/was around the 2/3/6 churn, but the
+> > > re-addition in 4.19.35 to a different function sure looks wrong.
+> > >
+> > > The commit adds a call "status = acpi_ut_add_address_range(..." and if
+> > > we check mainline, there is only one in that file, but in 4.19.35+
+> > > there now are two calls - since the two functions had similar context
+> > > and comments, it isn't hard to see how patch could/would apply it a
+> > > 2nd time in the wrong place.
+> > >
+> > > I didn't check if any of the other currently maintained linux-stable
+> > > versions also had this possible issue.
+> > >
+> > 
+> Hi Greg,
+> 
+> > Ugh, Rafael, did I mess this up again?  Can you check to see if I need to fix this
+> > somehow?
+> 
+> It should be called in acpi_ds_eval_region_operands rather than acpi_ds_eval_table_region_operands.
+> Please remove the call from acpi_ds_eval_table_region_operands.
 
-  arch/powerpc/kernel/security.c: In function ‘setup_barrier_nospec’:
-  arch/powerpc/kernel/security.c:59:21: error: implicit declaration of
-  function ‘cpu_mitigations_off’ [-Werror=implicit-function-declaration]
-    if (!no_nospec && !cpu_mitigations_off())
-                       ^~~~~~~~~~~~~~~~~~~
+Great, can someone please send me a patch for this so that I don't get
+it wrong myself?
 
-Fixes: 782e69efb3df ("powerpc/speculation: Support 'mitigations=' cmdline option")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
-This should be applied to the 4.14 and 4.19 trees. There is no issue
-with 5.1. The commit message contains a fixes line for the commit in
-Linus tree.
----
- arch/powerpc/kernel/security.c | 1 +
- 1 file changed, 1 insertion(+)
+thanks,
 
-diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
-index e9af5d9badf2..68d4ec373cfc 100644
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -4,6 +4,7 @@
- //
- // Copyright 2018, Michael Ellerman, IBM Corporation.
- 
-+#include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/device.h>
- #include <linux/seq_buf.h>
--- 
-2.20.1
-
+greg k-h
