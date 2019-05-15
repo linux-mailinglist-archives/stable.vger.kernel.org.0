@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16BEC1EA40
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821931EA41
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725871AbfEOIhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 04:37:22 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54769 "EHLO
+        id S1725974AbfEOIh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 04:37:29 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44675 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726032AbfEOIhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:37:20 -0400
+        by vger.kernel.org with ESMTP id S1725929AbfEOIh3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:37:29 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D2CAC2469A;
-        Wed, 15 May 2019 04:37:19 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 27F7824665;
+        Wed, 15 May 2019 04:37:28 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 15 May 2019 04:37:19 -0400
+  by compute6.internal (MEProxy); Wed, 15 May 2019 04:37:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=F0vMys
-        9jNbb4EiMvDQUCsWdo4sEEjeiDKyI2gpv1MbY=; b=V+hF6QDscgNm0nBpjnFwde
-        YVTIWB3itsF/tG3ZZWA+kYghkT9VALds5HaOVs63BFoyXGoITeaHnlwmm85GT6/6
-        alp6qYIAC3has0hQeQ3ynsRfKAPWZik6YOD4Xqee8yzOYTl3DHzHVeWpy/iNAWcm
-        fphLsemMkABgzKhM56413pgVV7T3RYRZDa44M/xjhZPwD6qiOlSQBxH32bdiSLKW
-        GpREaM+pN7XOnXjdZNzq+a6gCCYUfj3y5JXV3quV5HWG8nQ4HeNARCKQJ8SuQGB/
-        wP2B4G+/B/47Nujh+Ao0RPZ+nzBjAkqhQXu19sPcAuZfb9BKwaueUCgV+XdV4qrw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YtT/Xd
+        PXGOxwMKODO/Ccr0UngXA3zHD2kPSYfClsHww=; b=eTUY88Fkd3uAYZXrKB5Fjx
+        ze3LazLO+wW1yhQJZgbEzg2BDLqL/KksE1SBM7TuQQ3kPK2gBrtuuoA2nFFJgADh
+        DLH/JxWkVjUpVk+buliq6chbw+/Jp9Nlm0523HtMoKdNpDPKTBq7LhQqkbHr765a
+        R1CqBT6UHQ6zgnKIJz0jm+bSURnSBoY3JiBjg9tC7E68BD9zCA2eGAfwVY/a1Z1Y
+        rNKE2Qy3URaUNQogESGhobZXyAmM8/g7HoI/Y5Mk5ocLls0XdWC0hux2dAl8V4Q9
+        M28gVrqP1hayIO/E0WmIsMd+SXQtCssWlolnVOY1GVWzZgC009Sa72aEIETPycMg
         ==
-X-ME-Sender: <xms:v8_bXNEKn7CmNNFSn_k-F-ESS9SJkvU1lTumC1tDMyVWwmxKuMhvUg>
+X-ME-Sender: <xms:x8_bXPJciD7Had6He8Q6RfhWnPVVwAcDfGHUW7ug1ts_W_k8Uy_Rxg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddtjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:v8_bXLTe4TcH93KNgelF2RcJ5YRpPcS5Gg8ejopnnPPi44jSnXq7iA>
-    <xmx:v8_bXBF2ybyLcMAUw22AWUGHmGivS-oBd1HbheSSVo9IaPTR9HgvhQ>
-    <xmx:v8_bXP89G9PxdjrZao3ExtPuO3P0USAV_mzcsPUtoo9U0Lzbib5O-g>
-    <xmx:v8_bXHAxaHfKCpFsi32xsbDcLVS5l3G4n2KB4LN2SQc9r1H-NWnGtg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:yM_bXMk06lv0SAmZMMx-_Avulfl7BnqwKT5VFTeVLIk6nCQEFAMbzA>
+    <xmx:yM_bXHRdB9S7fqZy4ljY8lc687mxY1Xx6G4ivo7bSZegm1IRa8Kb_g>
+    <xmx:yM_bXOIV9CuUd74HtNaVn-QJtuJjTD2HKKd-SUzd_x_CGNJ4zHXybQ>
+    <xmx:yM_bXB9gW2PkzvLiYnfj79HiLT5zCkgB4H0XXRqaXmuYpBFebFloSg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C9B7880066;
-        Wed, 15 May 2019 04:37:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] f2fs: Fix use of number of devices" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7AA9780061;
+        Wed, 15 May 2019 04:37:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] f2fs: Fix use of number of devices" failed to apply to 4.19-stable tree
 To:     damien.lemoal@wdc.com, jaegeuk@kernel.org, stable@vger.kernel.org,
         yuchao0@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 May 2019 10:37:17 +0200
-Message-ID: <155790943718636@kroah.com>
+Date:   Wed, 15 May 2019 10:37:18 +0200
+Message-ID: <1557909438128159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
