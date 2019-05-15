@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB6B1F0CB
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169791F28E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730006AbfEOLr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35296 "EHLO mail.kernel.org"
+        id S1729400AbfEOME3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728400AbfEOLYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:39 -0400
+        id S1729380AbfEOLLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F53F206BF;
-        Wed, 15 May 2019 11:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA3A62084E;
+        Wed, 15 May 2019 11:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919477;
-        bh=rC5Kigj3tK5m420+FMjAqCQJIbtLTK9+sBlnLz54Qus=;
+        s=default; t=1557918695;
+        bh=/54wH11Q94Jz/FkSoHx1TjmuFPhVt1TwV6MXYmywSDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRD8u9pPP6DWOqaAoS/q1Gcm6nRJeS2BAMqWNUaL2VXtq/QkGqJW37MZNfG4Ib4NT
-         J3eO1JMpPueqJAxp2x77J1D+Hk6xGMNu3ILIOljGPLtDGCcegjnEiMOdzCEbd9cC1Q
-         2N1YGtKZWI3mMxJ7V+Qq+LrCGiYvHrCembo1TKqo=
+        b=miJFNoVvTjl5E7jYPk0NzzRZxuYJFNVmws2A1mXQbUOs8ujIwCD1MbQJfU2kyK9lH
+         YlEZUWFVCRR5LnNFwL6/EQDpb16NIdJv+/J7idTmKKGDiJ2x3QL/xwwiERA9DLmNlL
+         ogxVqJtTBDygyOLtUp1PDqg/mZpp9CqL7pzIvj7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/113] selftests: netfilter: check icmp pkttoobig errors are set as related
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Jon Masters <jcm@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 230/266] x86/speculation/mds: Add basic bug infrastructure for MDS
 Date:   Wed, 15 May 2019 12:55:37 +0200
-Message-Id: <20190515090657.144331166@linuxfoundation.org>
+Message-Id: <20190515090730.783711447@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,333 +47,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit becf2319f320cae43e20cf179cc51a355a0deb5f ]
+From: Andi Kleen <ak@linux.intel.com>
 
-When an icmp error such as pkttoobig is received, conntrack checks
-if the "inner" header (header of packet that did not fit link mtu)
-is matches an existing connection, and, if so, sets that packet as
-being related to the conntrack entry it found.
+commit ed5194c2732c8084af9fd159c146ea92bf137128 upstream.
 
-It was recently reported that this "related" setting also works
-if the inner header is from another, different connection (i.e.,
-artificial/forged icmp error).
+Microarchitectural Data Sampling (MDS), is a class of side channel attacks
+on internal buffers in Intel CPUs. The variants are:
 
-Add a test, followup patch will add additional "inner dst matches
-outer dst in reverse direction" check before setting related state.
+ - Microarchitectural Store Buffer Data Sampling (MSBDS) (CVE-2018-12126)
+ - Microarchitectural Fill Buffer Data Sampling (MFBDS) (CVE-2018-12130)
+ - Microarchitectural Load Port Data Sampling (MLPDS) (CVE-2018-12127)
 
-Link: https://www.synacktiv.com/posts/systems/icmp-reachable.html
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+MSBDS leaks Store Buffer Entries which can be speculatively forwarded to a
+dependent load (store-to-load forwarding) as an optimization. The forward
+can also happen to a faulting or assisting load operation for a different
+memory address, which can be exploited under certain conditions. Store
+buffers are partitioned between Hyper-Threads so cross thread forwarding is
+not possible. But if a thread enters or exits a sleep state the store
+buffer is repartitioned which can expose data from one thread to the other.
+
+MFBDS leaks Fill Buffer Entries. Fill buffers are used internally to manage
+L1 miss situations and to hold data which is returned or sent in response
+to a memory or I/O operation. Fill buffers can forward data to a load
+operation and also write data to the cache. When the fill buffer is
+deallocated it can retain the stale data of the preceding operations which
+can then be forwarded to a faulting or assisting load operation, which can
+be exploited under certain conditions. Fill buffers are shared between
+Hyper-Threads so cross thread leakage is possible.
+
+MLDPS leaks Load Port Data. Load ports are used to perform load operations
+from memory or I/O. The received data is then forwarded to the register
+file or a subsequent operation. In some implementations the Load Port can
+contain stale data from a previous operation which can be forwarded to
+faulting or assisting loads under certain conditions, which again can be
+exploited eventually. Load ports are shared between Hyper-Threads so cross
+thread leakage is possible.
+
+All variants have the same mitigation for single CPU thread case (SMT off),
+so the kernel can treat them as one MDS issue.
+
+Add the basic infrastructure to detect if the current CPU is affected by
+MDS.
+
+[ tglx: Rewrote changelog ]
+
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+Tested-by: Jon Masters <jcm@redhat.com>
+[bwh: Backported to 4.4: adjust context, indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/Makefile    |   2 +-
- .../netfilter/conntrack_icmp_related.sh       | 283 ++++++++++++++++++
- 2 files changed, 284 insertions(+), 1 deletion(-)
- create mode 100755 tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+ arch/x86/include/asm/cpufeatures.h |    2 ++
+ arch/x86/include/asm/msr-index.h   |    5 +++++
+ arch/x86/kernel/cpu/common.c       |   25 ++++++++++++++++---------
+ 3 files changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/netfilter/Makefile b/tools/testing/selftests/netfilter/Makefile
-index c9ff2b47bd1ca..a37cb1192c6a6 100644
---- a/tools/testing/selftests/netfilter/Makefile
-+++ b/tools/testing/selftests/netfilter/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for netfilter selftests
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -310,6 +310,7 @@
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (EDX), word 18 */
+ #define X86_FEATURE_AVX512_4VNNIW	(18*32+ 2) /* AVX-512 Neural Network Instructions */
+ #define X86_FEATURE_AVX512_4FMAPS	(18*32+ 3) /* AVX-512 Multiply Accumulation Single precision */
++#define X86_FEATURE_MD_CLEAR		(18*32+10) /* VERW clears CPU buffers */
+ #define X86_FEATURE_SPEC_CTRL		(18*32+26) /* "" Speculation Control (IBRS + IBPB) */
+ #define X86_FEATURE_INTEL_STIBP		(18*32+27) /* "" Single Thread Indirect Branch Predictors */
+ #define X86_FEATURE_FLUSH_L1D		(18*32+28) /* Flush L1D cache */
+@@ -335,5 +336,6 @@
+ #define X86_BUG_SPECTRE_V2	X86_BUG(16) /* CPU is affected by Spectre variant 2 attack with indirect branches */
+ #define X86_BUG_SPEC_STORE_BYPASS X86_BUG(17) /* CPU is affected by speculative store bypass attack */
+ #define X86_BUG_L1TF		X86_BUG(18) /* CPU is affected by L1 Terminal Fault */
++#define X86_BUG_MDS		X86_BUG(19) /* CPU is affected by Microarchitectural data sampling */
  
--TEST_PROGS := nft_trans_stress.sh nft_nat.sh
-+TEST_PROGS := nft_trans_stress.sh nft_nat.sh conntrack_icmp_related.sh
+ #endif /* _ASM_X86_CPUFEATURES_H */
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -66,6 +66,11 @@
+ 						 * attack, so no Speculative Store Bypass
+ 						 * control required.
+ 						 */
++#define ARCH_CAP_MDS_NO			BIT(5)   /*
++						  * Not susceptible to
++						  * Microarchitectural Data
++						  * Sampling (MDS) vulnerabilities.
++						  */
  
- include ../lib.mk
-diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-new file mode 100755
-index 0000000000000..b48e1833bc896
---- /dev/null
-+++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-@@ -0,0 +1,283 @@
-+#!/bin/bash
-+#
-+# check that ICMP df-needed/pkttoobig icmp are set are set as related
-+# state
-+#
-+# Setup is:
-+#
-+# nsclient1 -> nsrouter1 -> nsrouter2 -> nsclient2
-+# MTU 1500, except for nsrouter2 <-> nsclient2 link (1280).
-+# ping nsclient2 from nsclient1, checking that conntrack did set RELATED
-+# 'fragmentation needed' icmp packet.
-+#
-+# In addition, nsrouter1 will perform IP masquerading, i.e. also
-+# check the icmp errors are propagated to the correct host as per
-+# nat of "established" icmp-echo "connection".
+ #define MSR_IA32_BBL_CR_CTL		0x00000119
+ #define MSR_IA32_BBL_CR_CTL3		0x0000011e
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -851,6 +851,7 @@ static void identify_cpu_without_cpuid(s
+ #define NO_MELTDOWN	BIT(1)
+ #define NO_SSB		BIT(2)
+ #define NO_L1TF		BIT(3)
++#define NO_MDS		BIT(4)
+ 
+ #define VULNWL(_vendor, _family, _model, _whitelist)	\
+ 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
+@@ -867,6 +868,7 @@ static const __initconst struct x86_cpu_
+ 	VULNWL(INTEL,	5, X86_MODEL_ANY,	NO_SPECULATION),
+ 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
+ 
++	/* Intel Family 6 */
+ 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION),
+ 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION),
+ 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION),
+@@ -883,17 +885,19 @@ static const __initconst struct x86_cpu_
+ 	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
+ 
+ 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF),
+-	VULNWL_INTEL(ATOM_GOLDMONT,		NO_L1TF),
+-	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_L1TF),
+-	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_L1TF),
+-
+-	VULNWL_AMD(0x0f,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+-	VULNWL_AMD(0x10,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+-	VULNWL_AMD(0x11,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+-	VULNWL_AMD(0x12,		NO_MELTDOWN | NO_SSB | NO_L1TF),
 +
-+# Kselftest framework requirement - SKIP code is 4.
-+ksft_skip=4
-+ret=0
++	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF),
++	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF),
++	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF),
 +
-+nft --version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without nft tool"
-+	exit $ksft_skip
-+fi
++	/* AMD Family 0xf - 0x12 */
++	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
++	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
++	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
++	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
+ 
+ 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
+-	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF),
++	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS),
+ 	{}
+ };
+ 
+@@ -924,6 +928,9 @@ static void __init cpu_set_bug_bits(stru
+ 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
+ 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
+ 
++	if (!cpu_matches(NO_MDS) && !(ia32_cap & ARCH_CAP_MDS_NO))
++		setup_force_cpu_bug(X86_BUG_MDS);
 +
-+ip -Version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without ip tool"
-+	exit $ksft_skip
-+fi
-+
-+cleanup() {
-+	for i in 1 2;do ip netns del nsclient$i;done
-+	for i in 1 2;do ip netns del nsrouter$i;done
-+}
-+
-+ipv4() {
-+    echo -n 192.168.$1.2
-+}
-+
-+ipv6 () {
-+    echo -n dead:$1::2
-+}
-+
-+check_counter()
-+{
-+	ns=$1
-+	name=$2
-+	expect=$3
-+	local lret=0
-+
-+	cnt=$(ip netns exec $ns nft list counter inet filter "$name" | grep -q "$expect")
-+	if [ $? -ne 0 ]; then
-+		echo "ERROR: counter $name in $ns has unexpected value (expected $expect)" 1>&2
-+		ip netns exec $ns nft list counter inet filter "$name" 1>&2
-+		lret=1
-+	fi
-+
-+	return $lret
-+}
-+
-+check_unknown()
-+{
-+	expect="packets 0 bytes 0"
-+	for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
-+		check_counter $n "unknown" "$expect"
-+		if [ $? -ne 0 ] ;then
-+			return 1
-+		fi
-+	done
-+
-+	return 0
-+}
-+
-+for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
-+  ip netns add $n
-+  ip -net $n link set lo up
-+done
-+
-+DEV=veth0
-+ip link add $DEV netns nsclient1 type veth peer name eth1 netns nsrouter1
-+DEV=veth0
-+ip link add $DEV netns nsclient2 type veth peer name eth1 netns nsrouter2
-+
-+DEV=veth0
-+ip link add $DEV netns nsrouter1 type veth peer name eth2 netns nsrouter2
-+
-+DEV=veth0
-+for i in 1 2; do
-+    ip -net nsclient$i link set $DEV up
-+    ip -net nsclient$i addr add $(ipv4 $i)/24 dev $DEV
-+    ip -net nsclient$i addr add $(ipv6 $i)/64 dev $DEV
-+done
-+
-+ip -net nsrouter1 link set eth1 up
-+ip -net nsrouter1 link set veth0 up
-+
-+ip -net nsrouter2 link set eth1 up
-+ip -net nsrouter2 link set eth2 up
-+
-+ip -net nsclient1 route add default via 192.168.1.1
-+ip -net nsclient1 -6 route add default via dead:1::1
-+
-+ip -net nsclient2 route add default via 192.168.2.1
-+ip -net nsclient2 route add default via dead:2::1
-+
-+i=3
-+ip -net nsrouter1 addr add 192.168.1.1/24 dev eth1
-+ip -net nsrouter1 addr add 192.168.3.1/24 dev veth0
-+ip -net nsrouter1 addr add dead:1::1/64 dev eth1
-+ip -net nsrouter1 addr add dead:3::1/64 dev veth0
-+ip -net nsrouter1 route add default via 192.168.3.10
-+ip -net nsrouter1 -6 route add default via dead:3::10
-+
-+ip -net nsrouter2 addr add 192.168.2.1/24 dev eth1
-+ip -net nsrouter2 addr add 192.168.3.10/24 dev eth2
-+ip -net nsrouter2 addr add dead:2::1/64 dev eth1
-+ip -net nsrouter2 addr add dead:3::10/64 dev eth2
-+ip -net nsrouter2 route add default via 192.168.3.1
-+ip -net nsrouter2 route add default via dead:3::1
-+
-+sleep 2
-+for i in 4 6; do
-+	ip netns exec nsrouter1 sysctl -q net.ipv$i.conf.all.forwarding=1
-+	ip netns exec nsrouter2 sysctl -q net.ipv$i.conf.all.forwarding=1
-+done
-+
-+for netns in nsrouter1 nsrouter2; do
-+ip netns exec $netns nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter related { }
-+	chain forward {
-+		type filter hook forward priority 0; policy accept;
-+		meta l4proto icmpv6 icmpv6 type "packet-too-big" ct state "related" counter name "related" accept
-+		meta l4proto icmp icmp type "destination-unreachable" ct state "related" counter name "related" accept
-+		meta l4proto { icmp, icmpv6 } ct state new,established accept
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+done
-+
-+ip netns exec nsclient1 nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter related { }
-+	chain input {
-+		type filter hook input priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+
-+ip netns exec nsclient2 nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter new { }
-+	counter established { }
-+
-+	chain input {
-+		type filter hook input priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new" accept
-+		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established" accept
-+		counter name "unknown" drop
-+	}
-+	chain output {
-+		type filter hook output priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new"
-+		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established"
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+
-+
-+# make sure NAT core rewrites adress of icmp error if nat is used according to
-+# conntrack nat information (icmp error will be directed at nsrouter1 address,
-+# but it needs to be routed to nsclient1 address).
-+ip netns exec nsrouter1 nft -f - <<EOF
-+table ip nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0; policy accept;
-+		ip protocol icmp oifname "veth0" counter masquerade
-+	}
-+}
-+table ip6 nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0; policy accept;
-+		ip6 nexthdr icmpv6 oifname "veth0" counter masquerade
-+	}
-+}
-+EOF
-+
-+ip netns exec nsrouter2 ip link set eth1  mtu 1280
-+ip netns exec nsclient2 ip link set veth0 mtu 1280
-+sleep 1
-+
-+ip netns exec nsclient1 ping -c 1 -s 1000 -q -M do 192.168.2.2 >/dev/null
-+if [ $? -ne 0 ]; then
-+	echo "ERROR: netns ip routing/connectivity broken" 1>&2
-+	cleanup
-+	exit 1
-+fi
-+ip netns exec nsclient1 ping6 -q -c 1 -s 1000 dead:2::2 >/dev/null
-+if [ $? -ne 0 ]; then
-+	echo "ERROR: netns ipv6 routing/connectivity broken" 1>&2
-+	cleanup
-+	exit 1
-+fi
-+
-+check_unknown
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+expect="packets 0 bytes 0"
-+for netns in nsrouter1 nsrouter2 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+expect="packets 2 bytes 2076"
-+check_counter nsclient2 "new" "$expect"
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+ip netns exec nsclient1 ping -q -c 1 -s 1300 -M do 192.168.2.2 > /dev/null
-+if [ $? -eq 0 ]; then
-+	echo "ERROR: ping should have failed with PMTU too big error" 1>&2
-+	ret=1
-+fi
-+
-+# nsrouter2 should have generated the icmp error, so
-+# related counter should be 0 (its in forward).
-+expect="packets 0 bytes 0"
-+check_counter "nsrouter2" "related" "$expect"
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+# but nsrouter1 should have seen it, same for nsclient1.
-+expect="packets 1 bytes 576"
-+for netns in nsrouter1 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+ip netns exec nsclient1 ping6 -c 1 -s 1300 dead:2::2 > /dev/null
-+if [ $? -eq 0 ]; then
-+	echo "ERROR: ping6 should have failed with PMTU too big error" 1>&2
-+	ret=1
-+fi
-+
-+expect="packets 2 bytes 1856"
-+for netns in nsrouter1 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+if [ $ret -eq 0 ];then
-+	echo "PASS: icmp mtu error had RELATED state"
-+else
-+	echo "ERROR: icmp error RELATED state test has failed"
-+fi
-+
-+cleanup
-+exit $ret
--- 
-2.20.1
-
+ 	if (cpu_matches(NO_MELTDOWN))
+ 		return;
+ 
 
 
