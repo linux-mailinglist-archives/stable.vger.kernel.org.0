@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9D01F427
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C8BB1F003
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726985AbfEOMVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55220 "EHLO mail.kernel.org"
+        id S1732236AbfEOL3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726548AbfEOK6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:58:53 -0400
+        id S1726542AbfEOL3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DB3F21473;
-        Wed, 15 May 2019 10:58:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F2F6206BF;
+        Wed, 15 May 2019 11:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917931;
-        bh=0zpnh0d0f+Vzu30ow5qiWYKPN9+R2GAGxkYHqv2dcnM=;
+        s=default; t=1557919754;
+        bh=3CBpc1fLJnHIj2l4Fa+AUaaNaeYCNUuCUI7rrM7kUBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KW4AO9xpZUSQ0g4omRggX0s+pJ6aNW3ckcOGwKWTEA9olMeSFgDpDW1X4Bp0mz6ru
-         NCYuNIg1E3ipuwbZbtwA8CHZgWdXucDh9YFh9zZd9cWlGg0upz5c8vrpf3fPP3rBaL
-         Cy5gku8Tttj/LDnCW4+tBp55XjiMvgVRBDBYZM/8=
+        b=mHtbIE/XMTIL8vHX3oH3bos/k21d3Nn758Rx1qQK0UAoap0Cx5y3NBLlSKLi2OlgZ
+         QCCjUgOYxz/zHrXOJZLokZyOmZp4nbJ1oLlxROgrs4aHwQqmOKTRcZV9D4Ts5/lBuC
+         ZJrRXoX1hlEh0T8ps6ansGHnSh3Qfpb1RogACo/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 3.18 30/86] packet: validate msg_namelen in send directly
-Date:   Wed, 15 May 2019 12:55:07 +0200
-Message-Id: <20190515090648.745084289@linuxfoundation.org>
+        stable@vger.kernel.org, Liang ZhiCheng <liangzhicheng@baidu.com>,
+        Li RongQing <lirongqing@baidu.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 027/137] libnvdimm/pmem: fix a possible OOB access when read and write pmem
+Date:   Wed, 15 May 2019 12:55:08 +0200
+Message-Id: <20190515090655.255284245@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
 
-[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
+If offset is not zero and length is bigger than PAGE_SIZE,
+this will cause to out of boundary access to a page memory
 
-Packet sockets in datagram mode take a destination address. Verify its
-length before passing to dev_hard_header.
-
-Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
-established behavior. Directly compare msg_namelen to dev->addr_len.
-
-Change v1->v2: initialize addr in all paths
-
-Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
+Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
+Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/nvdimm/pmem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2252,8 +2252,8 @@ static int tpacket_snd(struct packet_soc
- 	void *ph;
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
- 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
-+	unsigned char *addr = NULL;
- 	int tp_len, size_max;
--	unsigned char *addr;
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
- 	int hlen, tlen;
-@@ -2273,10 +2273,13 @@ static int tpacket_snd(struct packet_soc
- 						sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_put;
-+		if (po->sk.sk_socket->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_put;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index bc2f700feef8a..0279eb1da3ef5 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
  
- 	err = -ENXIO;
-@@ -2411,7 +2414,7 @@ static int packet_snd(struct socket *soc
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	__be16 proto;
--	unsigned char *addr;
-+	unsigned char *addr = NULL;
- 	int err, reserve = 0;
- 	struct virtio_net_hdr vnet_hdr = { 0 };
- 	int offset = 0;
-@@ -2428,7 +2431,6 @@ static int packet_snd(struct socket *soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2436,10 +2438,13 @@ static int packet_snd(struct socket *soc
- 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_unlock;
-+		if (sock->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_unlock;
-+			addr = saddr->sll_addr;
-+		}
+ 	while (len) {
+ 		mem = kmap_atomic(page);
+-		chunk = min_t(unsigned int, len, PAGE_SIZE);
++		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
+ 		memcpy_flushcache(pmem_addr, mem + off, chunk);
+ 		kunmap_atomic(mem);
+ 		len -= chunk;
+ 		off = 0;
+ 		page++;
+-		pmem_addr += PAGE_SIZE;
++		pmem_addr += chunk;
  	}
+ }
  
- 	err = -ENXIO;
+@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
+ 
+ 	while (len) {
+ 		mem = kmap_atomic(page);
+-		chunk = min_t(unsigned int, len, PAGE_SIZE);
++		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
+ 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
+ 		kunmap_atomic(mem);
+ 		if (rem)
+@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
+ 		len -= chunk;
+ 		off = 0;
+ 		page++;
+-		pmem_addr += PAGE_SIZE;
++		pmem_addr += chunk;
+ 	}
+ 	return BLK_STS_OK;
+ }
+-- 
+2.20.1
+
 
 
