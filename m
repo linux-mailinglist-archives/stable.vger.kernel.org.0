@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD6C1EFFA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB9C1ECB9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732444AbfEOL2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S1727526AbfEOLAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732071AbfEOL2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:46 -0400
+        id S1727516AbfEOLAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:00:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B8820818;
-        Wed, 15 May 2019 11:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D53FC216FD;
+        Wed, 15 May 2019 11:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919725;
-        bh=akPbtu2m/5AOg/1NNH29ydnBj+HXAz/HUtkMhjTCuc0=;
+        s=default; t=1557918045;
+        bh=JbHLyllfUeGtE6rI0Gy2Js2R5FpNhknPATPb1VufyeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDvJ0KAMdT+9AryMmsgD4iuVjlskMPzWur+8r9lIfhYqZTZ6UD19wwATUc/vSsZ4r
-         bvh2rHG90smR9kzUNNLpL2eMtSLHZB44CWhDh54y4PIZypLMMIPL6vnV+BOdPxBGMW
-         gZ/a64W/nHDhP8JzQ3i7HLiBEAo5biaVXVRpM89c=
+        b=0mnocl7hp+H4585BIOnubS8Rb4hr1c83zygAbiLoxD50gobGS+LSMvKre6CfiNkFH
+         9CiEx8KBrGa77SJXnbcH05A8SF8zRBCqJ8xx3+GX54FH8lCpIS+sTaVUKGRHujoyoi
+         GHE78eGlhckXYX/yQq59YHWJ3U6ldG46lGzT10bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 068/137] netfilter: nat: fix icmp id randomization
+Subject: [PATCH 3.18 72/86] s390: ctcm: fix ctcm_new_device error return code
 Date:   Wed, 15 May 2019 12:55:49 +0200
-Message-Id: <20190515090658.388711972@linuxfoundation.org>
+Message-Id: <20190515090655.137062236@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,172 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5bdac418f33f60b07a34e01e722889140ee8fac9 ]
+[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
 
-Sven Auhagen reported that a 2nd ping request will fail if 'fully-random'
-mode is used.
+clang points out that the return code from this function is
+undefined for one of the error paths:
 
-Reason is that if no proto information is given, min/max are both 0,
-so we set the icmp id to 0 instead of chosing a random value between
-0 and 65535.
+../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
+      [-Wsometimes-uninitialized]
+                if (priv->channel[direction] == NULL) {
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
+        return result;
+               ^~~~~~
+../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
+                if (priv->channel[direction] == NULL) {
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
+        int result;
+                  ^
 
-Update test case as well to catch this, without fix this yields:
-[..]
-ERROR: cannot ping ns1 from ns2 with ip masquerade fully-random (attempt 2)
-ERROR: cannot ping ns1 from ns2 with ipv6 masquerade fully-random (attempt 2)
+Make it return -ENODEV here, as in the related failure cases.
+gcc has a known bug in underreporting some of these warnings
+when it has already eliminated the assignment of the return code
+based on some earlier optimization step.
 
-... becaus 2nd ping clashes with existing 'id 0' icmp conntrack and gets
-dropped.
-
-Fixes: 203f2e78200c27e ("netfilter: nat: remove l4proto->unique_tuple")
-Reported-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_nat_core.c                  | 11 ++++--
- tools/testing/selftests/netfilter/nft_nat.sh | 36 +++++++++++++++-----
- 2 files changed, 35 insertions(+), 12 deletions(-)
+ drivers/s390/net/ctcm_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nf_nat_core.c b/net/netfilter/nf_nat_core.c
-index d159e9e7835b4..ade527565127b 100644
---- a/net/netfilter/nf_nat_core.c
-+++ b/net/netfilter/nf_nat_core.c
-@@ -358,9 +358,14 @@ static void nf_nat_l4proto_unique_tuple(struct nf_conntrack_tuple *tuple,
- 	case IPPROTO_ICMPV6:
- 		/* id is same for either direction... */
- 		keyptr = &tuple->src.u.icmp.id;
--		min = range->min_proto.icmp.id;
--		range_size = ntohs(range->max_proto.icmp.id) -
--			     ntohs(range->min_proto.icmp.id) + 1;
-+		if (!(range->flags & NF_NAT_RANGE_PROTO_SPECIFIED)) {
-+			min = 0;
-+			range_size = 65536;
-+		} else {
-+			min = ntohs(range->min_proto.icmp.id);
-+			range_size = ntohs(range->max_proto.icmp.id) -
-+				     ntohs(range->min_proto.icmp.id) + 1;
-+		}
- 		goto find_free_id;
- #if IS_ENABLED(CONFIG_NF_CT_PROTO_GRE)
- 	case IPPROTO_GRE:
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index 8ec76681605cc..3194007cf8d1b 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -321,6 +321,7 @@ EOF
- 
- test_masquerade6()
- {
-+	local natflags=$1
- 	local lret=0
- 
- 	ip netns exec ns0 sysctl net.ipv6.conf.all.forwarding=1 > /dev/null
-@@ -354,13 +355,13 @@ ip netns exec ns0 nft -f - <<EOF
- table ip6 nat {
- 	chain postrouting {
- 		type nat hook postrouting priority 0; policy accept;
--		meta oif veth0 masquerade
-+		meta oif veth0 masquerade $natflags
- 	}
- }
- EOF
- 	ip netns exec ns2 ping -q -c 1 dead:1::99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerading"
-+		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerade $natflags"
- 		lret=1
- 	fi
- 
-@@ -397,19 +398,26 @@ EOF
- 		fi
- 	done
- 
-+	ip netns exec ns2 ping -q -c 1 dead:1::99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping ns1 from ns2 with active ipv6 masquerade $natflags (attempt 2)"
-+		lret=1
-+	fi
-+
- 	ip netns exec ns0 nft flush chain ip6 nat postrouting
- 	if [ $? -ne 0 ]; then
- 		echo "ERROR: Could not flush ip6 nat postrouting" 1>&2
- 		lret=1
- 	fi
- 
--	test $lret -eq 0 && echo "PASS: IPv6 masquerade for ns2"
-+	test $lret -eq 0 && echo "PASS: IPv6 masquerade $natflags for ns2"
- 
- 	return $lret
- }
- 
- test_masquerade()
- {
-+	local natflags=$1
- 	local lret=0
- 
- 	ip netns exec ns0 sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
-@@ -417,7 +425,7 @@ test_masquerade()
- 
- 	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: canot ping ns1 from ns2"
-+		echo "ERROR: cannot ping ns1 from ns2 $natflags"
- 		lret=1
- 	fi
- 
-@@ -443,13 +451,13 @@ ip netns exec ns0 nft -f - <<EOF
- table ip nat {
- 	chain postrouting {
- 		type nat hook postrouting priority 0; policy accept;
--		meta oif veth0 masquerade
-+		meta oif veth0 masquerade $natflags
- 	}
- }
- EOF
- 	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
- 	if [ $? -ne 0 ] ; then
--		echo "ERROR: cannot ping ns1 from ns2 with active ip masquerading"
-+		echo "ERROR: cannot ping ns1 from ns2 with active ip masquere $natflags"
- 		lret=1
- 	fi
- 
-@@ -485,13 +493,19 @@ EOF
- 		fi
- 	done
- 
-+	ip netns exec ns2 ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping ns1 from ns2 with active ip masquerade $natflags (attempt 2)"
-+		lret=1
-+	fi
-+
- 	ip netns exec ns0 nft flush chain ip nat postrouting
- 	if [ $? -ne 0 ]; then
- 		echo "ERROR: Could not flush nat postrouting" 1>&2
- 		lret=1
- 	fi
- 
--	test $lret -eq 0 && echo "PASS: IP masquerade for ns2"
-+	test $lret -eq 0 && echo "PASS: IP masquerade $natflags for ns2"
- 
- 	return $lret
- }
-@@ -750,8 +764,12 @@ test_local_dnat
- test_local_dnat6
- 
- reset_counters
--test_masquerade
--test_masquerade6
-+test_masquerade ""
-+test_masquerade6 ""
-+
-+reset_counters
-+test_masquerade "fully-random"
-+test_masquerade6 "fully-random"
- 
- reset_counters
- test_redirect
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e056dd4fe44d1..5526388f905ec 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
+ 		if (priv->channel[direction] == NULL) {
+ 			if (direction == CTCM_WRITE)
+ 				channel_free(priv->channel[CTCM_READ]);
++			result = -ENODEV;
+ 			goto out_dev;
+ 		}
+ 		priv->channel[direction]->netdev = dev;
 -- 
 2.20.1
 
