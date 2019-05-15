@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1811F1EA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A248F1F12A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727503AbfEOL5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:57:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53712 "EHLO mail.kernel.org"
+        id S1728825AbfEOLVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730565AbfEOLQt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:49 -0400
+        id S1730700AbfEOLVh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F6592084E;
-        Wed, 15 May 2019 11:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B93E820843;
+        Wed, 15 May 2019 11:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919008;
-        bh=eFQjP66oTnVHWqZBj9HYryRNiX4vDQqo/nQR3Xb5xcI=;
+        s=default; t=1557919296;
+        bh=w5bdYzHACanwOF0KV2kSSzyZ4JFPkznJRKgzkbWXsQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=br1gyMJ6HFdabCo1Bzbd94W7l/vvfHRKw0GIKwkEOzIlDCbms4Gxb+BUvjNHC7mwZ
-         2O0/a5/P+pB1L86yFAGVIZmD3X9PYjYclZRriny1cVbTnpD0PnLX+Dajy5HMx6vDtM
-         VgqyTM5HSivRafahhjtTD0cSVEiALGyRzeEb1K6A=
+        b=ZKOJbLiw6ps7Gv1hsfN0cOyyz43hgZxLN7qAbB8ql20n3X4UGP8dqjDnCOnW1l7ar
+         TitThzDZ8X9R5wIJ/2e8odqM5WECkoZI4pc76E7P2xNiXCTqSP+svxnes/fbhcVoDA
+         5RB6i2nEs17DzOXZAK6LZWjeCLVueim7gGJSsFPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 032/115] s390: ctcm: fix ctcm_new_device error return code
+Subject: [PATCH 4.19 021/113] cfg80211: Handle WMM rules in regulatory domain intersection
 Date:   Wed, 15 May 2019 12:55:12 +0200
-Message-Id: <20190515090701.723139375@linuxfoundation.org>
+Message-Id: <20190515090655.077512576@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
+[ Upstream commit 08a75a887ee46828b54600f4bb7068d872a5edd5 ]
 
-clang points out that the return code from this function is
-undefined for one of the error paths:
+The support added for regulatory WMM rules did not handle
+the case of regulatory domain intersections. Fix it.
 
-../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
-      [-Wsometimes-uninitialized]
-                if (priv->channel[direction] == NULL) {
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
-        return result;
-               ^~~~~~
-../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
-                if (priv->channel[direction] == NULL) {
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
-        int result;
-                  ^
-
-Make it return -ENODEV here, as in the related failure cases.
-gcc has a known bug in underreporting some of these warnings
-when it has already eliminated the assignment of the return code
-based on some earlier optimization step.
-
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Fixes: 230ebaa189af ("cfg80211: read wmm rules from regulatory database")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/reg.c | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 26363e0816fe4..fbe35c2ac8981 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1594,6 +1594,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
- 		if (priv->channel[direction] == NULL) {
- 			if (direction == CTCM_WRITE)
- 				channel_free(priv->channel[CTCM_READ]);
-+			result = -ENODEV;
- 			goto out_dev;
- 		}
- 		priv->channel[direction]->netdev = dev;
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 8002ace7c9f65..8a47297ff206d 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1287,6 +1287,16 @@ reg_intersect_dfs_region(const enum nl80211_dfs_regions dfs_region1,
+ 	return dfs_region1;
+ }
+ 
++static void reg_wmm_rules_intersect(const struct ieee80211_wmm_ac *wmm_ac1,
++				    const struct ieee80211_wmm_ac *wmm_ac2,
++				    struct ieee80211_wmm_ac *intersect)
++{
++	intersect->cw_min = max_t(u16, wmm_ac1->cw_min, wmm_ac2->cw_min);
++	intersect->cw_max = max_t(u16, wmm_ac1->cw_max, wmm_ac2->cw_max);
++	intersect->cot = min_t(u16, wmm_ac1->cot, wmm_ac2->cot);
++	intersect->aifsn = max_t(u8, wmm_ac1->aifsn, wmm_ac2->aifsn);
++}
++
+ /*
+  * Helper for regdom_intersect(), this does the real
+  * mathematical intersection fun
+@@ -1301,6 +1311,8 @@ static int reg_rules_intersect(const struct ieee80211_regdomain *rd1,
+ 	struct ieee80211_freq_range *freq_range;
+ 	const struct ieee80211_power_rule *power_rule1, *power_rule2;
+ 	struct ieee80211_power_rule *power_rule;
++	const struct ieee80211_wmm_rule *wmm_rule1, *wmm_rule2;
++	struct ieee80211_wmm_rule *wmm_rule;
+ 	u32 freq_diff, max_bandwidth1, max_bandwidth2;
+ 
+ 	freq_range1 = &rule1->freq_range;
+@@ -1311,6 +1323,10 @@ static int reg_rules_intersect(const struct ieee80211_regdomain *rd1,
+ 	power_rule2 = &rule2->power_rule;
+ 	power_rule = &intersected_rule->power_rule;
+ 
++	wmm_rule1 = &rule1->wmm_rule;
++	wmm_rule2 = &rule2->wmm_rule;
++	wmm_rule = &intersected_rule->wmm_rule;
++
+ 	freq_range->start_freq_khz = max(freq_range1->start_freq_khz,
+ 					 freq_range2->start_freq_khz);
+ 	freq_range->end_freq_khz = min(freq_range1->end_freq_khz,
+@@ -1354,6 +1370,29 @@ static int reg_rules_intersect(const struct ieee80211_regdomain *rd1,
+ 	intersected_rule->dfs_cac_ms = max(rule1->dfs_cac_ms,
+ 					   rule2->dfs_cac_ms);
+ 
++	if (rule1->has_wmm && rule2->has_wmm) {
++		u8 ac;
++
++		for (ac = 0; ac < IEEE80211_NUM_ACS; ac++) {
++			reg_wmm_rules_intersect(&wmm_rule1->client[ac],
++						&wmm_rule2->client[ac],
++						&wmm_rule->client[ac]);
++			reg_wmm_rules_intersect(&wmm_rule1->ap[ac],
++						&wmm_rule2->ap[ac],
++						&wmm_rule->ap[ac]);
++		}
++
++		intersected_rule->has_wmm = true;
++	} else if (rule1->has_wmm) {
++		*wmm_rule = *wmm_rule1;
++		intersected_rule->has_wmm = true;
++	} else if (rule2->has_wmm) {
++		*wmm_rule = *wmm_rule2;
++		intersected_rule->has_wmm = true;
++	} else {
++		intersected_rule->has_wmm = false;
++	}
++
+ 	if (!is_valid_reg_rule(intersected_rule))
+ 		return -EINVAL;
+ 
 -- 
 2.20.1
 
