@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 691B41F419
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809441F05F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbfEOK7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56046 "EHLO mail.kernel.org"
+        id S1732220AbfEOL10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:27:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727153AbfEOK7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:59:31 -0400
+        id S1731861AbfEOL1Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:27:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB4112084E;
-        Wed, 15 May 2019 10:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BF3C20818;
+        Wed, 15 May 2019 11:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917970;
-        bh=Uf0AHVJu6yPNntVN2NijqXaa7UTWJ8gYvQmPSYC/pTw=;
+        s=default; t=1557919644;
+        bh=FVtfN4kgoXLaaZ7A/fGCxHLflEgVWrCEllSApCbz5m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuGQSLkxUzxzJAHPlzInPdf11opa1wP1VtOrsAuWaY7RaSEDS7BnvTMbSVgzFIOHf
-         iyjgteAR8HzZ0vsqFbvSV9i8BztyZTZa6bxFX8DjQMqeY2g65JqL8SFo+iG6H53yJ5
-         1N7rXuxMqlCi8D/XrqzN2127DaWVhcGu6Z/6DZFg=
+        b=zuCD2fVKWZYL97mt1cERwfVO+8lqYtVR8EHNkhp6ZZ2S/EhyQDJOoLL2AaCEL31rH
+         5gHYLr/WN5Jtyk/NcbmRFrOD1FzSeFjnOfIZ2er0NdGHBeVxf2tucx7yQT4teIlCZY
+         HvhLOGZ9hR72NsWfqNyEysDNB9oS6qYgd8A1fBAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 3.18 44/86] xsysace: Fix error handling in ace_setup
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 040/137] afs: Fix in-progess ops to ignore server-level callback invalidation
 Date:   Wed, 15 May 2019 12:55:21 +0200
-Message-Id: <20190515090651.167896292@linuxfoundation.org>
+Message-Id: <20190515090656.313919902@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +43,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 47b16820c490149c2923e8474048f2c6e7557cab ]
+[ Upstream commit eeba1e9cf31d064284dd1fa7bd6cfe01395bd03d ]
 
-If xace hardware reports a bad version number, the error handling code
-in ace_setup() calls put_disk(), followed by queue cleanup. However, since
-the disk data structure has the queue pointer set, put_disk() also
-cleans and releases the queue. This results in blk_cleanup_queue()
-accessing an already released data structure, which in turn may result
-in a crash such as the following.
+The in-kernel afs filesystem client counts the number of server-level
+callback invalidation events (CB.InitCallBackState* RPC operations) that it
+receives from the server.  This is stored in cb_s_break in various
+structures, including afs_server and afs_vnode.
 
-[   10.681671] BUG: Kernel NULL pointer dereference at 0x00000040
-[   10.681826] Faulting instruction address: 0xc0431480
-[   10.682072] Oops: Kernel access of bad area, sig: 11 [#1]
-[   10.682251] BE PAGE_SIZE=4K PREEMPT Xilinx Virtex440
-[   10.682387] Modules linked in:
-[   10.682528] CPU: 0 PID: 1 Comm: swapper Tainted: G        W         5.0.0-rc6-next-20190218+ #2
-[   10.682733] NIP:  c0431480 LR: c043147c CTR: c0422ad8
-[   10.682863] REGS: cf82fbe0 TRAP: 0300   Tainted: G        W          (5.0.0-rc6-next-20190218+)
-[   10.683065] MSR:  00029000 <CE,EE,ME>  CR: 22000222  XER: 00000000
-[   10.683236] DEAR: 00000040 ESR: 00000000
-[   10.683236] GPR00: c043147c cf82fc90 cf82ccc0 00000000 00000000 00000000 00000002 00000000
-[   10.683236] GPR08: 00000000 00000000 c04310bc 00000000 22000222 00000000 c0002c54 00000000
-[   10.683236] GPR16: 00000000 00000001 c09aa39c c09021b0 c09021dc 00000007 c0a68c08 00000000
-[   10.683236] GPR24: 00000001 ced6d400 ced6dcf0 c0815d9c 00000000 00000000 00000000 cedf0800
-[   10.684331] NIP [c0431480] blk_mq_run_hw_queue+0x28/0x114
-[   10.684473] LR [c043147c] blk_mq_run_hw_queue+0x24/0x114
-[   10.684602] Call Trace:
-[   10.684671] [cf82fc90] [c043147c] blk_mq_run_hw_queue+0x24/0x114 (unreliable)
-[   10.684854] [cf82fcc0] [c04315bc] blk_mq_run_hw_queues+0x50/0x7c
-[   10.685002] [cf82fce0] [c0422b24] blk_set_queue_dying+0x30/0x68
-[   10.685154] [cf82fcf0] [c0423ec0] blk_cleanup_queue+0x34/0x14c
-[   10.685306] [cf82fd10] [c054d73c] ace_probe+0x3dc/0x508
-[   10.685445] [cf82fd50] [c052d740] platform_drv_probe+0x4c/0xb8
-[   10.685592] [cf82fd70] [c052abb0] really_probe+0x20c/0x32c
-[   10.685728] [cf82fda0] [c052ae58] driver_probe_device+0x68/0x464
-[   10.685877] [cf82fdc0] [c052b500] device_driver_attach+0xb4/0xe4
-[   10.686024] [cf82fde0] [c052b5dc] __driver_attach+0xac/0xfc
-[   10.686161] [cf82fe00] [c0528428] bus_for_each_dev+0x80/0xc0
-[   10.686314] [cf82fe30] [c0529b3c] bus_add_driver+0x144/0x234
-[   10.686457] [cf82fe50] [c052c46c] driver_register+0x88/0x15c
-[   10.686610] [cf82fe60] [c09de288] ace_init+0x4c/0xac
-[   10.686742] [cf82fe80] [c0002730] do_one_initcall+0xac/0x330
-[   10.686888] [cf82fee0] [c09aafd0] kernel_init_freeable+0x34c/0x478
-[   10.687043] [cf82ff30] [c0002c6c] kernel_init+0x18/0x114
-[   10.687188] [cf82ff40] [c000f2f0] ret_from_kernel_thread+0x14/0x1c
-[   10.687349] Instruction dump:
-[   10.687435] 3863ffd4 4bfffd70 9421ffd0 7c0802a6 93c10028 7c9e2378 93e1002c 38810008
-[   10.687637] 7c7f1b78 90010034 4bfffc25 813f008c <81290040> 75290100 4182002c 80810008
-[   10.688056] ---[ end trace 13c9ff51d41b9d40 ]---
+If an inode is examined by afs_validate(), say, the afs_server copy is
+compared, along with other break counters, to those in afs_vnode, and if
+one or more of the counters do not match, it is considered that the
+server's callback promise is broken.  At points where this happens,
+AFS_VNODE_CB_PROMISED is cleared to indicate that the status must be
+refetched from the server.
 
-Fix the problem by setting the disk queue pointer to NULL before calling
-put_disk(). A more comprehensive fix might be to rearrange the code
-to check the hardware version before initializing data structures,
-but I don't know if this would have undesirable side effects, and
-it would increase the complexity of backporting the fix to older kernels.
+afs_validate() issues an FS.FetchStatus operation to get updated metadata -
+and based on the updated data_version may invalidate the pagecache too.
 
-Fixes: 74489a91dd43a ("Add support for Xilinx SystemACE CompactFlash interface")
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+However, the break counters are also used to determine whether to note a
+new callback in the vnode (which would set the AFS_VNODE_CB_PROMISED flag)
+and whether to cache the permit data included in the YFSFetchStatus record
+by the server.
+
+The problem comes when the server sends us a CB.InitCallBackState op.  The
+first such instance doesn't cause cb_s_break to be incremented, but rather
+causes AFS_SERVER_FL_NEW to be cleared - but thereafter, say some hours
+after last use and all the volumes have been automatically unmounted and
+the server has forgotten about the client[*], this *will* likely cause an
+increment.
+
+ [*] There are other circumstances too, such as the server restarting or
+     needing to make space in its callback table.
+
+Note that the server won't send us a CB.InitCallBackState op until we talk
+to it again.
+
+So what happens is:
+
+ (1) A mount for a new volume is attempted, a inode is created for the root
+     vnode and vnode->cb_s_break and AFS_VNODE_CB_PROMISED aren't set
+     immediately, as we don't have a nominated server to talk to yet - and
+     we may iterate through a few to find one.
+
+ (2) Before the operation happens, afs_fetch_status(), say, notes in the
+     cursor (fc.cb_break) the break counter sum from the vnode, volume and
+     server counters, but the server->cb_s_break is currently 0.
+
+ (3) We send FS.FetchStatus to the server.  The server sends us back
+     CB.InitCallBackState.  We increment server->cb_s_break.
+
+ (4) Our FS.FetchStatus completes.  The reply includes a callback record.
+
+ (5) xdr_decode_AFSCallBack()/xdr_decode_YFSCallBack() check to see whether
+     the callback promise was broken by checking the break counter sum from
+     step (2) against the current sum.
+
+     This fails because of step (3), so we don't set the callback record
+     and, importantly, don't set AFS_VNODE_CB_PROMISED on the vnode.
+
+This does not preclude the syscall from progressing, and we don't loop here
+rechecking the status, but rather assume it's good enough for one round
+only and will need to be rechecked next time.
+
+ (6) afs_validate() it triggered on the vnode, probably called from
+     d_revalidate() checking the parent directory.
+
+ (7) afs_validate() notes that AFS_VNODE_CB_PROMISED isn't set, so doesn't
+     update vnode->cb_s_break and assumes the vnode to be invalid.
+
+ (8) afs_validate() needs to calls afs_fetch_status().  Go back to step (2)
+     and repeat, every time the vnode is validated.
+
+This primarily affects volume root dir vnodes.  Everything subsequent to
+those inherit an already incremented cb_s_break upon mounting.
+
+The issue is that we assume that the callback record and the cached permit
+information in a reply from the server can't be trusted after getting a
+server break - but this is wrong since the server makes sure things are
+done in the right order, holding up our ops if necessary[*].
+
+ [*] There is an extremely unlikely scenario where a reply from before the
+     CB.InitCallBackState could get its delivery deferred till after - at
+     which point we think we have a promise when we don't.  This, however,
+     requires unlucky mass packet loss to one call.
+
+AFS_SERVER_FL_NEW tries to paper over the cracks for the initial mount from
+a server we've never contacted before, but this should be unnecessary.
+It's also further insulated from the problem on an initial mount by
+querying the server first with FS.GetCapabilities, which triggers the
+CB.InitCallBackState.
+
+Fix this by
+
+ (1) Remove AFS_SERVER_FL_NEW.
+
+ (2) In afs_calc_vnode_cb_break(), don't include cb_s_break in the
+     calculation.
+
+ (3) In afs_cb_is_broken(), don't include cb_s_break in the check.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xsysace.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/afs/callback.c | 3 +--
+ fs/afs/internal.h | 4 +---
+ fs/afs/server.c   | 1 -
+ 3 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/xsysace.c b/drivers/block/xsysace.c
-index c4328d9d9981..f838119d12b2 100644
---- a/drivers/block/xsysace.c
-+++ b/drivers/block/xsysace.c
-@@ -1062,6 +1062,8 @@ static int ace_setup(struct ace_device *ace)
- 	return 0;
+diff --git a/fs/afs/callback.c b/fs/afs/callback.c
+index 1c7955f5cdaf2..128f2dbe256a4 100644
+--- a/fs/afs/callback.c
++++ b/fs/afs/callback.c
+@@ -203,8 +203,7 @@ void afs_put_cb_interest(struct afs_net *net, struct afs_cb_interest *cbi)
+  */
+ void afs_init_callback_state(struct afs_server *server)
+ {
+-	if (!test_and_clear_bit(AFS_SERVER_FL_NEW, &server->flags))
+-		server->cb_s_break++;
++	server->cb_s_break++;
+ }
  
- err_read:
-+	/* prevent double queue cleanup */
-+	ace->gd->queue = NULL;
- 	put_disk(ace->gd);
- err_alloc_disk:
- 	blk_cleanup_queue(ace->queue);
+ /*
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 8871b9e8645f1..465526f495b01 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -475,7 +475,6 @@ struct afs_server {
+ 	time64_t		put_time;	/* Time at which last put */
+ 	time64_t		update_at;	/* Time at which to next update the record */
+ 	unsigned long		flags;
+-#define AFS_SERVER_FL_NEW	0		/* New server, don't inc cb_s_break */
+ #define AFS_SERVER_FL_NOT_READY	1		/* The record is not ready for use */
+ #define AFS_SERVER_FL_NOT_FOUND	2		/* VL server says no such server */
+ #define AFS_SERVER_FL_VL_FAIL	3		/* Failed to access VL server */
+@@ -828,7 +827,7 @@ static inline struct afs_cb_interest *afs_get_cb_interest(struct afs_cb_interest
+ 
+ static inline unsigned int afs_calc_vnode_cb_break(struct afs_vnode *vnode)
+ {
+-	return vnode->cb_break + vnode->cb_s_break + vnode->cb_v_break;
++	return vnode->cb_break + vnode->cb_v_break;
+ }
+ 
+ static inline bool afs_cb_is_broken(unsigned int cb_break,
+@@ -836,7 +835,6 @@ static inline bool afs_cb_is_broken(unsigned int cb_break,
+ 				    const struct afs_cb_interest *cbi)
+ {
+ 	return !cbi || cb_break != (vnode->cb_break +
+-				    cbi->server->cb_s_break +
+ 				    vnode->volume->cb_v_break);
+ }
+ 
+diff --git a/fs/afs/server.c b/fs/afs/server.c
+index 642afa2e9783c..65b33b6da48b9 100644
+--- a/fs/afs/server.c
++++ b/fs/afs/server.c
+@@ -226,7 +226,6 @@ static struct afs_server *afs_alloc_server(struct afs_net *net,
+ 	RCU_INIT_POINTER(server->addresses, alist);
+ 	server->addr_version = alist->version;
+ 	server->uuid = *uuid;
+-	server->flags = (1UL << AFS_SERVER_FL_NEW);
+ 	server->update_at = ktime_get_real_seconds() + afs_server_update_delay;
+ 	rwlock_init(&server->fs_lock);
+ 	INIT_HLIST_HEAD(&server->cb_volumes);
 -- 
 2.20.1
 
