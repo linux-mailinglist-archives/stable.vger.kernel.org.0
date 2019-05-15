@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118431ECCD
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 421C81F282
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727273AbfEOLBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58848 "EHLO mail.kernel.org"
+        id S1729595AbfEOLL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727265AbfEOLBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:01:45 -0400
+        id S1729573AbfEOLL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C899C216FD;
-        Wed, 15 May 2019 11:01:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5D2A2168B;
+        Wed, 15 May 2019 11:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918105;
-        bh=e7y/WSro2eF3J9GEEv3f0dnT2fkMcdnBHSY38CIXJ9Y=;
+        s=default; t=1557918687;
+        bh=L5efsXyWbGWe11uTyaShAqVCdeuPOgEDJwqmXQ0SoCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1AogZBldDfc2RLF5DHNOvf+18h3QLJxu5It27OSoS8hNbMLeiN9GKyIisuDEf/kHZ
-         Z57X94bnlH6EMoxzfUutd+2+4n4CbfFTrmP8jiTLwZUIXUqfqg2PyY5F/v5GccFG6X
-         gAFE9o+Im9iuOgUfzSygWcNzNj33fV3VSpIqFa8w=
+        b=f3B+OJQsxg5N0VHSdoDonZhxKktAx5AzqFZYnT/8uboKJaPZYkKjON2pJ72TNMijK
+         zw1/c/Lido34uIEUjU8NPZr2LQfNkLXQo15RjkX39H92xSrhUH9/lZtuT6fMHNhCYZ
+         Ig5dhRJaxIzUb2TyU/joFGJ5k8YC+RGDnuJ9JQn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 3.18 57/86] iommu/amd: Set exclusion range correctly
+        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 227/266] kvm: x86: Report STIBP on GET_SUPPORTED_CPUID
 Date:   Wed, 15 May 2019 12:55:34 +0200
-Message-Id: <20190515090653.790224124@linuxfoundation.org>
+Message-Id: <20190515090730.680064304@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c677d206210f53a4be972211066c0f1cd47fe12 ]
+From: Eduardo Habkost <ehabkost@redhat.com>
 
-The exlcusion range limit register needs to contain the
-base-address of the last page that is part of the range, as
-bits 0-11 of this register are treated as 0xfff by the
-hardware for comparisons.
+commit d7b09c827a6cf291f66637a36f46928dd1423184 upstream.
 
-So correctly set the exclusion range in the hardware to the
-last page which is _in_ the range.
+Months ago, we have added code to allow direct access to MSR_IA32_SPEC_CTRL
+to the guest, which makes STIBP available to guests.  This was implemented
+by commits d28b387fb74d ("KVM/VMX: Allow direct access to
+MSR_IA32_SPEC_CTRL") and b2ac58f90540 ("KVM/SVM: Allow direct access to
+MSR_IA32_SPEC_CTRL").
 
-Fixes: b2026aa2dce44 ('x86, AMD IOMMU: add functions for programming IOMMU MMIO space')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, we never updated GET_SUPPORTED_CPUID to let userspace know that
+STIBP can be enabled in CPUID.  Fix that by updating
+kvm_cpuid_8000_0008_ebx_x86_features and kvm_cpuid_7_0_edx_x86_features.
+
+Signed-off-by: Eduardo Habkost <ehabkost@redhat.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[bwh: Backported to 4.4: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd_iommu_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/cpuid.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 2f3475247f0ff..127f9cc563e9b 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -294,7 +294,7 @@ static void iommu_write_l2(struct amd_iommu *iommu, u8 address, u32 val)
- static void iommu_set_exclusion_range(struct amd_iommu *iommu)
- {
- 	u64 start = iommu->exclusion_start & PAGE_MASK;
--	u64 limit = (start + iommu->exclusion_length) & PAGE_MASK;
-+	u64 limit = (start + iommu->exclusion_length - 1) & PAGE_MASK;
- 	u64 entry;
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -344,7 +344,7 @@ static inline int __do_cpuid_ent(struct
+ 	/* cpuid 0x80000008.ebx */
+ 	const u32 kvm_cpuid_8000_0008_ebx_x86_features =
+ 		F(AMD_IBPB) | F(AMD_IBRS) | F(AMD_SSBD) | F(VIRT_SSBD) |
+-		F(AMD_SSB_NO);
++		F(AMD_SSB_NO) | F(AMD_STIBP);
  
- 	if (!iommu->exclusion_start)
--- 
-2.20.1
-
+ 	/* cpuid 0xC0000001.edx */
+ 	const u32 kvm_supported_word5_x86_features =
+@@ -365,7 +365,8 @@ static inline int __do_cpuid_ent(struct
+ 
+ 	/* cpuid 7.0.edx*/
+ 	const u32 kvm_cpuid_7_0_edx_x86_features =
+-		F(SPEC_CTRL) | F(SPEC_CTRL_SSBD) | F(ARCH_CAPABILITIES);
++		F(SPEC_CTRL) | F(SPEC_CTRL_SSBD) | F(ARCH_CAPABILITIES) |
++		F(INTEL_STIBP);
+ 
+ 	/* all calls to cpuid_count() should be made on the same cpu */
+ 	get_cpu();
 
 
