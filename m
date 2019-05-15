@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9A41F0B7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 276051F234
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731308AbfEOLYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
+        id S1730012AbfEOMAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731809AbfEOLY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:27 -0400
+        id S1729747AbfEOLOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:14:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E828D20843;
-        Wed, 15 May 2019 11:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5EAE20843;
+        Wed, 15 May 2019 11:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919467;
-        bh=Z1+mqXLAirFvbmvmCUIXTQaG/lgWQ7ZQ8Dub1uR1z1Y=;
+        s=default; t=1557918892;
+        bh=rfHNivLtK0FwOga3PE75e8224BeOh40qOTB60qT6/uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDKXR9mWumjyAG5z8Tvryq9fNzZ+lzVySv/D0HAXWZkTFOeHRBAcwQn1yneiOa7lY
-         29AzZyT6n0UDE5i9SJ5xV6Dp7nV5UxFkxHgrTqX68Rs73lD/MSNmD21ipx2zv9yS8l
-         OuNgThTNQO/VOCsGj/VbZVXSpfb70aOpTO9glDHg=
+        b=esqfv/I6y0CjA6H48Yl55kSUJSp9AmxpxkNOQsxShgmRVKE5EtOHmBwQl3huUxuOh
+         ADFX5tMMtaN51lzlZK+QAi87sEtf7tBkDHo4vH+tZ6G5KKLkrEWyY6Kemb2h/O0/dq
+         ToWSUZ8kM95m8UiiWLL+Vtaib+2A6WMpFIx5PHR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 084/113] rtlwifi: rtl8723ae: Fix missing break in switch statement
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 40/51] bridge: Fix error path for kobject_init_and_add()
 Date:   Wed, 15 May 2019 12:56:15 +0200
-Message-Id: <20190515090700.019427985@linuxfoundation.org>
+Message-Id: <20190515090627.915124616@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: "Tobin C. Harding" <tobin@kernel.org>
 
-commit 84242b82d81c54e009a2aaa74d3d9eff70babf56 upstream.
+[ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
 
-Add missing break statement in order to prevent the code from falling
-through to case 0x1025, and erroneously setting rtlhal->oem_id to
-RT_CID_819X_ACER when rtlefuse->eeprom_svid is equal to 0x10EC and
-none of the cases in switch (rtlefuse->eeprom_smid) match.
+Currently error return from kobject_init_and_add() is not followed by a
+call to kobject_put().  This means there is a memory leak.  We currently
+set p to NULL so that kfree() may be called on it as a noop, the code is
+arguably clearer if we move the kfree() up closer to where it is
+called (instead of after goto jump).
 
-This bug was found thanks to the ongoing efforts to enable
--Wimplicit-fallthrough.
+Remove a goto label 'err1' and jump to call to kobject_put() in error
+return from kobject_init_and_add() fixing the memory leak.  Re-name goto
+label 'put_back' to 'err1' now that we don't use err1, following current
+nomenclature (err1, err2 ...).  Move call to kfree out of the error
+code at bottom of function up to closer to where memory was allocated.
+Add comment to clarify call to kfree().
 
-Fixes: 238ad2ddf34b ("rtlwifi: rtl8723ae: Clean up the hardware info routine")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_if.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-@@ -1699,6 +1699,7 @@ static void _rtl8723e_read_adapter_info(
- 					rtlhal->oem_id = RT_CID_819X_LENOVO;
- 					break;
- 				}
-+				break;
- 			case 0x1025:
- 				rtlhal->oem_id = RT_CID_819X_ACER;
- 				break;
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -519,13 +519,15 @@ int br_add_if(struct net_bridge *br, str
+ 	call_netdevice_notifiers(NETDEV_JOIN, dev);
+ 
+ 	err = dev_set_allmulti(dev, 1);
+-	if (err)
+-		goto put_back;
++	if (err) {
++		kfree(p);	/* kobject not yet init'd, manually free */
++		goto err1;
++	}
+ 
+ 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
+ 				   SYSFS_BRIDGE_PORT_ATTR);
+ 	if (err)
+-		goto err1;
++		goto err2;
+ 
+ 	err = br_sysfs_addif(p);
+ 	if (err)
+@@ -608,12 +610,9 @@ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
+ 	kobject_put(&p->kobj);
+-	p = NULL; /* kobject_put frees */
+-err1:
+ 	dev_set_allmulti(dev, -1);
+-put_back:
++err1:
+ 	dev_put(dev);
+-	kfree(p);
+ 	return err;
+ }
+ 
 
 
