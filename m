@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9020F1EDC9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB6B1F0CB
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729985AbfEOLNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S1730006AbfEOLr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:47:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729977AbfEOLNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:32 -0400
+        id S1728400AbfEOLYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:24:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E5EF20644;
-        Wed, 15 May 2019 11:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F53F206BF;
+        Wed, 15 May 2019 11:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918811;
-        bh=EPd20mHdzbvtQrcoHfWRAyuF3QmcVTLdRG1MIV51Cec=;
+        s=default; t=1557919477;
+        bh=rC5Kigj3tK5m420+FMjAqCQJIbtLTK9+sBlnLz54Qus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CpxATUoSCM7dA1cZvJLuJWbqMI3/sXeI0ADARMg1Td3BExhvj+cN/+wqL3nns+zdu
-         03r3PjrQlccPppKCQ0YMguSp7zJM1pddB0tcF2/DdOJiQIer0aqUkUNwhBidm3FOYV
-         MD1+PzhjjUXOQQO1RTWlt2zIDz6WjAZ3IbWwdAhM=
+        b=kRD8u9pPP6DWOqaAoS/q1Gcm6nRJeS2BAMqWNUaL2VXtq/QkGqJW37MZNfG4Ib4NT
+         J3eO1JMpPueqJAxp2x77J1D+Hk6xGMNu3ILIOljGPLtDGCcegjnEiMOdzCEbd9cC1Q
+         2N1YGtKZWI3mMxJ7V+Qq+LrCGiYvHrCembo1TKqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
-        Zubin Mithra <zsm@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 01/51] netfilter: compat: initialize all fields in xt_init
-Date:   Wed, 15 May 2019 12:55:36 +0200
-Message-Id: <20190515090618.008520070@linuxfoundation.org>
+Subject: [PATCH 4.19 046/113] selftests: netfilter: check icmp pkttoobig errors are set as related
+Date:   Wed, 15 May 2019 12:55:37 +0200
+Message-Id: <20190515090657.144331166@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,68 +44,331 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8d29d16d21342a0c86405d46de0c4ac5daf1760f upstream
+[ Upstream commit becf2319f320cae43e20cf179cc51a355a0deb5f ]
 
-If a non zero value happens to be in xt[NFPROTO_BRIDGE].cur at init
-time, the following panic can be caused by running
+When an icmp error such as pkttoobig is received, conntrack checks
+if the "inner" header (header of packet that did not fit link mtu)
+is matches an existing connection, and, if so, sets that packet as
+being related to the conntrack entry it found.
 
-% ebtables -t broute -F BROUTING
+It was recently reported that this "related" setting also works
+if the inner header is from another, different connection (i.e.,
+artificial/forged icmp error).
 
-from a 32-bit user level on a 64-bit kernel. This patch replaces
-kmalloc_array with kcalloc when allocating xt.
+Add a test, followup patch will add additional "inner dst matches
+outer dst in reverse direction" check before setting related state.
 
-[  474.680846] BUG: unable to handle kernel paging request at 0000000009600920
-[  474.687869] PGD 2037006067 P4D 2037006067 PUD 2038938067 PMD 0
-[  474.693838] Oops: 0000 [#1] SMP
-[  474.697055] CPU: 9 PID: 4662 Comm: ebtables Kdump: loaded Not tainted 4.19.17-11302235.AroraKernelnext.fc18.x86_64 #1
-[  474.707721] Hardware name: Supermicro X9DRT/X9DRT, BIOS 3.0 06/28/2013
-[  474.714313] RIP: 0010:xt_compat_calc_jump+0x2f/0x63 [x_tables]
-[  474.720201] Code: 40 0f b6 ff 55 31 c0 48 6b ff 70 48 03 3d dc 45 00 00 48 89 e5 8b 4f 6c 4c 8b 47 60 ff c9 39 c8 7f 2f 8d 14 08 d1 fa 48 63 fa <41> 39 34 f8 4c 8d 0c fd 00 00 00 00 73 05 8d 42 01 eb e1 76 05 8d
-[  474.739023] RSP: 0018:ffffc9000943fc58 EFLAGS: 00010207
-[  474.744296] RAX: 0000000000000000 RBX: ffffc90006465000 RCX: 0000000002580249
-[  474.751485] RDX: 00000000012c0124 RSI: fffffffff7be17e9 RDI: 00000000012c0124
-[  474.758670] RBP: ffffc9000943fc58 R08: 0000000000000000 R09: ffffffff8117cf8f
-[  474.765855] R10: ffffc90006477000 R11: 0000000000000000 R12: 0000000000000001
-[  474.773048] R13: 0000000000000000 R14: ffffc9000943fcb8 R15: ffffc9000943fcb8
-[  474.780234] FS:  0000000000000000(0000) GS:ffff88a03f840000(0063) knlGS:00000000f7ac7700
-[  474.788612] CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
-[  474.794632] CR2: 0000000009600920 CR3: 0000002037422006 CR4: 00000000000606e0
-[  474.802052] Call Trace:
-[  474.804789]  compat_do_replace+0x1fb/0x2a3 [ebtables]
-[  474.810105]  compat_do_ebt_set_ctl+0x69/0xe6 [ebtables]
-[  474.815605]  ? try_module_get+0x37/0x42
-[  474.819716]  compat_nf_setsockopt+0x4f/0x6d
-[  474.824172]  compat_ip_setsockopt+0x7e/0x8c
-[  474.828641]  compat_raw_setsockopt+0x16/0x3a
-[  474.833220]  compat_sock_common_setsockopt+0x1d/0x24
-[  474.838458]  __compat_sys_setsockopt+0x17e/0x1b1
-[  474.843343]  ? __check_object_size+0x76/0x19a
-[  474.847960]  __ia32_compat_sys_socketcall+0x1cb/0x25b
-[  474.853276]  do_fast_syscall_32+0xaf/0xf6
-[  474.857548]  entry_SYSENTER_compat+0x6b/0x7a
-
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
-Acked-by: Florian Westphal <fw@strlen.de>
+Link: https://www.synacktiv.com/posts/systems/icmp-reachable.html
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/x_tables.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/Makefile    |   2 +-
+ .../netfilter/conntrack_icmp_related.sh       | 283 ++++++++++++++++++
+ 2 files changed, 284 insertions(+), 1 deletion(-)
+ create mode 100755 tools/testing/selftests/netfilter/conntrack_icmp_related.sh
 
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 751fec729ffb0..e065140d0c93b 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1728,7 +1728,7 @@ static int __init xt_init(void)
- 		seqcount_init(&per_cpu(xt_recseq, i));
- 	}
+diff --git a/tools/testing/selftests/netfilter/Makefile b/tools/testing/selftests/netfilter/Makefile
+index c9ff2b47bd1ca..a37cb1192c6a6 100644
+--- a/tools/testing/selftests/netfilter/Makefile
++++ b/tools/testing/selftests/netfilter/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for netfilter selftests
  
--	xt = kmalloc(sizeof(struct xt_af) * NFPROTO_NUMPROTO, GFP_KERNEL);
-+	xt = kcalloc(NFPROTO_NUMPROTO, sizeof(struct xt_af), GFP_KERNEL);
- 	if (!xt)
- 		return -ENOMEM;
+-TEST_PROGS := nft_trans_stress.sh nft_nat.sh
++TEST_PROGS := nft_trans_stress.sh nft_nat.sh conntrack_icmp_related.sh
  
+ include ../lib.mk
+diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+new file mode 100755
+index 0000000000000..b48e1833bc896
+--- /dev/null
++++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+@@ -0,0 +1,283 @@
++#!/bin/bash
++#
++# check that ICMP df-needed/pkttoobig icmp are set are set as related
++# state
++#
++# Setup is:
++#
++# nsclient1 -> nsrouter1 -> nsrouter2 -> nsclient2
++# MTU 1500, except for nsrouter2 <-> nsclient2 link (1280).
++# ping nsclient2 from nsclient1, checking that conntrack did set RELATED
++# 'fragmentation needed' icmp packet.
++#
++# In addition, nsrouter1 will perform IP masquerading, i.e. also
++# check the icmp errors are propagated to the correct host as per
++# nat of "established" icmp-echo "connection".
++
++# Kselftest framework requirement - SKIP code is 4.
++ksft_skip=4
++ret=0
++
++nft --version > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run test without nft tool"
++	exit $ksft_skip
++fi
++
++ip -Version > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run test without ip tool"
++	exit $ksft_skip
++fi
++
++cleanup() {
++	for i in 1 2;do ip netns del nsclient$i;done
++	for i in 1 2;do ip netns del nsrouter$i;done
++}
++
++ipv4() {
++    echo -n 192.168.$1.2
++}
++
++ipv6 () {
++    echo -n dead:$1::2
++}
++
++check_counter()
++{
++	ns=$1
++	name=$2
++	expect=$3
++	local lret=0
++
++	cnt=$(ip netns exec $ns nft list counter inet filter "$name" | grep -q "$expect")
++	if [ $? -ne 0 ]; then
++		echo "ERROR: counter $name in $ns has unexpected value (expected $expect)" 1>&2
++		ip netns exec $ns nft list counter inet filter "$name" 1>&2
++		lret=1
++	fi
++
++	return $lret
++}
++
++check_unknown()
++{
++	expect="packets 0 bytes 0"
++	for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
++		check_counter $n "unknown" "$expect"
++		if [ $? -ne 0 ] ;then
++			return 1
++		fi
++	done
++
++	return 0
++}
++
++for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
++  ip netns add $n
++  ip -net $n link set lo up
++done
++
++DEV=veth0
++ip link add $DEV netns nsclient1 type veth peer name eth1 netns nsrouter1
++DEV=veth0
++ip link add $DEV netns nsclient2 type veth peer name eth1 netns nsrouter2
++
++DEV=veth0
++ip link add $DEV netns nsrouter1 type veth peer name eth2 netns nsrouter2
++
++DEV=veth0
++for i in 1 2; do
++    ip -net nsclient$i link set $DEV up
++    ip -net nsclient$i addr add $(ipv4 $i)/24 dev $DEV
++    ip -net nsclient$i addr add $(ipv6 $i)/64 dev $DEV
++done
++
++ip -net nsrouter1 link set eth1 up
++ip -net nsrouter1 link set veth0 up
++
++ip -net nsrouter2 link set eth1 up
++ip -net nsrouter2 link set eth2 up
++
++ip -net nsclient1 route add default via 192.168.1.1
++ip -net nsclient1 -6 route add default via dead:1::1
++
++ip -net nsclient2 route add default via 192.168.2.1
++ip -net nsclient2 route add default via dead:2::1
++
++i=3
++ip -net nsrouter1 addr add 192.168.1.1/24 dev eth1
++ip -net nsrouter1 addr add 192.168.3.1/24 dev veth0
++ip -net nsrouter1 addr add dead:1::1/64 dev eth1
++ip -net nsrouter1 addr add dead:3::1/64 dev veth0
++ip -net nsrouter1 route add default via 192.168.3.10
++ip -net nsrouter1 -6 route add default via dead:3::10
++
++ip -net nsrouter2 addr add 192.168.2.1/24 dev eth1
++ip -net nsrouter2 addr add 192.168.3.10/24 dev eth2
++ip -net nsrouter2 addr add dead:2::1/64 dev eth1
++ip -net nsrouter2 addr add dead:3::10/64 dev eth2
++ip -net nsrouter2 route add default via 192.168.3.1
++ip -net nsrouter2 route add default via dead:3::1
++
++sleep 2
++for i in 4 6; do
++	ip netns exec nsrouter1 sysctl -q net.ipv$i.conf.all.forwarding=1
++	ip netns exec nsrouter2 sysctl -q net.ipv$i.conf.all.forwarding=1
++done
++
++for netns in nsrouter1 nsrouter2; do
++ip netns exec $netns nft -f - <<EOF
++table inet filter {
++	counter unknown { }
++	counter related { }
++	chain forward {
++		type filter hook forward priority 0; policy accept;
++		meta l4proto icmpv6 icmpv6 type "packet-too-big" ct state "related" counter name "related" accept
++		meta l4proto icmp icmp type "destination-unreachable" ct state "related" counter name "related" accept
++		meta l4proto { icmp, icmpv6 } ct state new,established accept
++		counter name "unknown" drop
++	}
++}
++EOF
++done
++
++ip netns exec nsclient1 nft -f - <<EOF
++table inet filter {
++	counter unknown { }
++	counter related { }
++	chain input {
++		type filter hook input priority 0; policy accept;
++		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
++
++		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
++		counter name "unknown" drop
++	}
++}
++EOF
++
++ip netns exec nsclient2 nft -f - <<EOF
++table inet filter {
++	counter unknown { }
++	counter new { }
++	counter established { }
++
++	chain input {
++		type filter hook input priority 0; policy accept;
++		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
++
++		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new" accept
++		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established" accept
++		counter name "unknown" drop
++	}
++	chain output {
++		type filter hook output priority 0; policy accept;
++		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
++
++		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new"
++		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established"
++		counter name "unknown" drop
++	}
++}
++EOF
++
++
++# make sure NAT core rewrites adress of icmp error if nat is used according to
++# conntrack nat information (icmp error will be directed at nsrouter1 address,
++# but it needs to be routed to nsclient1 address).
++ip netns exec nsrouter1 nft -f - <<EOF
++table ip nat {
++	chain postrouting {
++		type nat hook postrouting priority 0; policy accept;
++		ip protocol icmp oifname "veth0" counter masquerade
++	}
++}
++table ip6 nat {
++	chain postrouting {
++		type nat hook postrouting priority 0; policy accept;
++		ip6 nexthdr icmpv6 oifname "veth0" counter masquerade
++	}
++}
++EOF
++
++ip netns exec nsrouter2 ip link set eth1  mtu 1280
++ip netns exec nsclient2 ip link set veth0 mtu 1280
++sleep 1
++
++ip netns exec nsclient1 ping -c 1 -s 1000 -q -M do 192.168.2.2 >/dev/null
++if [ $? -ne 0 ]; then
++	echo "ERROR: netns ip routing/connectivity broken" 1>&2
++	cleanup
++	exit 1
++fi
++ip netns exec nsclient1 ping6 -q -c 1 -s 1000 dead:2::2 >/dev/null
++if [ $? -ne 0 ]; then
++	echo "ERROR: netns ipv6 routing/connectivity broken" 1>&2
++	cleanup
++	exit 1
++fi
++
++check_unknown
++if [ $? -ne 0 ]; then
++	ret=1
++fi
++
++expect="packets 0 bytes 0"
++for netns in nsrouter1 nsrouter2 nsclient1;do
++	check_counter "$netns" "related" "$expect"
++	if [ $? -ne 0 ]; then
++		ret=1
++	fi
++done
++
++expect="packets 2 bytes 2076"
++check_counter nsclient2 "new" "$expect"
++if [ $? -ne 0 ]; then
++	ret=1
++fi
++
++ip netns exec nsclient1 ping -q -c 1 -s 1300 -M do 192.168.2.2 > /dev/null
++if [ $? -eq 0 ]; then
++	echo "ERROR: ping should have failed with PMTU too big error" 1>&2
++	ret=1
++fi
++
++# nsrouter2 should have generated the icmp error, so
++# related counter should be 0 (its in forward).
++expect="packets 0 bytes 0"
++check_counter "nsrouter2" "related" "$expect"
++if [ $? -ne 0 ]; then
++	ret=1
++fi
++
++# but nsrouter1 should have seen it, same for nsclient1.
++expect="packets 1 bytes 576"
++for netns in nsrouter1 nsclient1;do
++	check_counter "$netns" "related" "$expect"
++	if [ $? -ne 0 ]; then
++		ret=1
++	fi
++done
++
++ip netns exec nsclient1 ping6 -c 1 -s 1300 dead:2::2 > /dev/null
++if [ $? -eq 0 ]; then
++	echo "ERROR: ping6 should have failed with PMTU too big error" 1>&2
++	ret=1
++fi
++
++expect="packets 2 bytes 1856"
++for netns in nsrouter1 nsclient1;do
++	check_counter "$netns" "related" "$expect"
++	if [ $? -ne 0 ]; then
++		ret=1
++	fi
++done
++
++if [ $ret -eq 0 ];then
++	echo "PASS: icmp mtu error had RELATED state"
++else
++	echo "ERROR: icmp error RELATED state test has failed"
++fi
++
++cleanup
++exit $ret
 -- 
 2.20.1
 
