@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 328051EF99
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D79371EF38
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733122AbfEOLdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
+        id S1732394AbfEOLbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732640AbfEOLc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:59 -0400
+        id S1732894AbfEOLbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:31:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76A512053B;
-        Wed, 15 May 2019 11:32:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A7C120818;
+        Wed, 15 May 2019 11:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919979;
-        bh=GlqbzxP1iKRD9SbG11QnA4E7zsVZc8ZExrGnkid4cR4=;
+        s=default; t=1557919884;
+        bh=vUQzSnELn00Y8vO8upYf8r+N3HxY9LCoXUePa8jzX6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WR2Y4xkH+ZV0mkfkf03s023yZsw8YEE/o7jqf0OciVkY2kjvbX2pTGzb023RYLlJD
-         mdzWt0KNNRIv6INyYfETmlF1coG0XH9atA2+jsQEdZDbiTmHRhA5bFnWTptEXrvXvU
-         R0DQggcznWBCr4ENuCmAuFyDUU1aJWAQlqxs0l/c=
+        b=h/gAaghPym6cTm621NQr/0YwQPgoQUwZHJIWMJzOXztGS/ZWTi4vOViAiuKCiyKcW
+         7/4LeDGib8pn9YWdyZZArT/fEcsAQb+HeAmfA0ekFDvE0HqiWB+XGzw3lVWm9TUJsY
+         QJ1ft7KFeNZ+ftTL1r2TpFAgaetUH1FDGunUZmnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 28/46] vrf: sit mtu should not be updated when vrf netdev is the link
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
+        Akshay Adiga <akshay.adiga@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.0 131/137] powerpc/powernv/idle: Restore IAMR after idle
 Date:   Wed, 15 May 2019 12:56:52 +0200
-Message-Id: <20190515090625.731967350@linuxfoundation.org>
+Message-Id: <20190515090703.387592033@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Russell Currey <ruscur@russell.cc>
 
-[ Upstream commit ff6ab32bd4e073976e4d8797b4d514a172cfe6cb ]
+commit a3f3072db6cad40895c585dce65e36aab997f042 upstream.
 
-VRF netdev mtu isn't typically set and have an mtu of 65536. When the
-link of a tunnel is set, the tunnel mtu is changed from 1480 to the link
-mtu minus tunnel header. In the case of VRF netdev is the link, then the
-tunnel mtu becomes 65516. So, fix it by not setting the tunnel mtu in
-this case.
+Without restoring the IAMR after idle, execution prevention on POWER9
+with Radix MMU is overwritten and the kernel can freely execute
+userspace without faulting.
 
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is necessary when returning from any stop state that modifies
+user state, as well as hypervisor state.
+
+To test how this fails without this patch, load the lkdtm driver and
+do the following:
+
+  $ echo EXEC_USERSPACE > /sys/kernel/debug/provoke-crash/DIRECT
+
+which won't fault, then boot the kernel with powersave=off, where it
+will fault. Applying this patch will fix this.
+
+Fixes: 3b10d0095a1e ("powerpc/mm/radix: Prevent kernel execution of user space")
+Cc: stable@vger.kernel.org # v4.10+
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Reviewed-by: Akshay Adiga <akshay.adiga@linux.vnet.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/sit.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1084,7 +1084,7 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (!tdev && tunnel->parms.link)
- 		tdev = __dev_get_by_index(tunnel->net, tunnel->parms.link);
+---
+ arch/powerpc/kernel/idle_book3s.S |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+--- a/arch/powerpc/kernel/idle_book3s.S
++++ b/arch/powerpc/kernel/idle_book3s.S
+@@ -170,6 +170,9 @@ core_idle_lock_held:
+ 	bne-	core_idle_lock_held
+ 	blr
  
--	if (tdev) {
-+	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
- 
- 		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
++/* Reuse an unused pt_regs slot for IAMR */
++#define PNV_POWERSAVE_IAMR	_DAR
++
+ /*
+  * Pass requested state in r3:
+  *	r3 - PNV_THREAD_NAP/SLEEP/WINKLE in POWER8
+@@ -200,6 +203,12 @@ pnv_powersave_common:
+ 	/* Continue saving state */
+ 	SAVE_GPR(2, r1)
+ 	SAVE_NVGPRS(r1)
++
++BEGIN_FTR_SECTION
++	mfspr	r5, SPRN_IAMR
++	std	r5, PNV_POWERSAVE_IAMR(r1)
++END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
++
+ 	mfcr	r5
+ 	std	r5,_CCR(r1)
+ 	std	r1,PACAR1(r13)
+@@ -924,6 +933,17 @@ BEGIN_FTR_SECTION
+ END_FTR_SECTION_IFSET(CPU_FTR_HVMODE)
+ 	REST_NVGPRS(r1)
+ 	REST_GPR(2, r1)
++
++BEGIN_FTR_SECTION
++	/* IAMR was saved in pnv_powersave_common() */
++	ld	r5, PNV_POWERSAVE_IAMR(r1)
++	mtspr	SPRN_IAMR, r5
++	/*
++	 * We don't need an isync here because the upcoming mtmsrd is
++	 * execution synchronizing.
++	 */
++END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
++
+ 	ld	r4,PACAKMSR(r13)
+ 	ld	r5,_LINK(r1)
+ 	ld	r6,_CCR(r1)
 
 
