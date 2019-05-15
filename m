@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4BD1F3E7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C081F3B3
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727781AbfEOLBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:01:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
+        id S1727903AbfEOLCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727777AbfEOLBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:01:49 -0400
+        id S1727897AbfEOLCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:02:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FFEF216FD;
-        Wed, 15 May 2019 11:01:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85A8E2173C;
+        Wed, 15 May 2019 11:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918107;
-        bh=8Bme5CuIVeVhsYQB06m1v7G/HdEA8uFBsr1qPwhGLbc=;
+        s=default; t=1557918137;
+        bh=2/YV439l1scOh3VwnwfIHQRd6ydhco11GaZ9+3sTKM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyDknCVt8BtQtUghfX/s0Qj8cOaPhPSPbhrKRWBOPpKh8zsWCwOaV8rr6LweXad/3
-         EFj1okp8ogc5ACvXAxnFiWq7vBj0EkrAyidFTa8JnxQ/a+q/W/MELB0ffQxBIV43yG
-         ssztrwOmx3qWq+zq+xCJA5sMzqntwoLNPWqnDpNA=
+        b=2mcKYNPQ+8iK3di9i33Jhs4a321rM3VSbx/kP9WnAwWT2wRnGy1dfRxpvMNZ6lpzl
+         QtUSrPPIJuK4x7aD9WmoDVOxFAS0gWZB1IRA7+PWBK3U/Q5FjpZUpXAw4T/WDMvePN
+         u5aArVZtfJJev6cswDa7giPVFPC/J/+BGrfepiBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.4 001/266] kbuild: simplify ld-option implementation
-Date:   Wed, 15 May 2019 12:51:48 +0200
-Message-Id: <20190515090722.742861405@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Zubin Mithra <zsm@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 002/266] KVM: fail KVM_SET_VCPU_EVENTS with invalid exception number
+Date:   Wed, 15 May 2019 12:51:49 +0200
+Message-Id: <20190515090722.774789694@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,92 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+commit 78e546c824fa8f96d323b7edd6f5cad5b74af057 upstream
 
-commit 0294e6f4a0006856e1f36b8cd8fa088d9e499e98 upstream.
+This cannot be returned by KVM_GET_VCPU_EVENTS, so it is okay to return
+EINVAL.  It causes a WARN from exception_type:
 
-Currently, linker options are tested by the coordination of $(CC) and
-$(LD) because $(LD) needs some object to link.
+    WARNING: CPU: 3 PID: 16732 at arch/x86/kvm/x86.c:345 exception_type+0x49/0x50 [kvm]()
+    CPU: 3 PID: 16732 Comm: a.out Tainted: G        W       4.4.6-300.fc23.x86_64 #1
+    Hardware name: LENOVO 2325F51/2325F51, BIOS G2ET32WW (1.12 ) 05/30/2012
+     0000000000000286 000000006308a48b ffff8800bec7fcf8 ffffffff813b542e
+     0000000000000000 ffffffffa0966496 ffff8800bec7fd30 ffffffff810a40f2
+     ffff8800552a8000 0000000000000000 00000000002c267c 0000000000000001
+    Call Trace:
+     [<ffffffff813b542e>] dump_stack+0x63/0x85
+     [<ffffffff810a40f2>] warn_slowpath_common+0x82/0xc0
+     [<ffffffff810a423a>] warn_slowpath_null+0x1a/0x20
+     [<ffffffffa0924809>] exception_type+0x49/0x50 [kvm]
+     [<ffffffffa0934622>] kvm_arch_vcpu_ioctl_run+0x10a2/0x14e0 [kvm]
+     [<ffffffffa091c04d>] kvm_vcpu_ioctl+0x33d/0x620 [kvm]
+     [<ffffffff81241248>] do_vfs_ioctl+0x298/0x480
+     [<ffffffff812414a9>] SyS_ioctl+0x79/0x90
+     [<ffffffff817a04ee>] entry_SYSCALL_64_fastpath+0x12/0x71
+    ---[ end trace b1a0391266848f50 ]---
 
-As commit 86a9df597cdd ("kbuild: fix linker feature test macros when
-cross compiling with Clang") addressed, we need to make sure $(CC)
-and $(LD) agree the underlying architecture of the passed object.
+Testcase (beautified/reduced from syzkaller output):
 
-This could be a bit complex when we combine tools from different groups.
-For example, we can use clang for $(CC), but we still need to rely on
-GCC toolchain for $(LD).
+    #include <unistd.h>
+    #include <sys/syscall.h>
+    #include <string.h>
+    #include <stdint.h>
+    #include <fcntl.h>
+    #include <sys/ioctl.h>
+    #include <linux/kvm.h>
 
-So, I was searching for a way of standalone testing of linker options.
-A trick I found is to use '-v'; this not only prints the version string,
-but also tests if the given option is recognized.
+    long r[31];
 
-If a given option is supported,
+    int main()
+    {
+        memset(r, -1, sizeof(r));
+        r[2] = open("/dev/kvm", O_RDONLY);
+        r[3] = ioctl(r[2], KVM_CREATE_VM, 0);
+        r[7] = ioctl(r[3], KVM_CREATE_VCPU, 0);
 
-  $ aarch64-linux-gnu-ld -v --fix-cortex-a53-843419
-  GNU ld (Linaro_Binutils-2017.11) 2.28.2.20170706
-  $ echo $?
-  0
+        struct kvm_vcpu_events ve = {
+                .exception.injected = 1,
+                .exception.nr = 0xd4
+        };
+        r[27] = ioctl(r[7], KVM_SET_VCPU_EVENTS, &ve);
+        r[30] = ioctl(r[7], KVM_RUN, 0);
+        return 0;
+    }
 
-If unsupported,
-
-  $ aarch64-linux-gnu-ld -v --fix-cortex-a53-843419
-  GNU ld (crosstool-NG linaro-1.13.1-4.7-2013.04-20130415 - Linaro GCC 2013.04) 2.23.1
-  aarch64-linux-gnu-ld: unrecognized option '--fix-cortex-a53-843419'
-  aarch64-linux-gnu-ld: use the --help option for usage information
-  $ echo $?
-  1
-
-Gold works likewise.
-
-  $ aarch64-linux-gnu-ld.gold -v --fix-cortex-a53-843419
-  GNU gold (Linaro_Binutils-2017.11 2.28.2.20170706) 1.14
-  masahiro@pug:~/ref/linux$ echo $?
-  0
-  $ aarch64-linux-gnu-ld.gold -v --fix-cortex-a53-999999
-  GNU gold (Linaro_Binutils-2017.11 2.28.2.20170706) 1.14
-  aarch64-linux-gnu-ld.gold: --fix-cortex-a53-999999: unknown option
-  aarch64-linux-gnu-ld.gold: use the --help option for usage information
-  $ echo $?
-  1
-
-LLD too.
-
-  $ ld.lld -v --gc-sections
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  0
-  $ ld.lld -v --fix-cortex-a53-843419
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  0
-  $ ld.lld -v --fix-cortex-a53-999999
-  ld.lld: error: unknown argument: --fix-cortex-a53-999999
-  LLD 7.0.0 (http://llvm.org/git/lld.git 4a0e4190e74cea19f8a8dc625ccaebdf8b5d1585) (compatible with GNU linkers)
-  $ echo $?
-  1
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-[nc: try-run-cached was added later, just use try-run, which is the
-     current mainline state]
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Kbuild.include |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/kvm/x86.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -156,9 +156,7 @@ cc-ldoption = $(call try-run,\
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2972,6 +2972,10 @@ static int kvm_vcpu_ioctl_x86_set_vcpu_e
+ 			      | KVM_VCPUEVENT_VALID_SMM))
+ 		return -EINVAL;
  
- # ld-option
- # Usage: LDFLAGS += $(call ld-option, -X)
--ld-option = $(call try-run,\
--	$(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -x c /dev/null -c -o "$$TMPO"; \
--	$(LD) $(LDFLAGS) $(1) "$$TMPO" -o "$$TMP",$(1),$(2))
-+ld-option = $(call try-run, $(LD) $(LDFLAGS) $(1) -v,$(1),$(2))
- 
- # ar-option
- # Usage: KBUILD_ARFLAGS := $(call ar-option,D)
++	if (events->exception.injected &&
++	    (events->exception.nr > 31 || events->exception.nr == NMI_VECTOR))
++		return -EINVAL;
++
+ 	/* INITs are latched while in SMM */
+ 	if (events->flags & KVM_VCPUEVENT_VALID_SMM &&
+ 	    (events->smi.smm || events->smi.pending) &&
 
 
