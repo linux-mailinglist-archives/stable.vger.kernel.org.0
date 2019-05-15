@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 458141F07B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463F01F3CB
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbfEOL0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:26:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37300 "EHLO mail.kernel.org"
+        id S1727428AbfEOLA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731691AbfEOL03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:29 -0400
+        id S1726896AbfEOLAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:00:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F80A206BF;
-        Wed, 15 May 2019 11:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C51C21743;
+        Wed, 15 May 2019 11:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919588;
-        bh=aMXqOInozZ644Gqg7arfG9d601anbcRvdiTfGF7h3IU=;
+        s=default; t=1557918022;
+        bh=W25fDk90CE/VcUeJCvl3ivWPtFGrBDi6Fs+1ehglUec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQpkkVl2fS+35RsCv8Y+82kCIIq5YmkB+rd4/EkpagWOJGWen58fbnux8PKyx70hb
-         iN+IlfKMeaLhKEuYMbjDYCpY2neoFEvkjsWd0uJVepw+gggDdtZH9J7DsRpu6VRni8
-         pkIHkPJt9Jn88zFdlmXZApiNylo0j5zuO6LrZJgc=
+        b=c6zrp7vxIvQB5s0KkEoz1hf7Oes2kJ5Ma1lOSE6Aaqo6pJ2pYdbTjsvtpFkPbytp2
+         HXoLjjCwwuTUf26jcHbYM95gIU8ssPwlsII5sEkE2dnQMj5TMuXFKlKrDD4gNXR2Aq
+         KRaEjoFV8gCL4K6+oj9dywiEYUIMvxW/w8P/jeBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 019/137] libnvdimm/btt: Fix a kmemdup failure check
+        stable@vger.kernel.org, Mukesh Ojha <mojha@codeaurora.org>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 3.18 23/86] usb: u132-hcd: fix resource leak
 Date:   Wed, 15 May 2019 12:55:00 +0200
-Message-Id: <20190515090654.683353136@linuxfoundation.org>
+Message-Id: <20190515090647.685523125@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 486fa92df4707b5df58d6508728bdb9321a59766 ]
+[ Upstream commit f276e002793cdb820862e8ea8f76769d56bba575 ]
 
-In case kmemdup fails, the fix releases resources and returns to
-avoid the NULL pointer dereference.
+if platform_driver_register fails, cleanup the allocated resource
+gracefully.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/nvdimm/btt_devs.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/usb/host/u132-hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
-index 795ad4ff35caf..e341498876cad 100644
---- a/drivers/nvdimm/btt_devs.c
-+++ b/drivers/nvdimm/btt_devs.c
-@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 
- 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
--	if (nd_btt->id < 0) {
--		kfree(nd_btt);
--		return NULL;
--	}
-+	if (nd_btt->id < 0)
-+		goto out_nd_btt;
- 
- 	nd_btt->lbasize = lbasize;
--	if (uuid)
-+	if (uuid) {
- 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
-+		if (!uuid)
-+			goto out_put_id;
-+	}
- 	nd_btt->uuid = uuid;
- 	dev = &nd_btt->dev;
- 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
-@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 	}
- 	return dev;
+diff --git a/drivers/usb/host/u132-hcd.c b/drivers/usb/host/u132-hcd.c
+index ab5128755672..3d9ce725d1df 100644
+--- a/drivers/usb/host/u132-hcd.c
++++ b/drivers/usb/host/u132-hcd.c
+@@ -3234,6 +3234,9 @@ static int __init u132_hcd_init(void)
+ 	printk(KERN_INFO "driver %s\n", hcd_name);
+ 	workqueue = create_singlethread_workqueue("u132");
+ 	retval = platform_driver_register(&u132_platform_driver);
++	if (retval)
++		destroy_workqueue(workqueue);
 +
-+out_put_id:
-+	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
-+
-+out_nd_btt:
-+	kfree(nd_btt);
-+	return NULL;
+ 	return retval;
  }
  
- struct device *nd_btt_create(struct nd_region *nd_region)
 -- 
-2.20.1
+2.19.1
 
 
 
