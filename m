@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C061F12C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9D2E1F420
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731331AbfEOLVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59732 "EHLO mail.kernel.org"
+        id S1727097AbfEOK7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:59:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731334AbfEOLVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:21:44 -0400
+        id S1726296AbfEOK7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:59:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83C3C20818;
-        Wed, 15 May 2019 11:21:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE4321881;
+        Wed, 15 May 2019 10:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919304;
-        bh=UmMYLfISrXlZixYjykw0EVKAEAFriWONhw33thiL0oU=;
+        s=default; t=1557917954;
+        bh=/aWhPZJ6uNNDo2118noQh/BUYWHFCadlSsiybRkSSSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Q0E/pYulkTKFRYKUEE4WZElqaBJ2yLRRF5O744d8BnO6GrI3pK+cjHQlxqgHdGRy
-         r/xXXKgkULxNiaArVRur+FTLgyQZ1Fs+QAN6CjAHwJeno07B75z2tNzyGaD9Z1yVuU
-         dv4Zcht5RfV25nxj9qMES4Cmi2l7NNsNaGqDX4c8=
+        b=YhZiPUFun8clagBeewfbIMFXHr4id2494LPDUYdSYJcKRSVfE1TaeI84WKXTshmS+
+         VtgPoqytaxHE0ZJ3DzJ1nY68RczPHFMiP9dlNEGUEgvYNtTZ3Jj6PPg0FDkGtsRP4p
+         BkEDcfc3HpDUcO3aA0NuWDUieHjPBRBvPp+37o8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Li RongQing <lirongqing@baidu.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 024/113] libnvdimm/pmem: fix a possible OOB access when read and write pmem
+Subject: [PATCH 3.18 38/86] rtc: sh: Fix invalid alarm warning for non-enabled alarm
 Date:   Wed, 15 May 2019 12:55:15 +0200
-Message-Id: <20190515090655.323788736@linuxfoundation.org>
+Message-Id: <20190515090650.236950353@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,61 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
+[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
 
-If offset is not zero and length is bigger than PAGE_SIZE,
-this will cause to out of boundary access to a page memory
+When no alarm has been programmed on RSK-RZA1, an error message is
+printed during boot:
 
-Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
-Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+
+sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
+field that is not enabled.  __rtc_read_alarm() validates the received
+alarm values, and fills in missing fields when needed.
+While 0xff is handled fine for the year, month, and day fields, and
+corrected as considered being out-of-range, this is not the case for the
+hour, minute, and second fields, where -1 is expected for missing
+fields.
+
+Fix this by returning -1 instead, as this value is handled fine for all
+fields.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-sh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 1d432c5ed2753..cff027fc26761 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index d0d2b047658b..dcd5dcae7b3c 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -455,7 +455,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
+ {
+ 	unsigned int byte;
+-	int value = 0xff;	/* return 0xff for ignored values */
++	int value = -1;			/* return -1 for ignored values */
  
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		memcpy_flushcache(pmem_addr, mem + off, chunk);
- 		kunmap_atomic(mem);
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
- 	}
- }
- 
-@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
- 		kunmap_atomic(mem);
- 		if (rem)
-@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
- 	}
- 	return BLK_STS_OK;
- }
+ 	byte = readb(rtc->regbase + reg_off);
+ 	if (byte & AR_ENB) {
 -- 
 2.20.1
 
