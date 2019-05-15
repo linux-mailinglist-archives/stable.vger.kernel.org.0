@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6BAF1F2A7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F811F444
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbfEOLI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41542 "EHLO mail.kernel.org"
+        id S1726170AbfEOK56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729168AbfEOLI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:08:56 -0400
+        id S1725953AbfEOK56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:57:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A43B5217D8;
-        Wed, 15 May 2019 11:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C664A20843;
+        Wed, 15 May 2019 10:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918535;
-        bh=OM8vl/GWAXs0JLPIY+oNPZWngsNVDcy7xl0o7plMhXY=;
+        s=default; t=1557917877;
+        bh=zdqV+gGM1iZKehcvajFQ2Xm8334zHYYzni/D26PO5eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=No6qYoip9ZwRrsBe97hRx3tFwB5Zveh8m7bUL8GQPAjtDNFHjfGeS6m04SEMo9HAc
-         FbvdwDqYO5nv1aYSo7XThGGx/0ko48F+DVxt8YUw3lmpnabe/1WxT/NBN720aBiQjK
-         +5H3dfSJyssTejKjfHKVvkqaeTO1Y8FXkRK7Pe4w=
+        b=IAVXNqPBMmVpR/WdPgwKgxgw6c5QpB98ufkKNKT5hRUCUyjXoYwWYybdjRxSMqE7K
+         2tBokGy2DiRQ2KkU9FUpqUgqU437Po4e0I7zJUIMk0IsijPG0dCJjNcZTKv11/4wXk
+         4LcmPgSkiuBiIhMOvcFbYMIIy9+RQtxUhZG4qIEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <groeck@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk@armlinux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 170/266] init: initialize jump labels before command line option parsing
-Date:   Wed, 15 May 2019 12:54:37 +0200
-Message-Id: <20190515090728.671901149@linuxfoundation.org>
+        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH 3.18 01/86] MIPS: scall64-o32: Fix indirect syscall number load
+Date:   Wed, 15 May 2019 12:54:38 +0200
+Message-Id: <20190515090642.619754300@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,79 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6041186a32585fc7a1d0f6cfe2f138b05fdc3c82 ]
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-When a module option, or core kernel argument, toggles a static-key it
-requires jump labels to be initialized early.  While x86, PowerPC, and
-ARM64 arrange for jump_label_init() to be called before parse_args(),
-ARM does not.
+commit 79b4a9cf0e2ea8203ce777c8d5cfa86c71eae86e upstream.
 
-  Kernel command line: rdinit=/sbin/init page_alloc.shuffle=1 panic=-1 console=ttyAMA0,115200 page_alloc.shuffle=1
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at ./include/linux/jump_label.h:303
-  page_alloc_shuffle+0x12c/0x1ac
-  static_key_enable(): static key 'page_alloc_shuffle_key+0x0/0x4' used
-  before call to jump_label_init()
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper Not tainted
-  5.1.0-rc4-next-20190410-00003-g3367c36ce744 #1
-  Hardware name: ARM Integrator/CP (Device Tree)
-  [<c0011c68>] (unwind_backtrace) from [<c000ec48>] (show_stack+0x10/0x18)
-  [<c000ec48>] (show_stack) from [<c07e9710>] (dump_stack+0x18/0x24)
-  [<c07e9710>] (dump_stack) from [<c001bb1c>] (__warn+0xe0/0x108)
-  [<c001bb1c>] (__warn) from [<c001bb88>] (warn_slowpath_fmt+0x44/0x6c)
-  [<c001bb88>] (warn_slowpath_fmt) from [<c0b0c4a8>]
-  (page_alloc_shuffle+0x12c/0x1ac)
-  [<c0b0c4a8>] (page_alloc_shuffle) from [<c0b0c550>] (shuffle_store+0x28/0x48)
-  [<c0b0c550>] (shuffle_store) from [<c003e6a0>] (parse_args+0x1f4/0x350)
-  [<c003e6a0>] (parse_args) from [<c0ac3c00>] (start_kernel+0x1c0/0x488)
+Commit 4c21b8fd8f14 (MIPS: seccomp: Handle indirect system calls (o32))
+added indirect syscall detection for O32 processes running on MIPS64,
+but it did not work correctly for big endian kernel/processes. The
+reason is that the syscall number is loaded from ARG1 using the lw
+instruction while this is a 64-bit value, so zero is loaded instead of
+the syscall number.
 
-Move the fallback call to jump_label_init() to occur before
-parse_args().
+Fix the code by using the ld instruction instead. When running a 32-bit
+processes on a 64 bit CPU, the values are properly sign-extended, so it
+ensures the value passed to syscall_trace_enter is correct.
 
-The redundant calls to jump_label_init() in other archs are left intact
-in case they have static key toggling use cases that are even earlier
-than option parsing.
+Recent systemd versions with seccomp enabled whitelist the getpid
+syscall for their internal  processes (e.g. systemd-journald), but call
+it through syscall(SYS_getpid). This fix therefore allows O32 big endian
+systems with a 64-bit kernel to run recent systemd versions.
 
-Link: http://lkml.kernel.org/r/155544804466.1032396.13418949511615676665.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Guenter Roeck <groeck@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Russell King <rmk@armlinux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Cc: <stable@vger.kernel.org> # v3.15+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- init/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/kernel/scall64-o32.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init/main.c b/init/main.c
-index 49926d95442f8..e88c8cdef6a7c 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -538,6 +538,8 @@ asmlinkage __visible void __init start_kernel(void)
- 	page_alloc_init();
+--- a/arch/mips/kernel/scall64-o32.S
++++ b/arch/mips/kernel/scall64-o32.S
+@@ -124,7 +124,7 @@ trace_a_syscall:
+ 	subu	t1, v0,  __NR_O32_Linux
+ 	move	a1, v0
+ 	bnez	t1, 1f /* __NR_syscall at offset 0 */
+-	lw	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
++	ld	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
+ 	.set	pop
  
- 	pr_notice("Kernel command line: %s\n", boot_command_line);
-+	/* parameters may set static keys */
-+	jump_label_init();
- 	parse_early_param();
- 	after_dashes = parse_args("Booting kernel",
- 				  static_command_line, __start___param,
-@@ -547,8 +549,6 @@ asmlinkage __visible void __init start_kernel(void)
- 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
- 			   NULL, set_init_arg);
- 
--	jump_label_init();
--
- 	/*
- 	 * These use large bootmem allocations and must precede
- 	 * kmem_cache_init()
--- 
-2.20.1
-
+ 1:	jal	syscall_trace_enter
 
 
