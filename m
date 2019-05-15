@@ -2,253 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 821931EA41
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D3D1EA44
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbfEOIh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 04:37:29 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44675 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725929AbfEOIh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:37:29 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 27F7824665;
-        Wed, 15 May 2019 04:37:28 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 15 May 2019 04:37:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YtT/Xd
-        PXGOxwMKODO/Ccr0UngXA3zHD2kPSYfClsHww=; b=eTUY88Fkd3uAYZXrKB5Fjx
-        ze3LazLO+wW1yhQJZgbEzg2BDLqL/KksE1SBM7TuQQ3kPK2gBrtuuoA2nFFJgADh
-        DLH/JxWkVjUpVk+buliq6chbw+/Jp9Nlm0523HtMoKdNpDPKTBq7LhQqkbHr765a
-        R1CqBT6UHQ6zgnKIJz0jm+bSURnSBoY3JiBjg9tC7E68BD9zCA2eGAfwVY/a1Z1Y
-        rNKE2Qy3URaUNQogESGhobZXyAmM8/g7HoI/Y5Mk5ocLls0XdWC0hux2dAl8V4Q9
-        M28gVrqP1hayIO/E0WmIsMd+SXQtCssWlolnVOY1GVWzZgC009Sa72aEIETPycMg
-        ==
-X-ME-Sender: <xms:x8_bXPJciD7Had6He8Q6RfhWnPVVwAcDfGHUW7ug1ts_W_k8Uy_Rxg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddtjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:yM_bXMk06lv0SAmZMMx-_Avulfl7BnqwKT5VFTeVLIk6nCQEFAMbzA>
-    <xmx:yM_bXHRdB9S7fqZy4ljY8lc687mxY1Xx6G4ivo7bSZegm1IRa8Kb_g>
-    <xmx:yM_bXOIV9CuUd74HtNaVn-QJtuJjTD2HKKd-SUzd_x_CGNJ4zHXybQ>
-    <xmx:yM_bXB9gW2PkzvLiYnfj79HiLT5zCkgB4H0XXRqaXmuYpBFebFloSg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7AA9780061;
-        Wed, 15 May 2019 04:37:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] f2fs: Fix use of number of devices" failed to apply to 4.19-stable tree
-To:     damien.lemoal@wdc.com, jaegeuk@kernel.org, stable@vger.kernel.org,
-        yuchao0@huawei.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 May 2019 10:37:18 +0200
-Message-ID: <1557909438128159@kroah.com>
+        id S1725929AbfEOIiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 04:38:07 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:39098 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725933AbfEOIiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 04:38:07 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DF0FB59454;
+        Wed, 15 May 2019 08:38:06 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CB90F64422;
+        Wed, 15 May 2019 08:38:06 +0000 (UTC)
+Received: from zmail21.collab.prod.int.phx2.redhat.com (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id A90F818089C9;
+        Wed, 15 May 2019 08:38:06 +0000 (UTC)
+Date:   Wed, 15 May 2019 04:38:06 -0400 (EDT)
+From:   Pankaj Gupta <pagupta@redhat.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     snitzer@redhat.com, stable@vger.kernel.org,
+        Jan Kara <jack@suse.cz>, Ira Weiny <ira.weiny@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org,
+        dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Message-ID: <34965939.28870107.1557909486195.JavaMail.zimbra@redhat.com>
+In-Reply-To: <155789172402.748145.11853718580748830476.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <155789172402.748145.11853718580748830476.stgit@dwillia2-desk3.amr.corp.intel.com>
+Subject: Re: [PATCH] dax: Arrange for dax_supported check to span multiple
+ devices
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.65.16.80, 10.4.195.16]
+Thread-Topic: Arrange for dax_supported check to span multiple devices
+Thread-Index: DFYzSsTeR2lh7L09oG6Kp02APnkUKQ==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 15 May 2019 08:38:07 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+> 
+> Pankaj reports that starting with commit ad428cdb525a "dax: Check the
+> end of the block-device capacity with dax_direct_access()" device-mapper
+> no longer allows dax operation. This results from the stricter checks in
+> __bdev_dax_supported() that validate that the start and end of a
+> block-device map to the same 'pagemap' instance.
+> 
+> Teach the dax-core and device-mapper to validate the 'pagemap' on a
+> per-target basis. This is accomplished by refactoring the
+> bdev_dax_supported() internals into generic_fsdax_supported() which
+> takes a sector range to validate. Consequently generic_fsdax_supported()
+> is suitable to be used in a device-mapper ->iterate_devices() callback.
+> A new ->dax_supported() operation is added to allow composite devices to
+> split and route upper-level bdev_dax_supported() requests.
+> 
+> Fixes: ad428cdb525a ("dax: Check the end of the block-device...")
+> Cc: <stable@vger.kernel.org>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Ira Weiny <ira.weiny@intel.com>
+> Cc: Dave Jiang <dave.jiang@intel.com>
+> Cc: Mike Snitzer <snitzer@redhat.com>
+> Cc: Keith Busch <keith.busch@intel.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Vishal Verma <vishal.l.verma@intel.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Reported-by: Pankaj Gupta <pagupta@redhat.com>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-greg k-h
+Thank you for the patch. Looks good to me. 
+I also tested the patch and it works well.
 
------------------- original commit in Linus's tree ------------------
+Reviewed-and-Tested-by: Pankaj Gupta <pagupta@redhat.com> 
 
-From 0916878da355650d7e77104a7ac0fa1784eca852 Mon Sep 17 00:00:00 2001
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Date: Sat, 16 Mar 2019 09:13:06 +0900
-Subject: [PATCH] f2fs: Fix use of number of devices
+Best regards,
+Pankaj
 
-For a single device mount using a zoned block device, the zone
-information for the device is stored in the sbi->devs single entry
-array and sbi->s_ndevs is set to 1. This differs from a single device
-mount using a regular block device which does not allocate sbi->devs
-and sets sbi->s_ndevs to 0.
-
-However, sbi->s_devs == 0 condition is used throughout the code to
-differentiate a single device mount from a multi-device mount where
-sbi->s_ndevs is always larger than 1. This results in problems with
-single zoned block device volumes as these are treated as multi-device
-mounts but do not have the start_blk and end_blk information set. One
-of the problem observed is skipping of zone discard issuing resulting in
-write commands being issued to full zones or unaligned to a zone write
-pointer.
-
-Fix this problem by simply treating the cases sbi->s_ndevs == 0 (single
-regular block device mount) and sbi->s_ndevs == 1 (single zoned block
-device mount) in the same manner. This is done by introducing the
-helper function f2fs_is_multi_device() and using this helper in place
-of direct tests of sbi->s_ndevs value, improving code readability.
-
-Fixes: 7bb3a371d199 ("f2fs: Fix zoned block device support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 9727944139f2..d87dfa5aa112 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -220,12 +220,14 @@ struct block_device *f2fs_target_device(struct f2fs_sb_info *sbi,
- 	struct block_device *bdev = sbi->sb->s_bdev;
- 	int i;
- 
--	for (i = 0; i < sbi->s_ndevs; i++) {
--		if (FDEV(i).start_blk <= blk_addr &&
--					FDEV(i).end_blk >= blk_addr) {
--			blk_addr -= FDEV(i).start_blk;
--			bdev = FDEV(i).bdev;
--			break;
-+	if (f2fs_is_multi_device(sbi)) {
-+		for (i = 0; i < sbi->s_ndevs; i++) {
-+			if (FDEV(i).start_blk <= blk_addr &&
-+			    FDEV(i).end_blk >= blk_addr) {
-+				blk_addr -= FDEV(i).start_blk;
-+				bdev = FDEV(i).bdev;
-+				break;
-+			}
- 		}
- 	}
- 	if (bio) {
-@@ -239,6 +241,9 @@ int f2fs_target_device_index(struct f2fs_sb_info *sbi, block_t blkaddr)
- {
- 	int i;
- 
-+	if (!f2fs_is_multi_device(sbi))
-+		return 0;
-+
- 	for (i = 0; i < sbi->s_ndevs; i++)
- 		if (FDEV(i).start_blk <= blkaddr && FDEV(i).end_blk >= blkaddr)
- 			return i;
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 87f75ebd2fd6..7bea1bc6589f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1366,6 +1366,17 @@ static inline bool time_to_inject(struct f2fs_sb_info *sbi, int type)
- }
- #endif
- 
-+/*
-+ * Test if the mounted volume is a multi-device volume.
-+ *   - For a single regular disk volume, sbi->s_ndevs is 0.
-+ *   - For a single zoned disk volume, sbi->s_ndevs is 1.
-+ *   - For a multi-device volume, sbi->s_ndevs is always 2 or more.
-+ */
-+static inline bool f2fs_is_multi_device(struct f2fs_sb_info *sbi)
-+{
-+	return sbi->s_ndevs > 1;
-+}
-+
- /* For write statistics. Suppose sector size is 512 bytes,
-  * and the return value is in kbytes. s is of struct f2fs_sb_info.
-  */
-@@ -3615,7 +3626,7 @@ static inline bool f2fs_force_buffered_io(struct inode *inode,
- 
- 	if (f2fs_post_read_required(inode))
- 		return true;
--	if (sbi->s_ndevs)
-+	if (f2fs_is_multi_device(sbi))
- 		return true;
- 	/*
- 	 * for blkzoned device, fallback direct IO to buffered IO, so
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 5742ab8b57dc..30d49467578e 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2573,7 +2573,7 @@ static int f2fs_ioc_flush_device(struct file *filp, unsigned long arg)
- 							sizeof(range)))
- 		return -EFAULT;
- 
--	if (sbi->s_ndevs <= 1 || sbi->s_ndevs - 1 <= range.dev_num ||
-+	if (!f2fs_is_multi_device(sbi) || sbi->s_ndevs - 1 <= range.dev_num ||
- 			__is_large_section(sbi)) {
- 		f2fs_msg(sbi->sb, KERN_WARNING,
- 			"Can't flush %u in %d for segs_per_sec %u != 1\n",
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 195cf0f9d9ef..ab764bd106de 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1346,7 +1346,7 @@ void f2fs_build_gc_manager(struct f2fs_sb_info *sbi)
- 	sbi->gc_pin_file_threshold = DEF_GC_FAILED_PINNED_FILES;
- 
- 	/* give warm/cold data area from slower device */
--	if (sbi->s_ndevs && !__is_large_section(sbi))
-+	if (f2fs_is_multi_device(sbi) && !__is_large_section(sbi))
- 		SIT_I(sbi)->last_victim[ALLOC_NEXT] =
- 				GET_SEGNO(sbi, FDEV(0).end_blk) + 1;
- }
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index aa7fe79b62b2..ddfa2eb7ec58 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -580,7 +580,7 @@ static int submit_flush_wait(struct f2fs_sb_info *sbi, nid_t ino)
- 	int ret = 0;
- 	int i;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return __submit_flush_wait(sbi, sbi->sb->s_bdev);
- 
- 	for (i = 0; i < sbi->s_ndevs; i++) {
-@@ -648,7 +648,8 @@ int f2fs_issue_flush(struct f2fs_sb_info *sbi, nid_t ino)
- 		return ret;
- 	}
- 
--	if (atomic_inc_return(&fcc->queued_flush) == 1 || sbi->s_ndevs > 1) {
-+	if (atomic_inc_return(&fcc->queued_flush) == 1 ||
-+	    f2fs_is_multi_device(sbi)) {
- 		ret = submit_flush_wait(sbi, ino);
- 		atomic_dec(&fcc->queued_flush);
- 
-@@ -754,7 +755,7 @@ int f2fs_flush_device_cache(struct f2fs_sb_info *sbi)
- {
- 	int ret = 0, i;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return 0;
- 
- 	for (i = 1; i < sbi->s_ndevs; i++) {
-@@ -1369,7 +1370,7 @@ static int __queue_discard_cmd(struct f2fs_sb_info *sbi,
- 
- 	trace_f2fs_queue_discard(bdev, blkstart, blklen);
- 
--	if (sbi->s_ndevs) {
-+	if (f2fs_is_multi_device(sbi)) {
- 		int devi = f2fs_target_device_index(sbi, blkstart);
- 
- 		blkstart -= FDEV(devi).start_blk;
-@@ -1732,7 +1733,7 @@ static int __f2fs_issue_discard_zone(struct f2fs_sb_info *sbi,
- 	block_t lblkstart = blkstart;
- 	int devi = 0;
- 
--	if (sbi->s_ndevs) {
-+	if (f2fs_is_multi_device(sbi)) {
- 		devi = f2fs_target_device_index(sbi, blkstart);
- 		blkstart -= FDEV(devi).start_blk;
- 	}
-@@ -3089,7 +3090,7 @@ static void update_device_state(struct f2fs_io_info *fio)
- 	struct f2fs_sb_info *sbi = fio->sbi;
- 	unsigned int devidx;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return;
- 
- 	devidx = f2fs_target_device_index(sbi, fio->new_blkaddr);
 
