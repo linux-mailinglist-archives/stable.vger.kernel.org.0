@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA971ED20
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 948031ED31
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727311AbfEOLFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
+        id S1728724AbfEOLGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728111AbfEOLFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:05:43 -0400
+        id S1728747AbfEOLGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:06:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37F57216FD;
-        Wed, 15 May 2019 11:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39EF721773;
+        Wed, 15 May 2019 11:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918342;
-        bh=98T42Obg+ObNGusBSKV0hHVybMy2mq4DF1Xi7sRkvso=;
+        s=default; t=1557918378;
+        bh=cZvZJ5rBO4jVNkFmdyOxxRgZvGaiMgdhCQFYrQvBLSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGmnv4DGajZ/cksTPfKmULo/zuKe3QoID0Inm8Hsy/F/VgSS0ADWQhwGxXlvB7r+u
-         n2hu7UnadDkALTLkG4hRqd/Fh9O76KDJJIssVeTNgLaoPWR9jgb60Tfw+AXZyzCwuo
-         XH+L0E8cDq8E6tGwyhCfgv4HKGNPMPW0+sfF6nNQ=
+        b=iHcYq5a0XtC93zrafiAOBKrMs+EDR63VDylfk4mlE6eAKSZ1cUdBlwTpSqWVS3YJQ
+         iiEt1nqiJxSCY1SXhn+DM8YryVSJYhvu5dnUYUTG617aaMMgcoSCe7Q98G3ECTDT4N
+         h30VTPR2BMIv+BTQyiXZIMUEkVKNNHbHPPPz8Xvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 070/266] netfilter: ebtables: CONFIG_COMPAT: drop a bogus WARN_ON
-Date:   Wed, 15 May 2019 12:52:57 +0200
-Message-Id: <20190515090724.805162997@linuxfoundation.org>
+        syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 071/266] tipc: check bearer name with right length in tipc_nl_compat_bearer_enable
+Date:   Wed, 15 May 2019 12:52:58 +0200
+Message-Id: <20190515090724.838736823@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,34 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 7caa56f006e9d712b44f27b32520c66420d5cbc6 upstream.
+commit 6f07e5f06c8712acc423485f657799fc8e11e56c upstream.
 
-It means userspace gave us a ruleset where there is some other
-data after the ebtables target but before the beginning of the next rule.
+Syzbot reported the following crash:
 
-Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
-Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:961
+  memchr+0xce/0x110 lib/string.c:961
+  string_is_valid net/tipc/netlink_compat.c:176 [inline]
+  tipc_nl_compat_bearer_enable+0x2c4/0x910 net/tipc/netlink_compat.c:401
+  __tipc_nl_compat_doit net/tipc/netlink_compat.c:321 [inline]
+  tipc_nl_compat_doit+0x3aa/0xaf0 net/tipc/netlink_compat.c:354
+  tipc_nl_compat_handle net/tipc/netlink_compat.c:1162 [inline]
+  tipc_nl_compat_recv+0x1ae7/0x2750 net/tipc/netlink_compat.c:1265
+  genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+  genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+  netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+  genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+  netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+  netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+  netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+Uninit was created at:
+  __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+  alloc_skb include/linux/skbuff.h:1012 [inline]
+  netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+  netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+  sock_sendmsg_nosec net/socket.c:622 [inline]
+  sock_sendmsg net/socket.c:632 [inline]
+
+It was triggered when the bearer name size < TIPC_MAX_BEARER_NAME,
+it would check with a wrong len/TLV_GET_DATA_LEN(msg->req), which
+also includes priority and disc_domain length.
+
+This patch is to fix it by checking it with a right length:
+'TLV_GET_DATA_LEN(msg->req) - offsetof(struct tipc_bearer_config, name)'.
+
+Reported-by: syzbot+8b707430713eb46e1e45@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/netfilter/ebtables.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tipc/netlink_compat.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -2046,7 +2046,8 @@ static int ebt_size_mwt(struct compat_eb
- 		if (match_kern)
- 			match_kern->match_size = ret;
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -388,7 +388,12 @@ static int tipc_nl_compat_bearer_enable(
+ 	if (!bearer)
+ 		return -EMSGSIZE;
  
--		if (WARN_ON(type == EBT_COMPAT_TARGET && size_left))
-+		/* rule should have no remaining data after target */
-+		if (type == EBT_COMPAT_TARGET && size_left)
- 			return -EINVAL;
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	len -= offsetof(struct tipc_bearer_config, name);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(b->name, len))
+ 		return -EINVAL;
  
- 		match32 = (struct compat_ebt_entry_mwt *) buf;
 
 
