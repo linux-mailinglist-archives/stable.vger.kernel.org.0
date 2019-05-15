@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 302D21F10A
+	by mail.lfdr.de (Postfix) with ESMTP id 9CAB71F10C
 	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731026AbfEOLTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
+        id S1731043AbfEOLT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:19:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728444AbfEOLTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:53 -0400
+        id S1731034AbfEOLT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB8A620862;
-        Wed, 15 May 2019 11:19:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7448620881;
+        Wed, 15 May 2019 11:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919193;
-        bh=Ee8mM+gnRVtmIddSliWwiOhemwiP45Xe3su0PkhNLDk=;
+        s=default; t=1557919195;
+        bh=ElrGX+Yq9aMBxYZVBJ4UYV8jxQRo0ImO0s1prI7VPgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfIySBxT0ZNPXJJI+17ef1ZCap7oDwJvzqNFXFyYt90o8zoPk+Aa17cO13YYv6zAT
-         4Yt091mkjn39kL7/ja+u3VcxE03NUpYoPq15qPJ0GqowaITZMgeNxrVMiEBth1MfvN
-         TIXRwZKmQY7KU8oodeWExUjL3qdPiS3OFtgcRDlU=
+        b=Jk4CALB9FNmvs0VOdPCjNvQV4L1NRNxfnKmoyaUbChG1rrCcb1gAdMzWSejQkr9K/
+         rVizrAsh/9+l+gKAjmIicWPGHu1iDyc5kwFJhAQIYLcQWTn+6rhCj9sxaSfA4XQ1qQ
+         vWVrdmfy1UvQmTSbYqei/lYYgBTue3rKTVqKLTLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, stable@kernel.org,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 057/115] net: dont keep lonely packets forever in the gro hash
-Date:   Wed, 15 May 2019 12:55:37 +0200
-Message-Id: <20190515090703.721732360@linuxfoundation.org>
+Subject: [PATCH 4.14 058/115] tracing/fgraph: Fix set_graph_function from showing interrupts
+Date:   Wed, 15 May 2019 12:55:38 +0200
+Message-Id: <20190515090703.787490309@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
 References: <20190515090659.123121100@linuxfoundation.org>
@@ -47,56 +45,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 605108acfe6233b72e2f803aa1cb59a2af3001ca ]
+[ Upstream commit 5cf99a0f3161bc3ae2391269d134d6bf7e26f00e ]
 
-Eric noted that with UDP GRO and NAPI timeout, we could keep a single
-UDP packet inside the GRO hash forever, if the related NAPI instance
-calls napi_gro_complete() at an higher frequency than the NAPI timeout.
-Willem noted that even TCP packets could be trapped there, till the
-next retransmission.
-This patch tries to address the issue, flushing the old packets -
-those with a NAPI_GRO_CB age before the current jiffy - before scheduling
-the NAPI timeout. The rationale is that such a timeout should be
-well below a jiffy and we are not flushing packets eligible for sane GRO.
+The tracefs file set_graph_function is used to only function graph functions
+that are listed in that file (or all functions if the file is empty). The
+way this is implemented is that the function graph tracer looks at every
+function, and if the current depth is zero and the function matches
+something in the file then it will trace that function. When other functions
+are called, the depth will be greater than zero (because the original
+function will be at depth zero), and all functions will be traced where the
+depth is greater than zero.
 
-v1  -> v2:
- - clarified the commit message and comment
+The issue is that when a function is first entered, and the handler that
+checks this logic is called, the depth is set to zero. If an interrupt comes
+in and a function in the interrupt handler is traced, its depth will be
+greater than zero and it will automatically be traced, even if the original
+function was not. But because the logic only looks at depth it may trace
+interrupts when it should not be.
 
-RFC -> v1:
- - added 'Fixes tags', cleaned-up the wording.
+The recent design change of the function graph tracer to fix other bugs
+caused the depth to be zero while the function graph callback handler is
+being called for a longer time, widening the race of this happening. This
+bug was actually there for a longer time, but because the race window was so
+small it seldom happened. The Fixes tag below is for the commit that widen
+the race window, because that commit belongs to a series that will also help
+fix the original bug.
 
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: 3b47d30396ba ("net: gro: add a per device gro flush timer")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@kernel.org
+Fixes: 39eb456dacb5 ("function_graph: Use new curr_ret_depth to manage depth instead of curr_ret_stack")
+Reported-by: Joe Lawrence <joe.lawrence@redhat.com>
+Tested-by: Joe Lawrence <joe.lawrence@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- net/core/dev.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/trace/trace.h                 | 57 ++++++++++++++++++++++++++--
+ kernel/trace/trace_functions_graph.c |  4 ++
+ kernel/trace/trace_irqsoff.c         |  2 +
+ kernel/trace/trace_sched_wakeup.c    |  2 +
+ 4 files changed, 62 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 93a1b07990b8d..90ec30d5b8514 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5308,11 +5308,14 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
- 		if (work_done)
- 			timeout = n->dev->gro_flush_timeout;
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 851cd16050857..a51e32de7c5f7 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -504,12 +504,44 @@ enum {
+  * can only be modified by current, we can reuse trace_recursion.
+  */
+ 	TRACE_IRQ_BIT,
++
++	/* Set if the function is in the set_graph_function file */
++	TRACE_GRAPH_BIT,
++
++	/*
++	 * In the very unlikely case that an interrupt came in
++	 * at a start of graph tracing, and we want to trace
++	 * the function in that interrupt, the depth can be greater
++	 * than zero, because of the preempted start of a previous
++	 * trace. In an even more unlikely case, depth could be 2
++	 * if a softirq interrupted the start of graph tracing,
++	 * followed by an interrupt preempting a start of graph
++	 * tracing in the softirq, and depth can even be 3
++	 * if an NMI came in at the start of an interrupt function
++	 * that preempted a softirq start of a function that
++	 * preempted normal context!!!! Luckily, it can't be
++	 * greater than 3, so the next two bits are a mask
++	 * of what the depth is when we set TRACE_GRAPH_BIT
++	 */
++
++	TRACE_GRAPH_DEPTH_START_BIT,
++	TRACE_GRAPH_DEPTH_END_BIT,
+ };
  
-+		/* When the NAPI instance uses a timeout and keeps postponing
-+		 * it, we need to bound somehow the time packets are kept in
-+		 * the GRO layer
-+		 */
-+		napi_gro_flush(n, !!timeout);
- 		if (timeout)
- 			hrtimer_start(&n->timer, ns_to_ktime(timeout),
- 				      HRTIMER_MODE_REL_PINNED);
--		else
--			napi_gro_flush(n, false);
+ #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
+ #define trace_recursion_clear(bit)	do { (current)->trace_recursion &= ~(1<<(bit)); } while (0)
+ #define trace_recursion_test(bit)	((current)->trace_recursion & (1<<(bit)))
+ 
++#define trace_recursion_depth() \
++	(((current)->trace_recursion >> TRACE_GRAPH_DEPTH_START_BIT) & 3)
++#define trace_recursion_set_depth(depth) \
++	do {								\
++		current->trace_recursion &=				\
++			~(3 << TRACE_GRAPH_DEPTH_START_BIT);		\
++		current->trace_recursion |=				\
++			((depth) & 3) << TRACE_GRAPH_DEPTH_START_BIT;	\
++	} while (0)
++
+ #define TRACE_CONTEXT_BITS	4
+ 
+ #define TRACE_FTRACE_START	TRACE_FTRACE_BIT
+@@ -839,8 +871,9 @@ extern void __trace_graph_return(struct trace_array *tr,
+ extern struct ftrace_hash *ftrace_graph_hash;
+ extern struct ftrace_hash *ftrace_graph_notrace_hash;
+ 
+-static inline int ftrace_graph_addr(unsigned long addr)
++static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+ {
++	unsigned long addr = trace->func;
+ 	int ret = 0;
+ 
+ 	preempt_disable_notrace();
+@@ -851,6 +884,14 @@ static inline int ftrace_graph_addr(unsigned long addr)
  	}
- 	if (unlikely(!list_empty(&n->poll_list))) {
- 		/* If n->poll_list is not empty, we need to mask irqs */
+ 
+ 	if (ftrace_lookup_ip(ftrace_graph_hash, addr)) {
++
++		/*
++		 * This needs to be cleared on the return functions
++		 * when the depth is zero.
++		 */
++		trace_recursion_set(TRACE_GRAPH_BIT);
++		trace_recursion_set_depth(trace->depth);
++
+ 		/*
+ 		 * If no irqs are to be traced, but a set_graph_function
+ 		 * is set, and called by an interrupt handler, we still
+@@ -868,6 +909,13 @@ static inline int ftrace_graph_addr(unsigned long addr)
+ 	return ret;
+ }
+ 
++static inline void ftrace_graph_addr_finish(struct ftrace_graph_ret *trace)
++{
++	if (trace_recursion_test(TRACE_GRAPH_BIT) &&
++	    trace->depth == trace_recursion_depth())
++		trace_recursion_clear(TRACE_GRAPH_BIT);
++}
++
+ static inline int ftrace_graph_notrace_addr(unsigned long addr)
+ {
+ 	int ret = 0;
+@@ -881,7 +929,7 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
+ 	return ret;
+ }
+ #else
+-static inline int ftrace_graph_addr(unsigned long addr)
++static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+ {
+ 	return 1;
+ }
+@@ -890,6 +938,8 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
+ {
+ 	return 0;
+ }
++static inline void ftrace_graph_addr_finish(struct ftrace_graph_ret *trace)
++{ }
+ #endif /* CONFIG_DYNAMIC_FTRACE */
+ 
+ extern unsigned int fgraph_max_depth;
+@@ -897,7 +947,8 @@ extern unsigned int fgraph_max_depth;
+ static inline bool ftrace_graph_ignore_func(struct ftrace_graph_ent *trace)
+ {
+ 	/* trace it when it is-nested-in or is a function enabled. */
+-	return !(trace->depth || ftrace_graph_addr(trace->func)) ||
++	return !(trace_recursion_test(TRACE_GRAPH_BIT) ||
++		 ftrace_graph_addr(trace)) ||
+ 		(trace->depth < 0) ||
+ 		(fgraph_max_depth && trace->depth >= fgraph_max_depth);
+ }
+diff --git a/kernel/trace/trace_functions_graph.c b/kernel/trace/trace_functions_graph.c
+index 169b3c44ee97f..72d0d477f5c16 100644
+--- a/kernel/trace/trace_functions_graph.c
++++ b/kernel/trace/trace_functions_graph.c
+@@ -482,6 +482,8 @@ void trace_graph_return(struct ftrace_graph_ret *trace)
+ 	int cpu;
+ 	int pc;
+ 
++	ftrace_graph_addr_finish(trace);
++
+ 	local_irq_save(flags);
+ 	cpu = raw_smp_processor_id();
+ 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+@@ -505,6 +507,8 @@ void set_graph_array(struct trace_array *tr)
+ 
+ static void trace_graph_thresh_return(struct ftrace_graph_ret *trace)
+ {
++	ftrace_graph_addr_finish(trace);
++
+ 	if (tracing_thresh &&
+ 	    (trace->rettime - trace->calltime < tracing_thresh))
+ 		return;
+diff --git a/kernel/trace/trace_irqsoff.c b/kernel/trace/trace_irqsoff.c
+index 7758bc0617cb1..2d9e12380dc3b 100644
+--- a/kernel/trace/trace_irqsoff.c
++++ b/kernel/trace/trace_irqsoff.c
+@@ -204,6 +204,8 @@ static void irqsoff_graph_return(struct ftrace_graph_ret *trace)
+ 	unsigned long flags;
+ 	int pc;
+ 
++	ftrace_graph_addr_finish(trace);
++
+ 	if (!func_prolog_dec(tr, &data, &flags))
+ 		return;
+ 
+diff --git a/kernel/trace/trace_sched_wakeup.c b/kernel/trace/trace_sched_wakeup.c
+index 7d461dcd48318..0fa9dadf3f4f2 100644
+--- a/kernel/trace/trace_sched_wakeup.c
++++ b/kernel/trace/trace_sched_wakeup.c
+@@ -270,6 +270,8 @@ static void wakeup_graph_return(struct ftrace_graph_ret *trace)
+ 	unsigned long flags;
+ 	int pc;
+ 
++	ftrace_graph_addr_finish(trace);
++
+ 	if (!func_prolog_preempt_disable(tr, &data, &pc))
+ 		return;
+ 
 -- 
 2.20.1
 
