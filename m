@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8AE1EEF8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019F41F101
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732124AbfEOL2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
+        id S1730327AbfEOLTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726473AbfEOL2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:07 -0400
+        id S1730572AbfEOLTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3F572084A;
-        Wed, 15 May 2019 11:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28EB0206BF;
+        Wed, 15 May 2019 11:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919686;
-        bh=7ukt3jvRBNYDflfRTIJXNHeIRiJ3xrKkSULaQME/Hjg=;
+        s=default; t=1557919169;
+        bh=rM3Wb2qCqHGGq8V5wW4paFWyDqiCvYc1efac+ZgWVqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3dXf26lNZjbirsgppepz/h+cNe3xPYrHnA3xSG2fBUkz1v88guo7tr+1S8dlIyeD
-         l2PWNnYI/TO2d0en8lK+fgLfspU7kGANrIzldLD9FPnPJ2ho8GAzhc8x7AQCMK7tXs
-         xegnftulp8QjrKLrvompzpoCBLuO+aVgfhsQK3lg=
+        b=tMnfXsQFjGdoir38Ku4KLQhGQ1tqzLljIUC+AOhAe7FeTlShUvMXuq66qY0NJZnTQ
+         0U+HFpt4C3AcFL0gyKC4/CTjw94DPHzn6D5ExFMQdid70BLxNSyPzZKxrH1ee4cCH0
+         R/ehY+dNmhLqHNAK7ViCTK/MXsvHYFQZQJJx0n2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Camuso <tcamuso@redhat.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 055/137] ipmi: ipmi_si_hardcode.c: init si_type array to fix a crash
+        stable@vger.kernel.org, Hugues Fruchet <hugues.fruchet@st.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 056/115] media: ov5640: fix auto controls values when switching to manual mode
 Date:   Wed, 15 May 2019 12:55:36 +0200
-Message-Id: <20190515090657.484044664@linuxfoundation.org>
+Message-Id: <20190515090703.664617652@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a885bcfd152f97b25005298ab2d6b741aed9b49c ]
+[ Upstream commit a8f438c684eaa4cbe6c98828eb996d5ec53e24fb ]
 
-The intended behavior of function ipmi_hardcode_init_one() is to default
-to kcs interface when no type argument is presented when initializing
-ipmi with hard coded addresses.
+When switching from auto to manual mode, V4L2 core is calling
+g_volatile_ctrl() in manual mode in order to get the manual initial value.
+Remove the manual mode check/return to not break this behaviour.
 
-However, the array of char pointers allocated on the stack by function
-ipmi_hardcode_init() was not inited to zeroes, so it contained stack
-debris.
-
-Consequently, passing the cruft stored in this array to function
-ipmi_hardcode_init_one() caused a crash when it was unable to detect
-that the char * being passed was nonsense and tried to access the
-address specified by the bogus pointer.
-
-The fix is simply to initialize the si_type array to zeroes, so if
-there were no type argument given to at the command line, function
-ipmi_hardcode_init_one() could properly default to the kcs interface.
-
-Signed-off-by: Tony Camuso <tcamuso@redhat.com>
-Message-Id: <1554837603-40299-1-git-send-email-tcamuso@redhat.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hugues Fruchet <hugues.fruchet@st.com>
+Tested-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/char/ipmi/ipmi_si_hardcode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/i2c/ov5640.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_si_hardcode.c b/drivers/char/ipmi/ipmi_si_hardcode.c
-index 1e5783961b0dc..ab7180c46d8dd 100644
---- a/drivers/char/ipmi/ipmi_si_hardcode.c
-+++ b/drivers/char/ipmi/ipmi_si_hardcode.c
-@@ -201,6 +201,8 @@ void __init ipmi_hardcode_init(void)
- 	char *str;
- 	char *si_type[SI_MAX_PARMS];
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 0366c8dc6ecf7..acf5c8a55bbd2 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -1900,16 +1900,12 @@ static int ov5640_g_volatile_ctrl(struct v4l2_ctrl *ctrl)
  
-+	memset(si_type, 0, sizeof(si_type));
-+
- 	/* Parse out the si_type string into its components. */
- 	str = si_type_str;
- 	if (*str != '\0') {
+ 	switch (ctrl->id) {
+ 	case V4L2_CID_AUTOGAIN:
+-		if (!ctrl->val)
+-			return 0;
+ 		val = ov5640_get_gain(sensor);
+ 		if (val < 0)
+ 			return val;
+ 		sensor->ctrls.gain->val = val;
+ 		break;
+ 	case V4L2_CID_EXPOSURE_AUTO:
+-		if (ctrl->val == V4L2_EXPOSURE_MANUAL)
+-			return 0;
+ 		val = ov5640_get_exposure(sensor);
+ 		if (val < 0)
+ 			return val;
 -- 
 2.20.1
 
