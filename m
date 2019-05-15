@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF1A1F3D8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9020F1EDC9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727586AbfEOLA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57908 "EHLO mail.kernel.org"
+        id S1729985AbfEOLNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:13:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727580AbfEOLA7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:00:59 -0400
+        id S1729977AbfEOLNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:13:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D82E72084F;
-        Wed, 15 May 2019 11:00:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E5EF20644;
+        Wed, 15 May 2019 11:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918058;
-        bh=SZ0h49qTYTAVRiMKbU4JLmNPY26ZDaX+92rxPpki5Dg=;
+        s=default; t=1557918811;
+        bh=EPd20mHdzbvtQrcoHfWRAyuF3QmcVTLdRG1MIV51Cec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PksrykwUKAzMETOgkOJsd7PNqg+zzayL+zl5npLJLH+86+p8D8yzg2tLJ6Z29GX6W
-         hCS2ZMiPHIvGZxlCUtFmCNeZ3BlLSGJws/YtTA60nDoYgeJ96mKrCcAZB8nsYrwtx3
-         9pCRvLQL60GxHs+rD2vHvR+rvNIxl8V8B6GFTqQg=
+        b=CpxATUoSCM7dA1cZvJLuJWbqMI3/sXeI0ADARMg1Td3BExhvj+cN/+wqL3nns+zdu
+         03r3PjrQlccPppKCQ0YMguSp7zJM1pddB0tcF2/DdOJiQIer0aqUkUNwhBidm3FOYV
+         MD1+PzhjjUXOQQO1RTWlt2zIDz6WjAZ3IbWwdAhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Vasquez <andrewv@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 3.18 59/86] scsi: qla2xxx: Fix incorrect region-size setting in optrom SYSFS routines
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Zubin Mithra <zsm@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 01/51] netfilter: compat: initialize all fields in xt_init
 Date:   Wed, 15 May 2019 12:55:36 +0200
-Message-Id: <20190515090654.120100646@linuxfoundation.org>
+Message-Id: <20190515090618.008520070@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,45 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Vasquez <andrewv@marvell.com>
+commit 8d29d16d21342a0c86405d46de0c4ac5daf1760f upstream
 
-commit 5cbdae10bf11f96e30b4d14de7b08c8b490e903c upstream.
+If a non zero value happens to be in xt[NFPROTO_BRIDGE].cur at init
+time, the following panic can be caused by running
 
-Commit e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs
-code") incorrectly set 'optrom_region_size' to 'start+size', which can
-overflow option-rom boundaries when 'start' is non-zero.  Continue setting
-optrom_region_size to the proper adjusted value of 'size'.
+% ebtables -t broute -F BROUTING
 
-Fixes: e6f77540c067 ("scsi: qla2xxx: Fix an integer overflow in sysfs code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andrew Vasquez <andrewv@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+from a 32-bit user level on a 64-bit kernel. This patch replaces
+kmalloc_array with kcalloc when allocating xt.
 
+[  474.680846] BUG: unable to handle kernel paging request at 0000000009600920
+[  474.687869] PGD 2037006067 P4D 2037006067 PUD 2038938067 PMD 0
+[  474.693838] Oops: 0000 [#1] SMP
+[  474.697055] CPU: 9 PID: 4662 Comm: ebtables Kdump: loaded Not tainted 4.19.17-11302235.AroraKernelnext.fc18.x86_64 #1
+[  474.707721] Hardware name: Supermicro X9DRT/X9DRT, BIOS 3.0 06/28/2013
+[  474.714313] RIP: 0010:xt_compat_calc_jump+0x2f/0x63 [x_tables]
+[  474.720201] Code: 40 0f b6 ff 55 31 c0 48 6b ff 70 48 03 3d dc 45 00 00 48 89 e5 8b 4f 6c 4c 8b 47 60 ff c9 39 c8 7f 2f 8d 14 08 d1 fa 48 63 fa <41> 39 34 f8 4c 8d 0c fd 00 00 00 00 73 05 8d 42 01 eb e1 76 05 8d
+[  474.739023] RSP: 0018:ffffc9000943fc58 EFLAGS: 00010207
+[  474.744296] RAX: 0000000000000000 RBX: ffffc90006465000 RCX: 0000000002580249
+[  474.751485] RDX: 00000000012c0124 RSI: fffffffff7be17e9 RDI: 00000000012c0124
+[  474.758670] RBP: ffffc9000943fc58 R08: 0000000000000000 R09: ffffffff8117cf8f
+[  474.765855] R10: ffffc90006477000 R11: 0000000000000000 R12: 0000000000000001
+[  474.773048] R13: 0000000000000000 R14: ffffc9000943fcb8 R15: ffffc9000943fcb8
+[  474.780234] FS:  0000000000000000(0000) GS:ffff88a03f840000(0063) knlGS:00000000f7ac7700
+[  474.788612] CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+[  474.794632] CR2: 0000000009600920 CR3: 0000002037422006 CR4: 00000000000606e0
+[  474.802052] Call Trace:
+[  474.804789]  compat_do_replace+0x1fb/0x2a3 [ebtables]
+[  474.810105]  compat_do_ebt_set_ctl+0x69/0xe6 [ebtables]
+[  474.815605]  ? try_module_get+0x37/0x42
+[  474.819716]  compat_nf_setsockopt+0x4f/0x6d
+[  474.824172]  compat_ip_setsockopt+0x7e/0x8c
+[  474.828641]  compat_raw_setsockopt+0x16/0x3a
+[  474.833220]  compat_sock_common_setsockopt+0x1d/0x24
+[  474.838458]  __compat_sys_setsockopt+0x17e/0x1b1
+[  474.843343]  ? __check_object_size+0x76/0x19a
+[  474.847960]  __ia32_compat_sys_socketcall+0x1cb/0x25b
+[  474.853276]  do_fast_syscall_32+0xaf/0xf6
+[  474.857548]  entry_SYSENTER_compat+0x6b/0x7a
+
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/x_tables.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -431,7 +431,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 751fec729ffb0..e065140d0c93b 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1728,7 +1728,7 @@ static int __init xt_init(void)
+ 		seqcount_init(&per_cpu(xt_recseq, i));
+ 	}
  
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
+-	xt = kmalloc(sizeof(struct xt_af) * NFPROTO_NUMPROTO, GFP_KERNEL);
++	xt = kcalloc(NFPROTO_NUMPROTO, sizeof(struct xt_af), GFP_KERNEL);
+ 	if (!xt)
+ 		return -ENOMEM;
  
- 		ha->optrom_state = QLA_SREADING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
-@@ -504,7 +504,7 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		}
- 
- 		ha->optrom_region_start = start;
--		ha->optrom_region_size = start + size;
-+		ha->optrom_region_size = size;
- 
- 		ha->optrom_state = QLA_SWRITING;
- 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+-- 
+2.20.1
+
 
 
