@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AED4B1EEAC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A251F045
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731776AbfEOLYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:24:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
+        id S1728334AbfEOLme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731286AbfEOLYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:12 -0400
+        id S1732322AbfEOL2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1225220818;
-        Wed, 15 May 2019 11:24:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B250206BF;
+        Wed, 15 May 2019 11:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919451;
-        bh=yLEgRUYyBy3vBCr4yyHkVca5+99CS7Ush3sHyV20CyY=;
+        s=default; t=1557919680;
+        bh=Zzwu0lQza0Dk0N4IkQenYME2SbLJibUQ7DVqa5x/odY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsT61Fny+RoLH+J0KVt249SBC5c2zav7cQXFHOJyU+Wypce5W+/7NUQ8f3G2cGCI4
-         EihzCoCQ9Yf/eSXGSX3VKo7GZgdJEHMcpRzTMuV9EfmsY0pkOcEl5Zbm1+zrAcbrEm
-         KLFIueoB0/MOu0N+MYOqNcv7aYT396PhLvHkPcAk=
+        b=wtL/r0H8hk/fd6/m/O4ut3gOEim4f+h6ZdJHRKc/sN8MMDGKUWPwa0nbDjPXtg3LS
+         Nxvr4XlRGr9yMdFz7xd3Y5hKw1qfoR5hCGLlKzuARQdDeMuSpeappJaDW/6z4GC6a1
+         +Ckw1hDjYXhe0+bowMbjYn9D/O5jwfRq9/XGuCiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Whitehead <tedheadster@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/113] scsi: aic7xxx: fix EISA support
+Subject: [PATCH 5.0 053/137] tools lib traceevent: Fix missing equality check for strcmp
 Date:   Wed, 15 May 2019 12:55:34 +0200
-Message-Id: <20190515090656.890415424@linuxfoundation.org>
+Message-Id: <20190515090657.347481345@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,96 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 144ec97493af34efdb77c5aba146e9c7de8d0a06 ]
+[ Upstream commit f32c2877bcb068a718bb70094cd59ccc29d4d082 ]
 
-Instead of relying on the now removed NULL argument to
-pci_alloc_consistent, switch to the generic DMA API, and store the struct
-device so that we can pass it.
+There was a missing comparison with 0 when checking if type is "s64" or
+"u64". Therefore, the body of the if-statement was entered if "type" was
+"u64" or not "s64", which made the first strcmp() redundant since if
+type is "u64", it's not "s64".
 
-Fixes: 4167b2ad5182 ("PCI: Remove NULL device handling from PCI DMA API")
-Reported-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+If type is "s64", the body of the if-statement is not entered but since
+the remainder of the function consists of if-statements which will not
+be entered if type is "s64", we will just return "val", which is
+correct, albeit at the cost of a few more calls to strcmp(), i.e., it
+will behave just as if the if-statement was entered.
+
+If type is neither "s64" or "u64", the body of the if-statement will be
+entered incorrectly and "val" returned. This means that any type that is
+checked after "s64" and "u64" is handled the same way as "s64" and
+"u64", i.e., the limiting of "val" to fit in for example "s8" is never
+reached.
+
+This was introduced in the kernel tree when the sources were copied from
+trace-cmd in commit f7d82350e597 ("tools/events: Add files to create
+libtraceevent.a"), and in the trace-cmd repo in 1cdbae6035cei
+("Implement typecasting in parser") when the function was introduced,
+i.e., it has always behaved the wrong way.
+
+Detected by cppcheck.
+
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Fixes: f7d82350e597 ("tools/events: Add files to create libtraceevent.a")
+Link: http://lkml.kernel.org/r/20190409091529.2686-1-rikard.falkeborn@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7770_osm.c     |  1 +
- drivers/scsi/aic7xxx/aic7xxx.h         |  1 +
- drivers/scsi/aic7xxx/aic7xxx_osm.c     | 10 ++++------
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |  1 +
- 4 files changed, 7 insertions(+), 6 deletions(-)
+ tools/lib/traceevent/event-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aic7xxx/aic7770_osm.c b/drivers/scsi/aic7xxx/aic7770_osm.c
-index 3d401d02c0195..bdd177e3d7622 100644
---- a/drivers/scsi/aic7xxx/aic7770_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7770_osm.c
-@@ -91,6 +91,7 @@ aic7770_probe(struct device *dev)
- 	ahc = ahc_alloc(&aic7xxx_driver_template, name);
- 	if (ahc == NULL)
- 		return (ENOMEM);
-+	ahc->dev = dev;
- 	error = aic7770_config(ahc, aic7770_ident_table + edev->id.driver_data,
- 			       eisaBase);
- 	if (error != 0) {
-diff --git a/drivers/scsi/aic7xxx/aic7xxx.h b/drivers/scsi/aic7xxx/aic7xxx.h
-index 4ce4e903a759e..7f6e83296dfa4 100644
---- a/drivers/scsi/aic7xxx/aic7xxx.h
-+++ b/drivers/scsi/aic7xxx/aic7xxx.h
-@@ -949,6 +949,7 @@ struct ahc_softc {
- 	 * Platform specific device information.
- 	 */
- 	ahc_dev_softc_t		  dev_softc;
-+	struct device		  *dev;
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 87494c7c619d8..981c6ce2da2c7 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -2233,7 +2233,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
+ 		return val & 0xffffffff;
  
- 	/*
- 	 * Bus specific device information.
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-index c6be3aeb302b5..306d0bf33478c 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -861,8 +861,8 @@ int
- ahc_dmamem_alloc(struct ahc_softc *ahc, bus_dma_tag_t dmat, void** vaddr,
- 		 int flags, bus_dmamap_t *mapp)
- {
--	*vaddr = pci_alloc_consistent(ahc->dev_softc,
--				      dmat->maxsize, mapp);
-+	/* XXX: check if we really need the GFP_ATOMIC and unwind this mess! */
-+	*vaddr = dma_alloc_coherent(ahc->dev, dmat->maxsize, mapp, GFP_ATOMIC);
- 	if (*vaddr == NULL)
- 		return ENOMEM;
- 	return 0;
-@@ -872,8 +872,7 @@ void
- ahc_dmamem_free(struct ahc_softc *ahc, bus_dma_tag_t dmat,
- 		void* vaddr, bus_dmamap_t map)
- {
--	pci_free_consistent(ahc->dev_softc, dmat->maxsize,
--			    vaddr, map);
-+	dma_free_coherent(ahc->dev, dmat->maxsize, vaddr, map);
- }
+ 	if (strcmp(type, "u64") == 0 ||
+-	    strcmp(type, "s64"))
++	    strcmp(type, "s64") == 0)
+ 		return val;
  
- int
-@@ -1124,8 +1123,7 @@ ahc_linux_register_host(struct ahc_softc *ahc, struct scsi_host_template *templa
- 
- 	host->transportt = ahc_linux_transport_template;
- 
--	retval = scsi_add_host(host,
--			(ahc->dev_softc ? &ahc->dev_softc->dev : NULL));
-+	retval = scsi_add_host(host, ahc->dev);
- 	if (retval) {
- 		printk(KERN_WARNING "aic7xxx: scsi_add_host failed\n");
- 		scsi_host_put(host);
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-index 0fc14dac7070c..717d8d1082ce1 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-@@ -250,6 +250,7 @@ ahc_linux_pci_dev_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		}
- 	}
- 	ahc->dev_softc = pci;
-+	ahc->dev = &pci->dev;
- 	error = ahc_pci_config(ahc, entry);
- 	if (error != 0) {
- 		ahc_free(ahc);
+ 	if (strcmp(type, "s8") == 0)
 -- 
 2.20.1
 
