@@ -2,131 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 943451E5BE
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 01:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 257231E604
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 02:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726362AbfENXrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 19:47:04 -0400
-Received: from mail-wr1-f53.google.com ([209.85.221.53]:32841 "EHLO
-        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726260AbfENXrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 19:47:04 -0400
-Received: by mail-wr1-f53.google.com with SMTP id d9so625731wrx.0
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 16:47:02 -0700 (PDT)
+        id S1726148AbfEOAZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 20:25:37 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:40337 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726044AbfEOAZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 20:25:36 -0400
+Received: by mail-ed1-f68.google.com with SMTP id j12so1464261eds.7
+        for <stable@vger.kernel.org>; Tue, 14 May 2019 17:25:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y1yCinQaM2Vmj6Yv8t+O/0jUVbJQbMArWu5UO2gt3QQ=;
-        b=qHWNhcHVUzSPffX1SE1C5OQJ/jn+e1XOfsc35frXDhec2n+cnWEfVevjoUKHrvvRB2
-         oWFlhBdsPIMHBQuLNCgDVkwM34GA9VXv9eAdIW879lZT/ZHg3uypz1sCjLs3nOLICm3M
-         j87i2OVZWo+AqhHGeKfVbatolnrO/FNcwhL/n3wJVXRS29E7CNCMygfTKPAgKzX9tb0c
-         G+9hbStcXTfHFz1CaNPPAnW0TcBs3MlRmUbIiWWV4dpZQribke9RG2bofBTiOUbRP3dF
-         d/fmnLLDDXAz+CARB7zIIUCFogK+Lq6DEhrApwCGClUE3A/7dP/RoRNeaa4eKQNt4J21
-         40Tg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=h2wbbn+50G92UFcNx+QSq8qpoP65Z/vv5qYbllDR5Ck=;
+        b=hyfPiTJWmJAGpYFESdcTFQGUPSNerIfzomB0VLHaskLki1GvQNf72HX91KqN6a3PyO
+         noBbTyEmWtNZf2MBRjL431v2s4zD7LvvNjoTv3+Xy4HNz7L3JaAEFFbi0elMTPOIGxgx
+         F8yCQUBJ197IbEgqb+ktN7UfrErSmh3TPQanyR7HhVAu/dpsaA+vyZRgOTVDqwq8rraG
+         eMu+gmZurufPCmlRzx2K/EOH46POjPOpVf3BsI33pUmEt77GXRb8ORc+Tj9RuAlAzJHD
+         WZTUbCuqcUjOp8bXKjXEAnoZvQn7gZ6ial21dUaFjB1UAUoYfvXPA+ccvrxAgPq4MG1T
+         Yn5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y1yCinQaM2Vmj6Yv8t+O/0jUVbJQbMArWu5UO2gt3QQ=;
-        b=r8h6nx0sUx2j7rSyTXpoznMD2PfhsnDLKcCYuPV2MnkIYcYBIVNPp3NOkQqGKbDiQo
-         LpGvagfhCH8C6F5T4l+ep+TgiARppEpkjNlWb+6nkCXkGFfFiYS+2oJRn3UlJscnTE4T
-         LSSb/d2LqlSEKe4VLzbUTDz5i4rkHq3+P14LDRPnEoAaicXWrQ+0g578nywcJciWepiP
-         hDRUZ3zsUrHF/JEwjuxEepM6hPp6r9rMXTifm9kX9I4sR9zUv+cnqdiO4NaKkXTwYo+5
-         GqYzgRtnTYG9b6iSfHsWlWMwJ4DT6INPQjeRlBzSLpEFFNJhnZw15I/iZOZN6t68pKjB
-         PFNw==
-X-Gm-Message-State: APjAAAVdduK1Cmex90EaSATV2ylLq5NJIJoC5gh7EHIZucaCG6RV4gxX
-        MXq/p5rfTY6f6F56HA11KlpjQTbmCk6KjA==
-X-Google-Smtp-Source: APXvYqzCzRGMK01P5Y00ofejFv/qCk9LQj8L3n5LzC3gyB5wz8gjXRG6f+A5MtW0XgJBjevSltac4A==
-X-Received: by 2002:adf:dcc8:: with SMTP id x8mr3761567wrm.3.1557877621930;
-        Tue, 14 May 2019 16:47:01 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 130sm576372wmd.15.2019.05.14.16.47.01
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 May 2019 16:47:01 -0700 (PDT)
-Message-ID: <5cdb5375.1c69fb81.2cb21.360f@mx.google.com>
-Date:   Tue, 14 May 2019 16:47:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=h2wbbn+50G92UFcNx+QSq8qpoP65Z/vv5qYbllDR5Ck=;
+        b=UJTH2jg7fG8XrWSQ3eMsOkTM9LZw+spppa4MhdG1ROgBNuvSIz8pYXEibYB7xj63AF
+         8dJ+mJRL6qO/tosjXmq9cqnX7LT5MPTOKnGcjGn7X0n9afuhRG67JJDa4N3Iifrrfaai
+         +LSDANmaEfkfn+2vImYK7CMgfyL5PB1QzyO6MvBi48q8zBXIm8oqOK+XcQecUGgvM4BH
+         aKTmd32EnlYkegMvu8LTdYb6SF/yNkJY9IGFF//r0aQh99QMJnjQZaqKgQAeXP/iCtcf
+         ygDHr9zcbmtkYk5vCOqc/M+l1a1GA0mKvYcWPvJS//Kmhx/iB5C16c5S5twobPm9QYkn
+         j3GA==
+X-Gm-Message-State: APjAAAX3QZRX88QSM8G3y126Y7MALEuGR+zud2e0bwtA9ePwZn/hcHMq
+        9xu2NiIzx6MfXyGD4cT7PsA=
+X-Google-Smtp-Source: APXvYqyyGI1b0COx6hEo5DBLBDaIXHgsZJAWOS+gufbUGFm6Q0Fu528oemstoouAYXEhS9OcizlWJg==
+X-Received: by 2002:a50:b6b2:: with SMTP id d47mr40524369ede.169.1557879934915;
+        Tue, 14 May 2019 17:25:34 -0700 (PDT)
+Received: from archlinux-i9 ([2a01:4f9:2b:2b84::2])
+        by smtp.gmail.com with ESMTPSA id y46sm187540edd.29.2019.05.14.17.25.32
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 14 May 2019 17:25:33 -0700 (PDT)
+Date:   Tue, 14 May 2019 17:25:31 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Sasha Levin <sashal@kernel.org>, stable@kernel.org,
+        Alistair Strachan <astrachan@google.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        Carlos O'Donell <carlos@redhat.com>,
+        "H. J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Laura Abbott <labbott@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        kernel-team@android.com, stable <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>
+Subject: Re: [PATCH for 4.4, 4.9 and 4.14] x86/vdso: Pass --eh-frame-hdr to
+ the linker
+Message-ID: <20190515002531.GA12671@archlinux-i9>
+References: <20190514073429.17537-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+ <20190514075004.GD27017@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.119-98-g8d3df192fd69
-Subject: stable-rc/linux-4.14.y boot: 127 boots: 1 failed,
- 119 passed with 5 offline, 2 conflicts (v4.14.119-98-g8d3df192fd69)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190514075004.GD27017@kroah.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 127 boots: 1 failed, 119 passed with 5 offline=
-, 2 conflicts (v4.14.119-98-g8d3df192fd69)
+On Tue, May 14, 2019 at 09:50:04AM +0200, Greg Kroah-Hartman wrote:
+> On Tue, May 14, 2019 at 04:34:29PM +0900, Nobuhiro Iwamatsu wrote:
+> > From: Alistair Strachan <astrachan@google.com>
+> > 
+> > commit cd01544a268ad8ee5b1dfe42c4393f1095f86879 upstream.
+> > 
+> > Commit
+> > 
+> >   379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
+> > 
+> > accidentally broke unwinding from userspace, because ld would strip the
+> > .eh_frame sections when linking.
+> > 
+> > Originally, the compiler would implicitly add --eh-frame-hdr when
+> > invoking the linker, but when this Makefile was converted from invoking
+> > ld via the compiler, to invoking it directly (like vmlinux does),
+> > the flag was missed. (The EH_FRAME section is important for the VDSO
+> > shared libraries, but not for vmlinux.)
+> > 
+> > Fix the problem by explicitly specifying --eh-frame-hdr, which restores
+> > parity with the old method.
+> > 
+> > See relevant bug reports for additional info:
+> > 
+> >   https://bugzilla.kernel.org/show_bug.cgi?id=201741
+> >   https://bugzilla.redhat.com/show_bug.cgi?id=1659295
+> > 
+> > Fixes: 379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
+> > Reported-by: Florian Weimer <fweimer@redhat.com>
+> > Reported-by: Carlos O'Donell <carlos@redhat.com>
+> > Reported-by: "H. J. Lu" <hjl.tools@gmail.com>
+> > Signed-off-by: Alistair Strachan <astrachan@google.com>
+> > Signed-off-by: Borislav Petkov <bp@suse.de>
+> > Tested-by: Laura Abbott <labbott@redhat.com>
+> > Cc: Andy Lutomirski <luto@kernel.org>
+> > Cc: Carlos O'Donell <carlos@redhat.com>
+> > Cc: "H. Peter Anvin" <hpa@zytor.com>
+> > Cc: Ingo Molnar <mingo@redhat.com>
+> > Cc: Joel Fernandes <joel@joelfernandes.org>
+> > Cc: kernel-team@android.com
+> > Cc: Laura Abbott <labbott@redhat.com>
+> > Cc: stable <stable@vger.kernel.org>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: X86 ML <x86@kernel.org>
+> > Link: https://lkml.kernel.org/r/20181214223637.35954-1-astrachan@google.com
+> > Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+> > ---
+> >  arch/x86/entry/vdso/Makefile | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> This is already in the 4.14 stable queue.
+> 
+> Sasha, how did you tools miss it for 4.4 and 4.9?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.119-98-g8d3df192fd69/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.119-98-g8d3df192fd69/
+Not Sasha's fault but mine, I forgot to git grep for the short hash like
+I usually do to ensure I catch all fixes (or I didn't do it properly, I
+forget which) when I added this to all of the trees.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.119-98-g8d3df192fd69
-Git Commit: 8d3df192fd693f418413a618e212fdda602f473f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 23 SoC families, 14 builds out of 201
+I currently see it queued up for 4.9 and 4.14, don't forget 4.4.
 
-Boot Regressions Detected:
+Sorry for the breakage,
+Nathan
 
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: failing since 3 days (last pass: v4.14.117-43-g=
-fd7dbc6d8090 - first fail: v4.14.118)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    omap2plus_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+> 
+> thanks,
+> 
+> greg k-h
