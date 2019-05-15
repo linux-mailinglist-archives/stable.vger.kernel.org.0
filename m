@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9181F04E
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A651F1B9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731810AbfEOL1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38658 "EHLO mail.kernel.org"
+        id S1727323AbfEOLRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732275AbfEOL1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:27:45 -0400
+        id S1730680AbfEOLRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B7C920818;
-        Wed, 15 May 2019 11:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC3BC2084F;
+        Wed, 15 May 2019 11:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919665;
-        bh=/DZk7Tjs2OD9MFeDI6pcdJwNuMYfGUliVRI3kPiKr1k=;
+        s=default; t=1557919056;
+        bh=GPqaO2UIdUX3g9xRzGR2B1sFPsogSBi6kpP2gp5v34c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzrNBzSYuCh2lIpSdp8TXSNQGwIdEeksr/Wc4glMzU6EQGBw8PYJ+olBwG5AjexcI
-         BtkGA1Nndx4QWLGJWHXAgWg0uAfTYrQ8reKHevV7q82WEAYSKlX03xYXrNFcijkrvp
-         Q6ECx4/IfprA9SmAdnHExNXUKbi/Qk0NNI0fS0cI=
+        b=0+InU4IABBHZ1ABZJf0vclLfL0SJvPT5UWiLKjp2FuObmTZG+r9Mk538YGObjLTGJ
+         PMYRFG9+3A+GBSESZKqlv3anPw3P/OtnO2R49mdnIWKOEBjANnNSiQhD1WbxsiWMVL
+         NQ9hMPt+eFl2GeRA9aiV8S+RwLIgtt6rEzAqhiLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 047/137] x86/build/lto: Fix truncated .bss with -fdata-sections
+        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 048/115] media: cec: make cec_get_edid_spa_location() an inline function
 Date:   Wed, 15 May 2019 12:55:28 +0200
-Message-Id: <20190515090656.873641624@linuxfoundation.org>
+Message-Id: <20190515090703.081752191@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,50 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6a03469a1edc94da52b65478f1e00837add869a3 ]
+[ Upstream commit b915bf575d5b7774d0f22d57d6c143e07dcaade2 ]
 
-With CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y, we compile the kernel with
--fdata-sections, which also splits the .bss section.
+This function is needed by both V4L2 and CEC, so move this to
+cec.h as a static inline since there are no obvious shared
+modules between the two subsystems.
 
-The new section, with a new .bss.* name, which pattern gets missed by the
-main x86 linker script which only expects the '.bss' name. This results
-in the discarding of the second part and a too small, truncated .bss
-section and an unhappy, non-working kernel.
+This patch, together with the following ones, fixes a
+dependency bug: if CEC_CORE is disabled, then building adv7604
+(and other HDMI receivers) will fail because an essential
+function is now stubbed out.
 
-Use the common BSS_MAIN macro in the linker script to properly capture
-and merge all the generated BSS sections.
-
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20190415164956.124067-1-samitolvanen@google.com
-[ Extended the changelog. ]
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: <stable@vger.kernel.org>      # for v4.17 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/kernel/vmlinux.lds.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/cec/cec-edid.c | 60 -------------------------------
+ include/media/cec.h          | 70 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+), 60 deletions(-)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index ee3b5c7d662e1..c45214c44e612 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -362,7 +362,7 @@ SECTIONS
- 	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {
- 		__bss_start = .;
- 		*(.bss..page_aligned)
--		*(.bss)
-+		*(BSS_MAIN)
- 		BSS_DECRYPTED
- 		. = ALIGN(PAGE_SIZE);
- 		__bss_stop = .;
+diff --git a/drivers/media/cec/cec-edid.c b/drivers/media/cec/cec-edid.c
+index 38e3fec6152b5..19a31d4c86035 100644
+--- a/drivers/media/cec/cec-edid.c
++++ b/drivers/media/cec/cec-edid.c
+@@ -22,66 +22,6 @@
+ #include <linux/types.h>
+ #include <media/cec.h>
+ 
+-/*
+- * This EDID is expected to be a CEA-861 compliant, which means that there are
+- * at least two blocks and one or more of the extensions blocks are CEA-861
+- * blocks.
+- *
+- * The returned location is guaranteed to be < size - 1.
+- */
+-static unsigned int cec_get_edid_spa_location(const u8 *edid, unsigned int size)
+-{
+-	unsigned int blocks = size / 128;
+-	unsigned int block;
+-	u8 d;
+-
+-	/* Sanity check: at least 2 blocks and a multiple of the block size */
+-	if (blocks < 2 || size % 128)
+-		return 0;
+-
+-	/*
+-	 * If there are fewer extension blocks than the size, then update
+-	 * 'blocks'. It is allowed to have more extension blocks than the size,
+-	 * since some hardware can only read e.g. 256 bytes of the EDID, even
+-	 * though more blocks are present. The first CEA-861 extension block
+-	 * should normally be in block 1 anyway.
+-	 */
+-	if (edid[0x7e] + 1 < blocks)
+-		blocks = edid[0x7e] + 1;
+-
+-	for (block = 1; block < blocks; block++) {
+-		unsigned int offset = block * 128;
+-
+-		/* Skip any non-CEA-861 extension blocks */
+-		if (edid[offset] != 0x02 || edid[offset + 1] != 0x03)
+-			continue;
+-
+-		/* search Vendor Specific Data Block (tag 3) */
+-		d = edid[offset + 2] & 0x7f;
+-		/* Check if there are Data Blocks */
+-		if (d <= 4)
+-			continue;
+-		if (d > 4) {
+-			unsigned int i = offset + 4;
+-			unsigned int end = offset + d;
+-
+-			/* Note: 'end' is always < 'size' */
+-			do {
+-				u8 tag = edid[i] >> 5;
+-				u8 len = edid[i] & 0x1f;
+-
+-				if (tag == 3 && len >= 5 && i + len <= end &&
+-				    edid[i + 1] == 0x03 &&
+-				    edid[i + 2] == 0x0c &&
+-				    edid[i + 3] == 0x00)
+-					return i + 4;
+-				i += len + 1;
+-			} while (i < end);
+-		}
+-	}
+-	return 0;
+-}
+-
+ u16 cec_get_edid_phys_addr(const u8 *edid, unsigned int size,
+ 			   unsigned int *offset)
+ {
+diff --git a/include/media/cec.h b/include/media/cec.h
+index df6b3bd312849..b7339cc6fd3d6 100644
+--- a/include/media/cec.h
++++ b/include/media/cec.h
+@@ -435,4 +435,74 @@ static inline void cec_phys_addr_invalidate(struct cec_adapter *adap)
+ 	cec_s_phys_addr(adap, CEC_PHYS_ADDR_INVALID, false);
+ }
+ 
++/**
++ * cec_get_edid_spa_location() - find location of the Source Physical Address
++ *
++ * @edid: the EDID
++ * @size: the size of the EDID
++ *
++ * This EDID is expected to be a CEA-861 compliant, which means that there are
++ * at least two blocks and one or more of the extensions blocks are CEA-861
++ * blocks.
++ *
++ * The returned location is guaranteed to be <= size-2.
++ *
++ * This is an inline function since it is used by both CEC and V4L2.
++ * Ideally this would go in a module shared by both, but it is overkill to do
++ * that for just a single function.
++ */
++static inline unsigned int cec_get_edid_spa_location(const u8 *edid,
++						     unsigned int size)
++{
++	unsigned int blocks = size / 128;
++	unsigned int block;
++	u8 d;
++
++	/* Sanity check: at least 2 blocks and a multiple of the block size */
++	if (blocks < 2 || size % 128)
++		return 0;
++
++	/*
++	 * If there are fewer extension blocks than the size, then update
++	 * 'blocks'. It is allowed to have more extension blocks than the size,
++	 * since some hardware can only read e.g. 256 bytes of the EDID, even
++	 * though more blocks are present. The first CEA-861 extension block
++	 * should normally be in block 1 anyway.
++	 */
++	if (edid[0x7e] + 1 < blocks)
++		blocks = edid[0x7e] + 1;
++
++	for (block = 1; block < blocks; block++) {
++		unsigned int offset = block * 128;
++
++		/* Skip any non-CEA-861 extension blocks */
++		if (edid[offset] != 0x02 || edid[offset + 1] != 0x03)
++			continue;
++
++		/* search Vendor Specific Data Block (tag 3) */
++		d = edid[offset + 2] & 0x7f;
++		/* Check if there are Data Blocks */
++		if (d <= 4)
++			continue;
++		if (d > 4) {
++			unsigned int i = offset + 4;
++			unsigned int end = offset + d;
++
++			/* Note: 'end' is always < 'size' */
++			do {
++				u8 tag = edid[i] >> 5;
++				u8 len = edid[i] & 0x1f;
++
++				if (tag == 3 && len >= 5 && i + len <= end &&
++				    edid[i + 1] == 0x03 &&
++				    edid[i + 2] == 0x0c &&
++				    edid[i + 3] == 0x00)
++					return i + 4;
++				i += len + 1;
++			} while (i < end);
++		}
++	}
++	return 0;
++}
++
+ #endif /* _MEDIA_CEC_H */
 -- 
 2.20.1
 
