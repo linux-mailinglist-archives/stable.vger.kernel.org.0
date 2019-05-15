@@ -2,132 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6155C1F9B9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 20:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BBC1F9BF
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 20:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727528AbfEOSHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 14:07:49 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:38225 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbfEOSHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 14:07:49 -0400
-Received: by mail-wr1-f68.google.com with SMTP id d18so519799wrs.5
-        for <stable@vger.kernel.org>; Wed, 15 May 2019 11:07:48 -0700 (PDT)
+        id S1726842AbfEOSMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 14:12:09 -0400
+Received: from mail-ua1-f73.google.com ([209.85.222.73]:40281 "EHLO
+        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726542AbfEOSMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 14:12:09 -0400
+Received: by mail-ua1-f73.google.com with SMTP id y11so111223uao.7
+        for <stable@vger.kernel.org>; Wed, 15 May 2019 11:12:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=8a0Ne4dNSZVwjHUcXcSPoak6AY4jKew3Xjufj621ND0=;
-        b=wXrr8sCcejr0Sn5P42P7EREL6isxTX27F1XE5Ee8AJaQxQNI5CgunlVJb57CoD2rXl
-         IBT7eqq4OtTkutBPtV2HM7UEnraymUDCXGEnfknCLekAj0Wz+0Jv7VpD0azbH4KR2vVj
-         P+F7mdwtoYqJjQVJg6Dqgz+q4AvQQdGdtIJQH2XSp6odv2SJ/6q5vRLKMjQ+qfdbZbAC
-         jT+QK91WiZo0a1dZsZ2GqUrfZrTpg7CkDiXcFuMtC1LQtPs8PjubgRAvh+Y7+yoMq+xo
-         bujFGr/Bk0lcqtFXtg7eTNqaR6HsLhb8CPSGzSkYoD0q9WD7sNsG/3wjS3P19Atgzw+W
-         q+LA==
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=TsrtDCxLgBw9RKBxYE41J6q+FXg1qTdj4Dyi9lHEXsk=;
+        b=dYlMMzmtn5zBZcth8om9HrNEbq8riNFTIgSkmU8LOzggMd5YqOlHgQHgGi0vt7W3eE
+         Xo2wfwSvoyCP+pgTIKmI07gke+DxeODeXJR5u8FuZOlneblT2ynBXj0FVHAv/U0KPUQI
+         utdnHZHLA2AzYCQAxC+x5fRnbhCxqxWEI8AaL/xbLUx53+Dbq2peX0Pn2DVfUbmCY0J1
+         iOOBCrM6Fq4FkQtA1xWJuvpcHb8UQ2Tb/sz/WTuqiRfncpaNhUC62K6+58bXvSSXp3oP
+         obIDjNuer380gyYopqYPqooTDvTnZAVV7FGdohHR5jSF+7j6eZVV9825oXakK+B5rLnY
+         i/ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=8a0Ne4dNSZVwjHUcXcSPoak6AY4jKew3Xjufj621ND0=;
-        b=ohWp6VWneybVZVBp038CaVSsyVV0MX+24b9nXgpC1BID+85V7xTkNC1uT6h+hmAySF
-         2iIiDGMbHcN9oRS/VSLRqeQUHuSrFz9ZFZUsb1qD6H1vNKIs5eUvs9Qn3dTg5ihrVmKZ
-         TZ/RilKFLFjm+o92VDgVeKtrUBDdGkSbqOD2WtHSqd33oZmkfsKeG8fvgDFK/ek7kzQU
-         EK4N5qfNBbjq/1ACeNQItMZNcIloLorIKJQMiXFM1yyzL8u4Xw3MPwa+tlRFI/WQLDEK
-         a8st83ErQmJ0V3GSCtM4Kllm3AoJhTpDE5HPcV0R21UFg3dsSKO2qw5VbrcdyRR+PVgl
-         uG4A==
-X-Gm-Message-State: APjAAAWsTUIGA6C8FDlqqwbILM8ggLgf8nUeoFy2VsFegx4TqCjmbDGP
-        eCCaR87O7fXKKDSZQXsAbDLBqw==
-X-Google-Smtp-Source: APXvYqwd+fZ372FY962ClZLlouA2RJtuhiS2tWYmp0FxdAbIVFhEtHVlJZJTNskXwPFnO8h/ICF98w==
-X-Received: by 2002:adf:b3d4:: with SMTP id x20mr29130196wrd.284.1557943667392;
-        Wed, 15 May 2019 11:07:47 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id d9sm3560590wro.26.2019.05.15.11.07.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 May 2019 11:07:46 -0700 (PDT)
-Message-ID: <5cdc5572.1c69fb81.b2944.5072@mx.google.com>
-Date:   Wed, 15 May 2019 11:07:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.119-116-g7b9ae876e241
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
-Subject: Re: [PATCH 4.14 000/115] 4.14.120-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=TsrtDCxLgBw9RKBxYE41J6q+FXg1qTdj4Dyi9lHEXsk=;
+        b=pY67YwNsjPkUNuEdnFVaF4mZKnmhBKapOx+SeMOtpIAhKZP693jlpRv+5n6rxEmBxs
+         PJHDrCyuqObqipP9iwHRwU/PVFydKadPi+p+oXFjUxZiaCL5IYY1Y5peo6IlMKIbaDl7
+         mSBJaUv2YVRM+biuGsSKB/Bq3tn2r/bO5/3lUyHmcqqHCIAItn3Qnp6fEppvVXEEjWN3
+         n55laTBEk7Dgrximc/rhWm1h7HqtnS0qIC/DPb9SV0xqHKsF7OeKHArgnMQheLJiGPUm
+         xDRlH6Cnbg5tkHi3avug0NGQtrPo2EbhOh8sBwZBBK7PAvnvS8S2ZuaTBAflX0uigSJC
+         JdZg==
+X-Gm-Message-State: APjAAAVhHaHa19jTDT+jBXS3dEXm6KYU+yTadURy7raxyMkEBjUeDdA2
+        E+Orqx/eiGCIJAZbQnE4Xdzz1rAIX5m83v19en0=
+X-Google-Smtp-Source: APXvYqxmOc14hOvDMcIjowy8IIjpvMfGWzNKzXs81+MpLnt343bNQ7S+fSLKYLdqpBa9npEvKE6SP5rwXzP/IYjKR50=
+X-Received: by 2002:a1f:2915:: with SMTP id p21mr19824190vkp.52.1557943928564;
+ Wed, 15 May 2019 11:12:08 -0700 (PDT)
+Date:   Wed, 15 May 2019 11:12:04 -0700
+In-Reply-To: <CAKwvOdk_KmyT4yZOz8iczxeP7mYq-h5LmjzkE5yhsodupRLxEQ@mail.gmail.com>
+Message-Id: <20190515181204.20859-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <CAKwvOdk_KmyT4yZOz8iczxeP7mYq-h5LmjzkE5yhsodupRLxEQ@mail.gmail.com>
+X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
+Subject: [PATCH v2] lkdtm: support llvm-objcopy
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     gregkh@linuxfoundation.org
+Cc:     clang-built-linux@googlegroups.com,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathanchance@gmail.com>,
+        Alan Modra <amodra@gmail.com>,
+        Jordan Rupprect <rupprecht@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 128 boots: 1 failed, 122 passed with 3 offline=
-, 2 conflicts (v4.14.119-116-g7b9ae876e241)
+With CONFIG_LKDTM=y and make OBJCOPY=llvm-objcopy, llvm-objcopy errors:
+llvm-objcopy: error: --set-section-flags=.text conflicts with
+--rename-section=.text=.rodata
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.119-116-g7b9ae876e241/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.119-116-g7b9ae876e241/
+Rather than support setting flags then renaming sections vs renaming
+then setting flags, it's simpler to just change both at the same time
+via --rename-section. Adding the load flag is required for GNU objcopy
+to mark .rodata Type as PROGBITS after the rename.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.119-116-g7b9ae876e241
-Git Commit: 7b9ae876e2410f72fbc14db54f141d516adeabca
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 65 unique boards, 23 SoC families, 14 builds out of 201
+This can be verified with:
+$ readelf -S drivers/misc/lkdtm/rodata_objcopy.o
+...
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+...
+  [ 1] .rodata           PROGBITS         0000000000000000  00000040
+       0000000000000004  0000000000000000   A       0     0     4
+...
 
-Boot Regressions Detected:
+Which shows that .text is now renamed .rodata, the alloc flag A is set,
+the type is PROGBITS, and the section is not flagged as writeable W.
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.14.119-98-g8d3df192f=
-d69)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
+Cc: stable@vger.kernel.org
+Link: https://sourceware.org/bugzilla/show_bug.cgi?id=24554
+Link: https://github.com/ClangBuiltLinux/linux/issues/448
+Reported-by: Nathan Chancellor <nathanchance@gmail.com>
+Suggested-by: Alan Modra <amodra@gmail.com>
+Suggested-by: Jordan Rupprect <rupprecht@google.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
-For more info write to <info@kernelci.org>
+Changes from v1 -> v2:
+* add load flag, as per Kees and Alan.
+* update commit message to mention reason for load flag.
+* add Kees' and Alan's suggested by.
+* carry Kees' Ack.
+* cc stable.
+
+ drivers/misc/lkdtm/Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/misc/lkdtm/Makefile b/drivers/misc/lkdtm/Makefile
+index 951c984de61a..fb10eafe9bde 100644
+--- a/drivers/misc/lkdtm/Makefile
++++ b/drivers/misc/lkdtm/Makefile
+@@ -15,8 +15,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
+ 
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_rodata_objcopy.o	:= \
+-			--set-section-flags .text=alloc,readonly \
+-			--rename-section .text=.rodata
++			--rename-section .text=.rodata,alloc,readonly,load
+ targets += rodata.o rodata_objcopy.o
+ $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
+ 	$(call if_changed,objcopy)
+-- 
+2.21.0.1020.gf2820cf01a-goog
+
