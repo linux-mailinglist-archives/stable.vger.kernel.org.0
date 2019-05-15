@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFD51F26C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E801EE92
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:23:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbfEOLML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:12:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47100 "EHLO mail.kernel.org"
+        id S1731563AbfEOLXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:23:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729716AbfEOLMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:12:10 -0400
+        id S1731326AbfEOLXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:23:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 074952166E;
-        Wed, 15 May 2019 11:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 763F7206BF;
+        Wed, 15 May 2019 11:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918729;
-        bh=B7kKelVcZ26aftuVABM5ZbQ9DN2Zj+hKM8yNq3a3RRA=;
+        s=default; t=1557919390;
+        bh=jkLFPE0Btsk4k/1uPATuEs2Vl549eC/EjkT7x9ITssY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5nMIk4gDhmdBlrz9IRpbnhKrJGELbcbH7lhy3kY4tGJJLYD734oRuOcpv7IsB7xQ
-         JvQ/uUUSHKIR276RD7wJEYo35/l7BswXRRwov1qNtQUnvwBR55gJOQKbyu2JWlfLCx
-         1jLfHJXbYK6tw1e7kZ77Rb+nMVJpS6zLfrGg2THM=
+        b=EuCxPZoMJ2NOlqz2V365ZsttsprpBH4UvWpcS6vVyJO1sR7xW1arMKPiNafwvBA8A
+         c04yMoEE/2/7rFbBtGdArHJ/pMeMkzxPPn0q0A3NC/V5CIHNiom7zqV64uu5nkaLZi
+         nuwAICe6iLEA0WFl5iv7Fux7mnfKIlWKCO1pbjQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 242/266] x86/cpu/bugs: Use __initconst for const init data
+        stable@vger.kernel.org,
+        Tigran Tadevosyan <tigran.tadevosyan@arm.com>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 058/113] ARM: 8856/1: NOMMU: Fix CCR register faulty initialization when MPU is disabled
 Date:   Wed, 15 May 2019 12:55:49 +0200
-Message-Id: <20190515090731.191538406@linuxfoundation.org>
+Message-Id: <20190515090658.008272513@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andi Kleen <ak@linux.intel.com>
+[ Upstream commit c3143967807adb1357c36b68a7563fc0c4e1f615 ]
 
-commit 1de7edbb59c8f1b46071f66c5c97b8a59569eb51 upstream.
+When CONFIG_ARM_MPU is not defined, the base address of v7M SCB register
+is not initialized with correct value. This prevents enabling I/D caches
+when the L1 cache poilcy is applied in kernel.
 
-Some of the recently added const tables use __initdata which causes section
-attribute conflicts.
-
-Use __initconst instead.
-
-Fixes: fa1202ef2243 ("x86/speculation: Add command line control")
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190330004743.29541-9-andi@firstfloor.org
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3c24121039c9da14692eb48f6e39565b28c0f3cf ("ARM: 8756/1: NOMMU: Postpone MPU activation till __after_proc_init")
+Signed-off-by: Tigran Tadevosyan <tigran.tadevosyan@arm.com>
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/kernel/head-nommu.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -315,7 +315,7 @@ static const struct {
- 	const char			*option;
- 	enum spectre_v2_user_cmd	cmd;
- 	bool				secure;
--} v2_user_options[] __initdata = {
-+} v2_user_options[] __initconst = {
- 	{ "auto",		SPECTRE_V2_USER_CMD_AUTO,		false },
- 	{ "off",		SPECTRE_V2_USER_CMD_NONE,		false },
- 	{ "on",			SPECTRE_V2_USER_CMD_FORCE,		true  },
-@@ -451,7 +451,7 @@ static const struct {
- 	const char *option;
- 	enum spectre_v2_mitigation_cmd cmd;
- 	bool secure;
--} mitigation_options[] __initdata = {
-+} mitigation_options[] __initconst = {
- 	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
- 	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
- 	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
-@@ -723,7 +723,7 @@ static const char * const ssb_strings[]
- static const struct {
- 	const char *option;
- 	enum ssb_mitigation_cmd cmd;
--} ssb_mitigation_options[]  __initdata = {
-+} ssb_mitigation_options[]  __initconst = {
- 	{ "auto",	SPEC_STORE_BYPASS_CMD_AUTO },    /* Platform decides */
- 	{ "on",		SPEC_STORE_BYPASS_CMD_ON },      /* Disable Speculative Store Bypass */
- 	{ "off",	SPEC_STORE_BYPASS_CMD_NONE },    /* Don't touch Speculative Store Bypass */
+diff --git a/arch/arm/kernel/head-nommu.S b/arch/arm/kernel/head-nommu.S
+index ec29de2500764..cab89479d15ef 100644
+--- a/arch/arm/kernel/head-nommu.S
++++ b/arch/arm/kernel/head-nommu.S
+@@ -133,9 +133,9 @@ __secondary_data:
+  */
+ 	.text
+ __after_proc_init:
+-#ifdef CONFIG_ARM_MPU
+ M_CLASS(movw	r12, #:lower16:BASEADDR_V7M_SCB)
+ M_CLASS(movt	r12, #:upper16:BASEADDR_V7M_SCB)
++#ifdef CONFIG_ARM_MPU
+ M_CLASS(ldr	r3, [r12, 0x50])
+ AR_CLASS(mrc	p15, 0, r3, c0, c1, 4)          @ Read ID_MMFR0
+ 	and	r3, r3, #(MMFR0_PMSA)           @ PMSA field
+-- 
+2.20.1
+
 
 
