@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0418F1F254
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A3F1EFE8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730071AbfEOMCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48858 "EHLO mail.kernel.org"
+        id S1727412AbfEOLix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:38:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729932AbfEOLNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:11 -0400
+        id S1732777AbfEOLao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 597B82084F;
-        Wed, 15 May 2019 11:13:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFFC920843;
+        Wed, 15 May 2019 11:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918790;
-        bh=KW7rikDSm9f6i7sp99gWNsPanjsMokYBMeYmJ+3CyqQ=;
+        s=default; t=1557919844;
+        bh=cCpzihbvXaaWTGpByLsxynU8DRIq2Yq+Ki/HH3TdJGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgQyfsvItwD+tmbhEMfTKmkai20Q0yo2Ls1DVe59u5sxvBNGss07ED7+7xT3G853R
-         2IMsEtKhLEAC02EKWm+/0Yp9gYbqk8Wjf0lDrSzep9TLe3IaDFHBLtuhrv5H7qMAN5
-         KFgbMqUoI0b4QDW27arM1xMFlrfOiazbM7tYDgNs=
+        b=scnzcXYecBbUggojG1lCmaCA9QgI5it1rSfcirOymveqoRcYyoOsZVYGXB/TB19u/
+         3dLHYIideyKAAbngZ5APWA0jBHnCCmB22lqMBQ5tfi7hv/+xj6P12bsvozRBxW16Tb
+         rKqfBDGLNpaOYLvt+gs/rB0lZfcHI1PX5y4/K66Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Bastian <jbastian@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 252/266] x86/speculation/mds: Fix documentation typo
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Andrei Vagin <avagin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 078/137] netfilter: fix nf_l4proto_log_invalid to log invalid packets
 Date:   Wed, 15 May 2019 12:55:59 +0200
-Message-Id: <20190515090731.539432274@linuxfoundation.org>
+Message-Id: <20190515090659.109923422@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+[ Upstream commit d48668052b2603b6262459625c86108c493588dd ]
 
-commit 95310e348a321b45fb746c176961d4da72344282 upstream.
+It doesn't log a packet if sysctl_log_invalid isn't equal to protonum
+OR sysctl_log_invalid isn't equal to IPPROTO_RAW. This sentence is
+always true. I believe we need to replace OR to AND.
 
-Fix a minor typo in the MDS documentation: "eanbled" -> "enabled".
-
-Reported-by: Jeff Bastian <jbastian@redhat.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Florian Westphal <fw@strlen.de>
+Fixes: c4f3db1595827 ("netfilter: conntrack: add and use nf_l4proto_log_invalid")
+Signed-off-by: Andrei Vagin <avagin@gmail.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/x86/mds.rst |    2 +-
+ net/netfilter/nf_conntrack_proto.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/x86/mds.rst
-+++ b/Documentation/x86/mds.rst
-@@ -116,7 +116,7 @@ Kernel internal mitigation modes
-  off      Mitigation is disabled. Either the CPU is not affected or
-           mds=off is supplied on the kernel command line
+diff --git a/net/netfilter/nf_conntrack_proto.c b/net/netfilter/nf_conntrack_proto.c
+index 859f5d07a9159..78361e462e802 100644
+--- a/net/netfilter/nf_conntrack_proto.c
++++ b/net/netfilter/nf_conntrack_proto.c
+@@ -86,7 +86,7 @@ void nf_l4proto_log_invalid(const struct sk_buff *skb,
+ 	struct va_format vaf;
+ 	va_list args;
  
-- full     Mitigation is eanbled. CPU is affected and MD_CLEAR is
-+ full     Mitigation is enabled. CPU is affected and MD_CLEAR is
-           advertised in CPUID.
+-	if (net->ct.sysctl_log_invalid != protonum ||
++	if (net->ct.sysctl_log_invalid != protonum &&
+ 	    net->ct.sysctl_log_invalid != IPPROTO_RAW)
+ 		return;
  
-  vmwerv	  Mitigation is enabled. CPU is affected and MD_CLEAR is not
+-- 
+2.20.1
+
 
 
