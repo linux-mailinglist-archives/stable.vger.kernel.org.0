@@ -2,43 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78CCF1F137
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7801D1F274
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbfEOLWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60424 "EHLO mail.kernel.org"
+        id S1729517AbfEOLLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730989AbfEOLWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:14 -0400
+        id S1729513AbfEOLLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FE342084F;
-        Wed, 15 May 2019 11:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C6DA20843;
+        Wed, 15 May 2019 11:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919333;
-        bh=wQVpVG/mZYVPtS2LDuMuFwLefRgdyIWnn6izygGKQf8=;
+        s=default; t=1557918662;
+        bh=fPtg07mn5JXl1EnPfOeUz+GMrsIXGxbmZlTK9Er5cfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVDqVq12g3eQBAZSE6hubRFBPowf5R5iJ6Zbcbx1tp+22Fk6HxGsJaSkYrSPUjmjG
-         5Zr9hM62ufrBxzsrxClQrPKuZffyIekjMFcqecbHa/RM1+Ww0QzsqbCGd7fFChxNM3
-         /dQMD5wG1GGlplsomkKPmJfQmVP5k/sdCnaTlpHk=
+        b=Jd+oaGlUMSQAbJb2y9im+COaccDk8ckbSUmPUw0DV0CXFvPupMu95WUoGiMmjcs8p
+         oTlOSZxT7eaDCShk2HKbw0W3mZRiDa1EGMwrujL0GDw6a6eu0Jvj+sxUFHsgfPuI6I
+         /LyI2W08Rt4EPQZDHKY6lclfVuFZWzTGn904NtRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Francis <David.Francis@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Bhawanpreet Lakha <BhawanpreetLakha@amd.com>
-Subject: [PATCH 4.19 034/113] drm/amd/display: If one stream full updates, full update all planes
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        Dave Stewart <david.c.stewart@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 218/266] x86/speculation: Avoid __switch_to_xtra() calls
 Date:   Wed, 15 May 2019 12:55:25 +0200
-Message-Id: <20190515090656.174093112@linuxfoundation.org>
+Message-Id: <20190515090730.359208837@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,120 +62,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c238bfe0be9ef7420f7669a69e27c8c8f4d8a568 ]
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[Why]
-On some compositors, with two monitors attached, VT terminal
-switch can cause a graphical issue by the following means:
+commit 5635d99953f04b550738f6f4c1c532667c3fd872 upstream.
 
-There are two streams, one for each monitor. Each stream has one
-plane
+The TIF_SPEC_IB bit does not need to be evaluated in the decision to invoke
+__switch_to_xtra() when:
 
-current state:
-	M1:S1->P1
-	M2:S2->P2
+ - CONFIG_SMP is disabled
 
-The user calls for a terminal switch and a commit is made to
-change both planes to linear swizzle mode. In atomic check,
-a new dc_state is constructed with new planes on each stream
+ - The conditional STIPB mode is disabled
 
-new state:
-	M1:S1->P3
-	M2:S2->P4
+The TIF_SPEC_IB bit still controls IBPB in both cases so the TIF work mask
+checks might invoke __switch_to_xtra() for nothing if TIF_SPEC_IB is the
+only set bit in the work masks.
 
-In commit tail, each stream is committed, one at a time. The first
-stream (S1) updates properly, triggerring a full update and replacing
-the state
+Optimize it out by masking the bit at compile time for CONFIG_SMP=n and at
+run time when the static key controlling the conditional STIBP mode is
+disabled.
 
-current state:
-	M1:S1->P3
-	M2:S2->P4
-
-The update for S2 comes in, but dc detects that there is no difference
-between the stream and plane in the new and current states, and so
-triggers a fast update. The fast update does not program swizzle,
-so the second monitor is corrupted
-
-[How]
-Add a flag to dc_plane_state that forces full updates
-
-When a stream undergoes a full update, set this flag on all changed
-planes, then clear it on the current stream
-
-Subsequent streams will get full updates as a result
-
-Signed-off-by: David Francis <David.Francis@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet Lakha@amd.com>
-Acked-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Asit Mallick <asit.k.mallick@intel.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Waiman Long <longman9394@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Dave Stewart <david.c.stewart@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20181125185005.374062201@linutronix.de
+[bwh: Backported to 4.4: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 19 +++++++++++++++++++
- drivers/gpu/drm/amd/display/dc/dc.h      |  3 +++
- 2 files changed, 22 insertions(+)
+ arch/x86/include/asm/thread_info.h |   13 +++++++++++--
+ arch/x86/kernel/process.h          |   15 +++++++++++++++
+ 2 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index bb0cda7276058..e3f5e5d6f0c18 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -1213,6 +1213,11 @@ static enum surface_update_type det_surface_update(const struct dc *dc,
- 		return UPDATE_TYPE_FULL;
- 	}
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -150,9 +150,18 @@ struct thread_info {
+ 	_TIF_NOHZ)
  
-+	if (u->surface->force_full_update) {
-+		update_flags->bits.full_update = 1;
-+		return UPDATE_TYPE_FULL;
+ /* flags to check in __switch_to() */
+-#define _TIF_WORK_CTXSW							\
++#define _TIF_WORK_CTXSW_BASE						\
+ 	(_TIF_IO_BITMAP|_TIF_NOTSC|_TIF_BLOCKSTEP|			\
+-	 _TIF_SSBD|_TIF_SPEC_IB)
++	 _TIF_SSBD)
++
++/*
++ * Avoid calls to __switch_to_xtra() on UP as STIBP is not evaluated.
++ */
++#ifdef CONFIG_SMP
++# define _TIF_WORK_CTXSW	(_TIF_WORK_CTXSW_BASE | _TIF_SPEC_IB)
++#else
++# define _TIF_WORK_CTXSW	(_TIF_WORK_CTXSW_BASE)
++#endif
+ 
+ #define _TIF_WORK_CTXSW_PREV (_TIF_WORK_CTXSW|_TIF_USER_RETURN_NOTIFY)
+ #define _TIF_WORK_CTXSW_NEXT (_TIF_WORK_CTXSW)
+--- a/arch/x86/kernel/process.h
++++ b/arch/x86/kernel/process.h
+@@ -2,6 +2,8 @@
+ //
+ // Code shared between 32 and 64 bit
+ 
++#include <asm/spec-ctrl.h>
++
+ void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p);
+ 
+ /*
+@@ -14,6 +16,19 @@ static inline void switch_to_extra(struc
+ 	unsigned long next_tif = task_thread_info(next)->flags;
+ 	unsigned long prev_tif = task_thread_info(prev)->flags;
+ 
++	if (IS_ENABLED(CONFIG_SMP)) {
++		/*
++		 * Avoid __switch_to_xtra() invocation when conditional
++		 * STIPB is disabled and the only different bit is
++		 * TIF_SPEC_IB. For CONFIG_SMP=n TIF_SPEC_IB is not
++		 * in the TIF_WORK_CTXSW masks.
++		 */
++		if (!static_branch_likely(&switch_to_cond_stibp)) {
++			prev_tif &= ~_TIF_SPEC_IB;
++			next_tif &= ~_TIF_SPEC_IB;
++		}
 +	}
 +
- 	type = get_plane_info_update_type(u);
- 	elevate_update_type(&overall_type, type);
- 
-@@ -1467,6 +1472,14 @@ void dc_commit_updates_for_stream(struct dc *dc,
- 		}
- 
- 		dc_resource_state_copy_construct(state, context);
-+
-+		for (i = 0; i < dc->res_pool->pipe_count; i++) {
-+			struct pipe_ctx *new_pipe = &context->res_ctx.pipe_ctx[i];
-+			struct pipe_ctx *old_pipe = &dc->current_state->res_ctx.pipe_ctx[i];
-+
-+			if (new_pipe->plane_state && new_pipe->plane_state != old_pipe->plane_state)
-+				new_pipe->plane_state->force_full_update = true;
-+		}
- 	}
- 
- 
-@@ -1510,6 +1523,12 @@ void dc_commit_updates_for_stream(struct dc *dc,
- 		dc->current_state = context;
- 		dc_release_state(old);
- 
-+		for (i = 0; i < dc->res_pool->pipe_count; i++) {
-+			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
-+
-+			if (pipe_ctx->plane_state && pipe_ctx->stream == stream)
-+				pipe_ctx->plane_state->force_full_update = false;
-+		}
- 	}
- 	/*let's use current_state to update watermark etc*/
- 	if (update_type >= UPDATE_TYPE_FULL)
-diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
-index 6c9990bef267e..4094b4f501117 100644
---- a/drivers/gpu/drm/amd/display/dc/dc.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc.h
-@@ -505,6 +505,9 @@ struct dc_plane_state {
- 	struct dc_plane_status status;
- 	struct dc_context *ctx;
- 
-+	/* HACK: Workaround for forcing full reprogramming under some conditions */
-+	bool force_full_update;
-+
- 	/* private to dc_surface.c */
- 	enum dc_irq_source irq_source;
- 	struct kref refcount;
--- 
-2.20.1
-
+ 	/*
+ 	 * __switch_to_xtra() handles debug registers, i/o bitmaps,
+ 	 * speculation mitigations etc.
 
 
