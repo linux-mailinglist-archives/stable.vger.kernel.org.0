@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 684871F230
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809861F0F6
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbfEOLOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50648 "EHLO mail.kernel.org"
+        id S1731083AbfEOLW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730139AbfEOLOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:32 -0400
+        id S1731285AbfEOLWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4416020644;
-        Wed, 15 May 2019 11:14:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A553B2089E;
+        Wed, 15 May 2019 11:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918871;
-        bh=EvvY5jbYxvFkgQwwoLGjP9+ygaI0eFVXbhCB7QWtUfU=;
+        s=default; t=1557919375;
+        bh=qcZ9DuyaHf/31gsj4/zCbf4hOCJq6oueOdGqt2UEYxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYyNm4D3UpGajKnE83BiD3Oj+BC8o2cHDx93qK88n+N/Ze0yR/hRPnI8/OmKZT2Pl
-         bFCtjpjOa0BrlcHAQsvxhDk6Shdf5lBfCarQRNcIqpadYZRehdApRGw1zDtRxe+XMx
-         rbEtRSjfQSvziVEQlbZcGNzorQTKkJTzOyZzeSsc=
+        b=k9AArpIWTeY/0i6LjI3g4d+eUpTdVrA+hehWaKRIAgXI3ydKebLrj+MGwO2zs/+Y5
+         qwgmA0PJi1/1H73zHjr+84YeF/DHfMjBENXWZ9EPtPf9qWDVIvbIEwWde4z8XFp9MN
+         UB8Ddpc9ubhmvNvNUDVihSmcT4G8fuiOYsgxK24U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/51] HID: input: add mapping for Expose/Overview key
+Subject: [PATCH 4.19 052/113] drm/sun4i: Set device driver data at bind time for use in unbind
 Date:   Wed, 15 May 2019 12:55:43 +0200
-Message-Id: <20190515090620.099124532@linuxfoundation.org>
+Message-Id: <20190515090657.610205564@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
+[ Upstream commit 02b92adbe33e6dbd15dc6e32540b22f47c4ff0a2 ]
 
-According to HUTRR77 usage 0x29f from the consumer page is reserved for
-the Desktop application to present all running user’s application windows.
-Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
-add the mapping.
+Our sun4i_drv_unbind gets the drm device using dev_get_drvdata.
+However, that driver data is never set in sun4i_drv_bind.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Set it there to avoid getting a NULL pointer at unbind time.
+
+Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-3-paul.kocialkowski@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 2 ++
+ drivers/gpu/drm/sun4i/sun4i_drv.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index fc7ada26457e8..d31725c4e7b1e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -932,6 +932,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
- 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
- 
-+		case 0x29f: map_key_clear(KEY_SCALE);		break;
+diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
+index 8b0cd08034e0c..7cac01c72c027 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -92,6 +92,8 @@ static int sun4i_drv_bind(struct device *dev)
+ 		ret = -ENOMEM;
+ 		goto free_drm;
+ 	}
 +
- 		default: map_key_clear(KEY_UNKNOWN);
- 		}
- 		break;
++	dev_set_drvdata(dev, drm);
+ 	drm->dev_private = drv;
+ 	INIT_LIST_HEAD(&drv->frontend_list);
+ 	INIT_LIST_HEAD(&drv->engine_list);
 -- 
 2.20.1
 
