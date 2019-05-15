@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C93BA1F31A
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EB71F318
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbfEOLHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38246 "EHLO mail.kernel.org"
+        id S1727410AbfEOLHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726898AbfEOLHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:03 -0400
+        id S1728851AbfEOLHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 161D620644;
-        Wed, 15 May 2019 11:07:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D0E420862;
+        Wed, 15 May 2019 11:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918422;
-        bh=VDxDGFJixae4M3MK2GPddJJKLRn0YtZJJZEIYK3ak2A=;
+        s=default; t=1557918425;
+        bh=8MjRoM6ThErmHAddRWsjtVT8ZGM73cgXdhmRb4bJCX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXKrf2zHBX7LiBplZ22EGsFpxWUlDCcQc+Pww7m0dtqZ+fDK8+HhfgOW0eOp0i0ix
-         LBSwnmCEwrZtyEK0LbEe8BoCK1QZii5E106yyfWJoTWWvKPbfL5g6kNMC3jdYFlIUb
-         QvuYNoidUagpu8HwDoDikpFClsxJy9HjXBOIJ8nc=
+        b=FF3VFEp3DDnKR3druZ7cVR40hxX2DSMQZY/KoMXmRNwFrFzN/KVgxugTjHvxB89xf
+         t58utzTl9mRC5LaIzHVoyE+95+btucLk+BVmQAuqhVoU/XBbcadWL7RAERvikmmXSX
+         GnqjSH3dST28HTyabWwPagS8HTjREjtYg3dCRk54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Louis Taylor <louis@kragniz.eu>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 126/266] rtc: da9063: set uie_unsupported when relevant
-Date:   Wed, 15 May 2019 12:53:53 +0200
-Message-Id: <20190515090727.220295292@linuxfoundation.org>
+Subject: [PATCH 4.4 127/266] vfio/pci: use correct format characters
+Date:   Wed, 15 May 2019 12:53:54 +0200
+Message-Id: <20190515090727.275921776@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -47,40 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
+[ Upstream commit 426b046b748d1f47e096e05bdcc6fb4172791307 ]
 
-The DA9063AD doesn't support alarms on any seconds and its granularity is
-the minute. Set uie_unsupported in that case.
+When compiling with -Wformat, clang emits the following warnings:
 
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+drivers/vfio/pci/vfio_pci.c:1601:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1601:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1601:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1601:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:5: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:13: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                        ^~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:21: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                ^~~~~~~~~
+
+drivers/vfio/pci/vfio_pci.c:1605:32: warning: format specifies type
+      'unsigned short' but the argument has type 'unsigned int' [-Wformat]
+                                vendor, device, subvendor, subdevice,
+                                                           ^~~~~~~~~
+The types of these arguments are unconditionally defined, so this patch
+updates the format character to the correct ones for unsigned ints.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Signed-off-by: Louis Taylor <louis@kragniz.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-da9063.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vfio/pci/vfio_pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index d6c853bbfa9f..e93beecd5010 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -491,6 +491,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
- 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
- 	rtc->rtc_sync = false;
- 
-+	/*
-+	 * TODO: some models have alarms on a minute boundary but still support
-+	 * real hardware interrupts. Add this once the core supports it.
-+	 */
-+	if (config->rtc_data_start != RTC_SEC)
-+		rtc->rtc_dev->uie_unsupported = 1;
-+
- 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
- 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
- 					da9063_alarm_event,
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index b31b84f56e8f..47b229fa5e8e 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1191,11 +1191,11 @@ static void __init vfio_pci_fill_ids(void)
+ 		rc = pci_add_dynid(&vfio_pci_driver, vendor, device,
+ 				   subvendor, subdevice, class, class_mask, 0);
+ 		if (rc)
+-			pr_warn("failed to add dynamic id [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x (%d)\n",
++			pr_warn("failed to add dynamic id [%04x:%04x[%04x:%04x]] class %#08x/%08x (%d)\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask, rc);
+ 		else
+-			pr_info("add [%04hx:%04hx[%04hx:%04hx]] class %#08x/%08x\n",
++			pr_info("add [%04x:%04x[%04x:%04x]] class %#08x/%08x\n",
+ 				vendor, device, subvendor, subdevice,
+ 				class, class_mask);
+ 	}
 -- 
 2.20.1
 
