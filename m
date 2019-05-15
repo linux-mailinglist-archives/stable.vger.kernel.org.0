@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D82ED1F029
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE121F1D2
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730478AbfEOLl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40034 "EHLO mail.kernel.org"
+        id S1730746AbfEOLzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731786AbfEOL2v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:51 -0400
+        id S1730805AbfEOLSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30EBF2084A;
-        Wed, 15 May 2019 11:28:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A287320818;
+        Wed, 15 May 2019 11:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919730;
-        bh=KLC6BQWde4LBvhsgm4LS88CDcXSeNDvL6sN9ngIrdIQ=;
+        s=default; t=1557919109;
+        bh=dTmFT7TKTriO5IZguRXx5X7JbuvISHT99RvkbIsNXhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URAFFn8OGJ8CK8s8kR+B1dwQ9pAyjm7u+bUb52RncnlgfWUjKiAefCqXPen8YMKgS
-         /XTEI6kzqIaipcVWyonNWKggQdBOfsRe3Gw0XKDPFftK7wvTcYknYEEKMidMz/E1/5
-         NMIrYSsIavXzZYNQyNZlicpubCmfNemOPt+miLcE=
+        b=BvJX9HCUS7qgP3xRymKYbhD44EHsnZLhd66oJNad7ePhtnIHSRI/zPgRJAZE3Cdr8
+         Q4Omaztq648DNyWNwRcJ9wlN1reTh82TIbONa/+QAQZReM9HQrfEWXzC5VvhaxAyUy
+         1+vfcnR4gfXgzCXZLG46IufdOCaNdzeKTqKMEz/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guy Levi <guyle@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Ruishuang Wang <ruishuangw@vmware.com>,
+        Bryan Tan <bryantan@vmware.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        Adit Ranadive <aditr@vmware.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 070/137] IB/mlx5: Fix scatter to CQE in DCT QP creation
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 071/115] RDMA/vmw_pvrdma: Return the correct opcode when creating WR
 Date:   Wed, 15 May 2019 12:55:51 +0200
-Message-Id: <20190515090658.524283824@linuxfoundation.org>
+Message-Id: <20190515090704.619087084@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7249c8ea227a582c14f63e9e8853eb7369122f10 ]
+[ Upstream commit 6325e01b6cdf4636b721cf7259c1616e3cf28ce2 ]
 
-When scatter to CQE is enabled on a DCT QP it corrupts the mailbox command
-since it tried to treat it as as QP create mailbox command instead of a
-DCT create command.
+Since the IB_WR_REG_MR opcode value changed, let's set the PVRDMA device
+opcodes explicitly.
 
-The corrupted mailbox command causes userspace to malfunction as the
-device doesn't create the QP as expected.
-
-A new mlx5 capability is exposed to user-space which ensures that it will
-not enable the feature on DCT without this fix in the kernel.
-
-Fixes: 5d6ff1babe78 ("IB/mlx5: Support scatter to CQE for DC transport type")
-Signed-off-by: Guy Levi <guyle@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reported-by: Ruishuang Wang <ruishuangw@vmware.com>
+Fixes: 9a59739bd01f ("IB/rxe: Revise the ib_wr_opcode enum")
+Cc: stable@vger.kernel.org
+Reviewed-by: Bryan Tan <bryantan@vmware.com>
+Reviewed-by: Ruishuang Wang <ruishuangw@vmware.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: Adit Ranadive <aditr@vmware.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/infiniband/hw/mlx5/main.c |  2 ++
- drivers/infiniband/hw/mlx5/qp.c   | 11 +++++++----
- include/uapi/rdma/mlx5-abi.h      |  1 +
- 3 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma.h    | 35 +++++++++++++++++++-
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c |  6 ++++
+ include/uapi/rdma/vmw_pvrdma-abi.h           |  1 +
+ 3 files changed, 41 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 497181f5ba091..c6bdd0d16c4b6 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -1025,6 +1025,8 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		if (MLX5_CAP_GEN(mdev, qp_packet_based))
- 			resp.flags |=
- 				MLX5_IB_QUERY_DEV_RESP_PACKET_BASED_CREDIT_MODE;
-+
-+		resp.flags |= MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT;
- 	}
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+index 984aa3484928d..4463e1c1a764e 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+@@ -407,7 +407,40 @@ static inline enum ib_qp_state pvrdma_qp_state_to_ib(enum pvrdma_qp_state state)
  
- 	if (field_avail(typeof(resp), sw_parsing_caps,
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 7db778d96ef5c..afc88e6e172e7 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -1724,13 +1724,16 @@ static void configure_responder_scat_cqe(struct ib_qp_init_attr *init_attr,
- 
- 	rcqe_sz = mlx5_ib_get_cqe_size(init_attr->recv_cq);
- 
--	if (rcqe_sz == 128) {
--		MLX5_SET(qpc, qpc, cs_res, MLX5_RES_SCAT_DATA64_CQE);
-+	if (init_attr->qp_type == MLX5_IB_QPT_DCT) {
-+		if (rcqe_sz == 128)
-+			MLX5_SET(dctc, qpc, cs_res, MLX5_RES_SCAT_DATA64_CQE);
-+
- 		return;
- 	}
- 
--	if (init_attr->qp_type != MLX5_IB_QPT_DCT)
--		MLX5_SET(qpc, qpc, cs_res, MLX5_RES_SCAT_DATA32_CQE);
-+	MLX5_SET(qpc, qpc, cs_res,
-+		 rcqe_sz == 128 ? MLX5_RES_SCAT_DATA64_CQE :
-+				  MLX5_RES_SCAT_DATA32_CQE);
+ static inline enum pvrdma_wr_opcode ib_wr_opcode_to_pvrdma(enum ib_wr_opcode op)
+ {
+-	return (enum pvrdma_wr_opcode)op;
++	switch (op) {
++	case IB_WR_RDMA_WRITE:
++		return PVRDMA_WR_RDMA_WRITE;
++	case IB_WR_RDMA_WRITE_WITH_IMM:
++		return PVRDMA_WR_RDMA_WRITE_WITH_IMM;
++	case IB_WR_SEND:
++		return PVRDMA_WR_SEND;
++	case IB_WR_SEND_WITH_IMM:
++		return PVRDMA_WR_SEND_WITH_IMM;
++	case IB_WR_RDMA_READ:
++		return PVRDMA_WR_RDMA_READ;
++	case IB_WR_ATOMIC_CMP_AND_SWP:
++		return PVRDMA_WR_ATOMIC_CMP_AND_SWP;
++	case IB_WR_ATOMIC_FETCH_AND_ADD:
++		return PVRDMA_WR_ATOMIC_FETCH_AND_ADD;
++	case IB_WR_LSO:
++		return PVRDMA_WR_LSO;
++	case IB_WR_SEND_WITH_INV:
++		return PVRDMA_WR_SEND_WITH_INV;
++	case IB_WR_RDMA_READ_WITH_INV:
++		return PVRDMA_WR_RDMA_READ_WITH_INV;
++	case IB_WR_LOCAL_INV:
++		return PVRDMA_WR_LOCAL_INV;
++	case IB_WR_REG_MR:
++		return PVRDMA_WR_FAST_REG_MR;
++	case IB_WR_MASKED_ATOMIC_CMP_AND_SWP:
++		return PVRDMA_WR_MASKED_ATOMIC_CMP_AND_SWP;
++	case IB_WR_MASKED_ATOMIC_FETCH_AND_ADD:
++		return PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD;
++	case IB_WR_REG_SIG_MR:
++		return PVRDMA_WR_REG_SIG_MR;
++	default:
++		return PVRDMA_WR_ERROR;
++	}
  }
  
- static void configure_requester_scat_cqe(struct mlx5_ib_dev *dev,
-diff --git a/include/uapi/rdma/mlx5-abi.h b/include/uapi/rdma/mlx5-abi.h
-index 87b3198f4b5d7..f4d4010b7e3e5 100644
---- a/include/uapi/rdma/mlx5-abi.h
-+++ b/include/uapi/rdma/mlx5-abi.h
-@@ -238,6 +238,7 @@ enum mlx5_ib_query_dev_resp_flags {
- 	MLX5_IB_QUERY_DEV_RESP_FLAGS_CQE_128B_COMP = 1 << 0,
- 	MLX5_IB_QUERY_DEV_RESP_FLAGS_CQE_128B_PAD  = 1 << 1,
- 	MLX5_IB_QUERY_DEV_RESP_PACKET_BASED_CREDIT_MODE = 1 << 2,
-+	MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT = 1 << 3,
+ static inline enum ib_wc_status pvrdma_wc_status_to_ib(
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
+index d7162f2b7979a..4d9c99dd366b1 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c
+@@ -695,6 +695,12 @@ int pvrdma_post_send(struct ib_qp *ibqp, struct ib_send_wr *wr,
+ 		    wr->opcode == IB_WR_RDMA_WRITE_WITH_IMM)
+ 			wqe_hdr->ex.imm_data = wr->ex.imm_data;
+ 
++		if (unlikely(wqe_hdr->opcode == PVRDMA_WR_ERROR)) {
++			*bad_wr = wr;
++			ret = -EINVAL;
++			goto out;
++		}
++
+ 		switch (qp->ibqp.qp_type) {
+ 		case IB_QPT_GSI:
+ 		case IB_QPT_UD:
+diff --git a/include/uapi/rdma/vmw_pvrdma-abi.h b/include/uapi/rdma/vmw_pvrdma-abi.h
+index 912ea1556a0b0..fd801c7be1204 100644
+--- a/include/uapi/rdma/vmw_pvrdma-abi.h
++++ b/include/uapi/rdma/vmw_pvrdma-abi.h
+@@ -76,6 +76,7 @@ enum pvrdma_wr_opcode {
+ 	PVRDMA_WR_MASKED_ATOMIC_FETCH_AND_ADD,
+ 	PVRDMA_WR_BIND_MW,
+ 	PVRDMA_WR_REG_SIG_MR,
++	PVRDMA_WR_ERROR,
  };
  
- enum mlx5_ib_tunnel_offloads {
+ enum pvrdma_wc_status {
 -- 
 2.20.1
 
