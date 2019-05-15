@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11BDF1F353
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F7A1F346
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbfEOLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:05:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
+        id S1727091AbfEOLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727091AbfEOLFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:05:19 -0400
+        id S1728608AbfEOLFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:05:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B61221734;
-        Wed, 15 May 2019 11:05:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22CA621848;
+        Wed, 15 May 2019 11:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918319;
-        bh=OYTIbF2jgOSmXqzbTcTHi5tWBXlnP5dmRSJdcUoc7M8=;
+        s=default; t=1557918321;
+        bh=gaXPwypWFs2EK0kOMSYhLWkH/Kn8KmJVLLdo5p7KngU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYdS/v0gK3jcFRc2ToxW8HDxa3aCEjvy2yQTfFbvb9UOp15/od6KN8fgrJrP8U6KF
-         cmahOLfjqx+z6NqclbRbbOV/A6m1eB+l2xyDwmC6qDHB8N2nNgOfUBYZE2by1xzJqr
-         +wy7fZEZ7LroYprLQKazX6XYDfpyvRVRojTrrKR4=
+        b=m6A1qpHyjiYRYg8PPhi+EQHV4ash4CIxqoMqV2FCgLM5uNG0JZmanADG14h6pCUbK
+         oveEFhZHKt6q/7PwHNXUVm/HVwuLKf2xYd/xsFxM/b/TIeIGqNdVEhvgnwlWmdx9Bh
+         7RNa0e7jN17sgSoJKnxU0nHCGafblNXlH6kh1feE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <garsilva@embeddedor.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
         "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 088/266] usbnet: ipheth: fix potential null pointer dereference in ipheth_carrier_set
-Date:   Wed, 15 May 2019 12:53:15 +0200
-Message-Id: <20190515090725.421847241@linuxfoundation.org>
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 4.4 089/266] qlcnic: Avoid potential NULL pointer dereference
+Date:   Wed, 15 May 2019 12:53:16 +0200
+Message-Id: <20190515090725.455896480@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,45 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <garsilva@embeddedor.com>
+[ Upstream commit 5bf7295fe34a5251b1d241b9736af4697b590670 ]
 
-commit 61c59355e0154a938b28710dfa6c1d8be2ddcefa upstream.
+netdev_alloc_skb can fail and return a NULL pointer which is
+dereferenced without a check. The patch avoids such a scenario.
 
-_dev_ is being dereferenced before it is null checked, hence there
-is a potential null pointer dereference.
-
-Fix this by moving the pointer dereference after _dev_ has been null
-checked.
-
-Addresses-Coverity-ID: 1462020
-Fixes: bb1b40c7cb86 ("usbnet: ipheth: prevent TX queue timeouts when device not ready")
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/usb/ipheth.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -290,12 +290,15 @@ static void ipheth_sndbulk_callback(stru
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+index 0a2318cad34d..63ebc491057b 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1038,6 +1038,8 @@ int qlcnic_do_lb_test(struct qlcnic_adapter *adapter, u8 mode)
  
- static int ipheth_carrier_set(struct ipheth_device *dev)
- {
--	struct usb_device *udev = dev->udev;
-+	struct usb_device *udev;
- 	int retval;
-+
- 	if (!dev)
- 		return 0;
- 	if (!dev->confirmed_pairing)
- 		return 0;
-+
-+	udev = dev->udev;
- 	retval = usb_control_msg(udev,
- 			usb_rcvctrlpipe(udev, IPHETH_CTRL_ENDP),
- 			IPHETH_CMD_CARRIER_CHECK, /* request */
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
++		if (!skb)
++			break;
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
+-- 
+2.19.1
+
 
 
