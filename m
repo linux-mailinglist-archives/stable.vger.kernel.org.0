@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F00BB1F025
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505981EE98
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731036AbfEOLlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40128 "EHLO mail.kernel.org"
+        id S1731169AbfEOLXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732458AbfEOL24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:56 -0400
+        id S1731641AbfEOLXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:23:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DA8220843;
-        Wed, 15 May 2019 11:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A163020843;
+        Wed, 15 May 2019 11:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919736;
-        bh=8ezDlsKr35RmZhEH5S5vIFwp/wkEY5n5UFVlWdhEcIo=;
+        s=default; t=1557919404;
+        bh=oy2kEOxIb6zKFnVnzlNUiUlY5ldvM1xcaN4RpTUfQFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GE4dhFCGy/ZkX/YegIWAdDxgMDHDXG2iwrf9YH7+Wuw9SXxdRpDLwEDphMxMuQ7mf
-         KwMzCEXHDTvQGIDJ88kHuPNekwzWOcLagUX+sCuWz+kaskrK7AYb8Rs69zyXY7OyEt
-         urTBDuky3zWeDkPLMo/uDrU5ZE32rFDvmUgQECMw=
+        b=unUp4PSGxQJR9JiGhpurvKNeS+fLJkgU6sZSt99l9FQVQclNySPhPFztAHTUmiEPz
+         IsBgQNlk9fZj7NNJ0ewVWWoDeo17frMH1uMUADlU+Bq5kQxEb3um4RQlRNbOW/My5i
+         OrQ0LsU4K+4rHK1XbchsL6+cDP0Zg/RLKAVRyA0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 072/137] drm/sun4i: Set device driver data at bind time for use in unbind
+Subject: [PATCH 4.19 062/113] Input: synaptics-rmi4 - fix possible double free
 Date:   Wed, 15 May 2019 12:55:53 +0200
-Message-Id: <20190515090658.660331445@linuxfoundation.org>
+Message-Id: <20190515090658.270679295@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 02b92adbe33e6dbd15dc6e32540b22f47c4ff0a2 ]
+[ Upstream commit bce1a78423961fce676ac65540a31b6ffd179e6d ]
 
-Our sun4i_drv_unbind gets the drm device using dev_get_drvdata.
-However, that driver data is never set in sun4i_drv_bind.
+The RMI4 function structure has been released in rmi_register_function
+if error occurs. However, it will be released again in the function
+rmi_create_function, which may result in a double-free bug.
 
-Set it there to avoid getting a NULL pointer at unbind time.
-
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-3-paul.kocialkowski@bootlin.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/rmi4/rmi_driver.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 9e4c375ccc96f..c6b65a9699794 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -85,6 +85,8 @@ static int sun4i_drv_bind(struct device *dev)
- 		ret = -ENOMEM;
- 		goto free_drm;
- 	}
-+
-+	dev_set_drvdata(dev, drm);
- 	drm->dev_private = drv;
- 	INIT_LIST_HEAD(&drv->frontend_list);
- 	INIT_LIST_HEAD(&drv->engine_list);
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index fc3ab93b7aea4..7fb358f961957 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -860,7 +860,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 
+ 	error = rmi_register_function(fn);
+ 	if (error)
+-		goto err_put_fn;
++		return error;
+ 
+ 	if (pdt->function_number == 0x01)
+ 		data->f01_container = fn;
+@@ -870,10 +870,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 	list_add_tail(&fn->node, &data->function_list);
+ 
+ 	return RMI_SCAN_CONTINUE;
+-
+-err_put_fn:
+-	put_device(&fn->dev);
+-	return error;
+ }
+ 
+ void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
 -- 
 2.20.1
 
