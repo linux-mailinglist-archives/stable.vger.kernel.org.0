@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A2F1F2FA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 768731ED4D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbfEOLHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39716 "EHLO mail.kernel.org"
+        id S1728482AbfEOLHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728983AbfEOLHr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:47 -0400
+        id S1728454AbfEOLHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D670120843;
-        Wed, 15 May 2019 11:07:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC89720843;
+        Wed, 15 May 2019 11:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918466;
-        bh=TuVGRc68xIZZTSO2/CHG8WH11dqToIKgEEmX1gid7eo=;
+        s=default; t=1557918471;
+        bh=EMkLnOSZMMv4MZEje/xzNx+RTKH8T3X3TlZQylSguD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pq7jdSSE5Dw6FuW/IL0U94K3c2XKClO/xi18tFtLfw74HD+3BmAb7uTk9D+1XIC3X
-         JQuJ5QSgGxyMAiQ7ciqE0jmO0j005fwotXewPkKztGAMuvVSfANyLRdyVZa8b5GaoU
-         2YvDHRQVlzslvMtPNo3+GOZ7VOpb+JMiuZxLuXNs=
+        b=hQxKYp7mxch0BKRZIz/cvYifdoyljBIBFjUpz50Oi53IjwfmuqrWlzeuXlqZF7ssX
+         y5iCzhDh3fKXfs1/bm3TGf3TRwfV2MjWULz8FF1pI7WSLX5hqJP/iWWfglgiKVPIRN
+         A+riTtZEAvtXlLIYAnxYxczMbJKVn8QesKANNk1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.4 142/266] media: v4l2: i2c: ov7670: Fix PLL bypass register values
-Date:   Wed, 15 May 2019 12:54:09 +0200
-Message-Id: <20190515090727.712900627@linuxfoundation.org>
+        stable@vger.kernel.org, chenxiang <chenxiang66@hisilicon.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Ewan Milne <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Tomas Henzl <thenzl@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 143/266] scsi: libsas: fix a race condition when smp task timeout
+Date:   Wed, 15 May 2019 12:54:10 +0200
+Message-Id: <20190515090727.740821768@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,82 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Jason Yan <yanaijie@huawei.com>
 
-commit 61da76beef1e4f0b6ba7be4f8d0cf0dac7ce1f55 upstream.
+commit b90cd6f2b905905fb42671009dc0e27c310a16ae upstream.
 
-The following commits:
-commit f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
-commit 04ee6d92047e ("[media] media: ov7670: add possibility to bypass pll for ov7675")
-introduced the ability to bypass PLL multiplier and use input clock (xvclk)
-as pixel clock output frequency for ov7675 sensor.
+When the lldd is processing the complete sas task in interrupt and set the
+task stat as SAS_TASK_STATE_DONE, the smp timeout timer is able to be
+triggered at the same time. And smp_task_timedout() will complete the task
+wheter the SAS_TASK_STATE_DONE is set or not. Then the sas task may freed
+before lldd end the interrupt process. Thus a use-after-free will happen.
 
-PLL is bypassed using register DBLV[7:6], according to ov7670 and ov7675
-sensor manuals. Macros used to set DBLV register seem wrong in the
-driver, as their values do not match what reported in the datasheet.
+Fix this by calling the complete() only when SAS_TASK_STATE_DONE is not
+set. And remove the check of the return value of the del_timer(). Once the
+LLDD sets DONE, it must call task->done(), which will call
+smp_task_done()->complete() and the task will be completed and freed
+correctly.
 
-Fix by changing DBLV_* macros to use bits [7:6] and set bits [3:0] to
-default 0x0a reserved value (according to datasheets).
-
-While at there, remove a write to DBLV register in
-"ov7675_set_framerate()" that over-writes the previous one to the same
-register that takes "info->pll_bypass" flag into account instead of setting PLL
-multiplier to 4x unconditionally.
-
-And, while at there, since "info->pll_bypass" is only used in
-set/get_framerate() functions used by ov7675 only, it is not necessary
-to check for the device id at probe time to make sure that when using
-ov7670 "info->pll_bypass" is set to false.
-
-Fixes: f6dd927f34d6 ("[media] media: ov7670: calculate framerate properly for ov7675")
-
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reported-by: chenxiang <chenxiang66@hisilicon.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+CC: John Garry <john.garry@huawei.com>
+CC: Johannes Thumshirn <jthumshirn@suse.de>
+CC: Ewan Milne <emilne@redhat.com>
+CC: Christoph Hellwig <hch@lst.de>
+CC: Tomas Henzl <thenzl@redhat.com>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Guenter Roeck <linux@roeck-us.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/ov7670.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/scsi/libsas/sas_expander.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/media/i2c/ov7670.c
-+++ b/drivers/media/i2c/ov7670.c
-@@ -155,10 +155,10 @@ MODULE_PARM_DESC(debug, "Debug level (0-
- #define REG_GFIX	0x69	/* Fix gain control */
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -47,17 +47,16 @@ static void smp_task_timedout(unsigned l
+ 	unsigned long flags;
  
- #define REG_DBLV	0x6b	/* PLL control an debugging */
--#define   DBLV_BYPASS	  0x00	  /* Bypass PLL */
--#define   DBLV_X4	  0x01	  /* clock x4 */
--#define   DBLV_X6	  0x10	  /* clock x6 */
--#define   DBLV_X8	  0x11	  /* clock x8 */
-+#define   DBLV_BYPASS	  0x0a	  /* Bypass PLL */
-+#define   DBLV_X4	  0x4a	  /* clock x4 */
-+#define   DBLV_X6	  0x8a	  /* clock x6 */
-+#define   DBLV_X8	  0xca	  /* clock x8 */
- 
- #define REG_REG76	0x76	/* OV's name */
- #define   R76_BLKPCOR	  0x80	  /* Black pixel correction enable */
-@@ -833,7 +833,7 @@ static int ov7675_set_framerate(struct v
- 	if (ret < 0)
- 		return ret;
- 
--	return ov7670_write(sd, REG_DBLV, DBLV_X4);
-+	return 0;
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+-	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
++	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
++		complete(&task->slow_task->completion);
++	}
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+-
+-	complete(&task->slow_task->completion);
  }
  
- static void ov7670_get_framerate_legacy(struct v4l2_subdev *sd,
-@@ -1578,11 +1578,7 @@ static int ov7670_probe(struct i2c_clien
- 		if (config->clock_speed)
- 			info->clock_speed = config->clock_speed;
+ static void smp_task_done(struct sas_task *task)
+ {
+-	if (!del_timer(&task->slow_task->timer))
+-		return;
++	del_timer(&task->slow_task->timer);
+ 	complete(&task->slow_task->completion);
+ }
  
--		/*
--		 * It should be allowed for ov7670 too when it is migrated to
--		 * the new frame rate formula.
--		 */
--		if (config->pll_bypass && id->driver_data != MODEL_OV7670)
-+		if (config->pll_bypass)
- 			info->pll_bypass = true;
- 
- 		if (config->pclk_hb_disable)
 
 
