@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B22A01F233
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FA21F0BE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbfEOLPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51250 "EHLO mail.kernel.org"
+        id S1731881AbfEOLYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:24:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729552AbfEOLO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:58 -0400
+        id S1731874AbfEOLYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:24:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1341D20644;
-        Wed, 15 May 2019 11:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC3220843;
+        Wed, 15 May 2019 11:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918897;
-        bh=J3f9r01nX+Zo4/kwKNagRFruOmmjmmmf3WnXjJ4vyUo=;
+        s=default; t=1557919488;
+        bh=CwKmjeNc1xs6XBSFabOt0+UWXuBe99oN0HyQ1p5eFkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l//nQRVzc5lASAXztKgBZQkbM0e7MtZ/XbEgTo3D3hDzyzTuksG8PIGjicI44HXcQ
-         mxWTzNvlASlc1x9gRBj4kOevrzMWva0ZPiGCc6wm9slvee8L1kLpohKiolSdNm4SP7
-         0CPJlUq9p1t9/QzidHbKnCe9G4RxhCYUW2u+oXpo=
+        b=fJsGwV+UxBb1JmJn/UpXUWrdEzDhzohWqAqMByqX33FLEK3HagcbF7rW4zx7AUWJL
+         Tn6sPJEllxSPLy2b/eCQsNGJe2/SDuPxztoX4qgy3DvDGMWtq+nbjd4yHa1aNc5l2v
+         estynlbh/XBZ7kIRCsEBcr4yo3cL5BzFcMF2NPeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 42/51] net: ucc_geth - fix Oops when changing number of buffers in the ring
-Date:   Wed, 15 May 2019 12:56:17 +0200
-Message-Id: <20190515090628.339987206@linuxfoundation.org>
+        stable@vger.kernel.org, Breno Leitao <leitao@debian.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Joel Stanley <joel@jms.id.au>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Major Hayden <major@redhat.com>
+Subject: [PATCH 4.19 087/113] powerpc/64s: Include cpu header
+Date:   Wed, 15 May 2019 12:56:18 +0200
+Message-Id: <20190515090700.266144541@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit ee0df19305d9fabd9479b785918966f6e25b733b ]
+commit 42e2acde1237878462b028f5a27d9cc5bea7502c upstream.
 
-When changing the number of buffers in the RX ring while the interface
-is running, the following Oops is encountered due to the new number
-of buffers being taken into account immediately while their allocation
-is done when opening the device only.
+Current powerpc security.c file is defining functions, as
+cpu_show_meltdown(), cpu_show_spectre_v{1,2} and others, that are being
+declared at linux/cpu.h header without including the header file that
+contains these declarations.
 
-[   69.882706] Unable to handle kernel paging request for data at address 0xf0000100
-[   69.890172] Faulting instruction address: 0xc033e164
-[   69.895122] Oops: Kernel access of bad area, sig: 11 [#1]
-[   69.900494] BE PREEMPT CMPCPRO
-[   69.907120] CPU: 0 PID: 0 Comm: swapper Not tainted 4.14.115-00006-g179ade8ce3-dirty #269
-[   69.915956] task: c0684310 task.stack: c06da000
-[   69.920470] NIP:  c033e164 LR: c02e44d0 CTR: c02e41fc
-[   69.925504] REGS: dfff1e20 TRAP: 0300   Not tainted  (4.14.115-00006-g179ade8ce3-dirty)
-[   69.934161] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 22004428  XER: 20000000
-[   69.940869] DAR: f0000100 DSISR: 20000000
-[   69.940869] GPR00: c0352d70 dfff1ed0 c0684310 f00000a4 00000040 dfff1f68 00000000 0000001f
-[   69.940869] GPR08: df53f410 1cc00040 00000021 c0781640 42004424 100c82b6 f00000a4 df53f5b0
-[   69.940869] GPR16: df53f6c0 c05daf84 00000040 00000000 00000040 c0782be4 00000000 00000001
-[   69.940869] GPR24: 00000000 df53f400 000001b0 df53f410 df53f000 0000003f df708220 1cc00044
-[   69.978348] NIP [c033e164] skb_put+0x0/0x5c
-[   69.982528] LR [c02e44d0] ucc_geth_poll+0x2d4/0x3f8
-[   69.987384] Call Trace:
-[   69.989830] [dfff1ed0] [c02e4554] ucc_geth_poll+0x358/0x3f8 (unreliable)
-[   69.996522] [dfff1f20] [c0352d70] net_rx_action+0x248/0x30c
-[   70.002099] [dfff1f80] [c04e93e4] __do_softirq+0xfc/0x310
-[   70.007492] [dfff1fe0] [c0021124] irq_exit+0xd0/0xd4
-[   70.012458] [dfff1ff0] [c000e7e0] call_do_irq+0x24/0x3c
-[   70.017683] [c06dbe80] [c0006bac] do_IRQ+0x64/0xc4
-[   70.022474] [c06dbea0] [c001097c] ret_from_except+0x0/0x14
-[   70.027964] --- interrupt: 501 at rcu_idle_exit+0x84/0x90
-[   70.027964]     LR = rcu_idle_exit+0x74/0x90
-[   70.037585] [c06dbf60] [20000000] 0x20000000 (unreliable)
-[   70.042984] [c06dbf80] [c004bb0c] do_idle+0xb4/0x11c
-[   70.047945] [c06dbfa0] [c004bd14] cpu_startup_entry+0x18/0x1c
-[   70.053682] [c06dbfb0] [c05fb034] start_kernel+0x370/0x384
-[   70.059153] [c06dbff0] [00003438] 0x3438
-[   70.063062] Instruction dump:
-[   70.066023] 38a00000 38800000 90010014 4bfff015 80010014 7c0803a6 3123ffff 7c691910
-[   70.073767] 38210010 4e800020 38600000 4e800020 <80e3005c> 80c30098 3107ffff 7d083910
-[   70.081690] ---[ end trace be7ccd9c1e1a9f12 ]---
+This is being reported by sparse, which thinks that these functions are
+static, due to the lack of declaration:
 
-This patch forbids the modification of the number of buffers in the
-ring while the interface is running.
+	arch/powerpc/kernel/security.c:105:9: warning: symbol 'cpu_show_meltdown' was not declared. Should it be static?
+	arch/powerpc/kernel/security.c:139:9: warning: symbol 'cpu_show_spectre_v1' was not declared. Should it be static?
+	arch/powerpc/kernel/security.c:161:9: warning: symbol 'cpu_show_spectre_v2' was not declared. Should it be static?
+	arch/powerpc/kernel/security.c:209:6: warning: symbol 'stf_barrier' was not declared. Should it be static?
+	arch/powerpc/kernel/security.c:289:9: warning: symbol 'cpu_show_spec_store_bypass' was not declared. Should it be static?
 
-Fixes: ac421852b3a0 ("ucc_geth: add ethtool support")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch simply includes the proper header (linux/cpu.h) to match
+function definition and declaration.
+
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Major Hayden <major@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/freescale/ucc_geth_ethtool.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-+++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-@@ -250,14 +250,12 @@ uec_set_ringparam(struct net_device *net
- 		return -EINVAL;
- 	}
+---
+ arch/powerpc/kernel/security.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -4,6 +4,7 @@
+ //
+ // Copyright 2018, Michael Ellerman, IBM Corporation.
  
-+	if (netif_running(netdev))
-+		return -EBUSY;
-+
- 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
- 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
- 
--	if (netif_running(netdev)) {
--		/* FIXME: restart automatically */
--		netdev_info(netdev, "Please re-open the interface\n");
--	}
--
- 	return ret;
- }
- 
++#include <linux/cpu.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+ #include <linux/seq_buf.h>
 
 
