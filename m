@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D0001F34F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78DD1F34A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbfEOMM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
+        id S1727735AbfEOLFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728628AbfEOLF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:05:27 -0400
+        id S1728634AbfEOLFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:05:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61C382084F;
-        Wed, 15 May 2019 11:05:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0030620881;
+        Wed, 15 May 2019 11:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918326;
-        bh=8cgPjWbl6HPAC1RR8pT7d4K1TnN/Zpzs6aXY9cSY86k=;
+        s=default; t=1557918329;
+        bh=F4fxuUZdUnA0zUHuUlCsoVtj+/P/GwaXxXs8gp/egnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgpIECQIRnLrX0IV7TCvaX3OpsjFv2nHtYd0ftKCtph/j1fOfOSB4+mDex9mevdG6
-         CzutNmZ2xbm+yjGJTay1hOxX+ZRDYeHAOqDBZrRuz24M7zBeIeGdsytKYN1uy7rmVo
-         SifwLR1IyYTPkDeYSn4N0r3ZBpg4cwcIsVvSv618=
+        b=ZIKDUk0FlKn09LHO8B/BfMP4VH/L/pkDynLzdvgpMcZCUOVVRRbv8TUoHa0YzXTJ7
+         v+Z1CtUHSyK4cImbxSZYpXbv4q9odwO7GcoSmjP6d7mkj5yzGYAsYfQ/gztGuoNhjZ
+         70QHJlZ6UOXEIhCmOIPGw8bZ4ECpMM+ncoMYyQ6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 4.4 091/266] sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()
-Date:   Wed, 15 May 2019 12:53:18 +0200
-Message-Id: <20190515090725.525024750@linuxfoundation.org>
+Subject: [PATCH 4.4 092/266] usb: gadget: net2280: Fix overrun of OUT messages
+Date:   Wed, 15 May 2019 12:53:19 +0200
+Message-Id: <20190515090725.559992043@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,52 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ac0cdb3d990108df795b676cd0d0e65ac34b2273 ]
+[ Upstream commit 9d6a54c1430647355a5e23434881b2ca3d192b48 ]
 
-Add the missing uart_unregister_driver() and i2c_del_driver() before return
-from sc16is7xx_init() in the error handling case.
+The OUT endpoint normally blocks (NAK) subsequent packets when a
+short packet was received and returns an incomplete queue entry to
+the gadget driver. Thereby the gadget driver can detect a short packet
+when reading queue entries with a length that is not equal to a
+multiple of packet size.
 
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The start_queue() function enables receiving OUT packets regardless of
+the content of the OUT FIFO. This results in a race: With the current
+code, it's possible that the "!ep->is_in && (readl(&ep->regs->ep_stat)
+& BIT(NAK_OUT_PACKETS))" test in start_dma() will fail, then a short
+packet will be received, and then start_queue() will call
+stop_out_naking(). That's what we don't want (OUT naking gets turned
+off while there is data in the FIFO) because then the next driver
+request might receive a mixture of old and new packets.
+
+With the patch, this race can't occur because the FIFO's state is
+tested after we know that OUT naking is already turned on, and OUT
+naking is stopped only when both of the conditions are met.  This
+ensures that all received data is delivered to the gadget driver,
+which can detect a short packet now before new packets are appended
+to the last short packet.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/net2280.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index 17a22073d226..032f3c13b8c4 100644
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1448,7 +1448,7 @@ static int __init sc16is7xx_init(void)
- 	ret = i2c_add_driver(&sc16is7xx_i2c_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx i2c --> %d\n", ret);
--		return ret;
-+		goto err_i2c;
- 	}
- #endif
+diff --git a/drivers/usb/gadget/udc/net2280.c b/drivers/usb/gadget/udc/net2280.c
+index 8efeadf30b4d..fc94a09e2a5a 100644
+--- a/drivers/usb/gadget/udc/net2280.c
++++ b/drivers/usb/gadget/udc/net2280.c
+@@ -870,9 +870,6 @@ static void start_queue(struct net2280_ep *ep, u32 dmactl, u32 td_dma)
+ 	(void) readl(&ep->dev->pci->pcimstctl);
  
-@@ -1456,10 +1456,18 @@ static int __init sc16is7xx_init(void)
- 	ret = spi_register_driver(&sc16is7xx_spi_uart_driver);
- 	if (ret < 0) {
- 		pr_err("failed to init sc16is7xx spi --> %d\n", ret);
--		return ret;
-+		goto err_spi;
- 	}
- #endif
- 	return ret;
-+
-+err_spi:
-+#ifdef CONFIG_SERIAL_SC16IS7XX_I2C
-+	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
-+#endif
-+err_i2c:
-+	uart_unregister_driver(&sc16is7xx_uart);
-+	return ret;
+ 	writel(BIT(DMA_START), &dma->dmastat);
+-
+-	if (!ep->is_in)
+-		stop_out_naking(ep);
  }
- module_init(sc16is7xx_init);
  
+ static void start_dma(struct net2280_ep *ep, struct net2280_request *req)
+@@ -911,6 +908,7 @@ static void start_dma(struct net2280_ep *ep, struct net2280_request *req)
+ 			writel(BIT(DMA_START), &dma->dmastat);
+ 			return;
+ 		}
++		stop_out_naking(ep);
+ 	}
+ 
+ 	tmp = dmactl_default;
 -- 
 2.19.1
 
