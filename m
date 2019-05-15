@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3981F104
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D64431F00F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729879AbfEOLTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57296 "EHLO mail.kernel.org"
+        id S1727377AbfEOL3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730983AbfEOLTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:36 -0400
+        id S1729916AbfEOL3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4628120843;
-        Wed, 15 May 2019 11:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41BD621473;
+        Wed, 15 May 2019 11:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919174;
-        bh=Gxzzm52SvFSc58QxyKol0CPdIXirWqE5tMHv0WuaNKQ=;
+        s=default; t=1557919783;
+        bh=j0IGcgF6+P9TRifH3fJfkrkLZujfAjY6qjAoiIJAT+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+7UgSVJmc5YRY6dVdVq8Kbd0d2k3IluATYLy4k9OxL3YdfNh/quD95XWpZgjhWq0
-         lsXxXDOj2IR4ja/9SztWvnGN4wLTIlimUMGmM+NY3P5Y/Kv+Rn9JgnhC1g9OuLMubx
-         LBHhuUlUqhtdMlnZxTyNPrt3rmj/g2+75o3xScac=
+        b=wraTOP3gT4i4nA7F3KX2CQZ3Nlu7KYQAFT9vY9re/cPJEe7Kn/5Pte9j/tjs7+PwR
+         Nr0/PueTUq3v+TpZrk+F3pTf2veCF+ZTALBm0365fT04NPfx3eqgwPs/6VuxpyEUsm
+         jraiQSHRILHid42glwL+u5CxzRzqW9dbCbeTvDjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <righi.andrea@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 093/115] x86/kprobes: Avoid kretprobe recursion bug
-Date:   Wed, 15 May 2019 12:56:13 +0200
-Message-Id: <20190515090705.984839036@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 093/137] gpio: Fix gpiochip_add_data_with_key() error path
+Date:   Wed, 15 May 2019 12:56:14 +0200
+Message-Id: <20190515090700.291749384@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,107 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b191fa96ea6dc00d331dcc28c1f7db5e075693a0 ]
+[ Upstream commit 357798909164bf423eac6a78ff7da7e98d2d7f7f ]
 
-Avoid kretprobe recursion loop bg by setting a dummy
-kprobes to current_kprobe per-CPU variable.
+The err_remove_chip block is too coarse, and may perform cleanup that
+must not be done.  E.g. if of_gpiochip_add() fails, of_gpiochip_remove()
+is still called, causing:
 
-This bug has been introduced with the asm-coded trampoline
-code, since previously it used another kprobe for hooking
-the function return placeholder (which only has a nop) and
-trampoline handler was called from that kprobe.
+    OF: ERROR: Bad of_node_put() on /soc/gpio@e6050000
+    CPU: 1 PID: 20 Comm: kworker/1:1 Not tainted 5.1.0-rc2-koelsch+ #407
+    Hardware name: Generic R-Car Gen2 (Flattened Device Tree)
+    Workqueue: events deferred_probe_work_func
+    [<c020ec74>] (unwind_backtrace) from [<c020ae58>] (show_stack+0x10/0x14)
+    [<c020ae58>] (show_stack) from [<c07c1224>] (dump_stack+0x7c/0x9c)
+    [<c07c1224>] (dump_stack) from [<c07c5a80>] (kobject_put+0x94/0xbc)
+    [<c07c5a80>] (kobject_put) from [<c0470420>] (gpiochip_add_data_with_key+0x8d8/0xa3c)
+    [<c0470420>] (gpiochip_add_data_with_key) from [<c0473738>] (gpio_rcar_probe+0x1d4/0x314)
+    [<c0473738>] (gpio_rcar_probe) from [<c052fca8>] (platform_drv_probe+0x48/0x94)
 
-This revives the old lost kprobe again.
+and later, if a GPIO consumer tries to use a GPIO from a failed
+controller:
 
-With this fix, we don't see deadlock anymore.
+    WARNING: CPU: 0 PID: 1 at lib/refcount.c:156 kobject_get+0x38/0x4c
+    refcount_t: increment on 0; use-after-free.
+    Modules linked in:
+    CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.1.0-rc2-koelsch+ #407
+    Hardware name: Generic R-Car Gen2 (Flattened Device Tree)
+    [<c020ec74>] (unwind_backtrace) from [<c020ae58>] (show_stack+0x10/0x14)
+    [<c020ae58>] (show_stack) from [<c07c1224>] (dump_stack+0x7c/0x9c)
+    [<c07c1224>] (dump_stack) from [<c0221580>] (__warn+0xd0/0xec)
+    [<c0221580>] (__warn) from [<c02215e0>] (warn_slowpath_fmt+0x44/0x6c)
+    [<c02215e0>] (warn_slowpath_fmt) from [<c07c58fc>] (kobject_get+0x38/0x4c)
+    [<c07c58fc>] (kobject_get) from [<c068b3ec>] (of_node_get+0x14/0x1c)
+    [<c068b3ec>] (of_node_get) from [<c0686f24>] (of_find_node_by_phandle+0xc0/0xf0)
+    [<c0686f24>] (of_find_node_by_phandle) from [<c0686fbc>] (of_phandle_iterator_next+0x68/0x154)
+    [<c0686fbc>] (of_phandle_iterator_next) from [<c0687fe4>] (__of_parse_phandle_with_args+0x40/0xd0)
+    [<c0687fe4>] (__of_parse_phandle_with_args) from [<c0688204>] (of_parse_phandle_with_args_map+0x100/0x3ac)
+    [<c0688204>] (of_parse_phandle_with_args_map) from [<c0471240>] (of_get_named_gpiod_flags+0x38/0x380)
+    [<c0471240>] (of_get_named_gpiod_flags) from [<c046f864>] (gpiod_get_from_of_node+0x24/0xd8)
+    [<c046f864>] (gpiod_get_from_of_node) from [<c0470aa4>] (devm_fwnode_get_index_gpiod_from_child+0xa0/0x144)
+    [<c0470aa4>] (devm_fwnode_get_index_gpiod_from_child) from [<c05f425c>] (gpio_keys_probe+0x418/0x7bc)
+    [<c05f425c>] (gpio_keys_probe) from [<c052fca8>] (platform_drv_probe+0x48/0x94)
 
-And you can see that all inner-called kretprobe are skipped.
+Fix this by splitting the cleanup block, and adding a missing call to
+gpiochip_irqchip_remove().
 
-  event_1                                  235               0
-  event_2                                19375           19612
-
-The 1st column is recorded count and the 2nd is missed count.
-Above shows (event_1 rec) + (event_2 rec) ~= (event_2 missed)
-(some difference are here because the counter is racy)
-
-Reported-by: Andrea Righi <righi.andrea@gmail.com>
-Tested-by: Andrea Righi <righi.andrea@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Fixes: c9becf58d935 ("[PATCH] kretprobe: kretprobe-booster")
-Link: http://lkml.kernel.org/r/155094064889.6137.972160690963039.stgit@devbox
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Fixes: 28355f81969962cf ("gpio: defer probe if pinctrl cannot be found")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/core.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index 56cf6c2632549..9d7bb8de2917e 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -744,11 +744,16 @@ asm(
- NOKPROBE_SYMBOL(kretprobe_trampoline);
- STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index d1adfdf50fb30..34fbf879411f6 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1379,7 +1379,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *chip, void *data,
  
-+static struct kprobe kretprobe_kprobe = {
-+	.addr = (void *)kretprobe_trampoline,
-+};
-+
- /*
-  * Called from kretprobe_trampoline
-  */
- __visible __used void *trampoline_handler(struct pt_regs *regs)
- {
-+	struct kprobe_ctlblk *kcb;
- 	struct kretprobe_instance *ri = NULL;
- 	struct hlist_head *head, empty_rp;
- 	struct hlist_node *tmp;
-@@ -758,6 +763,17 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
- 	void *frame_pointer;
- 	bool skipped = false;
+ 	status = gpiochip_add_irqchip(chip, lock_key, request_key);
+ 	if (status)
+-		goto err_remove_chip;
++		goto err_free_gpiochip_mask;
  
-+	preempt_disable();
-+
-+	/*
-+	 * Set a dummy kprobe for avoiding kretprobe recursion.
-+	 * Since kretprobe never run in kprobe handler, kprobe must not
-+	 * be running at this point.
-+	 */
-+	kcb = get_kprobe_ctlblk();
-+	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
-+	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+
- 	INIT_HLIST_HEAD(&empty_rp);
- 	kretprobe_hash_lock(current, &head, &flags);
- 	/* fixup registers */
-@@ -833,10 +849,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
- 		orig_ret_address = (unsigned long)ri->ret_addr;
- 		if (ri->rp && ri->rp->handler) {
- 			__this_cpu_write(current_kprobe, &ri->rp->kp);
--			get_kprobe_ctlblk()->kprobe_status = KPROBE_HIT_ACTIVE;
- 			ri->ret_addr = correct_ret_addr;
- 			ri->rp->handler(ri, regs);
--			__this_cpu_write(current_kprobe, NULL);
-+			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
- 		}
+ 	status = of_gpiochip_add(chip);
+ 	if (status)
+@@ -1387,7 +1387,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *chip, void *data,
  
- 		recycle_rp_inst(ri, &empty_rp);
-@@ -852,6 +867,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 	status = gpiochip_init_valid_mask(chip);
+ 	if (status)
+-		goto err_remove_chip;
++		goto err_remove_of_chip;
  
- 	kretprobe_hash_unlock(current, &flags);
+ 	for (i = 0; i < chip->ngpio; i++) {
+ 		struct gpio_desc *desc = &gdev->descs[i];
+@@ -1415,14 +1415,18 @@ int gpiochip_add_data_with_key(struct gpio_chip *chip, void *data,
+ 	if (gpiolib_initialized) {
+ 		status = gpiochip_setup_dev(gdev);
+ 		if (status)
+-			goto err_remove_chip;
++			goto err_remove_acpi_chip;
+ 	}
+ 	return 0;
  
-+	__this_cpu_write(current_kprobe, NULL);
-+	preempt_enable();
-+
- 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
- 		hlist_del(&ri->hlist);
- 		kfree(ri);
+-err_remove_chip:
++err_remove_acpi_chip:
+ 	acpi_gpiochip_remove(chip);
++err_remove_of_chip:
+ 	gpiochip_free_hogs(chip);
+ 	of_gpiochip_remove(chip);
++err_remove_chip:
++	gpiochip_irqchip_remove(chip);
++err_free_gpiochip_mask:
+ 	gpiochip_free_valid_mask(chip);
+ err_remove_irqchip_mask:
+ 	gpiochip_irqchip_free_valid_mask(chip);
 -- 
 2.20.1
 
