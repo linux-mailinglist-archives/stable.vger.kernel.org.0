@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9891F12B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1394D1F01F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730700AbfEOLVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59660 "EHLO mail.kernel.org"
+        id S1731494AbfEOLkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731331AbfEOLVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:21:42 -0400
+        id S1732213AbfEOL3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00A0E20818;
-        Wed, 15 May 2019 11:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A63B620818;
+        Wed, 15 May 2019 11:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919301;
-        bh=kjJVS+8XxdE6bWNKF25v4fMqxNityECM0bk9SW1LRFk=;
+        s=default; t=1557919744;
+        bh=WZlyFhO+JGQg1hUuKPHTcaSqzz/6BThC/cW0P09xH18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLk8yo86jgoSe3v8/hOoldsAamA++LOtlAYD6cCHeRCP5RWIVTlF2z/EqFTnH6Vn5
-         iz4s5d2KPTKnBzFGPdbt7nJ6Au4EAmbCCF0wdI5jICLOUtCZOcjTmZLworRnqtEljv
-         TF/PWY8SDhQo+n4P1cloJq06/0LEYYPUGCFKL+xA=
+        b=NeNvbCHoyCkJ5CJLXTw6YoUdN7wjv2x1ynTFfA67M35/3DkeQ7Hq8r8qGS0SFqTnG
+         bes0H6p42T7eoDpX4tdTiIdz2ksrt0PypSQoiVch5U5jGTlNwAmi0m3fwrICcXpTWT
+         IFysKNR7vEy5bYGt8YRo15Q3aGpsdA1nODEZFJ1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Dutt <usdutt@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Daniel Golle <daniel@makrotopia.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 023/113] nl80211: Add NL80211_FLAG_CLEAR_SKB flag for other NL commands
+Subject: [PATCH 5.0 033/137] clocksource/drivers/oxnas: Fix OX820 compatible
 Date:   Wed, 15 May 2019 12:55:14 +0200
-Message-Id: <20190515090655.241690094@linuxfoundation.org>
+Message-Id: <20190515090655.747533894@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +45,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6db02a88a4aaa1cd7105137c67ddec7f3bdbc05 ]
+[ Upstream commit fbc87aa0f7c429999dc31f1bac3b2615008cac32 ]
 
-This commit adds NL80211_FLAG_CLEAR_SKB flag to other NL commands
-that carry key data to ensure they do not stick around on heap
-after the SKB is freed.
+The OX820 compatible is wrong is the driver, fix it.
 
-Also introduced this flag for NL80211_CMD_VENDOR as there are sub
-commands which configure the keys.
-
-Signed-off-by: Sunil Dutt <usdutt@codeaurora.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 2ea3401e2a84 ("clocksource/drivers/oxnas: Add OX820 compatible")
+Reported-by: Daniel Golle <daniel@makrotopia.org>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/clocksource/timer-oxnas-rps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 295cd8d5554f6..048e004ed0ee8 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -13392,7 +13392,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.policy = nl80211_policy,
- 		.flags = GENL_UNS_ADMIN_PERM,
- 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_DEAUTHENTICATE,
-@@ -13443,7 +13444,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.policy = nl80211_policy,
- 		.flags = GENL_UNS_ADMIN_PERM,
- 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_UPDATE_CONNECT_PARAMS,
-@@ -13451,7 +13453,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.policy = nl80211_policy,
- 		.flags = GENL_ADMIN_PERM,
- 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_DISCONNECT,
-@@ -13480,7 +13483,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.policy = nl80211_policy,
- 		.flags = GENL_UNS_ADMIN_PERM,
- 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_DEL_PMKSA,
-@@ -13832,7 +13836,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.policy = nl80211_policy,
- 		.flags = GENL_UNS_ADMIN_PERM,
- 		.internal_flags = NL80211_FLAG_NEED_WIPHY |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_SET_QOS_MAP,
-@@ -13887,7 +13892,8 @@ static const struct genl_ops nl80211_ops[] = {
- 		.doit = nl80211_set_pmk,
- 		.policy = nl80211_policy,
- 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+				  NL80211_FLAG_NEED_RTNL |
-+				  NL80211_FLAG_CLEAR_SKB,
- 	},
- 	{
- 		.cmd = NL80211_CMD_DEL_PMK,
+diff --git a/drivers/clocksource/timer-oxnas-rps.c b/drivers/clocksource/timer-oxnas-rps.c
+index eed6feff8b5f2..30c6f4ce672b3 100644
+--- a/drivers/clocksource/timer-oxnas-rps.c
++++ b/drivers/clocksource/timer-oxnas-rps.c
+@@ -296,4 +296,4 @@ static int __init oxnas_rps_timer_init(struct device_node *np)
+ TIMER_OF_DECLARE(ox810se_rps,
+ 		       "oxsemi,ox810se-rps-timer", oxnas_rps_timer_init);
+ TIMER_OF_DECLARE(ox820_rps,
+-		       "oxsemi,ox820se-rps-timer", oxnas_rps_timer_init);
++		       "oxsemi,ox820-rps-timer", oxnas_rps_timer_init);
 -- 
 2.20.1
 
