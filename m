@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 608791F317
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3861F315
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728862AbfEOLHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38438 "EHLO mail.kernel.org"
+        id S1728877AbfEOLHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728575AbfEOLHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:08 -0400
+        id S1728868AbfEOLHL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E3D20644;
-        Wed, 15 May 2019 11:07:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DACE621734;
+        Wed, 15 May 2019 11:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918427;
-        bh=f7UQolw35YfPh+TJ5M8e03UOoot5zqoHdwjqwGToQL0=;
+        s=default; t=1557918430;
+        bh=JlwyHEohO2xv4+EVF62uG8Sb9qrBFeL13jZxwz/qLaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sU5YT4mgyN4x/QFrH9y9PUCFi+bRNwcxZM0L76e14M29XtOTZ8bLmi29Q+1w7i7jJ
-         RPo+f3fl5BNSsOFx+oDp+DP7vuuNME7uXgjzmnYOCN78KpvmkbtVcnQU6ritwYWH/m
-         H9Ft6QS4p88x+6u+OuCBISrU8+1mCtkOYIv1fGhk=
+        b=wZJAm6MMpkcnIYlsALhGzauByraeXxfNZOv3kg0KUA6o05RcAcmdVUmUcRm7Hl77L
+         O2FfGonQ3kHpeRQKZAKoZdb6eQQf4USpSQuZl3KuWWJU5yI50bxnqYLnjHsZlEHcXb
+         tiNYO+zGLjyOGprJ0/Cr9Ndaop57Q6GkxKR46+3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Long Li <longli@microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 128/266] scsi: storvsc: Fix calculation of sub-channel count
-Date:   Wed, 15 May 2019 12:53:55 +0200
-Message-Id: <20190515090727.303734860@linuxfoundation.org>
+Subject: [PATCH 4.4 129/266] net: hns: Use NAPI_POLL_WEIGHT for hns driver
+Date:   Wed, 15 May 2019 12:53:56 +0200
+Message-Id: <20190515090727.330762691@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -46,56 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 382e06d11e075a40b4094b6ef809f8d4bcc7ab2a ]
+[ Upstream commit acb1ce15a61154aa501891d67ebf79bc9ea26818 ]
 
-When the number of sub-channels offered by Hyper-V is >= the number of CPUs
-in the VM, calculate the correct number of sub-channels.  The current code
-produces one too many.
+When the HNS driver loaded, always have an error print:
+"netif_napi_add() called with weight 256"
 
-This scenario arises only when the number of CPUs is artificially
-restricted (for example, with maxcpus=<n> on the kernel boot line), because
-Hyper-V normally offers a sub-channel count < number of CPUs.  While the
-current code doesn't break, the extra sub-channel is unbalanced across the
-CPUs (for example, a total of 5 channels on a VM with 4 CPUs).
+This is because the kernel checks the NAPI polling weights
+requested by drivers and it prints an error message if a driver
+requests a weight bigger than 64.
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Long Li <longli@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+So use NAPI_POLL_WEIGHT to fix it.
+
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 44b7a69d022a..45cd4cf93af3 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -613,13 +613,22 @@ static void handle_sc_creation(struct vmbus_channel *new_sc)
- static void  handle_multichannel_storage(struct hv_device *device, int max_chns)
- {
- 	struct storvsc_device *stor_device;
--	int num_cpus = num_online_cpus();
- 	int num_sc;
- 	struct storvsc_cmd_request *request;
- 	struct vstor_packet *vstor_packet;
- 	int ret, t;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index 2fa54b0b0679..6d649e7b45a9 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -28,9 +28,6 @@
  
--	num_sc = ((max_chns > num_cpus) ? num_cpus : max_chns);
-+	/*
-+	 * If the number of CPUs is artificially restricted, such as
-+	 * with maxcpus=1 on the kernel boot line, Hyper-V could offer
-+	 * sub-channels >= the number of CPUs. These sub-channels
-+	 * should not be created. The primary channel is already created
-+	 * and assigned to one CPU, so check against # CPUs - 1.
-+	 */
-+	num_sc = min((int)(num_online_cpus() - 1), max_chns);
-+	if (!num_sc)
-+		return;
-+
- 	stor_device = get_out_stor_device(device);
- 	if (!stor_device)
- 		return;
+ #define SERVICE_TIMER_HZ (1 * HZ)
+ 
+-#define NIC_TX_CLEAN_MAX_NUM 256
+-#define NIC_RX_CLEAN_MAX_NUM 64
+-
+ #define RCB_IRQ_NOT_INITED 0
+ #define RCB_IRQ_INITED 1
+ 
+@@ -1408,7 +1405,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 		rd->fini_process = hns_nic_tx_fini_pro;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_TX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 	for (i = h->q_num; i < h->q_num * 2; i++) {
+@@ -1420,7 +1417,7 @@ static int hns_nic_init_ring_data(struct hns_nic_priv *priv)
+ 		rd->fini_process = hns_nic_rx_fini_pro;
+ 
+ 		netif_napi_add(priv->netdev, &rd->napi,
+-			       hns_nic_common_poll, NIC_RX_CLEAN_MAX_NUM);
++			       hns_nic_common_poll, NAPI_POLL_WEIGHT);
+ 		rd->ring->irq_init_flag = RCB_IRQ_NOT_INITED;
+ 	}
+ 
 -- 
 2.20.1
 
