@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C53E1F1F0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A9DE1F430
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbfEOL6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:58:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52398 "EHLO mail.kernel.org"
+        id S1726799AbfEOK6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729938AbfEOLPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:49 -0400
+        id S1726793AbfEOK6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53EAB20843;
-        Wed, 15 May 2019 11:15:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C32C2084E;
+        Wed, 15 May 2019 10:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918948;
-        bh=ItPj+Nbvo0KNZmmn+28rj26rGJqd7jzYZpfB+8lrKk8=;
+        s=default; t=1557917903;
+        bh=M2A9iqhs/KVUvfAoeL7RgXhLq80Db758QtOaHvcXZro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/YO6AKqmdwRQTr8TjsFQ0qNShEiMefSW1UCS21YonNNKUkT2w2KpthJ4uc1iKcUj
-         iw5JLC0eWGVRfZc5FBlkFySoS1vRC2STq4sYRzUscM+mdzO8VpWiMzppcwY0TPMRTw
-         +840oCcvpUktwjTinLQRpuYXBuneJgc7TefLllHg=
+        b=depS9i4vB8FrTecKnwwrWpqoYMBTgzi93FMuDgeksU9alJZskIfw+r0WW5csZkTIM
+         Dj3qBxzmXu5c4hKrW1Gy0hRd00lYUV/lD/mPyfRDPPFXxubJjAutZGhuLBSARJMu3U
+         pkHe48i2JogcWhXBKyoRyt8wGnRf0vv6H08vvxg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 002/115] platform/x86: sony-laptop: Fix unintentional fall-through
-Date:   Wed, 15 May 2019 12:54:42 +0200
-Message-Id: <20190515090659.332039601@linuxfoundation.org>
+        syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com,
+        Ben Hutchings <ben@decadent.org.uk>,
+        David Miller <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 3.18 06/86] slip: make slhc_free() silently accept an error pointer
+Date:   Wed, 15 May 2019 12:54:43 +0200
+Message-Id: <20190515090643.765376645@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 1cbd7a64959d33e7a2a1fa2bf36a62b350a9fcbd upstream.
+commit baf76f0c58aec435a3a864075b8f6d8ee5d1f17e upstream.
 
-It seems that the default case should return AE_CTRL_TERMINATE, instead
-of falling through to case ACPI_RESOURCE_TYPE_END_TAG and returning AE_OK;
-otherwise the line of code at the end of the function is unreachable and
-makes no sense:
+This way, slhc_free() accepts what slhc_init() returns, whether that is
+an error or not.
 
-return AE_CTRL_TERMINATE;
+In particular, the pattern in sl_alloc_bufs() is
 
-This fix is based on the following thread of discussion:
+        slcomp = slhc_init(16, 16);
+        ...
+        slhc_free(slcomp);
 
-https://lore.kernel.org/patchwork/patch/959782/
+for the error handling path, and rather than complicate that code, just
+make it ok to always free what was returned by the init function.
 
-Fixes: 33a04454527e ("sony-laptop: Add SNY6001 device handling (sonypi reimplementation)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+That's what the code used to do before commit 4ab42d78e37a ("ppp, slip:
+Validate VJ compression slot parameters completely") when slhc_init()
+just returned NULL for the error case, with no actual indication of the
+details of the error.
+
+Reported-by: syzbot+45474c076a4927533d2e@syzkaller.appspotmail.com
+Fixes: 4ab42d78e37a ("ppp, slip: Validate VJ compression slot parameters completely")
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/sony-laptop.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/slip/slhc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -4422,14 +4422,16 @@ sony_pic_read_possible_resource(struct a
- 			}
- 			return AE_OK;
- 		}
-+
-+	case ACPI_RESOURCE_TYPE_END_TAG:
-+		return AE_OK;
-+
- 	default:
- 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
- 			resource->type);
-+		return AE_CTRL_TERMINATE;
+--- a/drivers/net/slip/slhc.c
++++ b/drivers/net/slip/slhc.c
+@@ -153,7 +153,7 @@ out_fail:
+ void
+ slhc_free(struct slcompress *comp)
+ {
+-	if ( comp == NULLSLCOMPR )
++	if ( IS_ERR_OR_NULL(comp) )
+ 		return;
  
--	case ACPI_RESOURCE_TYPE_END_TAG:
--		return AE_OK;
- 	}
--	return AE_CTRL_TERMINATE;
- }
- 
- static int sony_pic_possible_resources(struct acpi_device *device)
+ 	if ( comp->tstate != NULLSLSTATE )
 
 
