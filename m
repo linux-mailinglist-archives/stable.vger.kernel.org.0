@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 230481F0A4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6131F11D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731306AbfEOLqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36480 "EHLO mail.kernel.org"
+        id S1730289AbfEOLVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732032AbfEOLZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:41 -0400
+        id S1731173AbfEOLU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF39720843;
-        Wed, 15 May 2019 11:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B788D206BF;
+        Wed, 15 May 2019 11:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919541;
-        bh=MdUDI1ftMjX+Aqa71wHAC7B9+RYs/gQoQtW5huI566s=;
+        s=default; t=1557919259;
+        bh=4KE3ZTkoR0YVNfHkUGQ8P13ld2UoF5ZNG68E0RJRvfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ax43OwkJ1KRvT+cvMTlfpT5P7hNLtJocfyVL5bs7imWK1CGh+MVE7Ugf8wsqVq599
-         cMm55ZYAGn/hBtFrcGvRXeyonxufNlvEvYVcUlqCE/sr5U1gamhzXDVzWkhAJsHOEQ
-         p0CTE3dwTff2j97m1sCEMkoBHzEDRlldwYaUwfWA=
+        b=gFwg4WtncrdHQjE8Pz9AgbDYtFhOu7xdAqBpTYHxfX9/lehS0FLoPNJYNC5MJpi9l
+         faUYUnp/oOCsC/tB26ePS0KGehlnGVtT5s9oyv2W9a60Ph3Hwbkebr2k8vtoagS8O2
+         z2mhnhY/a3qPL1T1hTkcyCOo+9CWJbF1/DT0Tjzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 089/113] bridge: Fix error path for kobject_init_and_add()
+Subject: [PATCH 4.14 100/115] bridge: Fix error path for kobject_init_and_add()
 Date:   Wed, 15 May 2019 12:56:20 +0200
-Message-Id: <20190515090700.403876570@linuxfoundation.org>
+Message-Id: <20190515090706.394787101@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/bridge/br_if.c
 +++ b/net/bridge/br_if.c
-@@ -603,13 +603,15 @@ int br_add_if(struct net_bridge *br, str
+@@ -518,13 +518,15 @@ int br_add_if(struct net_bridge *br, str
  	call_netdevice_notifiers(NETDEV_JOIN, dev);
  
  	err = dev_set_allmulti(dev, 1);
@@ -88,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	err = br_sysfs_addif(p);
  	if (err)
-@@ -692,12 +694,9 @@ err3:
+@@ -607,12 +609,9 @@ err3:
  	sysfs_remove_link(br->ifobj, p->dev->name);
  err2:
  	kobject_put(&p->kobj);
