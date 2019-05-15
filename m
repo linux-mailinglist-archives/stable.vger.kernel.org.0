@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A56D01F24A
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFD51F26C
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727920AbfEOMBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49530 "EHLO mail.kernel.org"
+        id S1729312AbfEOLML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:12:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729514AbfEOLNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:45 -0400
+        id S1729716AbfEOLMK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:12:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D10652084E;
-        Wed, 15 May 2019 11:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 074952166E;
+        Wed, 15 May 2019 11:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918824;
-        bh=vh6pNQ/LJmID+Mg91bzB6nBHD3tR33/G4T+7k2YMbME=;
+        s=default; t=1557918729;
+        bh=B7kKelVcZ26aftuVABM5ZbQ9DN2Zj+hKM8yNq3a3RRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQxphLEb48siaUXdtQPM42cHex4XQKlSYQ77Ph5/SHDlgYnsY2jFMvx0CZJxfAMeM
-         UJbPBiQ/kCXJsRiEW3pJdxLMkbXcVFyikcVLXV22W8HemD+yKCN+eIeQEmJlZC5dml
-         VjNowPzCEbIFwRD5YGHlgiZkgF5I/C6hDYwkqlnA=
+        b=n5nMIk4gDhmdBlrz9IRpbnhKrJGELbcbH7lhy3kY4tGJJLYD734oRuOcpv7IsB7xQ
+         JvQ/uUUSHKIR276RD7wJEYo35/l7BswXRRwov1qNtQUnvwBR55gJOQKbyu2JWlfLCx
+         1jLfHJXbYK6tw1e7kZ77Rb+nMVJpS6zLfrGg2THM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/51] s390/3270: fix lockdep false positive on view->lock
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 242/266] x86/cpu/bugs: Use __initconst for const init data
 Date:   Wed, 15 May 2019 12:55:49 +0200
-Message-Id: <20190515090621.828009478@linuxfoundation.org>
+Message-Id: <20190515090731.191538406@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,122 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
+From: Andi Kleen <ak@linux.intel.com>
 
-The spinlock in the raw3270_view structure is used by con3270, tty3270
-and fs3270 in different ways. For con3270 the lock can be acquired in
-irq context, for tty3270 and fs3270 the highest context is bh.
+commit 1de7edbb59c8f1b46071f66c5c97b8a59569eb51 upstream.
 
-Lockdep sees the view->lock as a single class and if the 3270 driver
-is used for the console the following message is generated:
+Some of the recently added const tables use __initdata which causes section
+attribute conflicts.
 
-WARNING: inconsistent lock state
-5.1.0-rc3-05157-g5c168033979d #12 Not tainted
---------------------------------
-inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
-(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
+Use __initconst instead.
 
-Introduce a lockdep subclass for the view lock to distinguish bh from
-irq locks.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fa1202ef2243 ("x86/speculation: Add command line control")
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190330004743.29541-9-andi@firstfloor.org
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/char/con3270.c | 2 +-
- drivers/s390/char/fs3270.c  | 3 ++-
- drivers/s390/char/raw3270.c | 3 ++-
- drivers/s390/char/raw3270.h | 4 +++-
- drivers/s390/char/tty3270.c | 3 ++-
- 5 files changed, 10 insertions(+), 5 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index 285b4006f44bb..5d5e78afde88a 100644
---- a/drivers/s390/char/con3270.c
-+++ b/drivers/s390/char/con3270.c
-@@ -628,7 +628,7 @@ con3270_init(void)
- 		     (void (*)(unsigned long)) con3270_read_tasklet,
- 		     (unsigned long) condev->read);
- 
--	raw3270_add_view(&condev->view, &con3270_fn, 1);
-+	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
- 
- 	INIT_LIST_HEAD(&condev->freemem);
- 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
-diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
-index 85eca1cef0630..04a6810a4298c 100644
---- a/drivers/s390/char/fs3270.c
-+++ b/drivers/s390/char/fs3270.c
-@@ -462,7 +462,8 @@ fs3270_open(struct inode *inode, struct file *filp)
- 
- 	init_waitqueue_head(&fp->wait);
- 	fp->fs_pid = get_pid(task_pid(current));
--	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
-+	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		fs3270_free_view(&fp->view);
- 		goto out;
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index a2da898ce90fd..1ebf632e327b9 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -919,7 +919,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
-  * Add view to device with minor "minor".
-  */
- int
--raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
-+raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
- {
- 	unsigned long flags;
- 	struct raw3270 *rp;
-@@ -941,6 +941,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
- 		view->cols = rp->cols;
- 		view->ascebc = rp->ascebc;
- 		spin_lock_init(&view->lock);
-+		lockdep_set_subclass(&view->lock, subclass);
- 		list_add(&view->list, &rp->view_list);
- 		rc = 0;
- 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
-diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
-index 56519cbb165c7..7577d7d0ad486 100644
---- a/drivers/s390/char/raw3270.h
-+++ b/drivers/s390/char/raw3270.h
-@@ -149,6 +149,8 @@ struct raw3270_fn {
- struct raw3270_view {
- 	struct list_head list;
- 	spinlock_t lock;
-+#define RAW3270_VIEW_LOCK_IRQ	0
-+#define RAW3270_VIEW_LOCK_BH	1
- 	atomic_t ref_count;
- 	struct raw3270 *dev;
- 	struct raw3270_fn *fn;
-@@ -157,7 +159,7 @@ struct raw3270_view {
- 	unsigned char *ascebc;		/* ascii -> ebcdic table */
- };
- 
--int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
-+int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
- int raw3270_activate_view(struct raw3270_view *);
- void raw3270_del_view(struct raw3270_view *);
- void raw3270_deactivate_view(struct raw3270_view *);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 272cb6cd1b2ac..6dd6f9ff7de56 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -978,7 +978,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return PTR_ERR(tp);
- 
- 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
--			      tty->index + RAW3270_FIRSTMINOR);
-+			      tty->index + RAW3270_FIRSTMINOR,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		tty3270_free_view(tp);
- 		return rc;
--- 
-2.20.1
-
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -315,7 +315,7 @@ static const struct {
+ 	const char			*option;
+ 	enum spectre_v2_user_cmd	cmd;
+ 	bool				secure;
+-} v2_user_options[] __initdata = {
++} v2_user_options[] __initconst = {
+ 	{ "auto",		SPECTRE_V2_USER_CMD_AUTO,		false },
+ 	{ "off",		SPECTRE_V2_USER_CMD_NONE,		false },
+ 	{ "on",			SPECTRE_V2_USER_CMD_FORCE,		true  },
+@@ -451,7 +451,7 @@ static const struct {
+ 	const char *option;
+ 	enum spectre_v2_mitigation_cmd cmd;
+ 	bool secure;
+-} mitigation_options[] __initdata = {
++} mitigation_options[] __initconst = {
+ 	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
+ 	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
+ 	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
+@@ -723,7 +723,7 @@ static const char * const ssb_strings[]
+ static const struct {
+ 	const char *option;
+ 	enum ssb_mitigation_cmd cmd;
+-} ssb_mitigation_options[]  __initdata = {
++} ssb_mitigation_options[]  __initconst = {
+ 	{ "auto",	SPEC_STORE_BYPASS_CMD_AUTO },    /* Platform decides */
+ 	{ "on",		SPEC_STORE_BYPASS_CMD_ON },      /* Disable Speculative Store Bypass */
+ 	{ "off",	SPEC_STORE_BYPASS_CMD_NONE },    /* Don't touch Speculative Store Bypass */
 
 
