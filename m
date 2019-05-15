@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 434F41F11B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D85D01F0C0
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731179AbfEOLU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:20:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
+        id S1731031AbfEOLY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:24:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731173AbfEOLU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:20:57 -0400
+        id S1731902AbfEOLY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:24:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ED8C2084F;
-        Wed, 15 May 2019 11:20:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E41F320818;
+        Wed, 15 May 2019 11:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919256;
-        bh=P9Zh7+HnD1W3x/1vNoZfd7eNpw8kPS7quFmk9SEtTrw=;
+        s=default; t=1557919496;
+        bh=Q/CLjt7feT+ZdTMH8kb5Tanjx7cBjlDBsWMvqGIoQ60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrjERdRnihSEJu498dcDs9GY2nM2i8SV2r70yr3WTb4xpLKEkcBJ2NMjcrDYWkkIi
-         w8zk+qd1teD9gqjfDyeX2l0THeMlozAqeKZ/HOQg7Mof5V/I6QpngeJ7LqFSpM3hz5
-         NmLAjVUNaIMApV4tT//MaDkiluu5OUjvu5EMf1Zg=
+        b=Ya0eMGPYGMPzPlZvKLyJpt3aoWxBDoIKBsc19f6OuSRi+VxZAguIW0CW5Yjq4TZD7
+         185omVIiF2PM5MoNFzDcw7HWmasDCD9MWheyFBdeZPIE6uzJijk0nedDwsvQpmj3Zz
+         FH/vSC3IKuyin+XMtKFVLlKj5PmrpAiZ1Am6q3v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Richard Cochran <richardcochran@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 109/115] vlan: disable SIOCSHWTSTAMP in container
+Subject: [PATCH 4.19 098/113] packet: Fix error path in packet_init
 Date:   Wed, 15 May 2019 12:56:29 +0200
-Message-Id: <20190515090707.009482489@linuxfoundation.org>
+Message-Id: <20190515090701.044735997@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 873017af778439f2f8e3d87f28ddb1fcaf244a76 ]
+[ Upstream commit 36096f2f4fa05f7678bc87397665491700bae757 ]
 
-With NET_ADMIN enabled in container, a normal user could be mapped to
-root and is able to change the real device's rx filter via ioctl on
-vlan, which would affect the other ptp process on host. Fix it by
-disabling SIOCSHWTSTAMP in container.
+kernel BUG at lib/list_debug.c:47!
+invalid opcode: 0000 [#1
+CPU: 0 PID: 12914 Comm: rmmod Tainted: G        W         5.1.0+ #47
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:__list_del_entry_valid+0x53/0x90
+Code: 48 8b 32 48 39 fe 75 35 48 8b 50 08 48 39 f2 75 40 b8 01 00 00 00 5d c3 48
+89 fe 48 89 c2 48 c7 c7 18 75 fe 82 e8 cb 34 78 ff <0f> 0b 48 89 fe 48 c7 c7 50 75 fe 82 e8 ba 34 78 ff 0f 0b 48 89 f2
+RSP: 0018:ffffc90001c2fe40 EFLAGS: 00010286
+RAX: 000000000000004e RBX: ffffffffa0184000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888237a17788 RDI: 00000000ffffffff
+RBP: ffffc90001c2fe40 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffc90001c2fe10 R11: 0000000000000000 R12: 0000000000000000
+R13: ffffc90001c2fe50 R14: ffffffffa0184000 R15: 0000000000000000
+FS:  00007f3d83634540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000555c350ea818 CR3: 0000000231677000 CR4: 00000000000006f0
+Call Trace:
+ unregister_pernet_operations+0x34/0x120
+ unregister_pernet_subsys+0x1c/0x30
+ packet_exit+0x1c/0x369 [af_packet
+ __x64_sys_delete_module+0x156/0x260
+ ? lockdep_hardirqs_on+0x133/0x1b0
+ ? do_syscall_64+0x12/0x1f0
+ do_syscall_64+0x6e/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: a6111d3c93d0 ("vlan: Pass SIOC[SG]HWTSTAMP ioctls to real device")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
+When modprobe af_packet, register_pernet_subsys
+fails and does a cleanup, ops->list is set to LIST_POISON1,
+but the module init is considered to success, then while rmmod it,
+BUG() is triggered in __list_del_entry_valid which is called from
+unregister_pernet_subsys. This patch fix error handing path in
+packet_init to avoid possilbe issue if some error occur.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/8021q/vlan_dev.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/packet/af_packet.c |   25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -366,10 +366,12 @@ static int vlan_dev_ioctl(struct net_dev
- 	ifrr.ifr_ifru = ifr->ifr_ifru;
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4578,14 +4578,29 @@ static void __exit packet_exit(void)
  
- 	switch (cmd) {
-+	case SIOCSHWTSTAMP:
-+		if (!net_eq(dev_net(dev), &init_net))
-+			break;
- 	case SIOCGMIIPHY:
- 	case SIOCGMIIREG:
- 	case SIOCSMIIREG:
--	case SIOCSHWTSTAMP:
- 	case SIOCGHWTSTAMP:
- 		if (netif_device_present(real_dev) && ops->ndo_do_ioctl)
- 			err = ops->ndo_do_ioctl(real_dev, &ifrr, cmd);
+ static int __init packet_init(void)
+ {
+-	int rc = proto_register(&packet_proto, 0);
++	int rc;
+ 
+-	if (rc != 0)
++	rc = proto_register(&packet_proto, 0);
++	if (rc)
+ 		goto out;
++	rc = sock_register(&packet_family_ops);
++	if (rc)
++		goto out_proto;
++	rc = register_pernet_subsys(&packet_net_ops);
++	if (rc)
++		goto out_sock;
++	rc = register_netdevice_notifier(&packet_netdev_notifier);
++	if (rc)
++		goto out_pernet;
+ 
+-	sock_register(&packet_family_ops);
+-	register_pernet_subsys(&packet_net_ops);
+-	register_netdevice_notifier(&packet_netdev_notifier);
++	return 0;
++
++out_pernet:
++	unregister_pernet_subsys(&packet_net_ops);
++out_sock:
++	sock_unregister(PF_PACKET);
++out_proto:
++	proto_unregister(&packet_proto);
+ out:
+ 	return rc;
+ }
 
 
