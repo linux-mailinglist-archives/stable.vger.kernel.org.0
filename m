@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 855361EFFC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3621EE38
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732457AbfEOL2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
+        id S1729249AbfEOLSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732455AbfEOL2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:54 -0400
+        id S1730833AbfEOLSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB77120818;
-        Wed, 15 May 2019 11:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B997D2084F;
+        Wed, 15 May 2019 11:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919733;
-        bh=0Fnyoql+kdy/sAypx07YxOWkmMw4biyzyM65/a7OMAg=;
+        s=default; t=1557919114;
+        bh=if+cigsVb9L5vqMDI0IdmjwNkCaIJB4Q0xkEqqjUYls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbAbmEbtO9nhIYS373egcRV8Q48OkhKRz5HIRSdmhaV5xO4+GHbUS40tgDTTfwt2a
-         +c8UF1vGN6r6PnE4rY6dORrk0EJA5uW4Dfx9gwK/hqMUhyiYsEwAvTYSb4vpCWaP2V
-         QG9RqPf1hY9BY0SBHoOiYKfCrrD8pH0h1s2KeNkQ=
+        b=OtWSk8fIAWESpEZ8pFIHjqEXV7CNRbDqv+X5IeSSod2CSlTKVMlwd9zXjeQvRb6nK
+         BeANFnZIysUTkjdcjT87/qxLA6pr+T7m5J4IxDZfBjkXKwf4kO8OGadNd4aYrIvalG
+         4Cj+7lP3oq4zLRysCoJoMj4OgO/cxlVzhjQ5HjGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 071/137] s390: ctcm: fix ctcm_new_device error return code
+        stable@vger.kernel.org, Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 072/115] arm64: dts: marvell: armada-ap806: reserve PSCI area
 Date:   Wed, 15 May 2019 12:55:52 +0200
-Message-Id: <20190515090658.590949153@linuxfoundation.org>
+Message-Id: <20190515090704.676783539@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
+[ Upstream commit 132ac39cffbcfed80ada38ef0fc6d34d95da7be6 ]
 
-clang points out that the return code from this function is
-undefined for one of the error paths:
+The memory area [0x4000000-0x4200000[ is occupied by the PSCI firmware. Any
+attempt to access it from Linux leads to an immediate crash.
 
-../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
-      [-Wsometimes-uninitialized]
-                if (priv->channel[direction] == NULL) {
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
-        return result;
-               ^~~~~~
-../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
-                if (priv->channel[direction] == NULL) {
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
-        int result;
-                  ^
+So let's make the same memory reservation as the vendor kernel.
 
-Make it return -ENODEV here, as in the related failure cases.
-gcc has a known bug in underreporting some of these warnings
-when it has already eliminated the assignment of the return code
-based on some earlier optimization step.
-
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[gregory: added as comment that this region matches the mainline U-boot]
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/s390/net/ctcm_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/marvell/armada-ap806.dtsi | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 7617d21cb2960..f63c5c871d3dd 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
- 		if (priv->channel[direction] == NULL) {
- 			if (direction == CTCM_WRITE)
- 				channel_free(priv->channel[CTCM_READ]);
-+			result = -ENODEV;
- 			goto out_dev;
- 		}
- 		priv->channel[direction]->netdev = dev;
+diff --git a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
+index 30d48ecf46e08..27d2bd85d1ae9 100644
+--- a/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-ap806.dtsi
+@@ -65,6 +65,23 @@
+ 		method = "smc";
+ 	};
+ 
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/*
++		 * This area matches the mapping done with a
++		 * mainline U-Boot, and should be updated by the
++		 * bootloader.
++		 */
++
++		psci-area@4000000 {
++			reg = <0x0 0x4000000 0x0 0x200000>;
++			no-map;
++		};
++	};
++
+ 	ap806 {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
 -- 
 2.20.1
 
