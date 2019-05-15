@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C0C1F05E
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F091F134
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731584AbfEOL1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38248 "EHLO mail.kernel.org"
+        id S1731394AbfEOLWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731373AbfEOL1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:27:21 -0400
+        id S1731147AbfEOLWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA71F206BF;
-        Wed, 15 May 2019 11:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2431921734;
+        Wed, 15 May 2019 11:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919641;
-        bh=ODSkC85um+xb2HLufxlD81zot8WRz6w5P6oSyh8mHLs=;
+        s=default; t=1557919322;
+        bh=sDiO5l3AAV6W+m0k+TpDaXZsjbUGzwUgt7IamaM5LEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xX77/xBWfewgRtlK6lYfilAfvAod4FJXpOxuslnbRo6eOaqz7847eO6mjecjE2XAO
-         w/JJTw5zaWLyWJejzB9nnim2bhaCP5GrnANmEJNNRU4VFGLKoO1QOfspXHBswd8p85
-         uYjPTi5up38IuZev58SPfeCsg4Q6l2yqpljvu8FI=
+        b=POVofSZQYFNoSDoUHWpeYqeULhvXCQxBSBTOYUBX0J6A9eqIjKB2Ba8BUtBXE53gC
+         Thk0VPaFtyfxOePx15jqi5i7HFQEFb8YJutjqeVVUtypmP2s9Vm4qNWYBFQ1/4u0Nc
+         +QJPqkABvz2hK3VZqK9GgqPX27R3R8a6SDzFAWOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Jonathan Billings <jsbillin@umich.edu>,
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 039/137] afs: Unlock pages for __pagevec_release()
-Date:   Wed, 15 May 2019 12:55:20 +0200
-Message-Id: <20190515090656.231699539@linuxfoundation.org>
+Subject: [PATCH 4.19 030/113] mISDN: Check address length before reading address family
+Date:   Wed, 15 May 2019 12:55:21 +0200
+Message-Id: <20190515090655.839119619@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 21bd68f196ca91fc0f3d9bd1b32f6e530e8c1c88 ]
+[ Upstream commit 238ffdc49ef98b15819cfd5e3fb23194e3ea3d39 ]
 
-__pagevec_release() complains loudly if any page in the vector is still
-locked.  The pages need to be locked for generic_error_remove_page(), but
-that function doesn't actually unlock them.
+KMSAN will complain if valid address length passed to bind() is shorter
+than sizeof("struct sockaddr_mISDN"->family) bytes.
 
-Unlock the pages afterwards.
-
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Jonathan Billings <jsbillin@umich.edu>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/write.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/mISDN/socket.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index 72efcfcf9f95e..0122d7445fba1 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -264,6 +264,7 @@ static void afs_kill_pages(struct address_space *mapping,
- 				first = page->index + 1;
- 			lock_page(page);
- 			generic_error_remove_page(mapping, page);
-+			unlock_page(page);
- 		}
+diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
+index 18c0a1281914f..b2abc44fa5cb8 100644
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -711,10 +711,10 @@ base_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
+ 	struct sock *sk = sock->sk;
+ 	int err = 0;
  
- 		__pagevec_release(&pv);
+-	if (!maddr || maddr->family != AF_ISDN)
++	if (addr_len < sizeof(struct sockaddr_mISDN))
+ 		return -EINVAL;
+ 
+-	if (addr_len < sizeof(struct sockaddr_mISDN))
++	if (!maddr || maddr->family != AF_ISDN)
+ 		return -EINVAL;
+ 
+ 	lock_sock(sk);
 -- 
 2.20.1
 
