@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C88D1EF7E
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B28AA1EEA8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732863AbfEOLbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42888 "EHLO mail.kernel.org"
+        id S1731737AbfEOLXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732855AbfEOLbL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:11 -0400
+        id S1731733AbfEOLXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:23:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B3FC20843;
-        Wed, 15 May 2019 11:31:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CA1320881;
+        Wed, 15 May 2019 11:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919870;
-        bh=150jhkgBPAGqDHBLd7kUBOwIldgeC8zcqCG3Pz6Cp34=;
+        s=default; t=1557919433;
+        bh=YpaRltusz5HUgRwQJezvHkc0zwN1UqsAkslKGnYyXT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Udxz9BWkaBGQolMyWkcfU9bNN4sMKrd04kDVYez989voV07muqCYqG5rPjC4Wp8Go
-         6Wr3Z8nlxFDfarU3+lQBbYxW+ex1QnwwKLBLFxefK7DS8iBCshsASV/eG1mkrpjcht
-         gaHgsvzzMhTIeRc7SnJdvhNE8/WWi7UU6Z3w0X0E=
+        b=c0sVzK5MLjCUwIRzDeG8aX+u355JPBShZL6rY0iFT19Sw5TCEVwrKmnOk48M+I9yV
+         47AM+RVngHgHhWPTVjlc/GYywL+S91HFeu3VDfDuAQd10hbOlsYFu+dgPtrUVURWGA
+         nxFc3Od75gYNU5LGmRVP+UImSX8SJOgTX+9XjRW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Jonathan Marek <jonathan@marek.ca>
-Subject: [PATCH 5.0 081/137] gpu: ipu-v3: dp: fix CSC handling
-Date:   Wed, 15 May 2019 12:56:02 +0200
-Message-Id: <20190515090659.363951177@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.19 072/113] net: fec: manage ahb clock in runtime pm
+Date:   Wed, 15 May 2019 12:56:03 +0200
+Message-Id: <20190515090658.997993148@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d4fad0a426c6e26f48c9a7cdd21a7fe9c198d645 ]
+[ Upstream commit d7c3a206e6338e4ccdf030719dec028e26a521d5 ]
 
-Initialize the flow input colorspaces to unknown and reset to that value
-when the channel gets disabled. This avoids the state getting mixed up
-with a previous mode.
+Some SOC like i.MX6SX clock have some limits:
+- ahb clock should be disabled before ipg.
+- ahb and ipg clocks are required for MAC MII bus.
+So, move the ahb clock to runtime management together with
+ipg clock.
 
-Also keep the CSC settings for the background flow intact when disabling
-the foreground flow.
-
-Root-caused-by: Jonathan Marek <jonathan@marek.ca>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/gpu/ipu-v3/ipu-dp.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 30 ++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-dp.c b/drivers/gpu/ipu-v3/ipu-dp.c
-index 9b2b3fa479c46..5e44ff1f20851 100644
---- a/drivers/gpu/ipu-v3/ipu-dp.c
-+++ b/drivers/gpu/ipu-v3/ipu-dp.c
-@@ -195,7 +195,8 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
- 		ipu_dp_csc_init(flow, flow->foreground.in_cs, flow->out_cs,
- 				DP_COM_CONF_CSC_DEF_BOTH);
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 7b98bb75ba8ac..ad41ace0a27a5 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1850,13 +1850,9 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 	int ret;
+ 
+ 	if (enable) {
+-		ret = clk_prepare_enable(fep->clk_ahb);
+-		if (ret)
+-			return ret;
+-
+ 		ret = clk_prepare_enable(fep->clk_enet_out);
+ 		if (ret)
+-			goto failed_clk_enet_out;
++			return ret;
+ 
+ 		if (fep->clk_ptp) {
+ 			mutex_lock(&fep->ptp_clk_mutex);
+@@ -1876,7 +1872,6 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ 
+ 		phy_reset_after_clk_enable(ndev->phydev);
  	} else {
--		if (flow->foreground.in_cs == flow->out_cs)
-+		if (flow->foreground.in_cs == IPUV3_COLORSPACE_UNKNOWN ||
-+		    flow->foreground.in_cs == flow->out_cs)
- 			/*
- 			 * foreground identical to output, apply color
- 			 * conversion on background
-@@ -261,6 +262,8 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
- 	struct ipu_dp_priv *priv = flow->priv;
- 	u32 reg, csc;
+-		clk_disable_unprepare(fep->clk_ahb);
+ 		clk_disable_unprepare(fep->clk_enet_out);
+ 		if (fep->clk_ptp) {
+ 			mutex_lock(&fep->ptp_clk_mutex);
+@@ -1895,8 +1890,6 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
+ failed_clk_ptp:
+ 	if (fep->clk_enet_out)
+ 		clk_disable_unprepare(fep->clk_enet_out);
+-failed_clk_enet_out:
+-		clk_disable_unprepare(fep->clk_ahb);
  
-+	dp->in_cs = IPUV3_COLORSPACE_UNKNOWN;
+ 	return ret;
+ }
+@@ -3485,6 +3478,9 @@ fec_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(fep->clk_ipg);
+ 	if (ret)
+ 		goto failed_clk_ipg;
++	ret = clk_prepare_enable(fep->clk_ahb);
++	if (ret)
++		goto failed_clk_ahb;
+ 
+ 	fep->reg_phy = devm_regulator_get(&pdev->dev, "phy");
+ 	if (!IS_ERR(fep->reg_phy)) {
+@@ -3578,6 +3574,9 @@ fec_probe(struct platform_device *pdev)
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ failed_regulator:
++	clk_disable_unprepare(fep->clk_ahb);
++failed_clk_ahb:
++	clk_disable_unprepare(fep->clk_ipg);
+ failed_clk_ipg:
+ 	fec_enet_clk_enable(ndev, false);
+ failed_clk:
+@@ -3701,6 +3700,7 @@ static int __maybe_unused fec_runtime_suspend(struct device *dev)
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
+ 
++	clk_disable_unprepare(fep->clk_ahb);
+ 	clk_disable_unprepare(fep->clk_ipg);
+ 
+ 	return 0;
+@@ -3710,8 +3710,20 @@ static int __maybe_unused fec_runtime_resume(struct device *dev)
+ {
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
++	int ret;
+ 
+-	return clk_prepare_enable(fep->clk_ipg);
++	ret = clk_prepare_enable(fep->clk_ahb);
++	if (ret)
++		return ret;
++	ret = clk_prepare_enable(fep->clk_ipg);
++	if (ret)
++		goto failed_clk_ipg;
 +
- 	if (!dp->foreground)
- 		return;
++	return 0;
++
++failed_clk_ipg:
++	clk_disable_unprepare(fep->clk_ahb);
++	return ret;
+ }
  
-@@ -268,8 +271,9 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
- 
- 	reg = readl(flow->base + DP_COM_CONF);
- 	csc = reg & DP_COM_CONF_CSC_DEF_MASK;
--	if (csc == DP_COM_CONF_CSC_DEF_FG)
--		reg &= ~DP_COM_CONF_CSC_DEF_MASK;
-+	reg &= ~DP_COM_CONF_CSC_DEF_MASK;
-+	if (csc == DP_COM_CONF_CSC_DEF_BOTH || csc == DP_COM_CONF_CSC_DEF_BG)
-+		reg |= DP_COM_CONF_CSC_DEF_BG;
- 
- 	reg &= ~DP_COM_CONF_FG_EN;
- 	writel(reg, flow->base + DP_COM_CONF);
-@@ -347,6 +351,8 @@ int ipu_dp_init(struct ipu_soc *ipu, struct device *dev, unsigned long base)
- 	mutex_init(&priv->mutex);
- 
- 	for (i = 0; i < IPUV3_NUM_FLOWS; i++) {
-+		priv->flow[i].background.in_cs = IPUV3_COLORSPACE_UNKNOWN;
-+		priv->flow[i].foreground.in_cs = IPUV3_COLORSPACE_UNKNOWN;
- 		priv->flow[i].foreground.foreground = true;
- 		priv->flow[i].base = priv->base + ipu_dp_flow_base[i];
- 		priv->flow[i].priv = priv;
+ static const struct dev_pm_ops fec_pm_ops = {
 -- 
 2.20.1
 
