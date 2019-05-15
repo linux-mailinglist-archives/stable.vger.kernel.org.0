@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C14B51F31F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FFA1F322
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728488AbfEOLGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:06:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
+        id S1728052AbfEOLGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728008AbfEOLGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:06:40 -0400
+        id S1728767AbfEOLGn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:06:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37FB2173C;
-        Wed, 15 May 2019 11:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6319120644;
+        Wed, 15 May 2019 11:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918399;
-        bh=OhOw0vL38yXmaU2eKj8DUsYjAkBuuhupC6ayetxH300=;
+        s=default; t=1557918401;
+        bh=KecDJvEeYjRIYiy+cOzzZnECyph1IHUP5S8/BPTEMDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/HcehkXA9xXxLGj1YdA3tK+Npxk8Q0sAKfWeDLvERf+T8NkOn+1oNduLVSGWPREX
-         CQbmWCAS0A4Dczz3Y+u6WwpilmUUWCOOPBHHvTjHd1/CtBdAPP1unM8+4yg3zXkj0O
-         pMHyAFTFzrJ3eWVW6a1ztDztVy18qGZap6Hqsc5w=
+        b=Gj0N2EYdKy6c3jSFAjYSI3YhP7F/JyrKqI1Dm3CMHJ+Omwskz8U0XnNxYLwthQTnq
+         wFNRCjUYxdjIfqdS0Si1sA222LrevfrjJEN3XXQ3DzRgufYNbHPzlGgEOSsAyHs8BG
+         2wuI4t2ZN4JudX+hrJmMyryyaWzIPwq/sG5OH4VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 4.4 073/266] bpf: reject wrong sized filters earlier
-Date:   Wed, 15 May 2019 12:53:00 +0200
-Message-Id: <20190515090724.904798248@linuxfoundation.org>
+        stable@vger.kernel.org, Salvatore Bonaccorso <carnil@debian.org>,
+        Jan Kara <jack@suse.cz>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 074/266] Revert "block/loop: Use global lock for ioctl() operation."
+Date:   Wed, 15 May 2019 12:53:01 +0200
+Message-Id: <20190515090724.939227209@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,94 +45,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit f7bd9e36ee4a4ce38e1cddd7effe6c0d9943285b upstream.
+This reverts commit b3f3107fbd928fed6e4fecbe3da2ed5f43216439 which is
+commit 310ca162d779efee8a2dc3731439680f3e9c1e86 upstream.
 
-Add a bpf_check_basics_ok() and reject filters that are of invalid
-size much earlier, so we don't do any useless work such as invoking
-bpf_prog_alloc(). Currently, rejection happens in bpf_check_classic()
-only, but it's really unnecessarily late and they should be rejected
-at earliest point. While at it, also clean up one bpf_prog_size() to
-make it consistent with the remaining invocations.
+Jan Kara has reported seeing problems with this patch applied, as has
+Salvatore Bonaccorso, so let's drop it for now.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Reported-by: Jan Kara <jack@suse.cz>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/block/loop.c |   42 +++++++++++++++++++++---------------------
+ drivers/block/loop.h |    1 +
+ 2 files changed, 22 insertions(+), 21 deletions(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -742,6 +742,17 @@ static bool chk_code_allowed(u16 code_to
- 	return codes[code_to_probe];
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -82,7 +82,6 @@
+ 
+ static DEFINE_IDR(loop_index_idr);
+ static DEFINE_MUTEX(loop_index_mutex);
+-static DEFINE_MUTEX(loop_ctl_mutex);
+ 
+ static int max_part;
+ static int part_shift;
+@@ -1045,7 +1044,7 @@ static int loop_clr_fd(struct loop_devic
+ 	 */
+ 	if (atomic_read(&lo->lo_refcnt) > 1) {
+ 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		return 0;
+ 	}
+ 
+@@ -1094,12 +1093,12 @@ static int loop_clr_fd(struct loop_devic
+ 	if (!part_shift)
+ 		lo->lo_disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 	loop_unprepare_queue(lo);
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 	/*
+-	 * Need not hold loop_ctl_mutex to fput backing file.
+-	 * Calling fput holding loop_ctl_mutex triggers a circular
++	 * Need not hold lo_ctl_mutex to fput backing file.
++	 * Calling fput holding lo_ctl_mutex triggers a circular
+ 	 * lock dependency possibility warning as fput can take
+-	 * bd_mutex which is usually taken before loop_ctl_mutex.
++	 * bd_mutex which is usually taken before lo_ctl_mutex.
+ 	 */
+ 	fput(filp);
+ 	return 0;
+@@ -1362,7 +1361,7 @@ static int lo_ioctl(struct block_device
+ 	struct loop_device *lo = bdev->bd_disk->private_data;
+ 	int err;
+ 
+-	mutex_lock_nested(&loop_ctl_mutex, 1);
++	mutex_lock_nested(&lo->lo_ctl_mutex, 1);
+ 	switch (cmd) {
+ 	case LOOP_SET_FD:
+ 		err = loop_set_fd(lo, mode, bdev, arg);
+@@ -1371,7 +1370,7 @@ static int lo_ioctl(struct block_device
+ 		err = loop_change_fd(lo, bdev, arg);
+ 		break;
+ 	case LOOP_CLR_FD:
+-		/* loop_clr_fd would have unlocked loop_ctl_mutex on success */
++		/* loop_clr_fd would have unlocked lo_ctl_mutex on success */
+ 		err = loop_clr_fd(lo);
+ 		if (!err)
+ 			goto out_unlocked;
+@@ -1407,7 +1406,7 @@ static int lo_ioctl(struct block_device
+ 	default:
+ 		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
+ 	}
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 
+ out_unlocked:
+ 	return err;
+@@ -1540,16 +1539,16 @@ static int lo_compat_ioctl(struct block_
+ 
+ 	switch(cmd) {
+ 	case LOOP_SET_STATUS:
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		err = loop_set_status_compat(
+ 			lo, (const struct compat_loop_info __user *) arg);
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		break;
+ 	case LOOP_GET_STATUS:
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		err = loop_get_status_compat(
+ 			lo, (struct compat_loop_info __user *) arg);
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		break;
+ 	case LOOP_SET_CAPACITY:
+ 	case LOOP_CLR_FD:
+@@ -1593,7 +1592,7 @@ static void __lo_release(struct loop_dev
+ 	if (atomic_dec_return(&lo->lo_refcnt))
+ 		return;
+ 
+-	mutex_lock(&loop_ctl_mutex);
++	mutex_lock(&lo->lo_ctl_mutex);
+ 	if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
+ 		/*
+ 		 * In autoclear mode, stop the loop thread
+@@ -1610,7 +1609,7 @@ static void __lo_release(struct loop_dev
+ 		loop_flush(lo);
+ 	}
+ 
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
  }
  
-+static bool bpf_check_basics_ok(const struct sock_filter *filter,
-+				unsigned int flen)
-+{
-+	if (filter == NULL)
-+		return false;
-+	if (flen == 0 || flen > BPF_MAXINSNS)
-+		return false;
-+
-+	return true;
-+}
-+
- /**
-  *	bpf_check_classic - verify socket filter code
-  *	@filter: filter to verify
-@@ -762,9 +773,6 @@ static int bpf_check_classic(const struc
- 	bool anc_found;
- 	int pc;
+ static void lo_release(struct gendisk *disk, fmode_t mode)
+@@ -1656,10 +1655,10 @@ static int unregister_transfer_cb(int id
+ 	struct loop_device *lo = ptr;
+ 	struct loop_func_table *xfer = data;
  
--	if (flen == 0 || flen > BPF_MAXINSNS)
--		return -EINVAL;
--
- 	/* Check the filter code now */
- 	for (pc = 0; pc < flen; pc++) {
- 		const struct sock_filter *ftest = &filter[pc];
-@@ -1057,7 +1065,7 @@ int bpf_prog_create(struct bpf_prog **pf
- 	struct bpf_prog *fp;
+-	mutex_lock(&loop_ctl_mutex);
++	mutex_lock(&lo->lo_ctl_mutex);
+ 	if (lo->lo_encryption == xfer)
+ 		loop_release_xfer(lo);
+-	mutex_unlock(&loop_ctl_mutex);
++	mutex_unlock(&lo->lo_ctl_mutex);
+ 	return 0;
+ }
  
- 	/* Make sure new filter is there and in the right amounts. */
--	if (fprog->filter == NULL)
-+	if (!bpf_check_basics_ok(fprog->filter, fprog->len))
- 		return -EINVAL;
+@@ -1821,6 +1820,7 @@ static int loop_add(struct loop_device *
+ 	if (!part_shift)
+ 		disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 	disk->flags |= GENHD_FL_EXT_DEVT;
++	mutex_init(&lo->lo_ctl_mutex);
+ 	atomic_set(&lo->lo_refcnt, 0);
+ 	lo->lo_number		= i;
+ 	spin_lock_init(&lo->lo_lock);
+@@ -1933,19 +1933,19 @@ static long loop_control_ioctl(struct fi
+ 		ret = loop_lookup(&lo, parm);
+ 		if (ret < 0)
+ 			break;
+-		mutex_lock(&loop_ctl_mutex);
++		mutex_lock(&lo->lo_ctl_mutex);
+ 		if (lo->lo_state != Lo_unbound) {
+ 			ret = -EBUSY;
+-			mutex_unlock(&loop_ctl_mutex);
++			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+ 		}
+ 		if (atomic_read(&lo->lo_refcnt) > 0) {
+ 			ret = -EBUSY;
+-			mutex_unlock(&loop_ctl_mutex);
++			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+ 		}
+ 		lo->lo_disk->private_data = NULL;
+-		mutex_unlock(&loop_ctl_mutex);
++		mutex_unlock(&lo->lo_ctl_mutex);
+ 		idr_remove(&loop_index_idr, lo->lo_number);
+ 		loop_remove(lo);
+ 		break;
+--- a/drivers/block/loop.h
++++ b/drivers/block/loop.h
+@@ -55,6 +55,7 @@ struct loop_device {
  
- 	fp = bpf_prog_alloc(bpf_prog_size(fprog->len), 0);
-@@ -1104,7 +1112,7 @@ int bpf_prog_create_from_user(struct bpf
- 	int err;
- 
- 	/* Make sure new filter is there and in the right amounts. */
--	if (fprog->filter == NULL)
-+	if (!bpf_check_basics_ok(fprog->filter, fprog->len))
- 		return -EINVAL;
- 
- 	fp = bpf_prog_alloc(bpf_prog_size(fprog->len), 0);
-@@ -1184,7 +1192,6 @@ int __sk_attach_filter(struct sock_fprog
- 		       bool locked)
- {
- 	unsigned int fsize = bpf_classic_proglen(fprog);
--	unsigned int bpf_fsize = bpf_prog_size(fprog->len);
- 	struct bpf_prog *prog;
- 	int err;
- 
-@@ -1192,10 +1199,10 @@ int __sk_attach_filter(struct sock_fprog
- 		return -EPERM;
- 
- 	/* Make sure new filter is there and in the right amounts. */
--	if (fprog->filter == NULL)
-+	if (!bpf_check_basics_ok(fprog->filter, fprog->len))
- 		return -EINVAL;
- 
--	prog = bpf_prog_alloc(bpf_fsize, 0);
-+	prog = bpf_prog_alloc(bpf_prog_size(fprog->len), 0);
- 	if (!prog)
- 		return -ENOMEM;
- 
+ 	spinlock_t		lo_lock;
+ 	int			lo_state;
++	struct mutex		lo_ctl_mutex;
+ 	struct kthread_worker	worker;
+ 	struct task_struct	*worker_task;
+ 	bool			use_dio;
 
 
