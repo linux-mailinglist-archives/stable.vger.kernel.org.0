@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 276051F234
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47ED01F232
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730012AbfEOMAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S1730179AbfEOLPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729747AbfEOLOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:52 -0400
+        id S1729987AbfEOLOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:14:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5EAE20843;
-        Wed, 15 May 2019 11:14:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B70C2084F;
+        Wed, 15 May 2019 11:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918892;
-        bh=rfHNivLtK0FwOga3PE75e8224BeOh40qOTB60qT6/uk=;
+        s=default; t=1557918894;
+        bh=WbgY9iauJgkuWAinSK5vM4iwwUeS6JA0kV3PEpjh3tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esqfv/I6y0CjA6H48Yl55kSUJSp9AmxpxkNOQsxShgmRVKE5EtOHmBwQl3huUxuOh
-         ADFX5tMMtaN51lzlZK+QAi87sEtf7tBkDHo4vH+tZ6G5KKLkrEWyY6Kemb2h/O0/dq
-         ToWSUZ8kM95m8UiiWLL+Vtaib+2A6WMpFIx5PHR4=
+        b=PLlYG+Ewi30dPcyGcGn7ZASybXzxoa2BxnTA3zk0/EV1uyua8lSXVX/EuTAhqN3OW
+         6iEF38kN6IvM0GE07G5cE3kqlh6KgWOXWVx0pXoF7/DOesIl2PJip6x3l0X28wYstH
+         uXv/Q1w9egQXgKAn7ZZxW/8/gPOIli7C3Uy+ziXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        stable@vger.kernel.org, Thomas Haller <thaller@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 40/51] bridge: Fix error path for kobject_init_and_add()
-Date:   Wed, 15 May 2019 12:56:15 +0200
-Message-Id: <20190515090627.915124616@linuxfoundation.org>
+Subject: [PATCH 4.9 41/51] fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied
+Date:   Wed, 15 May 2019 12:56:16 +0200
+Message-Id: <20190515090628.066392616@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
 References: <20190515090616.669619870@linuxfoundation.org>
@@ -43,64 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tobin C. Harding" <tobin@kernel.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
+[ Upstream commit e9919a24d3022f72bcadc407e73a6ef17093a849 ]
 
-Currently error return from kobject_init_and_add() is not followed by a
-call to kobject_put().  This means there is a memory leak.  We currently
-set p to NULL so that kfree() may be called on it as a noop, the code is
-arguably clearer if we move the kfree() up closer to where it is
-called (instead of after goto jump).
+With commit 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to
+fib_nl_newrule") we now able to check if a rule already exists. But this
+only works with iproute2. For other tools like libnl, NetworkManager,
+it still could add duplicate rules with only NLM_F_CREATE flag, like
 
-Remove a goto label 'err1' and jump to call to kobject_put() in error
-return from kobject_init_and_add() fixing the memory leak.  Re-name goto
-label 'put_back' to 'err1' now that we don't use err1, following current
-nomenclature (err1, err2 ...).  Move call to kfree out of the error
-code at bottom of function up to closer to where memory was allocated.
-Add comment to clarify call to kfree().
+[localhost ~ ]# ip rule
+0:      from all lookup local
+32766:  from all lookup main
+32767:  from all lookup default
+100000: from 192.168.7.5 lookup 5
+100000: from 192.168.7.5 lookup 5
 
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+As it doesn't make sense to create two duplicate rules, let's just return
+0 if the rule exists.
+
+Fixes: 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to fib_nl_newrule")
+Reported-by: Thomas Haller <thaller@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_if.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ net/core/fib_rules.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -519,13 +519,15 @@ int br_add_if(struct net_bridge *br, str
- 	call_netdevice_notifiers(NETDEV_JOIN, dev);
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -429,9 +429,9 @@ int fib_nl_newrule(struct sk_buff *skb,
+ 	if (rule->l3mdev && rule->table)
+ 		goto errout_free;
  
- 	err = dev_set_allmulti(dev, 1);
--	if (err)
--		goto put_back;
-+	if (err) {
-+		kfree(p);	/* kobject not yet init'd, manually free */
-+		goto err1;
-+	}
- 
- 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
- 				   SYSFS_BRIDGE_PORT_ATTR);
- 	if (err)
--		goto err1;
-+		goto err2;
- 
- 	err = br_sysfs_addif(p);
- 	if (err)
-@@ -608,12 +610,9 @@ err3:
- 	sysfs_remove_link(br->ifobj, p->dev->name);
- err2:
- 	kobject_put(&p->kobj);
--	p = NULL; /* kobject_put frees */
--err1:
- 	dev_set_allmulti(dev, -1);
--put_back:
-+err1:
- 	dev_put(dev);
--	kfree(p);
- 	return err;
- }
+-	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
+-	    rule_exists(ops, frh, tb, rule)) {
+-		err = -EEXIST;
++	if (rule_exists(ops, frh, tb, rule)) {
++		if (nlh->nlmsg_flags & NLM_F_EXCL)
++			err = -EEXIST;
+ 		goto errout_free;
+ 	}
  
 
 
