@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 505981EE98
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8995C1F26A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731169AbfEOLXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:23:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33764 "EHLO mail.kernel.org"
+        id S1729110AbfEOLMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731641AbfEOLXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:23:24 -0400
+        id S1729758AbfEOLMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:12:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A163020843;
-        Wed, 15 May 2019 11:23:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F17B2168B;
+        Wed, 15 May 2019 11:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919404;
-        bh=oy2kEOxIb6zKFnVnzlNUiUlY5ldvM1xcaN4RpTUfQFc=;
+        s=default; t=1557918742;
+        bh=88gLlCXlkEflQacDbDgamQEB9cQoJE9oCERDmQ9beEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unUp4PSGxQJR9JiGhpurvKNeS+fLJkgU6sZSt99l9FQVQclNySPhPFztAHTUmiEPz
-         IsBgQNlk9fZj7NNJ0ewVWWoDeo17frMH1uMUADlU+Bq5kQxEb3um4RQlRNbOW/My5i
-         OrQ0LsU4K+4rHK1XbchsL6+cDP0Zg/RLKAVRyA0Q=
+        b=kCsGOzCOSpNO5pSNKyuZR7vwokTV3fpxgNOr9r1V4701Ryk9sILPXo9DZ7K7K1dQb
+         DfZm8c9I9Qp/hp3+sad16/nOo0QFe5EZCe3HnjskwxnK0SdSZpY4QHf3kDTonbWNqn
+         Cxls526xf+Dd+SEmYHSZgyHArkqyUohzqGsAAGKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/113] Input: synaptics-rmi4 - fix possible double free
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 246/266] x86/speculation/mds: Print SMT vulnerable on MSBDS with mitigations off
 Date:   Wed, 15 May 2019 12:55:53 +0200
-Message-Id: <20190515090658.270679295@linuxfoundation.org>
+Message-Id: <20190515090731.330285178@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bce1a78423961fce676ac65540a31b6ffd179e6d ]
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-The RMI4 function structure has been released in rmi_register_function
-if error occurs. However, it will be released again in the function
-rmi_create_function, which may result in a double-free bug.
+commit e2c3c94788b08891dcf3dbe608f9880523ecd71b upstream.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This code is only for CPUs which are affected by MSBDS, but are *not*
+affected by the other two MDS issues.
+
+For such CPUs, enabling the mds_idle_clear mitigation is enough to
+mitigate SMT.
+
+However if user boots with 'mds=off' and still has SMT enabled, we should
+not report that SMT is mitigated:
+
+$cat /sys//devices/system/cpu/vulnerabilities/mds
+Vulnerable; SMT mitigated
+
+But rather:
+Vulnerable; SMT vulnerable
+
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20190412215118.294906495@localhost.localdomain
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/rmi4/rmi_driver.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index fc3ab93b7aea4..7fb358f961957 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -860,7 +860,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1091,7 +1091,8 @@ static ssize_t mds_show_state(char *buf)
  
- 	error = rmi_register_function(fn);
- 	if (error)
--		goto err_put_fn;
-+		return error;
+ 	if (boot_cpu_has(X86_BUG_MSBDS_ONLY)) {
+ 		return sprintf(buf, "%s; SMT %s\n", mds_strings[mds_mitigation],
+-			       sched_smt_active() ? "mitigated" : "disabled");
++			       (mds_mitigation == MDS_MITIGATION_OFF ? "vulnerable" :
++			        sched_smt_active() ? "mitigated" : "disabled"));
+ 	}
  
- 	if (pdt->function_number == 0x01)
- 		data->f01_container = fn;
-@@ -870,10 +870,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return RMI_SCAN_CONTINUE;
--
--err_put_fn:
--	put_device(&fn->dev);
--	return error;
- }
- 
- void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
--- 
-2.20.1
-
+ 	return sprintf(buf, "%s; SMT %s\n", mds_strings[mds_mitigation],
 
 
