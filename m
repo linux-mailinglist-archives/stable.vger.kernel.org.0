@@ -2,56 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 612F11F27C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DCA01F04A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729546AbfEOLLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:11:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45592 "EHLO mail.kernel.org"
+        id S1731410AbfEOLmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:42:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729538AbfEOLLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:14 -0400
+        id S1732286AbfEOL1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23A962084F;
-        Wed, 15 May 2019 11:11:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB8A320843;
+        Wed, 15 May 2019 11:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918672;
-        bh=nLP5alnns8TN9xP24VV+pZjoydCx2K0Thsww2XBVqMU=;
+        s=default; t=1557919670;
+        bh=GG0qt3ctbTqUNhqn8fE9gUxNmpq9AC1MRoQ2tNGlc/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXO0nhLgVSGryQOjGECfjggwt6VR/xiyJW/J6lGQw74K9pQuu5bgqA4WDaHRMp874
-         Op75g9jKIVNAIschH7YCn+aDXEUa1mnvGqfm1sJDHKIjDh9i9bvDwJbR13z4Vefgo6
-         tt8dydDnFSUhloVfbfoF9u393/vF5LxJBVd2o6U4=
+        b=1ZduIT7eTPouDwv98655pYGW5ds1fJWH0YNZmICegdGKRLL10LwJmmZuAW6OOjejp
+         8mwrZjoX8KDt0KKmJ98wh88SlYpgaowhO6wBKObnw5U9K57ZCtez+oqjD7/IPS8M/z
+         +aNMd7abYG2Km2FsAQrLRhtPpCNv61Ckazw4LYDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Borislav Petkov <bp@alien8.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 222/266] x86/speculation: Prevent stale SPEC_CTRL msr content
-Date:   Wed, 15 May 2019 12:55:29 +0200
-Message-Id: <20190515090730.504905487@linuxfoundation.org>
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux@endlessm.com,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 049/137] x86/reboot, efi: Use EFI reboot for Acer TravelMate X514-51T
+Date:   Wed, 15 May 2019 12:55:30 +0200
+Message-Id: <20190515090657.030753220@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,223 +51,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 0082517fa4bce073e7cf542633439f26538a14cc ]
 
-commit 6d991ba509ebcfcc908e009d1db51972a4f7a064 upstream.
+Upon reboot, the Acer TravelMate X514-51T laptop appears to complete the
+shutdown process, but then it hangs in BIOS POST with a black screen.
 
-The seccomp speculation control operates on all tasks of a process, but
-only the current task of a process can update the MSR immediately. For the
-other threads the update is deferred to the next context switch.
+The problem is intermittent - at some points it has appeared related to
+Secure Boot settings or different kernel builds, but ultimately we have
+not been able to identify the exact conditions that trigger the issue to
+come and go.
 
-This creates the following situation with Process A and B:
+Besides, the EFI mode cannot be disabled in the BIOS of this model.
 
-Process A task 2 and Process B task 1 are pinned on CPU1. Process A task 2
-does not have the speculation control TIF bit set. Process B task 1 has the
-speculation control TIF bit set.
+However, after extensive testing, we observe that using the EFI reboot
+method reliably avoids the issue in all cases.
 
-CPU0					CPU1
-					MSR bit is set
-					ProcB.T1 schedules out
-					ProcA.T2 schedules in
-					MSR bit is cleared
-ProcA.T1
-  seccomp_update()
-  set TIF bit on ProcA.T2
-					ProcB.T1 schedules in
-					MSR is not updated  <-- FAIL
+So add a boot time quirk to use EFI reboot on such systems.
 
-This happens because the context switch code tries to avoid the MSR update
-if the speculation control TIF bits of the incoming and the outgoing task
-are the same. In the worst case ProcB.T1 and ProcA.T2 are the only tasks
-scheduling back and forth on CPU1, which keeps the MSR stale forever.
-
-In theory this could be remedied by IPIs, but chasing the remote task which
-could be migrated is complex and full of races.
-
-The straight forward solution is to avoid the asychronous update of the TIF
-bit and defer it to the next context switch. The speculation control state
-is stored in task_struct::atomic_flags by the prctl and seccomp updates
-already.
-
-Add a new TIF_SPEC_FORCE_UPDATE bit and set this after updating the
-atomic_flags. Check the bit on context switch and force a synchronous
-update of the speculation control if set. Use the same mechanism for
-updating the current task.
-
-Reported-by: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=203119
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Borislav Petkov <bp@alien8.de>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1811272247140.1875@nanos.tec.linutronix.de
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux@endlessm.com
+Link: http://lkml.kernel.org/r/20190412080152.3718-1-jian-hong@endlessm.com
+[ Fix !CONFIG_EFI build failure, clarify the code and the changelog a bit. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/spec-ctrl.h   |    6 +-----
- arch/x86/include/asm/thread_info.h |    4 +++-
- arch/x86/kernel/cpu/bugs.c         |   18 +++++++-----------
- arch/x86/kernel/process.c          |   30 +++++++++++++++++++++++++++++-
- 4 files changed, 40 insertions(+), 18 deletions(-)
+ arch/x86/kernel/reboot.c | 21 +++++++++++++++++++++
+ include/linux/efi.h      |  7 ++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/spec-ctrl.h
-+++ b/arch/x86/include/asm/spec-ctrl.h
-@@ -83,10 +83,6 @@ static inline void speculative_store_byp
- #endif
- 
- extern void speculation_ctrl_update(unsigned long tif);
--
--static inline void speculation_ctrl_update_current(void)
--{
--	speculation_ctrl_update(current_thread_info()->flags);
--}
-+extern void speculation_ctrl_update_current(void);
- 
- #endif
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -97,6 +97,7 @@ struct thread_info {
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
- #define TIF_SECCOMP		8	/* secure computing */
- #define TIF_SPEC_IB		9	/* Indirect branch speculation mitigation */
-+#define TIF_SPEC_FORCE_UPDATE	10	/* Force speculation MSR update in context switch */
- #define TIF_USER_RETURN_NOTIFY	11	/* notify kernel of userspace return */
- #define TIF_UPROBE		12	/* breakpointed or singlestepping */
- #define TIF_NOTSC		16	/* TSC is not accessible in userland */
-@@ -123,6 +124,7 @@ struct thread_info {
- #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
- #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
- #define _TIF_SPEC_IB		(1 << TIF_SPEC_IB)
-+#define _TIF_SPEC_FORCE_UPDATE	(1 << TIF_SPEC_FORCE_UPDATE)
- #define _TIF_USER_RETURN_NOTIFY	(1 << TIF_USER_RETURN_NOTIFY)
- #define _TIF_UPROBE		(1 << TIF_UPROBE)
- #define _TIF_NOTSC		(1 << TIF_NOTSC)
-@@ -152,7 +154,7 @@ struct thread_info {
- /* flags to check in __switch_to() */
- #define _TIF_WORK_CTXSW_BASE						\
- 	(_TIF_IO_BITMAP|_TIF_NOTSC|_TIF_BLOCKSTEP|			\
--	 _TIF_SSBD)
-+	 _TIF_SSBD | _TIF_SPEC_FORCE_UPDATE)
- 
- /*
-  * Avoid calls to __switch_to_xtra() on UP as STIBP is not evaluated.
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -701,14 +701,10 @@ static void ssb_select_mitigation(void)
- #undef pr_fmt
- #define pr_fmt(fmt)     "Speculation prctl: " fmt
- 
--static void task_update_spec_tif(struct task_struct *tsk, int tifbit, bool on)
-+static void task_update_spec_tif(struct task_struct *tsk)
- {
--	bool update;
--
--	if (on)
--		update = !test_and_set_tsk_thread_flag(tsk, tifbit);
--	else
--		update = test_and_clear_tsk_thread_flag(tsk, tifbit);
-+	/* Force the update of the real TIF bits */
-+	set_tsk_thread_flag(tsk, TIF_SPEC_FORCE_UPDATE);
- 
- 	/*
- 	 * Immediately update the speculation control MSRs for the current
-@@ -718,7 +714,7 @@ static void task_update_spec_tif(struct
- 	 * This can only happen for SECCOMP mitigation. For PRCTL it's
- 	 * always the current task.
- 	 */
--	if (tsk == current && update)
-+	if (tsk == current)
- 		speculation_ctrl_update_current();
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 725624b6c0c05..8fd3cedd9accd 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -81,6 +81,19 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
+ 	return 0;
  }
  
-@@ -734,16 +730,16 @@ static int ssb_prctl_set(struct task_str
- 		if (task_spec_ssb_force_disable(task))
- 			return -EPERM;
- 		task_clear_spec_ssb_disable(task);
--		task_update_spec_tif(task, TIF_SSBD, false);
-+		task_update_spec_tif(task);
- 		break;
- 	case PR_SPEC_DISABLE:
- 		task_set_spec_ssb_disable(task);
--		task_update_spec_tif(task, TIF_SSBD, true);
-+		task_update_spec_tif(task);
- 		break;
- 	case PR_SPEC_FORCE_DISABLE:
- 		task_set_spec_ssb_disable(task);
- 		task_set_spec_ssb_force_disable(task);
--		task_update_spec_tif(task, TIF_SSBD, true);
-+		task_update_spec_tif(task);
- 		break;
- 	default:
- 		return -ERANGE;
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -365,6 +365,18 @@ static __always_inline void __speculatio
- 		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
- }
- 
-+static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
++/*
++ * Some machines don't handle the default ACPI reboot method and
++ * require the EFI reboot method:
++ */
++static int __init set_efi_reboot(const struct dmi_system_id *d)
 +{
-+	if (test_and_clear_tsk_thread_flag(tsk, TIF_SPEC_FORCE_UPDATE)) {
-+		if (task_spec_ssb_disable(tsk))
-+			set_tsk_thread_flag(tsk, TIF_SSBD);
-+		else
-+			clear_tsk_thread_flag(tsk, TIF_SSBD);
++	if (reboot_type != BOOT_EFI && !efi_runtime_disabled()) {
++		reboot_type = BOOT_EFI;
++		pr_info("%s series board detected. Selecting EFI-method for reboot.\n", d->ident);
 +	}
-+	/* Return the updated threadinfo flags*/
-+	return task_thread_info(tsk)->flags;
++	return 0;
 +}
 +
- void speculation_ctrl_update(unsigned long tif)
+ void __noreturn machine_real_restart(unsigned int type)
  {
- 	/* Forced update. Make sure all relevant TIF flags are different */
-@@ -373,6 +385,14 @@ void speculation_ctrl_update(unsigned lo
- 	preempt_enable();
- }
+ 	local_irq_disable();
+@@ -166,6 +179,14 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA110"),
+ 		},
+ 	},
++	{	/* Handle reboot issue on Acer TravelMate X514-51T */
++		.callback = set_efi_reboot,
++		.ident = "Acer TravelMate X514-51T",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate X514-51T"),
++		},
++	},
  
-+/* Called from seccomp/prctl update */
-+void speculation_ctrl_update_current(void)
-+{
-+	preempt_disable();
-+	speculation_ctrl_update(speculation_ctrl_update_tif(current));
-+	preempt_enable();
-+}
+ 	/* Apple */
+ 	{	/* Handle problems with rebooting on Apple MacBook5 */
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index a86485ac7c878..de05a43025292 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1598,7 +1598,12 @@ efi_status_t efi_setup_gop(efi_system_table_t *sys_table_arg,
+ 			   struct screen_info *si, efi_guid_t *proto,
+ 			   unsigned long size);
+ 
+-bool efi_runtime_disabled(void);
++#ifdef CONFIG_EFI
++extern bool efi_runtime_disabled(void);
++#else
++static inline bool efi_runtime_disabled(void) { return true; }
++#endif
 +
- void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p)
- {
- 	struct thread_struct *prev, *next;
-@@ -401,7 +421,15 @@ void __switch_to_xtra(struct task_struct
- 	if ((tifp ^ tifn) & _TIF_NOTSC)
- 		cr4_toggle_bits(X86_CR4_TSD);
+ extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
  
--	__speculation_ctrl_update(tifp, tifn);
-+	if (likely(!((tifp | tifn) & _TIF_SPEC_FORCE_UPDATE))) {
-+		__speculation_ctrl_update(tifp, tifn);
-+	} else {
-+		speculation_ctrl_update_tif(prev_p);
-+		tifn = speculation_ctrl_update_tif(next_p);
-+
-+		/* Enforce MSR update to ensure consistent state */
-+		__speculation_ctrl_update(~tifn, tifn);
-+	}
- }
- 
- /*
+ enum efi_secureboot_mode {
+-- 
+2.20.1
+
 
 
