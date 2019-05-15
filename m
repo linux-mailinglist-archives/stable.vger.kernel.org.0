@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A27061F2AF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F8D1ED7A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726623AbfEOLJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:09:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42224 "EHLO mail.kernel.org"
+        id S1729311AbfEOLJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:09:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728113AbfEOLJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:09:21 -0400
+        id S1728865AbfEOLJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:09:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C11420644;
-        Wed, 15 May 2019 11:09:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A99020843;
+        Wed, 15 May 2019 11:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918561;
-        bh=A4r0JM/UoYUkEF5U+B0mA9S0y6VS+13Qd7+8GKDJf2o=;
+        s=default; t=1557918589;
+        bh=NB47b0H6Mz6H3ek0C4IXApJ456/tz8433YCfRjB5OyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/LvyIfxPPt9/0gSiRFle6W7SaWfiVI1mShR9dHYv44dub3I1/LXeVSgrsv+5ioLC
-         KoHcF0Y0JN3cxZEl6qV8pX1dkZppH0Hna4DS7WwfzJTldcGtLGTM2mgFscJVKRiMJb
-         Jma5pIVvwyN/pLeycTnhEDzH55pp2/E0UKV0OdaM=
+        b=ReF3liy/dZKlxB/RP5UqgYKMF4w6qqei+UUMURVhHeNOMBdwrGTgPLAwFmM6MWj9p
+         OFgLEHzrF7LCvLn7MkIH0Pkhv310JR0UPTX1AKDM+uT0nNeG40Myj6lKu4ycHtDO2S
+         Mbf2ZSw6NUpAXYJLq7ZcTV2dvfZsCUbjovI4Vitw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 162/266] iio: adc: xilinx: fix potential use-after-free on remove
-Date:   Wed, 15 May 2019 12:54:29 +0200
-Message-Id: <20190515090728.397542330@linuxfoundation.org>
+Subject: [PATCH 4.4 163/266] HID: input: add mapping for Expose/Overview key
+Date:   Wed, 15 May 2019 12:54:30 +0200
+Message-Id: <20190515090728.433308720@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,36 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 62039b6aef63380ba7a37c113bbaeee8a55c5342 ]
+[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
 
-When cancel_delayed_work() returns, the delayed work may still
-be running. This means that the core could potentially free
-the private structure (struct xadc) while the delayed work
-is still using it. This is a potential use-after-free.
+According to HUTRR77 usage 0x29f from the consumer page is reserved for
+the Desktop application to present all running user’s application windows.
+Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
+add the mapping.
 
-Fix by calling cancel_delayed_work_sync(), which waits for
-any residual work to finish before returning.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/xilinx-xadc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 475c5a74f2d1f..6398e86a272b8 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1299,7 +1299,7 @@ static int xadc_remove(struct platform_device *pdev)
- 	}
- 	free_irq(irq, indio_dev);
- 	clk_disable_unprepare(xadc->clk);
--	cancel_delayed_work(&xadc->zynq_unmask_work);
-+	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
- 	kfree(xadc->data);
- 	kfree(indio_dev->channels);
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 8d74e691ac90f..01b41ff430564 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -913,6 +913,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
+ 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
  
++		case 0x29f: map_key_clear(KEY_SCALE);		break;
++
+ 		default: map_key_clear(KEY_UNKNOWN);
+ 		}
+ 		break;
 -- 
 2.20.1
 
