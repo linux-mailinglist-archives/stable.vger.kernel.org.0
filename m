@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BED91F0B5
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA4B1F15F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731558AbfEOLY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:24:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
+        id S1730910AbfEOLxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731783AbfEOLY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:26 -0400
+        id S1730994AbfEOLTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E20F2084F;
-        Wed, 15 May 2019 11:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAEB120862;
+        Wed, 15 May 2019 11:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919464;
-        bh=dVQBo5mtvrTupR7EEWhapQ5svi0kusxcNoYyTDZh03o=;
+        s=default; t=1557919180;
+        bh=+T5xg37uSXqMNZuyaugYLjNfIcdAlcmygRI2cWC8uKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCgx9aktsvgjKFwQ+D9uw4FGkMy5OykDJRfQRSJVFJpyHT71JDHZvIlaS0OWkmVOd
-         yUhXBetLxo/17PDbiEoWVYl25enATvcj9ItTZzNlQaxBBdS46kVge8y+aldXjTHf0k
-         zB3TYEex9mT8o/r1h2RGuONLj5Wc/sg0ov7H9xH4=
+        b=lOfQN1LJJGYXQ+BQ+x8m8k8fEpqDY+B6o1nNvut+0O8R+psclSSYha5pL1XMbwD8a
+         6yaRkuG2UJramepn3+mVGe7OisGm9mRi/xjrx1hMsIhMz+ivx46/waPl/OXcQjgKnu
+         nIa9QyfLADypfEy3To3wkYBha0u4mzlzBEjaH8QU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eubert Bao <bunnier@gmail.com>,
         =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 083/113] mwl8k: Fix rate_idx underflow
-Date:   Wed, 15 May 2019 12:56:14 +0200
-Message-Id: <20190515090659.931745665@linuxfoundation.org>
+Subject: [PATCH 4.14 095/115] mwl8k: Fix rate_idx underflow
+Date:   Wed, 15 May 2019 12:56:15 +0200
+Message-Id: <20190515090706.104985951@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -84,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/wireless/marvell/mwl8k.c
 +++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -441,6 +441,9 @@ static const struct ieee80211_rate mwl8k
+@@ -436,6 +436,9 @@ static const struct ieee80211_rate mwl8k
  #define MWL8K_CMD_UPDATE_STADB		0x1123
  #define MWL8K_CMD_BASTREAM		0x1125
  
@@ -94,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static const char *mwl8k_cmd_name(__le16 cmd, char *buf, int bufsize)
  {
  	u16 command = le16_to_cpu(cmd);
-@@ -1016,8 +1019,9 @@ mwl8k_rxd_ap_process(void *_rxd, struct
+@@ -1011,8 +1014,9 @@ mwl8k_rxd_ap_process(void *_rxd, struct
  
  	if (rxd->channel > 14) {
  		status->band = NL80211_BAND_5GHZ;
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	} else {
  		status->band = NL80211_BAND_2GHZ;
  	}
-@@ -1124,8 +1128,9 @@ mwl8k_rxd_sta_process(void *_rxd, struct
+@@ -1119,8 +1123,9 @@ mwl8k_rxd_sta_process(void *_rxd, struct
  
  	if (rxd->channel > 14) {
  		status->band = NL80211_BAND_5GHZ;
