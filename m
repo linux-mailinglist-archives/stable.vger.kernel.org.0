@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 025871EF7C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107FF1EF4E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732239AbfEOLbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42654 "EHLO mail.kernel.org"
+        id S1733026AbfEOLc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726466AbfEOLbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:00 -0400
+        id S1733024AbfEOLcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFD4B206BF;
-        Wed, 15 May 2019 11:30:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 267A42053B;
+        Wed, 15 May 2019 11:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919860;
-        bh=GlqbzxP1iKRD9SbG11QnA4E7zsVZc8ZExrGnkid4cR4=;
+        s=default; t=1557919944;
+        bh=JDCjz2uejUGz1Wl/+wSooTpOrcmdF/YYT9dMSQKOIF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSf/oJbsX1iWeRMvAk2YIhSbjm9GRiCV9BbT0SWjqD9cPD0by4z2REOPYr3v08Cau
-         1aw0DrnvQaDDuE+k+9sLTpZkNsxGLVtDf3gSdGy7etekxkULWDptAzC20g8q/vqKlo
-         1lATqUM5AlDBAdjiDmUY2OQvujNaUyT9SrlilCls=
+        b=D35MttJF2vDyNxp+4Wrq1b9efQb2x3KSJQpcMqbmOoHX098fCDqfIs5mtOZkRNgMj
+         z2bYVx8VaYN7bffzHYV5xulNVqV0d4c+U56N9vio2FPUjyIPDMsSHOHSzbISve8ZO/
+         9ag7Vz5QXTXBjWIYcrOKA4K6r4P1hpJIwNzZHI9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Madalin Bucur <madalin.bucur@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 119/137] vrf: sit mtu should not be updated when vrf netdev is the link
+Subject: [PATCH 5.1 16/46] dpaa_eth: fix SG frame cleanup
 Date:   Wed, 15 May 2019 12:56:40 +0200
-Message-Id: <20190515090702.322044748@linuxfoundation.org>
+Message-Id: <20190515090623.140932652@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit ff6ab32bd4e073976e4d8797b4d514a172cfe6cb ]
+[ Upstream commit 17170e6570c082717c142733d9a638bcd20551f8 ]
 
-VRF netdev mtu isn't typically set and have an mtu of 65536. When the
-link of a tunnel is set, the tunnel mtu is changed from 1480 to the link
-mtu minus tunnel header. In the case of VRF netdev is the link, then the
-tunnel mtu becomes 65516. So, fix it by not setting the tunnel mtu in
-this case.
+Fix issue with the entry indexing in the sg frame cleanup code being
+off-by-1. This problem showed up when doing some basic iperf tests and
+manifested in traffic coming to a halt.
 
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Acked-by: Madalin Bucur <madalin.bucur@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    2 +-
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1084,7 +1084,7 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (!tdev && tunnel->parms.link)
- 		tdev = __dev_get_by_index(tunnel->net, tunnel->parms.link);
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+@@ -1648,7 +1648,7 @@ static struct sk_buff *dpaa_cleanup_tx_f
+ 				 qm_sg_entry_get_len(&sgt[0]), dma_dir);
  
--	if (tdev) {
-+	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+ 		/* remaining pages were mapped with skb_frag_dma_map() */
+-		for (i = 1; i < nr_frags; i++) {
++		for (i = 1; i <= nr_frags; i++) {
+ 			WARN_ON(qm_sg_entry_is_ext(&sgt[i]));
  
- 		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
+ 			dma_unmap_page(dev, qm_sg_addr(&sgt[i]),
 
 
