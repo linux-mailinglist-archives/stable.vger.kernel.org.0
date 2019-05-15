@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB3F1EA3A
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC151EA3B
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725876AbfEOIfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 04:35:21 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42115 "EHLO
+        id S1726201AbfEOIfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 04:35:39 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54055 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725871AbfEOIfV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:35:21 -0400
+        by vger.kernel.org with ESMTP id S1725871AbfEOIfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:35:39 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8FF3725936;
-        Wed, 15 May 2019 04:35:20 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 766E32593A;
+        Wed, 15 May 2019 04:35:38 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 15 May 2019 04:35:20 -0400
+  by compute6.internal (MEProxy); Wed, 15 May 2019 04:35:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ipaHiB
-        0jB+FTvHaE3aBlvo4CLzn3Y0RvZ6D3K023XLw=; b=Mrj97KdccoeMC5wNTYdIJi
-        9+dMk12Hzmz4IbVhPp1i37MfU6QBSODNE31fgoEq+uoTf6/fpRDnqsfUJTLsgaqW
-        cmAVGdYgMkN5k8B2GXy29LQ3aNnyGExurIfCVVsuYNw/INvXTQly3Jy91OaNEFuS
-        vLOr0aE3GuoJfhOn9hwyRkECgs71y77bwZpsM2rbXYdvpak98kIgDfJwuJ/A1WpQ
-        mp50EqVTVvuVlO8H8tG6oQzb40vsh7V2vE3w6rCSTFIB3ZNCK/Ny+n1p9upJ2Cst
-        KtOiCk8WMBppJLYbCyTWC6+uKjAaXTEsp6fbRYZiTI5qbUra/hg8wLnuyeqFy5fg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=j4nY2f
+        Epi390QO/JwjHppZgea+x+H25bNMYGC0vipjE=; b=49HNtzRbjuqUt3SoUbA/YV
+        J027+5oDm0vvefkI9LK0DGOpn+sScj8mNW2eTqgybUWWS6J75OcXcZijbvpkyspe
+        qvuVJdCWEM6QollhYayd17c8e28cLOFPgNlpS3vwzo/AzzffsfOK0RKEgsCUjF+A
+        oZtVG6Gjk1CzQJaIAEE2VxRnjrRecs/SY9xYyVcgq+F1mm7fuVWl2P9ucJh2K5qu
+        qiDbGgfMSCi0WNnzcmx0GY1iponS2ksDRTnVf00blGTNxTa4RsMl3bZ18mqTSLST
+        1Ry4bcXzltSk3gA7OABAE7/HSM0jKQEwufs0eCP1NTRXn3Z7nkVsPNaNXQpIa7Og
         ==
-X-ME-Sender: <xms:SM_bXILAJxvan_IJo89gX7pBdk4mADHwfOdTPSo-X3MLfH7y0LUcYA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddtiecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:Ws_bXFTkzufhaZeshW_HQIZxd4rCOig6Mf_nwNfFJVXWEuUY0I02rg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddtjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:SM_bXOpiJ-DOHD-SjK79iNq5K4Ye3abRHfFsO9w1YfR5DgGmWY1P6g>
-    <xmx:SM_bXGtkRYjkrHKWHFeNCP2t7RizLIMrg5pfqjaYAnC_U0hDs8-Qrw>
-    <xmx:SM_bXIIvEsh2pSOHPiE_b8UlSxDN-gu3qyVb-IH0kSvtjBMZSXSFBQ>
-    <xmx:SM_bXEjuMShMG9otRCRU84koiBH9Umg_kY4yLRcpxmn_cVy2ugYXPg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:Ws_bXLGcVat64ev1Jp_0mI8IyjY4c1B25_sm0aSvFG4cLzPFPpZc4w>
+    <xmx:Ws_bXNnGZd4cNSt3DEHH1JzdQ9TzoqkNORo4lYn16LSt9xZ-Si8uDg>
+    <xmx:Ws_bXO0_nHg8wtlLCgAMfl8a3JwVqCuftgcmf5lbtkHgud86Hg430A>
+    <xmx:Ws_bXDx3BH9w42yy51_3GqShssKmmewXPmcBvv3RkOn5nDgJcyhW5Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DD5D310323;
-        Wed, 15 May 2019 04:35:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: hv: Add hv_pci_remove_slots() when we unload the driver" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id CA65110379;
+        Wed, 15 May 2019 04:35:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: hv: Add pci_destroy_slot() in" failed to apply to 4.14-stable tree
 To:     decui@microsoft.com, lorenzo.pieralisi@arm.com,
-        mikelley@microsoft.com, sthemmin@microsoft.com
+        mikelley@microsoft.com, stephen@networkplumber.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 May 2019 10:35:18 +0200
-Message-ID: <155790931816178@kroah.com>
+Date:   Wed, 15 May 2019 10:35:36 +0200
+Message-ID: <155790933699245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,75 +68,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 15becc2b56c6eda3d9bf5ae993bafd5661c1fad1 Mon Sep 17 00:00:00 2001
+From 340d455699400f2c2c0f9b3f703ade3085cdb501 Mon Sep 17 00:00:00 2001
 From: Dexuan Cui <decui@microsoft.com>
-Date: Mon, 4 Mar 2019 21:34:48 +0000
-Subject: [PATCH] PCI: hv: Add hv_pci_remove_slots() when we unload the driver
+Date: Mon, 4 Mar 2019 21:34:49 +0000
+Subject: [PATCH] PCI: hv: Add pci_destroy_slot() in
+ pci_devices_present_work(), if necessary
 
-When we unload the pci-hyperv host controller driver, the host does not
-send us a PCI_EJECT message.
+When we hot-remove a device, usually the host sends us a PCI_EJECT message,
+and a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
-In this case we also need to make sure the sysfs PCI slot directory is
-removed, otherwise a command on a slot file eg:
+When we execute the quick hot-add/hot-remove test, the host may not send
+us the PCI_EJECT message if the guest has not fully finished the
+initialization by sending the PCI_RESOURCES_ASSIGNED* message to the
+host, so it's potentially unsafe to only depend on the
+pci_destroy_slot() in hv_eject_device_work() because the code path
 
-"cat /sys/bus/pci/slots/2/address"
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
 
-will trigger a
+is not called in this case. Note: in this case, the host still sends the
+guest a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
-"BUG: unable to handle kernel paging request"
+In the quick hot-add/hot-remove test, we can have such a race before
+the code path
 
-and, if we unload/reload the driver several times we would end up with
-stale slot entries in PCI slot directories in /sys/bus/pci/slots/
+pci_devices_present_work()
+ -> new_pcichild_device()
 
-root@localhost:~# ls -rtl  /sys/bus/pci/slots/
-total 0
-drwxr-xr-x 2 root root 0 Feb  7 10:49 2
-drwxr-xr-x 2 root root 0 Feb  7 10:49 2-1
-drwxr-xr-x 2 root root 0 Feb  7 10:51 2-2
+adds the new device into the hbus->children list, we may have already
+received the PCI_EJECT message, and since the tasklet handler
 
-Add the missing code to remove the PCI slot and fix the current
-behaviour.
+hv_pci_onchannelcallback()
+
+may fail to find the "hpdev" by calling
+
+get_pcichild_wslot(hbus, dev_message->wslot.slot)
+
+hv_pci_eject_device() is not called; Later, by continuing execution
+
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+creates the slot and the PCI_BUS_RELATIONS message with
+bus_rel->device_count == 0 removes the device from hbus->children, and
+we end up being unable to remove the slot in
+
+hv_pci_remove()
+ -> hv_pci_remove_slots()
+
+Remove the slot in pci_devices_present_work() when the device
+is removed to address this race.
+
+pci_devices_present_work() and hv_eject_device_work() run in the
+singled-threaded hbus->wq, so there is not a double-remove issue for the
+slot.
+
+We cannot offload hv_pci_eject_device() from hv_pci_onchannelcallback()
+to the workqueue, because we need the hv_pci_onchannelcallback()
+synchronously call hv_pci_eject_device() to poll the channel
+ringbuffer to work around the "hangs in hv_compose_msi_msg()" issue
+fixed in commit de0aa7b2f97d ("PCI: hv: Fix 2 hang issues in
+hv_compose_msi_msg()")
 
 Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
 Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: reformatted the log]
+[lorenzo.pieralisi@arm.com: rewritten commit log]
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <sthemmin@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
 Cc: stable@vger.kernel.org
 
 diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 30f16b882746..b489412e3502 100644
+index b489412e3502..82acd6155adf 100644
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1486,6 +1486,21 @@ static void hv_pci_assign_slots(struct hv_pcibus_device *hbus)
+@@ -1776,6 +1776,10 @@ static void pci_devices_present_work(struct work_struct *work)
+ 		hpdev = list_first_entry(&removed, struct hv_pci_dev,
+ 					 list_entry);
+ 		list_del(&hpdev->list_entry);
++
++		if (hpdev->pci_slot)
++			pci_destroy_slot(hpdev->pci_slot);
++
+ 		put_pcichild(hpdev);
  	}
- }
  
-+/*
-+ * Remove entries in sysfs pci slot directory.
-+ */
-+static void hv_pci_remove_slots(struct hv_pcibus_device *hbus)
-+{
-+	struct hv_pci_dev *hpdev;
-+
-+	list_for_each_entry(hpdev, &hbus->children, list_entry) {
-+		if (!hpdev->pci_slot)
-+			continue;
-+		pci_destroy_slot(hpdev->pci_slot);
-+		hpdev->pci_slot = NULL;
-+	}
-+}
-+
- /**
-  * create_root_hv_pci_bus() - Expose a new root PCI bus
-  * @hbus:	Root PCI bus, as understood by this driver
-@@ -2680,6 +2695,7 @@ static int hv_pci_remove(struct hv_device *hdev)
- 		pci_lock_rescan_remove();
- 		pci_stop_root_bus(hbus->pci_bus);
- 		pci_remove_root_bus(hbus->pci_bus);
-+		hv_pci_remove_slots(hbus);
- 		pci_unlock_rescan_remove();
- 		hbus->state = hv_pcibus_removed;
- 	}
 
