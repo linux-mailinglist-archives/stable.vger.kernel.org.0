@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 809441F05F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A7C1F1B5
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732220AbfEOL10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:27:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
+        id S1727656AbfEOLRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731861AbfEOL1Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:27:25 -0400
+        id S1730641AbfEOLRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF3C20818;
-        Wed, 15 May 2019 11:27:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7445920644;
+        Wed, 15 May 2019 11:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919644;
-        bh=FVtfN4kgoXLaaZ7A/fGCxHLflEgVWrCEllSApCbz5m4=;
+        s=default; t=1557919034;
+        bh=xFiCKmtsOvgoT4wK1Uqxsoxvd2pdKj+Zjdqq4SnKHgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuCD2fVKWZYL97mt1cERwfVO+8lqYtVR8EHNkhp6ZZ2S/EhyQDJOoLL2AaCEL31rH
-         5gHYLr/WN5Jtyk/NcbmRFrOD1FzSeFjnOfIZ2er0NdGHBeVxf2tucx7yQT4teIlCZY
-         HvhLOGZ9hR72NsWfqNyEysDNB9oS6qYgd8A1fBAg=
+        b=LO/beIkktyGom5i/y9W4mkJMx+PgeSCqk9+r3VeE5bIjqhWHr0cOPSSi1tRFmLwac
+         KoEPW9okYpvYP6xjotdSRcfuUq2rNhXe1y7eFh5y8LClwdFYYMiPezf4XUCr4VLPwz
+         vT7vdrp7VijHkGEaIOG6ibBNMgvZ79EUWQGShd8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 040/137] afs: Fix in-progess ops to ignore server-level callback invalidation
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 041/115] sparc64: Make corrupted user stacks more debuggable.
 Date:   Wed, 15 May 2019 12:55:21 +0200
-Message-Id: <20190515090656.313919902@linuxfoundation.org>
+Message-Id: <20190515090702.483620383@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,168 +43,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eeba1e9cf31d064284dd1fa7bd6cfe01395bd03d ]
+[ Upstream commit 5b4fc3882a649c9411dd0dcad2ddb78e911d340e ]
 
-The in-kernel afs filesystem client counts the number of server-level
-callback invalidation events (CB.InitCallBackState* RPC operations) that it
-receives from the server.  This is stored in cb_s_break in various
-structures, including afs_server and afs_vnode.
+Right now if we get a corrupted user stack frame we do a
+do_exit(SIGILL) which is not helpful.
 
-If an inode is examined by afs_validate(), say, the afs_server copy is
-compared, along with other break counters, to those in afs_vnode, and if
-one or more of the counters do not match, it is considered that the
-server's callback promise is broken.  At points where this happens,
-AFS_VNODE_CB_PROMISED is cleared to indicate that the status must be
-refetched from the server.
+If under a debugger, this behavior causes the inferior process to
+exit.  So the register and other state cannot be examined at the time
+of the event.
 
-afs_validate() issues an FS.FetchStatus operation to get updated metadata -
-and based on the updated data_version may invalidate the pagecache too.
+Instead, conditionally log a rate limited kernel log message and then
+force a SIGSEGV.
 
-However, the break counters are also used to determine whether to note a
-new callback in the vnode (which would set the AFS_VNODE_CB_PROMISED flag)
-and whether to cache the permit data included in the YFSFetchStatus record
-by the server.
+With bits and ideas borrowed (as usual) from powerpc.
 
-The problem comes when the server sends us a CB.InitCallBackState op.  The
-first such instance doesn't cause cb_s_break to be incremented, but rather
-causes AFS_SERVER_FL_NEW to be cleared - but thereafter, say some hours
-after last use and all the volumes have been automatically unmounted and
-the server has forgotten about the client[*], this *will* likely cause an
-increment.
-
- [*] There are other circumstances too, such as the server restarting or
-     needing to make space in its callback table.
-
-Note that the server won't send us a CB.InitCallBackState op until we talk
-to it again.
-
-So what happens is:
-
- (1) A mount for a new volume is attempted, a inode is created for the root
-     vnode and vnode->cb_s_break and AFS_VNODE_CB_PROMISED aren't set
-     immediately, as we don't have a nominated server to talk to yet - and
-     we may iterate through a few to find one.
-
- (2) Before the operation happens, afs_fetch_status(), say, notes in the
-     cursor (fc.cb_break) the break counter sum from the vnode, volume and
-     server counters, but the server->cb_s_break is currently 0.
-
- (3) We send FS.FetchStatus to the server.  The server sends us back
-     CB.InitCallBackState.  We increment server->cb_s_break.
-
- (4) Our FS.FetchStatus completes.  The reply includes a callback record.
-
- (5) xdr_decode_AFSCallBack()/xdr_decode_YFSCallBack() check to see whether
-     the callback promise was broken by checking the break counter sum from
-     step (2) against the current sum.
-
-     This fails because of step (3), so we don't set the callback record
-     and, importantly, don't set AFS_VNODE_CB_PROMISED on the vnode.
-
-This does not preclude the syscall from progressing, and we don't loop here
-rechecking the status, but rather assume it's good enough for one round
-only and will need to be rechecked next time.
-
- (6) afs_validate() it triggered on the vnode, probably called from
-     d_revalidate() checking the parent directory.
-
- (7) afs_validate() notes that AFS_VNODE_CB_PROMISED isn't set, so doesn't
-     update vnode->cb_s_break and assumes the vnode to be invalid.
-
- (8) afs_validate() needs to calls afs_fetch_status().  Go back to step (2)
-     and repeat, every time the vnode is validated.
-
-This primarily affects volume root dir vnodes.  Everything subsequent to
-those inherit an already incremented cb_s_break upon mounting.
-
-The issue is that we assume that the callback record and the cached permit
-information in a reply from the server can't be trusted after getting a
-server break - but this is wrong since the server makes sure things are
-done in the right order, holding up our ops if necessary[*].
-
- [*] There is an extremely unlikely scenario where a reply from before the
-     CB.InitCallBackState could get its delivery deferred till after - at
-     which point we think we have a promise when we don't.  This, however,
-     requires unlucky mass packet loss to one call.
-
-AFS_SERVER_FL_NEW tries to paper over the cracks for the initial mount from
-a server we've never contacted before, but this should be unnecessary.
-It's also further insulated from the problem on an initial mount by
-querying the server first with FS.GetCapabilities, which triggers the
-CB.InitCallBackState.
-
-Fix this by
-
- (1) Remove AFS_SERVER_FL_NEW.
-
- (2) In afs_calc_vnode_cb_break(), don't include cb_s_break in the
-     calculation.
-
- (3) In afs_cb_is_broken(), don't include cb_s_break in the check.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- fs/afs/callback.c | 3 +--
- fs/afs/internal.h | 4 +---
- fs/afs/server.c   | 1 -
- 3 files changed, 2 insertions(+), 6 deletions(-)
+ arch/sparc/include/asm/switch_to_64.h |  3 ++-
+ arch/sparc/kernel/process_64.c        | 25 +++++++++++++++++++------
+ arch/sparc/kernel/rtrap_64.S          |  1 +
+ arch/sparc/kernel/signal32.c          | 12 ++++++++++--
+ arch/sparc/kernel/signal_64.c         |  6 +++++-
+ 5 files changed, 37 insertions(+), 10 deletions(-)
 
-diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-index 1c7955f5cdaf2..128f2dbe256a4 100644
---- a/fs/afs/callback.c
-+++ b/fs/afs/callback.c
-@@ -203,8 +203,7 @@ void afs_put_cb_interest(struct afs_net *net, struct afs_cb_interest *cbi)
-  */
- void afs_init_callback_state(struct afs_server *server)
- {
--	if (!test_and_clear_bit(AFS_SERVER_FL_NEW, &server->flags))
--		server->cb_s_break++;
-+	server->cb_s_break++;
+diff --git a/arch/sparc/include/asm/switch_to_64.h b/arch/sparc/include/asm/switch_to_64.h
+index 4ff29b1406a9b..b1d4e2e3210fb 100644
+--- a/arch/sparc/include/asm/switch_to_64.h
++++ b/arch/sparc/include/asm/switch_to_64.h
+@@ -67,6 +67,7 @@ do {	save_and_clear_fpu();						\
+ } while(0)
+ 
+ void synchronize_user_stack(void);
+-void fault_in_user_windows(void);
++struct pt_regs;
++void fault_in_user_windows(struct pt_regs *);
+ 
+ #endif /* __SPARC64_SWITCH_TO_64_H */
+diff --git a/arch/sparc/kernel/process_64.c b/arch/sparc/kernel/process_64.c
+index 318efd784a0b3..5640131e2abf3 100644
+--- a/arch/sparc/kernel/process_64.c
++++ b/arch/sparc/kernel/process_64.c
+@@ -36,6 +36,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/nmi.h>
+ #include <linux/context_tracking.h>
++#include <linux/signal.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/page.h>
+@@ -528,7 +529,12 @@ static void stack_unaligned(unsigned long sp)
+ 	force_sig_info(SIGBUS, &info, current);
  }
  
- /*
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 8871b9e8645f1..465526f495b01 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -475,7 +475,6 @@ struct afs_server {
- 	time64_t		put_time;	/* Time at which last put */
- 	time64_t		update_at;	/* Time at which to next update the record */
- 	unsigned long		flags;
--#define AFS_SERVER_FL_NEW	0		/* New server, don't inc cb_s_break */
- #define AFS_SERVER_FL_NOT_READY	1		/* The record is not ready for use */
- #define AFS_SERVER_FL_NOT_FOUND	2		/* VL server says no such server */
- #define AFS_SERVER_FL_VL_FAIL	3		/* Failed to access VL server */
-@@ -828,7 +827,7 @@ static inline struct afs_cb_interest *afs_get_cb_interest(struct afs_cb_interest
- 
- static inline unsigned int afs_calc_vnode_cb_break(struct afs_vnode *vnode)
+-void fault_in_user_windows(void)
++static const char uwfault32[] = KERN_INFO \
++	"%s[%d]: bad register window fault: SP %08lx (orig_sp %08lx) TPC %08lx O7 %08lx\n";
++static const char uwfault64[] = KERN_INFO \
++	"%s[%d]: bad register window fault: SP %016lx (orig_sp %016lx) TPC %08lx O7 %016lx\n";
++
++void fault_in_user_windows(struct pt_regs *regs)
  {
--	return vnode->cb_break + vnode->cb_s_break + vnode->cb_v_break;
-+	return vnode->cb_break + vnode->cb_v_break;
+ 	struct thread_info *t = current_thread_info();
+ 	unsigned long window;
+@@ -541,9 +547,9 @@ void fault_in_user_windows(void)
+ 		do {
+ 			struct reg_window *rwin = &t->reg_window[window];
+ 			int winsize = sizeof(struct reg_window);
+-			unsigned long sp;
++			unsigned long sp, orig_sp;
+ 
+-			sp = t->rwbuf_stkptrs[window];
++			orig_sp = sp = t->rwbuf_stkptrs[window];
+ 
+ 			if (test_thread_64bit_stack(sp))
+ 				sp += STACK_BIAS;
+@@ -554,8 +560,16 @@ void fault_in_user_windows(void)
+ 				stack_unaligned(sp);
+ 
+ 			if (unlikely(copy_to_user((char __user *)sp,
+-						  rwin, winsize)))
++						  rwin, winsize))) {
++				if (show_unhandled_signals)
++					printk_ratelimited(is_compat_task() ?
++							   uwfault32 : uwfault64,
++							   current->comm, current->pid,
++							   sp, orig_sp,
++							   regs->tpc,
++							   regs->u_regs[UREG_I7]);
+ 				goto barf;
++			}
+ 		} while (window--);
+ 	}
+ 	set_thread_wsaved(0);
+@@ -563,8 +577,7 @@ void fault_in_user_windows(void)
+ 
+ barf:
+ 	set_thread_wsaved(window + 1);
+-	user_exit();
+-	do_exit(SIGILL);
++	force_sig(SIGSEGV, current);
  }
  
- static inline bool afs_cb_is_broken(unsigned int cb_break,
-@@ -836,7 +835,6 @@ static inline bool afs_cb_is_broken(unsigned int cb_break,
- 				    const struct afs_cb_interest *cbi)
- {
- 	return !cbi || cb_break != (vnode->cb_break +
--				    cbi->server->cb_s_break +
- 				    vnode->volume->cb_v_break);
- }
+ asmlinkage long sparc_do_fork(unsigned long clone_flags,
+diff --git a/arch/sparc/kernel/rtrap_64.S b/arch/sparc/kernel/rtrap_64.S
+index 0b21042ab181b..ad88d60bb740c 100644
+--- a/arch/sparc/kernel/rtrap_64.S
++++ b/arch/sparc/kernel/rtrap_64.S
+@@ -30,6 +30,7 @@ __handle_preemption:
+ 		 wrpr			%g0, RTRAP_PSTATE_IRQOFF, %pstate
  
-diff --git a/fs/afs/server.c b/fs/afs/server.c
-index 642afa2e9783c..65b33b6da48b9 100644
---- a/fs/afs/server.c
-+++ b/fs/afs/server.c
-@@ -226,7 +226,6 @@ static struct afs_server *afs_alloc_server(struct afs_net *net,
- 	RCU_INIT_POINTER(server->addresses, alist);
- 	server->addr_version = alist->version;
- 	server->uuid = *uuid;
--	server->flags = (1UL << AFS_SERVER_FL_NEW);
- 	server->update_at = ktime_get_real_seconds() + afs_server_update_delay;
- 	rwlock_init(&server->fs_lock);
- 	INIT_HLIST_HEAD(&server->cb_volumes);
+ __handle_user_windows:
++		add			%sp, PTREGS_OFF, %o0
+ 		call			fault_in_user_windows
+ 		 wrpr			%g0, RTRAP_PSTATE, %pstate
+ 		ba,pt			%xcc, __handle_preemption_continue
+diff --git a/arch/sparc/kernel/signal32.c b/arch/sparc/kernel/signal32.c
+index 5c572de64c748..879f8d86bc21c 100644
+--- a/arch/sparc/kernel/signal32.c
++++ b/arch/sparc/kernel/signal32.c
+@@ -442,7 +442,11 @@ static int setup_frame32(struct ksignal *ksig, struct pt_regs *regs,
+ 		get_sigframe(ksig, regs, sigframe_size);
+ 	
+ 	if (invalid_frame_pointer(sf, sigframe_size)) {
+-		do_exit(SIGILL);
++		if (show_unhandled_signals)
++			pr_info("%s[%d] bad frame in setup_frame32: %08lx TPC %08lx O7 %08lx\n",
++				current->comm, current->pid, (unsigned long)sf,
++				regs->tpc, regs->u_regs[UREG_I7]);
++		force_sigsegv(ksig->sig, current);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -573,7 +577,11 @@ static int setup_rt_frame32(struct ksignal *ksig, struct pt_regs *regs,
+ 		get_sigframe(ksig, regs, sigframe_size);
+ 	
+ 	if (invalid_frame_pointer(sf, sigframe_size)) {
+-		do_exit(SIGILL);
++		if (show_unhandled_signals)
++			pr_info("%s[%d] bad frame in setup_rt_frame32: %08lx TPC %08lx O7 %08lx\n",
++				current->comm, current->pid, (unsigned long)sf,
++				regs->tpc, regs->u_regs[UREG_I7]);
++		force_sigsegv(ksig->sig, current);
+ 		return -EINVAL;
+ 	}
+ 
+diff --git a/arch/sparc/kernel/signal_64.c b/arch/sparc/kernel/signal_64.c
+index 20426a1c28f29..2d0a50bde3f96 100644
+--- a/arch/sparc/kernel/signal_64.c
++++ b/arch/sparc/kernel/signal_64.c
+@@ -373,7 +373,11 @@ setup_rt_frame(struct ksignal *ksig, struct pt_regs *regs)
+ 		get_sigframe(ksig, regs, sf_size);
+ 
+ 	if (invalid_frame_pointer (sf)) {
+-		do_exit(SIGILL);	/* won't return, actually */
++		if (show_unhandled_signals)
++			pr_info("%s[%d] bad frame in setup_rt_frame: %016lx TPC %016lx O7 %016lx\n",
++				current->comm, current->pid, (unsigned long)sf,
++				regs->tpc, regs->u_regs[UREG_I7]);
++		force_sigsegv(ksig->sig, current);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.20.1
 
