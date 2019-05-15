@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8BB1F003
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0FA1EE6C
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732236AbfEOL3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:29:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S1730856AbfEOLVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726542AbfEOL3P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:29:15 -0400
+        id S1727046AbfEOLVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F2F6206BF;
-        Wed, 15 May 2019 11:29:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 724CA206BF;
+        Wed, 15 May 2019 11:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919754;
-        bh=3CBpc1fLJnHIj2l4Fa+AUaaNaeYCNUuCUI7rrM7kUBs=;
+        s=default; t=1557919282;
+        bh=aMXqOInozZ644Gqg7arfG9d601anbcRvdiTfGF7h3IU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHtbIE/XMTIL8vHX3oH3bos/k21d3Nn758Rx1qQK0UAoap0Cx5y3NBLlSKLi2OlgZ
-         QCCjUgOYxz/zHrXOJZLokZyOmZp4nbJ1oLlxROgrs4aHwQqmOKTRcZV9D4Ts5/lBuC
-         ZJrRXoX1hlEh0T8ps6ansGHnSh3Qfpb1RogACo/g=
+        b=OVxfrLF5Ad0D7qeltd+m15svQ4z/uG1vbv/as2X0ohwbpxAPXkht9zgBS/qPD6Rj0
+         NHVlsYsqoFSCh5jsajboNkS4a56iIBkdJyw0HpJoR7SL1yM/sB8Rsgd+W23g2tdQ0V
+         YoyarZ3a+icmCi0ZFE8rZj5mGbLoWfO97xQ3tdlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Li RongQing <lirongqing@baidu.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
         Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 027/137] libnvdimm/pmem: fix a possible OOB access when read and write pmem
+Subject: [PATCH 4.19 017/113] libnvdimm/btt: Fix a kmemdup failure check
 Date:   Wed, 15 May 2019 12:55:08 +0200
-Message-Id: <20190515090655.255284245@linuxfoundation.org>
+Message-Id: <20190515090654.789677303@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,61 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9dc6488e84b0f64df17672271664752488cd6a25 ]
+[ Upstream commit 486fa92df4707b5df58d6508728bdb9321a59766 ]
 
-If offset is not zero and length is bigger than PAGE_SIZE,
-this will cause to out of boundary access to a page memory
+In case kmemdup fails, the fix releases resources and returns to
+avoid the NULL pointer dereference.
 
-Fixes: 98cc093cba1e ("block, THP: make block_device_operations.rw_page support THP")
-Co-developed-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvdimm/btt_devs.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index bc2f700feef8a..0279eb1da3ef5 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -113,13 +113,13 @@ static void write_pmem(void *pmem_addr, struct page *page,
+diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
+index 795ad4ff35caf..e341498876cad 100644
+--- a/drivers/nvdimm/btt_devs.c
++++ b/drivers/nvdimm/btt_devs.c
+@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
+ 		return NULL;
  
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		memcpy_flushcache(pmem_addr, mem + off, chunk);
- 		kunmap_atomic(mem);
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
+ 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
+-	if (nd_btt->id < 0) {
+-		kfree(nd_btt);
+-		return NULL;
+-	}
++	if (nd_btt->id < 0)
++		goto out_nd_btt;
+ 
+ 	nd_btt->lbasize = lbasize;
+-	if (uuid)
++	if (uuid) {
+ 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
++		if (!uuid)
++			goto out_put_id;
++	}
+ 	nd_btt->uuid = uuid;
+ 	dev = &nd_btt->dev;
+ 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
+@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
+ 		return NULL;
  	}
+ 	return dev;
++
++out_put_id:
++	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
++
++out_nd_btt:
++	kfree(nd_btt);
++	return NULL;
  }
  
-@@ -132,7 +132,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 
- 	while (len) {
- 		mem = kmap_atomic(page);
--		chunk = min_t(unsigned int, len, PAGE_SIZE);
-+		chunk = min_t(unsigned int, len, PAGE_SIZE - off);
- 		rem = memcpy_mcsafe(mem + off, pmem_addr, chunk);
- 		kunmap_atomic(mem);
- 		if (rem)
-@@ -140,7 +140,7 @@ static blk_status_t read_pmem(struct page *page, unsigned int off,
- 		len -= chunk;
- 		off = 0;
- 		page++;
--		pmem_addr += PAGE_SIZE;
-+		pmem_addr += chunk;
- 	}
- 	return BLK_STS_OK;
- }
+ struct device *nd_btt_create(struct nd_region *nd_region)
 -- 
 2.20.1
 
