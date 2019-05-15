@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 990E41F1B3
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4ED51F41C
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728410AbfEOLRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
+        id S1727040AbfEOMUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730631AbfEOLRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:13 -0400
+        id S1727142AbfEOK72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:59:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6B602084E;
-        Wed, 15 May 2019 11:17:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 430C72084F;
+        Wed, 15 May 2019 10:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919032;
-        bh=6e0KJ9qdVyxIwIx3iB73d1TJGGtIu0OJ8kF/k9AbIrI=;
+        s=default; t=1557917967;
+        bh=bDbaewYKsx/x4HE47KmyxNdq554u8NWlA8Q0yDf4CeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQaOtBuMEkAw6uCuupHC67pWyM95naJ0+YHHByZ8Xeqk3tbDDLb72AhAJ54KGaucE
-         Ty194/2NOrB/u0SP07j2VWG44HFmLPmxg/Qe6SXdRcMyjC3PtZDGRsSVHjcR6XTgp2
-         ZpSdv79KF9PDpZrNycQiOIJWucfBfcFqiCu/rHOM=
+        b=m3y1eALOJd9JoV99kz1xf3MPyVp4u3ciCdGAoTIleFqxjSAwAx1PmUVPr/YG6n5Aj
+         74FvcRl7O6nmK8QH3RnPMT+UPacnNwdTKYcv+iUZTXvQNjcGtZRqLEm+RBvpwL2HvP
+         3A/0lBopSlavI1vazqFFgOhIumYxecn8qeS+3MDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 040/115] sparc64: Export __node_distance.
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 3.18 43/86] hugetlbfs: fix memory leak for resv_map
 Date:   Wed, 15 May 2019 12:55:20 +0200
-Message-Id: <20190515090702.397924596@linuxfoundation.org>
+Message-Id: <20190515090651.121983735@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2b4792eaa9f553764047d157365ed8b7787751a3 ]
+[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
 
-Some drivers reference it via node_distance(), for example the
-NVME host driver core.
+When mknod is used to create a block special file in hugetlbfs, it will
+allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
+inode->i_mapping->private_data will point the newly allocated resv_map.
+However, when the device special file is opened bd_acquire() will set
+inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
+allocated resv_map is lost and the structure is leaked.
 
-ERROR: "__node_distance" [drivers/nvme/host/nvme-core.ko] undefined!
-make[1]: *** [scripts/Makefile.modpost:92: __modpost] Error 1
+Programs to reproduce:
+        mount -t hugetlbfs nodev hugetlbfs
+        mknod hugetlbfs/dev b 0 0
+        exec 30<> hugetlbfs/dev
+        umount hugetlbfs/
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+resv_map structures are only needed for inodes which can have associated
+page allocations.  To fix the leak, only allocate resv_map for those
+inodes which could possibly be associated with page allocations.
+
+Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Suggested-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/mm/init_64.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/hugetlbfs/inode.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 984e9d65ea0d1..76977296dc9c6 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -1383,6 +1383,7 @@ int __node_distance(int from, int to)
- 	}
- 	return numa_latency[from][to];
- }
-+EXPORT_SYMBOL(__node_distance);
- 
- static int __init find_best_numa_node_for_mlgroup(struct mdesc_mlgroup *grp)
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index ec1ed7e4b8f3..c3a03f5a1b49 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -484,11 +484,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 					umode_t mode, dev_t dev)
  {
+ 	struct inode *inode;
+-	struct resv_map *resv_map;
++	struct resv_map *resv_map = NULL;
+ 
+-	resv_map = resv_map_alloc();
+-	if (!resv_map)
+-		return NULL;
++	/*
++	 * Reserve maps are only needed for inodes that can have associated
++	 * page allocations.
++	 */
++	if (S_ISREG(mode) || S_ISLNK(mode)) {
++		resv_map = resv_map_alloc();
++		if (!resv_map)
++			return NULL;
++	}
+ 
+ 	inode = new_inode(sb);
+ 	if (inode) {
+@@ -530,8 +536,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
+ 			break;
+ 		}
+ 		lockdep_annotate_inode_mutex_key(inode);
+-	} else
+-		kref_put(&resv_map->refs, resv_map_release);
++	} else {
++		if (resv_map)
++			kref_put(&resv_map->refs, resv_map_release);
++	}
+ 
+ 	return inode;
+ }
 -- 
 2.20.1
 
