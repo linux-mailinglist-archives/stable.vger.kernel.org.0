@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 004281EE7D
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:22:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A634D1F076
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731451AbfEOLW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
+        id S1731878AbfEOL0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731447AbfEOLW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:26 -0400
+        id S1732090AbfEOL0P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:26:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 628CF20843;
-        Wed, 15 May 2019 11:22:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAE6120818;
+        Wed, 15 May 2019 11:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919345;
-        bh=ic2X2wucdWAIqyc+kMQUO+l9ciH1tOKalvmRNY0QTWM=;
+        s=default; t=1557919575;
+        bh=oiJOyLPDWRvk2Wus+Qtzhl3VbMKgPsCI12Y4tdz2gjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+6gFNMhMur9JCPwpY12645G3H3V/f2QIuJOt2u2U65AGyY/Vmd2eD8a2UQPHNIHV
-         FQA4oYSvBntO2tMMHj5/i1D53pBoKLL4OOEDGmyDzy8+kNxOQ3APZgIJJHmJFRdWnj
-         WYDPuIdyiRNbwr42hoa2xtwE142rL7icRFfhdsMw=
+        b=o+IQD9uAJk9Jzizx1gUtbBVS9zgGuUOkXKnv4Bdc+6CvtIXVQ6/BDpsq0iA+nWSjp
+         nErpBzn3OJWO/dYoUETZpKiWI7m9hBU7yHhhviOUCYoSFhQNq4ZWa1KdzphMUnRVRF
+         b+LZ/o+Atn/z9WFgVJKMPtiCw93bEp7L8Sh6Z7Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pepijn de Vos <pepijndevos@gmail.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        "Darren Hart (VMware)" <dvhart@infradead.org>
-Subject: [PATCH 4.19 004/113] platform/x86: dell-laptop: fix rfkill functionality
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 014/137] acpi/nfit: Always dump _DSM output payload
 Date:   Wed, 15 May 2019 12:54:55 +0200
-Message-Id: <20190515090653.362635170@linuxfoundation.org>
+Message-Id: <20190515090654.386390171@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@dell.com>
+[ Upstream commit 351f339faa308c1c1461314a18c832239a841ca0 ]
 
-commit 6cc13c28da5beee0f706db6450e190709700b34a upstream.
+The dynamic-debug statements for command payload output only get emitted
+when the command is not ND_CMD_CALL. Move the output payload dumping
+ahead of the early return path for ND_CMD_CALL.
 
-When converting the driver two arguments were transposed leading
-to rfkill not working.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201427
-Reported-by: Pepijn de Vos <pepijndevos@gmail.com>
-Fixes: 549b49 ("platform/x86: dell-smbios: Introduce dispatcher for SMM calls")
-Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
-Acked-by: Pali Rohár <pali.rohar@gmail.com>
-Cc: <stable@vger.kernel.org> # 4.14.x
-Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 31eca76ba2fc9 ("...whitelisted dimm command marshaling mechanism")
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-laptop.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/nfit/core.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -532,7 +532,7 @@ static void dell_rfkill_query(struct rfk
- 		return;
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 4be4dc3e8aa62..38ec79bb3edde 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -563,6 +563,12 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		goto out;
  	}
  
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 	hwswitch = buffer.output[1];
++	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
++			cmd_name, out_obj->buffer.length);
++	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
++			out_obj->buffer.pointer,
++			min_t(u32, 128, out_obj->buffer.length), true);
++
+ 	if (call_pkg) {
+ 		call_pkg->nd_fw_size = out_obj->buffer.length;
+ 		memcpy(call_pkg->nd_payload + call_pkg->nd_size_in,
+@@ -581,12 +587,6 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		return 0;
+ 	}
  
-@@ -563,7 +563,7 @@ static int dell_debugfs_show(struct seq_
- 		return ret;
- 	status = buffer.output[1];
- 
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	hwswitch_ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 	if (hwswitch_ret)
- 		return hwswitch_ret;
-@@ -648,7 +648,7 @@ static void dell_update_rfkill(struct wo
- 	if (ret != 0)
- 		return;
- 
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 
- 	if (ret == 0 && (status & BIT(0)))
+-	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
+-			cmd_name, out_obj->buffer.length);
+-	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
+-			out_obj->buffer.pointer,
+-			min_t(u32, 128, out_obj->buffer.length), true);
+-
+ 	for (i = 0, offset = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i, buf,
+ 				(u32 *) out_obj->buffer.pointer,
+-- 
+2.20.1
+
 
 
