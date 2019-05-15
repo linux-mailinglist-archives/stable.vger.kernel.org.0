@@ -2,57 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF9F1F2A1
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 580BA1F425
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727659AbfEOLK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44328 "EHLO mail.kernel.org"
+        id S1726976AbfEOK6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbfEOLK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:10:28 -0400
+        id S1727003AbfEOK6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CBC420644;
-        Wed, 15 May 2019 11:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE16D20881;
+        Wed, 15 May 2019 10:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918627;
-        bh=/YlpcgA9bYazS9dK6mq/+NapjaeHvhGtJBfDyua0Gp8=;
+        s=default; t=1557917934;
+        bh=pEOVbJU6bdRTpIfPGdXats0YyfrAT0Kv3Vzuu2yZ0Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwHWtRczXG2c001AHzlAFdZDjW4yHjCYTTpQw5Wf8Q+1+be0uB+8+lppcF2sfDv1/
-         PXGVEI4FeR7/aaOARbHbT7RWRJ/OnBmI1adoOkLoO+1s/RmSXQ6plPSd32MCXS3LQb
-         WZ8NLUycnFpmsum/BBOmra1Nh2G0EyVdUUyli3BE=
+        b=FXWVKOti/351N3ucW9acDya9alxHK4nhKe+TK8TW5F7M7vdkLnVbRjjvnPx4XpW4F
+         /0n4VpOd6ozACXUdbgTf1MQnkG7tAvmithY2Qcsr8pohyFDTZuTY/7FERA3DpNor40
+         AGoJmnsj4y9t85dCFfgLOokvsUBwZdckpTJ5dkQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 201/266] x86/speculation: Update the TIF_SSBD comment
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 3.18 31/86] ipv6/flowlabel: wait rcu grace period before put_pid()
 Date:   Wed, 15 May 2019 12:55:08 +0200
-Message-Id: <20190515090729.754607812@linuxfoundation.org>
+Message-Id: <20190515090649.181186303@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,52 +45,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Chen <tim.c.chen@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 8eb729b77faf83ac4c1f363a9ad68d042415f24c upstream.
+[ Upstream commit 6c0afef5fb0c27758f4d52b2210c61b6bd8b4470 ]
 
-"Reduced Data Speculation" is an obsolete term. The correct new name is
-"Speculative store bypass disable" - which is abbreviated into SSBD.
+syzbot was able to catch a use-after-free read in pid_nr_ns() [1]
 
-Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185003.593893901@linutronix.de
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+ip6fl_seq_show() seems to use RCU protection, dereferencing fl->owner.pid
+but fl_free() releases fl->owner.pid before rcu grace period is started.
+
+[1]
+
+BUG: KASAN: use-after-free in pid_nr_ns+0x128/0x140 kernel/pid.c:407
+Read of size 4 at addr ffff888094012a04 by task syz-executor.0/18087
+
+CPU: 0 PID: 18087 Comm: syz-executor.0 Not tainted 5.1.0-rc6+ #89
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
+ kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
+ __asan_report_load4_noabort+0x14/0x20 mm/kasan/generic_report.c:131
+ pid_nr_ns+0x128/0x140 kernel/pid.c:407
+ ip6fl_seq_show+0x2f8/0x4f0 net/ipv6/ip6_flowlabel.c:794
+ seq_read+0xad3/0x1130 fs/seq_file.c:268
+ proc_reg_read+0x1fe/0x2c0 fs/proc/inode.c:227
+ do_loop_readv_writev fs/read_write.c:701 [inline]
+ do_loop_readv_writev fs/read_write.c:688 [inline]
+ do_iter_read+0x4a9/0x660 fs/read_write.c:922
+ vfs_readv+0xf0/0x160 fs/read_write.c:984
+ kernel_readv fs/splice.c:358 [inline]
+ default_file_splice_read+0x475/0x890 fs/splice.c:413
+ do_splice_to+0x12a/0x190 fs/splice.c:876
+ splice_direct_to_actor+0x2d2/0x970 fs/splice.c:953
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1062
+ do_sendfile+0x597/0xd00 fs/read_write.c:1443
+ __do_sys_sendfile64 fs/read_write.c:1498 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1490 [inline]
+ __x64_sys_sendfile64+0x15a/0x220 fs/read_write.c:1490
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x458da9
+Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f300d24bc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000458da9
+RDX: 00000000200000c0 RSI: 0000000000000008 RDI: 0000000000000007
+RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 000000000000005a R11: 0000000000000246 R12: 00007f300d24c6d4
+R13: 00000000004c5fa3 R14: 00000000004da748 R15: 00000000ffffffff
+
+Allocated by task 17543:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_kmalloc mm/kasan/common.c:497 [inline]
+ __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
+ kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
+ slab_post_alloc_hook mm/slab.h:437 [inline]
+ slab_alloc mm/slab.c:3393 [inline]
+ kmem_cache_alloc+0x11a/0x6f0 mm/slab.c:3555
+ alloc_pid+0x55/0x8f0 kernel/pid.c:168
+ copy_process.part.0+0x3b08/0x7980 kernel/fork.c:1932
+ copy_process kernel/fork.c:1709 [inline]
+ _do_fork+0x257/0xfd0 kernel/fork.c:2226
+ __do_sys_clone kernel/fork.c:2333 [inline]
+ __se_sys_clone kernel/fork.c:2327 [inline]
+ __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 7789:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
+ __cache_free mm/slab.c:3499 [inline]
+ kmem_cache_free+0x86/0x260 mm/slab.c:3765
+ put_pid.part.0+0x111/0x150 kernel/pid.c:111
+ put_pid+0x20/0x30 kernel/pid.c:105
+ fl_free+0xbe/0xe0 net/ipv6/ip6_flowlabel.c:102
+ ip6_fl_gc+0x295/0x3e0 net/ipv6/ip6_flowlabel.c:152
+ call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
+ expire_timers kernel/time/timer.c:1362 [inline]
+ __run_timers kernel/time/timer.c:1681 [inline]
+ __run_timers kernel/time/timer.c:1649 [inline]
+ run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
+ __do_softirq+0x266/0x95a kernel/softirq.c:293
+
+The buggy address belongs to the object at ffff888094012a00
+ which belongs to the cache pid_2 of size 88
+The buggy address is located 4 bytes inside of
+ 88-byte region [ffff888094012a00, ffff888094012a58)
+The buggy address belongs to the page:
+page:ffffea0002500480 count:1 mapcount:0 mapping:ffff88809a483080 index:0xffff888094012980
+flags: 0x1fffc0000000200(slab)
+raw: 01fffc0000000200 ffffea00018a3508 ffffea0002524a88 ffff88809a483080
+raw: ffff888094012980 ffff888094012000 000000010000001b 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff888094012900: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012980: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+>ffff888094012a00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+                   ^
+ ffff888094012a80: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012b00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+
+Fixes: 4f82f45730c6 ("net ip6 flowlabel: Make owner a union of struct pid * and kuid_t")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/thread_info.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/ip6_flowlabel.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -92,7 +92,7 @@ struct thread_info {
- #define TIF_SIGPENDING		2	/* signal pending */
- #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
- #define TIF_SINGLESTEP		4	/* reenable singlestep on user return*/
--#define TIF_SSBD		5	/* Reduced data speculation */
-+#define TIF_SSBD		5	/* Speculative store bypass disable */
- #define TIF_SYSCALL_EMU		6	/* syscall emulation active */
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
- #define TIF_SECCOMP		8	/* secure computing */
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -94,16 +94,21 @@ static struct ip6_flowlabel *fl_lookup(s
+ 	return fl;
+ }
+ 
++static void fl_free_rcu(struct rcu_head *head)
++{
++	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
++
++	if (fl->share == IPV6_FL_S_PROCESS)
++		put_pid(fl->owner.pid);
++	release_net(fl->fl_net);
++	kfree(fl->opt);
++	kfree(fl);
++}
+ 
+ static void fl_free(struct ip6_flowlabel *fl)
+ {
+-	if (fl) {
+-		if (fl->share == IPV6_FL_S_PROCESS)
+-			put_pid(fl->owner.pid);
+-		release_net(fl->fl_net);
+-		kfree(fl->opt);
+-		kfree_rcu(fl, rcu);
+-	}
++	if (fl)
++		call_rcu(&fl->rcu, fl_free_rcu);
+ }
+ 
+ static void fl_release(struct ip6_flowlabel *fl)
 
 
