@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 896BE1F037
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B521F0FA
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732386AbfEOL2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39402 "EHLO mail.kernel.org"
+        id S1731529AbfEOLWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732015AbfEOL2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:22 -0400
+        id S1731274AbfEOLWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 855BB2084F;
-        Wed, 15 May 2019 11:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 446AA20881;
+        Wed, 15 May 2019 11:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919702;
-        bh=vEiXf44NAFS5l6kMrvZr6AThPZnGEoArHMnPxNvafTs=;
+        s=default; t=1557919369;
+        bh=Wk3h8qta0dSeyNdeZXz5+gFK1Qw7oSRFsGllNW+DLJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbRQrmGyKxareshLunWwl3GTDDaZtlgz8JJgBsXJSJfYdIzit6FARYdRIl1HqHKFl
-         sEI3dAcUF6OK93lFLWZ/cz0qKksVGM+I/DWXt2vAWPIh0OBcnuxxpHlUIA2c99kfqf
-         vl2HDRHps7iG7KRQ0kL8+YmG8NVZOYvl1UQ9iuXU=
+        b=yW2IJ7R0Oq2etNDpLKXMwYKkzocCZtzkHZH3id1ve77P31CIB5SCj+BCtr6Ol5MKD
+         LDs3Ka2B9ZGoJ3s7euMY+6nj5eBAQs+hEIfPZWUdjIHP6XrwH9Ndsg1PZpZuPPmz10
+         O7pHM4RF50Qs+ftEmfK8SI8HbrEEaqKSyIS1y/VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        John Crispin <john@phrozen.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 060/137] mm/hotplug: treat CMA pages as unmovable
+Subject: [PATCH 4.19 050/113] MIPS: perf: ath79: Fix perfcount IRQ assignment
 Date:   Wed, 15 May 2019 12:55:41 +0200
-Message-Id: <20190515090657.832482782@linuxfoundation.org>
+Message-Id: <20190515090657.452540426@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,127 +52,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a9f219157b22d0ffb340a9c5f431afd02cd2cf3 ]
+[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
 
-has_unmovable_pages() is used by allocating CMA and gigantic pages as
-well as the memory hotplug.  The later doesn't know how to offline CMA
-pool properly now, but if an unused (free) CMA page is encountered, then
-has_unmovable_pages() happily considers it as a free memory and
-propagates this up the call chain.  Memory offlining code then frees the
-page without a proper CMA tear down which leads to an accounting issues.
-Moreover if the same memory range is onlined again then the memory never
-gets back to the CMA pool.
+Currently it's not possible to use perf on ath79 due to genirq flags
+mismatch happening on static virtual IRQ 13 which is used for
+performance counters hardware IRQ 5.
 
-State after memory offline:
+On TP-Link Archer C7v5:
 
- # grep cma /proc/vmstat
- nr_free_cma 205824
+           CPU0
+  2:          0      MIPS   2  ath9k
+  4:        318      MIPS   4  19000000.eth
+  7:      55034      MIPS   7  timer
+  8:       1236      MISC   3  ttyS0
+ 12:          0      INTC   1  ehci_hcd:usb1
+ 13:          0  gpio-ath79   2  keys
+ 14:          0  gpio-ath79   5  keys
+ 15:         31  AR724X PCI    1  ath10k_pci
 
- # cat /sys/kernel/debug/cma/cma-kvm_cma/count
- 209920
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
 
-Also, kmemleak still think those memory address are reserved below but
-have already been used by the buddy allocator after onlining.  This
-patch fixes the situation by treating CMA pageblocks as unmovable except
-when has_unmovable_pages() is called as part of CMA allocation.
+On TP-Link Archer C7v4:
 
-  Offlined Pages 4096
-  kmemleak: Cannot insert 0xc000201f7d040008 into the object search tree (overlaps existing)
-  Call Trace:
-    dump_stack+0xb0/0xf4 (unreliable)
-    create_object+0x344/0x380
-    __kmalloc_node+0x3ec/0x860
-    kvmalloc_node+0x58/0x110
-    seq_read+0x41c/0x620
-    __vfs_read+0x3c/0x70
-    vfs_read+0xbc/0x1a0
-    ksys_read+0x7c/0x140
-    system_call+0x5c/0x70
-  kmemleak: Kernel memory leak detector disabled
-  kmemleak: Object 0xc000201cc8000000 (size 13757317120):
-  kmemleak:   comm "swapper/0", pid 0, jiffies 4294937297
-  kmemleak:   min_count = -1
-  kmemleak:   count = 0
-  kmemleak:   flags = 0x5
-  kmemleak:   checksum = 0
-  kmemleak:   backtrace:
-       cma_declare_contiguous+0x2a4/0x3b0
-       kvm_cma_reserve+0x11c/0x134
-       setup_arch+0x300/0x3f8
-       start_kernel+0x9c/0x6e8
-       start_here_common+0x1c/0x4b0
-  kmemleak: Automatic memory scanning thread ended
+         CPU0
+  4:          0      MIPS   4  19000000.eth
+  5:       7135      MIPS   5  1a000000.eth
+  7:      98379      MIPS   7  timer
+  8:         30      MISC   3  ttyS0
+ 12:      90028      INTC   0  ath9k
+ 13:       5520      INTC   1  ehci_hcd:usb1
+ 14:       4623      INTC   2  ehci_hcd:usb2
+ 15:      32844  AR724X PCI    1  ath10k_pci
+ 16:          0  gpio-ath79  16  keys
+ 23:          0  gpio-ath79  23  keys
 
-[cai@lca.pw: use is_migrate_cma_page() and update commit log]
-  Link: http://lkml.kernel.org/r/20190416170510.20048-1-cai@lca.pw
-Link: http://lkml.kernel.org/r/20190413002623.8967-1-cai@lca.pw
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
+
+This problem is happening, because currently statically assigned virtual
+IRQ 13 for performance counters is not claimed during the initialization
+of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
+this interrupt isn't available for further use.
+
+So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
+
+Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Acked-by: John Crispin <john@phrozen.org>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ arch/mips/ath79/setup.c          |  6 ------
+ drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 318ef6ccdb3b5..eedb57f9b40b5 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7945,7 +7945,10 @@ void *__init alloc_large_system_hash(const char *tablename,
- bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 			 int migratetype, int flags)
- {
--	unsigned long pfn, iter, found;
-+	unsigned long found;
-+	unsigned long iter = 0;
-+	unsigned long pfn = page_to_pfn(page);
-+	const char *reason = "unmovable page";
- 
- 	/*
- 	 * TODO we could make this much more efficient by not checking every
-@@ -7955,17 +7958,20 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 	 * can still lead to having bootmem allocations in zone_movable.
- 	 */
- 
--	/*
--	 * CMA allocations (alloc_contig_range) really need to mark isolate
--	 * CMA pageblocks even when they are not movable in fact so consider
--	 * them movable here.
--	 */
--	if (is_migrate_cma(migratetype) &&
--			is_migrate_cma(get_pageblock_migratetype(page)))
--		return false;
-+	if (is_migrate_cma_page(page)) {
-+		/*
-+		 * CMA allocations (alloc_contig_range) really need to mark
-+		 * isolate CMA pageblocks even when they are not movable in fact
-+		 * so consider them movable here.
-+		 */
-+		if (is_migrate_cma(migratetype))
-+			return false;
-+
-+		reason = "CMA page";
-+		goto unmovable;
-+	}
- 
--	pfn = page_to_pfn(page);
--	for (found = 0, iter = 0; iter < pageblock_nr_pages; iter++) {
-+	for (found = 0; iter < pageblock_nr_pages; iter++) {
- 		unsigned long check = pfn + iter;
- 
- 		if (!pfn_valid_within(check))
-@@ -8045,7 +8051,7 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- unmovable:
- 	WARN_ON_ONCE(zone_idx(zone) == ZONE_MOVABLE);
- 	if (flags & REPORT_FAILURE)
--		dump_page(pfn_to_page(pfn+iter), "unmovable page");
-+		dump_page(pfn_to_page(pfn + iter), reason);
- 	return true;
+diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
+index 4c7a93f4039a0..7c0b2e6cdfbd7 100644
+--- a/arch/mips/ath79/setup.c
++++ b/arch/mips/ath79/setup.c
+@@ -211,12 +211,6 @@ const char *get_system_type(void)
+ 	return ath79_sys_type;
  }
  
+-int get_c0_perfcount_int(void)
+-{
+-	return ATH79_MISC_IRQ(5);
+-}
+-EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+-
+ unsigned int get_c0_compare_int(void)
+ {
+ 	return CP0_LEGACY_COMPARE_IRQ;
+diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
+index aa72907846360..0390603170b40 100644
+--- a/drivers/irqchip/irq-ath79-misc.c
++++ b/drivers/irqchip/irq-ath79-misc.c
+@@ -22,6 +22,15 @@
+ #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
+ 
+ #define ATH79_MISC_IRQ_COUNT			32
++#define ATH79_MISC_PERF_IRQ			5
++
++static int ath79_perfcount_irq;
++
++int get_c0_perfcount_int(void)
++{
++	return ath79_perfcount_irq;
++}
++EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+ 
+ static void ath79_misc_irq_handler(struct irq_desc *desc)
+ {
+@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
+ {
+ 	void __iomem *base = domain->host_data;
+ 
++	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
++
+ 	/* Disable and clear all interrupts */
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
 -- 
 2.20.1
 
