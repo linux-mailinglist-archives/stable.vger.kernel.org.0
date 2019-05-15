@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5E01F17C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3CC1F03D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730472AbfEOLy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:54:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
+        id S1726619AbfEOL2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730869AbfEOLTB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:01 -0400
+        id S1732319AbfEOL2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12438206BF;
-        Wed, 15 May 2019 11:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE71B20818;
+        Wed, 15 May 2019 11:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919140;
-        bh=8xr0UHmS66hpz9oJZ6WyCqf5D5qb+7B5XC1ifioSG54=;
+        s=default; t=1557919683;
+        bh=tAJLvgn80sM2ITNXEPXKr5Bol/t4yxuXu6QpLrl1kgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPtNuBo4PWMKS4U88vLP6WC7xNjxaNefGIJ8GRnAPYvj25je4GKRh9yuHMp93Z3VG
-         qe3yJICwlyUuEcHl5P8r/wXlziGN2ANJjvtMVw7y47XS8+/EkHgToqwT6Zg22YMeYS
-         zI70BWhujjVR21CLH48dQgcjcTy82G+99ejyrH38=
+        b=kSou2LmcaKepsxqlLEb1q5vDLSle+tB3hemRRcbOrTVaFey4n+x/u6ZmjrBaqYBNv
+         K+Yo8pD/87Hmg/VTnrsNLC8yrclFq/F85hfsHYt2xCaKcEKtp5TBUpS0tNm9W/z2t6
+         WdQq6BOrO18pmCYXxV1BZKAAsD3mjQZoeHBwEqXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugues Fruchet <hugues.fruchet@st.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 055/115] media: ov5640: fix wrong binning value in exposure calculation
+        stable@vger.kernel.org,
+        Bastian Beischer <bastian.beischer@rwth-aachen.de>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 054/137] perf top: Always sample time to satisfy needs of use of ordered queuing
 Date:   Wed, 15 May 2019 12:55:35 +0200
-Message-Id: <20190515090703.596067527@linuxfoundation.org>
+Message-Id: <20190515090657.421154128@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c2c3f42df4dd9bb231d756bacb0c897f662c6d3c ]
+[ Upstream commit 1e6db2ee86e6a4399fc0ae5689e55e0fd1c43caf ]
 
-ov5640_set_mode_exposure_calc() is checking binning value but
-binning value read is buggy, fix this.
-Rename ov5640_binning_on() to ov5640_get_binning() as per other
-similar functions.
+Bastian reported broken 'perf top -p PID' command, it won't display any
+data.
 
-Signed-off-by: Hugues Fruchet <hugues.fruchet@st.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+The problem is that for -p option we monitor single thread, so we don't
+enable time in samples, because it's not needed.
+
+However since commit 16c66bc167cc we use ordered queues to stash data
+plus later commits added logic for dropping samples in case there's big
+load and we don't keep up. All this needs timestamp for sample. Enabling
+it unconditionally for perf top.
+
+Reported-by: Bastian Beischer <bastian.beischer@rwth-aachen.de>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: bastian beischer <bastian.beischer@rwth-aachen.de>
+Fixes: 16c66bc167cc ("perf top: Add processing thread")
+Link: http://lkml.kernel.org/r/20190415125333.27160-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/perf/builtin-top.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 39a2269c0beef..0366c8dc6ecf7 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -1216,7 +1216,7 @@ static int ov5640_set_ae_target(struct ov5640_dev *sensor, int target)
- 	return ov5640_write_reg(sensor, OV5640_REG_AEC_CTRL1F, fast_low);
- }
- 
--static int ov5640_binning_on(struct ov5640_dev *sensor)
-+static int ov5640_get_binning(struct ov5640_dev *sensor)
- {
- 	u8 temp;
- 	int ret;
-@@ -1224,8 +1224,8 @@ static int ov5640_binning_on(struct ov5640_dev *sensor)
- 	ret = ov5640_read_reg(sensor, OV5640_REG_TIMING_TC_REG21, &temp);
- 	if (ret)
- 		return ret;
--	temp &= 0xfe;
--	return temp ? 1 : 0;
-+
-+	return temp & BIT(0);
- }
- 
- static int ov5640_set_virtual_channel(struct ov5640_dev *sensor)
-@@ -1293,7 +1293,7 @@ static int ov5640_set_mode_exposure_calc(
- 	if (ret < 0)
- 		return ret;
- 	prev_shutter = ret;
--	ret = ov5640_binning_on(sensor);
-+	ret = ov5640_get_binning(sensor);
- 	if (ret < 0)
- 		return ret;
- 	if (ret && mode->id != OV5640_MODE_720P_1280_720 &&
+diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
+index 616408251e258..63750a711123f 100644
+--- a/tools/perf/builtin-top.c
++++ b/tools/perf/builtin-top.c
+@@ -1393,6 +1393,7 @@ int cmd_top(int argc, const char **argv)
+ 			 * */
+ 			.overwrite	= 0,
+ 			.sample_time	= true,
++			.sample_time_set = true,
+ 		},
+ 		.max_stack	     = sysctl__max_stack(),
+ 		.annotation_opts     = annotation__default_options,
 -- 
 2.20.1
 
