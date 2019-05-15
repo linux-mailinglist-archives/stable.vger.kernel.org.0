@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7681EF85
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77ECB1EFAD
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732910AbfEOLbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+        id S1733264AbfEOLdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:33:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732904AbfEOLbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:41 -0400
+        id S1732737AbfEOLdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:33:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64B8D206BF;
-        Wed, 15 May 2019 11:31:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEA65206BF;
+        Wed, 15 May 2019 11:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919899;
-        bh=5+tZVK5k6ZBOA+SFlbpZWDP69vDwGPROBIcoj7L1uPc=;
+        s=default; t=1557920031;
+        bh=Fsna/64TZ5f41MRSB9y1QYQgLzTM+sOs5ADmu9gRS8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BOyysHrT9XjdLyW4MfSUFWbLGsUJwDf5BY3mFzFNiJAKYMs5N/iZrCnF949AKZLbC
-         V/QUiIW09vWpN2xcw95Sz2QOcGZiqoWE27cHDFmVF9bKoQ05Zsga/AhSU95VoQdsSZ
-         kR7D8pgi01f6P4mu/KXyFdnObzTaLLjL/AKUu0O8=
+        b=ynIO9k9zuL76r8zhJUrwrtCWNHmFZQSkCCUuWHUhP1EzGxEtqOaHF5XiCm6ZlPeFr
+         zIaAih0hYHa0EY8LM7hZFJ5LeOK/0iFK5NCdjITezwTYkh+hpYRsaXAcQZXL/UZXdB
+         Dy+TKq0lajyLSGyO+3KfhoP5gUybez3VV64ajUFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.0 137/137] f2fs: Fix use of number of devices
-Date:   Wed, 15 May 2019 12:56:58 +0200
-Message-Id: <20190515090703.797875513@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Petar Penkov <ppenkov@google.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 35/46] flow_dissector: disable preemption around BPF calls
+Date:   Wed, 15 May 2019 12:56:59 +0200
+Message-Id: <20190515090627.278573502@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,186 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 0916878da355650d7e77104a7ac0fa1784eca852 upstream.
+[ Upstream commit b1c17a9a353878602fd5bfe9103e4afe5e9a3f96 ]
 
-For a single device mount using a zoned block device, the zone
-information for the device is stored in the sbi->devs single entry
-array and sbi->s_ndevs is set to 1. This differs from a single device
-mount using a regular block device which does not allocate sbi->devs
-and sets sbi->s_ndevs to 0.
+Various things in eBPF really require us to disable preemption
+before running an eBPF program.
 
-However, sbi->s_devs == 0 condition is used throughout the code to
-differentiate a single device mount from a multi-device mount where
-sbi->s_ndevs is always larger than 1. This results in problems with
-single zoned block device volumes as these are treated as multi-device
-mounts but do not have the start_blk and end_blk information set. One
-of the problem observed is skipping of zone discard issuing resulting in
-write commands being issued to full zones or unaligned to a zone write
-pointer.
+syzbot reported :
 
-Fix this problem by simply treating the cases sbi->s_ndevs == 0 (single
-regular block device mount) and sbi->s_ndevs == 1 (single zoned block
-device mount) in the same manner. This is done by introducing the
-helper function f2fs_is_multi_device() and using this helper in place
-of direct tests of sbi->s_ndevs value, improving code readability.
+BUG: assuming atomic context at net/core/flow_dissector.c:737
+in_atomic(): 0, irqs_disabled(): 0, pid: 24710, name: syz-executor.3
+2 locks held by syz-executor.3/24710:
+ #0: 00000000e81a4bf1 (&tfile->napi_mutex){+.+.}, at: tun_get_user+0x168e/0x3ff0 drivers/net/tun.c:1850
+ #1: 00000000254afebd (rcu_read_lock){....}, at: __skb_flow_dissect+0x1e1/0x4bb0 net/core/flow_dissector.c:822
+CPU: 1 PID: 24710 Comm: syz-executor.3 Not tainted 5.1.0+ #6
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ __cant_sleep kernel/sched/core.c:6165 [inline]
+ __cant_sleep.cold+0xa3/0xbb kernel/sched/core.c:6142
+ bpf_flow_dissect+0xfe/0x390 net/core/flow_dissector.c:737
+ __skb_flow_dissect+0x362/0x4bb0 net/core/flow_dissector.c:853
+ skb_flow_dissect_flow_keys_basic include/linux/skbuff.h:1322 [inline]
+ skb_probe_transport_header include/linux/skbuff.h:2500 [inline]
+ skb_probe_transport_header include/linux/skbuff.h:2493 [inline]
+ tun_get_user+0x2cfe/0x3ff0 drivers/net/tun.c:1940
+ tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2037
+ call_write_iter include/linux/fs.h:1872 [inline]
+ do_iter_readv_writev+0x5fd/0x900 fs/read_write.c:693
+ do_iter_write fs/read_write.c:970 [inline]
+ do_iter_write+0x184/0x610 fs/read_write.c:951
+ vfs_writev+0x1b3/0x2f0 fs/read_write.c:1015
+ do_writev+0x15b/0x330 fs/read_write.c:1058
+ __do_sys_writev fs/read_write.c:1131 [inline]
+ __se_sys_writev fs/read_write.c:1128 [inline]
+ __x64_sys_writev+0x75/0xb0 fs/read_write.c:1128
+ do_syscall_64+0x103/0x670 arch/x86/entry/common.c:298
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: 7bb3a371d199 ("f2fs: Fix zoned block device support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: d58e468b1112 ("flow_dissector: implements flow dissector BPF hook")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Petar Penkov <ppenkov@google.com>
+Cc: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/f2fs/data.c    |   17 +++++++++++------
- fs/f2fs/f2fs.h    |   13 ++++++++++++-
- fs/f2fs/file.c    |    2 +-
- fs/f2fs/gc.c      |    2 +-
- fs/f2fs/segment.c |   13 +++++++------
- 5 files changed, 32 insertions(+), 15 deletions(-)
+ net/core/flow_dissector.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -218,12 +218,14 @@ struct block_device *f2fs_target_device(
- 	struct block_device *bdev = sbi->sb->s_bdev;
- 	int i;
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -712,7 +712,10 @@ bool __skb_flow_bpf_dissect(struct bpf_p
+ 	flow_keys->thoff = flow_keys->nhoff;
  
--	for (i = 0; i < sbi->s_ndevs; i++) {
--		if (FDEV(i).start_blk <= blk_addr &&
--					FDEV(i).end_blk >= blk_addr) {
--			blk_addr -= FDEV(i).start_blk;
--			bdev = FDEV(i).bdev;
--			break;
-+	if (f2fs_is_multi_device(sbi)) {
-+		for (i = 0; i < sbi->s_ndevs; i++) {
-+			if (FDEV(i).start_blk <= blk_addr &&
-+			    FDEV(i).end_blk >= blk_addr) {
-+				blk_addr -= FDEV(i).start_blk;
-+				bdev = FDEV(i).bdev;
-+				break;
-+			}
- 		}
- 	}
- 	if (bio) {
-@@ -237,6 +239,9 @@ int f2fs_target_device_index(struct f2fs
- {
- 	int i;
- 
-+	if (!f2fs_is_multi_device(sbi))
-+		return 0;
+ 	bpf_compute_data_pointers((struct sk_buff *)skb);
 +
- 	for (i = 0; i < sbi->s_ndevs; i++)
- 		if (FDEV(i).start_blk <= blkaddr && FDEV(i).end_blk >= blkaddr)
- 			return i;
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1364,6 +1364,17 @@ static inline bool time_to_inject(struct
- }
- #endif
++	preempt_disable();
+ 	result = BPF_PROG_RUN(prog, skb);
++	preempt_enable();
  
-+/*
-+ * Test if the mounted volume is a multi-device volume.
-+ *   - For a single regular disk volume, sbi->s_ndevs is 0.
-+ *   - For a single zoned disk volume, sbi->s_ndevs is 1.
-+ *   - For a multi-device volume, sbi->s_ndevs is always 2 or more.
-+ */
-+static inline bool f2fs_is_multi_device(struct f2fs_sb_info *sbi)
-+{
-+	return sbi->s_ndevs > 1;
-+}
-+
- /* For write statistics. Suppose sector size is 512 bytes,
-  * and the return value is in kbytes. s is of struct f2fs_sb_info.
-  */
-@@ -3612,7 +3623,7 @@ static inline bool f2fs_force_buffered_i
- 
- 	if (f2fs_post_read_required(inode))
- 		return true;
--	if (sbi->s_ndevs)
-+	if (f2fs_is_multi_device(sbi))
- 		return true;
- 	/*
- 	 * for blkzoned device, fallback direct IO to buffered IO, so
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2570,7 +2570,7 @@ static int f2fs_ioc_flush_device(struct
- 							sizeof(range)))
- 		return -EFAULT;
- 
--	if (sbi->s_ndevs <= 1 || sbi->s_ndevs - 1 <= range.dev_num ||
-+	if (!f2fs_is_multi_device(sbi) || sbi->s_ndevs - 1 <= range.dev_num ||
- 			__is_large_section(sbi)) {
- 		f2fs_msg(sbi->sb, KERN_WARNING,
- 			"Can't flush %u in %d for segs_per_sec %u != 1\n",
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1346,7 +1346,7 @@ void f2fs_build_gc_manager(struct f2fs_s
- 	sbi->gc_pin_file_threshold = DEF_GC_FAILED_PINNED_FILES;
- 
- 	/* give warm/cold data area from slower device */
--	if (sbi->s_ndevs && !__is_large_section(sbi))
-+	if (f2fs_is_multi_device(sbi) && !__is_large_section(sbi))
- 		SIT_I(sbi)->last_victim[ALLOC_NEXT] =
- 				GET_SEGNO(sbi, FDEV(0).end_blk) + 1;
- }
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -576,7 +576,7 @@ static int submit_flush_wait(struct f2fs
- 	int ret = 0;
- 	int i;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return __submit_flush_wait(sbi, sbi->sb->s_bdev);
- 
- 	for (i = 0; i < sbi->s_ndevs; i++) {
-@@ -644,7 +644,8 @@ int f2fs_issue_flush(struct f2fs_sb_info
- 		return ret;
- 	}
- 
--	if (atomic_inc_return(&fcc->queued_flush) == 1 || sbi->s_ndevs > 1) {
-+	if (atomic_inc_return(&fcc->queued_flush) == 1 ||
-+	    f2fs_is_multi_device(sbi)) {
- 		ret = submit_flush_wait(sbi, ino);
- 		atomic_dec(&fcc->queued_flush);
- 
-@@ -750,7 +751,7 @@ int f2fs_flush_device_cache(struct f2fs_
- {
- 	int ret = 0, i;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return 0;
- 
- 	for (i = 1; i < sbi->s_ndevs; i++) {
-@@ -1359,7 +1360,7 @@ static int __queue_discard_cmd(struct f2
- 
- 	trace_f2fs_queue_discard(bdev, blkstart, blklen);
- 
--	if (sbi->s_ndevs) {
-+	if (f2fs_is_multi_device(sbi)) {
- 		int devi = f2fs_target_device_index(sbi, blkstart);
- 
- 		blkstart -= FDEV(devi).start_blk;
-@@ -1714,7 +1715,7 @@ static int __f2fs_issue_discard_zone(str
- 	block_t lblkstart = blkstart;
- 	int devi = 0;
- 
--	if (sbi->s_ndevs) {
-+	if (f2fs_is_multi_device(sbi)) {
- 		devi = f2fs_target_device_index(sbi, blkstart);
- 		blkstart -= FDEV(devi).start_blk;
- 	}
-@@ -3071,7 +3072,7 @@ static void update_device_state(struct f
- 	struct f2fs_sb_info *sbi = fio->sbi;
- 	unsigned int devidx;
- 
--	if (!sbi->s_ndevs)
-+	if (!f2fs_is_multi_device(sbi))
- 		return;
- 
- 	devidx = f2fs_target_device_index(sbi, fio->new_blkaddr);
+ 	/* Restore state */
+ 	memcpy(cb, &cb_saved, sizeof(cb_saved));
 
 
