@@ -2,238 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BCE1EFC4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A73451EC1A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 12:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731607AbfEOLf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:35:59 -0400
-Received: from 5.mo173.mail-out.ovh.net ([46.105.40.148]:50792 "EHLO
-        5.mo173.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727112AbfEOLdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 07:33:04 -0400
-X-Greylist: delayed 4198 seconds by postgrey-1.27 at vger.kernel.org; Wed, 15 May 2019 07:33:03 EDT
-Received: from player761.ha.ovh.net (unknown [10.109.143.209])
-        by mo173.mail-out.ovh.net (Postfix) with ESMTP id 658ED10813E
-        for <stable@vger.kernel.org>; Wed, 15 May 2019 12:13:35 +0200 (CEST)
-Received: from kaod.org (lfbn-1-10649-41.w90-89.abo.wanadoo.fr [90.89.235.41])
-        (Authenticated sender: clg@kaod.org)
-        by player761.ha.ovh.net (Postfix) with ESMTPSA id 2F9C65CA0640;
-        Wed, 15 May 2019 10:13:26 +0000 (UTC)
-Subject: Re: [PATCH] powerpc/pseries: Fix xive=off command line
-To:     Greg Kurz <groug@kaod.org>, Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org, pavrampu@in.ibm.com
-References: <155791470178.432724.8008395673479905061.stgit@bahia.lan>
-From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Message-ID: <f627ac6d-1237-a980-b6a3-13f571d6d9c3@kaod.org>
-Date:   Wed, 15 May 2019 12:13:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726025AbfEOK34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:29:56 -0400
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:38382 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725939AbfEOK34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 06:29:56 -0400
+Received: by mail-wm1-f43.google.com with SMTP id f2so1930443wmj.3
+        for <stable@vger.kernel.org>; Wed, 15 May 2019 03:29:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eMUqRG6wnu+9hMpz4boHz+9nlRdZM9eljm6cFmYiy0s=;
+        b=OLImXAcjdWb2a84YaLBt1KuyYuePNf2U5UX66SoJik3yyqf4PHhs62Icif5aEXBH7S
+         p1nRU4ZnVJkCP6dCW5iYp7xEepk5Hu8AxZwqKPFyA5h/9N1NP6GKZ/BmqjUmDczIjBup
+         EDU4irE7FKTlUNQRDGAXs8u8xV8zkdokzyG9Z6RsjE6DHxOMmgbUeo/9cjCVE/bzL9Fa
+         +gzJlNXoh2EgyjaSVVdscMK4kbe1HZeVMCm4HbzZnuyaE1NaKTDvMpP+9wmt4Xo85FzS
+         jMiKZmD5ZSRws2Yeysqf0+PKXY4QQ6Dr+eJVGHrSViH3d6c7FZzf3+7M5bKUU1YM2Z4C
+         v3KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eMUqRG6wnu+9hMpz4boHz+9nlRdZM9eljm6cFmYiy0s=;
+        b=JYkf6zxyi/5kJ1ENFeVH8dD6o3ekv85PJsQHzTa2h7bW7HDAyRNhEs7b85PEeRTD65
+         SeOnLiEQLqsc4vUOXgq6+5O56yLq5EzTKUnDr7FgmCXBye4lKo9iUH36JZW/oPDOyTbr
+         PrBmVagXryIbnZKEGDf1Q8RzEQBIIdE8KlKmYYkV9X4dL4168y4mzx386MIqZEfxOqtX
+         eBf2fBGWjrPTAFQG8+A5MnYsseIGxoeIlIXLeRpr90t3lnCEBaHun9Fu1m/A+8qgJsnc
+         2sKlKh4SErsO/Ug5SaKs7cyByA5PKPRajn74wwVkKoEfRmDpULQN11PQk/O/1CjLupsx
+         68Ag==
+X-Gm-Message-State: APjAAAVc9f2KzSrFOsiX+YRfH8ImalN87cm7JzMpvK/dB9Pz/bxsm9sZ
+        1fDigTTGmwhj9vuAFGTji49n5HlhWh+6ZQ==
+X-Google-Smtp-Source: APXvYqz3I3I6YWl9uQJrrt9bFs1DVWfTg6mod9Fr5VrBziqFopv3QEh55XLM72TZ4qkcKz39BZCaYA==
+X-Received: by 2002:a05:600c:28d:: with SMTP id 13mr8927388wmk.15.1557916194029;
+        Wed, 15 May 2019 03:29:54 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p14sm1472096wrt.53.2019.05.15.03.29.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 15 May 2019 03:29:53 -0700 (PDT)
+Message-ID: <5cdbea21.1c69fb81.38428.7d1e@mx.google.com>
+Date:   Wed, 15 May 2019 03:29:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <155791470178.432724.8008395673479905061.stgit@bahia.lan>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 16595201680402844598
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddvjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.43-88-g685747c7297b
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 0 failed,
+ 127 passed with 1 offline, 1 untried/unknown,
+ 2 conflicts (v4.19.43-88-g685747c7297b)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/15/19 12:05 PM, Greg Kurz wrote:
-> On POWER9, if the hypervisor supports XIVE exploitation mode, the guest OS
-> will unconditionally requests for the XIVE interrupt mode even if XIVE was
-> deactivated with the kernel command line xive=off. Later on, when the spapr
-> XIVE init code handles xive=off, it disables XIVE and tries to fall back on
-> the legacy mode XICS.
-> 
-> This discrepency causes a kernel panic because the hypervisor is configured
-> to provide the XIVE interrupt mode to the guest :
-> 
-> [    0.008837] kernel BUG at arch/powerpc/sysdev/xics/xics-common.c:135!
-> [    0.008877] Oops: Exception in kernel mode, sig: 5 [#1]
-> [    0.008908] LE SMP NR_CPUS=1024 NUMA pSeries
-> [    0.008939] Modules linked in:
-> [    0.008964] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G        W         5.0.13-200.fc29.ppc64le #1
-> [    0.009018] NIP:  c000000001029ab8 LR: c000000001029aac CTR: c0000000018e0000
-> [    0.009065] REGS: c0000007f96d7900 TRAP: 0700   Tainted: G        W          (5.0.13-200.fc29.ppc64le)
-> [    0.009119] MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 28000222  XER: 20040000
-> [    0.009168] CFAR: c0000000001b1e28 IRQMASK: 0
-> [    0.009168] GPR00: c000000001029aac c0000007f96d7b90 c0000000015e8600 0000000000000000
-> [    0.009168] GPR04: 0000000000000001 0000000000000000 0000000000000061 646f6d61696e0d0a
-> [    0.009168] GPR08: 00000007fd8f0000 0000000000000001 c0000000014c44c0 c0000007f96d76cf
-> [    0.009168] GPR12: 0000000000000000 c0000000018e0000 0000000000000001 0000000000000000
-> [    0.009168] GPR16: 0000000000000000 0000000000000001 c0000007f96d7c08 c0000000016903d0
-> [    0.009168] GPR20: c0000007fffe04e8 ffffffffffffffea c000000001620164 c00000000161fe58
-> [    0.009168] GPR24: c000000000ea6c88 c0000000011151a8 00000000006000c0 c0000007f96d7c34
-> [    0.009168] GPR28: 0000000000000000 c0000000014b286c c000000001115180 c00000000161dc70
-> [    0.009558] NIP [c000000001029ab8] xics_smp_probe+0x38/0x98
-> [    0.009590] LR [c000000001029aac] xics_smp_probe+0x2c/0x98
-> [    0.009622] Call Trace:
-> [    0.009639] [c0000007f96d7b90] [c000000001029aac] xics_smp_probe+0x2c/0x98 (unreliable)
-> [    0.009687] [c0000007f96d7bb0] [c000000001033404] pSeries_smp_probe+0x40/0xa0
-> [    0.009734] [c0000007f96d7bd0] [c0000000010212a4] smp_prepare_cpus+0x62c/0x6ec
-> [    0.009782] [c0000007f96d7cf0] [c0000000010141b8] kernel_init_freeable+0x148/0x448
-> [    0.009829] [c0000007f96d7db0] [c000000000010ba4] kernel_init+0x2c/0x148
-> [    0.009870] [c0000007f96d7e20] [c00000000000bdd4] ret_from_kernel_thread+0x5c/0x68
-> [    0.009916] Instruction dump:
-> [    0.009940] 7c0802a6 60000000 7c0802a6 38800002 f8010010 f821ffe1 3c62001c e863b9a0
-> [    0.009988] 4b1882d1 60000000 7c690034 5529d97e <0b090000> 3d22001c e929b998 3ce2ff8f
-> 
-> Look for xive=off during prom_init and don't ask for XIVE in this case. One
-> exception though: if the host only supports XIVE, we still want to boot so
-> we ignore xive=off.
-> 
-> Similarly, have the spapr XIVE init code to looking at the interrupt mode
-> negociated during CAS, and ignore xive=off if the hypervisor only supports
-> XIVE.
-> 
-> Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
-> Cc: stable@vger.kernel.org # v4.20
-> Reported-by: Pavithra R. Prakash <pavrampu@in.ibm.com>
-> Signed-off-by: Greg Kurz <groug@kaod.org>
+stable-rc/linux-4.19.y boot: 131 boots: 0 failed, 127 passed with 1 offline=
+, 1 untried/unknown, 2 conflicts (v4.19.43-88-g685747c7297b)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.43-88-g685747c7297b/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.43-88-g685747c7297b/
 
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.43-88-g685747c7297b
+Git Commit: 685747c7297bc01379199b1c647c4f0bc709503e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
 
-Thanks,
+Boot Regressions Detected:
 
-C.
+arm:
 
-> ---
-> eac1e731b59e is a v4.16 commit actually but this patch only applies
-> cleanly to v4.20 and newer. If needed I can send a backport for
-> older versions.
-> ---
->  arch/powerpc/kernel/prom_init.c  |   16 +++++++++++-
->  arch/powerpc/sysdev/xive/spapr.c |   52 +++++++++++++++++++++++++++++++++++++-
->  2 files changed, 66 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-> index 523bb99d7676..c8f7eb845927 100644
-> --- a/arch/powerpc/kernel/prom_init.c
-> +++ b/arch/powerpc/kernel/prom_init.c
-> @@ -172,6 +172,7 @@ static unsigned long __prombss prom_tce_alloc_end;
->  
->  #ifdef CONFIG_PPC_PSERIES
->  static bool __prombss prom_radix_disable;
-> +static bool __prombss prom_xive_disable;
->  #endif
->  
->  struct platform_support {
-> @@ -808,6 +809,12 @@ static void __init early_cmdline_parse(void)
->  	}
->  	if (prom_radix_disable)
->  		prom_debug("Radix disabled from cmdline\n");
-> +
-> +	opt = prom_strstr(prom_cmd_line, "xive=off");
-> +	if (opt) {
-> +		prom_xive_disable = true;
-> +		prom_debug("XIVE disabled from cmdline\n");
-> +	}
->  #endif /* CONFIG_PPC_PSERIES */
->  }
->  
-> @@ -1216,10 +1223,17 @@ static void __init prom_parse_xive_model(u8 val,
->  	switch (val) {
->  	case OV5_FEAT(OV5_XIVE_EITHER): /* Either Available */
->  		prom_debug("XIVE - either mode supported\n");
-> -		support->xive = true;
-> +		support->xive = !prom_xive_disable;
->  		break;
->  	case OV5_FEAT(OV5_XIVE_EXPLOIT): /* Only Exploitation mode */
->  		prom_debug("XIVE - exploitation mode supported\n");
-> +		if (prom_xive_disable) {
-> +			/*
-> +			 * If we __have__ to do XIVE, we're better off ignoring
-> +			 * the command line rather than not booting.
-> +			 */
-> +			prom_printf("WARNING: Ignoring cmdline option xive=off\n");
-> +		}
->  		support->xive = true;
->  		break;
->  	case OV5_FEAT(OV5_XIVE_LEGACY): /* Only Legacy mode */
-> diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-> index 575db3b06a6b..2e2d1b8f810f 100644
-> --- a/arch/powerpc/sysdev/xive/spapr.c
-> +++ b/arch/powerpc/sysdev/xive/spapr.c
-> @@ -20,6 +20,7 @@
->  #include <linux/cpumask.h>
->  #include <linux/mm.h>
->  #include <linux/delay.h>
-> +#include <linux/libfdt.h>
->  
->  #include <asm/prom.h>
->  #include <asm/io.h>
-> @@ -663,6 +664,55 @@ static bool xive_get_max_prio(u8 *max_prio)
->  	return true;
->  }
->  
-> +static const u8 *get_vec5_feature(unsigned int index)
-> +{
-> +	unsigned long root, chosen;
-> +	int size;
-> +	const u8 *vec5;
-> +
-> +	root = of_get_flat_dt_root();
-> +	chosen = of_get_flat_dt_subnode_by_name(root, "chosen");
-> +	if (chosen == -FDT_ERR_NOTFOUND)
-> +		return NULL;
-> +
-> +	vec5 = of_get_flat_dt_prop(chosen, "ibm,architecture-vec-5", &size);
-> +	if (!vec5)
-> +		return NULL;
-> +
-> +	if (size <= index)
-> +		return NULL;
-> +
-> +	return vec5 + index;
-> +}
-> +
-> +static bool xive_spapr_disabled(void)
-> +{
-> +	const u8 *vec5_xive;
-> +
-> +	vec5_xive = get_vec5_feature(OV5_INDX(OV5_XIVE_SUPPORT));
-> +	if (vec5_xive) {
-> +		u8 val;
-> +
-> +		val = *vec5_xive & OV5_FEAT(OV5_XIVE_SUPPORT);
-> +		switch (val) {
-> +		case OV5_FEAT(OV5_XIVE_EITHER):
-> +		case OV5_FEAT(OV5_XIVE_LEGACY):
-> +			break;
-> +		case OV5_FEAT(OV5_XIVE_EXPLOIT):
-> +			/* Hypervisor only supports XIVE */
-> +			if (xive_cmdline_disabled)
-> +				pr_warn("WARNING: Ignoring cmdline option xive=off\n");
-> +			return false;
-> +		default:
-> +			pr_warn("%s: Unknown xive support option: 0x%x\n",
-> +				__func__, val);
-> +			break;
-> +		}
-> +	}
-> +
-> +	return xive_cmdline_disabled;
-> +}
-> +
->  bool __init xive_spapr_init(void)
->  {
->  	struct device_node *np;
-> @@ -675,7 +725,7 @@ bool __init xive_spapr_init(void)
->  	const __be32 *reg;
->  	int i;
->  
-> -	if (xive_cmdline_disabled)
-> +	if (xive_spapr_disabled())
->  		return false;
->  
->  	pr_devel("%s()\n", __func__);
-> 
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: failing since 1 day (last pass: v4.19.43 - firs=
+t fail: v4.19.43-87-gc209b8bd5e5e)
 
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: failing since 1 day (last pass: v4.19.43 - firs=
+t fail: v4.19.43-87-gc209b8bd5e5e)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+arm64:
+    defconfig:
+        meson-gxbb-p200:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
