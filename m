@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA4B1F15F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25201EF18
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbfEOLxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
+        id S1731893AbfEOL3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730994AbfEOLTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:41 -0400
+        id S1732625AbfEOL3t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAEB120862;
-        Wed, 15 May 2019 11:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C189216F4;
+        Wed, 15 May 2019 11:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919180;
-        bh=+T5xg37uSXqMNZuyaugYLjNfIcdAlcmygRI2cWC8uKo=;
+        s=default; t=1557919789;
+        bh=+Bq+1OUrbIMMls5ArfRU3FchkR5hnXbKHBa0wWxYGWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOfQN1LJJGYXQ+BQ+x8m8k8fEpqDY+B6o1nNvut+0O8R+psclSSYha5pL1XMbwD8a
-         6yaRkuG2UJramepn3+mVGe7OisGm9mRi/xjrx1hMsIhMz+ivx46/waPl/OXcQjgKnu
-         nIa9QyfLADypfEy3To3wkYBha0u4mzlzBEjaH8QU=
+        b=jn83hj8cPFzhWxVIGEMPwlM4YfzKxZs9BiqrZ4EjSs2S2jz2ltcPaG96h2lUbhYMk
+         xUbbx6nJR8UfEeQ7tLXfvs3k3uzOtEMHnEiTWtk7R2zqxlZRrICGyg7zFW8Uwt58E3
+         q//qphPzhba8D6uUsoLOItSFDZqCDz5Ay8a7VBlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eubert Bao <bunnier@gmail.com>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 095/115] mwl8k: Fix rate_idx underflow
+        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 094/137] RDMA/hns: Bugfix for mapping user db
 Date:   Wed, 15 May 2019 12:56:15 +0200
-Message-Id: <20190515090706.104985951@linuxfoundation.org>
+Message-Id: <20190515090700.360688224@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Štetiar <ynezz@true.cz>
+[ Upstream commit 2557fabd6e29f349bfa0ac13f38ac98aa5eafc74 ]
 
-commit 6b583201fa219b7b1b6aebd8966c8fd9357ef9f4 upstream.
+When the maximum send wr delivered by the user is zero, the qp does not
+have a sq.
 
-It was reported on OpenWrt bug tracking system[1], that several users
-are affected by the endless reboot of their routers if they configure
-5GHz interface with channel 44 or 48.
+When allocating the sq db buffer to store the user sq pi pointer and map
+it to the kernel mode, max_send_wr is used as the trigger condition, while
+the kernel does not consider the max_send_wr trigger condition when
+mapmping db. It will cause sq record doorbell map fail and create qp fail.
 
-The reboot loop is caused by the following excessive number of WARN_ON
-messages:
+The failed print information as follows:
 
- WARNING: CPU: 0 PID: 0 at backports-4.19.23-1/net/mac80211/rx.c:4516
-                             ieee80211_rx_napi+0x1fc/0xa54 [mac80211]
+ hns3 0000:7d:00.1: Send cmd: tail - 418, opcode - 0x8504, flag - 0x0011, retval - 0x0000
+ hns3 0000:7d:00.1: Send cmd: 0xe59dc000 0x00000000 0x00000000 0x00000000 0x00000116 0x0000ffff
+ hns3 0000:7d:00.1: sq record doorbell map failed!
+ hns3 0000:7d:00.1: Create RC QP failed
 
-as the messages are being correctly emitted by the following guard:
-
- case RX_ENC_LEGACY:
-      if (WARN_ON(status->rate_idx >= sband->n_bitrates))
-
-as the rate_idx is in this case erroneously set to 251 (0xfb). This fix
-simply converts previously used magic number to proper constant and
-guards against substraction which is leading to the currently observed
-underflow.
-
-1. https://bugs.openwrt.org/index.php?do=details&task_id=2218
-
-Fixes: 854783444bab ("mwl8k: properly set receive status rate index on 5 GHz receive")
-Cc: <stable@vger.kernel.org>
-Tested-by: Eubert Bao <bunnier@gmail.com>
-Reported-by: Eubert Bao <bunnier@gmail.com>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
+Signed-off-by: Lijun Ou <oulijun@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwl8k.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -436,6 +436,9 @@ static const struct ieee80211_rate mwl8k
- #define MWL8K_CMD_UPDATE_STADB		0x1123
- #define MWL8K_CMD_BASTREAM		0x1125
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 54031c5b53fa9..89dd2380fc812 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -517,7 +517,7 @@ static int hns_roce_set_kernel_sq_size(struct hns_roce_dev *hr_dev,
  
-+#define MWL8K_LEGACY_5G_RATE_OFFSET \
-+	(ARRAY_SIZE(mwl8k_rates_24) - ARRAY_SIZE(mwl8k_rates_50))
-+
- static const char *mwl8k_cmd_name(__le16 cmd, char *buf, int bufsize)
+ static int hns_roce_qp_has_sq(struct ib_qp_init_attr *attr)
  {
- 	u16 command = le16_to_cpu(cmd);
-@@ -1011,8 +1014,9 @@ mwl8k_rxd_ap_process(void *_rxd, struct
+-	if (attr->qp_type == IB_QPT_XRC_TGT)
++	if (attr->qp_type == IB_QPT_XRC_TGT || !attr->cap.max_send_wr)
+ 		return 0;
  
- 	if (rxd->channel > 14) {
- 		status->band = NL80211_BAND_5GHZ;
--		if (!(status->encoding == RX_ENC_HT))
--			status->rate_idx -= 5;
-+		if (!(status->encoding == RX_ENC_HT) &&
-+		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
-+			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
- 	} else {
- 		status->band = NL80211_BAND_2GHZ;
- 	}
-@@ -1119,8 +1123,9 @@ mwl8k_rxd_sta_process(void *_rxd, struct
- 
- 	if (rxd->channel > 14) {
- 		status->band = NL80211_BAND_5GHZ;
--		if (!(status->encoding == RX_ENC_HT))
--			status->rate_idx -= 5;
-+		if (!(status->encoding == RX_ENC_HT) &&
-+		    status->rate_idx >= MWL8K_LEGACY_5G_RATE_OFFSET)
-+			status->rate_idx -= MWL8K_LEGACY_5G_RATE_OFFSET;
- 	} else {
- 		status->band = NL80211_BAND_2GHZ;
- 	}
+ 	return 1;
+-- 
+2.20.1
+
 
 
