@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E66031F246
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1CD1ECC1
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbfEOMBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:01:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
+        id S1727580AbfEOLBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:01:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729612AbfEOLN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:58 -0400
+        id S1727606AbfEOLBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0F5520862;
-        Wed, 15 May 2019 11:13:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 783AF20881;
+        Wed, 15 May 2019 11:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918837;
-        bh=EjGdWzC78v/tPe7/TXnVS+KJPS4UOC1N3+oDzI1GkZg=;
+        s=default; t=1557918061;
+        bh=gbCkoTEBHA6MbO7WehFZVyISSrHFC5+UEhtGtK43TR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3G6ax/duQ9JC/oeXnBlMvebw3QSDVtr57kJPlcZJ5m7+O1B+J98hzsliRaWvZueZ
-         yl9mSJPGQy/OhhECeWZxsrdDKoptzus3F22WG8KUqH1d1UOdBq2uXHeD8cAJUaceR5
-         9M5YAVqpvNzWYkoYQ22GrQMBUSHSEqdfmYe7r6Pw=
+        b=XJ1Gnw6Zq+2SwVwZXbBzUqUzfYhbxiGJgHMAMlS7dC/6eclkgQbMJcEERRHa+H+eS
+         OlWug9c2XZ+G2i8o0/ZcReCdTi5ny0haIJ0HFEQbabyIg4DgQTgdZsJZw4rO4zD4gD
+         2gLpD+LVi87mEIlAQfOR3atoXAbaCyiXHbka/gNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <groeck@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk@armlinux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/51] init: initialize jump labels before command line option parsing
+Subject: [PATCH 3.18 77/86] USB: serial: fix unthrottle races
 Date:   Wed, 15 May 2019 12:55:54 +0200
-Message-Id: <20190515090623.160610879@linuxfoundation.org>
+Message-Id: <20190515090655.537266138@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +43,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6041186a32585fc7a1d0f6cfe2f138b05fdc3c82 ]
+[ Upstream commit 3f5edd58d040bfa4b74fb89bc02f0bc6b9cd06ab ]
 
-When a module option, or core kernel argument, toggles a static-key it
-requires jump labels to be initialized early.  While x86, PowerPC, and
-ARM64 arrange for jump_label_init() to be called before parse_args(),
-ARM does not.
+Fix two long-standing bugs which could potentially lead to memory
+corruption or leave the port throttled until it is reopened (on weakly
+ordered systems), respectively, when read-URB completion races with
+unthrottle().
 
-  Kernel command line: rdinit=/sbin/init page_alloc.shuffle=1 panic=-1 console=ttyAMA0,115200 page_alloc.shuffle=1
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at ./include/linux/jump_label.h:303
-  page_alloc_shuffle+0x12c/0x1ac
-  static_key_enable(): static key 'page_alloc_shuffle_key+0x0/0x4' used
-  before call to jump_label_init()
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper Not tainted
-  5.1.0-rc4-next-20190410-00003-g3367c36ce744 #1
-  Hardware name: ARM Integrator/CP (Device Tree)
-  [<c0011c68>] (unwind_backtrace) from [<c000ec48>] (show_stack+0x10/0x18)
-  [<c000ec48>] (show_stack) from [<c07e9710>] (dump_stack+0x18/0x24)
-  [<c07e9710>] (dump_stack) from [<c001bb1c>] (__warn+0xe0/0x108)
-  [<c001bb1c>] (__warn) from [<c001bb88>] (warn_slowpath_fmt+0x44/0x6c)
-  [<c001bb88>] (warn_slowpath_fmt) from [<c0b0c4a8>]
-  (page_alloc_shuffle+0x12c/0x1ac)
-  [<c0b0c4a8>] (page_alloc_shuffle) from [<c0b0c550>] (shuffle_store+0x28/0x48)
-  [<c0b0c550>] (shuffle_store) from [<c003e6a0>] (parse_args+0x1f4/0x350)
-  [<c003e6a0>] (parse_args) from [<c0ac3c00>] (start_kernel+0x1c0/0x488)
+First, the URB must not be marked as free before processing is complete
+to prevent it from being submitted by unthrottle() on another CPU.
 
-Move the fallback call to jump_label_init() to occur before
-parse_args().
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  process_urb();
+	  smp_mb__before_atomic();
+	  set_bit(i, free);		  if (test_and_clear_bit(i, free))
+	  					  submit_urb();
 
-The redundant calls to jump_label_init() in other archs are left intact
-in case they have static key toggling use cases that are even earlier
-than option parsing.
+Second, the URB must be marked as free before checking the throttled
+flag to prevent unthrottle() on another CPU from failing to observe that
+the URB needs to be submitted if complete() sees that the throttled flag
+is set.
 
-Link: http://lkml.kernel.org/r/155544804466.1032396.13418949511615676665.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Guenter Roeck <groeck@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Russell King <rmk@armlinux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	CPU 1				CPU 2
+	================		================
+	complete()			unthrottle()
+	  set_bit(i, free);		  throttled = 0;
+	  smp_mb__after_atomic();	  smp_mb();
+	  if (throttled)		  if (test_and_clear_bit(i, free))
+	  	  return;			  submit_urb();
+
+Note that test_and_clear_bit() only implies barriers when the test is
+successful. To handle the case where the URB is still in use an explicit
+barrier needs to be added to unthrottle() for the second race condition.
+
+Fixes: d83b405383c9 ("USB: serial: add support for multiple read urbs")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/generic.c |   39 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 32 insertions(+), 7 deletions(-)
 
-diff --git a/init/main.c b/init/main.c
-index 3c7f71d8e7046..148843e627a06 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -516,6 +516,8 @@ asmlinkage __visible void __init start_kernel(void)
- 	page_alloc_init();
+--- a/drivers/usb/serial/generic.c
++++ b/drivers/usb/serial/generic.c
+@@ -350,6 +350,7 @@ void usb_serial_generic_read_bulk_callba
+ 	struct usb_serial_port *port = urb->context;
+ 	unsigned char *data = urb->transfer_buffer;
+ 	unsigned long flags;
++	bool stopped = false;
+ 	int status = urb->status;
+ 	int i;
  
- 	pr_notice("Kernel command line: %s\n", boot_command_line);
-+	/* parameters may set static keys */
-+	jump_label_init();
- 	parse_early_param();
- 	after_dashes = parse_args("Booting kernel",
- 				  static_command_line, __start___param,
-@@ -525,8 +527,6 @@ asmlinkage __visible void __init start_kernel(void)
- 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
- 			   NULL, set_init_arg);
+@@ -357,33 +358,51 @@ void usb_serial_generic_read_bulk_callba
+ 		if (urb == port->read_urbs[i])
+ 			break;
+ 	}
+-	set_bit(i, &port->read_urbs_free);
  
--	jump_label_init();
--
- 	/*
- 	 * These use large bootmem allocations and must precede
- 	 * kmem_cache_init()
--- 
-2.20.1
-
+ 	dev_dbg(&port->dev, "%s - urb %d, len %d\n", __func__, i,
+ 							urb->actual_length);
+ 	switch (status) {
+ 	case 0:
++		usb_serial_debug_data(&port->dev, __func__, urb->actual_length,
++							data);
++		port->serial->type->process_read_urb(urb);
+ 		break;
+ 	case -ENOENT:
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
+ 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
+ 							__func__, status);
+-		return;
++		stopped = true;
++		break;
+ 	case -EPIPE:
+ 		dev_err(&port->dev, "%s - urb stopped: %d\n",
+ 							__func__, status);
+-		return;
++		stopped = true;
++		break;
+ 	default:
+ 		dev_dbg(&port->dev, "%s - nonzero urb status: %d\n",
+ 							__func__, status);
+-		goto resubmit;
++		break;
+ 	}
+ 
+-	usb_serial_debug_data(&port->dev, __func__, urb->actual_length, data);
+-	port->serial->type->process_read_urb(urb);
++	/*
++	 * Make sure URB processing is done before marking as free to avoid
++	 * racing with unthrottle() on another CPU. Matches the barriers
++	 * implied by the test_and_clear_bit() in
++	 * usb_serial_generic_submit_read_urb().
++	 */
++	smp_mb__before_atomic();
++	set_bit(i, &port->read_urbs_free);
++	/*
++	 * Make sure URB is marked as free before checking the throttled flag
++	 * to avoid racing with unthrottle() on another CPU. Matches the
++	 * smp_mb() in unthrottle().
++	 */
++	smp_mb__after_atomic();
++
++	if (stopped)
++		return;
+ 
+-resubmit:
+ 	/* Throttle the device if requested by tty */
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	port->throttled = port->throttle_req;
+@@ -458,6 +477,12 @@ void usb_serial_generic_unthrottle(struc
+ 	port->throttled = port->throttle_req = 0;
+ 	spin_unlock_irq(&port->lock);
+ 
++	/*
++	 * Matches the smp_mb__after_atomic() in
++	 * usb_serial_generic_read_bulk_callback().
++	 */
++	smp_mb();
++
+ 	if (was_throttled)
+ 		usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
+ }
 
 
