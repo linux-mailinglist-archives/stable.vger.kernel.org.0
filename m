@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DBB1F035
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B341F288
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbfEOLlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39550 "EHLO mail.kernel.org"
+        id S1729665AbfEOLLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732027AbfEOL22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:28 -0400
+        id S1729660AbfEOLLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97C2420881;
-        Wed, 15 May 2019 11:28:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F24420644;
+        Wed, 15 May 2019 11:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919707;
-        bh=OBQuELnhqmPV0sBmv0eweVPY123OuzMvGNhslJ0/i7U=;
+        s=default; t=1557918713;
+        bh=w5G/w/BCVjAaX1NiKWxIb/FeJ3hWv1707Z43aV2XzJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khQt5NtuxZA7CortcvVu/ctQQoBsxzNXgFzTQG7ip2NLGmb8sS4f1ev5oCr9u8hLV
-         goxX6jeTFuBIC+amzk3iMZRGpyiLGVRYQExk71N3mJ58SCfWd79YjCSvp9mGJMNmOp
-         maiDjIi1zb+DMsnCcoh/47PIxlRSYOipwMhgNlwU=
+        b=IiU1/UKnY9mvASfF5xqfidXihcKcvfrJx4bGaqMGdQXJJRKk4bp3DoQfsmfTq102M
+         bApvPBV1B4aiggkIPhV4aFFun3r7jXr7rLqlkE4fVnx4sQzMBqKwY/JoEQLoe6j8TW
+         CKxRjcyB03U/Dgb8GlnVtPURd7G6A4FyDciLTKNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <groeck@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk@armlinux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 062/137] init: initialize jump labels before command line option parsing
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Jon Masters <jcm@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 236/266] x86/speculation/mds: Add mitigation control for MDS
 Date:   Wed, 15 May 2019 12:55:43 +0200
-Message-Id: <20190515090657.981383435@linuxfoundation.org>
+Message-Id: <20190515090730.984802096@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +44,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6041186a32585fc7a1d0f6cfe2f138b05fdc3c82 ]
+From: Thomas Gleixner <tglx@linutronix.de>
 
-When a module option, or core kernel argument, toggles a static-key it
-requires jump labels to be initialized early.  While x86, PowerPC, and
-ARM64 arrange for jump_label_init() to be called before parse_args(),
-ARM does not.
+commit bc1241700acd82ec69fde98c5763ce51086269f8 upstream.
 
-  Kernel command line: rdinit=/sbin/init page_alloc.shuffle=1 panic=-1 console=ttyAMA0,115200 page_alloc.shuffle=1
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at ./include/linux/jump_label.h:303
-  page_alloc_shuffle+0x12c/0x1ac
-  static_key_enable(): static key 'page_alloc_shuffle_key+0x0/0x4' used
-  before call to jump_label_init()
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper Not tainted
-  5.1.0-rc4-next-20190410-00003-g3367c36ce744 #1
-  Hardware name: ARM Integrator/CP (Device Tree)
-  [<c0011c68>] (unwind_backtrace) from [<c000ec48>] (show_stack+0x10/0x18)
-  [<c000ec48>] (show_stack) from [<c07e9710>] (dump_stack+0x18/0x24)
-  [<c07e9710>] (dump_stack) from [<c001bb1c>] (__warn+0xe0/0x108)
-  [<c001bb1c>] (__warn) from [<c001bb88>] (warn_slowpath_fmt+0x44/0x6c)
-  [<c001bb88>] (warn_slowpath_fmt) from [<c0b0c4a8>]
-  (page_alloc_shuffle+0x12c/0x1ac)
-  [<c0b0c4a8>] (page_alloc_shuffle) from [<c0b0c550>] (shuffle_store+0x28/0x48)
-  [<c0b0c550>] (shuffle_store) from [<c003e6a0>] (parse_args+0x1f4/0x350)
-  [<c003e6a0>] (parse_args) from [<c0ac3c00>] (start_kernel+0x1c0/0x488)
+Now that the mitigations are in place, add a command line parameter to
+control the mitigation, a mitigation selector function and a SMT update
+mechanism.
 
-Move the fallback call to jump_label_init() to occur before
-parse_args().
+This is the minimal straight forward initial implementation which just
+provides an always on/off mode. The command line parameter is:
 
-The redundant calls to jump_label_init() in other archs are left intact
-in case they have static key toggling use cases that are even earlier
-than option parsing.
+  mds=[full|off]
 
-Link: http://lkml.kernel.org/r/155544804466.1032396.13418949511615676665.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Guenter Roeck <groeck@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Russell King <rmk@armlinux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is consistent with the existing mitigations for other speculative
+hardware vulnerabilities.
+
+The idle invocation is dynamically updated according to the SMT state of
+the system similar to the dynamic update of the STIBP mitigation. The idle
+mitigation is limited to CPUs which are only affected by MSBDS and not any
+other variant, because the other variants cannot be mitigated on SMT
+enabled systems.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+Tested-by: Jon Masters <jcm@redhat.com>
+[bwh: Backported to 4.4:
+ - Drop " __ro_after_init"
+ - Adjust filename, context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/kernel-parameters.txt |   22 +++++++++++
+ arch/x86/include/asm/processor.h    |    6 +++
+ arch/x86/kernel/cpu/bugs.c          |   70 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 98 insertions(+)
 
-diff --git a/init/main.c b/init/main.c
-index c86a1c8f19f40..7ae8245452650 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -574,6 +574,8 @@ asmlinkage __visible void __init start_kernel(void)
- 	page_alloc_init();
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2035,6 +2035,28 @@ bytes respectively. Such letter suffixes
+ 			Format: <first>,<last>
+ 			Specifies range of consoles to be captured by the MDA.
  
- 	pr_notice("Kernel command line: %s\n", boot_command_line);
-+	/* parameters may set static keys */
-+	jump_label_init();
- 	parse_early_param();
- 	after_dashes = parse_args("Booting kernel",
- 				  static_command_line, __start___param,
-@@ -583,8 +585,6 @@ asmlinkage __visible void __init start_kernel(void)
- 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
- 			   NULL, set_init_arg);
++	mds=		[X86,INTEL]
++			Control mitigation for the Micro-architectural Data
++			Sampling (MDS) vulnerability.
++
++			Certain CPUs are vulnerable to an exploit against CPU
++			internal buffers which can forward information to a
++			disclosure gadget under certain conditions.
++
++			In vulnerable processors, the speculatively
++			forwarded data can be used in a cache side channel
++			attack, to access data to which the attacker does
++			not have direct access.
++
++			This parameter controls the MDS mitigation. The
++			options are:
++
++			full    - Enable MDS mitigation on vulnerable CPUs
++			off     - Unconditionally disable MDS mitigation
++
++			Not specifying this option is equivalent to
++			mds=full.
++
+ 	mem=nn[KMG]	[KNL,BOOT] Force usage of a specific amount of memory
+ 			Amount of memory to be used when the kernel is not able
+ 			to see the whole system memory or for test.
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -845,4 +845,10 @@ bool xen_set_default_idle(void);
  
--	jump_label_init();
--
+ void stop_this_cpu(void *dummy);
+ void df_debug(struct pt_regs *regs, long error_code);
++
++enum mds_mitigations {
++	MDS_MITIGATION_OFF,
++	MDS_MITIGATION_FULL,
++};
++
+ #endif /* _ASM_X86_PROCESSOR_H */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -32,6 +32,7 @@
+ static void __init spectre_v2_select_mitigation(void);
+ static void __init ssb_select_mitigation(void);
+ static void __init l1tf_select_mitigation(void);
++static void __init mds_select_mitigation(void);
+ 
+ /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
+ u64 x86_spec_ctrl_base;
+@@ -96,6 +97,8 @@ void __init check_bugs(void)
+ 
+ 	l1tf_select_mitigation();
+ 
++	mds_select_mitigation();
++
+ #ifdef CONFIG_X86_32
  	/*
- 	 * These use large bootmem allocations and must precede
- 	 * kmem_cache_init()
--- 
-2.20.1
-
+ 	 * Check whether we are able to run this kernel safely on SMP.
+@@ -202,6 +205,50 @@ static void x86_amd_ssb_disable(void)
+ }
+ 
+ #undef pr_fmt
++#define pr_fmt(fmt)	"MDS: " fmt
++
++/* Default mitigation for L1TF-affected CPUs */
++static enum mds_mitigations mds_mitigation = MDS_MITIGATION_FULL;
++
++static const char * const mds_strings[] = {
++	[MDS_MITIGATION_OFF]	= "Vulnerable",
++	[MDS_MITIGATION_FULL]	= "Mitigation: Clear CPU buffers"
++};
++
++static void __init mds_select_mitigation(void)
++{
++	if (!boot_cpu_has_bug(X86_BUG_MDS)) {
++		mds_mitigation = MDS_MITIGATION_OFF;
++		return;
++	}
++
++	if (mds_mitigation == MDS_MITIGATION_FULL) {
++		if (boot_cpu_has(X86_FEATURE_MD_CLEAR))
++			static_branch_enable(&mds_user_clear);
++		else
++			mds_mitigation = MDS_MITIGATION_OFF;
++	}
++	pr_info("%s\n", mds_strings[mds_mitigation]);
++}
++
++static int __init mds_cmdline(char *str)
++{
++	if (!boot_cpu_has_bug(X86_BUG_MDS))
++		return 0;
++
++	if (!str)
++		return -EINVAL;
++
++	if (!strcmp(str, "off"))
++		mds_mitigation = MDS_MITIGATION_OFF;
++	else if (!strcmp(str, "full"))
++		mds_mitigation = MDS_MITIGATION_FULL;
++
++	return 0;
++}
++early_param("mds", mds_cmdline);
++
++#undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V2 : " fmt
+ 
+ static enum spectre_v2_mitigation spectre_v2_enabled = SPECTRE_V2_NONE;
+@@ -599,6 +646,26 @@ static void update_indir_branch_cond(voi
+ 		static_branch_disable(&switch_to_cond_stibp);
+ }
+ 
++/* Update the static key controlling the MDS CPU buffer clear in idle */
++static void update_mds_branch_idle(void)
++{
++	/*
++	 * Enable the idle clearing if SMT is active on CPUs which are
++	 * affected only by MSBDS and not any other MDS variant.
++	 *
++	 * The other variants cannot be mitigated when SMT is enabled, so
++	 * clearing the buffers on idle just to prevent the Store Buffer
++	 * repartitioning leak would be a window dressing exercise.
++	 */
++	if (!boot_cpu_has_bug(X86_BUG_MSBDS_ONLY))
++		return;
++
++	if (sched_smt_active())
++		static_branch_enable(&mds_idle_clear);
++	else
++		static_branch_disable(&mds_idle_clear);
++}
++
+ void arch_smt_update(void)
+ {
+ 	/* Enhanced IBRS implies STIBP. No update required. */
+@@ -619,6 +686,9 @@ void arch_smt_update(void)
+ 		break;
+ 	}
+ 
++	if (mds_mitigation == MDS_MITIGATION_FULL)
++		update_mds_branch_idle();
++
+ 	mutex_unlock(&spec_ctrl_mutex);
+ }
+ 
 
 
