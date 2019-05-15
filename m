@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF441EDBE
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9191F103
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729901AbfEOLNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S1730977AbfEOLTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729896AbfEOLNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:01 -0400
+        id S1730959AbfEOLTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29BA820644;
-        Wed, 15 May 2019 11:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6E6F20862;
+        Wed, 15 May 2019 11:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918780;
-        bh=dA8wClFlcVmH5G+TxKZZMt7dnaDSO9bdLEfH2ZHkTi4=;
+        s=default; t=1557919172;
+        bh=7V09QRjt60ZoGduRDcBVlYnjKvUofVsyA/iKeUO4JdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vc9PotsvNWtge+zCqAkR0blxlroZS3b0go992ZpAKMvwYXHwZKdZUJ2zC59a6lGuM
-         LZC3S7k7sZ71GGPGWVgZ1mgQqYp13Bqjof/Gzolg5UUVMJYcum0NfbmETyplspTaSa
-         n/DzP8HyqGYfKoooD7B8hp+NwqhsmZNtVq1h9Y1w=
+        b=BQIF0Vs+9BRDxFFTnLvnaiooGE9umLyDHfKgledFUTQLB2nbi9icpkT1V8CcesEOf
+         9RevlfTErlloQupWksiInPzj9/fQj8wpJmJ3Si0/CReOpqpiuK5qHl279DTkUaUOuk
+         rA7VrNv04g98QZ3/72Mla1XYMrdtCvYjX/Oymybw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Timur Tabi <timur@freescale.com>,
-        Mihai Caraman <mihai.caraman@freescale.com>,
-        Kumar Gala <galak@kernel.crashing.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 264/266] drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
-Date:   Wed, 15 May 2019 12:56:11 +0200
-Message-Id: <20190515090731.948065390@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 092/115] nfc: nci: Potential off by one in ->pipes[] array
+Date:   Wed, 15 May 2019 12:56:12 +0200
+Message-Id: <20190515090705.919773981@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,104 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+[ Upstream commit 6491d698396fd5da4941980a35ca7c162a672016 ]
 
-commit c8ea3663f7a8e6996d44500ee818c9330ac4fd88 upstream.
+This is similar to commit e285d5bfb7e9 ("NFC: Fix the number of pipes")
+where we changed NFC_HCI_MAX_PIPES from 127 to 128.
 
-strndup_user() returns error pointers on error, and then in the error
-handling we pass the error pointers to kfree().  It will cause an Oops.
+As the comment next to the define explains, the pipe identifier is 7
+bits long.  The highest possible pipe is 127, but the number of possible
+pipes is 128.  As the code is now, then there is potential for an
+out of bounds array access:
 
-Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+    net/nfc/nci/hci.c:297 nci_hci_cmd_received() warn: array off by one?
+    'ndev->hci_dev->pipes[pipe]' '0-127 == 127'
+
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Timur Tabi <timur@freescale.com>
-Cc: Mihai Caraman <mihai.caraman@freescale.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ include/net/nfc/nci_core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -335,8 +335,8 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	struct fsl_hv_ioctl_prop param;
- 	char __user *upath, *upropname;
- 	void __user *upropval;
--	char *path = NULL, *propname = NULL;
--	void *propval = NULL;
-+	char *path, *propname;
-+	void *propval;
- 	int ret = 0;
+diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
+index 87499b6b35d6d..df5c69db68afc 100644
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -166,7 +166,7 @@ struct nci_conn_info {
+  * According to specification 102 622 chapter 4.4 Pipes,
+  * the pipe identifier is 7 bits long.
+  */
+-#define NCI_HCI_MAX_PIPES          127
++#define NCI_HCI_MAX_PIPES          128
  
- 	/* Get the parameters from the user. */
-@@ -348,32 +348,30 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	upropval = (void __user *)(uintptr_t)param.propval;
- 
- 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
--	if (IS_ERR(path)) {
--		ret = PTR_ERR(path);
--		goto out;
--	}
-+	if (IS_ERR(path))
-+		return PTR_ERR(path);
- 
- 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
- 	if (IS_ERR(propname)) {
- 		ret = PTR_ERR(propname);
--		goto out;
-+		goto err_free_path;
- 	}
- 
- 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
- 		ret = -EINVAL;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	propval = kmalloc(param.proplen, GFP_KERNEL);
- 	if (!propval) {
- 		ret = -ENOMEM;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	if (set) {
- 		if (copy_from_user(propval, upropval, param.proplen)) {
- 			ret = -EFAULT;
--			goto out;
-+			goto err_free_propval;
- 		}
- 
- 		param.ret = fh_partition_set_dtprop(param.handle,
-@@ -392,7 +390,7 @@ static long ioctl_dtprop(struct fsl_hv_i
- 			if (copy_to_user(upropval, propval, param.proplen) ||
- 			    put_user(param.proplen, &p->proplen)) {
- 				ret = -EFAULT;
--				goto out;
-+				goto err_free_propval;
- 			}
- 		}
- 	}
-@@ -400,10 +398,12 @@ static long ioctl_dtprop(struct fsl_hv_i
- 	if (put_user(param.ret, &p->ret))
- 		ret = -EFAULT;
- 
--out:
--	kfree(path);
-+err_free_propval:
- 	kfree(propval);
-+err_free_propname:
- 	kfree(propname);
-+err_free_path:
-+	kfree(path);
- 
- 	return ret;
- }
+ struct nci_hci_gate {
+ 	u8 gate;
+-- 
+2.20.1
+
 
 
