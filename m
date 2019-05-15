@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EC11F2D7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEFE1ED3C
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727953AbfEOLIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41324 "EHLO mail.kernel.org"
+        id S1727602AbfEOLGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729150AbfEOLIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:08:48 -0400
+        id S1728803AbfEOLGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:06:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1227220843;
-        Wed, 15 May 2019 11:08:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F04020644;
+        Wed, 15 May 2019 11:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918527;
-        bh=FSj5wUhqLaoNm7VBDzsNYpYVr3LHtanV132URKpxuks=;
+        s=default; t=1557918414;
+        bh=0sCxsk4ZhCr/cOB8EqI0wCflLdcv00pT061/03t1zBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1KmRfWFGGXfktj04R8vACPTUvbbdRgIvkqkZlS2lY77GTqRbWe2r/Wq8is7EwLlm
-         JVSEYexbrSvDzks/POCnq+iOsqIfh6RYvEYOClXY1+aEXYLLeNMD6s9tLGuucoSK1W
-         4nW4o+H86nAMuehkzwho3NQfO7F7TcQHxkAnDfRs=
+        b=MKi7QSOQT7VmRFJ69rZb+uFqH9h2VzqVlzzn4P9csHlijJklwnxo0OEJoA8ttemLA
+         7s0zvsdIJ7MIYF9FyxV0k11mbBjSwthQ7tpw9aYDDk5mWRueIqjvT2wnI/h6ImEVf4
+         YMZ9Njm64iHUW28WIvDrLoa0z4FLLcGKmApFpbFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <niveditas98@gmail.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org,
+        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 122/266] igb: Fix WARN_ONCE on runtime suspend
-Date:   Wed, 15 May 2019 12:53:49 +0200
-Message-Id: <20190515090726.722741014@linuxfoundation.org>
+Subject: [PATCH 4.4 123/266] bonding: show full hw address in sysfs for slave entries
+Date:   Wed, 15 May 2019 12:53:50 +0200
+Message-Id: <20190515090726.821109314@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -46,153 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dabb8338be533c18f50255cf39ff4f66d4dabdbe ]
+[ Upstream commit 18bebc6dd3281955240062655a4df35eef2c46b3 ]
 
-The runtime_suspend device callbacks are not supposed to save
-configuration state or change the power state. Commit fb29f76cc566
-("igb: Fix an issue that PME is not enabled during runtime suspend")
-changed the driver to not save configuration state during runtime
-suspend, however the driver callback still put the device into a
-low-power state. This causes a warning in the pci pm core and results in
-pci_pm_runtime_suspend not calling pci_save_state or pci_finish_runtime_suspend.
+Bond expects ethernet hwaddr for its slave, but it can be longer than 6
+bytes - infiniband interface for example.
 
-Fix this by not changing the power state either, leaving that to pci pm
-core, and make the same change for suspend callback as well.
+ # cat /sys/devices/<skipped>/net/ib0/address
+ 80:00:02:08:fe:80:00:00:00:00:00:00:7c:fe:90:03:00:be:5d:e1
 
-Also move a couple of defines into the appropriate header file instead
-of inline in the .c file.
+ # cat /sys/devices/<skipped>/net/ib0/bonding_slave/perm_hwaddr
+ 80:00:02:08:fe:80
 
-Fixes: fb29f76cc566 ("igb: Fix an issue that PME is not enabled during runtime suspend")
-Signed-off-by: Arvind Sankar <niveditas98@gmail.com>
-Reviewed-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+So print full hwaddr in sysfs "bonding_slave/perm_hwaddr" as well.
+
+Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/igb/e1000_defines.h    |  2 +
- drivers/net/ethernet/intel/igb/igb_main.c     | 57 +++----------------
- 2 files changed, 10 insertions(+), 49 deletions(-)
+ drivers/net/bonding/bond_sysfs_slave.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/e1000_defines.h b/drivers/net/ethernet/intel/igb/e1000_defines.h
-index b1915043bc0c..7b9fb71137da 100644
---- a/drivers/net/ethernet/intel/igb/e1000_defines.h
-+++ b/drivers/net/ethernet/intel/igb/e1000_defines.h
-@@ -193,6 +193,8 @@
- /* enable link status from external LINK_0 and LINK_1 pins */
- #define E1000_CTRL_SWDPIN0  0x00040000  /* SWDPIN 0 value */
- #define E1000_CTRL_SWDPIN1  0x00080000  /* SWDPIN 1 value */
-+#define E1000_CTRL_ADVD3WUC 0x00100000  /* D3 WUC */
-+#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000 /* PHY PM enable */
- #define E1000_CTRL_SDP0_DIR 0x00400000  /* SDP0 Data direction */
- #define E1000_CTRL_SDP1_DIR 0x00800000  /* SDP1 Data direction */
- #define E1000_CTRL_RST      0x04000000  /* Global reset */
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index c1796aa2dde5..70ed5e5c3514 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -7325,9 +7325,7 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
- 	struct e1000_hw *hw = &adapter->hw;
- 	u32 ctrl, rctl, status;
- 	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
--#ifdef CONFIG_PM
--	int retval = 0;
--#endif
-+	bool wake;
+diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
+index 7d16c51e6913..641a532b67cb 100644
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -55,7 +55,9 @@ static SLAVE_ATTR_RO(link_failure_count);
  
- 	rtnl_lock();
- 	netif_device_detach(netdev);
-@@ -7338,14 +7336,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
- 	igb_clear_interrupt_scheme(adapter);
- 	rtnl_unlock();
- 
--#ifdef CONFIG_PM
--	if (!runtime) {
--		retval = pci_save_state(pdev);
--		if (retval)
--			return retval;
--	}
--#endif
--
- 	status = rd32(E1000_STATUS);
- 	if (status & E1000_STATUS_LU)
- 		wufc &= ~E1000_WUFC_LNKC;
-@@ -7362,10 +7352,6 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
- 		}
- 
- 		ctrl = rd32(E1000_CTRL);
--		/* advertise wake from D3Cold */
--		#define E1000_CTRL_ADVD3WUC 0x00100000
--		/* phy power management enable */
--		#define E1000_CTRL_EN_PHY_PWR_MGMT 0x00200000
- 		ctrl |= E1000_CTRL_ADVD3WUC;
- 		wr32(E1000_CTRL, ctrl);
- 
-@@ -7379,12 +7365,15 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
- 		wr32(E1000_WUFC, 0);
- 	}
- 
--	*enable_wake = wufc || adapter->en_mng_pt;
--	if (!*enable_wake)
-+	wake = wufc || adapter->en_mng_pt;
-+	if (!wake)
- 		igb_power_down_link(adapter);
- 	else
- 		igb_power_up_link(adapter);
- 
-+	if (enable_wake)
-+		*enable_wake = wake;
-+
- 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
- 	 * would have already happened in close and is redundant.
- 	 */
-@@ -7399,22 +7388,7 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
- #ifdef CONFIG_PM_SLEEP
- static int igb_suspend(struct device *dev)
+ static ssize_t perm_hwaddr_show(struct slave *slave, char *buf)
  {
--	int retval;
--	bool wake;
--	struct pci_dev *pdev = to_pci_dev(dev);
--
--	retval = __igb_shutdown(pdev, &wake, 0);
--	if (retval)
--		return retval;
--
--	if (wake) {
--		pci_prepare_to_sleep(pdev);
--	} else {
--		pci_wake_from_d3(pdev, false);
--		pci_set_power_state(pdev, PCI_D3hot);
--	}
--
--	return 0;
-+	return __igb_shutdown(to_pci_dev(dev), NULL, 0);
+-	return sprintf(buf, "%pM\n", slave->perm_hwaddr);
++	return sprintf(buf, "%*phC\n",
++		       slave->dev->addr_len,
++		       slave->perm_hwaddr);
  }
- #endif /* CONFIG_PM_SLEEP */
+ static SLAVE_ATTR_RO(perm_hwaddr);
  
-@@ -7483,22 +7457,7 @@ static int igb_runtime_idle(struct device *dev)
- 
- static int igb_runtime_suspend(struct device *dev)
- {
--	struct pci_dev *pdev = to_pci_dev(dev);
--	int retval;
--	bool wake;
--
--	retval = __igb_shutdown(pdev, &wake, 1);
--	if (retval)
--		return retval;
--
--	if (wake) {
--		pci_prepare_to_sleep(pdev);
--	} else {
--		pci_wake_from_d3(pdev, false);
--		pci_set_power_state(pdev, PCI_D3hot);
--	}
--
--	return 0;
-+	return __igb_shutdown(to_pci_dev(dev), NULL, 1);
- }
- 
- static int igb_runtime_resume(struct device *dev)
 -- 
 2.20.1
 
