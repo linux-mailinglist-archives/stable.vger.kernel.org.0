@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B971F19C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177A11EE0A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:16:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730449AbfEOLQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
+        id S1730468AbfEOLQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730451AbfEOLQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:15 -0400
+        id S1730463AbfEOLQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:16:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 295EA20843;
-        Wed, 15 May 2019 11:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8A620843;
+        Wed, 15 May 2019 11:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918974;
-        bh=nnG+DvjAJ9qVkRFgGBKetcEYfjrpO9Pss2Q1PNcUGl4=;
+        s=default; t=1557918977;
+        bh=pVBVLh20Pc7GiGl5VXRw7hLGQlU0e4RrX6Aj/99BoY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARweiS4wjm6sWqypTRasLsgRdi6UdG+2UOHtreZ7PvsNdDExF3ssgYy1UxDH5LcL5
-         gR00JJP73bXus2195H68WmqDhHbk0sohFvqdi9iQnFK3poC3Dh12eQ7zd8BzQQzd8m
-         JCpFlomx9ZwK+JH/agVnpabmnyEtI7ru3OU1/xWo=
+        b=BLIAcLs9s4Xwm9Ag/39xNDbtc2/BeVNkAtD+LQlRZdqWaHTAcuTn9RONWNEHhK5OQ
+         Lmkf6h8LpEdnYUXxWJTTFLAlO21ujSrB4y0XNkupLmt1w5SCHVk6RWA3G5Q7wyuQhS
+         rjM78Se1INGQsUcCHKUF9L0TbW4UnGtuZBvdEhuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "David S. Miller" <davem@davemloft.net>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Christian Rund <Christian.Rund@de.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/115] mISDN: Check address length before reading address family
-Date:   Wed, 15 May 2019 12:55:00 +0200
-Message-Id: <20190515090700.761782330@linuxfoundation.org>
+Subject: [PATCH 4.14 021/115] s390/pkey: add one more argument space for debug feature entry
+Date:   Wed, 15 May 2019 12:55:01 +0200
+Message-Id: <20190515090700.825336863@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
 References: <20190515090659.123121100@linuxfoundation.org>
@@ -45,35 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 238ffdc49ef98b15819cfd5e3fb23194e3ea3d39 ]
+[ Upstream commit 6b1f16ba730d4c0cda1247568c3a1bf4fa3a2f2f ]
 
-KMSAN will complain if valid address length passed to bind() is shorter
-than sizeof("struct sockaddr_mISDN"->family) bytes.
+The debug feature entries have been used with up to 5 arguents
+(including the pointer to the format string) but there was only
+space reserved for 4 arguemnts. So now the registration does
+reserve space for 5 times a long value.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fixes a sometime appearing weired value as the last
+value of an debug feature entry like this:
+
+... pkey_sec2protkey zcrypt_send_cprb (cardnr=10 domain=12)
+   failed with errno -2143346254
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reported-by: Christian Rund <Christian.Rund@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/socket.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/pkey_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
-index c5603d1a07d6e..65cb4aac8dce7 100644
---- a/drivers/isdn/mISDN/socket.c
-+++ b/drivers/isdn/mISDN/socket.c
-@@ -712,10 +712,10 @@ base_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
- 	struct sock *sk = sock->sk;
- 	int err = 0;
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index f61fa47135a6c..bd0376dc7e1e3 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -49,7 +49,8 @@ static debug_info_t *debug_info;
  
--	if (!maddr || maddr->family != AF_ISDN)
-+	if (addr_len < sizeof(struct sockaddr_mISDN))
- 		return -EINVAL;
- 
--	if (addr_len < sizeof(struct sockaddr_mISDN))
-+	if (!maddr || maddr->family != AF_ISDN)
- 		return -EINVAL;
- 
- 	lock_sock(sk);
+ static void __init pkey_debug_init(void)
+ {
+-	debug_info = debug_register("pkey", 1, 1, 4 * sizeof(long));
++	/* 5 arguments per dbf entry (including the format string ptr) */
++	debug_info = debug_register("pkey", 1, 1, 5 * sizeof(long));
+ 	debug_register_view(debug_info, &debug_sprintf_view);
+ 	debug_set_level(debug_info, 3);
+ }
 -- 
 2.20.1
 
