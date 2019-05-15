@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA03A1EFCF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 902811F0B1
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731329AbfEOLg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44096 "EHLO mail.kernel.org"
+        id S1731508AbfEOLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732992AbfEOLcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:14 -0400
+        id S1731937AbfEOLZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7DC120843;
-        Wed, 15 May 2019 11:32:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 363262089E;
+        Wed, 15 May 2019 11:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919934;
-        bh=x2IW5V1R7abNeKNENdkQGPFxlDV0i+9VcjNCq4UwCTE=;
+        s=default; t=1557919514;
+        bh=3dqHaKVa6Z5MG2ih8ovPRqksXJrBN+i9N0bdLmVtv70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMBFNGXxzqvxBVDpdzcg+Oll8y9b2y3WUgC4IeXRpzEXAI1XDOe6oBSsix921lBqy
-         1ffwLp4YPBlDnvIvpwYlrnPqMjBmQ6vfP9h+b/zHLhBIB0nWxzhUobs8bvMCntlaCn
-         ezy0DPXV6zogmpeg5KBZ6vehLLN2Y8gPGeHmvkCs=
+        b=Q7Hd0BQa3Zig2G4FJEObFdg/KFh3oXMTVWh1OA9Xh+5p0ZcIkmkXPYu9ikFARXXCx
+         gpyGBn2kcSNcbS8e/UlvfG8M41EEH5Mv3yeu7NqrLjLyD7+DHwbM6mbhgIwJvUFN/P
+         cPtVfapl59mnKdMf0DRHoSA7TqabOuOVDJvDmjCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.1 12/46] rtlwifi: rtl8723ae: Fix missing break in switch statement
+        Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.se>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 105/113] tipc: fix hanging clients using poll with EPOLLOUT flag
 Date:   Wed, 15 May 2019 12:56:36 +0200
-Message-Id: <20190515090622.164708788@linuxfoundation.org>
+Message-Id: <20190515090701.630455848@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
 
-commit 84242b82d81c54e009a2aaa74d3d9eff70babf56 upstream.
+[ Upstream commit ff946833b70e0c7f93de9a3f5b329b5ae2287b38 ]
 
-Add missing break statement in order to prevent the code from falling
-through to case 0x1025, and erroneously setting rtlhal->oem_id to
-RT_CID_819X_ACER when rtlefuse->eeprom_svid is equal to 0x10EC and
-none of the cases in switch (rtlefuse->eeprom_smid) match.
+commit 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
+introduced a regression for clients using non-blocking sockets.
+After the commit, we send EPOLLOUT event to the client even in
+TIPC_CONNECTING state. This causes the subsequent send() to fail
+with ENOTCONN, as the socket is still not in TIPC_ESTABLISHED state.
 
-This bug was found thanks to the ongoing efforts to enable
--Wimplicit-fallthrough.
+In this commit, we:
+- improve the fix for hanging poll() by replacing sk_data_ready()
+  with sk_state_change() to wake up all clients.
+- revert the faulty updates introduced by commit 517d7c79bdb398
+  ("tipc: fix hanging poll() for stream sockets").
 
-Fixes: 238ad2ddf34b ("rtlwifi: rtl8723ae: Clean up the hardware info routine")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
+Signed-off-by: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
+Acked-by: Jon Maloy <jon.maloy@ericsson.se>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/tipc/socket.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-@@ -1675,6 +1675,7 @@ static void _rtl8723e_read_adapter_info(
- 					rtlhal->oem_id = RT_CID_819X_LENOVO;
- 					break;
- 				}
-+				break;
- 			case 0x1025:
- 				rtlhal->oem_id = RT_CID_819X_ACER;
- 				break;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -726,11 +726,11 @@ static __poll_t tipc_poll(struct file *f
+ 
+ 	switch (sk->sk_state) {
+ 	case TIPC_ESTABLISHED:
+-	case TIPC_CONNECTING:
+ 		if (!tsk->cong_link_cnt && !tsk_conn_cong(tsk))
+ 			revents |= EPOLLOUT;
+ 		/* fall thru' */
+ 	case TIPC_LISTEN:
++	case TIPC_CONNECTING:
+ 		if (!skb_queue_empty(&sk->sk_receive_queue))
+ 			revents |= EPOLLIN | EPOLLRDNORM;
+ 		break;
+@@ -2039,7 +2039,7 @@ static bool tipc_sk_filter_connect(struc
+ 			return true;
+ 
+ 		/* If empty 'ACK-' message, wake up sleeping connect() */
+-		sk->sk_data_ready(sk);
++		sk->sk_state_change(sk);
+ 
+ 		/* 'ACK-' message is neither accepted nor rejected: */
+ 		msg_set_dest_droppable(hdr, 1);
 
 
