@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 913581F135
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29C81F416
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731148AbfEOLWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60314 "EHLO mail.kernel.org"
+        id S1727189AbfEOK7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:59:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730877AbfEOLWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:08 -0400
+        id S1727205AbfEOK7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:59:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 581EC20818;
-        Wed, 15 May 2019 11:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B261C21734;
+        Wed, 15 May 2019 10:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919327;
-        bh=q6v72+Ja18F0YRjkSCV3jO77DtMZBJHsNepQUcLXMWo=;
+        s=default; t=1557917978;
+        bh=VKIaQHqILKktV1uilDIzU4auAHkCA0xrJuZDJAa28PY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y63PBAf6oMg+ktvkZJuRmqM12l+4VWN2G1lFYxWKnUOqNIursG9VQLQAmYgSUrxkj
-         /Rr6/T9qIiATFgx18iD7KCrCH69gw9QbTx+U/JdiO+GlZAkP5TeL//OXXY7ub84UvN
-         9imavnSPVDGQbXN5AbIq3fk8nl0bZonMPa/R0eUs=
+        b=MIU4wNqCicPZXBRdM/CVho/zP12IF6FYkFSWLKHyAs7H4WAoQ94jVg8WJ/cxdf4N7
+         XJWmhYBHVNIffQWZ5eTLkihSQd/s0kpQc5X09Nc1NQqluZ9o4JB9cLkmWYk4E1hfiz
+         dCkqqGNP+P7qO1XPx1vwkU8gf3tgLBwBc4NVPkYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Olof Johansson <olof@lixom.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 032/113] qede: fix write to freed pointer error and double free of ptp
+Subject: [PATCH 3.18 46/86] ARM: iop: dont use using 64-bit DMA masks
 Date:   Wed, 15 May 2019 12:55:23 +0200
-Message-Id: <20190515090656.019391191@linuxfoundation.org>
+Message-Id: <20190515090651.503656678@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1dc2b3d65523780ed1972d446c76e62e13f3e8f5 ]
+[ Upstream commit 2125801ccce19249708ca3245d48998e70569ab8 ]
 
-The err2 error return path calls qede_ptp_disable that cleans up
-on an error and frees ptp. After this, the free'd ptp is dereferenced
-when ptp->clock is set to NULL and the code falls-through to error
-path err1 that frees ptp again.
+clang warns about statically defined DMA masks from the DMA_BIT_MASK
+macro with length 64:
 
-Fix this by calling qede_ptp_disable and exiting via an error
-return path that does not set ptp->clock or kfree ptp.
+ arch/arm/mach-iop13xx/setup.c:303:35: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
+ static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
+                                  ^~~~~~~~~~~~~~~~
+ include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
+ #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+                                                      ^ ~~~
 
-Addresses-Coverity: ("Write to pointer after free")
-Fixes: 035744975aec ("qede: Add support for PTP resource locking.")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The ones in iop shouldn't really be 64 bit masks, so changing them
+to what the driver can support avoids the warning.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_ptp.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm/mach-iop13xx/setup.c |  8 ++++----
+ arch/arm/mach-iop13xx/tpmi.c  | 10 +++++-----
+ arch/arm/plat-iop/adma.c      |  6 +++---
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_ptp.c b/drivers/net/ethernet/qlogic/qede/qede_ptp.c
-index 013ff567283c7..5e574c3b625e5 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_ptp.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_ptp.c
-@@ -490,18 +490,17 @@ int qede_ptp_enable(struct qede_dev *edev, bool init_tc)
- 
- 	ptp->clock = ptp_clock_register(&ptp->clock_info, &edev->pdev->dev);
- 	if (IS_ERR(ptp->clock)) {
--		rc = -EINVAL;
- 		DP_ERR(edev, "PTP clock registration failed\n");
-+		qede_ptp_disable(edev);
-+		rc = -EINVAL;
- 		goto err2;
+diff --git a/arch/arm/mach-iop13xx/setup.c b/arch/arm/mach-iop13xx/setup.c
+index 53c316f7301e..fe4932fda01d 100644
+--- a/arch/arm/mach-iop13xx/setup.c
++++ b/arch/arm/mach-iop13xx/setup.c
+@@ -300,7 +300,7 @@ static struct resource iop13xx_adma_2_resources[] = {
  	}
+ };
  
- 	return 0;
+-static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(64);
++static u64 iop13xx_adma_dmamask = DMA_BIT_MASK(32);
+ static struct iop_adma_platform_data iop13xx_adma_0_data = {
+ 	.hw_id = 0,
+ 	.pool_size = PAGE_SIZE,
+@@ -324,7 +324,7 @@ static struct platform_device iop13xx_adma_0_channel = {
+ 	.resource = iop13xx_adma_0_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_0_data,
+ 	},
+ };
+@@ -336,7 +336,7 @@ static struct platform_device iop13xx_adma_1_channel = {
+ 	.resource = iop13xx_adma_1_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_1_data,
+ 	},
+ };
+@@ -348,7 +348,7 @@ static struct platform_device iop13xx_adma_2_channel = {
+ 	.resource = iop13xx_adma_2_resources,
+ 	.dev = {
+ 		.dma_mask = &iop13xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop13xx_adma_2_data,
+ 	},
+ };
+diff --git a/arch/arm/mach-iop13xx/tpmi.c b/arch/arm/mach-iop13xx/tpmi.c
+index db511ec2b1df..116feb6b261e 100644
+--- a/arch/arm/mach-iop13xx/tpmi.c
++++ b/arch/arm/mach-iop13xx/tpmi.c
+@@ -152,7 +152,7 @@ static struct resource iop13xx_tpmi_3_resources[] = {
+ 	}
+ };
  
--err2:
--	qede_ptp_disable(edev);
--	ptp->clock = NULL;
- err1:
- 	kfree(ptp);
-+err2:
- 	edev->ptp = NULL;
+-u64 iop13xx_tpmi_mask = DMA_BIT_MASK(64);
++u64 iop13xx_tpmi_mask = DMA_BIT_MASK(32);
+ static struct platform_device iop13xx_tpmi_0_device = {
+ 	.name = "iop-tpmi",
+ 	.id = 0,
+@@ -160,7 +160,7 @@ static struct platform_device iop13xx_tpmi_0_device = {
+ 	.resource = iop13xx_tpmi_0_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
  
- 	return rc;
+@@ -171,7 +171,7 @@ static struct platform_device iop13xx_tpmi_1_device = {
+ 	.resource = iop13xx_tpmi_1_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+@@ -182,7 +182,7 @@ static struct platform_device iop13xx_tpmi_2_device = {
+ 	.resource = iop13xx_tpmi_2_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+@@ -193,7 +193,7 @@ static struct platform_device iop13xx_tpmi_3_device = {
+ 	.resource = iop13xx_tpmi_3_resources,
+ 	.dev = {
+ 		.dma_mask          = &iop13xx_tpmi_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 	},
+ };
+ 
+diff --git a/arch/arm/plat-iop/adma.c b/arch/arm/plat-iop/adma.c
+index a4d1f8de3b5b..d9612221e484 100644
+--- a/arch/arm/plat-iop/adma.c
++++ b/arch/arm/plat-iop/adma.c
+@@ -143,7 +143,7 @@ struct platform_device iop3xx_dma_0_channel = {
+ 	.resource = iop3xx_dma_0_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_dma_0_data,
+ 	},
+ };
+@@ -155,7 +155,7 @@ struct platform_device iop3xx_dma_1_channel = {
+ 	.resource = iop3xx_dma_1_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_dma_1_data,
+ 	},
+ };
+@@ -167,7 +167,7 @@ struct platform_device iop3xx_aau_channel = {
+ 	.resource = iop3xx_aau_resources,
+ 	.dev = {
+ 		.dma_mask = &iop3xx_adma_dmamask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
++		.coherent_dma_mask = DMA_BIT_MASK(32),
+ 		.platform_data = (void *) &iop3xx_aau_data,
+ 	},
+ };
 -- 
 2.20.1
 
