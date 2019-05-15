@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB951F02C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB5A1EE34
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732188AbfEOL2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
+        id S1730804AbfEOLS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732434AbfEOL2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:48 -0400
+        id S1728176AbfEOLS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA6C6206BF;
-        Wed, 15 May 2019 11:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7066206BF;
+        Wed, 15 May 2019 11:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919728;
-        bh=eNJ7Q5pDHhuVdvQq7LT9RWGjeRk7vPgcuhEzrUADf0E=;
+        s=default; t=1557919106;
+        bh=jjRElJ+4KvTzOVhPURmM6wWAWQNChEvRFpKFGG/w1xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PJlXyBQrLSxRRtxP9sACNro4WVNy+6FsvvMhZadmi97XQJhjHR3X6EzZaHIgdVAz
-         jNjFS/wgUfvfHxRw6dSInIDkz7Cwt4WhSk1xUB3MtFn6rPzvkbyjSSh7+Ft5AM7S/1
-         axSPUAWbzYFN5RDAbYq4aYr2fnbpCSNelTyzCST0=
+        b=BrFjlSfDvFkhDFxw4t+H/VUZgKkqdILyTKsqKSyix3t/jY221f4lo4RoFFE+y9Wcs
+         pbAamiyIU8TjpPZy2CZiqbZBYqXsNdFGCiHSRAq8fm89NTmIPtc6yJIJ89bOfbUM6q
+         /JmNwZ8MBVSSkNxlfU1/+3JSBwoP6vCVl3/cpSQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        John Crispin <john@phrozen.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 069/137] MIPS: perf: ath79: Fix perfcount IRQ assignment
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 070/115] drm/rockchip: psr: do not dereference encoder before it is null checked.
 Date:   Wed, 15 May 2019 12:55:50 +0200
-Message-Id: <20190515090658.457231438@linuxfoundation.org>
+Message-Id: <20190515090704.563089521@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
+[ Upstream commit 4eda776c3cefcb1f01b2d85bd8753f67606282b5 ]
 
-Currently it's not possible to use perf on ath79 due to genirq flags
-mismatch happening on static virtual IRQ 13 which is used for
-performance counters hardware IRQ 5.
+'encoder' is dereferenced before it is null sanity checked, hence we
+potentially have a null pointer dereference bug. Instead, initialise
+drm_drv from encoder->dev->dev_private after we are sure 'encoder' is
+not null.
 
-On TP-Link Archer C7v5:
-
-           CPU0
-  2:          0      MIPS   2  ath9k
-  4:        318      MIPS   4  19000000.eth
-  7:      55034      MIPS   7  timer
-  8:       1236      MISC   3  ttyS0
- 12:          0      INTC   1  ehci_hcd:usb1
- 13:          0  gpio-ath79   2  keys
- 14:          0  gpio-ath79   5  keys
- 15:         31  AR724X PCI    1  ath10k_pci
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
-
-On TP-Link Archer C7v4:
-
-         CPU0
-  4:          0      MIPS   4  19000000.eth
-  5:       7135      MIPS   5  1a000000.eth
-  7:      98379      MIPS   7  timer
-  8:         30      MISC   3  ttyS0
- 12:      90028      INTC   0  ath9k
- 13:       5520      INTC   1  ehci_hcd:usb1
- 14:       4623      INTC   2  ehci_hcd:usb2
- 15:      32844  AR724X PCI    1  ath10k_pci
- 16:          0  gpio-ath79  16  keys
- 23:          0  gpio-ath79  23  keys
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
-
-This problem is happening, because currently statically assigned virtual
-IRQ 13 for performance counters is not claimed during the initialization
-of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
-this interrupt isn't available for further use.
-
-So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
-
-Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Acked-by: John Crispin <john@phrozen.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jason Cooper <jason@lakedaemon.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5182c1a556d7f ("drm/rockchip: add an common abstracted PSR driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181013105654.11827-1-enric.balletbo@collabora.com
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/mips/ath79/setup.c          |  6 ------
- drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
-index 9728abcb18fac..c04ae685003f7 100644
---- a/arch/mips/ath79/setup.c
-+++ b/arch/mips/ath79/setup.c
-@@ -211,12 +211,6 @@ const char *get_system_type(void)
- 	return ath79_sys_type;
- }
- 
--int get_c0_perfcount_int(void)
--{
--	return ATH79_MISC_IRQ(5);
--}
--EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
--
- unsigned int get_c0_compare_int(void)
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+index a553e182ff538..32e7dba2bf5ea 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+@@ -221,13 +221,15 @@ EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
+ int rockchip_drm_psr_register(struct drm_encoder *encoder,
+ 			void (*psr_set)(struct drm_encoder *, bool enable))
  {
- 	return CP0_LEGACY_COMPARE_IRQ;
-diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
-index aa72907846360..0390603170b40 100644
---- a/drivers/irqchip/irq-ath79-misc.c
-+++ b/drivers/irqchip/irq-ath79-misc.c
-@@ -22,6 +22,15 @@
- #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
+-	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
++	struct rockchip_drm_private *drm_drv;
+ 	struct psr_drv *psr;
+ 	unsigned long flags;
  
- #define ATH79_MISC_IRQ_COUNT			32
-+#define ATH79_MISC_PERF_IRQ			5
-+
-+static int ath79_perfcount_irq;
-+
-+int get_c0_perfcount_int(void)
-+{
-+	return ath79_perfcount_irq;
-+}
-+EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+ 	if (!encoder || !psr_set)
+ 		return -EINVAL;
  
- static void ath79_misc_irq_handler(struct irq_desc *desc)
- {
-@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
- {
- 	void __iomem *base = domain->host_data;
- 
-+	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
++	drm_drv = encoder->dev->dev_private;
 +
- 	/* Disable and clear all interrupts */
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
+ 	psr = kzalloc(sizeof(struct psr_drv), GFP_KERNEL);
+ 	if (!psr)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
