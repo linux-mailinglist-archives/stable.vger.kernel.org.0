@@ -2,57 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C155E1F281
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E39C1F1CD
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbfEOLL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:11:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46012 "EHLO mail.kernel.org"
+        id S1729023AbfEOLzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:55:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729164AbfEOLL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:26 -0400
+        id S1730350AbfEOLSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D93221473;
-        Wed, 15 May 2019 11:11:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 337D9206BF;
+        Wed, 15 May 2019 11:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918684;
-        bh=1O5XAIKcgkmvxRMEoezlXrFLzM3tRA3WT9bCo5hJLeY=;
+        s=default; t=1557919111;
+        bh=fya0K4A2B5AA1H7SCysVvWjdhaVu9BpWOOUQwW7H79U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWTO+Z+XK7eGSZ9NNvYFBpfk7by+0bc1tpAaMvnSDcDJmqtxng6ICG7wDMZmLTaC3
-         5s5nbnWtxKCbZpjmhRXxwMqak1xnUlUBhbsa3KPJCoUHQ3SOtk0Jqkz+U3o4tMbt60
-         yK4mX/O7KcqTA4XKY4dDLu53DCmE654JQzulPiOU=
+        b=DZhzwe7Mg3YxfLdhIn5ZoqqxwXKGbiXc1VBdrGnWGYXSgS/KdKZ9ihSs4C5ptQibd
+         gfIbAKoZqMUWar3HgF1BKOc+OiQ63qE8PxEPwSz03OoRyYK7YyL+xP0l9Pz+heAHsT
+         kwpGlIRvUjULPti81nesp14/6XKR+rThMmXfjKc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 226/266] x86/speculation: Provide IBPB always command line options
-Date:   Wed, 15 May 2019 12:55:33 +0200
-Message-Id: <20190515090730.644770059@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 054/115] drm/i915: Disable LP3 watermarks on all SNB machines
+Date:   Wed, 15 May 2019 12:55:34 +0200
+Message-Id: <20190515090703.534551972@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,162 +45,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 03981c6ebec4fc7056b9b45f847393aeac90d060 ]
 
-commit 55a974021ec952ee460dc31ca08722158639de72 upstream.
+I have a Thinkpad X220 Tablet in my hands that is losing vblank
+interrupts whenever LP3 watermarks are used.
 
-Provide the possibility to enable IBPB always in combination with 'prctl'
-and 'seccomp'.
+If I nudge the latency value written to the WM3 register just
+by one in either direction the problem disappears. That to me
+suggests that the punit will not enter the corrsponding
+powersave mode (MPLL shutdown IIRC) unless the latency value
+in the register matches exactly what we read from SSKPD. Ie.
+it's not really a latency value but rather just a cookie
+by which the punit can identify the desired power saving state.
+On HSW/BDW this was changed such that we actually just write
+the WM level number into those bits, which makes much more
+sense given the observed behaviour.
 
-Add the extra command line options and rework the IBPB selection to
-evaluate the command instead of the mode selected by the STIPB switch case.
+We could try to handle this by disallowing LP3 watermarks
+only when vblank interrupts are enabled but we'd first have
+to prove that only vblank interrupts are affected, which
+seems unlikely. Also we can't grab the wm mutex from the
+vblank enable/disable hooks because those are called with
+various spinlocks held. Thus we'd have to redesigne the
+watermark locking. So to play it safe and keep the code
+simple we simply disable LP3 watermarks on all SNB machines.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185006.144047038@linutronix.de
-[bwh: Backported to 4.4: adjust filename]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To do that we simply zero out the latency values for
+watermark level 3, and we adjust the watermark computation
+to check for that. The behaviour now matches that of the
+g4x/vlv/skl wm code in the presence of a zeroed latency
+value.
+
+v2: s/USHRT_MAX/U32_MAX/ for consistency with the types (Chris)
+
+Cc: stable@vger.kernel.org
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=101269
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=103713
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181114173440.6730-1-ville.syrjala@linux.intel.com
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- Documentation/kernel-parameters.txt |   12 ++++++++++++
- arch/x86/kernel/cpu/bugs.c          |   34 +++++++++++++++++++++++-----------
- 2 files changed, 35 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c | 41 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -3651,11 +3651,23 @@ bytes respectively. Such letter suffixes
- 				  per thread.  The mitigation control state
- 				  is inherited on fork.
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index 87cccb5f8c5da..96a5237741e0c 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2471,6 +2471,9 @@ static uint32_t ilk_compute_pri_wm(const struct intel_crtc_state *cstate,
+ 	uint32_t method1, method2;
+ 	int cpp;
  
-+			prctl,ibpb
-+				- Like "prctl" above, but only STIBP is
-+				  controlled per thread. IBPB is issued
-+				  always when switching between different user
-+				  space processes.
++	if (mem_value == 0)
++		return U32_MAX;
 +
- 			seccomp
- 				- Same as "prctl" above, but all seccomp
- 				  threads will enable the mitigation unless
- 				  they explicitly opt out.
+ 	if (!intel_wm_plane_visible(cstate, pstate))
+ 		return 0;
  
-+			seccomp,ibpb
-+				- Like "seccomp" above, but only STIBP is
-+				  controlled per thread. IBPB is issued
-+				  always when switching between different
-+				  user space processes.
+@@ -2500,6 +2503,9 @@ static uint32_t ilk_compute_spr_wm(const struct intel_crtc_state *cstate,
+ 	uint32_t method1, method2;
+ 	int cpp;
+ 
++	if (mem_value == 0)
++		return U32_MAX;
 +
- 			auto    - Kernel selects the mitigation depending on
- 				  the available CPU features and vulnerability.
+ 	if (!intel_wm_plane_visible(cstate, pstate))
+ 		return 0;
  
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -245,7 +245,9 @@ enum spectre_v2_user_cmd {
- 	SPECTRE_V2_USER_CMD_AUTO,
- 	SPECTRE_V2_USER_CMD_FORCE,
- 	SPECTRE_V2_USER_CMD_PRCTL,
-+	SPECTRE_V2_USER_CMD_PRCTL_IBPB,
- 	SPECTRE_V2_USER_CMD_SECCOMP,
-+	SPECTRE_V2_USER_CMD_SECCOMP_IBPB,
- };
- 
- static const char * const spectre_v2_user_strings[] = {
-@@ -260,11 +262,13 @@ static const struct {
- 	enum spectre_v2_user_cmd	cmd;
- 	bool				secure;
- } v2_user_options[] __initdata = {
--	{ "auto",	SPECTRE_V2_USER_CMD_AUTO,	false },
--	{ "off",	SPECTRE_V2_USER_CMD_NONE,	false },
--	{ "on",		SPECTRE_V2_USER_CMD_FORCE,	true  },
--	{ "prctl",	SPECTRE_V2_USER_CMD_PRCTL,	false },
--	{ "seccomp",	SPECTRE_V2_USER_CMD_SECCOMP,	false },
-+	{ "auto",		SPECTRE_V2_USER_CMD_AUTO,		false },
-+	{ "off",		SPECTRE_V2_USER_CMD_NONE,		false },
-+	{ "on",			SPECTRE_V2_USER_CMD_FORCE,		true  },
-+	{ "prctl",		SPECTRE_V2_USER_CMD_PRCTL,		false },
-+	{ "prctl,ibpb",		SPECTRE_V2_USER_CMD_PRCTL_IBPB,		false },
-+	{ "seccomp",		SPECTRE_V2_USER_CMD_SECCOMP,		false },
-+	{ "seccomp,ibpb",	SPECTRE_V2_USER_CMD_SECCOMP_IBPB,	false },
- };
- 
- static void __init spec_v2_user_print_cond(const char *reason, bool secure)
-@@ -310,6 +314,7 @@ spectre_v2_user_select_mitigation(enum s
+@@ -2523,6 +2529,9 @@ static uint32_t ilk_compute_cur_wm(const struct intel_crtc_state *cstate,
  {
- 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
- 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
-+	enum spectre_v2_user_cmd cmd;
+ 	int cpp;
  
- 	if (!boot_cpu_has(X86_FEATURE_IBPB) && !boot_cpu_has(X86_FEATURE_STIBP))
- 		return;
-@@ -317,17 +322,20 @@ spectre_v2_user_select_mitigation(enum s
- 	if (!IS_ENABLED(CONFIG_SMP))
- 		smt_possible = false;
++	if (mem_value == 0)
++		return U32_MAX;
++
+ 	if (!intel_wm_plane_visible(cstate, pstate))
+ 		return 0;
  
--	switch (spectre_v2_parse_user_cmdline(v2_cmd)) {
-+	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
-+	switch (cmd) {
- 	case SPECTRE_V2_USER_CMD_NONE:
- 		goto set_mode;
- 	case SPECTRE_V2_USER_CMD_FORCE:
- 		mode = SPECTRE_V2_USER_STRICT;
- 		break;
- 	case SPECTRE_V2_USER_CMD_PRCTL:
-+	case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
- 		mode = SPECTRE_V2_USER_PRCTL;
- 		break;
- 	case SPECTRE_V2_USER_CMD_AUTO:
- 	case SPECTRE_V2_USER_CMD_SECCOMP:
-+	case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 		if (IS_ENABLED(CONFIG_SECCOMP))
- 			mode = SPECTRE_V2_USER_SECCOMP;
- 		else
-@@ -339,12 +347,15 @@ spectre_v2_user_select_mitigation(enum s
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
+@@ -2981,6 +2990,34 @@ static void snb_wm_latency_quirk(struct drm_i915_private *dev_priv)
+ 	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
+ }
  
--		switch (mode) {
--		case SPECTRE_V2_USER_STRICT:
-+		switch (cmd) {
-+		case SPECTRE_V2_USER_CMD_FORCE:
-+		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
-+		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 			static_branch_enable(&switch_mm_always_ibpb);
- 			break;
--		case SPECTRE_V2_USER_PRCTL:
--		case SPECTRE_V2_USER_SECCOMP:
-+		case SPECTRE_V2_USER_CMD_PRCTL:
-+		case SPECTRE_V2_USER_CMD_AUTO:
-+		case SPECTRE_V2_USER_CMD_SECCOMP:
- 			static_branch_enable(&switch_mm_cond_ibpb);
- 			break;
- 		default:
-@@ -352,7 +363,8 @@ spectre_v2_user_select_mitigation(enum s
- 		}
++static void snb_wm_lp3_irq_quirk(struct drm_i915_private *dev_priv)
++{
++	/*
++	 * On some SNB machines (Thinkpad X220 Tablet at least)
++	 * LP3 usage can cause vblank interrupts to be lost.
++	 * The DEIIR bit will go high but it looks like the CPU
++	 * never gets interrupted.
++	 *
++	 * It's not clear whether other interrupt source could
++	 * be affected or if this is somehow limited to vblank
++	 * interrupts only. To play it safe we disable LP3
++	 * watermarks entirely.
++	 */
++	if (dev_priv->wm.pri_latency[3] == 0 &&
++	    dev_priv->wm.spr_latency[3] == 0 &&
++	    dev_priv->wm.cur_latency[3] == 0)
++		return;
++
++	dev_priv->wm.pri_latency[3] = 0;
++	dev_priv->wm.spr_latency[3] = 0;
++	dev_priv->wm.cur_latency[3] = 0;
++
++	DRM_DEBUG_KMS("LP3 watermarks disabled due to potential for lost interrupts\n");
++	intel_print_wm_latency(dev_priv, "Primary", dev_priv->wm.pri_latency);
++	intel_print_wm_latency(dev_priv, "Sprite", dev_priv->wm.spr_latency);
++	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
++}
++
+ static void ilk_setup_wm_latency(struct drm_i915_private *dev_priv)
+ {
+ 	intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
+@@ -2997,8 +3034,10 @@ static void ilk_setup_wm_latency(struct drm_i915_private *dev_priv)
+ 	intel_print_wm_latency(dev_priv, "Sprite", dev_priv->wm.spr_latency);
+ 	intel_print_wm_latency(dev_priv, "Cursor", dev_priv->wm.cur_latency);
  
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
--			mode == SPECTRE_V2_USER_STRICT ? "always-on" : "conditional");
-+			static_key_enabled(&switch_mm_always_ibpb) ?
-+			"always-on" : "conditional");
- 	}
+-	if (IS_GEN6(dev_priv))
++	if (IS_GEN6(dev_priv)) {
+ 		snb_wm_latency_quirk(dev_priv);
++		snb_wm_lp3_irq_quirk(dev_priv);
++	}
+ }
  
- 	/* If enhanced IBRS is enabled no STIPB required */
+ static void skl_setup_wm_latency(struct drm_i915_private *dev_priv)
+-- 
+2.20.1
+
 
 
