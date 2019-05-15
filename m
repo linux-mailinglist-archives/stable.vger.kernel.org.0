@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DFD1EFC7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23831F0A3
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726412AbfEOLgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44484 "EHLO mail.kernel.org"
+        id S1731891AbfEOLqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730842AbfEOLci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:38 -0400
+        id S1732025AbfEOLZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D2812053B;
-        Wed, 15 May 2019 11:32:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A4A2206BF;
+        Wed, 15 May 2019 11:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919957;
-        bh=tNIhxY8N0aSxd42ZQzJBvBfueaEFS+wqtYU5w+0ZFnE=;
+        s=default; t=1557919538;
+        bh=hntAyRFrvw6Cr9yi4hm6U6Z3YwulC1viRtaaSaqeOA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMzkXaTKUUjmqpFsOMW8noY3oSmXK1FfuBP8Mnn0tsKpJDfDpUuHjgk83CyYRQoXx
-         TaU8lnpiOjmRJ26YRUr8rh4KmP/9ULGO1fmCz4QTkB/NBcfIsJW1I8RFIcbEnSqa8Y
-         +UULtyQOo7Dpe7lIHy8fXbiwJmar8Dhe7UVgXnKQ=
+        b=DvXQ2+N+7aocL6bHBzUHOgkReqyb6U3J76Fh0PWjeo1fw6SaYmnF6+JicRbLon01n
+         eBcMNkXHv4QO+G/572NqpaCEEX4Aiagqm5KLehRrh6WEpKv34laazVKfWmqnoJ2Csy
+         ABZpOxMJdtpTuQ1b/pIGaLtJtl7AvhCVaYlouYGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 20/46] net: ethernet: stmmac: dwmac-sun8i: enable support of unicast filtering
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Michael Kelley <mikelley@microsoft.com>
+Subject: [PATCH 4.19 113/113] PCI: hv: Add pci_destroy_slot() in pci_devices_present_work(), if necessary
 Date:   Wed, 15 May 2019 12:56:44 +0200
-Message-Id: <20190515090623.902014753@linuxfoundation.org>
+Message-Id: <20190515090702.312252361@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit d4c26eb6e721683a0f93e346ce55bc8dc3cbb175 ]
+commit 340d455699400f2c2c0f9b3f703ade3085cdb501 upstream.
 
-When adding more MAC addresses to a dwmac-sun8i interface, the device goes
-directly in promiscuous mode.
-This is due to IFF_UNICAST_FLT missing flag.
+When we hot-remove a device, usually the host sends us a PCI_EJECT message,
+and a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
-So since the hardware support unicast filtering, let's add IFF_UNICAST_FLT.
+When we execute the quick hot-add/hot-remove test, the host may not send
+us the PCI_EJECT message if the guest has not fully finished the
+initialization by sending the PCI_RESOURCES_ASSIGNED* message to the
+host, so it's potentially unsafe to only depend on the
+pci_destroy_slot() in hv_eject_device_work() because the code path
 
-Fixes: 9f93ac8d4085 ("net-next: stmmac: Add dwmac-sun8i")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+is not called in this case. Note: in this case, the host still sends the
+guest a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
+
+In the quick hot-add/hot-remove test, we can have such a race before
+the code path
+
+pci_devices_present_work()
+ -> new_pcichild_device()
+
+adds the new device into the hbus->children list, we may have already
+received the PCI_EJECT message, and since the tasklet handler
+
+hv_pci_onchannelcallback()
+
+may fail to find the "hpdev" by calling
+
+get_pcichild_wslot(hbus, dev_message->wslot.slot)
+
+hv_pci_eject_device() is not called; Later, by continuing execution
+
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+creates the slot and the PCI_BUS_RELATIONS message with
+bus_rel->device_count == 0 removes the device from hbus->children, and
+we end up being unable to remove the slot in
+
+hv_pci_remove()
+ -> hv_pci_remove_slots()
+
+Remove the slot in pci_devices_present_work() when the device
+is removed to address this race.
+
+pci_devices_present_work() and hv_eject_device_work() run in the
+singled-threaded hbus->wq, so there is not a double-remove issue for the
+slot.
+
+We cannot offload hv_pci_eject_device() from hv_pci_onchannelcallback()
+to the workqueue, because we need the hv_pci_onchannelcallback()
+synchronously call hv_pci_eject_device() to poll the channel
+ringbuffer to work around the "hangs in hv_compose_msi_msg()" issue
+fixed in commit de0aa7b2f97d ("PCI: hv: Fix 2 hang issues in
+hv_compose_msi_msg()")
+
+Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+[lorenzo.pieralisi@arm.com: rewritten commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -1015,6 +1015,8 @@ static struct mac_device_info *sun8i_dwm
- 	mac->mac = &sun8i_dwmac_ops;
- 	mac->dma = &sun8i_dwmac_dma_ops;
- 
-+	priv->dev->priv_flags |= IFF_UNICAST_FLT;
+---
+ drivers/pci/controller/pci-hyperv.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1781,6 +1781,10 @@ static void pci_devices_present_work(str
+ 		hpdev = list_first_entry(&removed, struct hv_pci_dev,
+ 					 list_entry);
+ 		list_del(&hpdev->list_entry);
 +
- 	/* The loopback bit seems to be re-set when link change
- 	 * Simply mask it each time
- 	 * Speed 10/100/1000 are set in BIT(2)/BIT(3)
++		if (hpdev->pci_slot)
++			pci_destroy_slot(hpdev->pci_slot);
++
+ 		put_pcichild(hpdev);
+ 	}
+ 
 
 
