@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382E81F1AA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2395D1F043
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730562AbfEOLQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53662 "EHLO mail.kernel.org"
+        id S1731299AbfEOLmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730551AbfEOLQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:47 -0400
+        id S1726473AbfEOL2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76B6620644;
-        Wed, 15 May 2019 11:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0507F20881;
+        Wed, 15 May 2019 11:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919005;
-        bh=53h/qjjxNcbShhTthqx19K0XQn9X+ml3ZCdPOFaCXBc=;
+        s=default; t=1557919691;
+        bh=clui04QC4t4n0r//6FAgmXuRtDJsSv/oVvcDZ/NpBYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ri2hMsNOXeYS1dokmLvVbVQDw8doafIk808yAPLJ8S6ptceRbAdiPS8jMzJaekb7I
-         qdNzntAlPsMN3NnYohvZl1Z4kni/9vHrz6hq0sYkqbscS2XVzrklkM0SSjtxy7G/jM
-         JtQ48XI0VBSmLh1BKlnnb+xi9raIkqJt35om/Wqs=
+        b=vEg98YSQ3qR92SdS9BNQ7lsehbbaXJwzVaXg7bxb3y70+IxCKY3QGBWP9I4I36k/a
+         jn9N4/rBPODeY3EqWX6WIB7XmMxNm/0NEHAHlzva6WCelJac7r9qTLd1/s4nTi3vHT
+         jP528tCtKXxyzqy/w6lprAvnKdRyWgDcphXd3LUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        John Crispin <john@phrozen.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
+        stable@vger.kernel.org, Lin Yi <teroincn@163.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 031/115] MIPS: perf: ath79: Fix perfcount IRQ assignment
+Subject: [PATCH 5.0 030/137] drm/ttm: fix dma_fence refcount imbalance on error path
 Date:   Wed, 15 May 2019 12:55:11 +0200
-Message-Id: <20190515090701.626906351@linuxfoundation.org>
+Message-Id: <20190515090655.492579941@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
+[ Upstream commit 543c364d8eeeb42c0edfaac9764f4e9f3d777ec1 ]
 
-Currently it's not possible to use perf on ath79 due to genirq flags
-mismatch happening on static virtual IRQ 13 which is used for
-performance counters hardware IRQ 5.
+the ttm_bo_add_move_fence takes a reference to the struct dma_fence, but
+failed to release it on the error path, leading to a memory leak.
+add dma_fence_put before return when error occur.
 
-On TP-Link Archer C7v5:
-
-           CPU0
-  2:          0      MIPS   2  ath9k
-  4:        318      MIPS   4  19000000.eth
-  7:      55034      MIPS   7  timer
-  8:       1236      MISC   3  ttyS0
- 12:          0      INTC   1  ehci_hcd:usb1
- 13:          0  gpio-ath79   2  keys
- 14:          0  gpio-ath79   5  keys
- 15:         31  AR724X PCI    1  ath10k_pci
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
-
-On TP-Link Archer C7v4:
-
-         CPU0
-  4:          0      MIPS   4  19000000.eth
-  5:       7135      MIPS   5  1a000000.eth
-  7:      98379      MIPS   7  timer
-  8:         30      MISC   3  ttyS0
- 12:      90028      INTC   0  ath9k
- 13:       5520      INTC   1  ehci_hcd:usb1
- 14:       4623      INTC   2  ehci_hcd:usb2
- 15:      32844  AR724X PCI    1  ath10k_pci
- 16:          0  gpio-ath79  16  keys
- 23:          0  gpio-ath79  23  keys
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
-
-This problem is happening, because currently statically assigned virtual
-IRQ 13 for performance counters is not claimed during the initialization
-of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
-this interrupt isn't available for further use.
-
-So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
-
-Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Acked-by: John Crispin <john@phrozen.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jason Cooper <jason@lakedaemon.net>
+Signed-off-by: Lin Yi <teroincn@163.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ath79/setup.c          |  6 ------
- drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
-index 26a058d58d37b..c7c31e2148136 100644
---- a/arch/mips/ath79/setup.c
-+++ b/arch/mips/ath79/setup.c
-@@ -183,12 +183,6 @@ const char *get_system_type(void)
- 	return ath79_sys_type;
- }
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 996cadd83f244..d8e1b3f129046 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -881,8 +881,10 @@ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
+ 		reservation_object_add_shared_fence(bo->resv, fence);
  
--int get_c0_perfcount_int(void)
--{
--	return ATH79_MISC_IRQ(5);
--}
--EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
--
- unsigned int get_c0_compare_int(void)
- {
- 	return CP0_LEGACY_COMPARE_IRQ;
-diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
-index aa72907846360..0390603170b40 100644
---- a/drivers/irqchip/irq-ath79-misc.c
-+++ b/drivers/irqchip/irq-ath79-misc.c
-@@ -22,6 +22,15 @@
- #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
+ 		ret = reservation_object_reserve_shared(bo->resv, 1);
+-		if (unlikely(ret))
++		if (unlikely(ret)) {
++			dma_fence_put(fence);
+ 			return ret;
++		}
  
- #define ATH79_MISC_IRQ_COUNT			32
-+#define ATH79_MISC_PERF_IRQ			5
-+
-+static int ath79_perfcount_irq;
-+
-+int get_c0_perfcount_int(void)
-+{
-+	return ath79_perfcount_irq;
-+}
-+EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
- 
- static void ath79_misc_irq_handler(struct irq_desc *desc)
- {
-@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
- {
- 	void __iomem *base = domain->host_data;
- 
-+	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
-+
- 	/* Disable and clear all interrupts */
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
+ 		dma_fence_put(bo->moving);
+ 		bo->moving = fence;
 -- 
 2.20.1
 
