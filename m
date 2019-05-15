@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8793F1F1EC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1213E1F122
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbfEOL6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53152 "EHLO mail.kernel.org"
+        id S1731032AbfEOLVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727222AbfEOLQW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:22 -0400
+        id S1731010AbfEOLVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B50322084E;
-        Wed, 15 May 2019 11:16:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1EB20881;
+        Wed, 15 May 2019 11:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918982;
-        bh=LbQpxIztwr/8bF5oi72p2pDfyuGFhwEhoZpWbI683ug=;
+        s=default; t=1557919272;
+        bh=aQ7Ivrvdt+7G0Ib3INo2gzvB2O0EmJ9WgB66ULk7SXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDGprfq+oSk24K1mHAQozDGSr4LoJ/ncBVC0lkpZTIfzLo/DivvpwGNJHVlnxuAAe
-         pHmufL7m6F/IISNTCJJ7ms1bLbcXbDMbPgkskoJkkCq0u2JPEijECQYJLsJfJm0sHJ
-         6BodQDQrO7CXyjTJUhrpmJmDvORCkPtEN+/cVD0w=
+        b=PJNOy9t0LYftwZ9nNmhLEBj+avTDOCG45+B+utn2e5OA91/eG5o2dcdjbUrF4MZRe
+         EbdYhy7Ltb83/GksKjCKPAZ5V7g25OmN9QSiMcvDsmTq9pWODPUQ7h4FJZUIEzpqcR
+         BK4ggPEg50M3+A31jN/DqOQulDFJbPWGTrxQvG4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/115] KVM: fix spectrev1 gadgets
-Date:   Wed, 15 May 2019 12:55:03 +0200
-Message-Id: <20190515090700.957801365@linuxfoundation.org>
+Subject: [PATCH 4.19 013/113] libnvdimm/namespace: Fix a potential NULL pointer dereference
+Date:   Wed, 15 May 2019 12:55:04 +0200
+Message-Id: <20190515090654.545193363@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1d487e9bf8ba66a7174c56a0029c54b1eca8f99c ]
+[ Upstream commit 55c1fc0af29a6c1b92f217b7eb7581a882e0c07c ]
 
-These were found with smatch, and then generalized when applicable.
+In case kmemdup fails, the fix goes to blk_err to avoid NULL
+pointer dereference.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c     |  4 +++-
- include/linux/kvm_host.h | 10 ++++++----
- virt/kvm/irqchip.c       |  5 +++--
- virt/kvm/kvm_main.c      |  6 ++++--
- 4 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/nvdimm/namespace_devs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index f7c34184342a5..053e4937af0cb 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -133,6 +133,7 @@ static inline bool kvm_apic_map_get_logical_dest(struct kvm_apic_map *map,
- 		if (offset <= max_apic_id) {
- 			u8 cluster_size = min(max_apic_id - offset + 1, 16U);
- 
-+			offset = array_index_nospec(offset, map->max_apic_id + 1);
- 			*cluster = &map->phys_map[offset];
- 			*mask = dest_id & (0xffff >> (16 - cluster_size));
- 		} else {
-@@ -829,7 +830,8 @@ static inline bool kvm_apic_map_get_dest_lapic(struct kvm *kvm,
- 		if (irq->dest_id > map->max_apic_id) {
- 			*bitmap = 0;
- 		} else {
--			*dst = &map->phys_map[irq->dest_id];
-+			u32 dest_id = array_index_nospec(irq->dest_id, map->max_apic_id + 1);
-+			*dst = &map->phys_map[dest_id];
- 			*bitmap = 1;
- 		}
- 		return true;
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 753c16633bac5..026615e242d8e 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -27,6 +27,7 @@
- #include <linux/irqbypass.h>
- #include <linux/swait.h>
- #include <linux/refcount.h>
-+#include <linux/nospec.h>
- #include <asm/signal.h>
- 
- #include <linux/kvm.h>
-@@ -483,10 +484,10 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
- 
- static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
- {
--	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
--	 * the caller has read kvm->online_vcpus before (as is the case
--	 * for kvm_for_each_vcpu, for example).
--	 */
-+	int num_vcpus = atomic_read(&kvm->online_vcpus);
-+	i = array_index_nospec(i, num_vcpus);
-+
-+	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  */
- 	smp_rmb();
- 	return kvm->vcpus[i];
- }
-@@ -570,6 +571,7 @@ void kvm_put_kvm(struct kvm *kvm);
- 
- static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
- {
-+	as_id = array_index_nospec(as_id, KVM_ADDRESS_SPACE_NUM);
- 	return srcu_dereference_check(kvm->memslots[as_id], &kvm->srcu,
- 			lockdep_is_held(&kvm->slots_lock) ||
- 			!refcount_read(&kvm->users_count));
-diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
-index b1286c4e07122..0bd0683640bdf 100644
---- a/virt/kvm/irqchip.c
-+++ b/virt/kvm/irqchip.c
-@@ -144,18 +144,19 @@ static int setup_routing_entry(struct kvm *kvm,
- {
- 	struct kvm_kernel_irq_routing_entry *ei;
- 	int r;
-+	u32 gsi = array_index_nospec(ue->gsi, KVM_MAX_IRQ_ROUTES);
- 
- 	/*
- 	 * Do not allow GSI to be mapped to the same irqchip more than once.
- 	 * Allow only one to one mapping between GSI and non-irqchip routing.
- 	 */
--	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
-+	hlist_for_each_entry(ei, &rt->map[gsi], link)
- 		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
- 			return -EINVAL;
- 
--	e->gsi = ue->gsi;
-+	e->gsi = gsi;
- 	e->type = ue->type;
- 	r = kvm_set_routing_entry(kvm, e, ue);
- 	if (r)
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index a373c60ef1c06..b91716b1b428e 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2886,12 +2886,14 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	struct kvm_device_ops *ops = NULL;
- 	struct kvm_device *dev;
- 	bool test = cd->flags & KVM_CREATE_DEVICE_TEST;
-+	int type;
- 	int ret;
- 
- 	if (cd->type >= ARRAY_SIZE(kvm_device_ops_table))
- 		return -ENODEV;
- 
--	ops = kvm_device_ops_table[cd->type];
-+	type = array_index_nospec(cd->type, ARRAY_SIZE(kvm_device_ops_table));
-+	ops = kvm_device_ops_table[type];
- 	if (ops == NULL)
- 		return -ENODEV;
- 
-@@ -2906,7 +2908,7 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	dev->kvm = kvm;
- 
- 	mutex_lock(&kvm->lock);
--	ret = ops->create(dev, cd->type);
-+	ret = ops->create(dev, type);
- 	if (ret < 0) {
- 		mutex_unlock(&kvm->lock);
- 		kfree(dev);
+diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
+index 54d79837f7c6b..73a444c41cde9 100644
+--- a/drivers/nvdimm/namespace_devs.c
++++ b/drivers/nvdimm/namespace_devs.c
+@@ -2251,9 +2251,12 @@ static struct device *create_namespace_blk(struct nd_region *nd_region,
+ 	if (!nsblk->uuid)
+ 		goto blk_err;
+ 	memcpy(name, nd_label->name, NSLABEL_NAME_LEN);
+-	if (name[0])
++	if (name[0]) {
+ 		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN,
+ 				GFP_KERNEL);
++		if (!nsblk->alt_name)
++			goto blk_err;
++	}
+ 	res = nsblk_add_resource(nd_region, ndd, nsblk,
+ 			__le64_to_cpu(nd_label->dpa));
+ 	if (!res)
 -- 
 2.20.1
 
