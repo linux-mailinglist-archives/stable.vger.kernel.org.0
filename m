@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28F521EF59
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 011D41EF88
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732626AbfEOLcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
+        id S1732672AbfEOLb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729882AbfEOLct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:49 -0400
+        id S1732586AbfEOLby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:31:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E1C72053B;
-        Wed, 15 May 2019 11:32:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EA6C206BF;
+        Wed, 15 May 2019 11:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919968;
-        bh=ZqMG5L0+ZatJsxYrAh8Rw1P0KrbO2SXV10BRXd0BA4w=;
+        s=default; t=1557919913;
+        bh=N1z1Ctzyryh3Un951cXBMzDdR2Ak9NBVPkBLETOncrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEi5ohyABC5oJgSzlDs4iQWzrmAxh1RmOv6Mji7bFoAwvdCa5m6LdwnE5kcg8mKBy
-         SFUR/ksKgwqYolfAWi+ekG4pDpvDULza8M7eu8yTyacC3Xm9nTcGThgb3WiUv5IFwT
-         /A/W29QRYzTFYDaPvdQs5IuKtCW5xrH5jvwr4keA=
+        b=ifJC/IubM+evoDlJcJkwEncJ4q97/jPxcuc3SraCpUtKF9Ey4gxkk1RaCoi5sTQZ+
+         +r8Ex2GnwUZ9AyZ5/jN+AR/lr0I5IkMcwv5lKucSxIVIbDVV/5QnJlawAFCNiA2LXu
+         OvoD5PgVUV+/vsitiywT0XZN/b3ciKQMH70Cqd6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
+        stable@vger.kernel.org, Paul Bolle <pebolle@tiscali.nl>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 24/46] packet: Fix error path in packet_init
+Subject: [PATCH 5.0 127/137] isdn: bas_gigaset: use usb_fill_int_urb() properly
 Date:   Wed, 15 May 2019 12:56:48 +0200
-Message-Id: <20190515090624.895030897@linuxfoundation.org>
+Message-Id: <20190515090703.127021452@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Paul Bolle <pebolle@tiscali.nl>
 
-[ Upstream commit 36096f2f4fa05f7678bc87397665491700bae757 ]
+[ Upstream commit 4014dfae3ccaaf3ec19c9ae0691a3f14e7132eae ]
 
-kernel BUG at lib/list_debug.c:47!
-invalid opcode: 0000 [#1
-CPU: 0 PID: 12914 Comm: rmmod Tainted: G        W         5.1.0+ #47
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:__list_del_entry_valid+0x53/0x90
-Code: 48 8b 32 48 39 fe 75 35 48 8b 50 08 48 39 f2 75 40 b8 01 00 00 00 5d c3 48
-89 fe 48 89 c2 48 c7 c7 18 75 fe 82 e8 cb 34 78 ff <0f> 0b 48 89 fe 48 c7 c7 50 75 fe 82 e8 ba 34 78 ff 0f 0b 48 89 f2
-RSP: 0018:ffffc90001c2fe40 EFLAGS: 00010286
-RAX: 000000000000004e RBX: ffffffffa0184000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff888237a17788 RDI: 00000000ffffffff
-RBP: ffffc90001c2fe40 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffc90001c2fe10 R11: 0000000000000000 R12: 0000000000000000
-R13: ffffc90001c2fe50 R14: ffffffffa0184000 R15: 0000000000000000
-FS:  00007f3d83634540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000555c350ea818 CR3: 0000000231677000 CR4: 00000000000006f0
-Call Trace:
- unregister_pernet_operations+0x34/0x120
- unregister_pernet_subsys+0x1c/0x30
- packet_exit+0x1c/0x369 [af_packet
- __x64_sys_delete_module+0x156/0x260
- ? lockdep_hardirqs_on+0x133/0x1b0
- ? do_syscall_64+0x12/0x1f0
- do_syscall_64+0x6e/0x1f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The switch to make bas_gigaset use usb_fill_int_urb() - instead of
+filling that urb "by hand" - missed the subtle ordering of the previous
+code.
 
-When modprobe af_packet, register_pernet_subsys
-fails and does a cleanup, ops->list is set to LIST_POISON1,
-but the module init is considered to success, then while rmmod it,
-BUG() is triggered in __list_del_entry_valid which is called from
-unregister_pernet_subsys. This patch fix error handing path in
-packet_init to avoid possilbe issue if some error occur.
+See, before the switch urb->dev was set to a member somewhere deep in a
+complicated structure and then supplied to usb_rcvisocpipe() and
+usb_sndisocpipe(). After that switch urb->dev wasn't set to anything
+specific before being supplied to those two macros. This triggers a
+nasty oops:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+    BUG: unable to handle kernel NULL pointer dereference at 00000000
+    #PF error: [normal kernel read fault]
+    *pde = 00000000
+    Oops: 0000 [#1] SMP
+    CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.1.0-0.rc4.1.local0.fc28.i686 #1
+    Hardware name: IBM 2525FAG/2525FAG, BIOS 74ET64WW (2.09 ) 12/14/2006
+    EIP: gigaset_init_bchannel+0x89/0x320 [bas_gigaset]
+    Code: 75 07 83 8b 84 00 00 00 40 8d 47 74 c7 07 01 00 00 00 89 45 f0 8b 44 b7 68 85 c0 0f 84 6a 02 00 00 8b 48 28 8b 93 88 00 00 00 <8b> 09 8d 54 12 03 c1 e2 0f c1 e1 08 09 ca 8b 8b 8c 00 00 00 80 ca
+    EAX: f05ec200 EBX: ed404200 ECX: 00000000 EDX: 00000000
+    ESI: 00000000 EDI: f065a000 EBP: f30c9f40 ESP: f30c9f20
+    DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010086
+    CR0: 80050033 CR2: 00000000 CR3: 0ddc7000 CR4: 000006d0
+    Call Trace:
+     <SOFTIRQ>
+     ? gigaset_isdn_connD+0xf6/0x140 [gigaset]
+     gigaset_handle_event+0x173e/0x1b90 [gigaset]
+     tasklet_action_common.isra.16+0x4e/0xf0
+     tasklet_action+0x1e/0x20
+     __do_softirq+0xb2/0x293
+     ? __irqentry_text_end+0x3/0x3
+     call_on_stack+0x45/0x50
+     </SOFTIRQ>
+     ? irq_exit+0xb5/0xc0
+     ? do_IRQ+0x78/0xd0
+     ? acpi_idle_enter_s2idle+0x50/0x50
+     ? common_interrupt+0xd4/0xdc
+     ? acpi_idle_enter_s2idle+0x50/0x50
+     ? sched_cpu_activate+0x1b/0xf0
+     ? acpi_fan_resume.cold.7+0x9/0x18
+     ? cpuidle_enter_state+0x152/0x4c0
+     ? cpuidle_enter+0x14/0x20
+     ? call_cpuidle+0x21/0x40
+     ? do_idle+0x1c8/0x200
+     ? cpu_startup_entry+0x25/0x30
+     ? rest_init+0x88/0x8a
+     ? arch_call_rest_init+0xd/0x19
+     ? start_kernel+0x42f/0x448
+     ? i386_start_kernel+0xac/0xb0
+     ? startup_32_smp+0x164/0x168
+    Modules linked in: ppp_generic slhc capi bas_gigaset gigaset kernelcapi nf_conntrack_netbios_ns nf_conntrack_broadcast xt_CT ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 xt_conntrack ip_set nfnetlink ebtable_nat ebtable_broute bridge stp llc ip6table_nat ip6table_mangle ip6table_raw ip6table_security iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 libcrc32c iptable_mangle iptable_raw iptable_security ebtable_filter ebtables ip6table_filter ip6_tables sunrpc ipw2200 iTCO_wdt gpio_ich snd_intel8x0 libipw iTCO_vendor_support snd_ac97_codec lib80211 ppdev ac97_bus snd_seq cfg80211 snd_seq_device pcspkr thinkpad_acpi lpc_ich snd_pcm i2c_i801 snd_timer ledtrig_audio snd soundcore rfkill parport_pc parport pcc_cpufreq acpi_cpufreq i915 i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sdhci_pci sysimgblt cqhci fb_sys_fops drm sdhci mmc_core tg3 ata_generic serio_raw yenta_socket pata_acpi video
+    CR2: 0000000000000000
+    ---[ end trace 1fe07487b9200c73 ]---
+    EIP: gigaset_init_bchannel+0x89/0x320 [bas_gigaset]
+    Code: 75 07 83 8b 84 00 00 00 40 8d 47 74 c7 07 01 00 00 00 89 45 f0 8b 44 b7 68 85 c0 0f 84 6a 02 00 00 8b 48 28 8b 93 88 00 00 00 <8b> 09 8d 54 12 03 c1 e2 0f c1 e1 08 09 ca 8b 8b 8c 00 00 00 80 ca
+    EAX: f05ec200 EBX: ed404200 ECX: 00000000 EDX: 00000000
+    ESI: 00000000 EDI: f065a000 EBP: f30c9f40 ESP: cddcb3bc
+    DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010086
+    CR0: 80050033 CR2: 00000000 CR3: 0ddc7000 CR4: 000006d0
+    Kernel panic - not syncing: Fatal exception in interrupt
+    Kernel Offset: 0xcc00000 from 0xc0400000 (relocation range: 0xc0000000-0xf6ffdfff)
+    ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+
+No-one noticed because this Oops is apparently only triggered by setting
+up an ISDN data connection on a live ISDN line on a gigaset base (ie,
+the PBX that the gigaset driver support). Very few people do that
+running present day kernels.
+
+Anyhow, a little code reorganization makes this problem go away, while
+avoiding the subtle ordering that was used in the past. So let's do
+that.
+
+Fixes: 78c696c19578 ("isdn: gigaset: use usb_fill_int_urb()")
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |   25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/isdn/gigaset/bas-gigaset.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -4603,14 +4603,29 @@ static void __exit packet_exit(void)
- 
- static int __init packet_init(void)
+--- a/drivers/isdn/gigaset/bas-gigaset.c
++++ b/drivers/isdn/gigaset/bas-gigaset.c
+@@ -958,6 +958,7 @@ static void write_iso_callback(struct ur
+  */
+ static int starturbs(struct bc_state *bcs)
  {
--	int rc = proto_register(&packet_proto, 0);
-+	int rc;
- 
--	if (rc != 0)
-+	rc = proto_register(&packet_proto, 0);
-+	if (rc)
- 		goto out;
-+	rc = sock_register(&packet_family_ops);
-+	if (rc)
-+		goto out_proto;
-+	rc = register_pernet_subsys(&packet_net_ops);
-+	if (rc)
-+		goto out_sock;
-+	rc = register_netdevice_notifier(&packet_netdev_notifier);
-+	if (rc)
-+		goto out_pernet;
- 
--	sock_register(&packet_family_ops);
--	register_pernet_subsys(&packet_net_ops);
--	register_netdevice_notifier(&packet_netdev_notifier);
-+	return 0;
-+
-+out_pernet:
-+	unregister_pernet_subsys(&packet_net_ops);
-+out_sock:
-+	sock_unregister(PF_PACKET);
-+out_proto:
-+	proto_unregister(&packet_proto);
- out:
- 	return rc;
- }
++	struct usb_device *udev = bcs->cs->hw.bas->udev;
+ 	struct bas_bc_state *ubc = bcs->hw.bas;
+ 	struct urb *urb;
+ 	int j, k;
+@@ -975,8 +976,8 @@ static int starturbs(struct bc_state *bc
+ 			rc = -EFAULT;
+ 			goto error;
+ 		}
+-		usb_fill_int_urb(urb, bcs->cs->hw.bas->udev,
+-				 usb_rcvisocpipe(urb->dev, 3 + 2 * bcs->channel),
++		usb_fill_int_urb(urb, udev,
++				 usb_rcvisocpipe(udev, 3 + 2 * bcs->channel),
+ 				 ubc->isoinbuf + k * BAS_INBUFSIZE,
+ 				 BAS_INBUFSIZE, read_iso_callback, bcs,
+ 				 BAS_FRAMETIME);
+@@ -1006,8 +1007,8 @@ static int starturbs(struct bc_state *bc
+ 			rc = -EFAULT;
+ 			goto error;
+ 		}
+-		usb_fill_int_urb(urb, bcs->cs->hw.bas->udev,
+-				 usb_sndisocpipe(urb->dev, 4 + 2 * bcs->channel),
++		usb_fill_int_urb(urb, udev,
++				 usb_sndisocpipe(udev, 4 + 2 * bcs->channel),
+ 				 ubc->isooutbuf->data,
+ 				 sizeof(ubc->isooutbuf->data),
+ 				 write_iso_callback, &ubc->isoouturbs[k],
 
 
