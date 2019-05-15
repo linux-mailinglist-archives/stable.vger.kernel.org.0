@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A94B91EE6F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0225F1F1BE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731301AbfEOLVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59504 "EHLO mail.kernel.org"
+        id S1730705AbfEOLRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731295AbfEOLVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:21:31 -0400
+        id S1730082AbfEOLRz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F404206BF;
-        Wed, 15 May 2019 11:21:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 273EE20843;
+        Wed, 15 May 2019 11:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919290;
-        bh=pL0hkTf2rl78dlcSOKzwSlb/2Hh1mO15LS8IoPCp9ww=;
+        s=default; t=1557919074;
+        bh=mhyy14vgVAy+d4nL/aZ/iHds1lg2+Fkskpbjpiimj3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w66YnCRVKToR7yR5oWEohRJA3hZAhZwjpzU73v6lm3JanzqraO57nTxkMf8ON/fH8
-         9x7/bSt+4XRRcN11WIG5v3Jv7QdG1Zhv+9pXGxpXKMRpa7ZCCCsiP9kiO0rXbr9acq
-         TUZHG/fe350AWIVxy7ec7xy7DthQmWNV13L6uLl8=
+        b=AysbwO+BIwI46uR1iDKx9f2sfCrkZoADMOxQnHLmqCV3gY6Prvlt37ytPiZXbYchb
+         vETQuEVmly0nm19zq55/fuLKOOlB46aafR/iHQZqjub/O+ArrY6/rBSgnggsizzPqz
+         dDTDY+uq/XyPVaWLjdKB/vT+r9/i5djRDq4pYnUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 002/113] platform/x86: sony-laptop: Fix unintentional fall-through
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 013/115] s390/dasd: Fix capacity calculation for large volumes
 Date:   Wed, 15 May 2019 12:54:53 +0200
-Message-Id: <20190515090652.993636012@linuxfoundation.org>
+Message-Id: <20190515090700.249208009@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
 
-commit 1cbd7a64959d33e7a2a1fa2bf36a62b350a9fcbd upstream.
+The DASD driver incorrectly limits the maximum number of blocks of ECKD
+DASD volumes to 32 bit numbers. Volumes with a capacity greater than
+2^32-1 blocks are incorrectly recognized as smaller volumes.
 
-It seems that the default case should return AE_CTRL_TERMINATE, instead
-of falling through to case ACPI_RESOURCE_TYPE_END_TAG and returning AE_OK;
-otherwise the line of code at the end of the function is unreachable and
-makes no sense:
+This results in the following volume capacity limits depending on the
+formatted block size:
 
-return AE_CTRL_TERMINATE;
+  BLKSIZE  MAX_GB   MAX_CYL
+      512    2047   5843492
+     1024    4095   8676701
+     2048    8191  13634816
+     4096   16383  23860929
 
-This fix is based on the following thread of discussion:
+The same problem occurs when a volume with more than 17895697 cylinders
+is accessed in raw-track-access mode.
 
-https://lore.kernel.org/patchwork/patch/959782/
+Fix this problem by adding an explicit type cast when calculating the
+maximum number of blocks.
 
-Fixes: 33a04454527e ("sony-laptop: Add SNY6001 device handling (sonypi reimplementation)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/sony-laptop.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -4424,14 +4424,16 @@ sony_pic_read_possible_resource(struct a
- 			}
- 			return AE_OK;
- 		}
-+
-+	case ACPI_RESOURCE_TYPE_END_TAG:
-+		return AE_OK;
-+
- 	default:
- 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
- 			resource->type);
-+		return AE_CTRL_TERMINATE;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 0a1e7f9b5239d..0d5e2d92e05bc 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -2001,14 +2001,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+ 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
  
--	case ACPI_RESOURCE_TYPE_END_TAG:
--		return AE_OK;
- 	}
--	return AE_CTRL_TERMINATE;
- }
+ raw:
+-	block->blocks = (private->real_cyl *
++	block->blocks = ((unsigned long) private->real_cyl *
+ 			  private->rdc_data.trk_per_cyl *
+ 			  blk_per_trk);
  
- static int sony_pic_possible_resources(struct acpi_device *device)
+ 	dev_info(&device->cdev->dev,
+-		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
++		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
+ 		 "%s\n", (block->bp_block >> 10),
+-		 ((private->real_cyl *
++		 (((unsigned long) private->real_cyl *
+ 		   private->rdc_data.trk_per_cyl *
+ 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
+ 		 ((blk_per_trk * block->bp_block) >> 10),
+-- 
+2.20.1
+
 
 
