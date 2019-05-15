@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E83B1F3DE
+	by mail.lfdr.de (Postfix) with ESMTP id F39B11F3DF
 	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727666AbfEOLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58314 "EHLO mail.kernel.org"
+        id S1727680AbfEOLBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727092AbfEOLBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:01:17 -0400
+        id S1727675AbfEOLBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C4632173C;
-        Wed, 15 May 2019 11:01:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7AB520881;
+        Wed, 15 May 2019 11:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918076;
-        bh=Ae834Yg6qZ5u8T4XF6JHp9pzGVNBWpmWOlqXab3Qssk=;
+        s=default; t=1557918079;
+        bh=dA8wClFlcVmH5G+TxKZZMt7dnaDSO9bdLEfH2ZHkTi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zN9ohaIHmKvlYsvzKGfky4pvE1FGYZv14RlTnMGKn8WDX+N+03ZIx62AauWQRDNRX
-         6jpfDWToY4MKgCLnuPDk5GEC1q9IE2vFTFm6/h42SYo1s88gQsugjzI+QdSWi3F4zk
-         83cw4J6YF9/+AvyYNWSif8K+qJUcqP2eX3STgApU=
+        b=QhcSl181aXrQPnCGW7cF4sXO2A5B07WjgxNesTcf3Cq+fdYqqf1x9TnarF3J/TiuZ
+         X8Ena7GbC/fpxRCXOgtcWTH7l60fGg41sxPIPAuRpMmKp6JeZU2OU6t8CwpsngpQYL
+         DlV0edV/kpRDrHul9jCooxPH+BFBgYpl8S2nrZTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 3.18 83/86] bonding: fix arp_validate toggling in active-backup mode
-Date:   Wed, 15 May 2019 12:56:00 +0200
-Message-Id: <20190515090656.025421215@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Timur Tabi <timur@freescale.com>,
+        Mihai Caraman <mihai.caraman@freescale.com>,
+        Kumar Gala <galak@kernel.crashing.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 3.18 84/86] drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
+Date:   Wed, 15 May 2019 12:56:01 +0200
+Message-Id: <20190515090656.106470070@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
 References: <20190515090642.339346723@linuxfoundation.org>
@@ -47,78 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
+commit c8ea3663f7a8e6996d44500ee818c9330ac4fd88 upstream.
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+strndup_user() returns error pointers on error, and then in the error
+handling we pass the error pointers to kfree().  It will cause an Oops.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
-
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
-
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20181218082003.GD32567@kadam
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Timur Tabi <timur@freescale.com>
+Cc: Mihai Caraman <mihai.caraman@freescale.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/bonding/bond_options.c |    7 -------
- 1 file changed, 7 deletions(-)
 
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1032,13 +1032,6 @@ static int bond_option_arp_validate_set(
- {
- 	netdev_info(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		    newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+---
+ drivers/virt/fsl_hypervisor.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -335,8 +335,8 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	struct fsl_hv_ioctl_prop param;
+ 	char __user *upath, *upropname;
+ 	void __user *upropval;
+-	char *path = NULL, *propname = NULL;
+-	void *propval = NULL;
++	char *path, *propname;
++	void *propval;
+ 	int ret = 0;
  
- 	return 0;
+ 	/* Get the parameters from the user. */
+@@ -348,32 +348,30 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	upropval = (void __user *)(uintptr_t)param.propval;
+ 
+ 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
+-	if (IS_ERR(path)) {
+-		ret = PTR_ERR(path);
+-		goto out;
+-	}
++	if (IS_ERR(path))
++		return PTR_ERR(path);
+ 
+ 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
+ 	if (IS_ERR(propname)) {
+ 		ret = PTR_ERR(propname);
+-		goto out;
++		goto err_free_path;
+ 	}
+ 
+ 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	propval = kmalloc(param.proplen, GFP_KERNEL);
+ 	if (!propval) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto err_free_propname;
+ 	}
+ 
+ 	if (set) {
+ 		if (copy_from_user(propval, upropval, param.proplen)) {
+ 			ret = -EFAULT;
+-			goto out;
++			goto err_free_propval;
+ 		}
+ 
+ 		param.ret = fh_partition_set_dtprop(param.handle,
+@@ -392,7 +390,7 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 			if (copy_to_user(upropval, propval, param.proplen) ||
+ 			    put_user(param.proplen, &p->proplen)) {
+ 				ret = -EFAULT;
+-				goto out;
++				goto err_free_propval;
+ 			}
+ 		}
+ 	}
+@@ -400,10 +398,12 @@ static long ioctl_dtprop(struct fsl_hv_i
+ 	if (put_user(param.ret, &p->ret))
+ 		ret = -EFAULT;
+ 
+-out:
+-	kfree(path);
++err_free_propval:
+ 	kfree(propval);
++err_free_propname:
+ 	kfree(propname);
++err_free_path:
++	kfree(path);
+ 
+ 	return ret;
+ }
 
 
