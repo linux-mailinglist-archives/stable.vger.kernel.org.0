@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C881EDFA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129881F116
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730271AbfEOLPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:15:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
+        id S1731135AbfEOLUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730049AbfEOLPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:18 -0400
+        id S1730966AbfEOLUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7207E20862;
-        Wed, 15 May 2019 11:15:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD27E20843;
+        Wed, 15 May 2019 11:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918917;
-        bh=xSihnVmtY+9iC4up/Mcox0MkU/6kFtZPpELlpQf8rew=;
+        s=default; t=1557919243;
+        bh=Ha+e0A12zKBAauiPt26VUA3/SbX44vS73lOtoXvudM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmQU6QGfjN8OdzZy6ZZVpVdSUZrj3FLMhqlWmsD2MIETzfth8fjNn/2Js4/zdMo11
-         dnttbJHiVk1qO32OpVGp9rT/9baw0GXB6lSo9LPi5PM0cxWlbmDCgN80x10XUn2sJ9
-         hlgiokQ7ua2W9qGs4Y6oi6BWnc/0ALBXPrNKyW7o=
+        b=Nu5wDZi0JwbqOxhV6WDk+GpT7UKtx67MKK+EjGhusTe80a12IFEx54MjVrVCIh0Fb
+         mLiXgRJmXEkesSTbDTtzxoyeo2NXRZMlzORfZel6NPZey78TIQDH7e2PxYbD8sTIZh
+         ZJqt5Gg+j60J4rnRFo7MQZTWqKcR7I5Tet0IOgME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Timur Tabi <timur@freescale.com>,
-        Mihai Caraman <mihai.caraman@freescale.com>,
-        Kumar Gala <galak@kernel.crashing.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 49/51] drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 104/115] net: dsa: Fix error cleanup path in dsa_init_module
 Date:   Wed, 15 May 2019 12:56:24 +0200
-Message-Id: <20190515090629.728136722@linuxfoundation.org>
+Message-Id: <20190515090706.683726456@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 6a024330650e24556b8a18cc654ad00cfecf6c6c upstream.
+[ Upstream commit 68be930249d051fd54d3d99156b3dcadcb2a1f9b ]
 
-The "param.count" value is a u64 thatcomes from the user.  The code
-later in the function assumes that param.count is at least one and if
-it's not then it leads to an Oops when we dereference the ZERO_SIZE_PTR.
+BUG: unable to handle kernel paging request at ffffffffa01c5430
+PGD 3270067 P4D 3270067 PUD 3271063 PMD 230bc5067 PTE 0
+Oops: 0000 [#1
+CPU: 0 PID: 6159 Comm: modprobe Not tainted 5.1.0+ #33
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:raw_notifier_chain_register+0x16/0x40
+Code: 63 f8 66 90 e9 5d ff ff ff 90 90 90 90 90 90 90 90 90 90 90 55 48 8b 07 48 89 e5 48 85 c0 74 1c 8b 56 10 3b 50 10 7e 07 eb 12 <39> 50 10 7c 0d 48 8d 78 08 48 8b 40 08 48 85 c0 75 ee 48 89 46 08
+RSP: 0018:ffffc90001c33c08 EFLAGS: 00010282
+RAX: ffffffffa01c5420 RBX: ffffffffa01db420 RCX: 4fcef45928070a8b
+RDX: 0000000000000000 RSI: ffffffffa01db420 RDI: ffffffffa01b0068
+RBP: ffffc90001c33c08 R08: 000000003e0a33d0 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000094443661 R12: ffff88822c320700
+R13: ffff88823109be80 R14: 0000000000000000 R15: ffffc90001c33e78
+FS:  00007fab8bd08540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa01c5430 CR3: 00000002297ea000 CR4: 00000000000006f0
+Call Trace:
+ register_netdevice_notifier+0x43/0x250
+ ? 0xffffffffa01e0000
+ dsa_slave_register_notifier+0x13/0x70 [dsa_core
+ ? 0xffffffffa01e0000
+ dsa_init_module+0x2e/0x1000 [dsa_core
+ do_one_initcall+0x6c/0x3cc
+ ? do_init_module+0x22/0x1f1
+ ? rcu_read_lock_sched_held+0x97/0xb0
+ ? kmem_cache_alloc_trace+0x325/0x3b0
+ do_init_module+0x5b/0x1f1
+ load_module+0x1db1/0x2690
+ ? m_show+0x1d0/0x1d0
+ __do_sys_finit_module+0xc5/0xd0
+ __x64_sys_finit_module+0x15/0x20
+ do_syscall_64+0x6b/0x1d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Also the addition can have an integer overflow which would lead us to
-allocate a smaller "pages" array than required.  I can't immediately
-tell what the possible run times implications are, but it's safest to
-prevent the overflow.
+Cleanup allocated resourses if there are errors,
+otherwise it will trgger memleak.
 
-Link: http://lkml.kernel.org/r/20181218082129.GE32567@kadam
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Timur Tabi <timur@freescale.com>
-Cc: Mihai Caraman <mihai.caraman@freescale.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c9eb3e0f8701 ("net: dsa: Add support for learning FDB through notification")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/virt/fsl_hypervisor.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/dsa/dsa.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -215,6 +215,9 @@ static long ioctl_memcpy(struct fsl_hv_i
- 	 * hypervisor.
- 	 */
- 	lb_offset = param.local_vaddr & (PAGE_SIZE - 1);
-+	if (param.count == 0 ||
-+	    param.count > U64_MAX - lb_offset - PAGE_SIZE + 1)
-+		return -EINVAL;
- 	num_pages = (param.count + lb_offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+--- a/net/dsa/dsa.c
++++ b/net/dsa/dsa.c
+@@ -300,15 +300,22 @@ static int __init dsa_init_module(void)
  
- 	/* Allocate the buffers we need */
+ 	rc = dsa_slave_register_notifier();
+ 	if (rc)
+-		return rc;
++		goto register_notifier_fail;
+ 
+ 	rc = dsa_legacy_register();
+ 	if (rc)
+-		return rc;
++		goto legacy_register_fail;
+ 
+ 	dev_add_pack(&dsa_pack_type);
+ 
+ 	return 0;
++
++legacy_register_fail:
++	dsa_slave_unregister_notifier();
++register_notifier_fail:
++	destroy_workqueue(dsa_owq);
++
++	return rc;
+ }
+ module_init(dsa_init_module);
+ 
 
 
