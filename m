@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9240C1EF33
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62FD31F17E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732335AbfEOLbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42832 "EHLO mail.kernel.org"
+        id S1730871AbfEOLS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732853AbfEOLbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:08 -0400
+        id S1730866AbfEOLS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADC9B20818;
-        Wed, 15 May 2019 11:31:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7327E20818;
+        Wed, 15 May 2019 11:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919868;
-        bh=HPW5qmyRt0MdAlds3D8UJxzus/kCZ4tCYnDPQSWmvT0=;
+        s=default; t=1557919137;
+        bh=ah6AMl77D0EdyOvo7M9en5lXQ8/Gv5ZKaJWTJ8pWRlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxOo5PDkOIZwuRvt2KQf2RRKwy6gcW3GL+Mm2mRu2jcVuallK7aat1nEQVHZBsOds
-         nSvvBb+84MujqwYbehSCHytW9mZLQNfIJaMcspTkSRhIfamxyOzNT134xrMwvwLAjs
-         ZEty/yZQGpMMC+0BUHCkSZgnv0A/9Do/BH/EVwJ8=
+        b=QZjn/Wu1c+XBXEwVQWppE4V64Y1EaW3JzVybCvrHve4unR+9BFiVWFKXxOA5F7G7/
+         FHFq52J2LRqm3E5UuXCNcw+EMl7uRl0nSvzpTzrC5lL/h6NRcqn6lYjqMKreS5l/gY
+         hyKnvaWpvsvReqzmYaxyJ+I90Up429GUTptk35ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        dann frazier <dann.frazier@canonical.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 080/137] arm64/module: ftrace: deal with place relative nature of PLTs
+        stable@vger.kernel.org, Damian Kos <dkos@cadence.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 081/115] drm/rockchip: fix for mailbox read validation.
 Date:   Wed, 15 May 2019 12:56:01 +0200
-Message-Id: <20190515090659.277259384@linuxfoundation.org>
+Message-Id: <20190515090705.242537348@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4e69ecf4da1ee0b2ac735e1f1bb13935acd5a38d ]
+[ Upstream commit e4056bbb6719fe713bfc4030ac78e8e97ddf7574 ]
 
-Another bodge for the ftrace PLT code: plt_entries_equal() now takes
-the place relative nature of the ADRP/ADD based PLT entries into
-account, which means that a struct trampoline instance on the stack
-is no longer equal to the same set of opcodes in the module struct,
-given that they don't point to the same place in memory anymore.
+This is basically the same fix as in
+commit fa68d4f8476b ("drm/rockchip: fix for mailbox read size")
+but for cdn_dp_mailbox_validate_receive function.
 
-Work around this by using memcmp() in the ftrace PLT handling code.
+See patchwork.kernel.org/patch/10671981/ for details.
 
-Acked-by: Will Deacon <will.deacon@arm.com>
-Tested-by: dann frazier <dann.frazier@canonical.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Damian Kos <dkos@cadence.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1542640463-18332-1-git-send-email-dkos@cadence.com
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/arm64/kernel/ftrace.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/rockchip/cdn-dp-reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index 07b2981201820..65a51331088eb 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -103,10 +103,15 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- 		 * to be revisited if support for multiple ftrace entry points
- 		 * is added in the future, but for now, the pr_err() below
- 		 * deals with a theoretical issue only.
-+		 *
-+		 * Note that PLTs are place relative, and plt_entries_equal()
-+		 * checks whether they point to the same target. Here, we need
-+		 * to check if the actual opcodes are in fact identical,
-+		 * regardless of the offset in memory so use memcmp() instead.
- 		 */
- 		trampoline = get_plt_entry(addr, mod->arch.ftrace_trampoline);
--		if (!plt_entries_equal(mod->arch.ftrace_trampoline,
--				       &trampoline)) {
-+		if (memcmp(mod->arch.ftrace_trampoline, &trampoline,
-+			   sizeof(trampoline))) {
- 			if (plt_entry_is_initialized(mod->arch.ftrace_trampoline)) {
- 				pr_err("ftrace: far branches to multiple entry points unsupported inside a single module\n");
- 				return -EINVAL;
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-reg.c b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+index 0ed7e91471f6e..4df201d21f271 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-reg.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+@@ -113,7 +113,7 @@ static int cdp_dp_mailbox_write(struct cdn_dp_device *dp, u8 val)
+ 
+ static int cdn_dp_mailbox_validate_receive(struct cdn_dp_device *dp,
+ 					   u8 module_id, u8 opcode,
+-					   u8 req_size)
++					   u16 req_size)
+ {
+ 	u32 mbox_size, i;
+ 	u8 header[4];
 -- 
 2.20.1
 
