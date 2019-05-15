@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 253571EF12
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA5E1EDBC
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbfEOL3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40854 "EHLO mail.kernel.org"
+        id S1729895AbfEOLM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:12:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732589AbfEOL3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:29:34 -0400
+        id S1729893AbfEOLM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:12:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB8532084F;
-        Wed, 15 May 2019 11:29:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FDAE20843;
+        Wed, 15 May 2019 11:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919773;
-        bh=v8BRTtexhoVzCszqy58/ROLv4LafHU1CamMNCenkLbk=;
+        s=default; t=1557918778;
+        bh=u50O49oQS7s8YGZIlFL2PkOJScnC2MTMSTTj0YGQ9UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QC3RyL28RPpMMFwl8gdt4jaDNyIezOlP15BXWBXSKP5O3X+H1nqz3CddggpIXyJcn
-         QcFKu6NVrZIAE6S+erqnycwIEFv+tWJUhk/w84himixw1VGCQv6QbFk/PDlWi3bdR0
-         jbYkAbZraqebvj82wnHObi/50KCT56C3n8Y6GE7U=
+        b=NMAuUXfjX6qrro7oFBPhxokwYNTAMLDXk7Fmp7IuJJBKX1zK9cbPXBJG+v6KZoYQB
+         D2SoE/TE9DAMn9LO1js1eeBwyRxlIAkJeTwHaz1ENUfOtGHBVJef94GFSjzW2dUig9
+         oQy65fu5IQV0VlYER65P8bmByycxUKSRwzvevqfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 089/137] drm/sun4i: Unbind components before releasing DRM and memory
+        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        Jarod Wilson <jarod@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>
+Subject: [PATCH 4.4 263/266] bonding: fix arp_validate toggling in active-backup mode
 Date:   Wed, 15 May 2019 12:56:10 +0200
-Message-Id: <20190515090659.985825905@linuxfoundation.org>
+Message-Id: <20190515090731.914332614@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e02bc29b2cfa7806830d6da8b2322cddd67e8dfe ]
+From: Jarod Wilson <jarod@redhat.com>
 
-Our components may still be using the DRM device driver (if only to
-access our driver's private data), so make sure to unbind them before
-the final drm_dev_put.
+[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
 
-Also release our reserved memory after component unbind instead of
-before to match reverse creation order.
+There's currently a problem with toggling arp_validate on and off with an
+active-backup bond. At the moment, you can start up a bond, like so:
 
-Fixes: f5a9ed867c83 ("drm/sun4i: Fix component unbinding and component master deletion")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190424090413.6918-1-paul.kocialkowski@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
+ip link set bond0 down
+echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
+echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
+ip link set bond0 up
+ip addr add 192.168.1.2/24 dev bond0
+
+Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
+
+echo 1 > /sys/class/net/bond0/bonding/arp_validate
+
+Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
+arp_validate off again, the link falls flat on it's face:
+
+echo 0 > /sys/class/net/bond0/bonding/arp_validate
+dmesg
+...
+[133191.911987] bond0: Setting arp_validate to none (0)
+[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
+[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
+[133194.259000] bond0: making interface ens4f1 the new active one
+[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
+[133197.331191] bond0: now running without any active interface!
+
+The problem lies in bond_options.c, where passing in arp_validate=0
+results in bond->recv_probe getting set to NULL. This flies directly in
+the face of commit 3fe68df97c7f, which says we need to set recv_probe =
+bond_arp_recv, even if we're not using arp_validate. Said commit fixed
+this in bond_option_arp_interval_set, but missed that we can get to that
+same state in bond_option_arp_validate_set as well.
+
+One solution would be to universally set recv_probe = bond_arp_recv here
+as well, but I don't think bond_option_arp_validate_set has any business
+touching recv_probe at all, and that should be left to the arp_interval
+code, so we can just make things much tidier here.
+
+Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
+CC: Jay Vosburgh <j.vosburgh@gmail.com>
+CC: Veaceslav Falico <vfalico@gmail.com>
+CC: Andy Gospodarek <andy@greyhouse.net>
+CC: "David S. Miller" <davem@davemloft.net>
+CC: netdev@vger.kernel.org
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_options.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 9a5713fa03b25..f8bf5bbec2df3 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -146,10 +146,11 @@ static void sun4i_drv_unbind(struct device *dev)
- 	drm_dev_unregister(drm);
- 	drm_kms_helper_poll_fini(drm);
- 	drm_mode_config_cleanup(drm);
--	of_reserved_mem_device_release(dev);
--	drm_dev_put(drm);
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -1066,13 +1066,6 @@ static int bond_option_arp_validate_set(
+ {
+ 	netdev_info(bond->dev, "Setting arp_validate to %s (%llu)\n",
+ 		    newval->string, newval->value);
+-
+-	if (bond->dev->flags & IFF_UP) {
+-		if (!newval->value)
+-			bond->recv_probe = NULL;
+-		else if (bond->params.arp_interval)
+-			bond->recv_probe = bond_arp_rcv;
+-	}
+ 	bond->params.arp_validate = newval->value;
  
- 	component_unbind_all(dev, NULL);
-+	of_reserved_mem_device_release(dev);
-+
-+	drm_dev_put(drm);
- }
- 
- static const struct component_master_ops sun4i_drv_master_ops = {
--- 
-2.20.1
-
+ 	return 0;
 
 
