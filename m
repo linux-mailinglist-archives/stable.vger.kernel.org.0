@@ -2,69 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9C51F737
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 17:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 405AC1F73A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 17:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727076AbfEOPNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 11:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59960 "EHLO mail.kernel.org"
+        id S1726594AbfEOPNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 11:13:38 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:34677 "EHLO pegase1.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726572AbfEOPNK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 11:13:10 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43FCF2084E;
-        Wed, 15 May 2019 15:13:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557933189;
-        bh=N0JP/I9yeESWU0sXjEb4CmutaTbQZ5eMVKu9BYHyjec=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kOn0nx4AQgrset3TQ7UQ1Sla6KXTFWqbyx3JAmfkNaX/bju8Zmafb/C2hAjA0hZU2
-         WI3GjTTnNOtFEGm+f6/xSoLEhmZAh70QKcLgNkIcy+6Y0f18AswlvGIaCrBrZ5+T44
-         g/7vmkhysGUje0ac+JIUw9iYfnveT54atptpxCvA=
-Date:   Wed, 15 May 2019 17:13:07 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "kernelci.org bot" <bot@kernelci.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 000/266] 4.4.180-stable review
-Message-ID: <20190515151307.GA23599@kroah.com>
-References: <20190515090722.696531131@linuxfoundation.org>
- <5cdc2691.1c69fb81.bd8d8.7247@mx.google.com>
+        id S1726572AbfEOPNi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 11:13:38 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 453yk13Xhzz9vDbB;
+        Wed, 15 May 2019 17:13:29 +0200 (CEST)
+Authentication-Results: localhost; dkim=pass
+        reason="1024-bit key; insecure key"
+        header.d=c-s.fr header.i=@c-s.fr header.b=Sf73y8Lm; dkim-adsp=pass;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id CikjuasB-hgj; Wed, 15 May 2019 17:13:29 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 453yk129r3z9vDb9;
+        Wed, 15 May 2019 17:13:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1557933209; bh=8iTa3IpLydkSGSYJ2itC/iY2m/dhrdNW4sw4GlWLtK0=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Sf73y8LmP5FzG7Tn+Wa0fCiJduG0hyivjPVEuk57af6dRBXii0gQ2jX7MjlzfCmhp
+         idx3UbBKZ7WFOEs5ui3jkM4SrxNazaLYvtWfD+PRHcvF49xixZhq5FhA0rKwZv5ZQb
+         8FsCMU3EFU1NP6F+caVYIdmIAQqNL1fuV+ihXA6A=
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id D2D158B914;
+        Wed, 15 May 2019 17:13:30 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id Ny-Ko3o9ioyg; Wed, 15 May 2019 17:13:30 +0200 (CEST)
+Received: from PO15451 (po15451.idsi0.si.c-s.fr [10.25.209.142])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id A00CE8B90F;
+        Wed, 15 May 2019 17:13:30 +0200 (CEST)
+Subject: Re: [PATCH stable 4.4] powerpc/lib: fix book3s/32 boot failure due to
+ code patching
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, erhard_f@mailbox.org,
+        Michael Neuling <mikey@neuling.org>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <71dbc8bdad5da9f6cb0446535fb2a29c68fccf80.1557926850.git.christophe.leroy@c-s.fr>
+ <20190515141604.GB8999@kroah.com>
+From:   Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <f9ca9827-6394-0904-2559-9da18171fb32@c-s.fr>
+Date:   Wed, 15 May 2019 17:13:29 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5cdc2691.1c69fb81.bd8d8.7247@mx.google.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190515141604.GB8999@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 15, 2019 at 07:47:45AM -0700, kernelci.org bot wrote:
-> stable-rc/linux-4.4.y boot: 98 boots: 1 failed, 92 passed with 3 offline, 1 untried/unknown, 1 conflict (v4.4.179-267-gbe756dada5b7)
-> 
-> Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.179-267-gbe756dada5b7/
-> Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y/kernel/v4.4.179-267-gbe756dada5b7/
-> 
-> Tree: stable-rc
-> Branch: linux-4.4.y
-> Git Describe: v4.4.179-267-gbe756dada5b7
-> Git Commit: be756dada5b771fe51be37a77ad0bdfba543fdae
-> Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> Tested: 44 unique boards, 21 SoC families, 14 builds out of 190
-> 
-> Boot Regressions Detected:
-> 
-> arm:
-> 
->     omap2plus_defconfig:
->         gcc-8:
->           omap4-panda:
->               lab-baylibre: new failure (last pass: v4.4.179-254-gce69be0d452a)
 
-Odd, is this specific to this release?
 
+Le 15/05/2019 à 16:16, Greg KH a écrit :
+> On Wed, May 15, 2019 at 01:30:42PM +0000, Christophe Leroy wrote:
+>> [Backport of upstream commit b45ba4a51cde29b2939365ef0c07ad34c8321789]
+>>
+>> On powerpc32, patch_instruction() is called by apply_feature_fixups()
+>> which is called from early_init()
+>>
+>> There is the following note in front of early_init():
+>>   * Note that the kernel may be running at an address which is different
+>>   * from the address that it was linked at, so we must use RELOC/PTRRELOC
+>>   * to access static data (including strings).  -- paulus
+>>
+>> Therefore init_mem_is_free must be accessed with PTRRELOC()
+>>
+>> Link: https://bugzilla.kernel.org/show_bug.cgi?id=203597
+>> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+>>
+>> ---
+>> Can't apply the upstream commit as such due to several other unrelated stuff
+>> like for instance STRICT_KERNEL_RWX which are missing.
+>> So instead, using same approach as for commit 252eb55816a6f69ef9464cad303cdb3326cdc61d
+>>
+>> Removed the Fixes: tag as I don't know yet the commit Id of the fixed commit on 4.4 branch.
+>> ---
+>>   arch/powerpc/lib/code-patching.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Now added, thanks.
+> 
+
+Thanks,
+
+However you took the commit log from the upstream commit, which doesn't 
+corresponds exactly to the change being done here and described in the 
+backport patch
+
+Christophe
