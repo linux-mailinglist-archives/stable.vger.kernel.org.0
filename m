@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 221CE1F2E5
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869391ED53
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbfEOLIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40330 "EHLO mail.kernel.org"
+        id S1729062AbfEOLIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:08:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727206AbfEOLIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:08:10 -0400
+        id S1729049AbfEOLIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:08:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07A2920644;
-        Wed, 15 May 2019 11:08:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9022520843;
+        Wed, 15 May 2019 11:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918489;
-        bh=1Yv1ulet7f2zq3P9OmBjNYT9ff7UGG0qetTzwfVZDXc=;
+        s=default; t=1557918492;
+        bh=yzgXO+JO6I4uqNtMMxQo5ERI9XjfeOUIZ4hcLkwCdu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCmauftSDRL0rzQlPHinJAJ9qN/i7x5gm6uEqF9EaMezcBKT904iqBFrAekDRL76L
-         YyIy60Xss4M9fXaJXSP+ZHG9uNR64WMDRtR/Ld9na5s1LWs+DYMN8hljlNj0FHY8j3
-         z21a23CvfKhwsZYEpa+aC1Xu2TqHU0aYN4hfZlCw=
+        b=p+ewy1Fao2qsAJY4PbgTl4pBLTxtDx2Moy+9AWnB7fBaUde3kiewaJH4RNlPKOm38
+         b3iLrEhcCyVHPE3iiv4P/yUqLKbMGGnemAAwB+4FX+o7dXMFJ8qe8oSZaGxvVHNGjD
+         W1m2ezxZufl3cefRWZW5+cXhCnwv3PmC7Jf0f4vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prasad Sodagudi <psodagud@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>, marc.zyngier@arm.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 150/266] genirq: Prevent use-after-free and work list corruption
-Date:   Wed, 15 May 2019 12:54:17 +0200
-Message-Id: <20190515090727.987765802@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 4.4 151/266] usb: dwc3: Fix default lpm_nyet_threshold value
+Date:   Wed, 15 May 2019 12:54:18 +0200
+Message-Id: <20190515090728.020915732@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,43 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 59c39840f5abf4a71e1810a8da71aaccd6c17d26 ]
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-When irq_set_affinity_notifier() replaces the notifier, then the
-reference count on the old notifier is dropped which causes it to be
-freed. But nothing ensures that the old notifier is not longer queued
-in the work list. If it is queued this results in a use after free and
-possibly in work list corruption.
+commit 8d791929b2fbdf7734c1596d808e55cb457f4562 upstream.
 
-Ensure that the work is canceled before the reference is dropped.
+The max possible value for DCTL.LPM_NYET_THRES is 15 and not 255. Change
+the default value to 15.
 
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: marc.zyngier@arm.com
-Link: https://lkml.kernel.org/r/1553439424-6529-1-git-send-email-psodagud@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 80caf7d21adc ("usb: dwc3: add lpm erratum support")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/irq/manage.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 83cea913983c5..92c7eb1aeded9 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -319,8 +319,10 @@ irq_set_affinity_notifier(unsigned int irq, struct irq_affinity_notify *notify)
- 	desc->affinity_notify = notify;
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -867,7 +867,7 @@ static int dwc3_probe(struct platform_de
+ 	dwc->regs_size	= resource_size(res);
  
--	if (old_notify)
-+	if (old_notify) {
-+		cancel_work_sync(&old_notify->work);
- 		kref_put(&old_notify->kref, old_notify->release);
-+	}
+ 	/* default to highest possible threshold */
+-	lpm_nyet_threshold = 0xff;
++	lpm_nyet_threshold = 0xf;
  
- 	return 0;
- }
--- 
-2.20.1
-
+ 	/* default to -3.5dB de-emphasis */
+ 	tx_de_emphasis = 1;
 
 
