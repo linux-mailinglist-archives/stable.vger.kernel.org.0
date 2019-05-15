@@ -2,126 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C32C1E68F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 03:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B20C1E693
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 03:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726201AbfEOBKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 21:10:30 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:51960 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726148AbfEOBKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 21:10:30 -0400
-Received: by mail-wm1-f41.google.com with SMTP id o189so852853wmb.1
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 18:10:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=b6SAcbFBIDhBUhdiTw8Q+HVxHxUy6DCoLDSrEERynDU=;
-        b=j+j0Mvrxt0uTmfft7tqkBo0CIDQXQKI5I5ivdJjk3g8jWmhBx9kLrBRXwBU406wBYk
-         ZGBXaJ6wOnfcY3pq6+uuhrJN2CZPR4FlvDETjuzBbwtRGGBs8NvMRt/uS1BgmMY+q3/J
-         rwp0IAZRSsRqRmsFIoUFVXNK1F5L+yVjPjjEx4xDE2fXnnq1xXlwua/cNPMWF0qVf63s
-         dE71WKn7U6ATiBsW0OUsUegJn+OTmnHRwQQmJrH/IDjWy716hAvHlNABQWIItE+vTrPk
-         UnR/+fSDqa8G08lL+jglbv08dRH7TRL+RAXID9uLt83+h3livytXC0lz0owk6njpzJHk
-         TySQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=b6SAcbFBIDhBUhdiTw8Q+HVxHxUy6DCoLDSrEERynDU=;
-        b=gFzoWv6c8C1Bil3h0yIeu4dzf636ukSPf25D7PUljqnjJ+rNKwQgqm3OA5wnZysYvq
-         cXY3iEN/pykc/+76OVVCMWg/sI8SoGNYxGg9Kg/TrVCk/hjtQTF5OQ0ZpoGL1BDRW6RL
-         t+Z1O+qLJqp23jWw9/tul/wW9QcmEDSmX49tbx8KqFZYyLOCxmU09+4SrNu1tzWftcs6
-         b8C3XT75elDwCPK2EpV7E+WG9MjprHxDbFF+0YtHwGXYxVcWiVLZuPACnG8q/xXYtruW
-         xl7IYyXlMMCvCYb2C+0ICjSyRttxNsvM2Z/rHEWhdWofb184JKZWTmnDdV7475jsUscY
-         YSWw==
-X-Gm-Message-State: APjAAAUnXr4wdrH3Vt2OzTw8k6ha0W1K/ugW2mBlQ3Vxgkbmh4f9qAPZ
-        PvTJWTLkqs5J4Jw8sAlLnmcDdS/cEifcWg==
-X-Google-Smtp-Source: APXvYqxdlk/iBG5uiLqqJOOjHjxiC3/dEt9HzaFllJvwBGFMjGgjA/FkiTjNb/+anNUEscfGBZ2y6Q==
-X-Received: by 2002:a1c:b782:: with SMTP id h124mr22219014wmf.5.1557882628596;
-        Tue, 14 May 2019 18:10:28 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u2sm1419384wra.82.2019.05.14.18.10.27
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 May 2019 18:10:28 -0700 (PDT)
-Message-ID: <5cdb6704.1c69fb81.2833e.77ec@mx.google.com>
-Date:   Tue, 14 May 2019 18:10:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726190AbfEOBRb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 14 May 2019 21:17:31 -0400
+Received: from mga09.intel.com ([134.134.136.24]:41975 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726148AbfEOBRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 May 2019 21:17:30 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 May 2019 18:17:29 -0700
+X-ExtLoop1: 1
+Received: from orsmsx110.amr.corp.intel.com ([10.22.240.8])
+  by orsmga002.jf.intel.com with ESMTP; 14 May 2019 18:17:29 -0700
+Received: from orsmsx157.amr.corp.intel.com (10.22.240.23) by
+ ORSMSX110.amr.corp.intel.com (10.22.240.8) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Tue, 14 May 2019 18:17:29 -0700
+Received: from orsmsx121.amr.corp.intel.com ([169.254.10.47]) by
+ ORSMSX157.amr.corp.intel.com ([169.254.9.37]) with mapi id 14.03.0415.000;
+ Tue, 14 May 2019 18:17:29 -0700
+From:   "Schmauss, Erik" <erik.schmauss@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+ interpreter: add region addresses...")
+Thread-Topic: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+ interpreter: add region addresses...")
+Thread-Index: AQHVA3sHg6huTCc9j0i77n2Wgo9sv6ZePXSAgA0zAMA=
+Date:   Wed, 15 May 2019 01:17:28 +0000
+Message-ID: <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
+References: <20190505194448.GA2649@windriver.com>
+ <20190506084145.GA23991@kroah.com>
+In-Reply-To: <20190506084145.GA23991@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiYmJmZWVmYTItZWUxMS00NDQwLTkzZmItOWYyYzc1ZDc3NWYzIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiK2ZnbEE4dm5wZmdQOERKSzJaRm5zdVJ2YjlWQTF4U3pTMVVIb3FtV1wvUjRCRUxDT0RiT1wvUG5Qc1hIRHBORTl1In0=
+x-ctpclassification: CTP_NT
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.176-35-g6194f35e779b
-Subject: stable-rc/linux-4.9.y boot: 112 boots: 0 failed,
- 105 passed with 5 offline, 2 conflicts (v4.9.176-35-g6194f35e779b)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 112 boots: 0 failed, 105 passed with 5 offline,=
- 2 conflicts (v4.9.176-35-g6194f35e779b)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.176-35-g6194f35e779b/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.176-35-g6194f35e779b/
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.176-35-g6194f35e779b
-Git Commit: 6194f35e779bce6fc83f12e0406422dc480c09cf
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
+> -----Original Message-----
+> From: Greg Kroah-Hartman [mailto:gregkh@linuxfoundation.org]
+> Sent: Monday, May 6, 2019 1:42 AM
+> To: Paul Gortmaker <paul.gortmaker@windriver.com>; Wysocki, Rafael J
+> <rafael.j.wysocki@intel.com>
+> Cc: stable@vger.kernel.org; Schmauss, Erik <erik.schmauss@intel.com>
+> Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+> interpreter: add region addresses...")
+> 
+> On Sun, May 05, 2019 at 03:44:48PM -0400, Paul Gortmaker wrote:
+> > I noticed 4.19.35 got a backport of mainline 4abb951b, but it appears
+> > to be a duplicate backport that landed in the wrong function.  We can
+> > see this in the stable-queue repo:
+> >
+> > stable-queue$ find . -name '*acpica-aml-interpreter-add-region-addr*'
+> > |grep 4.19
+> > ./releases/4.19.6/acpica-aml-interpreter-add-region-addresses-in-globa
+> > l-list-during-initialization.patch
+> > ./releases/4.19.3/revert-acpica-aml-interpreter-add-region-addresses-i
+> > n.patch
+> > ./releases/4.19.35/acpica-aml-interpreter-add-region-addresses-in-glob
+> > al-list-during-initialization.patch
+> > ./releases/4.19.2/acpica-aml-interpreter-add-region-addresses-in-globa
+> > l-list-during-initialization.patch
+> >
+> > So it was added to 4.19.2, reverted in .3, re-added in .6, and then
+> > finally patched into a similar looking but wrong function in .35
+> >
+> > If we diff the .6 and .35 versions, we see the function difference:
+> >
+> > -@@ -417,6 +417,10 @@ acpi_ds_eval_region_operands(struct acpi
+> > +@@ -523,6 +523,10 @@ acpi_ds_eval_table_region_operands(struc
+> >
+> > I don't know what the history is/was around the 2/3/6 churn, but the
+> > re-addition in 4.19.35 to a different function sure looks wrong.
+> >
+> > The commit adds a call "status = acpi_ut_add_address_range(..." and if
+> > we check mainline, there is only one in that file, but in 4.19.35+
+> > there now are two calls - since the two functions had similar context
+> > and comments, it isn't hard to see how patch could/would apply it a
+> > 2nd time in the wrong place.
+> >
+> > I didn't check if any of the other currently maintained linux-stable
+> > versions also had this possible issue.
+> >
+> 
+Hi Greg,
 
-Boot Regressions Detected:
+> Ugh, Rafael, did I mess this up again?  Can you check to see if I need to fix this
+> somehow?
 
-arm:
+It should be called in acpi_ds_eval_region_operands rather than acpi_ds_eval_table_region_operands.
+Please remove the call from acpi_ds_eval_table_region_operands.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.9.175)
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
-    davinci_all_defconfig:
-        da850-lcdk:
-            lab-baylibre: PASS (gcc-8)
-            lab-baylibre-seattle: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Thanks,
+Erik
+> 
+> thanks,
+> 
+> greg k-h
