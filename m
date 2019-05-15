@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE2A1EDE1
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:15:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2646E1F252
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbfEOLOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:14:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50272 "EHLO mail.kernel.org"
+        id S1730005AbfEOMCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730108AbfEOLOQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:16 -0400
+        id S1729677AbfEOLNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:13:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58E8920644;
-        Wed, 15 May 2019 11:14:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0304D2168B;
+        Wed, 15 May 2019 11:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918855;
-        bh=bo9yd0UhOWFKgWMME1z3sLKqkExmt0soqEeXTRFjdCk=;
+        s=default; t=1557918793;
+        bh=UjY/Fn0JNmLHvW7FKm0Bc7m7bujPbFu0FK5CtX4pT90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMegxNBL9JzKzdPyg1UjkVwyf1GJFapOkLpH1SNhpbp39Y6t18t2ZK+7ipVKIeSZE
-         2PvhbJzJ9glWy/ecUUMpfOQOKWAole5EBc3N5ErVaSb1dg6l+ZM424+qJ/zz0x9ty8
-         tQUgbFcYe9TQzu7+pLx/ipAd84w+CdFVmzYe8nHY=
+        b=VGrm8O2BiLo4XRwkO9u78930UAn11FD9UeJ7igsptzCE+57hm+avW6WFCCcr0wcHB
+         nM4ynfH0rAqHNlJeF355XuQgfCixuYO7ku09AVAgw+8qTRUr7+twngEOjsxfydW4F4
+         tCjiMSfmn5Lzbo6A+hgdLi0d27691qdHEOk99+9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/51] selftests/net: correct the return value for run_netsocktests
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 253/266] x86/bugs: Change L1TF mitigation string to match upstream
 Date:   Wed, 15 May 2019 12:56:00 +0200
-Message-Id: <20190515090624.593926094@linuxfoundation.org>
+Message-Id: <20190515090731.572194091@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +42,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 30c04d796b693e22405c38e9b78e9a364e4c77e6 ]
+From: Ben Hutchings <ben@decadent.org.uk>
 
-The run_netsocktests will be marked as passed regardless the actual test
-result from the ./socket:
+Commit 72c6d2db64fa "x86/litf: Introduce vmx status variable" upstream
+changed "Page Table Inversion" to "PTE Inversion".  That was part of
+the implementation of additional mitigations for VMX which haven't
+been applied to this branch.  Just change this string to be consistent
+and match documentation.
 
-    selftests: net: run_netsocktests
-    ========================================
-    --------------------
-    running socket test
-    --------------------
-    [FAIL]
-    ok 1..6 selftests: net: run_netsocktests [PASS]
-
-This is because the test script itself has been successfully executed.
-Fix this by exit 1 when the test failed.
-
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/run_netsocktests | 2 +-
+ arch/x86/kernel/cpu/bugs.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/run_netsocktests b/tools/testing/selftests/net/run_netsocktests
-index 16058bbea7a85..c195b44786627 100755
---- a/tools/testing/selftests/net/run_netsocktests
-+++ b/tools/testing/selftests/net/run_netsocktests
-@@ -6,7 +6,7 @@ echo "--------------------"
- ./socket
- if [ $? -ne 0 ]; then
- 	echo "[FAIL]"
-+	exit 1
- else
- 	echo "[PASS]"
- fi
--
--- 
-2.20.1
-
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1160,7 +1160,7 @@ static ssize_t cpu_show_common(struct de
+ 
+ 	case X86_BUG_L1TF:
+ 		if (boot_cpu_has(X86_FEATURE_L1TF_PTEINV))
+-			return sprintf(buf, "Mitigation: Page Table Inversion\n");
++			return sprintf(buf, "Mitigation: PTE Inversion\n");
+ 		break;
+ 
+ 	case X86_BUG_MDS:
 
 
