@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD751F1B4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25741F057
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730631AbfEOLRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54496 "EHLO mail.kernel.org"
+        id S1730791AbfEOLnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728459AbfEOLRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:18 -0400
+        id S1732224AbfEOL11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:27:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160EE20644;
-        Wed, 15 May 2019 11:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2219820843;
+        Wed, 15 May 2019 11:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919037;
-        bh=gL9fh4TwALpqLAAxA7aWBb2Vf8cfztxpiqmNPtMFfm0=;
+        s=default; t=1557919646;
+        bh=T2QqfvhbHzDVSRQbMsQ6S98gh0+Bw32FInU2Ut6QmSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2wj7GfZf/B09Ftw4gZRomfFGOaZgt8oUad8dN/45VyF1tzElPgO+GIlRWL+qQp/D
-         o2L+l4Xjdqg+ePiK/IWNJ71yz52fn0HJGZvH4Q/4O0qE4y6UrYy1SWtM7mo4+sxTlB
-         7GQ/eDBNlaEWwV5CiAoiS3MlbagDiZNfh1xP44yc=
+        b=tl07EyPDif8UjhZFPdsCa7Ot4/mwcbmPar9EmZ2PCaQlGc2Jx4cU8ZvcZOuerBefR
+         KUtCzBt1g1+B9iQzpb4/ighVQsH6sjP+zzcoJQ8XUUCDr4ca3CWprisjTFq35sAnBp
+         swsylspcTblIwR6COa2FNwH7QQSKIfspYnYDDkus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Zhangjin Wu <wuzhangjin@gmail.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 042/115] MIPS: VDSO: Reduce VDSO_RANDOMIZE_SIZE to 64MB for 64bit
+        stable@vger.kernel.org, Denis Bolotin <dbolotin@marvell.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 041/137] qed: Delete redundant doorbell recovery types
 Date:   Wed, 15 May 2019 12:55:22 +0200
-Message-Id: <20190515090702.550889538@linuxfoundation.org>
+Message-Id: <20190515090656.397170610@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,44 +46,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c61c7def1fa0a722610d89790e0255b74f3c07dd ]
+[ Upstream commit 9ac6bb1414ac0d45fe9cefbd1f5b06f0e1a3c98a ]
 
-Commit ea7e0480a4b6 ("MIPS: VDSO: Always map near top of user memory")
-set VDSO_RANDOMIZE_SIZE to 256MB for 64bit kernel. But take a look at
-arch/mips/mm/mmap.c we can see that MIN_GAP is 128MB, which means the
-mmap_base may be at (user_address_top - 128MB). This make the stack be
-surrounded by mmaped areas, then stack expanding fails and causes a
-segmentation fault. Therefore, VDSO_RANDOMIZE_SIZE should be less than
-MIN_GAP and this patch reduce it to 64MB.
+DB_REC_DRY_RUN (running doorbell recovery without sending doorbells) is
+never used. DB_REC_ONCE (send a single doorbell from the doorbell recovery)
+is not needed anymore because by running the periodic handler we make sure
+we check the overflow status later instead.
+This patch is needed because in the next patches, the only doorbell
+recovery type being used is DB_REC_REAL_DEAL, and the fixes are much
+cleaner without this enum.
 
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Fixes: ea7e0480a4b6 ("MIPS: VDSO: Always map near top of user memory")
-Patchwork: https://patchwork.linux-mips.org/patch/20910/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
-Cc: Fuxin Zhang <zhangfx@lemote.com>
-Cc: Zhangjin Wu <wuzhangjin@gmail.com>
-Cc: Huacai Chen <chenhuacai@gmail.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Denis Bolotin <dbolotin@marvell.com>
+Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/processor.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed.h     |  3 +-
+ drivers/net/ethernet/qlogic/qed/qed_dev.c | 69 +++++++++--------------
+ drivers/net/ethernet/qlogic/qed/qed_int.c |  6 +-
+ drivers/net/ethernet/qlogic/qed/qed_int.h |  4 +-
+ 4 files changed, 31 insertions(+), 51 deletions(-)
 
-diff --git a/arch/mips/include/asm/processor.h b/arch/mips/include/asm/processor.h
-index 8bbbab611a3f1..0b86a01de9562 100644
---- a/arch/mips/include/asm/processor.h
-+++ b/arch/mips/include/asm/processor.h
-@@ -81,7 +81,7 @@ extern unsigned int vced_count, vcei_count;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
+index 2d8a77cc156ba..d5fece7eb1698 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed.h
++++ b/drivers/net/ethernet/qlogic/qed/qed.h
+@@ -918,8 +918,7 @@ u16 qed_get_cm_pq_idx_llt_mtc(struct qed_hwfn *p_hwfn, u8 tc);
  
- #endif
+ /* doorbell recovery mechanism */
+ void qed_db_recovery_dp(struct qed_hwfn *p_hwfn);
+-void qed_db_recovery_execute(struct qed_hwfn *p_hwfn,
+-			     enum qed_db_rec_exec db_exec);
++void qed_db_recovery_execute(struct qed_hwfn *p_hwfn);
+ bool qed_edpm_enabled(struct qed_hwfn *p_hwfn);
  
--#define VDSO_RANDOMIZE_SIZE	(TASK_IS_32BIT_ADDR ? SZ_1M : SZ_256M)
-+#define VDSO_RANDOMIZE_SIZE	(TASK_IS_32BIT_ADDR ? SZ_1M : SZ_64M)
+ /* Other Linux specific common definitions */
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 2ecaaaa4469a6..ff0bbf8d073d6 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -300,26 +300,19 @@ void qed_db_recovery_dp(struct qed_hwfn *p_hwfn)
  
- extern unsigned long mips_stack_top(void);
- #define STACK_TOP		mips_stack_top()
+ /* Ring the doorbell of a single doorbell recovery entry */
+ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+-				 struct qed_db_recovery_entry *db_entry,
+-				 enum qed_db_rec_exec db_exec)
+-{
+-	if (db_exec != DB_REC_ONCE) {
+-		/* Print according to width */
+-		if (db_entry->db_width == DB_REC_WIDTH_32B) {
+-			DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
+-				   "%s doorbell address %p data %x\n",
+-				   db_exec == DB_REC_DRY_RUN ?
+-				   "would have rung" : "ringing",
+-				   db_entry->db_addr,
+-				   *(u32 *)db_entry->db_data);
+-		} else {
+-			DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
+-				   "%s doorbell address %p data %llx\n",
+-				   db_exec == DB_REC_DRY_RUN ?
+-				   "would have rung" : "ringing",
+-				   db_entry->db_addr,
+-				   *(u64 *)(db_entry->db_data));
+-		}
++				 struct qed_db_recovery_entry *db_entry)
++{
++	/* Print according to width */
++	if (db_entry->db_width == DB_REC_WIDTH_32B) {
++		DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
++			   "ringing doorbell address %p data %x\n",
++			   db_entry->db_addr,
++			   *(u32 *)db_entry->db_data);
++	} else {
++		DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
++			   "ringing doorbell address %p data %llx\n",
++			   db_entry->db_addr,
++			   *(u64 *)(db_entry->db_data));
+ 	}
+ 
+ 	/* Sanity */
+@@ -334,14 +327,12 @@ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+ 	wmb();
+ 
+ 	/* Ring the doorbell */
+-	if (db_exec == DB_REC_REAL_DEAL || db_exec == DB_REC_ONCE) {
+-		if (db_entry->db_width == DB_REC_WIDTH_32B)
+-			DIRECT_REG_WR(db_entry->db_addr,
+-				      *(u32 *)(db_entry->db_data));
+-		else
+-			DIRECT_REG_WR64(db_entry->db_addr,
+-					*(u64 *)(db_entry->db_data));
+-	}
++	if (db_entry->db_width == DB_REC_WIDTH_32B)
++		DIRECT_REG_WR(db_entry->db_addr,
++			      *(u32 *)(db_entry->db_data));
++	else
++		DIRECT_REG_WR64(db_entry->db_addr,
++				*(u64 *)(db_entry->db_data));
+ 
+ 	/* Flush the write combined buffer. Next doorbell may come from a
+ 	 * different entity to the same address...
+@@ -350,29 +341,21 @@ static void qed_db_recovery_ring(struct qed_hwfn *p_hwfn,
+ }
+ 
+ /* Traverse the doorbell recovery entry list and ring all the doorbells */
+-void qed_db_recovery_execute(struct qed_hwfn *p_hwfn,
+-			     enum qed_db_rec_exec db_exec)
++void qed_db_recovery_execute(struct qed_hwfn *p_hwfn)
+ {
+ 	struct qed_db_recovery_entry *db_entry = NULL;
+ 
+-	if (db_exec != DB_REC_ONCE) {
+-		DP_NOTICE(p_hwfn,
+-			  "Executing doorbell recovery. Counter was %d\n",
+-			  p_hwfn->db_recovery_info.db_recovery_counter);
++	DP_NOTICE(p_hwfn, "Executing doorbell recovery. Counter was %d\n",
++		  p_hwfn->db_recovery_info.db_recovery_counter);
+ 
+-		/* Track amount of times recovery was executed */
+-		p_hwfn->db_recovery_info.db_recovery_counter++;
+-	}
++	/* Track amount of times recovery was executed */
++	p_hwfn->db_recovery_info.db_recovery_counter++;
+ 
+ 	/* Protect the list */
+ 	spin_lock_bh(&p_hwfn->db_recovery_info.lock);
+ 	list_for_each_entry(db_entry,
+-			    &p_hwfn->db_recovery_info.list, list_entry) {
+-		qed_db_recovery_ring(p_hwfn, db_entry, db_exec);
+-		if (db_exec == DB_REC_ONCE)
+-			break;
+-	}
+-
++			    &p_hwfn->db_recovery_info.list, list_entry)
++		qed_db_recovery_ring(p_hwfn, db_entry);
+ 	spin_unlock_bh(&p_hwfn->db_recovery_info.lock);
+ }
+ 
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index 92340919d8521..b994f81eb51c3 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -409,10 +409,8 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ 
+ 	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
+ 	DP_NOTICE(p_hwfn, "PF Overflow sticky 0x%x\n", overflow);
+-	if (!overflow) {
+-		qed_db_recovery_execute(p_hwfn, DB_REC_ONCE);
++	if (!overflow)
+ 		return 0;
+-	}
+ 
+ 	if (qed_edpm_enabled(p_hwfn)) {
+ 		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
+@@ -427,7 +425,7 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ 	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
+ 
+ 	/* Repeat all last doorbells (doorbell drop recovery) */
+-	qed_db_recovery_execute(p_hwfn, DB_REC_REAL_DEAL);
++	qed_db_recovery_execute(p_hwfn);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.h b/drivers/net/ethernet/qlogic/qed/qed_int.h
+index d81a62ebd5244..df26bf333893d 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.h
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.h
+@@ -192,8 +192,8 @@ void qed_int_disable_post_isr_release(struct qed_dev *cdev);
+ 
+ /**
+  * @brief - Doorbell Recovery handler.
+- *          Run DB_REAL_DEAL doorbell recovery in case of PF overflow
+- *          (and flush DORQ if needed), otherwise run DB_REC_ONCE.
++ *          Run doorbell recovery in case of PF overflow (and flush DORQ if
++ *          needed).
+  *
+  * @param p_hwfn
+  * @param p_ptt
 -- 
 2.20.1
 
