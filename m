@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D671F3A2
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE241F36E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbfEOMQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59864 "EHLO mail.kernel.org"
+        id S1726856AbfEOLCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727105AbfEOLCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:02:33 -0400
+        id S1727945AbfEOLCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:02:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44A5020644;
-        Wed, 15 May 2019 11:02:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1B9621743;
+        Wed, 15 May 2019 11:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918152;
-        bh=PY83nNRfvy6AsMvB6zhM8qpy4kWbxWXj25HJ8FDV6TY=;
+        s=default; t=1557918155;
+        bh=6M2JRP+eHTPnmyJd1z9v3NsQTP+a4K2nljxjwdCzxXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WaP4JCiPyOXLHU++UlUR8KZBpu1B2c7UYrg6NwQg8CsrH4M9NWaanAu3zKHK65CEX
-         MjvskWQE5931ZhfMZA0mgoeuM6xLYoG909sNkgDiZo4Lud5oR8sgJ3VhtVhLW2S4J8
-         reaTMKvz+Z2w1PlLPIH5DFGaRuOUN9nvfsOxaCsc=
+        b=g1T0jXN4ldkrOmU++Yk2v4Ew+03rGa2zglnzYjuVcGyDlN2cSANZY+RNzUAcBmSv0
+         lezgGsP3RKF1+YGfaP5qHKXcjZgUFarx+Qb8HSaNsMetchFQfLPkyyFmZCy66L4YgY
+         ExgHoHzz3H5pAP+fjrCcIPU/CljZFqUf6ihDYEIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Roman Gushchin <guro@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 005/266] trace: Fix preempt_enable_no_resched() abuse
-Date:   Wed, 15 May 2019 12:51:52 +0200
-Message-Id: <20190515090722.861525812@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, cj.chengjian@huawei.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.4 006/266] sched/numa: Fix a possible divide-by-zero
+Date:   Wed, 15 May 2019 12:51:53 +0200
+Message-Id: <20190515090722.891132643@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -55,48 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-commit d6097c9e4454adf1f8f2c9547c2fa6060d55d952 upstream.
+commit a860fa7b96e1a1c974556327aa1aee852d434c21 upstream.
 
-Unless the very next line is schedule(), or implies it, one must not use
-preempt_enable_no_resched(). It can cause a preemption to go missing and
-thereby cause arbitrary delays, breaking the PREEMPT=y invariant.
+sched_clock_cpu() may not be consistent between CPUs. If a task
+migrates to another CPU, then se.exec_start is set to that CPU's
+rq_clock_task() by update_stats_curr_start(). Specifically, the new
+value might be before the old value due to clock skew.
 
-Link: http://lkml.kernel.org/r/20190423200318.GY14281@hirez.programming.kicks-ass.net
+So then if in numa_get_avg_runtime() the expression:
 
-Cc: Waiman Long <longman@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: the arch/x86 maintainers <x86@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: stable@vger.kernel.org
-Fixes: 2c2d7329d8af ("tracing/ftrace: use preempt_enable_no_resched_notrace in ring_buffer_time_stamp()")
+  'now - p->last_task_numa_placement'
+
+ends up as -1, then the divider '*period + 1' in task_numa_placement()
+is 0 and things go bang. Similar to update_curr(), check if time goes
+backwards to avoid this.
+
+[ peterz: Wrote new changelog. ]
+[ mingo: Tweaked the code comment. ]
+
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: cj.chengjian@huawei.com
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20190425080016.GX11158@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ring_buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -701,7 +701,7 @@ u64 ring_buffer_time_stamp(struct ring_b
- 
- 	preempt_disable_notrace();
- 	time = rb_time_stamp(buffer);
--	preempt_enable_no_resched_notrace();
-+	preempt_enable_notrace();
- 
- 	return time;
- }
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -1722,6 +1722,10 @@ static u64 numa_get_avg_runtime(struct t
+ 	if (p->last_task_numa_placement) {
+ 		delta = runtime - p->last_sum_exec_runtime;
+ 		*period = now - p->last_task_numa_placement;
++
++		/* Avoid time going backwards, prevent potential divide error: */
++		if (unlikely((s64)*period < 0))
++			*period = 0;
+ 	} else {
+ 		delta = p->se.avg.load_sum / p->se.load.weight;
+ 		*period = LOAD_AVG_MAX;
 
 
