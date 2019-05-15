@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 773311EF45
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE061EF97
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732437AbfEOLcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43824 "EHLO mail.kernel.org"
+        id S1733115AbfEOLc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732586AbfEOLcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:01 -0400
+        id S1733110AbfEOLc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDD5206BF;
-        Wed, 15 May 2019 11:32:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0EA4206BF;
+        Wed, 15 May 2019 11:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919920;
-        bh=iiIYaC/w5QturTMJQoyrPh/5aTn9LhWQ1IssuHWRieg=;
+        s=default; t=1557919976;
+        bh=zgxJFo41n2tRNguAeuAbLqkNgYqPJNN4eVAR+xGXUoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTZMYykBNKLZzpVxlsvIkAiQoWttloZ9GfpmTTqTvceu0pWJlvkexsX3ZSZzmq+jp
-         4mAsFksVEDoziM3xZRyzuUK+1UsOw7KPxKYdygmviLxGk6C5Dppon+nM/j7WHYn3Bj
-         NRMuEZAw5+55PFN896tRa1Sj4xQrFft6BLynuqUs=
+        b=A57E3hU2GDt6tjDksdNCIeCAd1/0GGBEFDTt+JW3JRFhxz6kn82st3QfvFkKbulfD
+         KZeT19m/JycLNF4DFhy4TBfaTqc7lExEw+NSJv8qIZVGmUTt5hNUq7iiJVg2RjUNfm
+         /swsHwwwlGaxDOhZCLfoVkXoUI43oQssqR7kxwBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rick Lindsley <ricklind@vnet.linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.0 130/137] powerpc/book3s/64: check for NULL pointer in pgd_alloc()
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 27/46] vlan: disable SIOCSHWTSTAMP in container
 Date:   Wed, 15 May 2019 12:56:51 +0200
-Message-Id: <20190515090703.319734991@linuxfoundation.org>
+Message-Id: <20190515090625.571849309@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Lindsley <ricklind@linux.vnet.ibm.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit f39356261c265a0689d7ee568132d516e8b6cecc upstream.
+[ Upstream commit 873017af778439f2f8e3d87f28ddb1fcaf244a76 ]
 
-When the memset code was added to pgd_alloc(), it failed to consider
-that kmem_cache_alloc() can return NULL. It's uncommon, but not
-impossible under heavy memory contention. Example oops:
+With NET_ADMIN enabled in container, a normal user could be mapped to
+root and is able to change the real device's rx filter via ioctl on
+vlan, which would affect the other ptp process on host. Fix it by
+disabling SIOCSHWTSTAMP in container.
 
-  Unable to handle kernel paging request for data at address 0x00000000
-  Faulting instruction address: 0xc0000000000a4000
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE SMP NR_CPUS=2048 NUMA pSeries
-  CPU: 70 PID: 48471 Comm: entrypoint.sh Kdump: loaded Not tainted 4.14.0-115.6.1.el7a.ppc64le #1
-  task: c000000334a00000 task.stack: c000000331c00000
-  NIP:  c0000000000a4000 LR: c00000000012f43c CTR: 0000000000000020
-  REGS: c000000331c039c0 TRAP: 0300   Not tainted  (4.14.0-115.6.1.el7a.ppc64le)
-  MSR:  800000010280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 44022840  XER: 20040000
-  CFAR: c000000000008874 DAR: 0000000000000000 DSISR: 42000000 SOFTE: 1
-  ...
-  NIP [c0000000000a4000] memset+0x68/0x104
-  LR [c00000000012f43c] mm_init+0x27c/0x2f0
-  Call Trace:
-    mm_init+0x260/0x2f0 (unreliable)
-    copy_mm+0x11c/0x638
-    copy_process.isra.28.part.29+0x6fc/0x1080
-    _do_fork+0xdc/0x4c0
-    ppc_clone+0x8/0xc
-  Instruction dump:
-  409e000c b0860000 38c60002 409d000c 90860000 38c60004 78a0d183 78a506a0
-  7c0903a6 41820034 60000000 60420000 <f8860000> f8860008 f8860010 f8860018
-
-Fixes: fc5c2f4a55a2 ("powerpc/mm/hash64: Zero PGD pages on allocation")
-Cc: stable@vger.kernel.org # v4.16+
-Signed-off-by: Rick Lindsley <ricklind@vnet.linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: a6111d3c93d0 ("vlan: Pass SIOC[SG]HWTSTAMP ioctls to real device")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/powerpc/include/asm/book3s/64/pgalloc.h |    3 +++
- 1 file changed, 3 insertions(+)
+ net/8021q/vlan_dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/book3s/64/pgalloc.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgalloc.h
-@@ -81,6 +81,9 @@ static inline pgd_t *pgd_alloc(struct mm
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -367,10 +367,12 @@ static int vlan_dev_ioctl(struct net_dev
+ 	ifrr.ifr_ifru = ifr->ifr_ifru;
  
- 	pgd = kmem_cache_alloc(PGT_CACHE(PGD_INDEX_SIZE),
- 			       pgtable_gfp_flags(mm, GFP_KERNEL));
-+	if (unlikely(!pgd))
-+		return pgd;
-+
- 	/*
- 	 * Don't scan the PGD for pointers, it contains references to PUDs but
- 	 * those references are not full pointers and so can't be recognised by
+ 	switch (cmd) {
++	case SIOCSHWTSTAMP:
++		if (!net_eq(dev_net(dev), &init_net))
++			break;
+ 	case SIOCGMIIPHY:
+ 	case SIOCGMIIREG:
+ 	case SIOCSMIIREG:
+-	case SIOCSHWTSTAMP:
+ 	case SIOCGHWTSTAMP:
+ 		if (netif_device_present(real_dev) && ops->ndo_do_ioctl)
+ 			err = ops->ndo_do_ioctl(real_dev, &ifrr, cmd);
 
 
