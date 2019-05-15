@@ -2,57 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1681ED87
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0EED1F126
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfEOLKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
+        id S1731282AbfEOLV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbfEOLKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:10:31 -0400
+        id S1731280AbfEOLV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD12E20843;
-        Wed, 15 May 2019 11:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E58A20818;
+        Wed, 15 May 2019 11:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918630;
-        bh=Hd5vy4q62hfBLjztqv2TBTTb3X8Iw4+gOurjXUZf9xk=;
+        s=default; t=1557919285;
+        bh=iZAie2W+rzg4FGdoNL38HQHKFa6Z3pHS17qji7jKVeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usffUBvovIPJ4Exa+guN25k79aZilNcB1Ce+nHWi0ZuefBtwVlIFte92XfnTDgaIx
-         C14UsxuNKgkQcPuRTN1QeISGSOCKL/tFPCc5QS2lpy6apNWj1z2jwpQ3aAk+Rk2vVW
-         6CGajPMgVhS+97KQ4b3FeGrTCcSFybOQhWOANIfk=
+        b=kuJk14BxZdMXee2EnpdzueAYZ8YbZ1DHglv+nI7CJvRgj5GaVyQUbZMlTYQVI+T65
+         kgL66+xgU+z4TMb0aJIrCT6vyiT56lMqBxeo43mWiygvR3J5Sl/iJYTZZ64pilKm0M
+         Fohn21bM/6RJVglqw1K0OV/fM4Q3Krllw2YPliS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 202/266] x86/speculation: Clean up spectre_v2_parse_cmdline()
+        stable@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 018/113] s390/dasd: Fix capacity calculation for large volumes
 Date:   Wed, 15 May 2019 12:55:09 +0200
-Message-Id: <20190515090729.789060107@linuxfoundation.org>
+Message-Id: <20190515090654.860668066@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,78 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Chen <tim.c.chen@linux.intel.com>
+[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
 
-commit 24848509aa55eac39d524b587b051f4e86df3c12 upstream.
+The DASD driver incorrectly limits the maximum number of blocks of ECKD
+DASD volumes to 32 bit numbers. Volumes with a capacity greater than
+2^32-1 blocks are incorrectly recognized as smaller volumes.
 
-Remove the unnecessary 'else' statement in spectre_v2_parse_cmdline()
-to save an indentation level.
+This results in the following volume capacity limits depending on the
+formatted block size:
 
-Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185003.688010903@linutronix.de
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BLKSIZE  MAX_GB   MAX_CYL
+      512    2047   5843492
+     1024    4095   8676701
+     2048    8191  13634816
+     4096   16383  23860929
+
+The same problem occurs when a volume with more than 17895697 cylinders
+is accessed in raw-track-access mode.
+
+Fix this problem by adding an explicit type cast when calculating the
+maximum number of blocks.
+
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -273,22 +273,21 @@ static enum spectre_v2_mitigation_cmd __
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 6e294b4d3635f..f89f9d02e7884 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -2004,14 +2004,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+ 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
  
- 	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
- 		return SPECTRE_V2_CMD_NONE;
--	else {
--		ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
--		if (ret < 0)
--			return SPECTRE_V2_CMD_AUTO;
+ raw:
+-	block->blocks = (private->real_cyl *
++	block->blocks = ((unsigned long) private->real_cyl *
+ 			  private->rdc_data.trk_per_cyl *
+ 			  blk_per_trk);
  
--		for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
--			if (!match_option(arg, ret, mitigation_options[i].option))
--				continue;
--			cmd = mitigation_options[i].cmd;
--			break;
--		}
-+	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
-+	if (ret < 0)
-+		return SPECTRE_V2_CMD_AUTO;
- 
--		if (i >= ARRAY_SIZE(mitigation_options)) {
--			pr_err("unknown option (%s). Switching to AUTO select\n", arg);
--			return SPECTRE_V2_CMD_AUTO;
--		}
-+	for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
-+		if (!match_option(arg, ret, mitigation_options[i].option))
-+			continue;
-+		cmd = mitigation_options[i].cmd;
-+		break;
-+	}
-+
-+	if (i >= ARRAY_SIZE(mitigation_options)) {
-+		pr_err("unknown option (%s). Switching to AUTO select\n", arg);
-+		return SPECTRE_V2_CMD_AUTO;
- 	}
- 
- 	if ((cmd == SPECTRE_V2_CMD_RETPOLINE ||
+ 	dev_info(&device->cdev->dev,
+-		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
++		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
+ 		 "%s\n", (block->bp_block >> 10),
+-		 ((private->real_cyl *
++		 (((unsigned long) private->real_cyl *
+ 		   private->rdc_data.trk_per_cyl *
+ 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
+ 		 ((blk_per_trk * block->bp_block) >> 10),
+-- 
+2.20.1
+
 
 
