@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 967F31EEDE
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F22401F1C0
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730992AbfEOL0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37804 "EHLO mail.kernel.org"
+        id S1730736AbfEOLSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730953AbfEOL0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:55 -0400
+        id S1730546AbfEOLSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:18:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 839F820843;
-        Wed, 15 May 2019 11:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F58B21848;
+        Wed, 15 May 2019 11:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919615;
-        bh=Rw5aZz2Yzs6QVR9aXm4MlXZDJk78bhm1T0dAQyRCfG0=;
+        s=default; t=1557919079;
+        bh=l4qCbCUfAKIx9IdszqCc6HCPvo6RyGsWhdupjLim59c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzC8uRnlOIQRiP2/byw3Mk0gC89TbGMQFwFjJ2dtAs20PKTNcAQ10DDp1O3WH0CeY
-         OAkhV3MlSbe+nBf0nQpoxAg9MoGsnf9kdwdyevZEx/kITtSkQKvru6cxcbMkmBzU/W
-         QN4GqXSi0y0KUVI+iwLKBpqnwMjReWhGAvBUIZ88=
+        b=pL5eDbj2ucQpTcCw0uFKRggZ49z30vlNzFdKUtQl7aYDNRE4q4321zbSaun4J4NgI
+         d8Hjhp4mHD8uZC4xqJav76w30Q46YgjaFkSTTXw5bXEWXyBwPfBx7isJ96UhZIw7tc
+         gKTsUiBvVmE8omUS8SZqXPhVBeVU9tLYzzYpp5MU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pepijn de Vos <pepijndevos@gmail.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        "Darren Hart (VMware)" <dvhart@infradead.org>
-Subject: [PATCH 5.0 004/137] platform/x86: dell-laptop: fix rfkill functionality
+        stable@vger.kernel.org,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.14 005/115] kernfs: fix barrier usage in __kernfs_new_node()
 Date:   Wed, 15 May 2019 12:54:45 +0200
-Message-Id: <20190515090652.501909486@linuxfoundation.org>
+Message-Id: <20190515090659.610201644@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@dell.com>
+From: Andrea Parri <andrea.parri@amarulasolutions.com>
 
-commit 6cc13c28da5beee0f706db6450e190709700b34a upstream.
+commit 998267900cee901c5d1dfa029a6304d00acbc29f upstream.
 
-When converting the driver two arguments were transposed leading
-to rfkill not working.
+smp_mb__before_atomic() can not be applied to atomic_set().  Remove the
+barrier and rely on RELEASE synchronization.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201427
-Reported-by: Pepijn de Vos <pepijndevos@gmail.com>
-Fixes: 549b49 ("platform/x86: dell-smbios: Introduce dispatcher for SMM calls")
-Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
-Acked-by: Pali Rohár <pali.rohar@gmail.com>
-Cc: <stable@vger.kernel.org> # 4.14.x
-Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
+Fixes: ba16b2846a8c6 ("kernfs: add an API to get kernfs node from inode number")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
+Acked-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/dell-laptop.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/kernfs/dir.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -531,7 +531,7 @@ static void dell_rfkill_query(struct rfk
- 		return;
- 	}
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -649,11 +649,10 @@ static struct kernfs_node *__kernfs_new_
+ 	kn->id.generation = gen;
  
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 	hwswitch = buffer.output[1];
+ 	/*
+-	 * set ino first. This barrier is paired with atomic_inc_not_zero in
++	 * set ino first. This RELEASE is paired with atomic_inc_not_zero in
+ 	 * kernfs_find_and_get_node_by_ino
+ 	 */
+-	smp_mb__before_atomic();
+-	atomic_set(&kn->count, 1);
++	atomic_set_release(&kn->count, 1);
+ 	atomic_set(&kn->active, KN_DEACTIVATED_BIAS);
+ 	RB_CLEAR_NODE(&kn->rb);
  
-@@ -562,7 +562,7 @@ static int dell_debugfs_show(struct seq_
- 		return ret;
- 	status = buffer.output[1];
- 
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	hwswitch_ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 	if (hwswitch_ret)
- 		return hwswitch_ret;
-@@ -647,7 +647,7 @@ static void dell_update_rfkill(struct wo
- 	if (ret != 0)
- 		return;
- 
--	dell_fill_request(&buffer, 0, 0x2, 0, 0);
-+	dell_fill_request(&buffer, 0x2, 0, 0, 0);
- 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
- 
- 	if (ret == 0 && (status & BIT(0)))
 
 
