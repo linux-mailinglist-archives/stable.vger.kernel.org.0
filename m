@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 140A11EE8D
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360041ECB6
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731309AbfEOLXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
+        id S1726948AbfEOLAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:00:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731557AbfEOLW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:58 -0400
+        id S1727478AbfEOLAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:00:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A4C120818;
-        Wed, 15 May 2019 11:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 811E420881;
+        Wed, 15 May 2019 11:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919377;
-        bh=tv5sSD4QG+b2/BgGkiVVFz8fwcDGrsiYsFuS41YjUJs=;
+        s=default; t=1557918035;
+        bh=gSSQmBRI6nvMk0tr05rFxMnd4OWB3zZ9q6geY4N9qY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtajeGnQSk7ZofYvkNTGvcyZpSc4PeF1CV2Zg7dgfjebjezc59O8Iphzy17AW5+aK
-         xzTuu1UO5vlZ3Yg+IwpaJg35KL1+/j28p4dlsg8RczAUOoaGVXWeMUm9ja1VACKEzE
-         xRaO26XFGtTaG2jFcaaAG1m0xfq0q2iktvPFw4do=
+        b=ahRImfG/2Q37g3osU/XT5iVxZRyolNX4d1VM6WbyflmVFLSpJwUToT7/mm9d26hp8
+         J3ExXsnrAYBf/+rYQzVx6BLc0OLbyIqAYmsS7P1GuRa/gBsK7oA1dw6DS4cKc5Bx03
+         0ZMBEtrMd/TihEIKFSeam2D7OVW5NmrJme72a4Bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/113] drm/sun4i: Fix component unbinding and component master deletion
-Date:   Wed, 15 May 2019 12:55:44 +0200
-Message-Id: <20190515090657.671008019@linuxfoundation.org>
+Subject: [PATCH 3.18 68/86] s390/3270: fix lockdep false positive on view->lock
+Date:   Wed, 15 May 2019 12:55:45 +0200
+Message-Id: <20190515090654.831421645@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f5a9ed867c83875546c9aadd4ed8e785e9adcc3c ]
+[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
 
-For our component-backed driver to be properly removed, we need to
-delete the component master in sun4i_drv_remove and make sure to call
-component_unbind_all in the master's unbind so that all components are
-unbound when the master is.
+The spinlock in the raw3270_view structure is used by con3270, tty3270
+and fs3270 in different ways. For con3270 the lock can be acquired in
+irq context, for tty3270 and fs3270 the highest context is bh.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-4-paul.kocialkowski@bootlin.com
+Lockdep sees the view->lock as a single class and if the 3270 driver
+is used for the console the following message is generated:
+
+WARNING: inconsistent lock state
+5.1.0-rc3-05157-g5c168033979d #12 Not tainted
+--------------------------------
+inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
+(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
+
+Introduce a lockdep subclass for the view lock to distinguish bh from
+irq locks.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/s390/char/con3270.c | 2 +-
+ drivers/s390/char/fs3270.c  | 3 ++-
+ drivers/s390/char/raw3270.c | 3 ++-
+ drivers/s390/char/raw3270.h | 4 +++-
+ drivers/s390/char/tty3270.c | 3 ++-
+ 5 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 7cac01c72c027..62703630090aa 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -160,6 +160,8 @@ static void sun4i_drv_unbind(struct device *dev)
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
- 	drm_dev_put(drm);
-+
-+	component_unbind_all(dev, NULL);
- }
+diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
+index 7c511add5aa7d..84b6c5080a790 100644
+--- a/drivers/s390/char/con3270.c
++++ b/drivers/s390/char/con3270.c
+@@ -622,7 +622,7 @@ con3270_init(void)
+ 		     (void (*)(unsigned long)) con3270_read_tasklet,
+ 		     (unsigned long) condev->read);
  
- static const struct component_master_ops sun4i_drv_master_ops = {
-@@ -407,6 +409,8 @@ static int sun4i_drv_probe(struct platform_device *pdev)
+-	raw3270_add_view(&condev->view, &con3270_fn, 1);
++	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
  
- static int sun4i_drv_remove(struct platform_device *pdev)
+ 	INIT_LIST_HEAD(&condev->freemem);
+ 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
+diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
+index 71e9747380149..f0c86bcbe3161 100644
+--- a/drivers/s390/char/fs3270.c
++++ b/drivers/s390/char/fs3270.c
+@@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
+ 
+ 	init_waitqueue_head(&fp->wait);
+ 	fp->fs_pid = get_pid(task_pid(current));
+-	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
++	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		fs3270_free_view(&fp->view);
+ 		goto out;
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index 220acb4cbee52..9c350e6d75bf7 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -956,7 +956,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
+  * Add view to device with minor "minor".
+  */
+ int
+-raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
++raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
  {
-+	component_master_del(&pdev->dev, &sun4i_drv_master_ops);
-+
- 	return 0;
- }
+ 	unsigned long flags;
+ 	struct raw3270 *rp;
+@@ -978,6 +978,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
+ 		view->cols = rp->cols;
+ 		view->ascebc = rp->ascebc;
+ 		spin_lock_init(&view->lock);
++		lockdep_set_subclass(&view->lock, subclass);
+ 		list_add(&view->list, &rp->view_list);
+ 		rc = 0;
+ 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
+diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
+index e1e41c2861fbb..5ae54317857a0 100644
+--- a/drivers/s390/char/raw3270.h
++++ b/drivers/s390/char/raw3270.h
+@@ -155,6 +155,8 @@ struct raw3270_fn {
+ struct raw3270_view {
+ 	struct list_head list;
+ 	spinlock_t lock;
++#define RAW3270_VIEW_LOCK_IRQ	0
++#define RAW3270_VIEW_LOCK_BH	1
+ 	atomic_t ref_count;
+ 	struct raw3270 *dev;
+ 	struct raw3270_fn *fn;
+@@ -163,7 +165,7 @@ struct raw3270_view {
+ 	unsigned char *ascebc;		/* ascii -> ebcdic table */
+ };
  
+-int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
++int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
+ int raw3270_activate_view(struct raw3270_view *);
+ void raw3270_del_view(struct raw3270_view *);
+ void raw3270_deactivate_view(struct raw3270_view *);
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index e96fc7fd94984..ab95d24b991b4 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -937,7 +937,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
+ 		return PTR_ERR(tp);
+ 
+ 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
+-			      tty->index + RAW3270_FIRSTMINOR);
++			      tty->index + RAW3270_FIRSTMINOR,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		tty3270_free_view(tp);
+ 		return rc;
 -- 
 2.20.1
 
