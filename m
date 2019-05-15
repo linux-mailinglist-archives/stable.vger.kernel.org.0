@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9AD1EED2
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE541EC87
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 12:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbfEOL0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:26:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37010 "EHLO mail.kernel.org"
+        id S1726865AbfEOK6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726669AbfEOL0K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:10 -0400
+        id S1726899AbfEOK6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EE3A20818;
-        Wed, 15 May 2019 11:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E35C216FD;
+        Wed, 15 May 2019 10:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919570;
-        bh=7zpMCgIPMTHieUH/kBsQzSjOK6LEHevYPbzwmbMoFgQ=;
+        s=default; t=1557917915;
+        bh=XbHFDS6p7UpHsE3PAgEs/qcaXGxKbFDyyumsitjBcCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ug2sRnOY1umVHdC5H7CwLrOGUXAJFzuPSohaLdpKS8e1hiB/HdfjI7g4rtz5vwSVE
-         WsAa2ofiWqyB50em5gFztEjOqdAu6dWFuvrl33NqYcqO1cT9fK9aQ6Yz+HOmQkLSrc
-         VH56F6YiSPm31oRP5HgLYY8sFwU68v7GQIolnXkY=
+        b=x5pIJu+W8lunyckCToCclqidJi0SznedfF48lnNS1qqqiKdEBU0re0aPYa8e8U3LI
+         UWoA32r3dxR/CwcOAiMTziz1gqJfv/KuWefV1OfA76jpoSW2RXvaTcMmjv6qOb7ZQH
+         Vy4W1IuusYxr3ofC/iyOmQpJKBk16+DjQVxrVeYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 012/137] iio: adc: xilinx: fix potential use-after-free on probe
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Guido Kiener <guido.kiener@rohde-schwarz.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 3.18 16/86] usb: gadget: net2272: Fix net2272_dequeue()
 Date:   Wed, 15 May 2019 12:54:53 +0200
-Message-Id: <20190515090654.181268620@linuxfoundation.org>
+Message-Id: <20190515090645.846966532@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 862e4644fd2d7df8998edc65e0963ea2f567bde9 ]
+[ Upstream commit 091dacc3cc10979ab0422f0a9f7fcc27eee97e69 ]
 
-If probe errors out after request_irq(), its error path
-does not explicitly cancel the delayed work, which may
-have been scheduled by the interrupt handler.
+Restore the status of ep->stopped in function net2272_dequeue().
 
-This means the delayed work may still be running when
-the core frees the private structure (struct xadc).
-This is a potential use-after-free.
+When the given request is not found in the endpoint queue
+the function returns -EINVAL without restoring the state of
+ep->stopped. Thus the endpoint keeps blocked and does not transfer
+any data anymore.
 
-Fix by inserting cancel_delayed_work_sync() in the probe
-error path.
+This fix is only compile-tested, since we do not have a
+corresponding hardware. An analogous fix was tested in the sibling
+driver. See "usb: gadget: net2280: Fix net2280_dequeue()"
 
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/iio/adc/xilinx-xadc-core.c | 1 +
+ drivers/usb/gadget/udc/net2272.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 1960694e80076..15e1a103f37da 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1290,6 +1290,7 @@ static int xadc_probe(struct platform_device *pdev)
- 
- err_free_irq:
- 	free_irq(xadc->irq, indio_dev);
-+	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
- err_clk_disable_unprepare:
- 	clk_disable_unprepare(xadc->clk);
- err_free_samplerate_trigger:
+diff --git a/drivers/usb/gadget/udc/net2272.c b/drivers/usb/gadget/udc/net2272.c
+index 4b2444e75840..83d0544338ca 100644
+--- a/drivers/usb/gadget/udc/net2272.c
++++ b/drivers/usb/gadget/udc/net2272.c
+@@ -962,6 +962,7 @@ net2272_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+ 			break;
+ 	}
+ 	if (&req->req != _req) {
++		ep->stopped = stopped;
+ 		spin_unlock_irqrestore(&ep->dev->lock, flags);
+ 		return -EINVAL;
+ 	}
 -- 
-2.20.1
+2.19.1
 
 
 
