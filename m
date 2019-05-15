@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A25E71EFF4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E797A1EFC9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732703AbfEOLaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
+        id S1731802AbfEOLg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732034AbfEOLaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:21 -0400
+        id S1730797AbfEOLcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2635D20818;
-        Wed, 15 May 2019 11:30:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0516206BF;
+        Wed, 15 May 2019 11:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919820;
-        bh=LxcjEKip1v8N/ANBHPxLhn8/Pw2YaorBIk4I7k7IVPI=;
+        s=default; t=1557919955;
+        bh=EwnuNN/iKp732s9E1fnCIgPnDf11zkRNldXEtvvaLrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXgH3Wv2bK7wn49xtsV1GSqxYV4ASkBOyijWItvF5bvkJSG5XuQrPJFK6dxHJZO/K
-         vP5MwhESldBHXWR+iFwFzz93FwQVdLkwxHzLDd8Ssh/k0oABQYa94sTMaLRlpgddtq
-         MeVF+FRAJPlcA9d6E2nol3PViihyN+A3aypsq1rQ=
+        b=QTlX1Ctbm9rGQqgRfEyb9hW5SBMKggwnrY9IiFN+TSYTNRsiCpzSV9VesyBjcrtVh
+         AIyO5IWzs0RtkFQiUhNpexSACX3pfH448RFCc+z/gW2x8wopqkgbvGaY9+APIvkP+R
+         ztBhUD2yHJpWcI1AUzzuawrwVwol0egQiFAMFXz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 5.0 105/137] bonding: fix arp_validate toggling in active-backup mode
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.1 02/46] platform/x86: thinkpad_acpi: Disable Bluetooth for some machines
 Date:   Wed, 15 May 2019 12:56:26 +0200
-Message-Id: <20190515090701.174042490@linuxfoundation.org>
+Message-Id: <20190515090618.166336036@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
+commit f7db839fccf087664e5587966220821289b6a9cb upstream.
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+Some AMD based ThinkPads have a firmware bug that calling
+"GBDC" will cause Bluetooth on Intel wireless cards blocked.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
+Probe these models by DMI match and disable Bluetooth subdriver
+if specified Intel wireless card exist.
 
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
-
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/bonding/bond_options.c |    7 -------
- 1 file changed, 7 deletions(-)
 
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1098,13 +1098,6 @@ static int bond_option_arp_validate_set(
- {
- 	netdev_dbg(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		   newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+---
+ drivers/platform/x86/thinkpad_acpi.c |   72 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 70 insertions(+), 2 deletions(-)
+
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -79,7 +79,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/workqueue.h>
+ #include <linux/acpi.h>
+-#include <linux/pci_ids.h>
++#include <linux/pci.h>
+ #include <linux/power_supply.h>
+ #include <sound/core.h>
+ #include <sound/control.h>
+@@ -4501,6 +4501,74 @@ static void bluetooth_exit(void)
+ 	bluetooth_shutdown();
+ }
  
- 	return 0;
++static const struct dmi_system_id bt_fwbug_list[] __initconst = {
++	{
++		.ident = "ThinkPad E485",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20KU"),
++		},
++	},
++	{
++		.ident = "ThinkPad E585",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20KV"),
++		},
++	},
++	{
++		.ident = "ThinkPad A285 - 20MW",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MW"),
++		},
++	},
++	{
++		.ident = "ThinkPad A285 - 20MX",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MX"),
++		},
++	},
++	{
++		.ident = "ThinkPad A485 - 20MU",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MU"),
++		},
++	},
++	{
++		.ident = "ThinkPad A485 - 20MV",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MV"),
++		},
++	},
++	{}
++};
++
++static const struct pci_device_id fwbug_cards_ids[] __initconst = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24F3) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24FD) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2526) },
++	{}
++};
++
++
++static int __init have_bt_fwbug(void)
++{
++	/*
++	 * Some AMD based ThinkPads have a firmware bug that calling
++	 * "GBDC" will cause bluetooth on Intel wireless cards blocked
++	 */
++	if (dmi_check_system(bt_fwbug_list) && pci_dev_present(fwbug_cards_ids)) {
++		vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
++			FW_BUG "disable bluetooth subdriver for Intel cards\n");
++		return 1;
++	} else
++		return 0;
++}
++
+ static int __init bluetooth_init(struct ibm_init_struct *iibm)
+ {
+ 	int res;
+@@ -4513,7 +4581,7 @@ static int __init bluetooth_init(struct
+ 
+ 	/* bluetooth not supported on 570, 600e/x, 770e, 770x, A21e, A2xm/p,
+ 	   G4x, R30, R31, R40e, R50e, T20-22, X20-21 */
+-	tp_features.bluetooth = hkey_handle &&
++	tp_features.bluetooth = !have_bt_fwbug() && hkey_handle &&
+ 	    acpi_evalf(hkey_handle, &status, "GBDC", "qd");
+ 
+ 	vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
 
 
