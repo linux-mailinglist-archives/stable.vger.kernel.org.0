@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0B41EFA9
+	by mail.lfdr.de (Postfix) with ESMTP id 807DC1EFAA
 	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733245AbfEOLdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:33:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
+        id S1732725AbfEOLdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733241AbfEOLdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:33:41 -0400
+        id S1733241AbfEOLdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:33:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AFCB206BF;
-        Wed, 15 May 2019 11:33:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C1A62084A;
+        Wed, 15 May 2019 11:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557920021;
-        bh=TfeV9x0G3bClf1sSiIdL3Y7ZNEIjop5onOLFdhNUwWQ=;
+        s=default; t=1557920023;
+        bh=v9hzfIKv/HOPTAZyxm0CjdWVH0ZUjVkKX3R9366S29A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/ffqB9U9PyZJzLl0e19bwEaa/nXB3owXEr7PTGy5FkoZnheg6AFqdHumwYlQdG5+
-         vo/GSclLAXUn+OADRM/aVysBVqkCbJ3yzYMPO1Px3gF4aMz5ZZdMBcPbY2PcPSeF5a
-         gpK3agleG93dGUs6nNtQAKwYW555wfyOJs14FdQg=
+        b=RDMO+TzkWJb4m+up/jWzRQu/eDXEDThEgQFFMljamI+VLhzkKiOKNM6HIkhTXLwKe
+         wo2szQsRiCTmjysnfj+Ka+tQyoL215Eg16XljnI6++v69rJxhpRVpYnSa3w6D2OJQN
+         vuOtQKUQg1qnMEzVAjIXRV6W7K+QKbCjeXz5LZJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
         Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH 5.1 43/46] PCI: hv: Fix a memory leak in hv_eject_device_work()
-Date:   Wed, 15 May 2019 12:57:07 +0200
-Message-Id: <20190515090629.019359650@linuxfoundation.org>
+Subject: [PATCH 5.1 44/46] PCI: hv: Add hv_pci_remove_slots() when we unload the driver
+Date:   Wed, 15 May 2019 12:57:08 +0200
+Message-Id: <20190515090629.423766314@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
 References: <20190515090616.670410738@linuxfoundation.org>
@@ -47,49 +47,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dexuan Cui <decui@microsoft.com>
 
-commit 05f151a73ec2b23ffbff706e5203e729a995cdc2 upstream.
+commit 15becc2b56c6eda3d9bf5ae993bafd5661c1fad1 upstream.
 
-When a device is created in new_pcichild_device(), hpdev->refs is set
-to 2 (i.e. the initial value of 1 plus the get_pcichild()).
+When we unload the pci-hyperv host controller driver, the host does not
+send us a PCI_EJECT message.
 
-When we hot remove the device from the host, in a Linux VM we first call
-hv_pci_eject_device(), which increases hpdev->refs by get_pcichild() and
-then schedules a work of hv_eject_device_work(), so hpdev->refs becomes
-3 (let's ignore the paired get/put_pcichild() in other places). But in
-hv_eject_device_work(), currently we only call put_pcichild() twice,
-meaning the 'hpdev' struct can't be freed in put_pcichild().
+In this case we also need to make sure the sysfs PCI slot directory is
+removed, otherwise a command on a slot file eg:
 
-Add one put_pcichild() to fix the memory leak.
+"cat /sys/bus/pci/slots/2/address"
 
-The device can also be removed when we run "rmmod pci-hyperv". On this
-path (hv_pci_remove() -> hv_pci_bus_exit() -> hv_pci_devices_present()),
-hpdev->refs is 2, and we do correctly call put_pcichild() twice in
-pci_devices_present_work().
+will trigger a
 
-Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft Hyper-V VMs")
+"BUG: unable to handle kernel paging request"
+
+and, if we unload/reload the driver several times we would end up with
+stale slot entries in PCI slot directories in /sys/bus/pci/slots/
+
+root@localhost:~# ls -rtl  /sys/bus/pci/slots/
+total 0
+drwxr-xr-x 2 root root 0 Feb  7 10:49 2
+drwxr-xr-x 2 root root 0 Feb  7 10:49 2-1
+drwxr-xr-x 2 root root 0 Feb  7 10:51 2-2
+
+Add the missing code to remove the PCI slot and fix the current
+behaviour.
+
+Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
 Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: commit log rework]
+[lorenzo.pieralisi@arm.com: reformatted the log]
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
-Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Stephen Hemminger <sthemmin@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pci-hyperv.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/controller/pci-hyperv.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1900,6 +1900,9 @@ static void hv_eject_device_work(struct
- 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
- 			 VM_PKT_DATA_INBAND, 0);
+@@ -1486,6 +1486,21 @@ static void hv_pci_assign_slots(struct h
+ 	}
+ }
  
-+	/* For the get_pcichild() in hv_pci_eject_device() */
-+	put_pcichild(hpdev);
-+	/* For the two refs got in new_pcichild_device() */
- 	put_pcichild(hpdev);
- 	put_pcichild(hpdev);
- 	put_hvpcibus(hpdev->hbus);
++/*
++ * Remove entries in sysfs pci slot directory.
++ */
++static void hv_pci_remove_slots(struct hv_pcibus_device *hbus)
++{
++	struct hv_pci_dev *hpdev;
++
++	list_for_each_entry(hpdev, &hbus->children, list_entry) {
++		if (!hpdev->pci_slot)
++			continue;
++		pci_destroy_slot(hpdev->pci_slot);
++		hpdev->pci_slot = NULL;
++	}
++}
++
+ /**
+  * create_root_hv_pci_bus() - Expose a new root PCI bus
+  * @hbus:	Root PCI bus, as understood by this driver
+@@ -2680,6 +2695,7 @@ static int hv_pci_remove(struct hv_devic
+ 		pci_lock_rescan_remove();
+ 		pci_stop_root_bus(hbus->pci_bus);
+ 		pci_remove_root_bus(hbus->pci_bus);
++		hv_pci_remove_slots(hbus);
+ 		pci_unlock_rescan_remove();
+ 		hbus->state = hv_pcibus_removed;
+ 	}
 
 
