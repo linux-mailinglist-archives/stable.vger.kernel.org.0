@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F06F1F081
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26EA31EE82
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728903AbfEOLop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37218 "EHLO mail.kernel.org"
+        id S1730212AbfEOLWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732139AbfEOL0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:23 -0400
+        id S1731487AbfEOLWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6CBB20818;
-        Wed, 15 May 2019 11:26:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97F3F206BF;
+        Wed, 15 May 2019 11:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919583;
-        bh=bBVkt7ke+7BX2VBGJQpe2SV4R2dH9B1EORuNlsATUiA=;
+        s=default; t=1557919354;
+        bh=DbwY/2dsRSUHdWbmCl2Fd6AwkrDpeN9dQi8yPvzeVZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh9e3ERrEPgkt+2My3HORAscAd+zNq620WN/UZmOcg4/69tCn0J9tou9WHeZXvfRY
-         hO2XUay2vVdRwt2WmTHI62eA4L/MLFz5AdeIs9m1QOWkXfhQsKQPRMTTfLO3LjM+x5
-         LomzdgnDneqaOcA1Zj7lKPaYC6E+Dr0X2QJ1APkU=
+        b=yltHimiL+uHsdkDTBQ5AbU/g8Quh7rsEQiNvfPk/nkpMtKK47ikfOQDyGYCXAMsY7
+         6L6muCZC/VY/m8eXL2M6RJn5RvFBmAeA4VLm8f9oQ9fNdYjXEbmReOqLnGJrm0VvDY
+         ocgB64jkEfB93F+SjfWlbWD0XoTAV8tgoZLqmtlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 017/137] HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.19 007/113] virt: vbox: Sanity-check parameter types for hgcm-calls coming from userspace
 Date:   Wed, 15 May 2019 12:54:58 +0200
-Message-Id: <20190515090654.564437644@linuxfoundation.org>
+Message-Id: <20190515090653.827655565@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7975a1d6a7afeb3eb61c971a153d24dd8fa032f3 ]
+From: Hans de Goede <hdegoede@redhat.com>
 
-According to HUTRR73 usages 0x79, 0x7a and 0x7c from the consumer page
-correspond to Brightness Up/Down/Toggle keys, so let's add the mappings.
+commit cf4f2ad6b87dda2dbe0573b1ebeb0273f8d4aac6 upstream.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Userspace can make host function calls, called hgcm-calls through the
+/dev/vboxguest device.
+
+In this case we should not accept all hgcm-function-parameter-types, some
+are only valid for in kernel calls.
+
+This commit adds proper hgcm-function-parameter-type validation to the
+ioctl for doing a hgcm-call from userspace.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-input.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/virt/vboxguest/vboxguest_core.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 468da6f6765db..290efac7e6bfd 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -908,6 +908,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
- 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
+--- a/drivers/virt/vboxguest/vboxguest_core.c
++++ b/drivers/virt/vboxguest/vboxguest_core.c
+@@ -1263,6 +1263,20 @@ static int vbg_ioctl_hgcm_disconnect(str
+ 	return ret;
+ }
  
-+		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
-+		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
-+		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
++static bool vbg_param_valid(enum vmmdev_hgcm_function_parameter_type type)
++{
++	switch (type) {
++	case VMMDEV_HGCM_PARM_TYPE_32BIT:
++	case VMMDEV_HGCM_PARM_TYPE_64BIT:
++	case VMMDEV_HGCM_PARM_TYPE_LINADDR:
++	case VMMDEV_HGCM_PARM_TYPE_LINADDR_IN:
++	case VMMDEV_HGCM_PARM_TYPE_LINADDR_OUT:
++		return true;
++	default:
++		return false;
++	}
++}
 +
- 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
- 		case 0x083: map_key_clear(KEY_LAST);		break;
- 		case 0x084: map_key_clear(KEY_ENTER);		break;
--- 
-2.20.1
-
+ static int vbg_ioctl_hgcm_call(struct vbg_dev *gdev,
+ 			       struct vbg_session *session, bool f32bit,
+ 			       struct vbg_ioctl_hgcm_call *call)
+@@ -1298,6 +1312,23 @@ static int vbg_ioctl_hgcm_call(struct vb
+ 	}
+ 	call->hdr.size_out = actual_size;
+ 
++	/* Validate parameter types */
++	if (f32bit) {
++		struct vmmdev_hgcm_function_parameter32 *parm =
++			VBG_IOCTL_HGCM_CALL_PARMS32(call);
++
++		for (i = 0; i < call->parm_count; i++)
++			if (!vbg_param_valid(parm[i].type))
++				return -EINVAL;
++	} else {
++		struct vmmdev_hgcm_function_parameter *parm =
++			VBG_IOCTL_HGCM_CALL_PARMS(call);
++
++		for (i = 0; i < call->parm_count; i++)
++			if (!vbg_param_valid(parm[i].type))
++				return -EINVAL;
++	}
++
+ 	/*
+ 	 * Validate the client id.
+ 	 */
 
 
