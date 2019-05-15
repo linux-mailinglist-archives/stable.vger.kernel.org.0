@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15611EFE2
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 646051EF8D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732304AbfEOLaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42494 "EHLO mail.kernel.org"
+        id S1732199AbfEOLcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732802AbfEOLaw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:52 -0400
+        id S1732998AbfEOLcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9DE62084A;
-        Wed, 15 May 2019 11:30:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F4582084F;
+        Wed, 15 May 2019 11:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919852;
-        bh=BCvMcltUnVEXK2iVLgfaCW7IIQVbEsVCdADXsrdqLdQ=;
+        s=default; t=1557919936;
+        bh=uEVwclJRKqtfYWvmlZBdnxruqsP0j+5BLXXjcbkj1hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqIezXfYlIh+yujt9UCVb9ZUJIw+ZSxCydxnwOoKHFnDGFtaEuh8zjoWUrQ9tXURr
-         kAvOfXQvj9cUFbiMpS7jYwFbzlu7y+vN7eEQmCwnbj4zWwsJWXWyG8m0xf7NCHzHrr
-         xtTytUS4R6+4SoAeteCIC8738/4QplLzfKvnmoxg=
+        b=bO0uBCHPWN8r3GQDCtZoLefWN6nqGLy3dX5Cz/fHHM+f9nWLJQekWx1/8tB7S8mGF
+         ApUsWddx/ndXyoYdKhxwiZ+9aYyaqkYxTR0u0vhu+YhZoOI/PA8wTl89uXvkxK+jMe
+         8aml4Zfd011ApN3v6b/oCiFnX4QHBMWvm3G1WN7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Deseyn <tdeseyn@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 116/137] selinux: do not report error on connect(AF_UNSPEC)
+        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
+        David Jeffery <djeffery@redhat.com>,
+        Nigel Croxon <ncroxon@redhat.com>,
+        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.1 13/46] Dont jump to compute_result state from check_result state
 Date:   Wed, 15 May 2019 12:56:37 +0200
-Message-Id: <20190515090702.058105887@linuxfoundation.org>
+Message-Id: <20190515090622.314017827@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Nigel Croxon <ncroxon@redhat.com>
 
-[ Upstream commit c7e0d6cca86581092cbbf2cd868b3601495554cf ]
+commit 4f4fd7c5798bbdd5a03a60f6269cf1177fbd11ef upstream.
 
-calling connect(AF_UNSPEC) on an already connected TCP socket is an
-established way to disconnect() such socket. After commit 68741a8adab9
-("selinux: Fix ltp test connect-syscall failure") it no longer works
-and, in the above scenario connect() fails with EAFNOSUPPORT.
+Changing state from check_state_check_result to
+check_state_compute_result not only is unsafe but also doesn't
+appear to serve a valid purpose.  A raid6 check should only be
+pushing out extra writes if doing repair and a mis-match occurs.
+The stripe dev management will already try and do repair writes
+for failing sectors.
 
-Fix the above falling back to the generic/old code when the address family
-is not AF_INET{4,6}, but leave the SCTP code path untouched, as it has
-specific constraints.
+This patch makes the raid6 check_state_check_result handling
+work more like raid5's.  If somehow too many failures for a
+check, just quit the check operation for the stripe.  When any
+checks pass, don't try and use check_state_compute_result for
+a purpose it isn't needed for and is unsafe for.  Just mark the
+stripe as in sync for passing its parity checks and let the
+stripe dev read/write code and the bad blocks list do their
+job handling I/O errors.
 
-Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
-Reported-by: Tom Deseyn <tdeseyn@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Repro steps from Xiao:
+
+These are the steps to reproduce this problem:
+1. redefined OPT_MEDIUM_ERR_ADDR to 12000 in scsi_debug.c
+2. insmod scsi_debug.ko dev_size_mb=11000  max_luns=1 num_tgts=1
+3. mdadm --create /dev/md127 --level=6 --raid-devices=5 /dev/sde1 /dev/sde2 /dev/sde3 /dev/sde5 /dev/sde6
+sde is the disk created by scsi_debug
+4. echo "2" >/sys/module/scsi_debug/parameters/opts
+5. raid-check
+
+It panic:
+[ 4854.730899] md: data-check of RAID array md127
+[ 4854.857455] sd 5:0:0:0: [sdr] tag#80 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.859246] sd 5:0:0:0: [sdr] tag#80 Sense Key : Medium Error [current]
+[ 4854.860694] sd 5:0:0:0: [sdr] tag#80 Add. Sense: Unrecovered read error
+[ 4854.862207] sd 5:0:0:0: [sdr] tag#80 CDB: Read(10) 28 00 00 00 2d 88 00 04 00 00
+[ 4854.864196] print_req_error: critical medium error, dev sdr, sector 11656 flags 0
+[ 4854.867409] sd 5:0:0:0: [sdr] tag#100 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.869469] sd 5:0:0:0: [sdr] tag#100 Sense Key : Medium Error [current]
+[ 4854.871206] sd 5:0:0:0: [sdr] tag#100 Add. Sense: Unrecovered read error
+[ 4854.872858] sd 5:0:0:0: [sdr] tag#100 CDB: Read(10) 28 00 00 00 2e e0 00 00 08 00
+[ 4854.874587] print_req_error: critical medium error, dev sdr, sector 12000 flags 4000
+[ 4854.876456] sd 5:0:0:0: [sdr] tag#101 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.878552] sd 5:0:0:0: [sdr] tag#101 Sense Key : Medium Error [current]
+[ 4854.880278] sd 5:0:0:0: [sdr] tag#101 Add. Sense: Unrecovered read error
+[ 4854.881846] sd 5:0:0:0: [sdr] tag#101 CDB: Read(10) 28 00 00 00 2e e8 00 00 08 00
+[ 4854.883691] print_req_error: critical medium error, dev sdr, sector 12008 flags 4000
+[ 4854.893927] sd 5:0:0:0: [sdr] tag#166 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.896002] sd 5:0:0:0: [sdr] tag#166 Sense Key : Medium Error [current]
+[ 4854.897561] sd 5:0:0:0: [sdr] tag#166 Add. Sense: Unrecovered read error
+[ 4854.899110] sd 5:0:0:0: [sdr] tag#166 CDB: Read(10) 28 00 00 00 2e e0 00 00 10 00
+[ 4854.900989] print_req_error: critical medium error, dev sdr, sector 12000 flags 0
+[ 4854.902757] md/raid:md127: read error NOT corrected!! (sector 9952 on sdr1).
+[ 4854.904375] md/raid:md127: read error NOT corrected!! (sector 9960 on sdr1).
+[ 4854.906201] ------------[ cut here ]------------
+[ 4854.907341] kernel BUG at drivers/md/raid5.c:4190!
+
+raid5.c:4190 above is this BUG_ON:
+
+    handle_parity_checks6()
+        ...
+        BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
+
+Cc: <stable@vger.kernel.org> # v3.16+
+OriginalAuthor: David Jeffery <djeffery@redhat.com>
+Cc: Xiao Ni <xni@redhat.com>
+Tested-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: David Jeffy <djeffery@redhat.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- security/selinux/hooks.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4586,7 +4586,7 @@ static int selinux_socket_connect_helper
- 		struct lsm_network_audit net = {0,};
- 		struct sockaddr_in *addr4 = NULL;
- 		struct sockaddr_in6 *addr6 = NULL;
--		unsigned short snum;
-+		unsigned short snum = 0;
- 		u32 sid, perm;
+---
+ drivers/md/raid5.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
+
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -4223,26 +4223,15 @@ static void handle_parity_checks6(struct
+ 	case check_state_check_result:
+ 		sh->check_state = check_state_idle;
  
- 		/* sctp_connectx(3) calls via selinux_sctp_bind_connect()
-@@ -4609,12 +4609,12 @@ static int selinux_socket_connect_helper
- 			break;
- 		default:
- 			/* Note that SCTP services expect -EINVAL, whereas
--			 * others expect -EAFNOSUPPORT.
-+			 * others must handle this at the protocol level:
-+			 * connect(AF_UNSPEC) on a connected socket is
-+			 * a documented way disconnect the socket.
- 			 */
- 			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
- 				return -EINVAL;
--			else
--				return -EAFNOSUPPORT;
- 		}
- 
- 		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
++		if (s->failed > 1)
++			break;
+ 		/* handle a successful check operation, if parity is correct
+ 		 * we are done.  Otherwise update the mismatch count and repair
+ 		 * parity if !MD_RECOVERY_CHECK
+ 		 */
+ 		if (sh->ops.zero_sum_result == 0) {
+-			/* both parities are correct */
+-			if (!s->failed)
+-				set_bit(STRIPE_INSYNC, &sh->state);
+-			else {
+-				/* in contrast to the raid5 case we can validate
+-				 * parity, but still have a failure to write
+-				 * back
+-				 */
+-				sh->check_state = check_state_compute_result;
+-				/* Returning at this point means that we may go
+-				 * off and bring p and/or q uptodate again so
+-				 * we make sure to check zero_sum_result again
+-				 * to verify if p or q need writeback
+-				 */
+-			}
++			/* Any parity checked was correct */
++			set_bit(STRIPE_INSYNC, &sh->state);
+ 		} else {
+ 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
+ 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery)) {
 
 
