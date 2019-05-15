@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4381ED48
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 126FB1F30A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbfEOLHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
+        id S1727087AbfEOLHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727087AbfEOLHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:36 -0400
+        id S1728928AbfEOLHj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 702EC2166E;
-        Wed, 15 May 2019 11:07:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E05620843;
+        Wed, 15 May 2019 11:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918455;
-        bh=ipuEa8aJPjDJRCZlmwpV+28D1V67eu0XO6csauo0Slo=;
+        s=default; t=1557918458;
+        bh=gOgo5zuTzFuxVDoIpZ2yBFrMkHWUyWlfvHhHOoEM/Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtc5c0qiVCooE8z3a5xSweFnpKU0Cbwa0DCsg6A3sT9UhsE6p4tiT4/k+puRxI4Kq
-         AYGm/CMI00OsPIXLh9iPVvIskUL9OxMVBgWAIbmoZAwDjEGfIC8LbvcT1l0STSMKkt
-         MdxDqMXjcXy0eV+Evtmq22S1JEi3WWzQhx+p02Us=
+        b=ddOeUeH00xu35VJ97DIKENPW7Sl89Ouvzw7envRBc+E8p+FBfrAFeqJwzmoUCj7RV
+         FGlw8OCoB+3qE3ZdAUOzJnGKkGjFNKII2QlH60q1KNLAdqqOpe1TZW0PTKLfcqMLNN
+         uNxsH4KQyZXHtAL31k3VdxkRakF7efDINMJ+V0sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Fertic <jeremyfertic@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 138/266] staging: iio: adt7316: fix the dac write calculation
-Date:   Wed, 15 May 2019 12:54:05 +0200
-Message-Id: <20190515090727.582122773@linuxfoundation.org>
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 139/266] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
+Date:   Wed, 15 May 2019 12:54:06 +0200
+Message-Id: <20190515090727.609203008@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -43,54 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Fertic <jeremyfertic@gmail.com>
+From: Anson Huang <anson.huang@nxp.com>
 
-commit 78accaea117c1ae878774974fab91ac4a0b0e2b0 upstream.
+commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 upstream.
 
-The lsb calculation is not masking the correct bits from the user input.
-Subtract 1 from (1 << offset) to correctly set up the mask to be applied
-to user input.
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
 
-The lsb register stores its value starting at the bit 7 position.
-adt7316_store_DAC() currently assumes the value is at the other end of the
-register. Shift the lsb value before storing it in a new variable lsb_reg,
-and write this variable to the lsb register.
-
-Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
-Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/addac/adt7316.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/iio/addac/adt7316.c
-+++ b/drivers/staging/iio/addac/adt7316.c
-@@ -1453,7 +1453,7 @@ static ssize_t adt7316_show_DAC(struct a
- static ssize_t adt7316_store_DAC(struct adt7316_chip_info *chip,
- 		int channel, const char *buf, size_t len)
- {
--	u8 msb, lsb, offset;
-+	u8 msb, lsb, lsb_reg, offset;
- 	u16 data;
- 	int ret;
- 
-@@ -1471,9 +1471,13 @@ static ssize_t adt7316_store_DAC(struct
- 		return -EINVAL;
- 
- 	if (chip->dac_bits > 8) {
--		lsb = data & (1 << offset);
-+		lsb = data & ((1 << offset) - 1);
-+		if (chip->dac_bits == 12)
-+			lsb_reg = lsb << ADT7316_DA_12_BIT_LSB_SHIFT;
-+		else
-+			lsb_reg = lsb << ADT7316_DA_10_BIT_LSB_SHIFT;
- 		ret = chip->bus.write(chip->bus.client,
--			ADT7316_DA_DATA_BASE + channel * 2, lsb);
-+			ADT7316_DA_DATA_BASE + channel * 2, lsb_reg);
- 		if (ret)
- 			return -EIO;
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -156,6 +156,9 @@ static int imx_snvs_pwrkey_probe(struct
+ 		return error;
  	}
+ 
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
++
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -172,9 +175,6 @@ static int imx_snvs_pwrkey_probe(struct
+ 		return error;
+ 	}
+ 
+-	pdata->input = input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
 
 
