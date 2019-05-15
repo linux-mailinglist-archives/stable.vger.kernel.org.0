@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F8D1ED7A
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEE81F2A4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729311AbfEOLJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
+        id S1729384AbfEOLKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728865AbfEOLJu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:09:50 -0400
+        id S1728928AbfEOLKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:10:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A99020843;
-        Wed, 15 May 2019 11:09:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6937F20644;
+        Wed, 15 May 2019 11:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918589;
-        bh=NB47b0H6Mz6H3ek0C4IXApJ456/tz8433YCfRjB5OyQ=;
+        s=default; t=1557918616;
+        bh=wbbv2rLdj/LG2hH35y8e8rYDgU3PTulxfxIol5QGOk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReF3liy/dZKlxB/RP5UqgYKMF4w6qqei+UUMURVhHeNOMBdwrGTgPLAwFmM6MWj9p
-         OFgLEHzrF7LCvLn7MkIH0Pkhv310JR0UPTX1AKDM+uT0nNeG40Myj6lKu4ycHtDO2S
-         Mbf2ZSw6NUpAXYJLq7ZcTV2dvfZsCUbjovI4Vitw=
+        b=peP1Z5xCDOODKKwXppr0GWmHRkdUMo/Jrq1s1CEkF8SYt6ivbRk26GTV3HX56Qp+k
+         cB6+qHZ9Nu/2chxMo8W2A4CG+AePxBFHnwB+pmbYwFcFqH9DJXjjpYd6aQo8kMMOth
+         FEp0beQNUBs1cAFv6D4Uq9sfx/xkkHWRkA8BOR2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 163/266] HID: input: add mapping for Expose/Overview key
-Date:   Wed, 15 May 2019 12:54:30 +0200
-Message-Id: <20190515090728.433308720@linuxfoundation.org>
+Subject: [PATCH 4.4 164/266] HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
+Date:   Wed, 15 May 2019 12:54:31 +0200
+Message-Id: <20190515090728.467323516@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,32 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
+[ Upstream commit 7975a1d6a7afeb3eb61c971a153d24dd8fa032f3 ]
 
-According to HUTRR77 usage 0x29f from the consumer page is reserved for
-the Desktop application to present all running user’s application windows.
-Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
-add the mapping.
+According to HUTRR73 usages 0x79, 0x7a and 0x7c from the consumer page
+correspond to Brightness Up/Down/Toggle keys, so let's add the mappings.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 8d74e691ac90f..01b41ff430564 100644
+index 01b41ff430564..ee3c66c020438 100644
 --- a/drivers/hid/hid-input.c
 +++ b/drivers/hid/hid-input.c
-@@ -913,6 +913,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
- 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
+@@ -783,6 +783,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
+ 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
  
-+		case 0x29f: map_key_clear(KEY_SCALE);		break;
++		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
++		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
++		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
 +
- 		default: map_key_clear(KEY_UNKNOWN);
- 		}
- 		break;
+ 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
+ 		case 0x083: map_key_clear(KEY_LAST);		break;
+ 		case 0x084: map_key_clear(KEY_ENTER);		break;
 -- 
 2.20.1
 
