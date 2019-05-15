@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7D91F176
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843381F221
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731121AbfEOLyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:54:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56770 "EHLO mail.kernel.org"
+        id S1727908AbfEOLN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:13:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730540AbfEOLTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:09 -0400
+        id S1729957AbfEOLNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:13:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0067D20843;
-        Wed, 15 May 2019 11:19:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DED42168B;
+        Wed, 15 May 2019 11:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919148;
-        bh=SFbcPI017vM7vBmoXBzDUEjHYPXGFDPBRfU/TwXqXa4=;
+        s=default; t=1557918803;
+        bh=mDS7U+WjhmJkdMvliJsBtFb47LJZkRupeS47ii3XgW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAsxTvBA8pTNZpOBmMnCTAXZIScFqHYjj9fhNNeRGtdfRsCVZa15TeSy8+Pd7NXJc
-         r2Kz8awqaaxpLP9t5XFjd04fadSnhCNJwU63b20hUwQ+kTvNZyvxpbi9rGI4Iomcu6
-         0cacL8Ujk70zR0b+1J1URZM6TnFF7DJlAO2Fimi4=
+        b=xVL5NlFcXx0FfAxd8DRPgzaIQpm5B0511raafjmmY5mL54Ybf+CWCdfgqt4KBPq1Z
+         56r/wkVD4cKg4GrInr5nZc3TSp0slB+MnWuOOVAQANs6i/Pg244bQ1bEaEX+J7Y/3f
+         FqkozswByDW1rO5LPA5CzpfPMqHce06ed2Ro9W7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 084/115] net: hns: Fix WARNING when hns modules installed
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 257/266] bridge: Fix error path for kobject_init_and_add()
 Date:   Wed, 15 May 2019 12:56:04 +0200
-Message-Id: <20190515090705.432395454@linuxfoundation.org>
+Message-Id: <20190515090731.710145644@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c77804be53369dd4c15bfc376cf9b45948194cab ]
+From: "Tobin C. Harding" <tobin@kernel.org>
 
-Commit 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko
-after rmmod.") add phy_stop in hns_nic_init_phy(), In the branch of "net",
-this method is effective, but in the branch of "net-next", it will cause
-a WARNING when hns modules loaded, reference to commit 2b3e88ea6528 ("net:
-phy: improve phy state checking"):
+[ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
 
-[10.092168] ------------[ cut here ]------------
-[10.092171] called from state READY
-[10.092189] WARNING: CPU: 4 PID: 1 at ../drivers/net/phy/phy.c:854
-                phy_stop+0x90/0xb0
-[10.092192] Modules linked in:
-[10.092197] CPU: 4 PID:1 Comm:swapper/0 Not tainted 4.20.0-rc7-next-20181220 #1
-[10.092200] Hardware name: Huawei TaiShan 2280 /D05, BIOS Hisilicon D05 UEFI
-                16.12 Release 05/15/2017
-[10.092202] pstate: 60000005 (nZCv daif -PAN -UAO)
-[10.092205] pc : phy_stop+0x90/0xb0
-[10.092208] lr : phy_stop+0x90/0xb0
-[10.092209] sp : ffff00001159ba90
-[10.092212] x29: ffff00001159ba90 x28: 0000000000000007
-[10.092215] x27: ffff000011180068 x26: ffff0000110a5620
-[10.092218] x25: ffff0000113b6000 x24: ffff842f96dac000
-[10.092221] x23: 0000000000000000 x22: 0000000000000000
-[10.092223] x21: ffff841fb8425e18 x20: ffff801fb3a56438
-[10.092226] x19: ffff801fb3a56000 x18: ffffffffffffffff
-[10.092228] x17: 0000000000000000 x16: 0000000000000000
-[10.092231] x15: ffff00001122d6c8 x14: ffff00009159b7b7
-[10.092234] x13: ffff00001159b7c5 x12: ffff000011245000
-[10.092236] x11: 0000000005f5e0ff x10: ffff00001159b750
-[10.092239] x9 : 00000000ffffffd0 x8 : 0000000000000465
-[10.092242] x7 : ffff0000112457f8 x6 : ffff0000113bd7ce
-[10.092245] x5 : 0000000000000000 x4 : 0000000000000000
-[10.092247] x3 : 00000000ffffffff x2 : ffff000011245828
-[10.092250] x1 : 4b5860bd05871300 x0 : 0000000000000000
-[10.092253] Call trace:
-[10.092255]  phy_stop+0x90/0xb0
-[10.092260]  hns_nic_init_phy+0xf8/0x110
-[10.092262]  hns_nic_try_get_ae+0x4c/0x3b0
-[10.092264]  hns_nic_dev_probe+0x1fc/0x480
-[10.092268]  platform_drv_probe+0x50/0xa0
-[10.092271]  really_probe+0x1f4/0x298
-[10.092273]  driver_probe_device+0x58/0x108
-[10.092275]  __driver_attach+0xdc/0xe0
-[10.092278]  bus_for_each_dev+0x74/0xc8
-[10.092280]  driver_attach+0x20/0x28
-[10.092283]  bus_add_driver+0x1b8/0x228
-[10.092285]  driver_register+0x60/0x110
-[10.092288]  __platform_driver_register+0x40/0x48
-[10.092292]  hns_nic_dev_driver_init+0x18/0x20
-[10.092296]  do_one_initcall+0x5c/0x180
-[10.092299]  kernel_init_freeable+0x198/0x240
-[10.092303]  kernel_init+0x10/0x108
-[10.092306]  ret_from_fork+0x10/0x18
-[10.092308] ---[ end trace 1396dd0278e397eb ]---
+Currently error return from kobject_init_and_add() is not followed by a
+call to kobject_put().  This means there is a memory leak.  We currently
+set p to NULL so that kfree() may be called on it as a noop, the code is
+arguably clearer if we move the kfree() up closer to where it is
+called (instead of after goto jump).
 
-This WARNING occurred because of calling phy_stop before phy_start.
+Remove a goto label 'err1' and jump to call to kobject_put() in error
+return from kobject_init_and_add() fixing the memory leak.  Re-name goto
+label 'put_back' to 'err1' now that we don't use err1, following current
+nomenclature (err1, err2 ...).  Move call to kfree out of the error
+code at bottom of function up to closer to where memory was allocated.
+Add comment to clarify call to kfree().
 
-The root cause of the problem in commit '308c6cafde01' is:
-
-Reference to hns_nic_init_phy, the flag phydev->supported is changed after
-phy_connect_direct. The flag phydev->supported is 0x6ff when hns modules is
-loaded, so will not change Fiber Port power(Reference to marvell.c), which
-is power on at default.
-Then the flag phydev->supported is changed to 0x6f, so Fiber Port power is
-off when removing hns modules.
-When hns modules installed again, the flag phydev->supported is default
-value 0x6ff, so will not change Fiber Port power(now is off), causing mac
-link not up problem.
-
-So the solution is change phy flags before phy_connect_direct.
-
-Fixes: 308c6cafde01 ("net: hns: All ports can not work when insmod hns ko after rmmod.")
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_enet.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ net/bridge/br_if.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-index 8fd0408178048..b681c07b33fb6 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
-@@ -1267,6 +1267,12 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
- 	if (!h->phy_dev)
- 		return 0;
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -471,13 +471,15 @@ int br_add_if(struct net_bridge *br, str
+ 	call_netdevice_notifiers(NETDEV_JOIN, dev);
  
-+	phy_dev->supported &= h->if_support;
-+	phy_dev->advertising = phy_dev->supported;
-+
-+	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
-+		phy_dev->autoneg = false;
-+
- 	if (h->phy_if != PHY_INTERFACE_MODE_XGMII) {
- 		phy_dev->dev_flags = 0;
+ 	err = dev_set_allmulti(dev, 1);
+-	if (err)
+-		goto put_back;
++	if (err) {
++		kfree(p);	/* kobject not yet init'd, manually free */
++		goto err1;
++	}
  
-@@ -1278,15 +1284,6 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
- 	if (unlikely(ret))
- 		return -ENODEV;
+ 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
+ 				   SYSFS_BRIDGE_PORT_ATTR);
+ 	if (err)
+-		goto err1;
++		goto err2;
  
--	phy_dev->supported &= h->if_support;
--	phy_dev->advertising = phy_dev->supported;
--
--	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
--		phy_dev->autoneg = false;
--
--	if (h->phy_if == PHY_INTERFACE_MODE_SGMII)
--		phy_stop(phy_dev);
--
- 	return 0;
+ 	err = br_sysfs_addif(p);
+ 	if (err)
+@@ -551,12 +553,9 @@ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
+ 	kobject_put(&p->kobj);
+-	p = NULL; /* kobject_put frees */
+-err1:
+ 	dev_set_allmulti(dev, -1);
+-put_back:
++err1:
+ 	dev_put(dev);
+-	kfree(p);
+ 	return err;
  }
  
--- 
-2.20.1
-
 
 
