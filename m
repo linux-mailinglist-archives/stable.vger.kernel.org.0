@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 494841F31B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 652EB1F329
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:11:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728803AbfEOLHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S1727856AbfEOMKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfEOLG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:06:58 -0400
+        id S1728532AbfEOLHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD0E821743;
-        Wed, 15 May 2019 11:06:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FE5E21734;
+        Wed, 15 May 2019 11:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918417;
-        bh=bwHylVj0ErEJHQPF8euYO/g3Rci2yeuJf2Agq0D/d+Y=;
+        s=default; t=1557918419;
+        bh=pmDpI0mOfPRu39fWnUV4I/+4ZjVdkBEGEqtqWuIjavQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFK0jHEgK0zNNG2hXEXPUHyHcsmMphG2HpgIK2lAhDFI8OrNLuc0TT2vEF2t8FAFL
-         O1Ddhq317js7FUPv2uSdr9PXD1YdEpPohEvSDPBxyssvhCzBp69y5rRoBeCcNt77hR
-         FexGzEqGTjyyiDrXvJBnynpMJ6jA11WUXPl4zcRY=
+        b=0wym0iVvw9U2XZxjHTZZicNsqRkLQznxNl89y1QRlMIozlPLir8YzSbi4A4ZN/fQ+
+         tjD8Xv8KLTUaoKRzgGmIA+7rpib1P1bcwZpuiZfqu0UCIuZiGTRrUqKeQwNhbawBtH
+         g6JNHrU8Gjt1Y5dNRPsOjNqX8Zu1bEQE7ijzWTR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 124/266] jffs2: fix use-after-free on symlink traversal
-Date:   Wed, 15 May 2019 12:53:51 +0200
-Message-Id: <20190515090726.906825560@linuxfoundation.org>
+Subject: [PATCH 4.4 125/266] debugfs: fix use-after-free on symlink traversal
+Date:   Wed, 15 May 2019 12:53:52 +0200
+Message-Id: <20190515090727.007426951@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -43,51 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4fdcfab5b5537c21891e22e65996d4d0dd8ab4ca ]
+[ Upstream commit 93b919da64c15b90953f96a536e5e61df896ca57 ]
 
-free the symlink body after the same RCU delay we have for freeing the
-struct inode itself, so that traversal during RCU pathwalk wouldn't step
-into freed memory.
+symlink body shouldn't be freed without an RCU delay.  Switch debugfs to
+->destroy_inode() and use of call_rcu(); free both the inode and symlink
+body in the callback.  Similar to solution for bpf, only here it's even
+more obvious that ->evict_inode() can be dropped.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/readinode.c | 5 -----
- fs/jffs2/super.c     | 5 ++++-
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ fs/debugfs/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jffs2/readinode.c b/fs/jffs2/readinode.c
-index bfebbf13698c..5b52ea41b84f 100644
---- a/fs/jffs2/readinode.c
-+++ b/fs/jffs2/readinode.c
-@@ -1414,11 +1414,6 @@ void jffs2_do_clear_inode(struct jffs2_sb_info *c, struct jffs2_inode_info *f)
- 
- 	jffs2_kill_fragtree(&f->fragtree, deleted?c:NULL);
- 
--	if (f->target) {
--		kfree(f->target);
--		f->target = NULL;
--	}
--
- 	fds = f->dents;
- 	while(fds) {
- 		fd = fds;
-diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
-index 023e7f32ee1b..9fc297df8c75 100644
---- a/fs/jffs2/super.c
-+++ b/fs/jffs2/super.c
-@@ -47,7 +47,10 @@ static struct inode *jffs2_alloc_inode(struct super_block *sb)
- static void jffs2_i_callback(struct rcu_head *head)
- {
- 	struct inode *inode = container_of(head, struct inode, i_rcu);
--	kmem_cache_free(jffs2_inode_cachep, JFFS2_INODE_INFO(inode));
-+	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
-+
-+	kfree(f->target);
-+	kmem_cache_free(jffs2_inode_cachep, f);
+diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
+index 22fe11baef2b..3530e1c3ff56 100644
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -164,19 +164,24 @@ static int debugfs_show_options(struct seq_file *m, struct dentry *root)
+ 	return 0;
  }
  
- static void jffs2_destroy_inode(struct inode *inode)
+-static void debugfs_evict_inode(struct inode *inode)
++static void debugfs_i_callback(struct rcu_head *head)
+ {
+-	truncate_inode_pages_final(&inode->i_data);
+-	clear_inode(inode);
++	struct inode *inode = container_of(head, struct inode, i_rcu);
+ 	if (S_ISLNK(inode->i_mode))
+ 		kfree(inode->i_link);
++	free_inode_nonrcu(inode);
++}
++
++static void debugfs_destroy_inode(struct inode *inode)
++{
++	call_rcu(&inode->i_rcu, debugfs_i_callback);
+ }
+ 
+ static const struct super_operations debugfs_super_operations = {
+ 	.statfs		= simple_statfs,
+ 	.remount_fs	= debugfs_remount,
+ 	.show_options	= debugfs_show_options,
+-	.evict_inode	= debugfs_evict_inode,
++	.destroy_inode	= debugfs_destroy_inode,
+ };
+ 
+ static struct vfsmount *debugfs_automount(struct path *path)
 -- 
 2.20.1
 
