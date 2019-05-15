@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E11F61EDB7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD751F1B4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729849AbfEOLMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
+        id S1730631AbfEOLRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729840AbfEOLMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:12:41 -0400
+        id S1728459AbfEOLRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DA021783;
-        Wed, 15 May 2019 11:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 160EE20644;
+        Wed, 15 May 2019 11:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918760;
-        bh=QXI3nrZ26GPuYgikXChVsPWBbXrsAubn0NqfcnrEJaE=;
+        s=default; t=1557919037;
+        bh=gL9fh4TwALpqLAAxA7aWBb2Vf8cfztxpiqmNPtMFfm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8Bsk8ukx6oNHrzCITQOmSvQydINT/rKTccPqti3Bvd6ddJ7ViGnP7En58QW/khjz
-         D0Tz8czPpNWO0+7oTrX2MLqHpYgzcO+F2hK9gZkc9O8JS7nFupT3gQTGvCuBy9PC48
-         3DCUIXiQ2Br2h+P/PzYKXxmI0FvRKIHiYuii/LWw=
+        b=z2wj7GfZf/B09Ftw4gZRomfFGOaZgt8oUad8dN/45VyF1tzElPgO+GIlRWL+qQp/D
+         o2L+l4Xjdqg+ePiK/IWNJ71yz52fn0HJGZvH4Q/4O0qE4y6UrYy1SWtM7mo4+sxTlB
+         7GQ/eDBNlaEWwV5CiAoiS3MlbagDiZNfh1xP44yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 214/266] x86/speculation: Unify conditional spectre v2 print functions
-Date:   Wed, 15 May 2019 12:55:21 +0200
-Message-Id: <20190515090730.216368988@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Zhangjin Wu <wuzhangjin@gmail.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 042/115] MIPS: VDSO: Reduce VDSO_RANDOMIZE_SIZE to 64MB for 64bit
+Date:   Wed, 15 May 2019 12:55:22 +0200
+Message-Id: <20190515090702.550889538@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,74 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit c61c7def1fa0a722610d89790e0255b74f3c07dd ]
 
-commit 495d470e9828500e0155027f230449ac5e29c025 upstream.
+Commit ea7e0480a4b6 ("MIPS: VDSO: Always map near top of user memory")
+set VDSO_RANDOMIZE_SIZE to 256MB for 64bit kernel. But take a look at
+arch/mips/mm/mmap.c we can see that MIN_GAP is 128MB, which means the
+mmap_base may be at (user_address_top - 128MB). This make the stack be
+surrounded by mmaped areas, then stack expanding fails and causes a
+segmentation fault. Therefore, VDSO_RANDOMIZE_SIZE should be less than
+MIN_GAP and this patch reduce it to 64MB.
 
-There is no point in having two functions and a conditional at the call
-site.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185004.986890749@linutronix.de
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Fixes: ea7e0480a4b6 ("MIPS: VDSO: Always map near top of user memory")
+Patchwork: https://patchwork.linux-mips.org/patch/20910/
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@linux-mips.org
+Cc: Fuxin Zhang <zhangfx@lemote.com>
+Cc: Zhangjin Wu <wuzhangjin@gmail.com>
+Cc: Huacai Chen <chenhuacai@gmail.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/kernel/cpu/bugs.c |   17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ arch/mips/include/asm/processor.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -249,15 +249,9 @@ static const struct {
- 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
- };
+diff --git a/arch/mips/include/asm/processor.h b/arch/mips/include/asm/processor.h
+index 8bbbab611a3f1..0b86a01de9562 100644
+--- a/arch/mips/include/asm/processor.h
++++ b/arch/mips/include/asm/processor.h
+@@ -81,7 +81,7 @@ extern unsigned int vced_count, vcei_count;
  
--static void __init spec2_print_if_insecure(const char *reason)
-+static void __init spec_v2_print_cond(const char *reason, bool secure)
- {
--	if (boot_cpu_has_bug(X86_BUG_SPECTRE_V2))
--		pr_info("%s selected on command line.\n", reason);
--}
--
--static void __init spec2_print_if_secure(const char *reason)
--{
--	if (!boot_cpu_has_bug(X86_BUG_SPECTRE_V2))
-+	if (boot_cpu_has_bug(X86_BUG_SPECTRE_V2) != secure)
- 		pr_info("%s selected on command line.\n", reason);
- }
+ #endif
  
-@@ -305,11 +299,8 @@ static enum spectre_v2_mitigation_cmd __
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
+-#define VDSO_RANDOMIZE_SIZE	(TASK_IS_32BIT_ADDR ? SZ_1M : SZ_256M)
++#define VDSO_RANDOMIZE_SIZE	(TASK_IS_32BIT_ADDR ? SZ_1M : SZ_64M)
  
--	if (mitigation_options[i].secure)
--		spec2_print_if_secure(mitigation_options[i].option);
--	else
--		spec2_print_if_insecure(mitigation_options[i].option);
--
-+	spec_v2_print_cond(mitigation_options[i].option,
-+			   mitigation_options[i].secure);
- 	return cmd;
- }
- 
+ extern unsigned long mips_stack_top(void);
+ #define STACK_TOP		mips_stack_top()
+-- 
+2.20.1
+
 
 
