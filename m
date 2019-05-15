@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C8E71F2B0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 330F01F1AC
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729253AbfEOLJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42396 "EHLO mail.kernel.org"
+        id S1730130AbfEOLQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729251AbfEOLJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:09:27 -0400
+        id S1730304AbfEOLQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:16:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D53E3216FD;
-        Wed, 15 May 2019 11:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B2532084E;
+        Wed, 15 May 2019 11:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918566;
-        bh=QJLn3MhYYMiQkOw7GCZd4wzuFVq9wPRftRqIVNE/dic=;
+        s=default; t=1557919016;
+        bh=5HYz9HySdQVq5lrlDIP7Oc+D4/aGmMSuIKtiSyv+qRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9lEq978+D+iWY6br0pXABJ5xR18IY7HOpOf/UKu4IDdDttKLpA3X5C3+rx5h5C1F
-         5jPV6T+jPs3tGKTTbCOtpi3zm9C3x6Ih9arU4EpR5KddXmhslNaPHGAfbfLDSPAYGE
-         Xm/rVa4luTiGFnbqI0T1E3upFwhPpiQZpMuBU9+4=
+        b=nzPAf8Q4nCtuMy5hN70v+2lTPxsp6ucrKxEiaUl05VLrmSIqZp7Vo0hD1abLEgKeG
+         v7bhzvS9j0vGeMQ3B8+9CTWghdfTKKAJE1MZED1QQ2+XkHPxMZZ4Iq2cTlwQsLPq0W
+         E4krrYGZ4Yn+VlL6YXdXBSoONjq7DYyoUMGmIn2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 181/266] bitops: avoid integer overflow in GENMASK(_ULL)
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 008/115] libnvdimm/namespace: Fix a potential NULL pointer dereference
 Date:   Wed, 15 May 2019 12:54:48 +0200
-Message-Id: <20190515090729.051143618@linuxfoundation.org>
+Message-Id: <20190515090659.866818790@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+[ Upstream commit 55c1fc0af29a6c1b92f217b7eb7581a882e0c07c ]
 
-commit c32ee3d9abd284b4fcaacc250b101f93829c7bae upstream.
+In case kmemdup fails, the fix goes to blk_err to avoid NULL
+pointer dereference.
 
-GENMASK(_ULL) performs a left-shift of ~0UL(L), which technically
-results in an integer overflow.  clang raises a warning if the overflow
-occurs in a preprocessor expression.  Clear the low-order bits through a
-substraction instead of the left-shift to avoid the overflow.
-
-(akpm: no change in .text size in my testing)
-
-Link: http://lkml.kernel.org/r/20170803212020.24939-1-mka@chromium.org
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bitops.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvdimm/namespace_devs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -19,10 +19,11 @@
-  * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
-  */
- #define GENMASK(h, l) \
--	(((~0UL) << (l)) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
-+	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
- 
- #define GENMASK_ULL(h, l) \
--	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
-+	(((~0ULL) - (1ULL << (l)) + 1) & \
-+	 (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
- 
- extern unsigned int __sw_hweight8(unsigned int w);
- extern unsigned int __sw_hweight16(unsigned int w);
+diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
+index 50b01d3eadd9c..e3f228af59d1e 100644
+--- a/drivers/nvdimm/namespace_devs.c
++++ b/drivers/nvdimm/namespace_devs.c
+@@ -2234,9 +2234,12 @@ struct device *create_namespace_blk(struct nd_region *nd_region,
+ 	if (!nsblk->uuid)
+ 		goto blk_err;
+ 	memcpy(name, nd_label->name, NSLABEL_NAME_LEN);
+-	if (name[0])
++	if (name[0]) {
+ 		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN,
+ 				GFP_KERNEL);
++		if (!nsblk->alt_name)
++			goto blk_err;
++	}
+ 	res = nsblk_add_resource(nd_region, ndd, nsblk,
+ 			__le64_to_cpu(nd_label->dpa));
+ 	if (!res)
+-- 
+2.20.1
+
 
 
