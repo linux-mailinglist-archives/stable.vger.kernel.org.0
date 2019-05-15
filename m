@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 285D21EDFE
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 921841F171
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730300AbfEOLP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:15:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
+        id S1730911AbfEOLTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:19:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730261AbfEOLP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:28 -0400
+        id S1730906AbfEOLTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE6C820644;
-        Wed, 15 May 2019 11:15:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88A7B2084F;
+        Wed, 15 May 2019 11:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918928;
-        bh=7mdAG++hHPV5dcH9i80MCr5GlBNWq0L2PV9ChcBDkYQ=;
+        s=default; t=1557919151;
+        bh=POM2K4kZcnAcbgwQlbFlVZjcYoOsydeLxkdZxyviRk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrotjxiXwvzh93xygsTE1H6wnsaGhcIlG4ncZmZU7WTweUbUPptLwqhaLZzAKOB0J
-         tWToDW4GoGWk7Wa1Se4SfR7Vt8EwMLzBqmO4nFj6I4ctGZm/kynebWGQ+brh+uZQzK
-         kp/jThBIIawpVcgX0mNVj/OXbyQZCFp2s/XdQ5tI=
+        b=Xdarh2S6a+SqJjJy0zfu5q8CGtYI9AecV8/MAsQ2VLqhEnMVtfPqWmiKZn8Dggg0x
+         NmArX5uNLhHYma3+zIbkpM5oq19bIP7yxatMdPSjqCXBPaVgoAJz8ptpi+crJRHYVw
+         bg1T/6YiZrX80FnmzW/24n4IDFUvOWAuy3dvdh6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 30/51] cw1200: fix missing unlock on error in cw1200_hw_scan()
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Chandan Rajendra <chandan@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 085/115] mm/memory.c: fix modifying of page protection by insert_pfn()
 Date:   Wed, 15 May 2019 12:56:05 +0200
-Message-Id: <20190515090625.639425719@linuxfoundation.org>
+Message-Id: <20190515090705.499391044@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+[ Upstream commit cae85cb8add35f678cf487139d05e083ce2f570a ]
 
-commit 51c8d24101c79ffce3e79137e2cee5dfeb956dd7 upstream.
+Aneesh has reported that PPC triggers the following warning when
+excercising DAX code:
 
-Add the missing unlock before return from function cw1200_hw_scan()
-in the error handling case.
+  IP set_pte_at+0x3c/0x190
+  LR insert_pfn+0x208/0x280
+  Call Trace:
+     insert_pfn+0x68/0x280
+     dax_iomap_pte_fault.isra.7+0x734/0xa40
+     __xfs_filemap_fault+0x280/0x2d0
+     do_wp_page+0x48c/0xa40
+     __handle_mm_fault+0x8d0/0x1fd0
+     handle_mm_fault+0x140/0x250
+     __do_page_fault+0x300/0xd60
+     handle_page_fault+0x18
 
-Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now that is WARN_ON in set_pte_at which is
 
+        VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
+
+The problem is that on some architectures set_pte_at() cannot cope with
+a situation where there is already some (different) valid entry present.
+
+Use ptep_set_access_flags() instead to modify the pfn which is built to
+deal with modifying existing PTE.
+
+Link: http://lkml.kernel.org/r/20190311084537.16029-1-jack@suse.cz
+Fixes: b2770da64254 "mm: add vm_insert_mixed_mkwrite()"
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Chandan Rajendra <chandan@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/net/wireless/st/cw1200/scan.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ mm/memory.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/st/cw1200/scan.c
-+++ b/drivers/net/wireless/st/cw1200/scan.c
-@@ -84,8 +84,11 @@ int cw1200_hw_scan(struct ieee80211_hw *
+diff --git a/mm/memory.c b/mm/memory.c
+index f99b64ca13031..e9bce27bc18c3 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1813,10 +1813,12 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 				WARN_ON_ONCE(!is_zero_pfn(pte_pfn(*pte)));
+ 				goto out_unlock;
+ 			}
+-			entry = *pte;
+-			goto out_mkwrite;
+-		} else
+-			goto out_unlock;
++			entry = pte_mkyoung(*pte);
++			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++			if (ptep_set_access_flags(vma, addr, pte, entry, 1))
++				update_mmu_cache(vma, addr, pte);
++		}
++		goto out_unlock;
+ 	}
  
- 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
- 		req->ie_len);
--	if (!frame.skb)
-+	if (!frame.skb) {
-+		mutex_unlock(&priv->conf_mutex);
-+		up(&priv->scan.lock);
- 		return -ENOMEM;
-+	}
+ 	/* Ok, finally just insert the thing.. */
+@@ -1825,7 +1827,6 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
+ 	else
+ 		entry = pte_mkspecial(pfn_t_pte(pfn, prot));
  
- 	if (req->ie_len)
- 		memcpy(skb_put(frame.skb, req->ie_len), req->ie, req->ie_len);
+-out_mkwrite:
+ 	if (mkwrite) {
+ 		entry = pte_mkyoung(entry);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+-- 
+2.20.1
+
 
 
