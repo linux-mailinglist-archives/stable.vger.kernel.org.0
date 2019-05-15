@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E35141F089
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D010A1EF90
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732014AbfEOLZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:25:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
+        id S1733024AbfEOLcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732011AbfEOLZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:33 -0400
+        id S1733038AbfEOLca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA7F22089E;
-        Wed, 15 May 2019 11:25:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F2372053B;
+        Wed, 15 May 2019 11:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919533;
-        bh=GtcRU5ZM3n54XN/gJfZc+nyZGktY5oRZUcZIHhUpe/I=;
+        s=default; t=1557919949;
+        bh=D2wjTzLY+6BhBi4u1J9Nm0dZ/GGBbMLUC2F6GZL8Gug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJUBL8aU6FBu3/bO24cmrIp0rar44RMEk0eKzE0cBP85S9BjjjAznlUZsSg1v4I41
-         p+OC+iDv0XMpXkBJT6iKajS49NYmTZmrFnvw160uROa68yMgM0LeME2vM1jBzTSEqr
-         vCzw6xfeIam3E/VWoQKcO2MQYgR+3aClU3rK5vTw=
+        b=TN6d9sSMRE1P2DaS0oL/EZq43jnlKUtwSYfDAm5tuUsPTM+CwvyIEjstdWcCrgOtk
+         kLOTzcEYZxCteWXBFx9rKIn0rbT9wFM89ssxrQDNVa4PGTUhxww+autNX+g3GcB+Aj
+         hUejl8Qy0evdFbIRT1APPDZA5QViFIK8blolAy80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH 4.19 111/113] PCI: hv: Fix a memory leak in hv_eject_device_work()
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 18/46] ipv4: Fix raw socket lookup for local traffic
 Date:   Wed, 15 May 2019 12:56:42 +0200
-Message-Id: <20190515090702.123647432@linuxfoundation.org>
+Message-Id: <20190515090623.514601590@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: David Ahern <dsahern@gmail.com>
 
-commit 05f151a73ec2b23ffbff706e5203e729a995cdc2 upstream.
+[ Upstream commit 19e4e768064a87b073a4b4c138b55db70e0cfb9f ]
 
-When a device is created in new_pcichild_device(), hpdev->refs is set
-to 2 (i.e. the initial value of 1 plus the get_pcichild()).
+inet_iif should be used for the raw socket lookup. inet_iif considers
+rt_iif which handles the case of local traffic.
 
-When we hot remove the device from the host, in a Linux VM we first call
-hv_pci_eject_device(), which increases hpdev->refs by get_pcichild() and
-then schedules a work of hv_eject_device_work(), so hpdev->refs becomes
-3 (let's ignore the paired get/put_pcichild() in other places). But in
-hv_eject_device_work(), currently we only call put_pcichild() twice,
-meaning the 'hpdev' struct can't be freed in put_pcichild().
+As it stands, ping to a local address with the '-I <dev>' option fails
+ever since ping was changed to use SO_BINDTODEVICE instead of
+cmsg + IP_PKTINFO.
 
-Add one put_pcichild() to fix the memory leak.
+IPv6 works fine.
 
-The device can also be removed when we run "rmmod pci-hyperv". On this
-path (hv_pci_remove() -> hv_pci_bus_exit() -> hv_pci_devices_present()),
-hpdev->refs is 2, and we do correctly call put_pcichild() twice in
-pci_devices_present_work().
-
-Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft Hyper-V VMs")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: commit log rework]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
-Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
-Cc: stable@vger.kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/pci/controller/pci-hyperv.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/raw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1905,6 +1905,9 @@ static void hv_eject_device_work(struct
- 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
- 			 VM_PKT_DATA_INBAND, 0);
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -173,6 +173,7 @@ static int icmp_filter(const struct sock
+ static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
+ {
+ 	int sdif = inet_sdif(skb);
++	int dif = inet_iif(skb);
+ 	struct sock *sk;
+ 	struct hlist_head *head;
+ 	int delivered = 0;
+@@ -185,8 +186,7 @@ static int raw_v4_input(struct sk_buff *
  
-+	/* For the get_pcichild() in hv_pci_eject_device() */
-+	put_pcichild(hpdev);
-+	/* For the two refs got in new_pcichild_device() */
- 	put_pcichild(hpdev);
- 	put_pcichild(hpdev);
- 	put_hvpcibus(hpdev->hbus);
+ 	net = dev_net(skb->dev);
+ 	sk = __raw_v4_lookup(net, __sk_head(head), iph->protocol,
+-			     iph->saddr, iph->daddr,
+-			     skb->dev->ifindex, sdif);
++			     iph->saddr, iph->daddr, dif, sdif);
+ 
+ 	while (sk) {
+ 		delivered = 1;
 
 
