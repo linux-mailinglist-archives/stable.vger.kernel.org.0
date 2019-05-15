@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC391F2C0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 661AA1F436
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727420AbfEOMG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:06:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43772 "EHLO mail.kernel.org"
+        id S1726927AbfEOK6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728925AbfEOLKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:10:08 -0400
+        id S1726899AbfEOK6l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 954602166E;
-        Wed, 15 May 2019 11:10:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF9CA20843;
+        Wed, 15 May 2019 10:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918607;
-        bh=r8UsJHeobUmrU9dWDtYjj8wQqq1tEaW8hScVYrx/nBo=;
+        s=default; t=1557917921;
+        bh=CfDOrmqhvB71SpN/Uis/7pUbTsJcuGsoD1/3ZjtSGlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rIPjNqdTk8gWAaAjLxEeF4AIHjBppXF12ViJepG7n3nOreyQ0VKvoA5qr9bsqk0J
-         BlNFZLxGBlwRycPdSbxrkU+ZhqRx/oD7Irdsu2tIum9VAyhbvrFWjXLNOaet0WP2FQ
-         bjhypkJwMfPAvq2Uf9QGzUgrLe4saEtN8Rxff87w=
+        b=e7Mvd2nIE/ZcETDFcpa+fsXeCxf65NY2KgUUUVqs/EzZuZv3RbmCkVQY37dY+Btuv
+         klU0fCURGQrLGeRuvELTH3tB13yThxX2KHeTLcN88K3CvKE9pQBkKFwEu5Y1luIKuw
+         CWrbTtzWQqJv8nmUwuFdM/64g5nJHbGmossJ52Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Joerg Roedel <joro@8bytes.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>, kvm@vger.kernel.org,
-        x86@kernel.org, Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 196/266] KVM: x86: SVM: Call x86_spec_ctrl_set_guest/host() with interrupts disabled
+        stable@vger.kernel.org, raymond pang <raymondpangxd@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 3.18 26/86] libata: fix using DMA buffers on stack
 Date:   Wed, 15 May 2019 12:55:03 +0200
-Message-Id: <20190515090729.575734497@linuxfoundation.org>
+Message-Id: <20190515090648.137768940@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,106 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@xxxxxxxxxxxxx>
+[ Upstream commit dd08a8d9a66de4b54575c294a92630299f7e0fe7 ]
 
-commit 024d83cadc6b2af027e473720f3c3da97496c318 upstream.
+When CONFIG_VMAP_STACK=y, __pa() returns incorrect physical address for
+a stack virtual address. Stack DMA buffers must be avoided.
 
-Mikhail reported the following lockdep splat:
-
-WARNING: possible irq lock inversion dependency detected
-CPU 0/KVM/10284 just changed the state of lock:
-  000000000d538a88 (&st->lock){+...}, at:
-  speculative_store_bypass_update+0x10b/0x170
-
-but this lock was taken by another, HARDIRQ-safe lock
-in the past:
-
-(&(&sighand->siglock)->rlock){-.-.}
-
-   and interrupts could create inverse lock ordering between them.
-
-Possible interrupt unsafe locking scenario:
-
-    CPU0                    CPU1
-    ----                    ----
-   lock(&st->lock);
-                           local_irq_disable();
-                           lock(&(&sighand->siglock)->rlock);
-                           lock(&st->lock);
-    <Interrupt>
-     lock(&(&sighand->siglock)->rlock);
-     *** DEADLOCK ***
-
-The code path which connects those locks is:
-
-   speculative_store_bypass_update()
-   ssb_prctl_set()
-   do_seccomp()
-   do_syscall_64()
-
-In svm_vcpu_run() speculative_store_bypass_update() is called with
-interupts enabled via x86_virt_spec_ctrl_set_guest/host().
-
-This is actually a false positive, because GIF=0 so interrupts are
-disabled even if IF=1; however, we can easily move the invocations of
-x86_virt_spec_ctrl_set_guest/host() into the interrupt disabled region to
-cure it, and it's a good idea to keep the GIF=0/IF=1 area as small
-and self-contained as possible.
-
-Fixes: 1f50ddb4f418 ("x86/speculation: Handle HT correctly on AMD")
-Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: kvm@vger.kernel.org
-Cc: x86@kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: raymond pang <raymondpangxd@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/x86/kvm/svm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/ata/libata-zpodd.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3928,8 +3928,6 @@ static void svm_vcpu_run(struct kvm_vcpu
+diff --git a/drivers/ata/libata-zpodd.c b/drivers/ata/libata-zpodd.c
+index 0ad96c647541..7017a81d53cf 100644
+--- a/drivers/ata/libata-zpodd.c
++++ b/drivers/ata/libata-zpodd.c
+@@ -51,38 +51,52 @@ static int eject_tray(struct ata_device *dev)
+ /* Per the spec, only slot type and drawer type ODD can be supported */
+ static enum odd_mech_type zpodd_get_mech_type(struct ata_device *dev)
+ {
+-	char buf[16];
++	char *buf;
+ 	unsigned int ret;
+-	struct rm_feature_desc *desc = (void *)(buf + 8);
++	struct rm_feature_desc *desc;
+ 	struct ata_taskfile tf;
+ 	static const char cdb[] = {  GPCMD_GET_CONFIGURATION,
+ 			2,      /* only 1 feature descriptor requested */
+ 			0, 3,   /* 3, removable medium feature */
+ 			0, 0, 0,/* reserved */
+-			0, sizeof(buf),
++			0, 16,
+ 			0, 0, 0,
+ 	};
  
- 	clgi();
- 
--	local_irq_enable();
--
- 	/*
- 	 * If this vCPU has touched SPEC_CTRL, restore the guest's value if
- 	 * it's non-zero. Since vmentry is serialising on affected CPUs, there
-@@ -3938,6 +3936,8 @@ static void svm_vcpu_run(struct kvm_vcpu
- 	 */
- 	x86_spec_ctrl_set_guest(svm->spec_ctrl, svm->virt_spec_ctrl);
- 
-+	local_irq_enable();
++	buf = kzalloc(16, GFP_KERNEL);
++	if (!buf)
++		return ODD_MECH_TYPE_UNSUPPORTED;
++	desc = (void *)(buf + 8);
 +
- 	asm volatile (
- 		"push %%" _ASM_BP "; \n\t"
- 		"mov %c[rbx](%[svm]), %%" _ASM_BX " \n\t"
-@@ -4060,12 +4060,12 @@ static void svm_vcpu_run(struct kvm_vcpu
- 	if (!msr_write_intercepted(vcpu, MSR_IA32_SPEC_CTRL))
- 		svm->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
+ 	ata_tf_init(dev, &tf);
+ 	tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
+ 	tf.command = ATA_CMD_PACKET;
+ 	tf.protocol = ATAPI_PROT_PIO;
+-	tf.lbam = sizeof(buf);
++	tf.lbam = 16;
  
--	x86_spec_ctrl_restore_host(svm->spec_ctrl, svm->virt_spec_ctrl);
--
- 	reload_tss(vcpu);
+ 	ret = ata_exec_internal(dev, &tf, cdb, DMA_FROM_DEVICE,
+-				buf, sizeof(buf), 0);
+-	if (ret)
++				buf, 16, 0);
++	if (ret) {
++		kfree(buf);
+ 		return ODD_MECH_TYPE_UNSUPPORTED;
++	}
  
- 	local_irq_disable();
+-	if (be16_to_cpu(desc->feature_code) != 3)
++	if (be16_to_cpu(desc->feature_code) != 3) {
++		kfree(buf);
+ 		return ODD_MECH_TYPE_UNSUPPORTED;
++	}
  
-+	x86_spec_ctrl_restore_host(svm->spec_ctrl, svm->virt_spec_ctrl);
-+
- 	vcpu->arch.cr2 = svm->vmcb->save.cr2;
- 	vcpu->arch.regs[VCPU_REGS_RAX] = svm->vmcb->save.rax;
- 	vcpu->arch.regs[VCPU_REGS_RSP] = svm->vmcb->save.rsp;
+-	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1)
++	if (desc->mech_type == 0 && desc->load == 0 && desc->eject == 1) {
++		kfree(buf);
+ 		return ODD_MECH_TYPE_SLOT;
+-	else if (desc->mech_type == 1 && desc->load == 0 && desc->eject == 1)
++	} else if (desc->mech_type == 1 && desc->load == 0 &&
++		   desc->eject == 1) {
++		kfree(buf);
+ 		return ODD_MECH_TYPE_DRAWER;
+-	else
++	} else {
++		kfree(buf);
+ 		return ODD_MECH_TYPE_UNSUPPORTED;
++	}
+ }
+ 
+ /* Test if ODD is zero power ready by sense code */
+-- 
+2.19.1
+
 
 
