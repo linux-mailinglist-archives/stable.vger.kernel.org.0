@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 772BF1F313
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B6D1F305
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbfEOMKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:10:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38664 "EHLO mail.kernel.org"
+        id S1728894AbfEOLHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbfEOLHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:15 -0400
+        id S1728868AbfEOLHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0D5321734;
-        Wed, 15 May 2019 11:07:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80B882084F;
+        Wed, 15 May 2019 11:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918435;
-        bh=nH77KM+D0Cis3qxsmYFWsg4QURYkrNgBA7RKD0IqSzI=;
+        s=default; t=1557918438;
+        bh=Uf0AHVJu6yPNntVN2NijqXaa7UTWJ8gYvQmPSYC/pTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPT9uDmnwVx6EJcv7FA9bxEfewNKmweJnKUcuIVbItwo0slZk8im9IZCRzq23EhHa
-         7Dv4TGmHS9cnT1blc4BJdIwS3p3an8mY6YBZY/1u7RQ1YR50w+IsdskUS0LHOHkoig
-         9iMIBtU2B4crr9nbYVN6RDqWkbQ4ePNZ3CgOfp5g=
+        b=jZcND5iUdo73loyzqerSv9KslIY4YmL32IhdN5mipCcyNBoTZd6BdGWT9ByBDP0kl
+         xE9DO67RxRbNu5QWXcGRBdkBxk3qYgHHpaZdeCxOpjPO4tMP1ac66ztg7ZMXOYpxU6
+         ez/erbxRv/jLL2ssku6jczrhzUk5ULrmwm8Hj6Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yufen Yu <yuyufen@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 131/266] hugetlbfs: fix memory leak for resv_map
-Date:   Wed, 15 May 2019 12:53:58 +0200
-Message-Id: <20190515090727.388919647@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 132/266] xsysace: Fix error handling in ace_setup
+Date:   Wed, 15 May 2019 12:53:59 +0200
+Message-Id: <20190515090727.416812720@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -46,76 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58b6e5e8f1addd44583d61b0a03c0f5519527e35 ]
+[ Upstream commit 47b16820c490149c2923e8474048f2c6e7557cab ]
 
-When mknod is used to create a block special file in hugetlbfs, it will
-allocate an inode and kmalloc a 'struct resv_map' via resv_map_alloc().
-inode->i_mapping->private_data will point the newly allocated resv_map.
-However, when the device special file is opened bd_acquire() will set
-inode->i_mapping to bd_inode->i_mapping.  Thus the pointer to the
-allocated resv_map is lost and the structure is leaked.
+If xace hardware reports a bad version number, the error handling code
+in ace_setup() calls put_disk(), followed by queue cleanup. However, since
+the disk data structure has the queue pointer set, put_disk() also
+cleans and releases the queue. This results in blk_cleanup_queue()
+accessing an already released data structure, which in turn may result
+in a crash such as the following.
 
-Programs to reproduce:
-        mount -t hugetlbfs nodev hugetlbfs
-        mknod hugetlbfs/dev b 0 0
-        exec 30<> hugetlbfs/dev
-        umount hugetlbfs/
+[   10.681671] BUG: Kernel NULL pointer dereference at 0x00000040
+[   10.681826] Faulting instruction address: 0xc0431480
+[   10.682072] Oops: Kernel access of bad area, sig: 11 [#1]
+[   10.682251] BE PAGE_SIZE=4K PREEMPT Xilinx Virtex440
+[   10.682387] Modules linked in:
+[   10.682528] CPU: 0 PID: 1 Comm: swapper Tainted: G        W         5.0.0-rc6-next-20190218+ #2
+[   10.682733] NIP:  c0431480 LR: c043147c CTR: c0422ad8
+[   10.682863] REGS: cf82fbe0 TRAP: 0300   Tainted: G        W          (5.0.0-rc6-next-20190218+)
+[   10.683065] MSR:  00029000 <CE,EE,ME>  CR: 22000222  XER: 00000000
+[   10.683236] DEAR: 00000040 ESR: 00000000
+[   10.683236] GPR00: c043147c cf82fc90 cf82ccc0 00000000 00000000 00000000 00000002 00000000
+[   10.683236] GPR08: 00000000 00000000 c04310bc 00000000 22000222 00000000 c0002c54 00000000
+[   10.683236] GPR16: 00000000 00000001 c09aa39c c09021b0 c09021dc 00000007 c0a68c08 00000000
+[   10.683236] GPR24: 00000001 ced6d400 ced6dcf0 c0815d9c 00000000 00000000 00000000 cedf0800
+[   10.684331] NIP [c0431480] blk_mq_run_hw_queue+0x28/0x114
+[   10.684473] LR [c043147c] blk_mq_run_hw_queue+0x24/0x114
+[   10.684602] Call Trace:
+[   10.684671] [cf82fc90] [c043147c] blk_mq_run_hw_queue+0x24/0x114 (unreliable)
+[   10.684854] [cf82fcc0] [c04315bc] blk_mq_run_hw_queues+0x50/0x7c
+[   10.685002] [cf82fce0] [c0422b24] blk_set_queue_dying+0x30/0x68
+[   10.685154] [cf82fcf0] [c0423ec0] blk_cleanup_queue+0x34/0x14c
+[   10.685306] [cf82fd10] [c054d73c] ace_probe+0x3dc/0x508
+[   10.685445] [cf82fd50] [c052d740] platform_drv_probe+0x4c/0xb8
+[   10.685592] [cf82fd70] [c052abb0] really_probe+0x20c/0x32c
+[   10.685728] [cf82fda0] [c052ae58] driver_probe_device+0x68/0x464
+[   10.685877] [cf82fdc0] [c052b500] device_driver_attach+0xb4/0xe4
+[   10.686024] [cf82fde0] [c052b5dc] __driver_attach+0xac/0xfc
+[   10.686161] [cf82fe00] [c0528428] bus_for_each_dev+0x80/0xc0
+[   10.686314] [cf82fe30] [c0529b3c] bus_add_driver+0x144/0x234
+[   10.686457] [cf82fe50] [c052c46c] driver_register+0x88/0x15c
+[   10.686610] [cf82fe60] [c09de288] ace_init+0x4c/0xac
+[   10.686742] [cf82fe80] [c0002730] do_one_initcall+0xac/0x330
+[   10.686888] [cf82fee0] [c09aafd0] kernel_init_freeable+0x34c/0x478
+[   10.687043] [cf82ff30] [c0002c6c] kernel_init+0x18/0x114
+[   10.687188] [cf82ff40] [c000f2f0] ret_from_kernel_thread+0x14/0x1c
+[   10.687349] Instruction dump:
+[   10.687435] 3863ffd4 4bfffd70 9421ffd0 7c0802a6 93c10028 7c9e2378 93e1002c 38810008
+[   10.687637] 7c7f1b78 90010034 4bfffc25 813f008c <81290040> 75290100 4182002c 80810008
+[   10.688056] ---[ end trace 13c9ff51d41b9d40 ]---
 
-resv_map structures are only needed for inodes which can have associated
-page allocations.  To fix the leak, only allocate resv_map for those
-inodes which could possibly be associated with page allocations.
+Fix the problem by setting the disk queue pointer to NULL before calling
+put_disk(). A more comprehensive fix might be to rearrange the code
+to check the hardware version before initializing data structures,
+but I don't know if this would have undesirable side effects, and
+it would increase the complexity of backporting the fix to older kernels.
 
-Link: http://lkml.kernel.org/r/20190401213101.16476-1-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Suggested-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 74489a91dd43a ("Add support for Xilinx SystemACE CompactFlash interface")
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/block/xsysace.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index cefae2350da5..27c4e2ac39a9 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -745,11 +745,17 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 					umode_t mode, dev_t dev)
- {
- 	struct inode *inode;
--	struct resv_map *resv_map;
-+	struct resv_map *resv_map = NULL;
+diff --git a/drivers/block/xsysace.c b/drivers/block/xsysace.c
+index c4328d9d9981..f838119d12b2 100644
+--- a/drivers/block/xsysace.c
++++ b/drivers/block/xsysace.c
+@@ -1062,6 +1062,8 @@ static int ace_setup(struct ace_device *ace)
+ 	return 0;
  
--	resv_map = resv_map_alloc();
--	if (!resv_map)
--		return NULL;
-+	/*
-+	 * Reserve maps are only needed for inodes that can have associated
-+	 * page allocations.
-+	 */
-+	if (S_ISREG(mode) || S_ISLNK(mode)) {
-+		resv_map = resv_map_alloc();
-+		if (!resv_map)
-+			return NULL;
-+	}
- 
- 	inode = new_inode(sb);
- 	if (inode) {
-@@ -790,8 +796,10 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
- 			break;
- 		}
- 		lockdep_annotate_inode_mutex_key(inode);
--	} else
--		kref_put(&resv_map->refs, resv_map_release);
-+	} else {
-+		if (resv_map)
-+			kref_put(&resv_map->refs, resv_map_release);
-+	}
- 
- 	return inode;
- }
+ err_read:
++	/* prevent double queue cleanup */
++	ace->gd->queue = NULL;
+ 	put_disk(ace->gd);
+ err_alloc_disk:
+ 	blk_cleanup_queue(ace->queue);
 -- 
 2.20.1
 
