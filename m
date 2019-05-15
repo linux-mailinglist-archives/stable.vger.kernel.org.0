@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D96F11EFF6
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA411F08F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730882AbfEOLj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:39:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41816 "EHLO mail.kernel.org"
+        id S1732073AbfEOLZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726584AbfEOLaT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:19 -0400
+        id S1732070AbfEOLZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CEE8206BF;
-        Wed, 15 May 2019 11:30:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D268120818;
+        Wed, 15 May 2019 11:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919818;
-        bh=Q879l4IJr1BwrWlNMOQjx/6IvZ7UgsVCSHgX0WP7gG8=;
+        s=default; t=1557919554;
+        bh=tNIhxY8N0aSxd42ZQzJBvBfueaEFS+wqtYU5w+0ZFnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChozxoOi7ecuzKtF8f2lZhTbeQvhenFPlhaIkRte1sS2LcjUVWiER9sQ8vVypmKCb
-         XcyF918gR7ubQQX5PL5qjhNPwG2AkyFt1d0HwA33ILnuAm98yFzNrz73UXrMy5tGyy
-         A18c74H3Z9kKQFtubGy50zkIuDkNlRj+Swhs6H2o=
+        b=1WB0WdFRQS8e6rfs/mXfVD5T7b6r6kDbsihRwJ9n+9PPk4+Iwfr6VV3HV/hfbvN89
+         0F1NytIXOlcOPXgek4jYkdSeYM3p6fYuAn1kxcyrzpemQY3mvglN+l9ax9Bsp1mDw7
+         lKN38V8qqSFxRuZfokSd8C073bw9AJut4MvKPpt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
-        David Jeffery <djeffery@redhat.com>,
-        Nigel Croxon <ncroxon@redhat.com>,
-        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.0 104/137] Dont jump to compute_result state from check_result state
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 094/113] net: ethernet: stmmac: dwmac-sun8i: enable support of unicast filtering
 Date:   Wed, 15 May 2019 12:56:25 +0200
-Message-Id: <20190515090701.087242540@linuxfoundation.org>
+Message-Id: <20190515090700.740634731@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nigel Croxon <ncroxon@redhat.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit 4f4fd7c5798bbdd5a03a60f6269cf1177fbd11ef upstream.
+[ Upstream commit d4c26eb6e721683a0f93e346ce55bc8dc3cbb175 ]
 
-Changing state from check_state_check_result to
-check_state_compute_result not only is unsafe but also doesn't
-appear to serve a valid purpose.  A raid6 check should only be
-pushing out extra writes if doing repair and a mis-match occurs.
-The stripe dev management will already try and do repair writes
-for failing sectors.
+When adding more MAC addresses to a dwmac-sun8i interface, the device goes
+directly in promiscuous mode.
+This is due to IFF_UNICAST_FLT missing flag.
 
-This patch makes the raid6 check_state_check_result handling
-work more like raid5's.  If somehow too many failures for a
-check, just quit the check operation for the stripe.  When any
-checks pass, don't try and use check_state_compute_result for
-a purpose it isn't needed for and is unsafe for.  Just mark the
-stripe as in sync for passing its parity checks and let the
-stripe dev read/write code and the bad blocks list do their
-job handling I/O errors.
+So since the hardware support unicast filtering, let's add IFF_UNICAST_FLT.
 
-Repro steps from Xiao:
-
-These are the steps to reproduce this problem:
-1. redefined OPT_MEDIUM_ERR_ADDR to 12000 in scsi_debug.c
-2. insmod scsi_debug.ko dev_size_mb=11000  max_luns=1 num_tgts=1
-3. mdadm --create /dev/md127 --level=6 --raid-devices=5 /dev/sde1 /dev/sde2 /dev/sde3 /dev/sde5 /dev/sde6
-sde is the disk created by scsi_debug
-4. echo "2" >/sys/module/scsi_debug/parameters/opts
-5. raid-check
-
-It panic:
-[ 4854.730899] md: data-check of RAID array md127
-[ 4854.857455] sd 5:0:0:0: [sdr] tag#80 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
-[ 4854.859246] sd 5:0:0:0: [sdr] tag#80 Sense Key : Medium Error [current]
-[ 4854.860694] sd 5:0:0:0: [sdr] tag#80 Add. Sense: Unrecovered read error
-[ 4854.862207] sd 5:0:0:0: [sdr] tag#80 CDB: Read(10) 28 00 00 00 2d 88 00 04 00 00
-[ 4854.864196] print_req_error: critical medium error, dev sdr, sector 11656 flags 0
-[ 4854.867409] sd 5:0:0:0: [sdr] tag#100 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
-[ 4854.869469] sd 5:0:0:0: [sdr] tag#100 Sense Key : Medium Error [current]
-[ 4854.871206] sd 5:0:0:0: [sdr] tag#100 Add. Sense: Unrecovered read error
-[ 4854.872858] sd 5:0:0:0: [sdr] tag#100 CDB: Read(10) 28 00 00 00 2e e0 00 00 08 00
-[ 4854.874587] print_req_error: critical medium error, dev sdr, sector 12000 flags 4000
-[ 4854.876456] sd 5:0:0:0: [sdr] tag#101 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
-[ 4854.878552] sd 5:0:0:0: [sdr] tag#101 Sense Key : Medium Error [current]
-[ 4854.880278] sd 5:0:0:0: [sdr] tag#101 Add. Sense: Unrecovered read error
-[ 4854.881846] sd 5:0:0:0: [sdr] tag#101 CDB: Read(10) 28 00 00 00 2e e8 00 00 08 00
-[ 4854.883691] print_req_error: critical medium error, dev sdr, sector 12008 flags 4000
-[ 4854.893927] sd 5:0:0:0: [sdr] tag#166 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
-[ 4854.896002] sd 5:0:0:0: [sdr] tag#166 Sense Key : Medium Error [current]
-[ 4854.897561] sd 5:0:0:0: [sdr] tag#166 Add. Sense: Unrecovered read error
-[ 4854.899110] sd 5:0:0:0: [sdr] tag#166 CDB: Read(10) 28 00 00 00 2e e0 00 00 10 00
-[ 4854.900989] print_req_error: critical medium error, dev sdr, sector 12000 flags 0
-[ 4854.902757] md/raid:md127: read error NOT corrected!! (sector 9952 on sdr1).
-[ 4854.904375] md/raid:md127: read error NOT corrected!! (sector 9960 on sdr1).
-[ 4854.906201] ------------[ cut here ]------------
-[ 4854.907341] kernel BUG at drivers/md/raid5.c:4190!
-
-raid5.c:4190 above is this BUG_ON:
-
-    handle_parity_checks6()
-        ...
-        BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
-
-Cc: <stable@vger.kernel.org> # v3.16+
-OriginalAuthor: David Jeffery <djeffery@redhat.com>
-Cc: Xiao Ni <xni@redhat.com>
-Tested-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: David Jeffy <djeffery@redhat.com>
-Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 9f93ac8d4085 ("net-next: stmmac: Add dwmac-sun8i")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/md/raid5.c |   19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -4233,26 +4233,15 @@ static void handle_parity_checks6(struct
- 	case check_state_check_result:
- 		sh->check_state = check_state_idle;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -1015,6 +1015,8 @@ static struct mac_device_info *sun8i_dwm
+ 	mac->mac = &sun8i_dwmac_ops;
+ 	mac->dma = &sun8i_dwmac_dma_ops;
  
-+		if (s->failed > 1)
-+			break;
- 		/* handle a successful check operation, if parity is correct
- 		 * we are done.  Otherwise update the mismatch count and repair
- 		 * parity if !MD_RECOVERY_CHECK
- 		 */
- 		if (sh->ops.zero_sum_result == 0) {
--			/* both parities are correct */
--			if (!s->failed)
--				set_bit(STRIPE_INSYNC, &sh->state);
--			else {
--				/* in contrast to the raid5 case we can validate
--				 * parity, but still have a failure to write
--				 * back
--				 */
--				sh->check_state = check_state_compute_result;
--				/* Returning at this point means that we may go
--				 * off and bring p and/or q uptodate again so
--				 * we make sure to check zero_sum_result again
--				 * to verify if p or q need writeback
--				 */
--			}
-+			/* Any parity checked was correct */
-+			set_bit(STRIPE_INSYNC, &sh->state);
- 		} else {
- 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
- 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery)) {
++	priv->dev->priv_flags |= IFF_UNICAST_FLT;
++
+ 	/* The loopback bit seems to be re-set when link change
+ 	 * Simply mask it each time
+ 	 * Speed 10/100/1000 are set in BIT(2)/BIT(3)
 
 
