@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E14A1F284
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFC31F0BA
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727154AbfEOLLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46198 "EHLO mail.kernel.org"
+        id S1730956AbfEOLYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729088AbfEOLLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:34 -0400
+        id S1731581AbfEOLYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:24:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52DC321726;
-        Wed, 15 May 2019 11:11:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962B820881;
+        Wed, 15 May 2019 11:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918692;
-        bh=LnkZbPbNRWSWIPTAD+qz0Ztz586ln251+5OhDu+Xg64=;
+        s=default; t=1557919475;
+        bh=d3ef7RyfQsGRZZoP7etmQe0Icj/gxAzMxz//dK0W8Sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+YDjOrWmG+KcrjEpuSIdrC0Zoms9QYro7BlJ0hvWsQDz+07Wlr6pvCw4quwhu4Vm
-         nfkAHSeW7LOxWoiDtr9htSERdfwXoCW18TLNQspZW0rWeasU4jY3dojKbcPEhPBG9v
-         4m8RDH3E97+lXcUNwdJYJCiXGUsFv5e05s40sMTE=
+        b=pWPUkFLEu4Tmu6xushg0BLpKOK0KFxmvimig+B8LZGAd5jDpC+WSj507/RWqoflLB
+         kvvsLkOMaub/5SkZPO/RT9oqIy974uccQSTxO2SNU3yV+pwT9dgpTn//eCmaJsNMaF
+         tgrkPZB8xS6Qgc8sVzMkuo9CcuksRmPVGfE6sRmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Guenter Roeck <groeck@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Jon Masters <jcm@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 229/266] x86/speculation: Consolidate CPU whitelists
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <rmk@armlinux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 045/113] init: initialize jump labels before command line option parsing
 Date:   Wed, 15 May 2019 12:55:36 +0200
-Message-Id: <20190515090730.749271442@linuxfoundation.org>
+Message-Id: <20190515090657.054813188@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,170 +51,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 6041186a32585fc7a1d0f6cfe2f138b05fdc3c82 ]
 
-commit 36ad35131adacc29b328b9c8b6277a8bf0d6fd5d upstream.
+When a module option, or core kernel argument, toggles a static-key it
+requires jump labels to be initialized early.  While x86, PowerPC, and
+ARM64 arrange for jump_label_init() to be called before parse_args(),
+ARM does not.
 
-The CPU vulnerability whitelists have some overlap and there are more
-whitelists coming along.
+  Kernel command line: rdinit=/sbin/init page_alloc.shuffle=1 panic=-1 console=ttyAMA0,115200 page_alloc.shuffle=1
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 0 at ./include/linux/jump_label.h:303
+  page_alloc_shuffle+0x12c/0x1ac
+  static_key_enable(): static key 'page_alloc_shuffle_key+0x0/0x4' used
+  before call to jump_label_init()
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper Not tainted
+  5.1.0-rc4-next-20190410-00003-g3367c36ce744 #1
+  Hardware name: ARM Integrator/CP (Device Tree)
+  [<c0011c68>] (unwind_backtrace) from [<c000ec48>] (show_stack+0x10/0x18)
+  [<c000ec48>] (show_stack) from [<c07e9710>] (dump_stack+0x18/0x24)
+  [<c07e9710>] (dump_stack) from [<c001bb1c>] (__warn+0xe0/0x108)
+  [<c001bb1c>] (__warn) from [<c001bb88>] (warn_slowpath_fmt+0x44/0x6c)
+  [<c001bb88>] (warn_slowpath_fmt) from [<c0b0c4a8>]
+  (page_alloc_shuffle+0x12c/0x1ac)
+  [<c0b0c4a8>] (page_alloc_shuffle) from [<c0b0c550>] (shuffle_store+0x28/0x48)
+  [<c0b0c550>] (shuffle_store) from [<c003e6a0>] (parse_args+0x1f4/0x350)
+  [<c003e6a0>] (parse_args) from [<c0ac3c00>] (start_kernel+0x1c0/0x488)
 
-Use the driver_data field in the x86_cpu_id struct to denote the
-whitelisted vulnerabilities and combine all whitelists into one.
+Move the fallback call to jump_label_init() to occur before
+parse_args().
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jon Masters <jcm@redhat.com>
-Tested-by: Jon Masters <jcm@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The redundant calls to jump_label_init() in other archs are left intact
+in case they have static key toggling use cases that are even earlier
+than option parsing.
+
+Link: http://lkml.kernel.org/r/155544804466.1032396.13418949511615676665.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: Guenter Roeck <groeck@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Russell King <rmk@armlinux.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/common.c |  103 ++++++++++++++++++++++---------------------
- 1 file changed, 55 insertions(+), 48 deletions(-)
+ init/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -847,60 +847,68 @@ static void identify_cpu_without_cpuid(s
- #endif
- }
+diff --git a/init/main.c b/init/main.c
+index e083fac08aedc..020972fed1171 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -568,6 +568,8 @@ asmlinkage __visible void __init start_kernel(void)
+ 	page_alloc_init();
  
--static const __initconst struct x86_cpu_id cpu_no_speculation[] = {
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_TABLET,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL_MID,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_MID,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL,	X86_FEATURE_ANY },
--	{ X86_VENDOR_CENTAUR,	5 },
--	{ X86_VENDOR_INTEL,	5 },
--	{ X86_VENDOR_NSC,	5 },
--	{ X86_VENDOR_ANY,	4 },
--	{}
--};
-+#define NO_SPECULATION	BIT(0)
-+#define NO_MELTDOWN	BIT(1)
-+#define NO_SSB		BIT(2)
-+#define NO_L1TF		BIT(3)
-+
-+#define VULNWL(_vendor, _family, _model, _whitelist)	\
-+	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-+
-+#define VULNWL_INTEL(model, whitelist)		\
-+	VULNWL(INTEL, 6, INTEL_FAM6_##model, whitelist)
-+
-+#define VULNWL_AMD(family, whitelist)		\
-+	VULNWL(AMD, family, X86_MODEL_ANY, whitelist)
-+
-+static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
-+	VULNWL(ANY,	4, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(CENTAUR,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(INTEL,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+
-+	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_BONNELL,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_BONNELL_MID,		NO_SPECULATION),
-+
-+	VULNWL_INTEL(ATOM_SILVERMONT,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_SILVERMONT_X,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_SILVERMONT_MID,	NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_AIRMONT,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(XEON_PHI_KNL,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(XEON_PHI_KNM,		NO_SSB | NO_L1TF),
-+
-+	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
-+
-+	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_L1TF),
-+
-+	VULNWL_AMD(0x0f,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x10,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x11,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x12,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+ 	pr_notice("Kernel command line: %s\n", boot_command_line);
++	/* parameters may set static keys */
++	jump_label_init();
+ 	parse_early_param();
+ 	after_dashes = parse_args("Booting kernel",
+ 				  static_command_line, __start___param,
+@@ -577,8 +579,6 @@ asmlinkage __visible void __init start_kernel(void)
+ 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
+ 			   NULL, set_init_arg);
  
--static const __initconst struct x86_cpu_id cpu_no_meltdown[] = {
--	{ X86_VENDOR_AMD },
-+	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF),
- 	{}
- };
- 
--/* Only list CPUs which speculate but are non susceptible to SSB */
--static const __initconst struct x86_cpu_id cpu_no_spec_store_bypass[] = {
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_CORE_YONAH		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
--	{ X86_VENDOR_AMD,	0x12,					},
--	{ X86_VENDOR_AMD,	0x11,					},
--	{ X86_VENDOR_AMD,	0x10,					},
--	{ X86_VENDOR_AMD,	0xf,					},
--	{}
--};
-+static bool __init cpu_matches(unsigned long which)
-+{
-+	const struct x86_cpu_id *m = x86_match_cpu(cpu_vuln_whitelist);
- 
--static const __initconst struct x86_cpu_id cpu_no_l1tf[] = {
--	/* in addition to cpu_no_speculation */
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_PLUS	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
--	{}
--};
-+	return m && !!(m->driver_data & which);
-+}
- 
- static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- {
- 	u64 ia32_cap = 0;
- 
--	if (x86_match_cpu(cpu_no_speculation))
-+	if (cpu_matches(NO_SPECULATION))
- 		return;
- 
- 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
-@@ -909,15 +917,14 @@ static void __init cpu_set_bug_bits(stru
- 	if (cpu_has(c, X86_FEATURE_ARCH_CAPABILITIES))
- 		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
- 
--	if (!x86_match_cpu(cpu_no_spec_store_bypass) &&
--	   !(ia32_cap & ARCH_CAP_SSB_NO) &&
-+	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
- 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
- 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
- 
- 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
- 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
- 
--	if (x86_match_cpu(cpu_no_meltdown))
-+	if (cpu_matches(NO_MELTDOWN))
- 		return;
- 
- 	/* Rogue Data Cache Load? No! */
-@@ -926,7 +933,7 @@ static void __init cpu_set_bug_bits(stru
- 
- 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
- 
--	if (x86_match_cpu(cpu_no_l1tf))
-+	if (cpu_matches(NO_L1TF))
- 		return;
- 
- 	setup_force_cpu_bug(X86_BUG_L1TF);
+-	jump_label_init();
+-
+ 	/*
+ 	 * These use large bootmem allocations and must precede
+ 	 * kmem_cache_init()
+-- 
+2.20.1
+
 
 
