@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAFB41F238
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F80B1F0D0
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729683AbfEOMAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        id S1731781AbfEOLYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726975AbfEOLOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:42 -0400
+        id S1731783AbfEOLYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:24:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 968E520843;
-        Wed, 15 May 2019 11:14:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F589217D8;
+        Wed, 15 May 2019 11:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918882;
-        bh=mIA+ijLf2ja/Iq0cq7ACxz8V/vsqmwrX8eLerHHUmQs=;
+        s=default; t=1557919456;
+        bh=7V09QRjt60ZoGduRDcBVlYnjKvUofVsyA/iKeUO4JdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnCHTuuvURrSMhtvaIr3oREV+SEeMOGt9oAqqbOSogp221VE6JCd9QTB6fuBKXQCJ
-         X+n9sNDNB9TE4LXJBM5ogQ77IknBCOFIqyaK6I5+jnGB/BP6T7X1rCZ0gw5gSlPhi3
-         3GLYDije/kz/38WwEVBlQQ80QErMsr59bmr20x5I=
+        b=KLX96XknAXzCKbJ2achNFKEjTafwNRVI9sQGXWYNL/BcG9/DV58gWagttUAOlmSu8
+         aaNnHnPopsQtrQQK6XIVZRq8NTV9+s7h/aPT5qw2EFmR2IJQ0lBgBCQOTLRR0xx6f/
+         gewJxhxSqjJXUSXQu7XST3e68fQfkgJmowxTB0/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Strachan <astrachan@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, kernel-team@android.com,
-        joel@joelfernandes.org, Andi Kleen <andi.kleen@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 36/51] x86: vdso: Use $LD instead of $CC to link
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.19 080/113] nfc: nci: Potential off by one in ->pipes[] array
 Date:   Wed, 15 May 2019 12:56:11 +0200
-Message-Id: <20190515090627.121123141@linuxfoundation.org>
+Message-Id: <20190515090659.690377978@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,109 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 379d98ddf41344273d9718556f761420f4dc80b3 upstream.
+[ Upstream commit 6491d698396fd5da4941980a35ca7c162a672016 ]
 
-The vdso{32,64}.so can fail to link with CC=clang when clang tries to find
-a suitable GCC toolchain to link these libraries with.
+This is similar to commit e285d5bfb7e9 ("NFC: Fix the number of pipes")
+where we changed NFC_HCI_MAX_PIPES from 127 to 128.
 
-/usr/bin/ld: arch/x86/entry/vdso/vclock_gettime.o:
-  access beyond end of merged section (782)
+As the comment next to the define explains, the pipe identifier is 7
+bits long.  The highest possible pipe is 127, but the number of possible
+pipes is 128.  As the code is now, then there is potential for an
+out of bounds array access:
 
-This happens because the host environment leaked into the cross compiler
-environment due to the way clang searches for suitable GCC toolchains.
+    net/nfc/nci/hci.c:297 nci_hci_cmd_received() warn: array off by one?
+    'ndev->hci_dev->pipes[pipe]' '0-127 == 127'
 
-Clang is a retargetable compiler, and each invocation of it must provide
---target=<something> --gcc-toolchain=<something> to allow it to find the
-correct binutils for cross compilation. These flags had been added to
-KBUILD_CFLAGS, but the vdso code uses CC and not KBUILD_CFLAGS (for various
-reasons) which breaks clang's ability to find the correct linker when cross
-compiling.
-
-Most of the time this goes unnoticed because the host linker is new enough
-to work anyway, or is incompatible and skipped, but this cannot be reliably
-assumed.
-
-This change alters the vdso makefile to just use LD directly, which
-bypasses clang and thus the searching problem. The makefile will just use
-${CROSS_COMPILE}ld instead, which is always what we want. This matches the
-method used to link vmlinux.
-
-This drops references to DISABLE_LTO; this option doesn't seem to be set
-anywhere, and not knowing what its possible values are, it's not clear how
-to convert it from CC to LD flag.
-
-Signed-off-by: Alistair Strachan <astrachan@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: kernel-team@android.com
-Cc: joel@joelfernandes.org
-Cc: Andi Kleen <andi.kleen@intel.com>
-Link: https://lkml.kernel.org/r/20180803173931.117515-1-astrachan@google.com
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/entry/vdso/Makefile | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+ include/net/nfc/nci_core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index d5409660f5de6..2ae92c6b1de6d 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -47,10 +47,8 @@ targets += $(vdso_img_sodbg)
+diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
+index 87499b6b35d6d..df5c69db68afc 100644
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -166,7 +166,7 @@ struct nci_conn_info {
+  * According to specification 102 622 chapter 4.4 Pipes,
+  * the pipe identifier is 7 bits long.
+  */
+-#define NCI_HCI_MAX_PIPES          127
++#define NCI_HCI_MAX_PIPES          128
  
- export CPPFLAGS_vdso.lds += -P -C
- 
--VDSO_LDFLAGS_vdso.lds = -m64 -Wl,-soname=linux-vdso.so.1 \
--			-Wl,--no-undefined \
--			-Wl,-z,max-page-size=4096 -Wl,-z,common-page-size=4096 \
--			$(DISABLE_LTO)
-+VDSO_LDFLAGS_vdso.lds = -m elf_x86_64 -soname linux-vdso.so.1 --no-undefined \
-+			-z max-page-size=4096 -z common-page-size=4096
- 
- $(obj)/vdso64.so.dbg: $(src)/vdso.lds $(vobjs) FORCE
- 	$(call if_changed,vdso)
-@@ -96,10 +94,8 @@ CFLAGS_REMOVE_vvar.o = -pg
- #
- 
- CPPFLAGS_vdsox32.lds = $(CPPFLAGS_vdso.lds)
--VDSO_LDFLAGS_vdsox32.lds = -Wl,-m,elf32_x86_64 \
--			   -Wl,-soname=linux-vdso.so.1 \
--			   -Wl,-z,max-page-size=4096 \
--			   -Wl,-z,common-page-size=4096
-+VDSO_LDFLAGS_vdsox32.lds = -m elf32_x86_64 -soname linux-vdso.so.1 \
-+			   -z max-page-size=4096 -z common-page-size=4096
- 
- # 64-bit objects to re-brand as x32
- vobjs64-for-x32 := $(filter-out $(vobjs-nox32),$(vobjs-y))
-@@ -127,7 +123,7 @@ $(obj)/vdsox32.so.dbg: $(src)/vdsox32.lds $(vobjx32s) FORCE
- 	$(call if_changed,vdso)
- 
- CPPFLAGS_vdso32.lds = $(CPPFLAGS_vdso.lds)
--VDSO_LDFLAGS_vdso32.lds = -m32 -Wl,-m,elf_i386 -Wl,-soname=linux-gate.so.1
-+VDSO_LDFLAGS_vdso32.lds = -m elf_i386 -soname linux-gate.so.1
- 
- # This makes sure the $(obj) subdirectory exists even though vdso32/
- # is not a kbuild sub-make subdirectory.
-@@ -165,13 +161,13 @@ $(obj)/vdso32.so.dbg: FORCE \
- # The DSO images are built using a special linker script.
- #
- quiet_cmd_vdso = VDSO    $@
--      cmd_vdso = $(CC) -nostdlib -o $@ \
-+      cmd_vdso = $(LD) -nostdlib -o $@ \
- 		       $(VDSO_LDFLAGS) $(VDSO_LDFLAGS_$(filter %.lds,$(^F))) \
--		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
-+		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
- 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
- 
--VDSO_LDFLAGS = -fPIC -shared $(call cc-ldoption, -Wl$(comma)--hash-style=both) \
--	$(call cc-ldoption, -Wl$(comma)--build-id) -Wl,-Bsymbolic $(LTO_CFLAGS)
-+VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
-+	$(call ld-option, --build-id) -Bsymbolic
- GCOV_PROFILE := n
- 
- #
+ struct nci_hci_gate {
+ 	u8 gate;
 -- 
 2.20.1
 
