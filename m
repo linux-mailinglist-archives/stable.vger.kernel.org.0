@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1461F0B9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8AE1EEF8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbfEOLYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35176 "EHLO mail.kernel.org"
+        id S1732124AbfEOL2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:28:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731574AbfEOLYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:34 -0400
+        id S1726473AbfEOL2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E31F2084F;
-        Wed, 15 May 2019 11:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3F572084A;
+        Wed, 15 May 2019 11:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919472;
-        bh=EtUP67P8wt9s2WphVTu++Es0OiQkOn53JC7oz1oKVBM=;
+        s=default; t=1557919686;
+        bh=7ukt3jvRBNYDflfRTIJXNHeIRiJ3xrKkSULaQME/Hjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkNuBHJA3STdzeqRUPh1PzfQlioAYxAVDrdZXiyj9ACcLp/2DxJ/KGFX5RWyYBQtL
-         3rH6vJp9DmTEdzBkY/TfMkrEOixykOi1ZDJk0yTGq+CItpogKmJWn+o/HdJUF9yLUo
-         WGgp0/HrIFz81qqcuejl0Xvded6lAEWFgj2uwPgk=
+        b=O3dXf26lNZjbirsgppepz/h+cNe3xPYrHnA3xSG2fBUkz1v88guo7tr+1S8dlIyeD
+         l2PWNnYI/TO2d0en8lK+fgLfspU7kGANrIzldLD9FPnPJ2ho8GAzhc8x7AQCMK7tXs
+         xegnftulp8QjrKLrvompzpoCBLuO+aVgfhsQK3lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tony Camuso <tcamuso@redhat.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 044/113] mm: fix inactive list balancing between NUMA nodes and cgroups
-Date:   Wed, 15 May 2019 12:55:35 +0200
-Message-Id: <20190515090656.965140174@linuxfoundation.org>
+Subject: [PATCH 5.0 055/137] ipmi: ipmi_si_hardcode.c: init si_type array to fix a crash
+Date:   Wed, 15 May 2019 12:55:36 +0200
+Message-Id: <20190515090657.484044664@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,141 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b991208b897f52507168374033771a984b947b1 ]
+[ Upstream commit a885bcfd152f97b25005298ab2d6b741aed9b49c ]
 
-During !CONFIG_CGROUP reclaim, we expand the inactive list size if it's
-thrashing on the node that is about to be reclaimed.  But when cgroups
-are enabled, we suddenly ignore the node scope and use the cgroup scope
-only.  The result is that pressure bleeds between NUMA nodes depending
-on whether cgroups are merely compiled into Linux.  This behavioral
-difference is unexpected and undesirable.
+The intended behavior of function ipmi_hardcode_init_one() is to default
+to kcs interface when no type argument is presented when initializing
+ipmi with hard coded addresses.
 
-When the refault adaptivity of the inactive list was first introduced,
-there were no statistics at the lruvec level - the intersection of node
-and memcg - so it was better than nothing.
+However, the array of char pointers allocated on the stack by function
+ipmi_hardcode_init() was not inited to zeroes, so it contained stack
+debris.
 
-But now that we have that infrastructure, use lruvec_page_state() to
-make the list balancing decision always NUMA aware.
+Consequently, passing the cruft stored in this array to function
+ipmi_hardcode_init_one() caused a crash when it was unable to detect
+that the char * being passed was nonsense and tried to access the
+address specified by the bogus pointer.
 
-[hannes@cmpxchg.org: fix bisection hole]
-  Link: http://lkml.kernel.org/r/20190417155241.GB23013@cmpxchg.org
-Link: http://lkml.kernel.org/r/20190412144438.2645-1-hannes@cmpxchg.org
-Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The fix is simply to initialize the si_type array to zeroes, so if
+there were no type argument given to at the command line, function
+ipmi_hardcode_init_one() could properly default to the kcs interface.
+
+Signed-off-by: Tony Camuso <tcamuso@redhat.com>
+Message-Id: <1554837603-40299-1-git-send-email-tcamuso@redhat.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmscan.c | 29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/char/ipmi/ipmi_si_hardcode.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 3830066018c15..ee545d1e9894d 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2190,7 +2190,6 @@ static void shrink_active_list(unsigned long nr_to_scan,
-  *   10TB     320        32GB
-  */
- static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
--				 struct mem_cgroup *memcg,
- 				 struct scan_control *sc, bool actual_reclaim)
- {
- 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
-@@ -2211,16 +2210,12 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- 	inactive = lruvec_lru_size(lruvec, inactive_lru, sc->reclaim_idx);
- 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
+diff --git a/drivers/char/ipmi/ipmi_si_hardcode.c b/drivers/char/ipmi/ipmi_si_hardcode.c
+index 1e5783961b0dc..ab7180c46d8dd 100644
+--- a/drivers/char/ipmi/ipmi_si_hardcode.c
++++ b/drivers/char/ipmi/ipmi_si_hardcode.c
+@@ -201,6 +201,8 @@ void __init ipmi_hardcode_init(void)
+ 	char *str;
+ 	char *si_type[SI_MAX_PARMS];
  
--	if (memcg)
--		refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
--	else
--		refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
--
- 	/*
- 	 * When refaults are being observed, it means a new workingset
- 	 * is being established. Disable active list protection to get
- 	 * rid of the stale workingset quickly.
- 	 */
-+	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
- 	if (file && actual_reclaim && lruvec->refaults != refaults) {
- 		inactive_ratio = 0;
- 	} else {
-@@ -2241,12 +2236,10 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- }
- 
- static unsigned long shrink_list(enum lru_list lru, unsigned long nr_to_scan,
--				 struct lruvec *lruvec, struct mem_cgroup *memcg,
--				 struct scan_control *sc)
-+				 struct lruvec *lruvec, struct scan_control *sc)
- {
- 	if (is_active_lru(lru)) {
--		if (inactive_list_is_low(lruvec, is_file_lru(lru),
--					 memcg, sc, true))
-+		if (inactive_list_is_low(lruvec, is_file_lru(lru), sc, true))
- 			shrink_active_list(nr_to_scan, lruvec, sc, lru);
- 		return 0;
- 	}
-@@ -2346,7 +2339,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
- 			 * anonymous pages on the LRU in eligible zones.
- 			 * Otherwise, the small LRU gets thrashed.
- 			 */
--			if (!inactive_list_is_low(lruvec, false, memcg, sc, false) &&
-+			if (!inactive_list_is_low(lruvec, false, sc, false) &&
- 			    lruvec_lru_size(lruvec, LRU_INACTIVE_ANON, sc->reclaim_idx)
- 					>> sc->priority) {
- 				scan_balance = SCAN_ANON;
-@@ -2364,7 +2357,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
- 	 * lruvec even if it has plenty of old anonymous pages unless the
- 	 * system is under heavy pressure.
- 	 */
--	if (!inactive_list_is_low(lruvec, true, memcg, sc, false) &&
-+	if (!inactive_list_is_low(lruvec, true, sc, false) &&
- 	    lruvec_lru_size(lruvec, LRU_INACTIVE_FILE, sc->reclaim_idx) >> sc->priority) {
- 		scan_balance = SCAN_FILE;
- 		goto out;
-@@ -2517,7 +2510,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
- 				nr[lru] -= nr_to_scan;
- 
- 				nr_reclaimed += shrink_list(lru, nr_to_scan,
--							    lruvec, memcg, sc);
-+							    lruvec, sc);
- 			}
- 		}
- 
-@@ -2584,7 +2577,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
- 	 * Even if we did not try to evict anon pages at all, we want to
- 	 * rebalance the anon lru active/inactive ratio.
- 	 */
--	if (inactive_list_is_low(lruvec, false, memcg, sc, true))
-+	if (inactive_list_is_low(lruvec, false, sc, true))
- 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
- 				   sc, LRU_ACTIVE_ANON);
- }
-@@ -2982,12 +2975,8 @@ static void snapshot_refaults(struct mem_cgroup *root_memcg, pg_data_t *pgdat)
- 		unsigned long refaults;
- 		struct lruvec *lruvec;
- 
--		if (memcg)
--			refaults = memcg_page_state(memcg, WORKINGSET_ACTIVATE);
--		else
--			refaults = node_page_state(pgdat, WORKINGSET_ACTIVATE);
--
- 		lruvec = mem_cgroup_lruvec(pgdat, memcg);
-+		refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
- 		lruvec->refaults = refaults;
- 	} while ((memcg = mem_cgroup_iter(root_memcg, memcg, NULL)));
- }
-@@ -3344,7 +3333,7 @@ static void age_active_anon(struct pglist_data *pgdat,
- 	do {
- 		struct lruvec *lruvec = mem_cgroup_lruvec(pgdat, memcg);
- 
--		if (inactive_list_is_low(lruvec, false, memcg, sc, true))
-+		if (inactive_list_is_low(lruvec, false, sc, true))
- 			shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
- 					   sc, LRU_ACTIVE_ANON);
- 
++	memset(si_type, 0, sizeof(si_type));
++
+ 	/* Parse out the si_type string into its components. */
+ 	str = si_type_str;
+ 	if (*str != '\0') {
 -- 
 2.20.1
 
