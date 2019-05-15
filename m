@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD6301F207
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28371F0A1
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727681AbfEOL7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51578 "EHLO mail.kernel.org"
+        id S1729557AbfEOLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730013AbfEOLPK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:10 -0400
+        id S1732038AbfEOLZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB7EB20644;
-        Wed, 15 May 2019 11:15:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCBFC20818;
+        Wed, 15 May 2019 11:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918910;
-        bh=BrGBuaBYFEbSew5mma2LdrWM9G9Zzz1MNTXJovmdlt8=;
+        s=default; t=1557919546;
+        bh=kndu8SAtUtlE6O5XFX8Lvk1NrcXtcxLc7hvEAE7f7uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8f4eRUoEBhKb98CWNCUs5R55rAJ92i77noHnGz7OkdG+yuRKlhmWyLKnLPPayXmW
-         50yzbk7vTgZwPG6T3A+/FEHO517vRCR+cR7MY/Hpuy++Gdj+4DNMxSibr5UFJKo7uf
-         J6dGszvzkz5ovgEr0WjXb5HqwftoIS1Dzn2dKdSs=
+        b=rrVGil3f0xxXfuHmiHR/UnBzhU5L2qSZxHM8STjL3nO3pHCiCxpu1wxO1XzcMhark
+         Hq+saB1mK0OYYwg+97ZDpxC5N1bfHdJGZR01PKgIrI5R4slNTLZ5+VDu/LsnQuMnnF
+         P9px8e88EQAXHUkO16HBs3JXC/qgnftaXr0PF4GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Thomas Haller <thaller@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 46/51] ipv4: Fix raw socket lookup for local traffic
-Date:   Wed, 15 May 2019 12:56:21 +0200
-Message-Id: <20190515090629.253646048@linuxfoundation.org>
+Subject: [PATCH 4.19 091/113] fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied
+Date:   Wed, 15 May 2019 12:56:22 +0200
+Message-Id: <20190515090700.540421230@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 19e4e768064a87b073a4b4c138b55db70e0cfb9f ]
+[ Upstream commit e9919a24d3022f72bcadc407e73a6ef17093a849 ]
 
-inet_iif should be used for the raw socket lookup. inet_iif considers
-rt_iif which handles the case of local traffic.
+With commit 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to
+fib_nl_newrule") we now able to check if a rule already exists. But this
+only works with iproute2. For other tools like libnl, NetworkManager,
+it still could add duplicate rules with only NLM_F_CREATE flag, like
 
-As it stands, ping to a local address with the '-I <dev>' option fails
-ever since ping was changed to use SO_BINDTODEVICE instead of
-cmsg + IP_PKTINFO.
+[localhost ~ ]# ip rule
+0:      from all lookup local
+32766:  from all lookup main
+32767:  from all lookup default
+100000: from 192.168.7.5 lookup 5
+100000: from 192.168.7.5 lookup 5
 
-IPv6 works fine.
+As it doesn't make sense to create two duplicate rules, let's just return
+0 if the rule exists.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: David Ahern <dsahern@gmail.com>
+Fixes: 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to fib_nl_newrule")
+Reported-by: Thomas Haller <thaller@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/raw.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/fib_rules.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -169,6 +169,7 @@ static int icmp_filter(const struct sock
-  */
- static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
- {
-+	int dif = inet_iif(skb);
- 	struct sock *sk;
- 	struct hlist_head *head;
- 	int delivered = 0;
-@@ -181,8 +182,7 @@ static int raw_v4_input(struct sk_buff *
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -756,9 +756,9 @@ int fib_nl_newrule(struct sk_buff *skb,
+ 	if (err)
+ 		goto errout;
  
- 	net = dev_net(skb->dev);
- 	sk = __raw_v4_lookup(net, __sk_head(head), iph->protocol,
--			     iph->saddr, iph->daddr,
--			     skb->dev->ifindex);
-+			     iph->saddr, iph->daddr, dif);
+-	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
+-	    rule_exists(ops, frh, tb, rule)) {
+-		err = -EEXIST;
++	if (rule_exists(ops, frh, tb, rule)) {
++		if (nlh->nlmsg_flags & NLM_F_EXCL)
++			err = -EEXIST;
+ 		goto errout_free;
+ 	}
  
- 	while (sk) {
- 		delivered = 1;
 
 
