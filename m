@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5DF1EEA5
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 325391F21E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731709AbfEOLXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:23:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34296 "EHLO mail.kernel.org"
+        id S1729655AbfEOLNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:13:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731694AbfEOLXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:23:48 -0400
+        id S1729688AbfEOLNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:13:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A27920881;
-        Wed, 15 May 2019 11:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C78E20644;
+        Wed, 15 May 2019 11:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919427;
-        bh=JYkujlxxw32yNS0nlfdlOjicILURIxzUFUSHXFtYckM=;
+        s=default; t=1557918796;
+        bh=vjMXqldEtMNW5Aj8p1f78bX1/Wj52pVAgbrfgMluPlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8McB0ICo8WY4Vqj/V4K0h2XaeVw6MDv4MVwXL/Qo7zxkR7cS9rlxU3JuJfRB0Fn+
-         3WyQ1KhaIUG2/8RmeUKQX5OyTxcF+tu6gpurxiabAHRoSMfUR0st5thXPvBCwN5QNt
-         0tn+U6yIM6F2ngvn3CGI9qR82KtJLLHWu0rq3gKQ=
+        b=qylOTg/ufRh9T7hHpHlP8yWkVPpLjfi/xv4vgNl+wf1MkIbFCqPFu9VG9fAqgNrUJ
+         GJXLs8nCuYL3m+LBVAHOL/x/0HzeibHNZ+UsOd9DYImDot9Evx0hgl44T9K9azoDYf
+         EC9j6Ip3uhFjlq/hlZruIY6Gu6iY1ynbDe2L0y2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.19 070/113] netfilter: nf_tables: use-after-free in dynamic operations
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 254/266] USB: serial: use variable for status
 Date:   Wed, 15 May 2019 12:56:01 +0200
-Message-Id: <20190515090658.842149354@linuxfoundation.org>
+Message-Id: <20190515090731.606066184@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3f3a390dbd59d236f62cff8e8b20355ef7069e3d ]
+[ Upstream commit 3161da970d38cd6ed2ba8cadec93874d1d06e11e ]
 
-Smatch reports:
+This patch turns status in a variable read once from the URB.
+The long term plan is to deliver status to the callback.
+In addition it makes the code a bit more elegant.
 
-       net/netfilter/nf_tables_api.c:2167 nf_tables_expr_destroy()
-        error: dereferencing freed memory 'expr->ops'
-
-net/netfilter/nf_tables_api.c
-    2162 static void nf_tables_expr_destroy(const struct nft_ctx *ctx,
-    2163                                   struct nft_expr *expr)
-    2164 {
-    2165        if (expr->ops->destroy)
-    2166                expr->ops->destroy(ctx, expr);
-                                                ^^^^
---> 2167        module_put(expr->ops->type->owner);
-                           ^^^^^^^^^
-    2168 }
-
-Smatch says there are three functions which free expr->ops.
-
-Fixes: b8e204006340 ("netfilter: nft_compat: use .release_ops and remove list of extension")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/generic.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index f272f9538c44a..ef7ff13a7b992 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2113,9 +2113,11 @@ static int nf_tables_newexpr(const struct nft_ctx *ctx,
- static void nf_tables_expr_destroy(const struct nft_ctx *ctx,
- 				   struct nft_expr *expr)
- {
-+	const struct nft_expr_type *type = expr->ops->type;
-+
- 	if (expr->ops->destroy)
- 		expr->ops->destroy(ctx, expr);
--	module_put(expr->ops->type->owner);
-+	module_put(type->owner);
- }
+diff --git a/drivers/usb/serial/generic.c b/drivers/usb/serial/generic.c
+index 54e170dd3dad0..101051dce60c7 100644
+--- a/drivers/usb/serial/generic.c
++++ b/drivers/usb/serial/generic.c
+@@ -350,6 +350,7 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
+ 	struct usb_serial_port *port = urb->context;
+ 	unsigned char *data = urb->transfer_buffer;
+ 	unsigned long flags;
++	int status = urb->status;
+ 	int i;
  
- struct nft_expr *nft_expr_init(const struct nft_ctx *ctx,
+ 	for (i = 0; i < ARRAY_SIZE(port->read_urbs); ++i) {
+@@ -360,22 +361,22 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
+ 
+ 	dev_dbg(&port->dev, "%s - urb %d, len %d\n", __func__, i,
+ 							urb->actual_length);
+-	switch (urb->status) {
++	switch (status) {
+ 	case 0:
+ 		break;
+ 	case -ENOENT:
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
+ 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		return;
+ 	case -EPIPE:
+ 		dev_err(&port->dev, "%s - urb stopped: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		return;
+ 	default:
+ 		dev_dbg(&port->dev, "%s - nonzero urb status: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		goto resubmit;
+ 	}
+ 
+@@ -399,6 +400,7 @@ void usb_serial_generic_write_bulk_callback(struct urb *urb)
+ {
+ 	unsigned long flags;
+ 	struct usb_serial_port *port = urb->context;
++	int status = urb->status;
+ 	int i;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(port->write_urbs); ++i) {
+@@ -410,22 +412,22 @@ void usb_serial_generic_write_bulk_callback(struct urb *urb)
+ 	set_bit(i, &port->write_urbs_free);
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ 
+-	switch (urb->status) {
++	switch (status) {
+ 	case 0:
+ 		break;
+ 	case -ENOENT:
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
+ 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		return;
+ 	case -EPIPE:
+ 		dev_err_console(port, "%s - urb stopped: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		return;
+ 	default:
+ 		dev_err_console(port, "%s - nonzero urb status: %d\n",
+-							__func__, urb->status);
++							__func__, status);
+ 		goto resubmit;
+ 	}
+ 
 -- 
 2.20.1
 
