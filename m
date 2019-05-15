@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BC41F441
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE271EE21
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726612AbfEOK6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:58:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54170 "EHLO mail.kernel.org"
+        id S1728566AbfEOLR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726554AbfEOK6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:58:06 -0400
+        id S1730293AbfEOLR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AD2D2084E;
-        Wed, 15 May 2019 10:58:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E3042070D;
+        Wed, 15 May 2019 11:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917885;
-        bh=XQCzDOTXQac2H9j4wPDSYg1gKYrA3CsNaFBbRwY1ug8=;
+        s=default; t=1557919045;
+        bh=u7u4Dz4YT91VRcG84O/hfdq+TWT2v1ljyr3+Li6aAaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bx5w3w0IXbT+qPGlioPyTGl7DrNLtwcEzmJVqaisli5xDdSAmxwgDVBnPgASalH1C
-         OvDraqblo9BzDrDZgkC+Ni8+EpzN1fu9frHqG7eMSeGsR3eBt6fhkNxXgsJ9eiWDQA
-         RpLuHGKt7IPq16bwpjKHhr/kN2EvnL8vPRk+m1+A=
+        b=ht646VU6GfH3E/Yc9+s/EVg67WWdeJZZGUzUhEfiqDJ5UWIpfwJfoNY8LXCeZhIlA
+         WDWWo1aetLJCyIKNyhl15ayvgfXulGXLMVUsoq8qmZOgY/aUN/PFOHa1BXlgIVhpIM
+         Pj2ZOR+UtwTAF0ABKttwbBvdaurHTE2vP7m6fuPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 3.18 12/86] team: fix possible recursive locking when add slaves
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 009/115] HID: input: add mapping for Expose/Overview key
 Date:   Wed, 15 May 2019 12:54:49 +0200
-Message-Id: <20190515090644.969008160@linuxfoundation.org>
+Message-Id: <20190515090659.939631733@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
 
-[ Upstream commit 925b0c841e066b488cc3a60272472b2c56300704 ]
+According to HUTRR77 usage 0x29f from the consumer page is reserved for
+the Desktop application to present all running user’s application windows.
+Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
+add the mapping.
 
-If we add a bond device which is already the master of the team interface,
-we will hold the team->lock in team_add_slave() first and then request the
-lock in team_set_mac_address() again. The functions are called like:
-
-- team_add_slave()
- - team_port_add()
-   - team_port_enter()
-     - team_modeop_port_enter()
-       - __set_port_dev_addr()
-         - dev_set_mac_address()
-           - bond_set_mac_address()
-             - dev_set_mac_address()
-  	       - team_set_mac_address
-
-Although team_upper_dev_link() would check the upper devices but it is
-called too late. Fix it by adding a checking before processing the slave.
-
-v2: Do not split the string in netdev_err()
-
-Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-input.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1137,6 +1137,12 @@ static int team_port_add(struct team *te
- 		return -EINVAL;
- 	}
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 1aa7d268686b9..693cd19e9dd40 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1017,6 +1017,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
+ 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
  
-+	if (netdev_has_upper_dev(dev, port_dev)) {
-+		netdev_err(dev, "Device %s is already an upper device of the team interface\n",
-+			   portname);
-+		return -EBUSY;
-+	}
++		case 0x29f: map_key_clear(KEY_SCALE);		break;
 +
- 	if (port_dev->features & NETIF_F_VLAN_CHALLENGED &&
- 	    vlan_uses_dev(dev)) {
- 		netdev_err(dev, "Device %s is VLAN challenged and team device has VLAN set up\n",
+ 		default: map_key_clear(KEY_UNKNOWN);
+ 		}
+ 		break;
+-- 
+2.20.1
+
 
 
