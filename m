@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A23831F0A3
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 464E01EF93
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731891AbfEOLqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
+        id S1733077AbfEOLcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732025AbfEOLZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:39 -0400
+        id S1733038AbfEOLcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A4A2206BF;
-        Wed, 15 May 2019 11:25:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AD202053B;
+        Wed, 15 May 2019 11:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919538;
-        bh=hntAyRFrvw6Cr9yi4hm6U6Z3YwulC1viRtaaSaqeOA8=;
+        s=default; t=1557919960;
+        bh=HZn80yW1KMV5AsYLespaT2hnbht7qg6UOiGB/yOZGmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvXQ2+N+7aocL6bHBzUHOgkReqyb6U3J76Fh0PWjeo1fw6SaYmnF6+JicRbLon01n
-         eBcMNkXHv4QO+G/572NqpaCEEX4Aiagqm5KLehRrh6WEpKv34laazVKfWmqnoJ2Csy
-         ABZpOxMJdtpTuQ1b/pIGaLtJtl7AvhCVaYlouYGI=
+        b=dOwzZ/5Fz13c2EOmyZHqgxfJvYYI5/TXf1Wdi+nmFdK/SAJN6CJc8hfjj1Hn44vyy
+         /jIKZydNFy+bFui/xZPH1uVc/jcMTItR7Y5GYnh1ToZuLsV7y0qQ1xgBkRIm6IkUVK
+         bFaqujxOPMEb/zsuhTolCuv4FoXijH8pTmGq+UYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH 4.19 113/113] PCI: hv: Add pci_destroy_slot() in pci_devices_present_work(), if necessary
-Date:   Wed, 15 May 2019 12:56:44 +0200
-Message-Id: <20190515090702.312252361@linuxfoundation.org>
+        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 21/46] net: macb: Change interrupt and napi enable order in open
+Date:   Wed, 15 May 2019 12:56:45 +0200
+Message-Id: <20190515090624.035657060@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Harini Katakam <harini.katakam@xilinx.com>
 
-commit 340d455699400f2c2c0f9b3f703ade3085cdb501 upstream.
+[ Upstream commit 0504453139ef5a593c9587e1e851febee859c7d8 ]
 
-When we hot-remove a device, usually the host sends us a PCI_EJECT message,
-and a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
+Current order in open:
+-> Enable interrupts (macb_init_hw)
+-> Enable NAPI
+-> Start PHY
 
-When we execute the quick hot-add/hot-remove test, the host may not send
-us the PCI_EJECT message if the guest has not fully finished the
-initialization by sending the PCI_RESOURCES_ASSIGNED* message to the
-host, so it's potentially unsafe to only depend on the
-pci_destroy_slot() in hv_eject_device_work() because the code path
+Sequence of RX handling:
+-> RX interrupt occurs
+-> Interrupt is cleared and interrupt bits disabled in handler
+-> NAPI is scheduled
+-> In NAPI, RX budget is processed and RX interrupts are re-enabled
 
-create_root_hv_pci_bus()
- -> hv_pci_assign_slots()
+With the above, on QEMU or fixed link setups (where PHY state doesn't
+matter), there's a chance macb RX interrupt occurs before NAPI is
+enabled. This will result in NAPI being scheduled before it is enabled.
+Fix this macb open by changing the order.
 
-is not called in this case. Note: in this case, the host still sends the
-guest a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
-
-In the quick hot-add/hot-remove test, we can have such a race before
-the code path
-
-pci_devices_present_work()
- -> new_pcichild_device()
-
-adds the new device into the hbus->children list, we may have already
-received the PCI_EJECT message, and since the tasklet handler
-
-hv_pci_onchannelcallback()
-
-may fail to find the "hpdev" by calling
-
-get_pcichild_wslot(hbus, dev_message->wslot.slot)
-
-hv_pci_eject_device() is not called; Later, by continuing execution
-
-create_root_hv_pci_bus()
- -> hv_pci_assign_slots()
-
-creates the slot and the PCI_BUS_RELATIONS message with
-bus_rel->device_count == 0 removes the device from hbus->children, and
-we end up being unable to remove the slot in
-
-hv_pci_remove()
- -> hv_pci_remove_slots()
-
-Remove the slot in pci_devices_present_work() when the device
-is removed to address this race.
-
-pci_devices_present_work() and hv_eject_device_work() run in the
-singled-threaded hbus->wq, so there is not a double-remove issue for the
-slot.
-
-We cannot offload hv_pci_eject_device() from hv_pci_onchannelcallback()
-to the workqueue, because we need the hv_pci_onchannelcallback()
-synchronously call hv_pci_eject_device() to poll the channel
-ringbuffer to work around the "hangs in hv_compose_msi_msg()" issue
-fixed in commit de0aa7b2f97d ("PCI: hv: Fix 2 hang issues in
-hv_compose_msi_msg()")
-
-Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: rewritten commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
-Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
-Cc: stable@vger.kernel.org
+Fixes: ae1f2a56d273 ("net: macb: Added support for many RX queues")
+Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/pci/controller/pci-hyperv.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1781,6 +1781,10 @@ static void pci_devices_present_work(str
- 		hpdev = list_first_entry(&removed, struct hv_pci_dev,
- 					 list_entry);
- 		list_del(&hpdev->list_entry);
-+
-+		if (hpdev->pci_slot)
-+			pci_destroy_slot(hpdev->pci_slot);
-+
- 		put_pcichild(hpdev);
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2461,12 +2461,12 @@ static int macb_open(struct net_device *
+ 		goto pm_exit;
  	}
+ 
+-	bp->macbgem_ops.mog_init_rings(bp);
+-	macb_init_hw(bp);
+-
+ 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
+ 		napi_enable(&queue->napi);
+ 
++	bp->macbgem_ops.mog_init_rings(bp);
++	macb_init_hw(bp);
++
+ 	/* schedule a link state check */
+ 	phy_start(dev->phydev);
  
 
 
