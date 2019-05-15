@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC9D1F0CF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597621F106
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbfEOLrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
+        id S1728266AbfEOLTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731783AbfEOLYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:31 -0400
+        id S1730959AbfEOLTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:19:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E8932084F;
-        Wed, 15 May 2019 11:24:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF4BC20862;
+        Wed, 15 May 2019 11:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919470;
-        bh=/Knt8xjcoJe8gqAS3xYIiKbzWv7WPMOG1/F8dNUlEno=;
+        s=default; t=1557919185;
+        bh=qWglezqHnqwnAG3+q6dzjt0VM7y2yamRGcUyrHCtAZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1a9hfWrKhmZfHCNJY7E71fU+nYpx//MxbpFm1upodP66GgbchJdgjkjvA4uJrmTHe
-         HzHv2zxnT6bJlQ5goAxffBGOcvBFB2fOhIrRrUyEkZj3R7eIprSjmFmCsRzIiDZ9pz
-         Qes7UDLd20PPVnZ4o5CDKcr6ens7+RKjl24Scn/w=
+        b=PIVNkEMUBUIIN6wYmI/AscHWSbez/egNZ4aQZKC4zTOh68oUB7wZBm1cZRB33YtH3
+         p+TjI6fSbkEtklZTfdHwQ4jiBuE5vgaW68kERsb/8jIM80LVGDnKHX3meWRhWMg2Pr
+         M1eygEh0japMbzSBTJef7p7wpX8rYR/Mod5b0/z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         David Jeffery <djeffery@redhat.com>,
         Nigel Croxon <ncroxon@redhat.com>,
         Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 085/113] Dont jump to compute_result state from check_result state
-Date:   Wed, 15 May 2019 12:56:16 +0200
-Message-Id: <20190515090700.085990812@linuxfoundation.org>
+Subject: [PATCH 4.14 097/115] Dont jump to compute_result state from check_result state
+Date:   Wed, 15 May 2019 12:56:17 +0200
+Message-Id: <20190515090706.227940873@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -124,7 +124,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/md/raid5.c
 +++ b/drivers/md/raid5.c
-@@ -4221,26 +4221,15 @@ static void handle_parity_checks6(struct
+@@ -4218,26 +4218,15 @@ static void handle_parity_checks6(struct
  	case check_state_check_result:
  		sh->check_state = check_state_idle;
  
