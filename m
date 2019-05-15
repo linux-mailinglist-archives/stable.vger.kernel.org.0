@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2821F358
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA971ED20
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728589AbfEOLFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35258 "EHLO mail.kernel.org"
+        id S1727311AbfEOLFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728584AbfEOLFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:05:14 -0400
+        id S1728111AbfEOLFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:05:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29635216FD;
-        Wed, 15 May 2019 11:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37F57216FD;
+        Wed, 15 May 2019 11:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918313;
-        bh=eVlJ+zk+ssm+9J1mWh7TqSbZOEEqNko1lH+GcUZ3KsU=;
+        s=default; t=1557918342;
+        bh=98T42Obg+ObNGusBSKV0hHVybMy2mq4DF1Xi7sRkvso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1yxq075iGfQOaB8mZiEzKamTTBMkrIABOPSZWeXbK3+TdQ+rHqcROhFEsnYi9WLn
-         de7IFiZQDWOjkS15JdcIt+56VbVJsszaGXPOTcPvB3rFhoxIkrALJRPPJl9Y6QFCqY
-         xmnwOmV8nO3ZvpVZgCVd2TMQDsiAdKTukw1dtCKc=
+        b=IGmnv4DGajZ/cksTPfKmULo/zuKe3QoID0Inm8Hsy/F/VgSS0ADWQhwGxXlvB7r+u
+         n2hu7UnadDkALTLkG4hRqd/Fh9O76KDJJIssVeTNgLaoPWR9jgb60Tfw+AXZyzCwuo
+         XH+L0E8cDq8E6tGwyhCfgv4HKGNPMPW0+sfF6nNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.4 069/266] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
-Date:   Wed, 15 May 2019 12:52:56 +0200
-Message-Id: <20190515090724.772236899@linuxfoundation.org>
+        syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.4 070/266] netfilter: ebtables: CONFIG_COMPAT: drop a bogus WARN_ON
+Date:   Wed, 15 May 2019 12:52:57 +0200
+Message-Id: <20190515090724.805162997@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,43 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Florian Westphal <fw@strlen.de>
 
-commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
+commit 7caa56f006e9d712b44f27b32520c66420d5cbc6 upstream.
 
-syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
-is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
-(which is embedded into user-visible "struct nfs_mount_data" structure)
-despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
-bytes of AF_INET6 address to rpc_sockaddr2uaddr().
+It means userspace gave us a ruleset where there is some other
+data after the ebtables target but before the beginning of the next rule.
 
-Since "struct nfs_mount_data" structure is user-visible, we can't change
-"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
-assuming that everybody is using AF_INET family when passing address via
-"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
-
-[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
-
-Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/super.c |    3 ++-
+ net/bridge/netfilter/ebtables.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -2020,7 +2020,8 @@ static int nfs23_validate_mount_data(voi
- 		memcpy(sap, &data->addr, sizeof(data->addr));
- 		args->nfs_server.addrlen = sizeof(data->addr);
- 		args->nfs_server.port = ntohs(data->addr.sin_port);
--		if (!nfs_verify_server_address(sap))
-+		if (sap->sa_family != AF_INET ||
-+		    !nfs_verify_server_address(sap))
- 			goto out_no_address;
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2046,7 +2046,8 @@ static int ebt_size_mwt(struct compat_eb
+ 		if (match_kern)
+ 			match_kern->match_size = ret;
  
- 		if (!(data->flags & NFS_MOUNT_TCP))
+-		if (WARN_ON(type == EBT_COMPAT_TARGET && size_left))
++		/* rule should have no remaining data after target */
++		if (type == EBT_COMPAT_TARGET && size_left)
+ 			return -EINVAL;
+ 
+ 		match32 = (struct compat_ebt_entry_mwt *) buf;
 
 
