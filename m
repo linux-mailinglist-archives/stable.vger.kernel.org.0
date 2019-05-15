@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 921841F171
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD821F007
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730911AbfEOLTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:19:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56816 "EHLO mail.kernel.org"
+        id S1732540AbfEOL3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730906AbfEOLTL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:11 -0400
+        id S1732545AbfEOL3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88A7B2084F;
-        Wed, 15 May 2019 11:19:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B40020818;
+        Wed, 15 May 2019 11:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919151;
-        bh=POM2K4kZcnAcbgwQlbFlVZjcYoOsydeLxkdZxyviRk0=;
+        s=default; t=1557919762;
+        bh=OauWDb99dndtmVwXevW2sEDRQJz0FaVlZ55NtZqBDZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xdarh2S6a+SqJjJy0zfu5q8CGtYI9AecV8/MAsQ2VLqhEnMVtfPqWmiKZn8Dggg0x
-         NmArX5uNLhHYma3+zIbkpM5oq19bIP7yxatMdPSjqCXBPaVgoAJz8ptpi+crJRHYVw
-         bg1T/6YiZrX80FnmzW/24n4IDFUvOWAuy3dvdh6w=
+        b=w/9/LbLSVxCU+MDE/OHwsBPUHKlA0FdLA6t2JZw/dorkiPVVUFJmKoqlOpcuaBz1k
+         XxUXyfgroI0ktwULuxU6DoWXfGS2ZObAmbYITfpwEwAfJDxWHIfRnkqioo5Y9nijAN
+         XooKU6UYZ3vRg4ULAdl+CUFndFOsSmt1OttcI3HI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Chandan Rajendra <chandan@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 085/115] mm/memory.c: fix modifying of page protection by insert_pfn()
-Date:   Wed, 15 May 2019 12:56:05 +0200
-Message-Id: <20190515090705.499391044@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 085/137] spi: Micrel eth switch: declare missing of table
+Date:   Wed, 15 May 2019 12:56:06 +0200
+Message-Id: <20190515090659.697348762@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,77 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cae85cb8add35f678cf487139d05e083ce2f570a ]
+[ Upstream commit 2f23a2a768bee7ad2ff1e9527c3f7e279e794a46 ]
 
-Aneesh has reported that PPC triggers the following warning when
-excercising DAX code:
+Add missing <of_device_id> table for SPI driver relying on SPI
+device match since compatible is in a DT binding or in a DTS.
 
-  IP set_pte_at+0x3c/0x190
-  LR insert_pfn+0x208/0x280
-  Call Trace:
-     insert_pfn+0x68/0x280
-     dax_iomap_pte_fault.isra.7+0x734/0xa40
-     __xfs_filemap_fault+0x280/0x2d0
-     do_wp_page+0x48c/0xa40
-     __handle_mm_fault+0x8d0/0x1fd0
-     handle_mm_fault+0x140/0x250
-     __do_page_fault+0x300/0xd60
-     handle_page_fault+0x18
+Before this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
 
-Now that is WARN_ON in set_pte_at which is
+After this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
+alias:          of:N*T*Cmicrel,ksz8795C*
+alias:          of:N*T*Cmicrel,ksz8795
+alias:          of:N*T*Cmicrel,ksz8864C*
+alias:          of:N*T*Cmicrel,ksz8864
+alias:          of:N*T*Cmicrel,ks8995C*
+alias:          of:N*T*Cmicrel,ks8995
 
-        VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
-
-The problem is that on some architectures set_pte_at() cannot cope with
-a situation where there is already some (different) valid entry present.
-
-Use ptep_set_access_flags() instead to modify the pfn which is built to
-deal with modifying existing PTE.
-
-Link: http://lkml.kernel.org/r/20190311084537.16029-1-jack@suse.cz
-Fixes: b2770da64254 "mm: add vm_insert_mixed_mkwrite()"
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reported-by: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Chandan Rajendra <chandan@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/phy/spi_ks8995.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index f99b64ca13031..e9bce27bc18c3 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1813,10 +1813,12 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
- 				WARN_ON_ONCE(!is_zero_pfn(pte_pfn(*pte)));
- 				goto out_unlock;
- 			}
--			entry = *pte;
--			goto out_mkwrite;
--		} else
--			goto out_unlock;
-+			entry = pte_mkyoung(*pte);
-+			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+			if (ptep_set_access_flags(vma, addr, pte, entry, 1))
-+				update_mmu_cache(vma, addr, pte);
-+		}
-+		goto out_unlock;
- 	}
+diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
+index f17b3441779bf..d8ea4147dfe78 100644
+--- a/drivers/net/phy/spi_ks8995.c
++++ b/drivers/net/phy/spi_ks8995.c
+@@ -162,6 +162,14 @@ static const struct spi_device_id ks8995_id[] = {
+ };
+ MODULE_DEVICE_TABLE(spi, ks8995_id);
  
- 	/* Ok, finally just insert the thing.. */
-@@ -1825,7 +1827,6 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
- 	else
- 		entry = pte_mkspecial(pfn_t_pte(pfn, prot));
- 
--out_mkwrite:
- 	if (mkwrite) {
- 		entry = pte_mkyoung(entry);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++static const struct of_device_id ks8895_spi_of_match[] = {
++        { .compatible = "micrel,ks8995" },
++        { .compatible = "micrel,ksz8864" },
++        { .compatible = "micrel,ksz8795" },
++        { },
++ };
++MODULE_DEVICE_TABLE(of, ks8895_spi_of_match);
++
+ static inline u8 get_chip_id(u8 val)
+ {
+ 	return (val >> ID1_CHIPID_S) & ID1_CHIPID_M;
+@@ -529,6 +537,7 @@ static int ks8995_remove(struct spi_device *spi)
+ static struct spi_driver ks8995_driver = {
+ 	.driver = {
+ 		.name	    = "spi-ks8995",
++		.of_match_table = of_match_ptr(ks8895_spi_of_match),
+ 	},
+ 	.probe	  = ks8995_probe,
+ 	.remove	  = ks8995_remove,
 -- 
 2.20.1
 
