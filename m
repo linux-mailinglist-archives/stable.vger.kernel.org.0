@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A871EE3A
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFB71F0E8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730371AbfEOLSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56142 "EHLO mail.kernel.org"
+        id S1729947AbfEOLsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730833AbfEOLSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:18:39 -0400
+        id S1729355AbfEOLX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:23:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B76E4206BF;
-        Wed, 15 May 2019 11:18:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44F81206BF;
+        Wed, 15 May 2019 11:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919119;
-        bh=p3ZG5RJaKfArlN53APF3EKv1lFnczoNnYj2IOkU0MpU=;
+        s=default; t=1557919406;
+        bh=xOLBCSAStprb0C6iQ2nis4ye9Oz+cCxKK8aQHE2OgS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmDTfT1YNkGp72xaeKC+0iFI4cyu4ka7uquwGwhRlt3GN4TgzlAMxxfqYFI0QIJei
-         b0CMcbxVE9wlSdzMsqq5YOlKO+n3bYQJnuFKdr5pJ2gnWQtRjou2iC4NrYvzzc83F7
-         8XEQIp1xslHbXfICFXIJh/EvIFEzTD62Q8dT1hlE=
+        b=umORqie1/eqQwxlWgqII1DFiVeKeXE9kPbLn7ORZpr8mgXi1wVcg2xuN6/V+prn0/
+         h3JK35br9zqNyV+pcK6VDf4hJwO8lZI3Of5WdZ3XS87bEydFqiA5LW8QnAthuCg4wv
+         1eC3ixwpRBb2FUVo8z0dc/j8+4E6FC4y95nckJqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>, Greg KH <greg@kroah.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 074/115] devres: Align data[] to ARCH_KMALLOC_MINALIGN
+        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 063/113] RDMA/hns: Bugfix for mapping user db
 Date:   Wed, 15 May 2019 12:55:54 +0200
-Message-Id: <20190515090704.786241438@linuxfoundation.org>
+Message-Id: <20190515090658.342043883@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,58 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
+[ Upstream commit 2557fabd6e29f349bfa0ac13f38ac98aa5eafc74 ]
 
-Initially we bumped into problem with 32-bit aligned atomic64_t
-on ARC, see [1]. And then during quite lengthly discussion Peter Z.
-mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
-If allocation is done by plain kmalloc() obtained buffer will be
-ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
-devm_kmalloc() should have any other alignment?
+When the maximum send wr delivered by the user is zero, the qp does not
+have a sq.
 
-This way we at least get the same behavior for both types of
-allocation.
+When allocating the sq db buffer to store the user sq pi pointer and map
+it to the kernel mode, max_send_wr is used as the trigger condition, while
+the kernel does not consider the max_send_wr trigger condition when
+mapmping db. It will cause sq record doorbell map fail and create qp fail.
 
-[1] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004009.html
-[2] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004036.html
+The failed print information as follows:
 
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: <stable@vger.kernel.org> # 4.8+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+ hns3 0000:7d:00.1: Send cmd: tail - 418, opcode - 0x8504, flag - 0x0011, retval - 0x0000
+ hns3 0000:7d:00.1: Send cmd: 0xe59dc000 0x00000000 0x00000000 0x00000000 0x00000116 0x0000ffff
+ hns3 0000:7d:00.1: sq record doorbell map failed!
+ hns3 0000:7d:00.1: Create RC QP failed
+
+Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
+Signed-off-by: Lijun Ou <oulijun@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/devres.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/devres.c b/drivers/base/devres.c
-index 71d577025285b..e43a04a495a31 100644
---- a/drivers/base/devres.c
-+++ b/drivers/base/devres.c
-@@ -25,8 +25,14 @@ struct devres_node {
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index efb7e961ca651..2fa4fb17f6d3c 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -494,7 +494,7 @@ static int hns_roce_set_kernel_sq_size(struct hns_roce_dev *hr_dev,
  
- struct devres {
- 	struct devres_node		node;
--	/* -- 3 pointers */
--	unsigned long long		data[];	/* guarantee ull alignment */
-+	/*
-+	 * Some archs want to perform DMA into kmalloc caches
-+	 * and need a guaranteed alignment larger than
-+	 * the alignment of a 64-bit integer.
-+	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
-+	 * buffer alignment as if it was allocated by plain kmalloc().
-+	 */
-+	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
- };
+ static int hns_roce_qp_has_sq(struct ib_qp_init_attr *attr)
+ {
+-	if (attr->qp_type == IB_QPT_XRC_TGT)
++	if (attr->qp_type == IB_QPT_XRC_TGT || !attr->cap.max_send_wr)
+ 		return 0;
  
- struct devres_group {
+ 	return 1;
 -- 
 2.20.1
 
