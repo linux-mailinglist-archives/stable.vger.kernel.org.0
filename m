@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 655C11EFA8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D96F11EFF6
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732913AbfEOLdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45528 "EHLO mail.kernel.org"
+        id S1730882AbfEOLj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732631AbfEOLdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:33:36 -0400
+        id S1726584AbfEOLaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30CCF2053B;
-        Wed, 15 May 2019 11:33:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CEE8206BF;
+        Wed, 15 May 2019 11:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557920015;
-        bh=mQ1M9iKm+r/Yja+DxRhbOUAGtqb3aU8QpacbQuVG+IE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nK2rExqtwImXRXlCqOOTO8vZnJkDYBKUFK4mLWR1jMNddh7dX+YonhIm0UO0WLYzo
-         RfWvdUa6rO57AgmyzyqN12PRB8+JkwTId5C3BwNjpb/OpQIfHAruCNU+OtYLXisDN7
-         TFLV5w/eFqpl4/A4c1kjEo/YJXGtg9QzGzQrQ9B8=
+        s=default; t=1557919818;
+        bh=Q879l4IJr1BwrWlNMOQjx/6IvZ7UgsVCSHgX0WP7gG8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ChozxoOi7ecuzKtF8f2lZhTbeQvhenFPlhaIkRte1sS2LcjUVWiER9sQ8vVypmKCb
+         XcyF918gR7ubQQX5PL5qjhNPwG2AkyFt1d0HwA33ILnuAm98yFzNrz73UXrMy5tGyy
+         A18c74H3Z9kKQFtubGy50zkIuDkNlRj+Swhs6H2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.1 00/46] 5.1.3-stable review
-Date:   Wed, 15 May 2019 12:56:24 +0200
-Message-Id: <20190515090616.670410738@linuxfoundation.org>
+        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
+        David Jeffery <djeffery@redhat.com>,
+        Nigel Croxon <ncroxon@redhat.com>,
+        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.0 104/137] Dont jump to compute_result state from check_result state
+Date:   Wed, 15 May 2019 12:56:25 +0200
+Message-Id: <20190515090701.087242540@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-MIME-Version: 1.0
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.1.3-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.1.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.1.3-rc1
-X-KernelTest-Deadline: 2019-05-17T09:06+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,219 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.1.3 release.
-There are 46 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Nigel Croxon <ncroxon@redhat.com>
 
-Responses should be made by Fri 17 May 2019 09:04:22 AM UTC.
-Anything received after that time might be too late.
+commit 4f4fd7c5798bbdd5a03a60f6269cf1177fbd11ef upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.3-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-and the diffstat can be found below.
+Changing state from check_state_check_result to
+check_state_compute_result not only is unsafe but also doesn't
+appear to serve a valid purpose.  A raid6 check should only be
+pushing out extra writes if doing repair and a mis-match occurs.
+The stripe dev management will already try and do repair writes
+for failing sectors.
 
-thanks,
+This patch makes the raid6 check_state_check_result handling
+work more like raid5's.  If somehow too many failures for a
+check, just quit the check operation for the stripe.  When any
+checks pass, don't try and use check_state_compute_result for
+a purpose it isn't needed for and is unsafe for.  Just mark the
+stripe as in sync for passing its parity checks and let the
+stripe dev read/write code and the bad blocks list do their
+job handling I/O errors.
 
-greg k-h
+Repro steps from Xiao:
 
--------------
-Pseudo-Shortlog of commits:
+These are the steps to reproduce this problem:
+1. redefined OPT_MEDIUM_ERR_ADDR to 12000 in scsi_debug.c
+2. insmod scsi_debug.ko dev_size_mb=11000  max_luns=1 num_tgts=1
+3. mdadm --create /dev/md127 --level=6 --raid-devices=5 /dev/sde1 /dev/sde2 /dev/sde3 /dev/sde5 /dev/sde6
+sde is the disk created by scsi_debug
+4. echo "2" >/sys/module/scsi_debug/parameters/opts
+5. raid-check
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.1.3-rc1
+It panic:
+[ 4854.730899] md: data-check of RAID array md127
+[ 4854.857455] sd 5:0:0:0: [sdr] tag#80 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.859246] sd 5:0:0:0: [sdr] tag#80 Sense Key : Medium Error [current]
+[ 4854.860694] sd 5:0:0:0: [sdr] tag#80 Add. Sense: Unrecovered read error
+[ 4854.862207] sd 5:0:0:0: [sdr] tag#80 CDB: Read(10) 28 00 00 00 2d 88 00 04 00 00
+[ 4854.864196] print_req_error: critical medium error, dev sdr, sector 11656 flags 0
+[ 4854.867409] sd 5:0:0:0: [sdr] tag#100 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.869469] sd 5:0:0:0: [sdr] tag#100 Sense Key : Medium Error [current]
+[ 4854.871206] sd 5:0:0:0: [sdr] tag#100 Add. Sense: Unrecovered read error
+[ 4854.872858] sd 5:0:0:0: [sdr] tag#100 CDB: Read(10) 28 00 00 00 2e e0 00 00 08 00
+[ 4854.874587] print_req_error: critical medium error, dev sdr, sector 12000 flags 4000
+[ 4854.876456] sd 5:0:0:0: [sdr] tag#101 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.878552] sd 5:0:0:0: [sdr] tag#101 Sense Key : Medium Error [current]
+[ 4854.880278] sd 5:0:0:0: [sdr] tag#101 Add. Sense: Unrecovered read error
+[ 4854.881846] sd 5:0:0:0: [sdr] tag#101 CDB: Read(10) 28 00 00 00 2e e8 00 00 08 00
+[ 4854.883691] print_req_error: critical medium error, dev sdr, sector 12008 flags 4000
+[ 4854.893927] sd 5:0:0:0: [sdr] tag#166 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+[ 4854.896002] sd 5:0:0:0: [sdr] tag#166 Sense Key : Medium Error [current]
+[ 4854.897561] sd 5:0:0:0: [sdr] tag#166 Add. Sense: Unrecovered read error
+[ 4854.899110] sd 5:0:0:0: [sdr] tag#166 CDB: Read(10) 28 00 00 00 2e e0 00 00 10 00
+[ 4854.900989] print_req_error: critical medium error, dev sdr, sector 12000 flags 0
+[ 4854.902757] md/raid:md127: read error NOT corrected!! (sector 9952 on sdr1).
+[ 4854.904375] md/raid:md127: read error NOT corrected!! (sector 9960 on sdr1).
+[ 4854.906201] ------------[ cut here ]------------
+[ 4854.907341] kernel BUG at drivers/md/raid5.c:4190!
 
-Damien Le Moal <damien.lemoal@wdc.com>
-    f2fs: Fix use of number of devices
+raid5.c:4190 above is this BUG_ON:
 
-Dexuan Cui <decui@microsoft.com>
-    PCI: hv: Add pci_destroy_slot() in pci_devices_present_work(), if necessary
+    handle_parity_checks6()
+        ...
+        BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
 
-Dexuan Cui <decui@microsoft.com>
-    PCI: hv: Add hv_pci_remove_slots() when we unload the driver
+Cc: <stable@vger.kernel.org> # v3.16+
+OriginalAuthor: David Jeffery <djeffery@redhat.com>
+Cc: Xiao Ni <xni@redhat.com>
+Tested-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: David Jeffy <djeffery@redhat.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Dexuan Cui <decui@microsoft.com>
-    PCI: hv: Fix a memory leak in hv_eject_device_work()
+---
+ drivers/md/raid5.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
-YueHaibing <yuehaibing@huawei.com>
-    virtio_ring: Fix potential mem leak in virtqueue_add_indirect_packed
-
-Laurentiu Tudor <laurentiu.tudor@nxp.com>
-    powerpc/booke64: set RI in default MSR
-
-Russell Currey <ruscur@russell.cc>
-    powerpc/powernv/idle: Restore IAMR after idle
-
-Rick Lindsley <ricklind@linux.vnet.ibm.com>
-    powerpc/book3s/64: check for NULL pointer in pgd_alloc()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
-
-Paul Bolle <pebolle@tiscali.nl>
-    isdn: bas_gigaset: use usb_fill_int_urb() properly
-
-Eric Dumazet <edumazet@google.com>
-    flow_dissector: disable preemption around BPF calls
-
-Heiner Kallweit <hkallweit1@gmail.com>
-    net: phy: fix phy_validate_pause
-
-Jason Wang <jasowang@redhat.com>
-    tuntap: synchronize through tfiles array instead of tun->numqueues
-
-Jason Wang <jasowang@redhat.com>
-    tuntap: fix dividing by zero in ebpf queue selection
-
-Oliver Neukum <oneukum@suse.com>
-    aqc111: fix double endianness swap on BE
-
-Oliver Neukum <oneukum@suse.com>
-    aqc111: fix writing to the phy on BE
-
-Oliver Neukum <oneukum@suse.com>
-    aqc111: fix endianness issue in aqc111_change_mtu
-
-Stephen Suryaputra <ssuryaextr@gmail.com>
-    vrf: sit mtu should not be updated when vrf netdev is the link
-
-Hangbin Liu <liuhangbin@gmail.com>
-    vlan: disable SIOCSHWTSTAMP in container
-
-Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
-    tipc: fix hanging clients using poll with EPOLLOUT flag
-
-Paolo Abeni <pabeni@redhat.com>
-    selinux: do not report error on connect(AF_UNSPEC)
-
-YueHaibing <yuehaibing@huawei.com>
-    packet: Fix error path in packet_init
-
-Christophe Leroy <christophe.leroy@c-s.fr>
-    net: ucc_geth - fix Oops when changing number of buffers in the ring
-
-Thomas Bogendoerfer <tbogendoerfer@suse.de>
-    net: seeq: fix crash caused by not set dev.parent
-
-Harini Katakam <harini.katakam@xilinx.com>
-    net: macb: Change interrupt and napi enable order in open
-
-Corentin Labbe <clabbe@baylibre.com>
-    net: ethernet: stmmac: dwmac-sun8i: enable support of unicast filtering
-
-YueHaibing <yuehaibing@huawei.com>
-    net: dsa: Fix error cleanup path in dsa_init_module
-
-David Ahern <dsahern@gmail.com>
-    ipv4: Fix raw socket lookup for local traffic
-
-Hangbin Liu <liuhangbin@gmail.com>
-    fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied
-
-Laurentiu Tudor <laurentiu.tudor@nxp.com>
-    dpaa_eth: fix SG frame cleanup
-
-Tobin C. Harding <tobin@kernel.org>
-    bridge: Fix error path for kobject_init_and_add()
-
-Jarod Wilson <jarod@redhat.com>
-    bonding: fix arp_validate toggling in active-backup mode
-
-Nigel Croxon <ncroxon@redhat.com>
-    Don't jump to compute_result state from check_result state
-
-Gustavo A. R. Silva <gustavo@embeddedor.com>
-    rtlwifi: rtl8723ae: Fix missing break in switch statement
-
-Petr Štetiar <ynezz@true.cz>
-    mwl8k: Fix rate_idx underflow
-
-Johan Hovold <johan@kernel.org>
-    USB: serial: fix unthrottle races
-
-Hans de Goede <hdegoede@redhat.com>
-    virt: vbox: Sanity-check parameter types for hgcm-calls coming from userspace
-
-Andrea Parri <andrea.parri@amarulasolutions.com>
-    kernfs: fix barrier usage in __kernfs_new_node()
-
-Wolfram Sang <wsa+renesas@sang-engineering.com>
-    i2c: core: ratelimit 'transfer when suspended' errors
-
-Kees Cook <keescook@chromium.org>
-    selftests/seccomp: Handle namespace failures gracefully
-
-Lei YU <mine260309@gmail.com>
-    hwmon: (occ) Fix extended status bits
-
-Stefan Wahren <stefan.wahren@i2se.com>
-    hwmon: (pwm-fan) Disable PWM if fetching cooling data fails
-
-Mario Limonciello <mario.limonciello@dell.com>
-    platform/x86: dell-laptop: fix rfkill functionality
-
-Jiaxun Yang <jiaxun.yang@flygoat.com>
-    platform/x86: thinkpad_acpi: Disable Bluetooth for some machines
-
-Gustavo A. R. Silva <gustavo@embeddedor.com>
-    platform/x86: sony-laptop: Fix unintentional fall-through
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/powerpc/include/asm/book3s/64/pgalloc.h       |  3 +
- arch/powerpc/include/asm/reg_booke.h               |  2 +-
- arch/powerpc/kernel/idle_book3s.S                  | 20 ++++++
- drivers/hwmon/occ/sysfs.c                          |  8 +--
- drivers/hwmon/pwm-fan.c                            |  2 +-
- drivers/i2c/i2c-core-base.c                        |  5 +-
- drivers/isdn/gigaset/bas-gigaset.c                 |  9 +--
- drivers/md/raid5.c                                 | 19 ++----
- drivers/net/bonding/bond_options.c                 |  7 ---
- drivers/net/ethernet/cadence/macb_main.c           |  6 +-
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     |  2 +-
- drivers/net/ethernet/freescale/ucc_geth_ethtool.c  |  8 +--
- drivers/net/ethernet/seeq/sgiseeq.c                |  1 +
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c  |  2 +
- drivers/net/phy/phy_device.c                       | 11 ++--
- drivers/net/tun.c                                  | 14 ++++-
- drivers/net/usb/aqc111.c                           | 31 +++++++---
- drivers/net/wireless/marvell/mwl8k.c               | 13 ++--
- .../net/wireless/realtek/rtlwifi/rtl8723ae/hw.c    |  1 +
- drivers/pci/controller/pci-hyperv.c                | 23 +++++++
- drivers/platform/x86/dell-laptop.c                 |  6 +-
- drivers/platform/x86/sony-laptop.c                 |  8 ++-
- drivers/platform/x86/thinkpad_acpi.c               | 72 +++++++++++++++++++++-
- drivers/usb/serial/generic.c                       | 39 +++++++++---
- drivers/virt/fsl_hypervisor.c                      | 29 +++++----
- drivers/virt/vboxguest/vboxguest_core.c            | 31 ++++++++++
- drivers/virtio/virtio_ring.c                       |  1 +
- fs/f2fs/data.c                                     | 17 +++--
- fs/f2fs/f2fs.h                                     | 13 +++-
- fs/f2fs/file.c                                     |  2 +-
- fs/f2fs/gc.c                                       |  2 +-
- fs/f2fs/segment.c                                  | 13 ++--
- fs/kernfs/dir.c                                    |  5 +-
- include/linux/i2c.h                                |  3 +-
- net/8021q/vlan_dev.c                               |  4 +-
- net/bridge/br_if.c                                 | 13 ++--
- net/core/fib_rules.c                               |  6 +-
- net/core/flow_dissector.c                          |  3 +
- net/dsa/dsa.c                                      | 11 +++-
- net/ipv4/raw.c                                     |  4 +-
- net/ipv6/sit.c                                     |  2 +-
- net/packet/af_packet.c                             | 25 ++++++--
- net/tipc/socket.c                                  |  4 +-
- security/selinux/hooks.c                           |  8 +--
- tools/testing/selftests/seccomp/seccomp_bpf.c      | 43 +++++++------
- 46 files changed, 399 insertions(+), 156 deletions(-)
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -4233,26 +4233,15 @@ static void handle_parity_checks6(struct
+ 	case check_state_check_result:
+ 		sh->check_state = check_state_idle;
+ 
++		if (s->failed > 1)
++			break;
+ 		/* handle a successful check operation, if parity is correct
+ 		 * we are done.  Otherwise update the mismatch count and repair
+ 		 * parity if !MD_RECOVERY_CHECK
+ 		 */
+ 		if (sh->ops.zero_sum_result == 0) {
+-			/* both parities are correct */
+-			if (!s->failed)
+-				set_bit(STRIPE_INSYNC, &sh->state);
+-			else {
+-				/* in contrast to the raid5 case we can validate
+-				 * parity, but still have a failure to write
+-				 * back
+-				 */
+-				sh->check_state = check_state_compute_result;
+-				/* Returning at this point means that we may go
+-				 * off and bring p and/or q uptodate again so
+-				 * we make sure to check zero_sum_result again
+-				 * to verify if p or q need writeback
+-				 */
+-			}
++			/* Any parity checked was correct */
++			set_bit(STRIPE_INSYNC, &sh->state);
+ 		} else {
+ 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
+ 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery)) {
 
 
