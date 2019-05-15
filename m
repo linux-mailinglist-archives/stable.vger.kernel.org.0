@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D891F1E0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9361F440
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730855AbfEOL4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55196 "EHLO mail.kernel.org"
+        id S1726319AbfEOK6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729870AbfEOLRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:49 -0400
+        id S1726554AbfEOK6K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D279920644;
-        Wed, 15 May 2019 11:17:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE2E92084E;
+        Wed, 15 May 2019 10:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919069;
-        bh=UjomiwKQ7V06zr0Xy9Uqky2wKgB5pF8Eyx6JImB/WFk=;
+        s=default; t=1557917890;
+        bh=gaXPwypWFs2EK0kOMSYhLWkH/Kn8KmJVLLdo5p7KngU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJ1MVWkWJFY0n3qQfxNFAtGjeDEHpqH8HWxDqp9o5fF0Q6ixB0yhid1iXRY4gLkDt
-         wV3feUfjCMpdL7lMfna1El6LxVDwXwKYoPBYJZMOCZmzTylDSG1xlkiwTEtvPkMSo4
-         uFTQJ9Gm0wQuCK2r1gh61gZCh0CEhGliIgCnAc6M=
+        b=QAplHc3Fyxam/bYJSTukKw6EvMI2NZMUcHkjj1O4zvgmHmfmk3woLTozcEZ12qIWP
+         qtqR136fsVnUQ278xeBqtiWjmdCDoitCg80qSP4atTvMDJtEghJA6WG1hq5J6T+hvU
+         uITNylPjXJ/pSS68nKwupcN52k3rT+5O6ed4M0oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 011/115] HID: input: add mapping for "Toggle Display" key
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Sasha Levin (Microsoft)" <sashal@kernel.org>
+Subject: [PATCH 3.18 14/86] qlcnic: Avoid potential NULL pointer dereference
 Date:   Wed, 15 May 2019 12:54:51 +0200
-Message-Id: <20190515090700.094498395@linuxfoundation.org>
+Message-Id: <20190515090645.396837204@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c01908a14bf735b871170092807c618bb9dae654 ]
+[ Upstream commit 5bf7295fe34a5251b1d241b9736af4697b590670 ]
 
-According to HUT 1.12 usage 0xb5 from the generic desktop page is reserved
-for switching between external and internal display, so let's add the
-mapping.
+netdev_alloc_skb can fail and return a NULL pointer which is
+dereferenced without a check. The patch avoids such a scenario.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f736bdf774dd8..d723185de3ba2 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -677,6 +677,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+index 0a2318cad34d..63ebc491057b 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1038,6 +1038,8 @@ int qlcnic_do_lb_test(struct qlcnic_adapter *adapter, u8 mode)
  
-+		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
-+			switch (usage->hid & 0xf) {
-+			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
-+			default: goto ignore;
-+			}
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
++		if (!skb)
 +			break;
-+		}
-+
- 		/*
- 		 * Some lazy vendors declare 255 usages for System Control,
- 		 * leading to the creation of ABS_X|Y axis and too many others.
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
 -- 
-2.20.1
+2.19.1
 
 
 
