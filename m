@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E941EFD7
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55F01EF94
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732842AbfEOLhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
+        id S1733073AbfEOLcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732926AbfEOLbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:31:48 -0400
+        id S1733090AbfEOLcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C81E2084F;
-        Wed, 15 May 2019 11:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81E23206BF;
+        Wed, 15 May 2019 11:32:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919907;
-        bh=nwtm9ZWmzDSxG7h7/BFWe85TLgDGFIA/dCFejYmg5e8=;
+        s=default; t=1557919966;
+        bh=5FMtJThSLK+F+z4iXDndoqJkNHDhzMBT/XAonkQGkOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcuTpVYWo1OjwjptSNDUVg27WG/VZRUbUJ/t+WmJE3RJDzuCMR5Q5p1/xbXRXXEH1
-         45/keybPvXAhWH6v59CjIvfVMjIMNyQybwBVwFxROXm7hDRoKYM/kyeavQtFXhRuc/
-         ACns7V1ANNqZICaiTTfrcDwtRr4lqC7NLYToS1mc=
+        b=GQZeIEHUcsQ8q1ouYO1GcFx6fueC7wjgVj8ai6NL3lhtwgXvqrRhcbMQSE4pPJOhV
+         9GCtXC0QeTA+ixQ2NXCM9sj0zYonybwt8WLrpYhsZk2H5/u6guIJqMLUNpiTftsHWv
+         kYLmxeAwqdOm1nI09NPsqZ/om5sab/m0Fhz0Z3NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 125/137] net: phy: fix phy_validate_pause
-Date:   Wed, 15 May 2019 12:56:46 +0200
-Message-Id: <20190515090702.949753637@linuxfoundation.org>
+Subject: [PATCH 5.1 23/46] net: ucc_geth - fix Oops when changing number of buffers in the ring
+Date:   Wed, 15 May 2019 12:56:47 +0200
+Message-Id: <20190515090624.700109526@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit b4010af981ac8cdf1f7f58eb6b131c482e5dee02 ]
+[ Upstream commit ee0df19305d9fabd9479b785918966f6e25b733b ]
 
-We have valid scenarios where ETHTOOL_LINK_MODE_Pause_BIT doesn't
-need to be supported. Therefore extend the first check to check
-for rx_pause being set.
+When changing the number of buffers in the RX ring while the interface
+is running, the following Oops is encountered due to the new number
+of buffers being taken into account immediately while their allocation
+is done when opening the device only.
 
-See also phy_set_asym_pause:
-rx=0 and tx=1: advertise asym pause only
-rx=0 and tx=0: stop advertising both pause modes
+[   69.882706] Unable to handle kernel paging request for data at address 0xf0000100
+[   69.890172] Faulting instruction address: 0xc033e164
+[   69.895122] Oops: Kernel access of bad area, sig: 11 [#1]
+[   69.900494] BE PREEMPT CMPCPRO
+[   69.907120] CPU: 0 PID: 0 Comm: swapper Not tainted 4.14.115-00006-g179ade8ce3-dirty #269
+[   69.915956] task: c0684310 task.stack: c06da000
+[   69.920470] NIP:  c033e164 LR: c02e44d0 CTR: c02e41fc
+[   69.925504] REGS: dfff1e20 TRAP: 0300   Not tainted  (4.14.115-00006-g179ade8ce3-dirty)
+[   69.934161] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 22004428  XER: 20000000
+[   69.940869] DAR: f0000100 DSISR: 20000000
+[   69.940869] GPR00: c0352d70 dfff1ed0 c0684310 f00000a4 00000040 dfff1f68 00000000 0000001f
+[   69.940869] GPR08: df53f410 1cc00040 00000021 c0781640 42004424 100c82b6 f00000a4 df53f5b0
+[   69.940869] GPR16: df53f6c0 c05daf84 00000040 00000000 00000040 c0782be4 00000000 00000001
+[   69.940869] GPR24: 00000000 df53f400 000001b0 df53f410 df53f000 0000003f df708220 1cc00044
+[   69.978348] NIP [c033e164] skb_put+0x0/0x5c
+[   69.982528] LR [c02e44d0] ucc_geth_poll+0x2d4/0x3f8
+[   69.987384] Call Trace:
+[   69.989830] [dfff1ed0] [c02e4554] ucc_geth_poll+0x358/0x3f8 (unreliable)
+[   69.996522] [dfff1f20] [c0352d70] net_rx_action+0x248/0x30c
+[   70.002099] [dfff1f80] [c04e93e4] __do_softirq+0xfc/0x310
+[   70.007492] [dfff1fe0] [c0021124] irq_exit+0xd0/0xd4
+[   70.012458] [dfff1ff0] [c000e7e0] call_do_irq+0x24/0x3c
+[   70.017683] [c06dbe80] [c0006bac] do_IRQ+0x64/0xc4
+[   70.022474] [c06dbea0] [c001097c] ret_from_except+0x0/0x14
+[   70.027964] --- interrupt: 501 at rcu_idle_exit+0x84/0x90
+[   70.027964]     LR = rcu_idle_exit+0x74/0x90
+[   70.037585] [c06dbf60] [20000000] 0x20000000 (unreliable)
+[   70.042984] [c06dbf80] [c004bb0c] do_idle+0xb4/0x11c
+[   70.047945] [c06dbfa0] [c004bd14] cpu_startup_entry+0x18/0x1c
+[   70.053682] [c06dbfb0] [c05fb034] start_kernel+0x370/0x384
+[   70.059153] [c06dbff0] [00003438] 0x3438
+[   70.063062] Instruction dump:
+[   70.066023] 38a00000 38800000 90010014 4bfff015 80010014 7c0803a6 3123ffff 7c691910
+[   70.073767] 38210010 4e800020 38600000 4e800020 <80e3005c> 80c30098 3107ffff 7d083910
+[   70.081690] ---[ end trace be7ccd9c1e1a9f12 ]---
 
-The fixed commit isn't wrong, it's just the one that introduced the
-linkmode bitmaps.
+This patch forbids the modification of the number of buffers in the
+ring while the interface is running.
 
-Fixes: 3c1bcc8614db ("net: ethernet: Convert phydev advertize and supported from u32 to link mode")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: ac421852b3a0 ("ucc_geth: add ethtool support")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/ucc_geth_ethtool.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -2083,11 +2083,14 @@ bool phy_validate_pause(struct phy_devic
- 			struct ethtool_pauseparam *pp)
- {
- 	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_Pause_BIT,
--			       phydev->supported) ||
--	    (!linkmode_test_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
--				phydev->supported) &&
--	     pp->rx_pause != pp->tx_pause))
-+			       phydev->supported) && pp->rx_pause)
- 		return false;
+--- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
++++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
+@@ -252,14 +252,12 @@ uec_set_ringparam(struct net_device *net
+ 		return -EINVAL;
+ 	}
+ 
++	if (netif_running(netdev))
++		return -EBUSY;
 +
-+	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+			       phydev->supported) &&
-+	    pp->rx_pause != pp->tx_pause)
-+		return false;
-+
- 	return true;
+ 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
+ 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
+ 
+-	if (netif_running(netdev)) {
+-		/* FIXME: restart automatically */
+-		netdev_info(netdev, "Please re-open the interface\n");
+-	}
+-
+ 	return ret;
  }
- EXPORT_SYMBOL(phy_validate_pause);
+ 
 
 
