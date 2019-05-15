@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D17B1F204
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D185C1EFF8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbfEOLPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S1726475AbfEOLaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730049AbfEOLPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:13 -0400
+        id S1732675AbfEOLaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 505DC2084F;
-        Wed, 15 May 2019 11:15:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 157A0206BF;
+        Wed, 15 May 2019 11:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918912;
-        bh=CyirzXpZWQ7zOZyGYOeYCELwu7mMB5pwbOhDbHTmkpE=;
+        s=default; t=1557919807;
+        bh=5lQQSp2MY0e8p5PILottSeNZMveQFwsHmlVtymy3HyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aq1meVb8cwTcrBRzNE6ZJhN6fPgK5N/zdo56YACFb+3ZFSFm9an3BUjbc0NBci79s
-         NSYxdjX7zGq8D9bcW0KbOWKAhShZuV2TvlhXV8d1dg1rAnEmOHj0m/YQ7ztJuFU96g
-         YAWITh4fc4THZ7zEsvXcOdQ6cq2Wbw7qzwtWNeo8=
+        b=ZCzR+OUXXxn8boGouc1bCBM0hiR8Zm2SieIfQlJv9dyoOmc3l6Lwz/Kw3Wnc2mkuy
+         s4xPHSf+yCszb4tj9+jxh7yzwmn0YT2h5NbPIafOtMXgeVMu3YOAjJeioGB+EhZTe3
+         T+MgLT1Jl2vrQ9m0Ze/goOhvYVkdVKsWS5+bRNw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 4.9 47/51] bonding: fix arp_validate toggling in active-backup mode
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.0 101/137] cw1200: fix missing unlock on error in cw1200_hw_scan()
 Date:   Wed, 15 May 2019 12:56:22 +0200
-Message-Id: <20190515090629.438794995@linuxfoundation.org>
+Message-Id: <20190515090700.860655131@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
+commit 51c8d24101c79ffce3e79137e2cee5dfeb956dd7 upstream.
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+Add the missing unlock before return from function cw1200_hw_scan()
+in the error handling case.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
-
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
-
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/bonding/bond_options.c |    7 -------
- 1 file changed, 7 deletions(-)
 
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1065,13 +1065,6 @@ static int bond_option_arp_validate_set(
- {
- 	netdev_info(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		    newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+---
+ drivers/net/wireless/st/cw1200/scan.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/st/cw1200/scan.c
++++ b/drivers/net/wireless/st/cw1200/scan.c
+@@ -84,8 +84,11 @@ int cw1200_hw_scan(struct ieee80211_hw *
  
- 	return 0;
+ 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
+ 		req->ie_len);
+-	if (!frame.skb)
++	if (!frame.skb) {
++		mutex_unlock(&priv->conf_mutex);
++		up(&priv->scan.lock);
+ 		return -ENOMEM;
++	}
+ 
+ 	if (req->ie_len)
+ 		skb_put_data(frame.skb, req->ie, req->ie_len);
 
 
