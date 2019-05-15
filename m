@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 129881F116
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C901F08C
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731135AbfEOLUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
+        id S1732049AbfEOLZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:25:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730966AbfEOLUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:20:44 -0400
+        id S1732060AbfEOLZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD27E20843;
-        Wed, 15 May 2019 11:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 327832084F;
+        Wed, 15 May 2019 11:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919243;
-        bh=Ha+e0A12zKBAauiPt26VUA3/SbX44vS73lOtoXvudM4=;
+        s=default; t=1557919551;
+        bh=l7/n2XgY1ZmonL/M/UKNWFycU9KwoYb8lUrCnxslxY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nu5wDZi0JwbqOxhV6WDk+GpT7UKtx67MKK+EjGhusTe80a12IFEx54MjVrVCIh0Fb
-         mLiXgRJmXEkesSTbDTtzxoyeo2NXRZMlzORfZel6NPZey78TIQDH7e2PxYbD8sTIZh
-         ZJqt5Gg+j60J4rnRFo7MQZTWqKcR7I5Tet0IOgME=
+        b=jOs1bejGnlhVr9M1/BU+LcmgGt9QeyYZNHEMYEjPvzrRttApj3CmPTxTYjo2XYoim
+         AtuHmf2BrGGG4JPUS9clzyz3DDjW2BWSAcXky9OKeCoNjJz2W3wkP+SGiy84JhUp2l
+         rJ5G2Z6t2t556Wq5QPMben9SVqB1zUSjore8i4fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vivien Didelot <vivien.didelot@gmail.com>,
         Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 104/115] net: dsa: Fix error cleanup path in dsa_init_module
+Subject: [PATCH 4.19 093/113] net: dsa: Fix error cleanup path in dsa_init_module
 Date:   Wed, 15 May 2019 12:56:24 +0200
-Message-Id: <20190515090706.683726456@linuxfoundation.org>
+Message-Id: <20190515090700.674787925@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -98,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/dsa/dsa.c
 +++ b/net/dsa/dsa.c
-@@ -300,15 +300,22 @@ static int __init dsa_init_module(void)
+@@ -293,15 +293,22 @@ static int __init dsa_init_module(void)
  
  	rc = dsa_slave_register_notifier();
  	if (rc)
