@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 843381F221
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82BB21EF7F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727908AbfEOLN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49118 "EHLO mail.kernel.org"
+        id S1732874AbfEOLbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:31:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729957AbfEOLNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:24 -0400
+        id S1732587AbfEOLbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:31:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DED42168B;
-        Wed, 15 May 2019 11:13:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A693C206BF;
+        Wed, 15 May 2019 11:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918803;
-        bh=mDS7U+WjhmJkdMvliJsBtFb47LJZkRupeS47ii3XgW0=;
+        s=default; t=1557919876;
+        bh=oHXUAOsbOGuTuFUb/ynXgCuDOCmUrG66929WmRtc8iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVL5NlFcXx0FfAxd8DRPgzaIQpm5B0511raafjmmY5mL54Ybf+CWCdfgqt4KBPq1Z
-         56r/wkVD4cKg4GrInr5nZc3TSp0slB+MnWuOOVAQANs6i/Pg244bQ1bEaEX+J7Y/3f
-         FqkozswByDW1rO5LPA5CzpfPMqHce06ed2Ro9W7g=
+        b=cuqhsiFC6IMSYw+PGdm1s1/pmycBzdK8HytjeoLFO6YsD9+6KDprG6StQXBlBiXU1
+         irxBLsB5zHkrV926XJbbh+5q4CL5x7VUNDBULDTJtYoCgvWMcH+OA9IbgTGLeVErq6
+         pJ8yOzRneJpfoRH4TbPfqGHS2AKnGBwfq3y6wBCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 257/266] bridge: Fix error path for kobject_init_and_add()
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 083/137] ARM: fix function graph tracer and unwinder dependencies
 Date:   Wed, 15 May 2019 12:56:04 +0200
-Message-Id: <20190515090731.710145644@linuxfoundation.org>
+Message-Id: <20190515090659.543869830@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tobin C. Harding" <tobin@kernel.org>
+[ Upstream commit 503621628b32782a07b2318e4112bd4372aa3401 ]
 
-[ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
+Naresh Kamboju recently reported that the function-graph tracer crashes
+on ARM. The function-graph tracer assumes that the kernel is built with
+frame pointers.
 
-Currently error return from kobject_init_and_add() is not followed by a
-call to kobject_put().  This means there is a memory leak.  We currently
-set p to NULL so that kfree() may be called on it as a noop, the code is
-arguably clearer if we move the kfree() up closer to where it is
-called (instead of after goto jump).
+We explicitly disabled the function-graph tracer when building Thumb2,
+since the Thumb2 ABI doesn't have frame pointers.
 
-Remove a goto label 'err1' and jump to call to kobject_put() in error
-return from kobject_init_and_add() fixing the memory leak.  Re-name goto
-label 'put_back' to 'err1' now that we don't use err1, following current
-nomenclature (err1, err2 ...).  Move call to kfree out of the error
-code at bottom of function up to closer to where memory was allocated.
-Add comment to clarify call to kfree().
+We recently changed the way the unwinder method was selected, which
+seems to have made it more likely that we can end up with the function-
+graph tracer enabled but without the kernel built with frame pointers.
 
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix up the function graph tracer dependencies so the option is not
+available when we have no possibility of having frame pointers, and
+adjust the dependencies on the unwinder option to hide the non-frame
+pointer unwinder options if the function-graph tracer is enabled.
+
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_if.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/arm/Kconfig       | 2 +-
+ arch/arm/Kconfig.debug | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -471,13 +471,15 @@ int br_add_if(struct net_bridge *br, str
- 	call_netdevice_notifiers(NETDEV_JOIN, dev);
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index e5d56d9b712c2..3b353af9c48dc 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -69,7 +69,7 @@ config ARM
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
+-	select HAVE_FUNCTION_GRAPH_TRACER if !THUMB2_KERNEL
++	select HAVE_FUNCTION_GRAPH_TRACER if !THUMB2_KERNEL && !CC_IS_CLANG
+ 	select HAVE_FUNCTION_TRACER if !XIP_KERNEL
+ 	select HAVE_GCC_PLUGINS
+ 	select HAVE_GENERIC_DMA_COHERENT
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index 6d6e0330930b5..e388af4594a6e 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -47,8 +47,8 @@ config DEBUG_WX
  
- 	err = dev_set_allmulti(dev, 1);
--	if (err)
--		goto put_back;
-+	if (err) {
-+		kfree(p);	/* kobject not yet init'd, manually free */
-+		goto err1;
-+	}
+ choice
+ 	prompt "Choose kernel unwinder"
+-	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
+-	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
++	default UNWINDER_ARM if AEABI
++	default UNWINDER_FRAME_POINTER if !AEABI
+ 	help
+ 	  This determines which method will be used for unwinding kernel stack
+ 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
+@@ -65,7 +65,7 @@ config UNWINDER_FRAME_POINTER
  
- 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
- 				   SYSFS_BRIDGE_PORT_ATTR);
- 	if (err)
--		goto err1;
-+		goto err2;
- 
- 	err = br_sysfs_addif(p);
- 	if (err)
-@@ -551,12 +553,9 @@ err3:
- 	sysfs_remove_link(br->ifobj, p->dev->name);
- err2:
- 	kobject_put(&p->kobj);
--	p = NULL; /* kobject_put frees */
--err1:
- 	dev_set_allmulti(dev, -1);
--put_back:
-+err1:
- 	dev_put(dev);
--	kfree(p);
- 	return err;
- }
- 
+ config UNWINDER_ARM
+ 	bool "ARM EABI stack unwinder"
+-	depends on AEABI
++	depends on AEABI && !FUNCTION_GRAPH_TRACER
+ 	select ARM_UNWIND
+ 	help
+ 	  This option enables stack unwinding support in the kernel
+-- 
+2.20.1
+
 
 
