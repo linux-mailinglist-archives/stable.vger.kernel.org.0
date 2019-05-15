@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E73651F138
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4C21F050
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728247AbfEOLWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60488 "EHLO mail.kernel.org"
+        id S1732080AbfEOL1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbfEOLWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:16 -0400
+        id S1731887AbfEOL1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:27:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A9F32084F;
-        Wed, 15 May 2019 11:22:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC75E20818;
+        Wed, 15 May 2019 11:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919335;
-        bh=OvkSBB7K7hW8SJ8tMYZbKKhX0P9yKk386rOjr/OaGk4=;
+        s=default; t=1557919657;
+        bh=33I4Aosfj8cjXEJXoooJJ3/McdDfAMrkDABR0Qe9Psk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mloF8jMLpzjQ0QSdswlehra5tZZS5QDiplVagyFZwo1h4RLyVgqatIU12tBlugQV6
-         g1/eLpGQ44a1+B/CuEcrfmu9lJcNQP6ncChTgMswfw0+hDIMnNwbxChhjJxS4iYHze
-         v5ng3Y1Yh/CV9bVBpIA5RCRAtD2y0puqsPkBGTBo=
+        b=kNIuTlGSqN9y3N2rcXagmUZvuoKMdo48bwl76XpZCKGTm+6rUJvkA0o++PM5OPYUa
+         nNpmWZ6L1LBxxR2QHv2kgQniSI4pcf+8KvJebU6tyGGLhHfg9aM7U2pIE0+Q9UHDD1
+         GHR/cftfcvejEPGdBkUDFCOPlVPe4Eu9y0zw8ScY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Christian Rund <Christian.Rund@de.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 035/113] s390/pkey: add one more argument space for debug feature entry
+        stable@vger.kernel.org, David Francis <David.Francis@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Bhawanpreet Lakha <BhawanpreetLakha@amd.com>
+Subject: [PATCH 5.0 045/137] drm/amd/display: If one stream full updates, full update all planes
 Date:   Wed, 15 May 2019 12:55:26 +0200
-Message-Id: <20190515090656.262044590@linuxfoundation.org>
+Message-Id: <20190515090656.715043062@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +48,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6b1f16ba730d4c0cda1247568c3a1bf4fa3a2f2f ]
+[ Upstream commit c238bfe0be9ef7420f7669a69e27c8c8f4d8a568 ]
 
-The debug feature entries have been used with up to 5 arguents
-(including the pointer to the format string) but there was only
-space reserved for 4 arguemnts. So now the registration does
-reserve space for 5 times a long value.
+[Why]
+On some compositors, with two monitors attached, VT terminal
+switch can cause a graphical issue by the following means:
 
-This fixes a sometime appearing weired value as the last
-value of an debug feature entry like this:
+There are two streams, one for each monitor. Each stream has one
+plane
 
-... pkey_sec2protkey zcrypt_send_cprb (cardnr=10 domain=12)
-   failed with errno -2143346254
+current state:
+	M1:S1->P1
+	M2:S2->P2
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reported-by: Christian Rund <Christian.Rund@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+The user calls for a terminal switch and a commit is made to
+change both planes to linear swizzle mode. In atomic check,
+a new dc_state is constructed with new planes on each stream
+
+new state:
+	M1:S1->P3
+	M2:S2->P4
+
+In commit tail, each stream is committed, one at a time. The first
+stream (S1) updates properly, triggerring a full update and replacing
+the state
+
+current state:
+	M1:S1->P3
+	M2:S2->P4
+
+The update for S2 comes in, but dc detects that there is no difference
+between the stream and plane in the new and current states, and so
+triggers a fast update. The fast update does not program swizzle,
+so the second monitor is corrupted
+
+[How]
+Add a flag to dc_plane_state that forces full updates
+
+When a stream undergoes a full update, set this flag on all changed
+planes, then clear it on the current stream
+
+Subsequent streams will get full updates as a result
+
+Signed-off-by: David Francis <David.Francis@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet Lakha@amd.com>
+Acked-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/pkey_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 19 +++++++++++++++++++
+ drivers/gpu/drm/amd/display/dc/dc.h      |  3 +++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index 1b4001e0285fe..b16344479959b 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -45,7 +45,8 @@ static debug_info_t *debug_info;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 1f92e7e8e3d38..5af2ea1f201d3 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1308,6 +1308,11 @@ static enum surface_update_type det_surface_update(const struct dc *dc,
+ 		return UPDATE_TYPE_FULL;
+ 	}
  
- static void __init pkey_debug_init(void)
- {
--	debug_info = debug_register("pkey", 1, 1, 4 * sizeof(long));
-+	/* 5 arguments per dbf entry (including the format string ptr) */
-+	debug_info = debug_register("pkey", 1, 1, 5 * sizeof(long));
- 	debug_register_view(debug_info, &debug_sprintf_view);
- 	debug_set_level(debug_info, 3);
- }
++	if (u->surface->force_full_update) {
++		update_flags->bits.full_update = 1;
++		return UPDATE_TYPE_FULL;
++	}
++
+ 	type = get_plane_info_update_type(u);
+ 	elevate_update_type(&overall_type, type);
+ 
+@@ -1637,6 +1642,14 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 		}
+ 
+ 		dc_resource_state_copy_construct(state, context);
++
++		for (i = 0; i < dc->res_pool->pipe_count; i++) {
++			struct pipe_ctx *new_pipe = &context->res_ctx.pipe_ctx[i];
++			struct pipe_ctx *old_pipe = &dc->current_state->res_ctx.pipe_ctx[i];
++
++			if (new_pipe->plane_state && new_pipe->plane_state != old_pipe->plane_state)
++				new_pipe->plane_state->force_full_update = true;
++		}
+ 	}
+ 
+ 
+@@ -1680,6 +1693,12 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 		dc->current_state = context;
+ 		dc_release_state(old);
+ 
++		for (i = 0; i < dc->res_pool->pipe_count; i++) {
++			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
++
++			if (pipe_ctx->plane_state && pipe_ctx->stream == stream)
++				pipe_ctx->plane_state->force_full_update = false;
++		}
+ 	}
+ 	/*let's use current_state to update watermark etc*/
+ 	if (update_type >= UPDATE_TYPE_FULL)
+diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
+index 4b5bbb13ce7fe..7d5656d7e460d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc.h
+@@ -496,6 +496,9 @@ struct dc_plane_state {
+ 	struct dc_plane_status status;
+ 	struct dc_context *ctx;
+ 
++	/* HACK: Workaround for forcing full reprogramming under some conditions */
++	bool force_full_update;
++
+ 	/* private to dc_surface.c */
+ 	enum dc_irq_source irq_source;
+ 	struct kref refcount;
 -- 
 2.20.1
 
