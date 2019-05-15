@@ -2,119 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 677551EAD5
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 11:19:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44451EAF0
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 11:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbfEOJTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 05:19:24 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8196 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725871AbfEOJTX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 05:19:23 -0400
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 4D2EBFCF3FD474F23B96;
-        Wed, 15 May 2019 17:19:21 +0800 (CST)
-Received: from FRA1000014316.huawei.com (100.126.230.97) by
- DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
- 14.3.439.0; Wed, 15 May 2019 17:19:11 +0800
-From:   Jonathan Cameron <Jonathan.Cameron@huawei.com>
-To:     <shameerali.kolothum.thodi@huawei.com>
-CC:     Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        <stable@vger.kernel.org>, Will Deacon <will.deacon@arm.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 47/60] arm64: Save and restore OSDLR_EL1 across suspend/resume
-Date:   Wed, 15 May 2019 17:17:24 +0800
-Message-ID: <20190515091737.18578-47-Jonathan.Cameron@huawei.com>
-X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190515091737.18578-1-Jonathan.Cameron@huawei.com>
-References: <20190515091737.18578-1-Jonathan.Cameron@huawei.com>
+        id S1725977AbfEOJal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 05:30:41 -0400
+Received: from mail-wm1-f54.google.com ([209.85.128.54]:35379 "EHLO
+        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725871AbfEOJal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 05:30:41 -0400
+Received: by mail-wm1-f54.google.com with SMTP id q15so1755133wmj.0
+        for <stable@vger.kernel.org>; Wed, 15 May 2019 02:30:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pepdagd47ojacYXKzsXRF53CiupyHnyGthHq198R2X0=;
+        b=2B4miMjc/RBsfOaFd/HPh5CZ2mdKfnbCXURL5ZtuZ8A6sNxUrqtLJCS2EefnS39q+g
+         +egb1MaPWfVGfznoIg60SVHc34CRvGA7AZfPLOMamiMt18L8taRCYnzI4qnyTxqPQ73x
+         c2mQMOaQpb7559D2iHPpMPQk+xdIOrOc3S6IdpCVw8HEUg4fQw15JtWtJSgnIrbk53U+
+         9EPQVqtiRZucQEbpjA0fArVu3vIHtY31llDS4PmOl8kEGlMidJthDi9fQUeEyUXnAmbi
+         sHXoKXozlZU2mi2wNNDj8QS/gn8T5bbWg9n8GFhC0CwFYvVrsb5q/+X75g2KAieJg+g8
+         7+MQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pepdagd47ojacYXKzsXRF53CiupyHnyGthHq198R2X0=;
+        b=Xk2bVhtCwGdlqcdJ4KmUZw4qEkTHIrkVergMvIHGiByG8wPu89MWkedQPKHFAIwXYR
+         1PwPOnmacTMzDUiIo5EdLRBJENn0ykdbvfktrLDumYXJMWb9P3R6zsM+ssa5CGJPNoWJ
+         FR2qadyUzRPdhnTH4tBPN0KiNSZ1GtmXH8KZp4T17l1RKMuQzoSrN+t/ejJrh/QfiMHZ
+         XYfgAWMcta6oOz82i9I5JJ1HB4rayd2vmP1BHjjgfXAFEMmXevlZki21Bn3eWNV8nIDr
+         QrKoNo+fnyTVGKnvXKbmV1JlFVdnW3HTLuG/or70WgEYHYziPG1mfoOJB4efaA1Linx1
+         Pliw==
+X-Gm-Message-State: APjAAAUr2fHpma4cuOphKSeMa/ilu91BKMc3o8IAXD5hSLCTwp8Ybc7u
+        XZ5Lol4dqFoJ3+u+bhHw7iYyJJ6JkvYUzw==
+X-Google-Smtp-Source: APXvYqyEoGCn9j3fCfR57pDPszkP+JD9if9IkwuwoQ3ylo/wwX7mnvY7lysPjXThWLjyh+IsPaYTzQ==
+X-Received: by 2002:a1c:3:: with SMTP id 3mr14377762wma.44.1557912638716;
+        Wed, 15 May 2019 02:30:38 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c9sm1062260wrv.62.2019.05.15.02.30.37
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 15 May 2019 02:30:38 -0700 (PDT)
+Message-ID: <5cdbdc3e.1c69fb81.6d0a7.525f@mx.google.com>
+Date:   Wed, 15 May 2019 02:30:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [100.126.230.97]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.43-87-gc209b8bd5e5e
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 0 failed,
+ 128 passed with 1 offline, 2 conflicts (v4.19.43-87-gc209b8bd5e5e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+stable-rc/linux-4.19.y boot: 131 boots: 0 failed, 128 passed with 1 offline=
+, 2 conflicts (v4.19.43-87-gc209b8bd5e5e)
 
-When the CPU comes out of suspend, the firmware may have modified the OS
-Double Lock Register. Save it in an unused slot of cpu_suspend_ctx, and
-restore it on resume.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.43-87-gc209b8bd5e5e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.43-87-gc209b8bd5e5e/
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.43-87-gc209b8bd5e5e
+Git Commit: c209b8bd5e5e415c40c1b5fc90e2b1cccfccad4a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.19.43)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v4.19.43)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+arm64:
+    defconfig:
+        meson-gxbb-p200:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
 ---
- arch/arm64/mm/proc.S | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
-
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index aa0817c9c4c36..fdd626d34274f 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -65,24 +65,25 @@ ENTRY(cpu_do_suspend)
- 	mrs	x2, tpidr_el0
- 	mrs	x3, tpidrro_el0
- 	mrs	x4, contextidr_el1
--	mrs	x5, cpacr_el1
--	mrs	x6, tcr_el1
--	mrs	x7, vbar_el1
--	mrs	x8, mdscr_el1
--	mrs	x9, oslsr_el1
--	mrs	x10, sctlr_el1
-+	mrs	x5, osdlr_el1
-+	mrs	x6, cpacr_el1
-+	mrs	x7, tcr_el1
-+	mrs	x8, vbar_el1
-+	mrs	x9, mdscr_el1
-+	mrs	x10, oslsr_el1
-+	mrs	x11, sctlr_el1
- alternative_if_not ARM64_HAS_VIRT_HOST_EXTN
--	mrs	x11, tpidr_el1
-+	mrs	x12, tpidr_el1
- alternative_else
--	mrs	x11, tpidr_el2
-+	mrs	x12, tpidr_el2
- alternative_endif
--	mrs	x12, sp_el0
-+	mrs	x13, sp_el0
- 	stp	x2, x3, [x0]
--	stp	x4, xzr, [x0, #16]
--	stp	x5, x6, [x0, #32]
--	stp	x7, x8, [x0, #48]
--	stp	x9, x10, [x0, #64]
--	stp	x11, x12, [x0, #80]
-+	stp	x4, x5, [x0, #16]
-+	stp	x6, x7, [x0, #32]
-+	stp	x8, x9, [x0, #48]
-+	stp	x10, x11, [x0, #64]
-+	stp	x12, x13, [x0, #80]
- 	ret
- ENDPROC(cpu_do_suspend)
- 
-@@ -105,8 +106,8 @@ ENTRY(cpu_do_resume)
- 	msr	cpacr_el1, x6
- 
- 	/* Don't change t0sz here, mask those bits when restoring */
--	mrs	x5, tcr_el1
--	bfi	x8, x5, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
-+	mrs	x7, tcr_el1
-+	bfi	x8, x7, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
- 
- 	msr	tcr_el1, x8
- 	msr	vbar_el1, x9
-@@ -130,6 +131,7 @@ alternative_endif
- 	/*
- 	 * Restore oslsr_el1 by writing oslar_el1
- 	 */
-+	msr	osdlr_el1, x5
- 	ubfx	x11, x11, #1, #1
- 	msr	oslar_el1, x11
- 	reset_pmuserenr_el0 x0			// Disable PMU access from EL0
--- 
-2.19.1
-
+For more info write to <info@kernelci.org>
