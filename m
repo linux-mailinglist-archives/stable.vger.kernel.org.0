@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B64B41F1DA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE591F3C9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730581AbfEOL4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:56:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55438 "EHLO mail.kernel.org"
+        id S1727368AbfEOLAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:00:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730552AbfEOLSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:18:03 -0400
+        id S1726829AbfEOLAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:00:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0803E20843;
-        Wed, 15 May 2019 11:18:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3344820881;
+        Wed, 15 May 2019 11:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919082;
-        bh=HQIh4KcyQf14BV/XbrXXSEJ70bvl4TWjTTTLcOv9l4c=;
+        s=default; t=1557918011;
+        bh=LT2bawOVJl/b8ORT3it4NHAjP0LodpxSyMJCcL7tz0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U30MtWE/oIxZuXZslHhugfsWFSnb+9E38FHOsJrQ7LN3dMzpqxEJT77PudloTL5Wu
-         ZYGNo0H46Vx45k5KI/YomMZoF7m/Lowo2Id+UBHFxg6ohAOJBe5tU9dxm2spKYpGeb
-         DBaAklvMiMr0hbMhTCnioUr2DWXnGuDjKeDMzDx8=
+        b=frRoBhMEozRz6+hj1rIIrfzqR3vf9jQvrqK5l84z6htcTmKzk2guSM4WKxKBVSq6N
+         JTbwUOftgNpGEPwnEBiL4S5TK2yJx3i7xeO6kNFohsc8FGFGH5jT/jteoxQaUm5FUt
+         qsQUOJ3kq7j8pDsyf3cUrgPt6fiWKczlchn92uss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh R <vigneshr@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 053/115] i2c: omap: Enable for ARCH_K3
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 3.18 56/86] scsi: csiostor: fix missing data copy in csio_scsi_err_handler()
 Date:   Wed, 15 May 2019 12:55:33 +0200
-Message-Id: <20190515090703.440094029@linuxfoundation.org>
+Message-Id: <20190515090653.710104328@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5b277402deac0691226a947df71c581686bd4020 ]
+[ Upstream commit 5c2442fd78998af60e13aba506d103f7f43f8701 ]
 
-Allow I2C_OMAP to be built for K3 platforms.
+If scsi cmd sglist is not suitable for DDP then csiostor driver uses
+preallocated buffers for DDP, because of this data copy is required from
+DDP buffer to scsi cmd sglist before calling ->scsi_done().
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/csiostor/csio_scsi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 45a3f3ca29b38..75ea367ffd833 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -759,7 +759,7 @@ config I2C_OCORES
+diff --git a/drivers/scsi/csiostor/csio_scsi.c b/drivers/scsi/csiostor/csio_scsi.c
+index 86103c8475d8e..fbb2052bc4129 100644
+--- a/drivers/scsi/csiostor/csio_scsi.c
++++ b/drivers/scsi/csiostor/csio_scsi.c
+@@ -1737,8 +1737,11 @@ csio_scsi_err_handler(struct csio_hw *hw, struct csio_ioreq *req)
+ 	}
  
- config I2C_OMAP
- 	tristate "OMAP I2C adapter"
--	depends on ARCH_OMAP
-+	depends on ARCH_OMAP || ARCH_K3
- 	default y if MACH_OMAP_H3 || MACH_OMAP_OSK
- 	help
- 	  If you say yes to this option, support will be included for the
+ out:
+-	if (req->nsge > 0)
++	if (req->nsge > 0) {
+ 		scsi_dma_unmap(cmnd);
++		if (req->dcopy && (host_status == DID_OK))
++			host_status = csio_scsi_copy_to_sgl(hw, req);
++	}
+ 
+ 	cmnd->result = (((host_status) << 16) | scsi_status);
+ 	cmnd->scsi_done(cmnd);
 -- 
 2.20.1
 
