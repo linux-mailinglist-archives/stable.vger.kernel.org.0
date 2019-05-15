@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C0D1EDE3
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D621EE51
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729657AbfEOLOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:14:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50474 "EHLO mail.kernel.org"
+        id S1730201AbfEOLUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729767AbfEOLOY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:24 -0400
+        id S1729438AbfEOLUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A2F20862;
-        Wed, 15 May 2019 11:14:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE17821473;
+        Wed, 15 May 2019 11:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918864;
-        bh=766zlCz6HkQwS701kc6dErgq7Xpt3wNl1UFTIpyPUKU=;
+        s=default; t=1557919201;
+        bh=fdAxxYuQHXHBmmCsWwGri8WNL8YF7p9yqpkK8dCSjMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fn8uDTWDZEGYmUVavOBSVgaWEt4inte7mB9lACaKMo/VEw8MJeclWiA1oCFQQgAyc
-         q1hkMzjjh3JmFrAfScEqPKkrQtE42Oi9rEsrKY0foRbBiItuEPMCKLOQBASinmUKh5
-         uV+OThB4uGZZxiTciTXD6AI8x/F/WtpL4K2j0nfQ=
+        b=VBIG9AeEzdZjR3hhfUsuqMRTOdcfZ25vsD605WiPxN4tdPmtRy3FGatymyauFJZyW
+         dR6o6lbmofRWAjBp6cx6ntlEW01tgW1euum6Qy3KXjOU7wIE3td3a4QTXfotC4FhqI
+         pFFtyII3VOw/T8wXrkLFc9CmoDQdzGCgtoOHlAhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 05/51] USB: serial: fix unthrottle races
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 060/115] scsi: raid_attrs: fix unused variable warning
 Date:   Wed, 15 May 2019 12:55:40 +0200
-Message-Id: <20190515090619.169745441@linuxfoundation.org>
+Message-Id: <20190515090703.912770000@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,132 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+[ Upstream commit 0eeec01488da9b1403c8c29e73eacac8af9e4bf2 ]
 
-commit 3f5edd58d040bfa4b74fb89bc02f0bc6b9cd06ab upstream.
+I ran into a new warning on randconfig kernels:
 
-Fix two long-standing bugs which could potentially lead to memory
-corruption or leave the port throttled until it is reopened (on weakly
-ordered systems), respectively, when read-URB completion races with
-unthrottle().
+drivers/scsi/raid_class.c: In function 'raid_match':
+drivers/scsi/raid_class.c:64:24: error: unused variable 'i' [-Werror=unused-variable]
 
-First, the URB must not be marked as free before processing is complete
-to prevent it from being submitted by unthrottle() on another CPU.
+This looks like a very old problem that for some reason was very hard to
+run into, but it is very easy to fix, by replacing the incorrect #ifdef
+with a simpler IS_ENABLED() check.
 
-	CPU 1				CPU 2
-	================		================
-	complete()			unthrottle()
-	  process_urb();
-	  smp_mb__before_atomic();
-	  set_bit(i, free);		  if (test_and_clear_bit(i, free))
-	  					  submit_urb();
-
-Second, the URB must be marked as free before checking the throttled
-flag to prevent unthrottle() on another CPU from failing to observe that
-the URB needs to be submitted if complete() sees that the throttled flag
-is set.
-
-	CPU 1				CPU 2
-	================		================
-	complete()			unthrottle()
-	  set_bit(i, free);		  throttled = 0;
-	  smp_mb__after_atomic();	  smp_mb();
-	  if (throttled)		  if (test_and_clear_bit(i, free))
-	  	  return;			  submit_urb();
-
-Note that test_and_clear_bit() only implies barriers when the test is
-successful. To handle the case where the URB is still in use an explicit
-barrier needs to be added to unthrottle() for the second race condition.
-
-Fixes: d83b405383c9 ("USB: serial: add support for multiple read urbs")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: fac829fdcaf4 ("[SCSI] raid_attrs: fix dependency problems")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/usb/serial/generic.c |   39 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 32 insertions(+), 7 deletions(-)
+ drivers/scsi/raid_class.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/serial/generic.c
-+++ b/drivers/usb/serial/generic.c
-@@ -350,6 +350,7 @@ void usb_serial_generic_read_bulk_callba
- 	struct usb_serial_port *port = urb->context;
- 	unsigned char *data = urb->transfer_buffer;
- 	unsigned long flags;
-+	bool stopped = false;
- 	int status = urb->status;
- 	int i;
+diff --git a/drivers/scsi/raid_class.c b/drivers/scsi/raid_class.c
+index 2c146b44d95fc..cddd78893b46c 100644
+--- a/drivers/scsi/raid_class.c
++++ b/drivers/scsi/raid_class.c
+@@ -63,8 +63,7 @@ static int raid_match(struct attribute_container *cont, struct device *dev)
+ 	 * emulated RAID devices, so start with SCSI */
+ 	struct raid_internal *i = ac_to_raid_internal(cont);
  
-@@ -357,33 +358,51 @@ void usb_serial_generic_read_bulk_callba
- 		if (urb == port->read_urbs[i])
- 			break;
+-#if defined(CONFIG_SCSI) || defined(CONFIG_SCSI_MODULE)
+-	if (scsi_is_sdev_device(dev)) {
++	if (IS_ENABLED(CONFIG_SCSI) && scsi_is_sdev_device(dev)) {
+ 		struct scsi_device *sdev = to_scsi_device(dev);
+ 
+ 		if (i->f->cookie != sdev->host->hostt)
+@@ -72,7 +71,6 @@ static int raid_match(struct attribute_container *cont, struct device *dev)
+ 
+ 		return i->f->is_raid(dev);
  	}
--	set_bit(i, &port->read_urbs_free);
- 
- 	dev_dbg(&port->dev, "%s - urb %d, len %d\n", __func__, i,
- 							urb->actual_length);
- 	switch (status) {
- 	case 0:
-+		usb_serial_debug_data(&port->dev, __func__, urb->actual_length,
-+							data);
-+		port->serial->type->process_read_urb(urb);
- 		break;
- 	case -ENOENT:
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
- 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
- 							__func__, status);
--		return;
-+		stopped = true;
-+		break;
- 	case -EPIPE:
- 		dev_err(&port->dev, "%s - urb stopped: %d\n",
- 							__func__, status);
--		return;
-+		stopped = true;
-+		break;
- 	default:
- 		dev_dbg(&port->dev, "%s - nonzero urb status: %d\n",
- 							__func__, status);
--		goto resubmit;
-+		break;
- 	}
- 
--	usb_serial_debug_data(&port->dev, __func__, urb->actual_length, data);
--	port->serial->type->process_read_urb(urb);
-+	/*
-+	 * Make sure URB processing is done before marking as free to avoid
-+	 * racing with unthrottle() on another CPU. Matches the barriers
-+	 * implied by the test_and_clear_bit() in
-+	 * usb_serial_generic_submit_read_urb().
-+	 */
-+	smp_mb__before_atomic();
-+	set_bit(i, &port->read_urbs_free);
-+	/*
-+	 * Make sure URB is marked as free before checking the throttled flag
-+	 * to avoid racing with unthrottle() on another CPU. Matches the
-+	 * smp_mb() in unthrottle().
-+	 */
-+	smp_mb__after_atomic();
-+
-+	if (stopped)
-+		return;
- 
--resubmit:
- 	/* Throttle the device if requested by tty */
- 	spin_lock_irqsave(&port->lock, flags);
- 	port->throttled = port->throttle_req;
-@@ -458,6 +477,12 @@ void usb_serial_generic_unthrottle(struc
- 	port->throttled = port->throttle_req = 0;
- 	spin_unlock_irq(&port->lock);
- 
-+	/*
-+	 * Matches the smp_mb__after_atomic() in
-+	 * usb_serial_generic_read_bulk_callback().
-+	 */
-+	smp_mb();
-+
- 	if (was_throttled)
- 		usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
+-#endif
+ 	/* FIXME: look at other subsystems too */
+ 	return 0;
  }
+-- 
+2.20.1
+
 
 
