@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F331F19E
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259A01EE66
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbfEOLQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53082 "EHLO mail.kernel.org"
+        id S1730455AbfEOLVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730473AbfEOLQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:20 -0400
+        id S1731010AbfEOLVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C0E120843;
-        Wed, 15 May 2019 11:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56D8B206BF;
+        Wed, 15 May 2019 11:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918979;
-        bh=JgBM/wCgs/2NqfkScBOeU3yDhKLS3px3A4CeR1lsOek=;
+        s=default; t=1557919269;
+        bh=upxbJEKR/5VlTz49I77bWxzSs1Z4uqKmXoxzyIoncz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+n52R4PWFaweeSXLwcGWaUGDu4wWGuoA2vjHc7cc1MiyCD5kt0057H3lPqdbUazZ
-         rQMQGK43VQG/NPC8Sj6DP2jZAJfhTk35Ce8hoZW7kSeUSyh6nCM3ofJRB92QuKE5TN
-         OANxWPVDV8ZtZJykco1Fn5gDWIXAlB1hXB2n+00M=
+        b=12mJBq11CPcgzeSUGl9L6Be4t6Wo7X7ekgVrHnN8BIOnl+dSVHFrTLBj2mz4kNBXu
+         YMJ+7u5EOQFIm/bWCYbGGt6QGRFF6l2nir7QuCkemklT0LW8mJAMXxoqO48mX3/x5M
+         3ak3wM286iPu4t0itjFcLxnofyjMA8fWSB+Z0z3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, linux@endlessm.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/115] x86/reboot, efi: Use EFI reboot for Acer TravelMate X514-51T
-Date:   Wed, 15 May 2019 12:55:02 +0200
-Message-Id: <20190515090700.904928784@linuxfoundation.org>
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 012/113] acpi/nfit: Always dump _DSM output payload
+Date:   Wed, 15 May 2019 12:55:03 +0200
+Message-Id: <20190515090654.483522396@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,100 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0082517fa4bce073e7cf542633439f26538a14cc ]
+[ Upstream commit 351f339faa308c1c1461314a18c832239a841ca0 ]
 
-Upon reboot, the Acer TravelMate X514-51T laptop appears to complete the
-shutdown process, but then it hangs in BIOS POST with a black screen.
+The dynamic-debug statements for command payload output only get emitted
+when the command is not ND_CMD_CALL. Move the output payload dumping
+ahead of the early return path for ND_CMD_CALL.
 
-The problem is intermittent - at some points it has appeared related to
-Secure Boot settings or different kernel builds, but ultimately we have
-not been able to identify the exact conditions that trigger the issue to
-come and go.
-
-Besides, the EFI mode cannot be disabled in the BIOS of this model.
-
-However, after extensive testing, we observe that using the EFI reboot
-method reliably avoids the issue in all cases.
-
-So add a boot time quirk to use EFI reboot on such systems.
-
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=203119
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Cc: linux@endlessm.com
-Link: http://lkml.kernel.org/r/20190412080152.3718-1-jian-hong@endlessm.com
-[ Fix !CONFIG_EFI build failure, clarify the code and the changelog a bit. ]
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 31eca76ba2fc9 ("...whitelisted dimm command marshaling mechanism")
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/reboot.c | 21 +++++++++++++++++++++
- include/linux/efi.h      |  7 ++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/acpi/nfit/core.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 2126b9d27c340..c663d5fcff2ee 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -81,6 +81,19 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
- 	return 0;
- }
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 925dbc751322a..8340c81b258b7 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -542,6 +542,12 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		goto out;
+ 	}
  
-+/*
-+ * Some machines don't handle the default ACPI reboot method and
-+ * require the EFI reboot method:
-+ */
-+static int __init set_efi_reboot(const struct dmi_system_id *d)
-+{
-+	if (reboot_type != BOOT_EFI && !efi_runtime_disabled()) {
-+		reboot_type = BOOT_EFI;
-+		pr_info("%s series board detected. Selecting EFI-method for reboot.\n", d->ident);
-+	}
-+	return 0;
-+}
++	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
++			cmd_name, out_obj->buffer.length);
++	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
++			out_obj->buffer.pointer,
++			min_t(u32, 128, out_obj->buffer.length), true);
 +
- void __noreturn machine_real_restart(unsigned int type)
- {
- 	local_irq_disable();
-@@ -166,6 +179,14 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA110"),
- 		},
- 	},
-+	{	/* Handle reboot issue on Acer TravelMate X514-51T */
-+		.callback = set_efi_reboot,
-+		.ident = "Acer TravelMate X514-51T",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate X514-51T"),
-+		},
-+	},
+ 	if (call_pkg) {
+ 		call_pkg->nd_fw_size = out_obj->buffer.length;
+ 		memcpy(call_pkg->nd_payload + call_pkg->nd_size_in,
+@@ -560,12 +566,6 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+ 		return 0;
+ 	}
  
- 	/* Apple */
- 	{	/* Handle problems with rebooting on Apple MacBook5 */
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index b68b7d199feea..2dab158b74c45 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1518,7 +1518,12 @@ efi_status_t efi_setup_gop(efi_system_table_t *sys_table_arg,
- 			   struct screen_info *si, efi_guid_t *proto,
- 			   unsigned long size);
- 
--bool efi_runtime_disabled(void);
-+#ifdef CONFIG_EFI
-+extern bool efi_runtime_disabled(void);
-+#else
-+static inline bool efi_runtime_disabled(void) { return true; }
-+#endif
-+
- extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
- 
- enum efi_secureboot_mode {
+-	dev_dbg(dev, "%s cmd: %s output length: %d\n", dimm_name,
+-			cmd_name, out_obj->buffer.length);
+-	print_hex_dump_debug(cmd_name, DUMP_PREFIX_OFFSET, 4, 4,
+-			out_obj->buffer.pointer,
+-			min_t(u32, 128, out_obj->buffer.length), true);
+-
+ 	for (i = 0, offset = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i, buf,
+ 				(u32 *) out_obj->buffer.pointer,
 -- 
 2.20.1
 
