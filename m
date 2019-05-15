@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 902811F0B1
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A801EFE5
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731508AbfEOLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35976 "EHLO mail.kernel.org"
+        id S1732796AbfEOLav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731937AbfEOLZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:15 -0400
+        id S1732793AbfEOLau (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 363262089E;
-        Wed, 15 May 2019 11:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4229420843;
+        Wed, 15 May 2019 11:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919514;
-        bh=3dqHaKVa6Z5MG2ih8ovPRqksXJrBN+i9N0bdLmVtv70=;
+        s=default; t=1557919849;
+        bh=QfVRAJ/Ne52ihoN9sOBFHEmzsb56LqJqKscfzZHqdsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7Hd0BQa3Zig2G4FJEObFdg/KFh3oXMTVWh1OA9Xh+5p0ZcIkmkXPYu9ikFARXXCx
-         gpyGBn2kcSNcbS8e/UlvfG8M41EEH5Mv3yeu7NqrLjLyD7+DHwbM6mbhgIwJvUFN/P
-         cPtVfapl59mnKdMf0DRHoSA7TqabOuOVDJvDmjCQ=
+        b=j3aRyHvywP6x48C2Xn2hYFEwXGeZWUEqaabYiXCGAnl3p8eA6yGG+gpHpVpCKoXyq
+         0Sqfqd4NGfq9wzCih2n1srLkpIl3c+MF8L1iYRTv1wHKOmYOjg/Q1EpxTyBzObgVQO
+         3ie4geU8xE0z+FgzfQ4J94Doj8JS4gNiOmS1fNbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.se>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 105/113] tipc: fix hanging clients using poll with EPOLLOUT flag
+Subject: [PATCH 5.0 115/137] packet: Fix error path in packet_init
 Date:   Wed, 15 May 2019 12:56:36 +0200
-Message-Id: <20190515090701.630455848@linuxfoundation.org>
+Message-Id: <20190515090701.986217985@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ff946833b70e0c7f93de9a3f5b329b5ae2287b38 ]
+[ Upstream commit 36096f2f4fa05f7678bc87397665491700bae757 ]
 
-commit 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
-introduced a regression for clients using non-blocking sockets.
-After the commit, we send EPOLLOUT event to the client even in
-TIPC_CONNECTING state. This causes the subsequent send() to fail
-with ENOTCONN, as the socket is still not in TIPC_ESTABLISHED state.
+kernel BUG at lib/list_debug.c:47!
+invalid opcode: 0000 [#1
+CPU: 0 PID: 12914 Comm: rmmod Tainted: G        W         5.1.0+ #47
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:__list_del_entry_valid+0x53/0x90
+Code: 48 8b 32 48 39 fe 75 35 48 8b 50 08 48 39 f2 75 40 b8 01 00 00 00 5d c3 48
+89 fe 48 89 c2 48 c7 c7 18 75 fe 82 e8 cb 34 78 ff <0f> 0b 48 89 fe 48 c7 c7 50 75 fe 82 e8 ba 34 78 ff 0f 0b 48 89 f2
+RSP: 0018:ffffc90001c2fe40 EFLAGS: 00010286
+RAX: 000000000000004e RBX: ffffffffa0184000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888237a17788 RDI: 00000000ffffffff
+RBP: ffffc90001c2fe40 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffc90001c2fe10 R11: 0000000000000000 R12: 0000000000000000
+R13: ffffc90001c2fe50 R14: ffffffffa0184000 R15: 0000000000000000
+FS:  00007f3d83634540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000555c350ea818 CR3: 0000000231677000 CR4: 00000000000006f0
+Call Trace:
+ unregister_pernet_operations+0x34/0x120
+ unregister_pernet_subsys+0x1c/0x30
+ packet_exit+0x1c/0x369 [af_packet
+ __x64_sys_delete_module+0x156/0x260
+ ? lockdep_hardirqs_on+0x133/0x1b0
+ ? do_syscall_64+0x12/0x1f0
+ do_syscall_64+0x6e/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-In this commit, we:
-- improve the fix for hanging poll() by replacing sk_data_ready()
-  with sk_state_change() to wake up all clients.
-- revert the faulty updates introduced by commit 517d7c79bdb398
-  ("tipc: fix hanging poll() for stream sockets").
+When modprobe af_packet, register_pernet_subsys
+fails and does a cleanup, ops->list is set to LIST_POISON1,
+but the module init is considered to success, then while rmmod it,
+BUG() is triggered in __list_del_entry_valid which is called from
+unregister_pernet_subsys. This patch fix error handing path in
+packet_init to avoid possilbe issue if some error occur.
 
-Fixes: 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
-Signed-off-by: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
-Acked-by: Jon Maloy <jon.maloy@ericsson.se>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/packet/af_packet.c |   25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -726,11 +726,11 @@ static __poll_t tipc_poll(struct file *f
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4604,14 +4604,29 @@ static void __exit packet_exit(void)
  
- 	switch (sk->sk_state) {
- 	case TIPC_ESTABLISHED:
--	case TIPC_CONNECTING:
- 		if (!tsk->cong_link_cnt && !tsk_conn_cong(tsk))
- 			revents |= EPOLLOUT;
- 		/* fall thru' */
- 	case TIPC_LISTEN:
-+	case TIPC_CONNECTING:
- 		if (!skb_queue_empty(&sk->sk_receive_queue))
- 			revents |= EPOLLIN | EPOLLRDNORM;
- 		break;
-@@ -2039,7 +2039,7 @@ static bool tipc_sk_filter_connect(struc
- 			return true;
+ static int __init packet_init(void)
+ {
+-	int rc = proto_register(&packet_proto, 0);
++	int rc;
  
- 		/* If empty 'ACK-' message, wake up sleeping connect() */
--		sk->sk_data_ready(sk);
-+		sk->sk_state_change(sk);
+-	if (rc != 0)
++	rc = proto_register(&packet_proto, 0);
++	if (rc)
+ 		goto out;
++	rc = sock_register(&packet_family_ops);
++	if (rc)
++		goto out_proto;
++	rc = register_pernet_subsys(&packet_net_ops);
++	if (rc)
++		goto out_sock;
++	rc = register_netdevice_notifier(&packet_netdev_notifier);
++	if (rc)
++		goto out_pernet;
  
- 		/* 'ACK-' message is neither accepted nor rejected: */
- 		msg_set_dest_droppable(hdr, 1);
+-	sock_register(&packet_family_ops);
+-	register_pernet_subsys(&packet_net_ops);
+-	register_netdevice_notifier(&packet_netdev_notifier);
++	return 0;
++
++out_pernet:
++	unregister_pernet_subsys(&packet_net_ops);
++out_sock:
++	sock_unregister(PF_PACKET);
++out_proto:
++	proto_unregister(&packet_proto);
+ out:
+ 	return rc;
+ }
 
 
