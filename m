@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3B571F12D
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3761EDAE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731345AbfEOLVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59762 "EHLO mail.kernel.org"
+        id S1729755AbfEOLMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731342AbfEOLVs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:21:48 -0400
+        id S1729744AbfEOLMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:12:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3255820843;
-        Wed, 15 May 2019 11:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1080D2166E;
+        Wed, 15 May 2019 11:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919306;
-        bh=zFzl0zPOvD4rreSA638Dd7GW+rQE7WMGAsueLnw3frY=;
+        s=default; t=1557918737;
+        bh=bvmCFZAcCNHnBodtaxWi016DoRHs+DDGWr67rN5v8I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOOa2kIFiWbOFJPI7qY/Ywiq+eakKP8WwxfzOFFtVVai/I7ccZ9HuWBXcycdsat1y
-         YPxG4J9N7f7ap0hh8tAJViFOmLk96uQvTzR/y3teWEszXkwBwDC1jbyF/EjA8im8Cz
-         jyuRJSxlsTVbWERz6ORgRjrnm2SMFgezxOKwlHT8=
+        b=N5FwYXV9HZT3aSYUPgQuFeYtULg0xt7uGX3We3boCLOBrf3+w2DpD72buaPS0tiyn
+         UK+kOvb2C5z9fHaUqHQZGqw+PIz4vH7HrCfpvuWGLSXf2Kl+0LiHaZdA5BUPzQyXBV
+         jxBJ8ViuZwUL2uyi923PVGz11cvCtq16hWY3jY2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/113] s390/3270: fix lockdep false positive on view->lock
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 4.4 209/266] sched: Add sched_smt_active()
 Date:   Wed, 15 May 2019 12:55:16 +0200
-Message-Id: <20190515090655.405735510@linuxfoundation.org>
+Message-Id: <20190515090730.037812794@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,122 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
+From: Ben Hutchings <ben@decadent.org.uk>
 
-The spinlock in the raw3270_view structure is used by con3270, tty3270
-and fs3270 in different ways. For con3270 the lock can be acquired in
-irq context, for tty3270 and fs3270 the highest context is bh.
+Add the sched_smt_active() function needed for some x86 speculation
+mitigations.  This was introduced upstream by commits 1b568f0aabf2
+"sched/core: Optimize SCHED_SMT", ba2591a5993e "sched/smt: Update
+sched_smt_present at runtime", c5511d03ec09 "sched/smt: Make
+sched_smt_present track topology", and 321a874a7ef8 "sched/smt: Expose
+sched_smt_present static key".  The upstream implementation uses the
+static_key_{disable,enable}_cpuslocked() functions, which aren't
+practical to backport.
 
-Lockdep sees the view->lock as a single class and if the 3270 driver
-is used for the console the following message is generated:
-
-WARNING: inconsistent lock state
-5.1.0-rc3-05157-g5c168033979d #12 Not tainted
---------------------------------
-inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
-(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
-
-Introduce a lockdep subclass for the view lock to distinguish bh from
-irq locks.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/char/con3270.c | 2 +-
- drivers/s390/char/fs3270.c  | 3 ++-
- drivers/s390/char/raw3270.c | 3 ++-
- drivers/s390/char/raw3270.h | 4 +++-
- drivers/s390/char/tty3270.c | 3 ++-
- 5 files changed, 10 insertions(+), 5 deletions(-)
+ include/linux/sched/smt.h |   18 ++++++++++++++++++
+ kernel/sched/core.c       |   24 ++++++++++++++++++++++++
+ kernel/sched/sched.h      |    1 +
+ 3 files changed, 43 insertions(+)
+ create mode 100644 include/linux/sched/smt.h
 
-diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index fd2146bcc0add..e17364e13d2f7 100644
---- a/drivers/s390/char/con3270.c
-+++ b/drivers/s390/char/con3270.c
-@@ -629,7 +629,7 @@ con3270_init(void)
- 		     (void (*)(unsigned long)) con3270_read_tasklet,
- 		     (unsigned long) condev->read);
+--- /dev/null
++++ b/include/linux/sched/smt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_SCHED_SMT_H
++#define _LINUX_SCHED_SMT_H
++
++#include <linux/atomic.h>
++
++#ifdef CONFIG_SCHED_SMT
++extern atomic_t sched_smt_present;
++
++static __always_inline bool sched_smt_active(void)
++{
++	return atomic_read(&sched_smt_present);
++}
++#else
++static inline bool sched_smt_active(void) { return false; }
++#endif
++
++#endif
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5610,6 +5610,10 @@ static void set_cpu_rq_start_time(void)
+ 	rq->age_stamp = sched_clock_cpu(cpu);
+ }
  
--	raw3270_add_view(&condev->view, &con3270_fn, 1);
-+	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
- 
- 	INIT_LIST_HEAD(&condev->freemem);
- 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
-diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
-index 16a4e8528bbc3..2f9905ee047cd 100644
---- a/drivers/s390/char/fs3270.c
-+++ b/drivers/s390/char/fs3270.c
-@@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
- 
- 	init_waitqueue_head(&fp->wait);
- 	fp->fs_pid = get_pid(task_pid(current));
--	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
-+	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		fs3270_free_view(&fp->view);
- 		goto out;
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index f8cd2935fbfd4..63a41b1687610 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -920,7 +920,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
-  * Add view to device with minor "minor".
-  */
- int
--raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
-+raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
++#ifdef CONFIG_SCHED_SMT
++atomic_t sched_smt_present = ATOMIC_INIT(0);
++#endif
++
+ static int sched_cpu_active(struct notifier_block *nfb,
+ 				      unsigned long action, void *hcpu)
  {
- 	unsigned long flags;
- 	struct raw3270 *rp;
-@@ -942,6 +942,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
- 		view->cols = rp->cols;
- 		view->ascebc = rp->ascebc;
- 		spin_lock_init(&view->lock);
-+		lockdep_set_subclass(&view->lock, subclass);
- 		list_add(&view->list, &rp->view_list);
- 		rc = 0;
- 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
-diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
-index 114ca7cbf8897..3afaa35f73513 100644
---- a/drivers/s390/char/raw3270.h
-+++ b/drivers/s390/char/raw3270.h
-@@ -150,6 +150,8 @@ struct raw3270_fn {
- struct raw3270_view {
- 	struct list_head list;
- 	spinlock_t lock;
-+#define RAW3270_VIEW_LOCK_IRQ	0
-+#define RAW3270_VIEW_LOCK_BH	1
- 	atomic_t ref_count;
- 	struct raw3270 *dev;
- 	struct raw3270_fn *fn;
-@@ -158,7 +160,7 @@ struct raw3270_view {
- 	unsigned char *ascebc;		/* ascii -> ebcdic table */
- };
+@@ -5626,11 +5630,23 @@ static int sched_cpu_active(struct notif
+ 		 * set_cpu_online(). But it might not yet have marked itself
+ 		 * as active, which is essential from here on.
+ 		 */
++#ifdef CONFIG_SCHED_SMT
++		/*
++		 * When going up, increment the number of cores with SMT present.
++		 */
++		if (cpumask_weight(cpu_smt_mask(cpu)) == 2)
++			atomic_inc(&sched_smt_present);
++#endif
+ 		set_cpu_active(cpu, true);
+ 		stop_machine_unpark(cpu);
+ 		return NOTIFY_OK;
  
--int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
-+int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
- int raw3270_activate_view(struct raw3270_view *);
- void raw3270_del_view(struct raw3270_view *);
- void raw3270_deactivate_view(struct raw3270_view *);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 5b8af27822828..81067f5bb178e 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -980,7 +980,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return PTR_ERR(tp);
+ 	case CPU_DOWN_FAILED:
++#ifdef CONFIG_SCHED_SMT
++		/* Same as for CPU_ONLINE */
++		if (cpumask_weight(cpu_smt_mask(cpu)) == 2)
++			atomic_inc(&sched_smt_present);
++#endif
+ 		set_cpu_active(cpu, true);
+ 		return NOTIFY_OK;
  
- 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
--			      tty->index + RAW3270_FIRSTMINOR);
-+			      tty->index + RAW3270_FIRSTMINOR,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		tty3270_free_view(tp);
- 		return rc;
--- 
-2.20.1
-
+@@ -5645,7 +5661,15 @@ static int sched_cpu_inactive(struct not
+ 	switch (action & ~CPU_TASKS_FROZEN) {
+ 	case CPU_DOWN_PREPARE:
+ 		set_cpu_active((long)hcpu, false);
++#ifdef CONFIG_SCHED_SMT
++		/*
++		 * When going down, decrement the number of cores with SMT present.
++		 */
++		if (cpumask_weight(cpu_smt_mask((long)hcpu)) == 2)
++			atomic_dec(&sched_smt_present);
++#endif
+ 		return NOTIFY_OK;
++
+ 	default:
+ 		return NOTIFY_DONE;
+ 	}
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2,6 +2,7 @@
+ #include <linux/sched.h>
+ #include <linux/sched/sysctl.h>
+ #include <linux/sched/rt.h>
++#include <linux/sched/smt.h>
+ #include <linux/sched/deadline.h>
+ #include <linux/mutex.h>
+ #include <linux/spinlock.h>
 
 
