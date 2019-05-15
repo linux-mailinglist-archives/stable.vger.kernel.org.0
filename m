@@ -2,57 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B451ED9D
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5101EFFF
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728960AbfEOLLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S1732210AbfEOL3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729637AbfEOLLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:49 -0400
+        id S1731818AbfEOL3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 191DC2184C;
-        Wed, 15 May 2019 11:11:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 358CF206BF;
+        Wed, 15 May 2019 11:29:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918708;
-        bh=ZE/wyIpieYWpS3jmasNG/txzYJIV0+xGGC7dW8gk/1Q=;
+        s=default; t=1557919746;
+        bh=pT8pxS8klidPn33smoRvZdqbifKG/O564mOdrnLgpaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0irSYnWxrE5ntedmw8IbGsotfd2wxh/QfP2uiIShFJF93Z7V9wQg1JaYiD5JzSpu
-         QUy4fPzTLoFxallxuBBUnqAdgRygp656f3h4SA8sixhQ4I1pGQVKfk5GsHNKIgaciZ
-         EPkQmvnqk+4oTB3TUAyedeGNLyvap1+UBuzBj3EI=
+        b=lxFDV+DIfFrFFj3Smg8Y25++mK+05hn8eGqn5Lwxu6+Dj9QCazN1XSX2bl/QhUE8U
+         LOC+HDUw9keFdJfcJ3KiziQ9x0XlqQ8KNnF9EY5IsabGh1hZA3mtmrKGKRT2bA8Z5x
+         5QEoR6BfUOHp0ukplYvdLPNpUmQK+mZbzqaef7Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 208/266] x86/Kconfig: Select SCHED_SMT if SMP enabled
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 034/137] selftests: fib_tests: Fix Command line is not complete errors
 Date:   Wed, 15 May 2019 12:55:15 +0200
-Message-Id: <20190515090729.996216353@linuxfoundation.org>
+Message-Id: <20190515090655.830958831@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,64 +44,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit a5f622984a623df9a84cf43f6b098d8dd76fbe05 ]
 
-commit dbe733642e01dd108f71436aaea7b328cb28fd87 upstream.
+A couple of tests are verifying a route has been removed. The helper
+expects the prefix as the first part of the expected output. When
+checking that a route has been deleted the prefix is empty leading
+to an invalid ip command:
 
-CONFIG_SCHED_SMT is enabled by all distros, so there is not a real point to
-have it configurable. The runtime overhead in the core scheduler code is
-minimal because the actual SMT scheduling parts are conditional on a static
-key.
+  $ ip ro ls match
+  Command line is not complete. Try option "help"
 
-This allows to expose the scheduler's SMT state static key to the
-speculation control code. Alternatively the scheduler's static key could be
-made always available when CONFIG_SMP is enabled, but that's just adding an
-unused static key to every other architecture for nothing.
+Fix by moving the comparison of expected output and output to a new
+function that is used by both check_route and check_route6. Use the
+new helper for the 2 checks on route removal.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185004.337452245@linutronix.de
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also, remove the reset of 'set -x' in route_setup which overrides the
+user managed setting.
+
+Fixes: d69faad76584c ("selftests: fib_tests: Add prefix route tests with metric")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ tools/testing/selftests/net/fib_tests.sh | 94 ++++++++++--------------
+ 1 file changed, 40 insertions(+), 54 deletions(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -893,13 +893,7 @@ config NR_CPUS
- 	  approximately eight kilobytes to the kernel image.
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index 1080ff55a788f..0d2a5f4f1e638 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -605,6 +605,39 @@ run_cmd()
+ 	return $rc
+ }
  
- config SCHED_SMT
--	bool "SMT (Hyperthreading) scheduler support"
--	depends on SMP
--	---help---
--	  SMT scheduler support improves the CPU scheduler's decision making
--	  when dealing with Intel Pentium 4 chips with HyperThreading at a
--	  cost of slightly increased overhead in some places. If unsure say
--	  N here.
-+	def_bool y if SMP
++check_expected()
++{
++	local out="$1"
++	local expected="$2"
++	local rc=0
++
++	[ "${out}" = "${expected}" ] && return 0
++
++	if [ -z "${out}" ]; then
++		if [ "$VERBOSE" = "1" ]; then
++			printf "\nNo route entry found\n"
++			printf "Expected:\n"
++			printf "    ${expected}\n"
++		fi
++		return 1
++	fi
++
++	# tricky way to convert output to 1-line without ip's
++	# messy '\'; this drops all extra white space
++	out=$(echo ${out})
++	if [ "${out}" != "${expected}" ]; then
++		rc=1
++		if [ "${VERBOSE}" = "1" ]; then
++			printf "    Unexpected route entry. Have:\n"
++			printf "        ${out}\n"
++			printf "    Expected:\n"
++			printf "        ${expected}\n\n"
++		fi
++	fi
++
++	return $rc
++}
++
+ # add route for a prefix, flushing any existing routes first
+ # expected to be the first step of a test
+ add_route6()
+@@ -652,31 +685,7 @@ check_route6()
+ 	pfx=$1
  
- config SCHED_MC
- 	def_bool y
+ 	out=$($IP -6 ro ls match ${pfx} | sed -e 's/ pref medium//')
+-	[ "${out}" = "${expected}" ] && return 0
+-
+-	if [ -z "${out}" ]; then
+-		if [ "$VERBOSE" = "1" ]; then
+-			printf "\nNo route entry found\n"
+-			printf "Expected:\n"
+-			printf "    ${expected}\n"
+-		fi
+-		return 1
+-	fi
+-
+-	# tricky way to convert output to 1-line without ip's
+-	# messy '\'; this drops all extra white space
+-	out=$(echo ${out})
+-	if [ "${out}" != "${expected}" ]; then
+-		rc=1
+-		if [ "${VERBOSE}" = "1" ]; then
+-			printf "    Unexpected route entry. Have:\n"
+-			printf "        ${out}\n"
+-			printf "    Expected:\n"
+-			printf "        ${expected}\n\n"
+-		fi
+-	fi
+-
+-	return $rc
++	check_expected "${out}" "${expected}"
+ }
+ 
+ route_cleanup()
+@@ -725,7 +734,7 @@ route_setup()
+ 	ip -netns ns2 addr add 172.16.103.2/24 dev veth4
+ 	ip -netns ns2 addr add 172.16.104.1/24 dev dummy1
+ 
+-	set +ex
++	set +e
+ }
+ 
+ # assumption is that basic add of a single path route works
+@@ -960,7 +969,8 @@ ipv6_addr_metric_test()
+ 	run_cmd "$IP li set dev dummy2 down"
+ 	rc=$?
+ 	if [ $rc -eq 0 ]; then
+-		check_route6 ""
++		out=$($IP -6 ro ls match 2001:db8:104::/64)
++		check_expected "${out}" ""
+ 		rc=$?
+ 	fi
+ 	log_test $rc 0 "Prefix route removed on link down"
+@@ -1091,38 +1101,13 @@ check_route()
+ 	local pfx
+ 	local expected="$1"
+ 	local out
+-	local rc=0
+ 
+ 	set -- $expected
+ 	pfx=$1
+ 	[ "${pfx}" = "unreachable" ] && pfx=$2
+ 
+ 	out=$($IP ro ls match ${pfx})
+-	[ "${out}" = "${expected}" ] && return 0
+-
+-	if [ -z "${out}" ]; then
+-		if [ "$VERBOSE" = "1" ]; then
+-			printf "\nNo route entry found\n"
+-			printf "Expected:\n"
+-			printf "    ${expected}\n"
+-		fi
+-		return 1
+-	fi
+-
+-	# tricky way to convert output to 1-line without ip's
+-	# messy '\'; this drops all extra white space
+-	out=$(echo ${out})
+-	if [ "${out}" != "${expected}" ]; then
+-		rc=1
+-		if [ "${VERBOSE}" = "1" ]; then
+-			printf "    Unexpected route entry. Have:\n"
+-			printf "        ${out}\n"
+-			printf "    Expected:\n"
+-			printf "        ${expected}\n\n"
+-		fi
+-	fi
+-
+-	return $rc
++	check_expected "${out}" "${expected}"
+ }
+ 
+ # assumption is that basic add of a single path route works
+@@ -1387,7 +1372,8 @@ ipv4_addr_metric_test()
+ 	run_cmd "$IP li set dev dummy2 down"
+ 	rc=$?
+ 	if [ $rc -eq 0 ]; then
+-		check_route ""
++		out=$($IP ro ls match 172.16.104.0/24)
++		check_expected "${out}" ""
+ 		rc=$?
+ 	fi
+ 	log_test $rc 0 "Prefix route removed on link down"
+-- 
+2.20.1
+
 
 
