@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FBE1F270
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5742E1F29A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729463AbfEOLKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44862 "EHLO mail.kernel.org"
+        id S1729185AbfEOMFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729457AbfEOLKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:10:46 -0400
+        id S1729464AbfEOLKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:10:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0DBB20862;
-        Wed, 15 May 2019 11:10:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C43520862;
+        Wed, 15 May 2019 11:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918645;
-        bh=J+NAxvkDak5mBXRbfG7zbAzO+rFlbb67MBQ+RR8k4wI=;
+        s=default; t=1557918648;
+        bh=hpaiWLlMOAiF0XSqvhQachl/QobSqB58Tht0r9bzpHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7xCWoTLVrR8w8WC89yc1nqAz+cuxovVBFnzrtGMJ59cEudEc9eJQtaowJ0TAEG/k
-         ETY5EkCLg24d+3SCFU8VovVllqRZycGvSAcWAWPcrlNNB9DRdC/VlqlKFKUQEqtU2V
-         rTgNdJnl0y/2iyNmNe77Oz4jVY6FOe8OsDwDm5nM=
+        b=v0jIKJLofOnoA/WRXwZQQ3e2RQWxIgs+OPQeRuhwqOiE0xhO8o/k+OUtCQ+LkN2yA
+         kw/YxDtTej4PHCaL6rs6pf2WephyfickjfRiaKmD2Ty8uuMlBqULNjpNkUkV2KeHW+
+         IMiHXYJ6IZOKkY7YdDWHSEd6kXp3Q5XXIHAqL678=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 168/266] KVM: x86: avoid misreporting level-triggered irqs as edge-triggered in tracing
-Date:   Wed, 15 May 2019 12:54:35 +0200
-Message-Id: <20190515090728.603369013@linuxfoundation.org>
+Subject: [PATCH 4.4 169/266] tools lib traceevent: Fix missing equality check for strcmp
+Date:   Wed, 15 May 2019 12:54:36 +0200
+Message-Id: <20190515090728.637382553@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,48 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7a223e06b1a411cef6c4cd7a9b9a33c8d225b10e ]
+[ Upstream commit f32c2877bcb068a718bb70094cd59ccc29d4d082 ]
 
-In __apic_accept_irq() interface trig_mode is int and actually on some code
-paths it is set above u8:
+There was a missing comparison with 0 when checking if type is "s64" or
+"u64". Therefore, the body of the if-statement was entered if "type" was
+"u64" or not "s64", which made the first strcmp() redundant since if
+type is "u64", it's not "s64".
 
-kvm_apic_set_irq() extracts it from 'struct kvm_lapic_irq' where trig_mode
-is u16. This is done on purpose as e.g. kvm_set_msi_irq() sets it to
-(1 << 15) & e->msi.data
+If type is "s64", the body of the if-statement is not entered but since
+the remainder of the function consists of if-statements which will not
+be entered if type is "s64", we will just return "val", which is
+correct, albeit at the cost of a few more calls to strcmp(), i.e., it
+will behave just as if the if-statement was entered.
 
-kvm_apic_local_deliver sets it to reg & (1 << 15).
+If type is neither "s64" or "u64", the body of the if-statement will be
+entered incorrectly and "val" returned. This means that any type that is
+checked after "s64" and "u64" is handled the same way as "s64" and
+"u64", i.e., the limiting of "val" to fit in for example "s8" is never
+reached.
 
-Fix the immediate issue by making 'tm' into u16. We may also want to adjust
-__apic_accept_irq() interface and use proper sizes for vector, level,
-trig_mode but this is not urgent.
+This was introduced in the kernel tree when the sources were copied from
+trace-cmd in commit f7d82350e597 ("tools/events: Add files to create
+libtraceevent.a"), and in the trace-cmd repo in 1cdbae6035cei
+("Implement typecasting in parser") when the function was introduced,
+i.e., it has always behaved the wrong way.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Detected by cppcheck.
+
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Fixes: f7d82350e597 ("tools/events: Add files to create libtraceevent.a")
+Link: http://lkml.kernel.org/r/20190409091529.2686-1-rikard.falkeborn@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/trace.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/traceevent/event-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/trace.h b/arch/x86/kvm/trace.h
-index ab9ae67a80e44..0ec94c6b47576 100644
---- a/arch/x86/kvm/trace.h
-+++ b/arch/x86/kvm/trace.h
-@@ -434,13 +434,13 @@ TRACE_EVENT(kvm_apic_ipi,
- );
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 743746a3c50d7..df3c73e9dea49 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -2201,7 +2201,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
+ 		return val & 0xffffffff;
  
- TRACE_EVENT(kvm_apic_accept_irq,
--	    TP_PROTO(__u32 apicid, __u16 dm, __u8 tm, __u8 vec),
-+	    TP_PROTO(__u32 apicid, __u16 dm, __u16 tm, __u8 vec),
- 	    TP_ARGS(apicid, dm, tm, vec),
+ 	if (strcmp(type, "u64") == 0 ||
+-	    strcmp(type, "s64"))
++	    strcmp(type, "s64") == 0)
+ 		return val;
  
- 	TP_STRUCT__entry(
- 		__field(	__u32,		apicid		)
- 		__field(	__u16,		dm		)
--		__field(	__u8,		tm		)
-+		__field(	__u16,		tm		)
- 		__field(	__u8,		vec		)
- 	),
- 
+ 	if (strcmp(type, "s8") == 0)
 -- 
 2.20.1
 
