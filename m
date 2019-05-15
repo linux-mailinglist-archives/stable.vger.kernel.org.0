@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 840651F1BB
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35BC71F3C4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730038AbfEOLRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:17:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55024 "EHLO mail.kernel.org"
+        id S1727299AbfEOK75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:59:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730680AbfEOLRm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:42 -0400
+        id S1727294AbfEOK74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:59:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6EC120644;
-        Wed, 15 May 2019 11:17:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C15AF2084E;
+        Wed, 15 May 2019 10:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919061;
-        bh=AgWPtJhCmV9gDH7+N7t6urqs1UeMX2JOWmXIAWuPI8E=;
+        s=default; t=1557917996;
+        bh=U6Bp83rZEA3A0LWqKlMu1ABFw8HuaGPcepcGWNLBXRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJvXWSlLbgD8zKZLi8ferpDHlgwiHO+pRch0goH87apJy3tAkEzLynnjayGb6rFBf
-         j979b4NpqUvTYVDATqFin28XhaDhurRAXbx7C8YMA3MOkwekKiTUjBjvgIWk1AROw1
-         1UxzHUHq77MQGwe7JL93gfxEI0HMddZD+6x7Fo0s=
+        b=mAV2nCsYM+FIPoPiH90QlOQdAveT1jfcSSpMFTbJghwj8CPZ6XNR2AZGvYt4KAEyi
+         VsCAAoNdNyZ8S1CfO1WDyVTb+BcKYqwL6q0xN2RFBv1kZtdQhURUSImBpBwsfrb4ki
+         LUOJv4TZsptOJ2I5ET4iz+JKBQmZW8gzTLeQL/Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 050/115] media: adv7604: when the EDID is cleared, unconfigure CEC as well
+        stable@vger.kernel.org, Rander Wang <rander.wang@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 3.18 53/86] ASoC:soc-pcm:fix a codec fixup issue in TDM case
 Date:   Wed, 15 May 2019 12:55:30 +0200
-Message-Id: <20190515090703.223751213@linuxfoundation.org>
+Message-Id: <20190515090652.846957745@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e7da89926f6dc6cf855f5ffdf79ef99a1b115ca7 ]
+[ Upstream commit 570f18b6a8d1f0e60e8caf30e66161b6438dcc91 ]
 
-When there is no EDID the CEC adapter should be unconfigured as
-well. So call cec_phys_addr_invalidate() when this happens.
+On HDaudio platforms, if playback is started when capture is working,
+there is no audible output.
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: <stable@vger.kernel.org>      # for v4.18 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+This can be root-caused to the use of the rx|tx_mask to store an HDaudio
+stream tag.
+
+If capture is stared before playback, rx_mask would be non-zero on HDaudio
+platform, then the channel number of playback, which is in the same codec
+dai with the capture, would be changed by soc_pcm_codec_params_fixup based
+on the tx_mask at first, then overwritten by this function based on rx_mask
+at last.
+
+According to the author of tx|rx_mask, tx_mask is for playback and rx_mask
+is for capture. And stream direction is checked at all other references of
+tx|rx_mask in ASoC, so here should be an error. This patch checks stream
+direction for tx|rx_mask for fixup function.
+
+This issue would affect not only HDaudio+ASoC, but also I2S codecs if the
+channel number based on rx_mask is not equal to the one for tx_mask. It could
+be rarely reproduecd because most drivers in kernel set the same channel number
+to tx|rx_mask or rx_mask is zero.
+
+Tested on all platforms using stream_tag & HDaudio and intel I2S platforms.
+
+Signed-off-by: Rander Wang <rander.wang@linux.intel.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv7604.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/soc-pcm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-index d2108aad3c658..26c3ec573a565 100644
---- a/drivers/media/i2c/adv7604.c
-+++ b/drivers/media/i2c/adv7604.c
-@@ -2295,8 +2295,10 @@ static int adv76xx_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
- 		state->aspect_ratio.numerator = 16;
- 		state->aspect_ratio.denominator = 9;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index e2fb859fbbaa1..4323002c67db2 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -847,10 +847,13 @@ static int soc_pcm_hw_params(struct snd_pcm_substream *substream,
+ 		codec_params = *params;
  
--		if (!state->edid.present)
-+		if (!state->edid.present) {
- 			state->edid.blocks = 0;
-+			cec_phys_addr_invalidate(state->cec_adap);
-+		}
+ 		/* fixup params based on TDM slot masks */
+-		if (codec_dai->tx_mask)
++		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++		    codec_dai->tx_mask)
+ 			soc_pcm_codec_params_fixup(&codec_params,
+ 						   codec_dai->tx_mask);
+-		if (codec_dai->rx_mask)
++
++		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
++		    codec_dai->rx_mask)
+ 			soc_pcm_codec_params_fixup(&codec_params,
+ 						   codec_dai->rx_mask);
  
- 		v4l2_dbg(2, debug, sd, "%s: clear EDID pad %d, edid.present = 0x%x\n",
- 				__func__, edid->pad, state->edid.present);
 -- 
 2.20.1
 
