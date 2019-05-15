@@ -2,39 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A651F1B9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C98A1F27A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbfEOLRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54900 "EHLO mail.kernel.org"
+        id S1729320AbfEOLLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730680AbfEOLRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:37 -0400
+        id S1728026AbfEOLLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC3BC2084F;
-        Wed, 15 May 2019 11:17:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B73FE216F4;
+        Wed, 15 May 2019 11:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919056;
-        bh=GPqaO2UIdUX3g9xRzGR2B1sFPsogSBi6kpP2gp5v34c=;
+        s=default; t=1557918670;
+        bh=I6d+9dKOeglrTD2kyHydzbVP6se/isQi7Sw1aONqFQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+InU4IABBHZ1ABZJf0vclLfL0SJvPT5UWiLKjp2FuObmTZG+r9Mk538YGObjLTGJ
-         PMYRFG9+3A+GBSESZKqlv3anPw3P/OtnO2R49mdnIWKOEBjANnNSiQhD1WbxsiWMVL
-         NQ9hMPt+eFl2GeRA9aiV8S+RwLIgtt6rEzAqhiLA=
+        b=w5cY4FcCy57vQGSM/s1uhibOL10zRl/azxMxejWWtLum+hY9VED4X+iqnyx1V+EHZ
+         LMYYVCq0uPJISIZhiRqecf6t9x6Az+2HU+TERNkCvMQYS+mLuGSebLnBK0A/f5wWei
+         GHfArRCAPe5KWmHckPrlIGAWQHmczQM4oNbXuE9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 048/115] media: cec: make cec_get_edid_spa_location() an inline function
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        Dave Stewart <david.c.stewart@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 221/266] x86/speculation: Prepare arch_smt_update() for PRCTL mode
 Date:   Wed, 15 May 2019 12:55:28 +0200
-Message-Id: <20190515090703.081752191@linuxfoundation.org>
+Message-Id: <20190515090730.469845973@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,178 +62,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b915bf575d5b7774d0f22d57d6c143e07dcaade2 ]
+From: Thomas Gleixner <tglx@linutronix.de>
 
-This function is needed by both V4L2 and CEC, so move this to
-cec.h as a static inline since there are no obvious shared
-modules between the two subsystems.
+commit 6893a959d7fdebbab5f5aa112c277d5a44435ba1 upstream.
 
-This patch, together with the following ones, fixes a
-dependency bug: if CEC_CORE is disabled, then building adv7604
-(and other HDMI receivers) will fail because an essential
-function is now stubbed out.
+The upcoming fine grained per task STIBP control needs to be updated on CPU
+hotplug as well.
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: <stable@vger.kernel.org>      # for v4.17 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Split out the code which controls the strict mode so the prctl control code
+can be added later. Mark the SMP function call argument __unused while at it.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Asit Mallick <asit.k.mallick@intel.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Waiman Long <longman9394@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Dave Stewart <david.c.stewart@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20181125185005.759457117@linutronix.de
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/cec/cec-edid.c | 60 -------------------------------
- include/media/cec.h          | 70 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 70 insertions(+), 60 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   46 ++++++++++++++++++++++++---------------------
+ 1 file changed, 25 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/media/cec/cec-edid.c b/drivers/media/cec/cec-edid.c
-index 38e3fec6152b5..19a31d4c86035 100644
---- a/drivers/media/cec/cec-edid.c
-+++ b/drivers/media/cec/cec-edid.c
-@@ -22,66 +22,6 @@
- #include <linux/types.h>
- #include <media/cec.h>
- 
--/*
-- * This EDID is expected to be a CEA-861 compliant, which means that there are
-- * at least two blocks and one or more of the extensions blocks are CEA-861
-- * blocks.
-- *
-- * The returned location is guaranteed to be < size - 1.
-- */
--static unsigned int cec_get_edid_spa_location(const u8 *edid, unsigned int size)
--{
--	unsigned int blocks = size / 128;
--	unsigned int block;
--	u8 d;
--
--	/* Sanity check: at least 2 blocks and a multiple of the block size */
--	if (blocks < 2 || size % 128)
--		return 0;
--
--	/*
--	 * If there are fewer extension blocks than the size, then update
--	 * 'blocks'. It is allowed to have more extension blocks than the size,
--	 * since some hardware can only read e.g. 256 bytes of the EDID, even
--	 * though more blocks are present. The first CEA-861 extension block
--	 * should normally be in block 1 anyway.
--	 */
--	if (edid[0x7e] + 1 < blocks)
--		blocks = edid[0x7e] + 1;
--
--	for (block = 1; block < blocks; block++) {
--		unsigned int offset = block * 128;
--
--		/* Skip any non-CEA-861 extension blocks */
--		if (edid[offset] != 0x02 || edid[offset + 1] != 0x03)
--			continue;
--
--		/* search Vendor Specific Data Block (tag 3) */
--		d = edid[offset + 2] & 0x7f;
--		/* Check if there are Data Blocks */
--		if (d <= 4)
--			continue;
--		if (d > 4) {
--			unsigned int i = offset + 4;
--			unsigned int end = offset + d;
--
--			/* Note: 'end' is always < 'size' */
--			do {
--				u8 tag = edid[i] >> 5;
--				u8 len = edid[i] & 0x1f;
--
--				if (tag == 3 && len >= 5 && i + len <= end &&
--				    edid[i + 1] == 0x03 &&
--				    edid[i + 2] == 0x0c &&
--				    edid[i + 3] == 0x00)
--					return i + 4;
--				i += len + 1;
--			} while (i < end);
--		}
--	}
--	return 0;
--}
--
- u16 cec_get_edid_phys_addr(const u8 *edid, unsigned int size,
- 			   unsigned int *offset)
- {
-diff --git a/include/media/cec.h b/include/media/cec.h
-index df6b3bd312849..b7339cc6fd3d6 100644
---- a/include/media/cec.h
-+++ b/include/media/cec.h
-@@ -435,4 +435,74 @@ static inline void cec_phys_addr_invalidate(struct cec_adapter *adap)
- 	cec_s_phys_addr(adap, CEC_PHYS_ADDR_INVALID, false);
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -525,40 +525,44 @@ specv2_set_mode:
+ 	arch_smt_update();
  }
  
-+/**
-+ * cec_get_edid_spa_location() - find location of the Source Physical Address
-+ *
-+ * @edid: the EDID
-+ * @size: the size of the EDID
-+ *
-+ * This EDID is expected to be a CEA-861 compliant, which means that there are
-+ * at least two blocks and one or more of the extensions blocks are CEA-861
-+ * blocks.
-+ *
-+ * The returned location is guaranteed to be <= size-2.
-+ *
-+ * This is an inline function since it is used by both CEC and V4L2.
-+ * Ideally this would go in a module shared by both, but it is overkill to do
-+ * that for just a single function.
-+ */
-+static inline unsigned int cec_get_edid_spa_location(const u8 *edid,
-+						     unsigned int size)
-+{
-+	unsigned int blocks = size / 128;
-+	unsigned int block;
-+	u8 d;
+-static bool stibp_needed(void)
++static void update_stibp_msr(void * __unused)
+ {
+-	/* Enhanced IBRS makes using STIBP unnecessary. */
+-	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+-		return false;
+-
+-	/* Check for strict user mitigation mode */
+-	return spectre_v2_user == SPECTRE_V2_USER_STRICT;
++	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+ }
+ 
+-static void update_stibp_msr(void *info)
++/* Update x86_spec_ctrl_base in case SMT state changed. */
++static void update_stibp_strict(void)
+ {
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	u64 mask = x86_spec_ctrl_base & ~SPEC_CTRL_STIBP;
 +
-+	/* Sanity check: at least 2 blocks and a multiple of the block size */
-+	if (blocks < 2 || size % 128)
-+		return 0;
++	if (sched_smt_active())
++		mask |= SPEC_CTRL_STIBP;
 +
-+	/*
-+	 * If there are fewer extension blocks than the size, then update
-+	 * 'blocks'. It is allowed to have more extension blocks than the size,
-+	 * since some hardware can only read e.g. 256 bytes of the EDID, even
-+	 * though more blocks are present. The first CEA-861 extension block
-+	 * should normally be in block 1 anyway.
-+	 */
-+	if (edid[0x7e] + 1 < blocks)
-+		blocks = edid[0x7e] + 1;
++	if (mask == x86_spec_ctrl_base)
++		return;
 +
-+	for (block = 1; block < blocks; block++) {
-+		unsigned int offset = block * 128;
++	pr_info("Update user space SMT mitigation: STIBP %s\n",
++		mask & SPEC_CTRL_STIBP ? "always-on" : "off");
++	x86_spec_ctrl_base = mask;
++	on_each_cpu(update_stibp_msr, NULL, 1);
+ }
+ 
+ void arch_smt_update(void)
+ {
+-	u64 mask;
+-
+-	if (!stibp_needed())
++	/* Enhanced IBRS implies STIBP. No update required. */
++	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
+ 
+ 	mutex_lock(&spec_ctrl_mutex);
+ 
+-	mask = x86_spec_ctrl_base & ~SPEC_CTRL_STIBP;
+-	if (sched_smt_active())
+-		mask |= SPEC_CTRL_STIBP;
+-
+-	if (mask != x86_spec_ctrl_base) {
+-		pr_info("Spectre v2 cross-process SMT mitigation: %s STIBP\n",
+-			mask & SPEC_CTRL_STIBP ? "Enabling" : "Disabling");
+-		x86_spec_ctrl_base = mask;
+-		on_each_cpu(update_stibp_msr, NULL, 1);
++	switch (spectre_v2_user) {
++	case SPECTRE_V2_USER_NONE:
++		break;
++	case SPECTRE_V2_USER_STRICT:
++		update_stibp_strict();
++		break;
+ 	}
 +
-+		/* Skip any non-CEA-861 extension blocks */
-+		if (edid[offset] != 0x02 || edid[offset + 1] != 0x03)
-+			continue;
-+
-+		/* search Vendor Specific Data Block (tag 3) */
-+		d = edid[offset + 2] & 0x7f;
-+		/* Check if there are Data Blocks */
-+		if (d <= 4)
-+			continue;
-+		if (d > 4) {
-+			unsigned int i = offset + 4;
-+			unsigned int end = offset + d;
-+
-+			/* Note: 'end' is always < 'size' */
-+			do {
-+				u8 tag = edid[i] >> 5;
-+				u8 len = edid[i] & 0x1f;
-+
-+				if (tag == 3 && len >= 5 && i + len <= end &&
-+				    edid[i + 1] == 0x03 &&
-+				    edid[i + 2] == 0x0c &&
-+				    edid[i + 3] == 0x00)
-+					return i + 4;
-+				i += len + 1;
-+			} while (i < end);
-+		}
-+	}
-+	return 0;
-+}
-+
- #endif /* _MEDIA_CEC_H */
--- 
-2.20.1
-
+ 	mutex_unlock(&spec_ctrl_mutex);
+ }
+ 
 
 
