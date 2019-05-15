@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D185C1EFF8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCC61F155
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726475AbfEOLaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S1730702AbfEOLwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:52:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732675AbfEOLaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:08 -0400
+        id S1730746AbfEOLUl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157A0206BF;
-        Wed, 15 May 2019 11:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26403206BF;
+        Wed, 15 May 2019 11:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919807;
-        bh=5lQQSp2MY0e8p5PILottSeNZMveQFwsHmlVtymy3HyE=;
+        s=default; t=1557919240;
+        bh=RgwmXrYQ83zdOZuHtIQ2WDfOT51GhqHrvZ5TTmhItSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCzR+OUXXxn8boGouc1bCBM0hiR8Zm2SieIfQlJv9dyoOmc3l6Lwz/Kw3Wnc2mkuy
-         s4xPHSf+yCszb4tj9+jxh7yzwmn0YT2h5NbPIafOtMXgeVMu3YOAjJeioGB+EhZTe3
-         T+MgLT1Jl2vrQ9m0Ze/goOhvYVkdVKsWS5+bRNw0=
+        b=hxT8qEVN6yVR2K8VsFynb9xf8Qd15dCCV99T8jrjIrJab6daquHKMdwzDYaHknXbI
+         kYBjJ3UkVyt0jT2Lx/iTKbliHhkcdHtDNVpT2A3NSRgu0Kah6v6MIelBft2IPPgfoj
+         rDoYT9X2clJrDFYUfOLfQwv3B28RZxXTecMxb/LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.0 101/137] cw1200: fix missing unlock on error in cw1200_hw_scan()
-Date:   Wed, 15 May 2019 12:56:22 +0200
-Message-Id: <20190515090700.860655131@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 103/115] ipv4: Fix raw socket lookup for local traffic
+Date:   Wed, 15 May 2019 12:56:23 +0200
+Message-Id: <20190515090706.604699966@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: David Ahern <dsahern@gmail.com>
 
-commit 51c8d24101c79ffce3e79137e2cee5dfeb956dd7 upstream.
+[ Upstream commit 19e4e768064a87b073a4b4c138b55db70e0cfb9f ]
 
-Add the missing unlock before return from function cw1200_hw_scan()
-in the error handling case.
+inet_iif should be used for the raw socket lookup. inet_iif considers
+rt_iif which handles the case of local traffic.
 
-Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+As it stands, ping to a local address with the '-I <dev>' option fails
+ever since ping was changed to use SO_BINDTODEVICE instead of
+cmsg + IP_PKTINFO.
+
+IPv6 works fine.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/st/cw1200/scan.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/raw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/st/cw1200/scan.c
-+++ b/drivers/net/wireless/st/cw1200/scan.c
-@@ -84,8 +84,11 @@ int cw1200_hw_scan(struct ieee80211_hw *
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -174,6 +174,7 @@ static int icmp_filter(const struct sock
+ static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
+ {
+ 	int sdif = inet_sdif(skb);
++	int dif = inet_iif(skb);
+ 	struct sock *sk;
+ 	struct hlist_head *head;
+ 	int delivered = 0;
+@@ -186,8 +187,7 @@ static int raw_v4_input(struct sk_buff *
  
- 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
- 		req->ie_len);
--	if (!frame.skb)
-+	if (!frame.skb) {
-+		mutex_unlock(&priv->conf_mutex);
-+		up(&priv->scan.lock);
- 		return -ENOMEM;
-+	}
+ 	net = dev_net(skb->dev);
+ 	sk = __raw_v4_lookup(net, __sk_head(head), iph->protocol,
+-			     iph->saddr, iph->daddr,
+-			     skb->dev->ifindex, sdif);
++			     iph->saddr, iph->daddr, dif, sdif);
  
- 	if (req->ie_len)
- 		skb_put_data(frame.skb, req->ie, req->ie_len);
+ 	while (sk) {
+ 		delivered = 1;
 
 
