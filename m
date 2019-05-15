@@ -2,98 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B18141FBB9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 22:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 860B11FBDB
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 22:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726990AbfEOUtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 16:49:18 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57887 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726290AbfEOUtS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 16:49:18 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 409052438C;
-        Wed, 15 May 2019 16:49:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Wed, 15 May 2019 16:49:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tobin.cc; h=date
-        :from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=4DYWIxOWx2bjSXKtJq2DIJnjfb0
-        7mluDbIFzNb7XWk8=; b=BL/5yuWiNwjOvU4jFHmI7rLvnAomYbuItkmAV2xzV6U
-        +HMTmQX067H0vRmAG/6UgabVOQBTSp+cKOacnbNdRQ/OLgArR0IHAApHf2gOlX8a
-        ZYHIV3+/vyZp9UBpDfb/+zsUNivC7uSTiH2CCMVqFskfPG7KoUQCDmg/Z0/hXdVE
-        /mEj8xMWkOh12s36Nuhzy7CNCpnW/uIdiO9Zo70cx/mlt4blc0bVeQHfw4KMPq1N
-        2Tum8dmoL/oEkqYRZauFuC2wXFkWPj+QnVMlx7ar7+o/uLTwz6BiquzArRHRpFYu
-        lsetzqibTGMosxAWaV5F1bsMKybx2kjqFGoTVEfhj3Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4DYWIx
-        OWx2bjSXKtJq2DIJnjfb07mluDbIFzNb7XWk8=; b=Iv6AjPuOCaeYwZEnLxDmhY
-        KIYmpK+gncszduGeAwu1YCDrj5lmJm2HEzAy2gZiBgqwSi2j8eD1RmZWrFoB9xUf
-        ZKdauatKTGYGH2Njb9+MEnZK0ZnnOgiRmwjpDZCoTwue4BVWGtJK/6RN/P63unr5
-        YgFbdXUosJIIiB7m4/fZMw18yBD7USuRybZrWao6ut/VE01y3yVzuKsREW4w0yiW
-        Wd1PPIn9GtsShnBNeZxIYbnF5WmCDSzAlvgTBAoP9FGaG+z16jfvg7dnSxF2Pq9q
-        K0kbf4w894WBo+2Mql0nsZDqy/tV1DBhJuCG+pWgSl+S4YRccGDR+qLDC/nZcDuQ
-        ==
-X-ME-Sender: <xms:THvcXLe9PfILHqiCvzZt3-SM8HPaiIYnPOPz2NB9gVQ6io3tGs_LCw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddugeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    gfrhhlucfvnfffucdludehmdenucfjughrpeffhffvuffkfhggtggujgfofgesthdtredt
-    ofervdenucfhrhhomhepfdfvohgsihhnucevrdcujfgrrhguihhnghdfuceomhgvsehtoh
-    gsihhnrdgttgeqnecukfhppeduvddurdeggedrvddvkedrvdefheenucfrrghrrghmpehm
-    rghilhhfrhhomhepmhgvsehtohgsihhnrdgttgenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:THvcXEGulgIGb_Wi16_-rjZpWV8pCjdQtGnJvLYb3jaZGrFftghRFw>
-    <xmx:THvcXNjKywDKaM1In-4PLN7b9wCSB8aiGrso3IzP7D50ctOH6wDVTw>
-    <xmx:THvcXMd8klvLzix2Wryq9_cHRDKjAQPfJ4Hht6S3UAOXgVfk0DTJBg>
-    <xmx:TXvcXFNSp8PeNgVr5hvUbk3YEGetmuvUXqgicIlrqngdz-xSxkHW8g>
-Received: from localhost (ppp121-44-228-235.bras2.syd2.internode.on.net [121.44.228.235])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2133210378;
-        Wed, 15 May 2019 16:49:15 -0400 (EDT)
-Date:   Thu, 16 May 2019 06:48:40 +1000
-From:   "Tobin C. Harding" <me@tobin.cc>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Tobin C. Harding" <tobin@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 3.18 78/86] bridge: Fix error path for
- kobject_init_and_add()
-Message-ID: <20190515204840.GE11749@eros.localdomain>
-References: <20190515090642.339346723@linuxfoundation.org>
- <20190515090655.622147146@linuxfoundation.org>
+        id S1726290AbfEOU4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 16:56:44 -0400
+Received: from mga01.intel.com ([192.55.52.88]:55278 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727184AbfEOU4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 16:56:43 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 May 2019 13:56:43 -0700
+X-ExtLoop1: 1
+Received: from rmitura-mobl.ger.corp.intel.com (HELO [10.249.140.5]) ([10.249.140.5])
+  by orsmga003.jf.intel.com with ESMTP; 15 May 2019 13:56:41 -0700
+Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+ interpreter: add region addresses...")
+To:     "Schmauss, Erik" <erik.schmauss@intel.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20190505194448.GA2649@windriver.com>
+ <20190506084145.GA23991@kroah.com>
+ <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
+ <20190515045711.GA16452@kroah.com>
+From:   "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Organization: Intel Technology Poland Sp. z o. o., KRS 101882, ul. Slowackiego
+ 173, 80-298 Gdansk
+Message-ID: <f2110cb8-8d80-65df-55a9-5428e6e4e9c3@intel.com>
+Date:   Wed, 15 May 2019 22:56:40 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190515090655.622147146@linuxfoundation.org>
-X-Mailer: Mutt 1.11.4 (2019-03-13)
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190515045711.GA16452@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 15, 2019 at 12:55:55PM +0200, Greg Kroah-Hartman wrote:
-> From: "Tobin C. Harding" <tobin@kernel.org>
-> 
-> [ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
+On 5/15/2019 6:57 AM, Greg Kroah-Hartman wrote:
+> On Wed, May 15, 2019 at 01:17:28AM +0000, Schmauss, Erik wrote:
+>>
+>>> -----Original Message-----
+>>> From: Greg Kroah-Hartman [mailto:gregkh@linuxfoundation.org]
+>>> Sent: Monday, May 6, 2019 1:42 AM
+>>> To: Paul Gortmaker <paul.gortmaker@windriver.com>; Wysocki, Rafael J
+>>> <rafael.j.wysocki@intel.com>
+>>> Cc: stable@vger.kernel.org; Schmauss, Erik <erik.schmauss@intel.com>
+>>> Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+>>> interpreter: add region addresses...")
+>>>
+>>> On Sun, May 05, 2019 at 03:44:48PM -0400, Paul Gortmaker wrote:
+>>>> I noticed 4.19.35 got a backport of mainline 4abb951b, but it appears
+>>>> to be a duplicate backport that landed in the wrong function.  We can
+>>>> see this in the stable-queue repo:
+>>>>
+>>>> stable-queue$ find . -name '*acpica-aml-interpreter-add-region-addr*'
+>>>> |grep 4.19
+>>>> ./releases/4.19.6/acpica-aml-interpreter-add-region-addresses-in-globa
+>>>> l-list-during-initialization.patch
+>>>> ./releases/4.19.3/revert-acpica-aml-interpreter-add-region-addresses-i
+>>>> n.patch
+>>>> ./releases/4.19.35/acpica-aml-interpreter-add-region-addresses-in-glob
+>>>> al-list-during-initialization.patch
+>>>> ./releases/4.19.2/acpica-aml-interpreter-add-region-addresses-in-globa
+>>>> l-list-during-initialization.patch
+>>>>
+>>>> So it was added to 4.19.2, reverted in .3, re-added in .6, and then
+>>>> finally patched into a similar looking but wrong function in .35
+>>>>
+>>>> If we diff the .6 and .35 versions, we see the function difference:
+>>>>
+>>>> -@@ -417,6 +417,10 @@ acpi_ds_eval_region_operands(struct acpi
+>>>> +@@ -523,6 +523,10 @@ acpi_ds_eval_table_region_operands(struc
+>>>>
+>>>> I don't know what the history is/was around the 2/3/6 churn, but the
+>>>> re-addition in 4.19.35 to a different function sure looks wrong.
+>>>>
+>>>> The commit adds a call "status = acpi_ut_add_address_range(..." and if
+>>>> we check mainline, there is only one in that file, but in 4.19.35+
+>>>> there now are two calls - since the two functions had similar context
+>>>> and comments, it isn't hard to see how patch could/would apply it a
+>>>> 2nd time in the wrong place.
+>>>>
+>>>> I didn't check if any of the other currently maintained linux-stable
+>>>> versions also had this possible issue.
+>>>>
+>> Hi Greg,
+>>
+>>> Ugh, Rafael, did I mess this up again?  Can you check to see if I need to fix this
+>>> somehow?
+>> It should be called in acpi_ds_eval_region_operands rather than acpi_ds_eval_table_region_operands.
+>> Please remove the call from acpi_ds_eval_table_region_operands.
+> Great, can someone please send me a patch for this so that I don't get
+> it wrong myself?
 
-Greg you are not going to back port all of these kobject fixes are you?
-There is going to be a _lot_ of them.  I'm not super comfortable
-generating all this work for you.  And besides that, I keep making
-mistakes (reference to last nights find of double free in powerpc that
-you reviewed already), then we have to back port those too.
+Erik, can you please cut a patch for that against 4.19.35 and send it to 
+Greg?
 
-For the record I've been going through all uses of kobject and splitting
-them into categories
 
- 1. Broken
- 2. Too complex to immediately tell
- 3. Done correctly
-
-I'm not getting many in category #3, let's hope that some in #1 and #2 are
-my misunderstanding and that many in #2 should be in #3.  I'm having fun
-fixing them but I shudder at making life hard for other people.
-
-Cheers,
-Tobin.
