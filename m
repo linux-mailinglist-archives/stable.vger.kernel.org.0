@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D1451EEFC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDE01F3E3
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732367AbfEOL2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
+        id S1727731AbfEOLBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732362AbfEOL2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:28:17 -0400
+        id S1727720AbfEOLBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3469020881;
-        Wed, 15 May 2019 11:28:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C64216FD;
+        Wed, 15 May 2019 11:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919696;
-        bh=2nKhsu9tMWEjLlvM99c5ERV5jFbUMSCrYu3qMJU9t5Y=;
+        s=default; t=1557918094;
+        bh=427/awagArpJ9kZPOTWAEwBxlzuzP0rHbjxBwl5Xzg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTfJgbh8/xT7Rr1JcB3FTwHiRzUpnCVywPs9Q6t7O1GoDusS39lmuzMft5GiHpYRz
-         Ir326ioHlyZlC1euyn+i3wRykSJrxMjoKtdpvBwutjQLULtV842Rut301DBPR5EkCB
-         kAHtBTofWcuaGoqIdwXyKKWZjXiR+MgUc7eOkmCk=
+        b=c9vkU0vh52knkaPw5iZCmVJt/FARteh0n+Lk2vZH59zp+PolEaOU4c4nSXvbccsP6
+         0Om+ZhwfoAPhNo0Lkw3JTLUi0CQaZm6pE/l152hRf4K8FkWZoZGKhbuB9FVd77V5Aa
+         tgsdpg+OIDMNgE1AH4JZEHN0pMzOk2p2FeExxp4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Whitehead <tedheadster@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Zubin Mithra <zsm@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 058/137] scsi: aic7xxx: fix EISA support
-Date:   Wed, 15 May 2019 12:55:39 +0200
-Message-Id: <20190515090657.699637201@linuxfoundation.org>
+Subject: [PATCH 3.18 63/86] netfilter: compat: initialize all fields in xt_init
+Date:   Wed, 15 May 2019 12:55:40 +0200
+Message-Id: <20190515090654.536311286@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,96 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 144ec97493af34efdb77c5aba146e9c7de8d0a06 ]
+commit 8d29d16d21342a0c86405d46de0c4ac5daf1760f upstream
 
-Instead of relying on the now removed NULL argument to
-pci_alloc_consistent, switch to the generic DMA API, and store the struct
-device so that we can pass it.
+If a non zero value happens to be in xt[NFPROTO_BRIDGE].cur at init
+time, the following panic can be caused by running
 
-Fixes: 4167b2ad5182 ("PCI: Remove NULL device handling from PCI DMA API")
-Reported-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+% ebtables -t broute -F BROUTING
+
+from a 32-bit user level on a 64-bit kernel. This patch replaces
+kmalloc_array with kcalloc when allocating xt.
+
+[  474.680846] BUG: unable to handle kernel paging request at 0000000009600920
+[  474.687869] PGD 2037006067 P4D 2037006067 PUD 2038938067 PMD 0
+[  474.693838] Oops: 0000 [#1] SMP
+[  474.697055] CPU: 9 PID: 4662 Comm: ebtables Kdump: loaded Not tainted 4.19.17-11302235.AroraKernelnext.fc18.x86_64 #1
+[  474.707721] Hardware name: Supermicro X9DRT/X9DRT, BIOS 3.0 06/28/2013
+[  474.714313] RIP: 0010:xt_compat_calc_jump+0x2f/0x63 [x_tables]
+[  474.720201] Code: 40 0f b6 ff 55 31 c0 48 6b ff 70 48 03 3d dc 45 00 00 48 89 e5 8b 4f 6c 4c 8b 47 60 ff c9 39 c8 7f 2f 8d 14 08 d1 fa 48 63 fa <41> 39 34 f8 4c 8d 0c fd 00 00 00 00 73 05 8d 42 01 eb e1 76 05 8d
+[  474.739023] RSP: 0018:ffffc9000943fc58 EFLAGS: 00010207
+[  474.744296] RAX: 0000000000000000 RBX: ffffc90006465000 RCX: 0000000002580249
+[  474.751485] RDX: 00000000012c0124 RSI: fffffffff7be17e9 RDI: 00000000012c0124
+[  474.758670] RBP: ffffc9000943fc58 R08: 0000000000000000 R09: ffffffff8117cf8f
+[  474.765855] R10: ffffc90006477000 R11: 0000000000000000 R12: 0000000000000001
+[  474.773048] R13: 0000000000000000 R14: ffffc9000943fcb8 R15: ffffc9000943fcb8
+[  474.780234] FS:  0000000000000000(0000) GS:ffff88a03f840000(0063) knlGS:00000000f7ac7700
+[  474.788612] CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+[  474.794632] CR2: 0000000009600920 CR3: 0000002037422006 CR4: 00000000000606e0
+[  474.802052] Call Trace:
+[  474.804789]  compat_do_replace+0x1fb/0x2a3 [ebtables]
+[  474.810105]  compat_do_ebt_set_ctl+0x69/0xe6 [ebtables]
+[  474.815605]  ? try_module_get+0x37/0x42
+[  474.819716]  compat_nf_setsockopt+0x4f/0x6d
+[  474.824172]  compat_ip_setsockopt+0x7e/0x8c
+[  474.828641]  compat_raw_setsockopt+0x16/0x3a
+[  474.833220]  compat_sock_common_setsockopt+0x1d/0x24
+[  474.838458]  __compat_sys_setsockopt+0x17e/0x1b1
+[  474.843343]  ? __check_object_size+0x76/0x19a
+[  474.847960]  __ia32_compat_sys_socketcall+0x1cb/0x25b
+[  474.853276]  do_fast_syscall_32+0xaf/0xf6
+[  474.857548]  entry_SYSENTER_compat+0x6b/0x7a
+
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7770_osm.c     |  1 +
- drivers/scsi/aic7xxx/aic7xxx.h         |  1 +
- drivers/scsi/aic7xxx/aic7xxx_osm.c     | 10 ++++------
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |  1 +
- 4 files changed, 7 insertions(+), 6 deletions(-)
+ net/netfilter/x_tables.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aic7xxx/aic7770_osm.c b/drivers/scsi/aic7xxx/aic7770_osm.c
-index 3d401d02c0195..bdd177e3d7622 100644
---- a/drivers/scsi/aic7xxx/aic7770_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7770_osm.c
-@@ -91,6 +91,7 @@ aic7770_probe(struct device *dev)
- 	ahc = ahc_alloc(&aic7xxx_driver_template, name);
- 	if (ahc == NULL)
- 		return (ENOMEM);
-+	ahc->dev = dev;
- 	error = aic7770_config(ahc, aic7770_ident_table + edev->id.driver_data,
- 			       eisaBase);
- 	if (error != 0) {
-diff --git a/drivers/scsi/aic7xxx/aic7xxx.h b/drivers/scsi/aic7xxx/aic7xxx.h
-index 5614921b4041a..88b90f9806c99 100644
---- a/drivers/scsi/aic7xxx/aic7xxx.h
-+++ b/drivers/scsi/aic7xxx/aic7xxx.h
-@@ -943,6 +943,7 @@ struct ahc_softc {
- 	 * Platform specific device information.
- 	 */
- 	ahc_dev_softc_t		  dev_softc;
-+	struct device		  *dev;
- 
- 	/*
- 	 * Bus specific device information.
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-index 3c9c17450bb39..d5c4a0d237062 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -860,8 +860,8 @@ int
- ahc_dmamem_alloc(struct ahc_softc *ahc, bus_dma_tag_t dmat, void** vaddr,
- 		 int flags, bus_dmamap_t *mapp)
- {
--	*vaddr = pci_alloc_consistent(ahc->dev_softc,
--				      dmat->maxsize, mapp);
-+	/* XXX: check if we really need the GFP_ATOMIC and unwind this mess! */
-+	*vaddr = dma_alloc_coherent(ahc->dev, dmat->maxsize, mapp, GFP_ATOMIC);
- 	if (*vaddr == NULL)
- 		return ENOMEM;
- 	return 0;
-@@ -871,8 +871,7 @@ void
- ahc_dmamem_free(struct ahc_softc *ahc, bus_dma_tag_t dmat,
- 		void* vaddr, bus_dmamap_t map)
- {
--	pci_free_consistent(ahc->dev_softc, dmat->maxsize,
--			    vaddr, map);
-+	dma_free_coherent(ahc->dev, dmat->maxsize, vaddr, map);
- }
- 
- int
-@@ -1123,8 +1122,7 @@ ahc_linux_register_host(struct ahc_softc *ahc, struct scsi_host_template *templa
- 
- 	host->transportt = ahc_linux_transport_template;
- 
--	retval = scsi_add_host(host,
--			(ahc->dev_softc ? &ahc->dev_softc->dev : NULL));
-+	retval = scsi_add_host(host, ahc->dev);
- 	if (retval) {
- 		printk(KERN_WARNING "aic7xxx: scsi_add_host failed\n");
- 		scsi_host_put(host);
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-index 0fc14dac7070c..717d8d1082ce1 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
-@@ -250,6 +250,7 @@ ahc_linux_pci_dev_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		}
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 97c37cf560199..8669e190ce35a 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1648,7 +1648,7 @@ static int __init xt_init(void)
+ 		seqcount_init(&per_cpu(xt_recseq, i));
  	}
- 	ahc->dev_softc = pci;
-+	ahc->dev = &pci->dev;
- 	error = ahc_pci_config(ahc, entry);
- 	if (error != 0) {
- 		ahc_free(ahc);
+ 
+-	xt = kmalloc(sizeof(struct xt_af) * NFPROTO_NUMPROTO, GFP_KERNEL);
++	xt = kcalloc(NFPROTO_NUMPROTO, sizeof(struct xt_af), GFP_KERNEL);
+ 	if (!xt)
+ 		return -ENOMEM;
+ 
 -- 
 2.20.1
 
