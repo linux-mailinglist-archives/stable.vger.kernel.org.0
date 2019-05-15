@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6022F1F0E0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7101EDEA
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731050AbfEOLXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:23:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34342 "EHLO mail.kernel.org"
+        id S1729739AbfEOLOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731719AbfEOLXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:23:51 -0400
+        id S1730165AbfEOLOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:14:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F14622089E;
-        Wed, 15 May 2019 11:23:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B0002084E;
+        Wed, 15 May 2019 11:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919430;
-        bh=Th/uojqknXw/gYmff2+5+Z5x0G5vVyhroDrFNnzDGc4=;
+        s=default; t=1557918879;
+        bh=PsE3L0Tytn+xs1zWFdeYNbl+o7QgsJvAnDvvDVgEk5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrzm5A4rYF7AXo7KTwE0WsOylCoHdYmQsirdpOcalTJ58T3tGdIVwmEt2K8oOBI7e
-         SWUEU1NZhxU0RWkMgpStOkBsExt2Yf3OA33rAwBQcEGKBpb2WknIrUOBivdRdi4mBU
-         hSgTpCbvqQW3ATjVQ9+3ECtwdpYgSfn1xwRopsaw=
+        b=kodF4943Kqay9LAUa6WUwsix8wj65/YJrX0xzidKeW/lA0Yhq9lAGRBWcyVcM8UKz
+         Vwz7N9so1gzKVl9Zi2OhSVq5U3BeO50nw/C20hVzIDp4ZUPtH1sBl7TtyYphAGkPEr
+         KjhcdcVTU2+XNReLW1zhNOkQLIBVhhj0RGTym6+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.19 071/113] netfilter: nf_tables: add missing ->release_ops() in error path of newrule()
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 27/51] spi: Micrel eth switch: declare missing of table
 Date:   Wed, 15 May 2019 12:56:02 +0200
-Message-Id: <20190515090658.915490527@linuxfoundation.org>
+Message-Id: <20190515090625.036443999@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b25a31bf0ca091aa8bdb9ab329b0226257568bbe ]
+[ Upstream commit 2f23a2a768bee7ad2ff1e9527c3f7e279e794a46 ]
 
-->release_ops() callback releases resources and this is used in error path.
-If nf_tables_newrule() fails after ->select_ops(), it should release
-resources. but it can not call ->destroy() because that should be called
-after ->init().
-At this point, ->release_ops() should be used for releasing resources.
+Add missing <of_device_id> table for SPI driver relying on SPI
+device match since compatible is in a DT binding or in a DTS.
 
-Test commands:
-   modprobe -rv xt_tcpudp
-   iptables-nft -I INPUT -m tcp   <-- error command
-   lsmod
+Before this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
 
-Result:
-   Module                  Size  Used by
-   xt_tcpudp              20480  2      <-- it should be 0
+After this patch:
+modinfo drivers/net/phy/spi_ks8995.ko | grep alias
+alias:          spi:ksz8795
+alias:          spi:ksz8864
+alias:          spi:ks8995
+alias:          of:N*T*Cmicrel,ksz8795C*
+alias:          of:N*T*Cmicrel,ksz8795
+alias:          of:N*T*Cmicrel,ksz8864C*
+alias:          of:N*T*Cmicrel,ksz8864
+alias:          of:N*T*Cmicrel,ks8995C*
+alias:          of:N*T*Cmicrel,ks8995
 
-Fixes: b8e204006340 ("netfilter: nft_compat: use .release_ops and remove list of extension")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/spi_ks8995.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index ef7ff13a7b992..ebfcfe1dcbdbb 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2719,8 +2719,11 @@ static int nf_tables_newrule(struct net *net, struct sock *nlsk,
- 	nf_tables_rule_release(&ctx, rule);
- err1:
- 	for (i = 0; i < n; i++) {
--		if (info[i].ops != NULL)
-+		if (info[i].ops) {
- 			module_put(info[i].ops->type->owner);
-+			if (info[i].ops->type->release_ops)
-+				info[i].ops->type->release_ops(info[i].ops);
-+		}
- 	}
- 	kvfree(info);
- 	return err;
+diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
+index 1e2d4f1179da3..45df03673e010 100644
+--- a/drivers/net/phy/spi_ks8995.c
++++ b/drivers/net/phy/spi_ks8995.c
+@@ -162,6 +162,14 @@ static const struct spi_device_id ks8995_id[] = {
+ };
+ MODULE_DEVICE_TABLE(spi, ks8995_id);
+ 
++static const struct of_device_id ks8895_spi_of_match[] = {
++        { .compatible = "micrel,ks8995" },
++        { .compatible = "micrel,ksz8864" },
++        { .compatible = "micrel,ksz8795" },
++        { },
++ };
++MODULE_DEVICE_TABLE(of, ks8895_spi_of_match);
++
+ static inline u8 get_chip_id(u8 val)
+ {
+ 	return (val >> ID1_CHIPID_S) & ID1_CHIPID_M;
+@@ -529,6 +537,7 @@ static int ks8995_remove(struct spi_device *spi)
+ static struct spi_driver ks8995_driver = {
+ 	.driver = {
+ 		.name	    = "spi-ks8995",
++		.of_match_table = of_match_ptr(ks8895_spi_of_match),
+ 	},
+ 	.probe	  = ks8995_probe,
+ 	.remove	  = ks8995_remove,
 -- 
 2.20.1
 
