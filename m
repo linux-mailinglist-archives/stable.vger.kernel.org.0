@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFB71F0E8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053C41EFFD
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729947AbfEOLsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
+        id S1726486AbfEOL3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729355AbfEOLX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:23:27 -0400
+        id S1732455AbfEOL27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F81206BF;
-        Wed, 15 May 2019 11:23:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D9D7206BF;
+        Wed, 15 May 2019 11:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919406;
-        bh=xOLBCSAStprb0C6iQ2nis4ye9Oz+cCxKK8aQHE2OgS0=;
+        s=default; t=1557919738;
+        bh=Zd5htjnTZHwxXTw8yCHhhFB/DukgYUXollEOlGdgmfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umORqie1/eqQwxlWgqII1DFiVeKeXE9kPbLn7ORZpr8mgXi1wVcg2xuN6/V+prn0/
-         h3JK35br9zqNyV+pcK6VDf4hJwO8lZI3Of5WdZ3XS87bEydFqiA5LW8QnAthuCg4wv
-         1eC3ixwpRBb2FUVo8z0dc/j8+4E6FC4y95nckJqo=
+        b=E3IxbHZmxOeKWGDC6Hn3turgR28wrGzb+mg0JV5Z7vmoqki/byInpbsH8dxcIzPkR
+         /1RLM76tOBiTtVHRRUrefCXfcN7mg7YiHsrOgdqq1KRIp9obb+pPUOfszFklJqP47W
+         +37kNw0RWdcjUwj8l3UoOtl9d43eUpiYJQfEiCRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/113] RDMA/hns: Bugfix for mapping user db
+Subject: [PATCH 5.0 073/137] drm/sun4i: Fix component unbinding and component master deletion
 Date:   Wed, 15 May 2019 12:55:54 +0200
-Message-Id: <20190515090658.342043883@linuxfoundation.org>
+Message-Id: <20190515090658.734078697@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2557fabd6e29f349bfa0ac13f38ac98aa5eafc74 ]
+[ Upstream commit f5a9ed867c83875546c9aadd4ed8e785e9adcc3c ]
 
-When the maximum send wr delivered by the user is zero, the qp does not
-have a sq.
+For our component-backed driver to be properly removed, we need to
+delete the component master in sun4i_drv_remove and make sure to call
+component_unbind_all in the master's unbind so that all components are
+unbound when the master is.
 
-When allocating the sq db buffer to store the user sq pi pointer and map
-it to the kernel mode, max_send_wr is used as the trigger condition, while
-the kernel does not consider the max_send_wr trigger condition when
-mapmping db. It will cause sq record doorbell map fail and create qp fail.
-
-The failed print information as follows:
-
- hns3 0000:7d:00.1: Send cmd: tail - 418, opcode - 0x8504, flag - 0x0011, retval - 0x0000
- hns3 0000:7d:00.1: Send cmd: 0xe59dc000 0x00000000 0x00000000 0x00000000 0x00000116 0x0000ffff
- hns3 0000:7d:00.1: sq record doorbell map failed!
- hns3 0000:7d:00.1: Create RC QP failed
-
-Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
-Signed-off-by: Lijun Ou <oulijun@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190418132727.5128-4-paul.kocialkowski@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/sun4i/sun4i_drv.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index efb7e961ca651..2fa4fb17f6d3c 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -494,7 +494,7 @@ static int hns_roce_set_kernel_sq_size(struct hns_roce_dev *hr_dev,
+diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
+index c6b65a9699794..9a5713fa03b25 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -148,6 +148,8 @@ static void sun4i_drv_unbind(struct device *dev)
+ 	drm_mode_config_cleanup(drm);
+ 	of_reserved_mem_device_release(dev);
+ 	drm_dev_put(drm);
++
++	component_unbind_all(dev, NULL);
+ }
  
- static int hns_roce_qp_has_sq(struct ib_qp_init_attr *attr)
+ static const struct component_master_ops sun4i_drv_master_ops = {
+@@ -395,6 +397,8 @@ static int sun4i_drv_probe(struct platform_device *pdev)
+ 
+ static int sun4i_drv_remove(struct platform_device *pdev)
  {
--	if (attr->qp_type == IB_QPT_XRC_TGT)
-+	if (attr->qp_type == IB_QPT_XRC_TGT || !attr->cap.max_send_wr)
- 		return 0;
++	component_master_del(&pdev->dev, &sun4i_drv_master_ops);
++
+ 	return 0;
+ }
  
- 	return 1;
 -- 
 2.20.1
 
