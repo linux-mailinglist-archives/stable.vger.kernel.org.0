@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA411F08F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFB91EF48
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732073AbfEOLZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
+        id S1732490AbfEOLcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732070AbfEOLZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:54 -0400
+        id S1732976AbfEOLcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:32:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D268120818;
-        Wed, 15 May 2019 11:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6DD3206BF;
+        Wed, 15 May 2019 11:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919554;
-        bh=tNIhxY8N0aSxd42ZQzJBvBfueaEFS+wqtYU5w+0ZFnE=;
+        s=default; t=1557919926;
+        bh=pL0hkTf2rl78dlcSOKzwSlb/2Hh1mO15LS8IoPCp9ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WB0WdFRQS8e6rfs/mXfVD5T7b6r6kDbsihRwJ9n+9PPk4+Iwfr6VV3HV/hfbvN89
-         0F1NytIXOlcOPXgek4jYkdSeYM3p6fYuAn1kxcyrzpemQY3mvglN+l9ax9Bsp1mDw7
-         lKN38V8qqSFxRuZfokSd8C073bw9AJut4MvKPpt0=
+        b=u3NnG/gPuF1iQebiKEZXiKwrxoy+WUvkkYAqxM2BG9ERvSe7eT6NAG/qEM8fqicrI
+         gWIgpLVB6DY6efCEsO2SaYeSGmbfs7c1P9er4MygDLAzjzoroxFPBreBCfZ1VEm70m
+         mcZ9p1qJSDtKcGYbTO8s9IpyqqcywuD1HAapEqiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 094/113] net: ethernet: stmmac: dwmac-sun8i: enable support of unicast filtering
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.1 01/46] platform/x86: sony-laptop: Fix unintentional fall-through
 Date:   Wed, 15 May 2019 12:56:25 +0200
-Message-Id: <20190515090700.740634731@linuxfoundation.org>
+Message-Id: <20190515090618.003500697@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+References: <20190515090616.670410738@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,34 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit d4c26eb6e721683a0f93e346ce55bc8dc3cbb175 ]
+commit 1cbd7a64959d33e7a2a1fa2bf36a62b350a9fcbd upstream.
 
-When adding more MAC addresses to a dwmac-sun8i interface, the device goes
-directly in promiscuous mode.
-This is due to IFF_UNICAST_FLT missing flag.
+It seems that the default case should return AE_CTRL_TERMINATE, instead
+of falling through to case ACPI_RESOURCE_TYPE_END_TAG and returning AE_OK;
+otherwise the line of code at the end of the function is unreachable and
+makes no sense:
 
-So since the hardware support unicast filtering, let's add IFF_UNICAST_FLT.
+return AE_CTRL_TERMINATE;
 
-Fixes: 9f93ac8d4085 ("net-next: stmmac: Add dwmac-sun8i")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fix is based on the following thread of discussion:
+
+https://lore.kernel.org/patchwork/patch/959782/
+
+Fixes: 33a04454527e ("sony-laptop: Add SNY6001 device handling (sonypi reimplementation)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -1015,6 +1015,8 @@ static struct mac_device_info *sun8i_dwm
- 	mac->mac = &sun8i_dwmac_ops;
- 	mac->dma = &sun8i_dwmac_dma_ops;
- 
-+	priv->dev->priv_flags |= IFF_UNICAST_FLT;
+---
+ drivers/platform/x86/sony-laptop.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/drivers/platform/x86/sony-laptop.c
++++ b/drivers/platform/x86/sony-laptop.c
+@@ -4424,14 +4424,16 @@ sony_pic_read_possible_resource(struct a
+ 			}
+ 			return AE_OK;
+ 		}
 +
- 	/* The loopback bit seems to be re-set when link change
- 	 * Simply mask it each time
- 	 * Speed 10/100/1000 are set in BIT(2)/BIT(3)
++	case ACPI_RESOURCE_TYPE_END_TAG:
++		return AE_OK;
++
+ 	default:
+ 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
+ 			resource->type);
++		return AE_CTRL_TERMINATE;
+ 
+-	case ACPI_RESOURCE_TYPE_END_TAG:
+-		return AE_OK;
+ 	}
+-	return AE_CTRL_TERMINATE;
+ }
+ 
+ static int sony_pic_possible_resources(struct acpi_device *device)
 
 
