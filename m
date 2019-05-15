@@ -2,38 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF0A1F03B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B9B1F292
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731569AbfEOL1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:27:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38810 "EHLO mail.kernel.org"
+        id S1729241AbfEOMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732301AbfEOL1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:27:53 -0400
+        id S1729564AbfEOLLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:11:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45C6120881;
-        Wed, 15 May 2019 11:27:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEEFD20881;
+        Wed, 15 May 2019 11:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919672;
-        bh=YXvlJ+LYPlctHCbyngWWM6lJnrkxtn7txe7xCyn4dbY=;
+        s=default; t=1557918677;
+        bh=7BFzbaLC0yakN2DUl3F+/sEjUg4rbbg9o+p02h4w2cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njl7tF+ke1wkAdjKhe5PF7oWZLDAJA/fI6lzAyBlar8NvGo4AGs6yX5sFCkGHNwq0
-         p0nqV8T/UeTwwYSaxUvjUPswJNlwedh/85eZygQV68tQil8Fyx0urkZDMNjoTg6ex/
-         JzDecGVJY3zWtoY2YSi831ykqySAaUUfu7LzaQfo=
+        b=wjjPM9QIqUhYf00tLkymMzlZy8sQ/h9hP9nqwhfWD7fK27BMBjDOetmUR7H29/bHE
+         LYTJQd4M5HjQmlLJhL1H6Dvho3gsXpiy5GC0ehvwPtaDD/0DkCtqCZoltW/gLj+VMQ
+         +nD9cbrNgsJLDgam4LoLJzU01AgMOkUh60KsUACQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 050/137] KVM: nVMX: always use early vmcs check when EPT is disabled
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        Dave Stewart <david.c.stewart@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 224/266] x86/speculation: Enable prctl mode for spectre_v2_user
 Date:   Wed, 15 May 2019 12:55:31 +0200
-Message-Id: <20190515090657.112102592@linuxfoundation.org>
+Message-Id: <20190515090730.573725348@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +62,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2b27924bb1d48e3775f432b70bdad5e6dd4e7798 ]
+From: Thomas Gleixner <tglx@linutronix.de>
 
-The remaining failures of vmx.flat when EPT is disabled are caused by
-incorrectly reflecting VMfails to the L1 hypervisor.  What happens is
-that nested_vmx_restore_host_state corrupts the guest CR3, reloading it
-with the host's shadow CR3 instead, because it blindly loads GUEST_CR3
-from the vmcs01.
+commit 7cc765a67d8e04ef7d772425ca5a2a1e2b894c15 upstream.
 
-For simplicity let's just always use hardware VMCS checks when EPT is
-disabled.  This way, nested_vmx_restore_host_state is not reached at
-all (or at least shouldn't be reached).
+Now that all prerequisites are in place:
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ - Add the prctl command line option
+
+ - Default the 'auto' mode to 'prctl'
+
+ - When SMT state changes, update the static key which controls the
+   conditional STIBP evaluation on context switch.
+
+ - At init update the static key which controls the conditional IBPB
+   evaluation on context switch.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Asit Mallick <asit.k.mallick@intel.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Waiman Long <longman9394@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Dave Stewart <david.c.stewart@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20181125185005.958421388@linutronix.de
+[bwh: Backported to 4.4: adjust filename]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/uapi/asm/vmx.h |  1 +
- arch/x86/kvm/vmx/nested.c       | 22 ++++++++++++++++++++--
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ Documentation/kernel-parameters.txt |    7 +++++-
+ arch/x86/kernel/cpu/bugs.c          |   41 ++++++++++++++++++++++++++++--------
+ 2 files changed, 38 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/include/uapi/asm/vmx.h b/arch/x86/include/uapi/asm/vmx.h
-index f0b0c90dd3982..d213ec5c3766d 100644
---- a/arch/x86/include/uapi/asm/vmx.h
-+++ b/arch/x86/include/uapi/asm/vmx.h
-@@ -146,6 +146,7 @@
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -3646,9 +3646,14 @@ bytes respectively. Such letter suffixes
+ 			off     - Unconditionally disable mitigations. Is
+ 				  enforced by spectre_v2=off
  
- #define VMX_ABORT_SAVE_GUEST_MSR_FAIL        1
- #define VMX_ABORT_LOAD_HOST_PDPTE_FAIL       2
-+#define VMX_ABORT_VMCS_CORRUPTED             3
- #define VMX_ABORT_LOAD_HOST_MSR_FAIL         4
- 
- #endif /* _UAPIVMX_H */
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 8f8c42b048757..2a16bd8877297 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3790,8 +3790,18 @@ static void nested_vmx_restore_host_state(struct kvm_vcpu *vcpu)
- 	vmx_set_cr4(vcpu, vmcs_readl(CR4_READ_SHADOW));
- 
- 	nested_ept_uninit_mmu_context(vcpu);
--	vcpu->arch.cr3 = vmcs_readl(GUEST_CR3);
--	__set_bit(VCPU_EXREG_CR3, (ulong *)&vcpu->arch.regs_avail);
++			prctl   - Indirect branch speculation is enabled,
++				  but mitigation can be enabled via prctl
++				  per thread.  The mitigation control state
++				  is inherited on fork.
 +
-+	/*
-+	 * This is only valid if EPT is in use, otherwise the vmcs01 GUEST_CR3
-+	 * points to shadow pages!  Fortunately we only get here after a WARN_ON
-+	 * if EPT is disabled, so a VMabort is perfectly fine.
-+	 */
-+	if (enable_ept) {
-+		vcpu->arch.cr3 = vmcs_readl(GUEST_CR3);
-+		__set_bit(VCPU_EXREG_CR3, (ulong *)&vcpu->arch.regs_avail);
-+	} else {
-+		nested_vmx_abort(vcpu, VMX_ABORT_VMCS_CORRUPTED);
-+	}
+ 			auto    - Kernel selects the mitigation depending on
+ 				  the available CPU features and vulnerability.
+-				  Default is off.
++				  Default is prctl.
  
- 	/*
- 	 * Use ept_save_pdptrs(vcpu) to load the MMU's cached PDPTRs
-@@ -5739,6 +5749,14 @@ __init int nested_vmx_hardware_setup(int (*exit_handlers[])(struct kvm_vcpu *))
+ 			Not specifying this option is equivalent to
+ 			spectre_v2_user=auto.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -244,11 +244,13 @@ enum spectre_v2_user_cmd {
+ 	SPECTRE_V2_USER_CMD_NONE,
+ 	SPECTRE_V2_USER_CMD_AUTO,
+ 	SPECTRE_V2_USER_CMD_FORCE,
++	SPECTRE_V2_USER_CMD_PRCTL,
+ };
+ 
+ static const char * const spectre_v2_user_strings[] = {
+ 	[SPECTRE_V2_USER_NONE]		= "User space: Vulnerable",
+ 	[SPECTRE_V2_USER_STRICT]	= "User space: Mitigation: STIBP protection",
++	[SPECTRE_V2_USER_PRCTL]		= "User space: Mitigation: STIBP via prctl",
+ };
+ 
+ static const struct {
+@@ -259,6 +261,7 @@ static const struct {
+ 	{ "auto",	SPECTRE_V2_USER_CMD_AUTO,	false },
+ 	{ "off",	SPECTRE_V2_USER_CMD_NONE,	false },
+ 	{ "on",		SPECTRE_V2_USER_CMD_FORCE,	true  },
++	{ "prctl",	SPECTRE_V2_USER_CMD_PRCTL,	false },
+ };
+ 
+ static void __init spec_v2_user_print_cond(const char *reason, bool secure)
+@@ -312,12 +315,15 @@ spectre_v2_user_select_mitigation(enum s
+ 		smt_possible = false;
+ 
+ 	switch (spectre_v2_parse_user_cmdline(v2_cmd)) {
+-	case SPECTRE_V2_USER_CMD_AUTO:
+ 	case SPECTRE_V2_USER_CMD_NONE:
+ 		goto set_mode;
+ 	case SPECTRE_V2_USER_CMD_FORCE:
+ 		mode = SPECTRE_V2_USER_STRICT;
+ 		break;
++	case SPECTRE_V2_USER_CMD_AUTO:
++	case SPECTRE_V2_USER_CMD_PRCTL:
++		mode = SPECTRE_V2_USER_PRCTL;
++		break;
+ 	}
+ 
+ 	/* Initialize Indirect Branch Prediction Barrier */
+@@ -328,6 +334,9 @@ spectre_v2_user_select_mitigation(enum s
+ 		case SPECTRE_V2_USER_STRICT:
+ 			static_branch_enable(&switch_mm_always_ibpb);
+ 			break;
++		case SPECTRE_V2_USER_PRCTL:
++			static_branch_enable(&switch_mm_cond_ibpb);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -340,6 +349,12 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
+ 
++	/*
++	 * If SMT is not possible or STIBP is not available clear the STIPB
++	 * mode.
++	 */
++	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
++		mode = SPECTRE_V2_USER_NONE;
+ set_mode:
+ 	spectre_v2_user = mode;
+ 	/* Only print the STIBP mode when SMT possible */
+@@ -547,6 +562,15 @@ static void update_stibp_strict(void)
+ 	on_each_cpu(update_stibp_msr, NULL, 1);
+ }
+ 
++/* Update the static key controlling the evaluation of TIF_SPEC_IB */
++static void update_indir_branch_cond(void)
++{
++	if (sched_smt_active())
++		static_branch_enable(&switch_to_cond_stibp);
++	else
++		static_branch_disable(&switch_to_cond_stibp);
++}
++
+ void arch_smt_update(void)
  {
- 	int i;
+ 	/* Enhanced IBRS implies STIBP. No update required. */
+@@ -562,6 +586,7 @@ void arch_smt_update(void)
+ 		update_stibp_strict();
+ 		break;
+ 	case SPECTRE_V2_USER_PRCTL:
++		update_indir_branch_cond();
+ 		break;
+ 	}
  
-+	/*
-+	 * Without EPT it is not possible to restore L1's CR3 and PDPTR on
-+	 * VMfail, because they are not available in vmcs01.  Just always
-+	 * use hardware checks.
-+	 */
-+	if (!enable_ept)
-+		nested_early_check = 1;
-+
- 	if (!cpu_has_vmx_shadow_vmcs())
- 		enable_shadow_vmcs = 0;
- 	if (enable_shadow_vmcs) {
--- 
-2.20.1
-
+@@ -950,7 +975,8 @@ static char *stibp_state(void)
+ 	case SPECTRE_V2_USER_STRICT:
+ 		return ", STIBP: forced";
+ 	case SPECTRE_V2_USER_PRCTL:
+-		return "";
++		if (static_key_enabled(&switch_to_cond_stibp))
++			return ", STIBP: conditional";
+ 	}
+ 	return "";
+ }
+@@ -958,14 +984,11 @@ static char *stibp_state(void)
+ static char *ibpb_state(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+-		switch (spectre_v2_user) {
+-		case SPECTRE_V2_USER_NONE:
+-			return ", IBPB: disabled";
+-		case SPECTRE_V2_USER_STRICT:
++		if (static_key_enabled(&switch_mm_always_ibpb))
+ 			return ", IBPB: always-on";
+-		case SPECTRE_V2_USER_PRCTL:
+-			return "";
+-		}
++		if (static_key_enabled(&switch_mm_cond_ibpb))
++			return ", IBPB: conditional";
++		return ", IBPB: disabled";
+ 	}
+ 	return "";
+ }
 
 
