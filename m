@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAB91F0C6
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 434F41F11B
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729088AbfEOLrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35558 "EHLO mail.kernel.org"
+        id S1731179AbfEOLU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731421AbfEOLYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:54 -0400
+        id S1731173AbfEOLU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 235A720818;
-        Wed, 15 May 2019 11:24:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0ED8C2084F;
+        Wed, 15 May 2019 11:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919493;
-        bh=5FMtJThSLK+F+z4iXDndoqJkNHDhzMBT/XAonkQGkOs=;
+        s=default; t=1557919256;
+        bh=P9Zh7+HnD1W3x/1vNoZfd7eNpw8kPS7quFmk9SEtTrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8Pk2wAdS4hyH2fQWdTexxfDqyFxYwOvBAMZejpKoP4zhbYo3hYOmNFs+mxNuUn6Y
-         FcDXVnL0TdpupeXRtcgosfUKMG/bifcO7MiWtTlvidxfcHj4SuFJfrLzd+toonPL4H
-         rQSvGusHbVzJeHLFvIsjL9mrhYNZ0b03Y5GUtVJA=
+        b=WrjERdRnihSEJu498dcDs9GY2nM2i8SV2r70yr3WTb4xpLKEkcBJ2NMjcrDYWkkIi
+         w8zk+qd1teD9gqjfDyeX2l0THeMlozAqeKZ/HOQg7Mof5V/I6QpngeJ7LqFSpM3hz5
+         NmLAjVUNaIMApV4tT//MaDkiluu5OUjvu5EMf1Zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 097/113] net: ucc_geth - fix Oops when changing number of buffers in the ring
-Date:   Wed, 15 May 2019 12:56:28 +0200
-Message-Id: <20190515090700.964429020@linuxfoundation.org>
+Subject: [PATCH 4.14 109/115] vlan: disable SIOCSHWTSTAMP in container
+Date:   Wed, 15 May 2019 12:56:29 +0200
+Message-Id: <20190515090707.009482489@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit ee0df19305d9fabd9479b785918966f6e25b733b ]
+[ Upstream commit 873017af778439f2f8e3d87f28ddb1fcaf244a76 ]
 
-When changing the number of buffers in the RX ring while the interface
-is running, the following Oops is encountered due to the new number
-of buffers being taken into account immediately while their allocation
-is done when opening the device only.
+With NET_ADMIN enabled in container, a normal user could be mapped to
+root and is able to change the real device's rx filter via ioctl on
+vlan, which would affect the other ptp process on host. Fix it by
+disabling SIOCSHWTSTAMP in container.
 
-[   69.882706] Unable to handle kernel paging request for data at address 0xf0000100
-[   69.890172] Faulting instruction address: 0xc033e164
-[   69.895122] Oops: Kernel access of bad area, sig: 11 [#1]
-[   69.900494] BE PREEMPT CMPCPRO
-[   69.907120] CPU: 0 PID: 0 Comm: swapper Not tainted 4.14.115-00006-g179ade8ce3-dirty #269
-[   69.915956] task: c0684310 task.stack: c06da000
-[   69.920470] NIP:  c033e164 LR: c02e44d0 CTR: c02e41fc
-[   69.925504] REGS: dfff1e20 TRAP: 0300   Not tainted  (4.14.115-00006-g179ade8ce3-dirty)
-[   69.934161] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 22004428  XER: 20000000
-[   69.940869] DAR: f0000100 DSISR: 20000000
-[   69.940869] GPR00: c0352d70 dfff1ed0 c0684310 f00000a4 00000040 dfff1f68 00000000 0000001f
-[   69.940869] GPR08: df53f410 1cc00040 00000021 c0781640 42004424 100c82b6 f00000a4 df53f5b0
-[   69.940869] GPR16: df53f6c0 c05daf84 00000040 00000000 00000040 c0782be4 00000000 00000001
-[   69.940869] GPR24: 00000000 df53f400 000001b0 df53f410 df53f000 0000003f df708220 1cc00044
-[   69.978348] NIP [c033e164] skb_put+0x0/0x5c
-[   69.982528] LR [c02e44d0] ucc_geth_poll+0x2d4/0x3f8
-[   69.987384] Call Trace:
-[   69.989830] [dfff1ed0] [c02e4554] ucc_geth_poll+0x358/0x3f8 (unreliable)
-[   69.996522] [dfff1f20] [c0352d70] net_rx_action+0x248/0x30c
-[   70.002099] [dfff1f80] [c04e93e4] __do_softirq+0xfc/0x310
-[   70.007492] [dfff1fe0] [c0021124] irq_exit+0xd0/0xd4
-[   70.012458] [dfff1ff0] [c000e7e0] call_do_irq+0x24/0x3c
-[   70.017683] [c06dbe80] [c0006bac] do_IRQ+0x64/0xc4
-[   70.022474] [c06dbea0] [c001097c] ret_from_except+0x0/0x14
-[   70.027964] --- interrupt: 501 at rcu_idle_exit+0x84/0x90
-[   70.027964]     LR = rcu_idle_exit+0x74/0x90
-[   70.037585] [c06dbf60] [20000000] 0x20000000 (unreliable)
-[   70.042984] [c06dbf80] [c004bb0c] do_idle+0xb4/0x11c
-[   70.047945] [c06dbfa0] [c004bd14] cpu_startup_entry+0x18/0x1c
-[   70.053682] [c06dbfb0] [c05fb034] start_kernel+0x370/0x384
-[   70.059153] [c06dbff0] [00003438] 0x3438
-[   70.063062] Instruction dump:
-[   70.066023] 38a00000 38800000 90010014 4bfff015 80010014 7c0803a6 3123ffff 7c691910
-[   70.073767] 38210010 4e800020 38600000 4e800020 <80e3005c> 80c30098 3107ffff 7d083910
-[   70.081690] ---[ end trace be7ccd9c1e1a9f12 ]---
-
-This patch forbids the modification of the number of buffers in the
-ring while the interface is running.
-
-Fixes: ac421852b3a0 ("ucc_geth: add ethtool support")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: a6111d3c93d0 ("vlan: Pass SIOC[SG]HWTSTAMP ioctls to real device")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/ucc_geth_ethtool.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/8021q/vlan_dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-+++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-@@ -252,14 +252,12 @@ uec_set_ringparam(struct net_device *net
- 		return -EINVAL;
- 	}
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -366,10 +366,12 @@ static int vlan_dev_ioctl(struct net_dev
+ 	ifrr.ifr_ifru = ifr->ifr_ifru;
  
-+	if (netif_running(netdev))
-+		return -EBUSY;
-+
- 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
- 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
- 
--	if (netif_running(netdev)) {
--		/* FIXME: restart automatically */
--		netdev_info(netdev, "Please re-open the interface\n");
--	}
--
- 	return ret;
- }
- 
+ 	switch (cmd) {
++	case SIOCSHWTSTAMP:
++		if (!net_eq(dev_net(dev), &init_net))
++			break;
+ 	case SIOCGMIIPHY:
+ 	case SIOCGMIIREG:
+ 	case SIOCSMIIREG:
+-	case SIOCSHWTSTAMP:
+ 	case SIOCGHWTSTAMP:
+ 		if (netif_device_present(real_dev) && ops->ndo_do_ioctl)
+ 			err = ops->ndo_do_ioctl(real_dev, &ifrr, cmd);
 
 
