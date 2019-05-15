@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3475D1F2AA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071811F42F
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbfEOLJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:09:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41860 "EHLO mail.kernel.org"
+        id S1726767AbfEOK6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726659AbfEOLJI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:09:08 -0400
+        id S1726754AbfEOK6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FFB12084F;
-        Wed, 15 May 2019 11:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0429221473;
+        Wed, 15 May 2019 10:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918548;
-        bh=3tTToVMbBpi0ISrfmPxLmKYgdeJv4JBFyjYHrx1Luew=;
+        s=default; t=1557917900;
+        bh=Ki/lqeMWa63OFB/l5JNakbt9V1E+X/jrXnjqHeKs3TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3O0tyNp7wBaSF46HWAh/vzem4OhJ8x+yzeKMBW789zo3K6zpOgcjYT8LtEQ6aeN0
-         JhPGqaVb6FKWp5S1UM0DvP92CA+DXy0os5BqgIOZuab7N4ChUNP/UUEj5HauHWaRBt
-         bfATrutxmzkC/sR7ZBKpqJ9t72xdUAFo96bvJmm4=
+        b=FXTJS37m7t2kNpTRYZJwPLniW1jvAGYfy9O1Njhr4iUwuJq5Znq6v9EakLbafP+K/
+         8RomDOIL/ThDiM/Bo3lITHhMT/OGUN2G5U6d1cqoTAToFcVA82GjtEL3XG9q3YStao
+         p8eIgegifrgo5Hs5JhiZqd5LRn+Tsj1NXLz3HO88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 175/266] cw1200: fix missing unlock on error in cw1200_hw_scan()
+        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
+        "J. Bruce Fields" <bfields@redhat.com>, stable@kernel.org
+Subject: [PATCH 3.18 05/86] sunrpc: dont mark uninitialised items as VALID.
 Date:   Wed, 15 May 2019 12:54:42 +0200
-Message-Id: <20190515090728.842670128@linuxfoundation.org>
+Message-Id: <20190515090643.489678828@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: NeilBrown <neilb@suse.com>
 
-commit 51c8d24101c79ffce3e79137e2cee5dfeb956dd7 upstream.
+commit d58431eacb226222430940134d97bfd72f292fcd upstream.
 
-Add the missing unlock before return from function cw1200_hw_scan()
-in the error handling case.
+A recent commit added a call to cache_fresh_locked()
+when an expired item was found.
+The call sets the CACHE_VALID flag, so it is important
+that the item actually is valid.
+There are two ways it could be valid:
+1/ If ->update has been called to fill in relevant content
+2/ if CACHE_NEGATIVE is set, to say that content doesn't exist.
 
-Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-[iwamatsu: Change the patching file from drivers/net/wireless/st/cw1200/scan.c to
-drivers/net/wireless/cw1200/scan.c]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+An expired item that is waiting for an update will be neither.
+Setting CACHE_VALID will mean that a subsequent call to cache_put()
+will be likely to dereference uninitialised pointers.
+
+So we must make sure the item is valid, and we already have code to do
+that in try_to_negate_entry().  This takes the hash lock and so cannot
+be used directly, so take out the two lines that we need and use them.
+
+Now cache_fresh_locked() is certain to be called only on
+a valid item.
+
+Cc: stable@kernel.org # 2.6.35
+Fixes: 4ecd55ea0742 ("sunrpc: fix cache_head leak due to queued request")
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/cw1200/scan.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sunrpc/cache.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/cw1200/scan.c
-+++ b/drivers/net/wireless/cw1200/scan.c
-@@ -84,8 +84,11 @@ int cw1200_hw_scan(struct ieee80211_hw *
+--- a/net/sunrpc/cache.c
++++ b/net/sunrpc/cache.c
+@@ -50,6 +50,7 @@ static void cache_init(struct cache_head
+ 	h->last_refresh = now;
+ }
  
- 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
- 		req->ie_len);
--	if (!frame.skb)
-+	if (!frame.skb) {
-+		mutex_unlock(&priv->conf_mutex);
-+		up(&priv->scan.lock);
- 		return -ENOMEM;
-+	}
- 
- 	if (req->ie_len)
- 		memcpy(skb_put(frame.skb, req->ie_len), req->ie, req->ie_len);
++static inline int cache_is_valid(struct cache_head *h);
+ static void cache_fresh_locked(struct cache_head *head, time_t expiry);
+ static void cache_fresh_unlocked(struct cache_head *head,
+ 				struct cache_detail *detail);
+@@ -98,6 +99,8 @@ struct cache_head *sunrpc_cache_lookup(s
+ 				*hp = tmp->next;
+ 				tmp->next = NULL;
+ 				detail->entries --;
++				if (cache_is_valid(tmp) == -EAGAIN)
++					set_bit(CACHE_NEGATIVE, &tmp->flags);
+ 				cache_fresh_locked(tmp, 0);
+ 				freeme = tmp;
+ 				break;
 
 
