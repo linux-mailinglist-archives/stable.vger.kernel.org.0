@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B579C1ED42
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1121F2DE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727912AbfEOLHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
+        id S1728983AbfEOLHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728902AbfEOLHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:21 -0400
+        id S1728435AbfEOLHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1948520881;
-        Wed, 15 May 2019 11:07:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80AB62084F;
+        Wed, 15 May 2019 11:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918440;
-        bh=/8t7sR6yshO0rm6d8GV/7qh4yOkTDpZvtfJVpBiEOFE=;
+        s=default; t=1557918469;
+        bh=UaSRcyMnz8YwZQ5JXfK4M9gajoohZJeJ7Jei2hd85AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L31j9cbAjsElzBo77pOvI8Mag0doPwwOjjp7sNci3HTcGZJsNLa8kmRxTwc0MOG8c
-         xVmUwX3BzNCf1u6SS8GoXJTnWLfKi7Fa8oYpVYZN00PbXeOwTpKKTGfFqdZ1y3f3C7
-         FGs7k6SMANh6qvWPfIA5ATQa06c1QA7AuSYRigEU=
+        b=A+lbarvJDwTVloqW0/AC3xVi0a1ZxKfuhsxIt/nmnXKJZl+LdFpj/AYtBQcNRm7oE
+         6mZf2o9KvRqDp30yez1z2fOFD65XYRTl1EfNLH6gW8T6sXDQNBsDFUm11puqmffd0Q
+         s3k7QofGB1qPo6AidQocfohyV7knIfLTdAUiOxvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 115/266] packet: validate msg_namelen in send directly
-Date:   Wed, 15 May 2019 12:53:42 +0200
-Message-Id: <20190515090726.348855449@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 116/266] USB: yurex: Fix protection fault after device removal
+Date:   Wed, 15 May 2019 12:53:43 +0200
+Message-Id: <20190515090726.382811751@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,89 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 486efdc8f6ce802b27e15921d2353cc740c55451 ]
+commit ef61eb43ada6c1d6b94668f0f514e4c268093ff3 upstream.
 
-Packet sockets in datagram mode take a destination address. Verify its
-length before passing to dev_hard_header.
+The syzkaller USB fuzzer found a general-protection-fault bug in the
+yurex driver.  The fault occurs when a device has been unplugged; the
+driver's interrupt-URB handler logs an error message referring to the
+device by name, after the device has been unregistered and its name
+deallocated.
 
-Prior to 2.6.14-rc3, the send code ignored sll_halen. This is
-established behavior. Directly compare msg_namelen to dev->addr_len.
+This problem is caused by the fact that the interrupt URB isn't
+cancelled until the driver's private data structure is released, which
+can happen long after the device is gone.  The cure is to make sure
+that the interrupt URB is killed before yurex_disconnect() returns;
+this is exactly the sort of thing that usb_poison_urb() was meant for.
 
-Change v1->v2: initialize addr in all paths
-
-Fixes: 6b8d95f1795c4 ("packet: validate address length if non-zero")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2490,8 +2490,8 @@ static int tpacket_snd(struct packet_soc
- 	void *ph;
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg->msg_name);
- 	bool need_wait = !(msg->msg_flags & MSG_DONTWAIT);
-+	unsigned char *addr = NULL;
- 	int tp_len, size_max;
--	unsigned char *addr;
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
- 	int hlen, tlen;
-@@ -2511,10 +2511,13 @@ static int tpacket_snd(struct packet_soc
- 						sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_put;
-+		if (po->sk.sk_socket->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_put;
-+			addr = saddr->sll_addr;
-+		}
- 	}
+---
+ drivers/usb/misc/yurex.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -332,6 +332,7 @@ static void yurex_disconnect(struct usb_
+ 	usb_deregister_dev(interface, &yurex_class);
  
- 	err = -ENXIO;
-@@ -2652,7 +2655,7 @@ static int packet_snd(struct socket *soc
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	__be16 proto;
--	unsigned char *addr;
-+	unsigned char *addr = NULL;
- 	int err, reserve = 0;
- 	struct sockcm_cookie sockc;
- 	struct virtio_net_hdr vnet_hdr = { 0 };
-@@ -2672,7 +2675,6 @@ static int packet_snd(struct socket *soc
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
--		addr	= NULL;
- 	} else {
- 		err = -EINVAL;
- 		if (msg->msg_namelen < sizeof(struct sockaddr_ll))
-@@ -2680,10 +2682,13 @@ static int packet_snd(struct socket *soc
- 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
- 			goto out;
- 		proto	= saddr->sll_protocol;
--		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
- 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
--		if (addr && dev && saddr->sll_halen < dev->addr_len)
--			goto out_unlock;
-+		if (sock->type == SOCK_DGRAM) {
-+			if (dev && msg->msg_namelen < dev->addr_len +
-+				   offsetof(struct sockaddr_ll, sll_addr))
-+				goto out_unlock;
-+			addr = saddr->sll_addr;
-+		}
- 	}
- 
- 	err = -ENXIO;
+ 	/* prevent more I/O from starting */
++	usb_poison_urb(dev->urb);
+ 	mutex_lock(&dev->io_mutex);
+ 	dev->interface = NULL;
+ 	mutex_unlock(&dev->io_mutex);
 
 
