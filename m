@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A9C1F13B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C35B1F1BA
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731444AbfEOLWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60676 "EHLO mail.kernel.org"
+        id S1727671AbfEOLRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731441AbfEOLWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:23 -0400
+        id S1730686AbfEOLRj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:17:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE44A20843;
-        Wed, 15 May 2019 11:22:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5172F20644;
+        Wed, 15 May 2019 11:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919343;
-        bh=6yewCPOiOdHUs0aQTSaM5h9YTqiRcgLS4eo6foYu5Is=;
+        s=default; t=1557919058;
+        bh=0CRSbPVHSTBZ/tLKfwVcY83xksxgRDA92AhKSmHzAGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zr1QImUvtVe1HHFmCVpAcfe/QzvkI9z+Dl/nPI5ALdbSkfxtQwRjJrrflk95l4sW3
-         RRoVv830u5A/ngtjW/zTF9aCuUWZLFBKihqReDQFC9TrUps7KixRMK/EF9rNr7urhj
-         b1V0JLMtult+dUPzputSumj+QzUJnlLCAirChUsU=
+        b=fTEtgz6VKVhzjHjiiiLXeQTPls56E+CN+OdemNm2H69RNvJsLPWCFmH24VmXWg0Yd
+         +ConjWWbCJapFRa1pvvqTASftza+lZ+RBioJEAV1kW63JstztGXwodQUwSAbEr2Ay9
+         L46yIKQKJQT/9uOrspoP+BLl5DKitmrjHPYqY0DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/113] KVM: fix spectrev1 gadgets
+        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 049/115] media: cec: integrate cec_validate_phys_addr() in cec-api.c
 Date:   Wed, 15 May 2019 12:55:29 +0200
-Message-Id: <20190515090656.509320646@linuxfoundation.org>
+Message-Id: <20190515090703.160609815@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1d487e9bf8ba66a7174c56a0029c54b1eca8f99c ]
+[ Upstream commit e81bff39489a06384822bb38ce7a59f9e365bbe9 ]
 
-These were found with smatch, and then generalized when applicable.
+The cec_phys_addr_validate() function will be moved to V4L2,
+so use a simplified variant of that function in cec-api.c.
+cec now no longer calls cec_phys_addr_validate() and it can
+be safely moved to V4L2.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: <stable@vger.kernel.org>      # for v4.17 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/x86/kvm/lapic.c     |  4 +++-
- include/linux/kvm_host.h | 10 ++++++----
- virt/kvm/irqchip.c       |  5 +++--
- virt/kvm/kvm_main.c      |  6 ++++--
- 4 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/media/cec/cec-api.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 3692de84c4201..d2f5aa220355f 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -133,6 +133,7 @@ static inline bool kvm_apic_map_get_logical_dest(struct kvm_apic_map *map,
- 		if (offset <= max_apic_id) {
- 			u8 cluster_size = min(max_apic_id - offset + 1, 16U);
- 
-+			offset = array_index_nospec(offset, map->max_apic_id + 1);
- 			*cluster = &map->phys_map[offset];
- 			*mask = dest_id & (0xffff >> (16 - cluster_size));
- 		} else {
-@@ -896,7 +897,8 @@ static inline bool kvm_apic_map_get_dest_lapic(struct kvm *kvm,
- 		if (irq->dest_id > map->max_apic_id) {
- 			*bitmap = 0;
- 		} else {
--			*dst = &map->phys_map[irq->dest_id];
-+			u32 dest_id = array_index_nospec(irq->dest_id, map->max_apic_id + 1);
-+			*dst = &map->phys_map[dest_id];
- 			*bitmap = 1;
- 		}
- 		return true;
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 23c242a7ac524..30efb36638923 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -28,6 +28,7 @@
- #include <linux/irqbypass.h>
- #include <linux/swait.h>
- #include <linux/refcount.h>
-+#include <linux/nospec.h>
- #include <asm/signal.h>
- 
- #include <linux/kvm.h>
-@@ -491,10 +492,10 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
- 
- static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
- {
--	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
--	 * the caller has read kvm->online_vcpus before (as is the case
--	 * for kvm_for_each_vcpu, for example).
--	 */
-+	int num_vcpus = atomic_read(&kvm->online_vcpus);
-+	i = array_index_nospec(i, num_vcpus);
-+
-+	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  */
- 	smp_rmb();
- 	return kvm->vcpus[i];
+diff --git a/drivers/media/cec/cec-api.c b/drivers/media/cec/cec-api.c
+index a079f7fe018c4..21a5f45e0259e 100644
+--- a/drivers/media/cec/cec-api.c
++++ b/drivers/media/cec/cec-api.c
+@@ -113,6 +113,23 @@ static long cec_adap_g_phys_addr(struct cec_adapter *adap,
+ 	return 0;
  }
-@@ -578,6 +579,7 @@ void kvm_put_kvm(struct kvm *kvm);
  
- static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
++static int cec_validate_phys_addr(u16 phys_addr)
++{
++	int i;
++
++	if (phys_addr == CEC_PHYS_ADDR_INVALID)
++		return 0;
++	for (i = 0; i < 16; i += 4)
++		if (phys_addr & (0xf << i))
++			break;
++	if (i == 16)
++		return 0;
++	for (i += 4; i < 16; i += 4)
++		if ((phys_addr & (0xf << i)) == 0)
++			return -EINVAL;
++	return 0;
++}
++
+ static long cec_adap_s_phys_addr(struct cec_adapter *adap, struct cec_fh *fh,
+ 				 bool block, __u16 __user *parg)
  {
-+	as_id = array_index_nospec(as_id, KVM_ADDRESS_SPACE_NUM);
- 	return srcu_dereference_check(kvm->memslots[as_id], &kvm->srcu,
- 			lockdep_is_held(&kvm->slots_lock) ||
- 			!refcount_read(&kvm->users_count));
-diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
-index b1286c4e07122..0bd0683640bdf 100644
---- a/virt/kvm/irqchip.c
-+++ b/virt/kvm/irqchip.c
-@@ -144,18 +144,19 @@ static int setup_routing_entry(struct kvm *kvm,
- {
- 	struct kvm_kernel_irq_routing_entry *ei;
- 	int r;
-+	u32 gsi = array_index_nospec(ue->gsi, KVM_MAX_IRQ_ROUTES);
+@@ -124,7 +141,7 @@ static long cec_adap_s_phys_addr(struct cec_adapter *adap, struct cec_fh *fh,
+ 	if (copy_from_user(&phys_addr, parg, sizeof(phys_addr)))
+ 		return -EFAULT;
  
- 	/*
- 	 * Do not allow GSI to be mapped to the same irqchip more than once.
- 	 * Allow only one to one mapping between GSI and non-irqchip routing.
- 	 */
--	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
-+	hlist_for_each_entry(ei, &rt->map[gsi], link)
- 		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
- 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
- 			return -EINVAL;
- 
--	e->gsi = ue->gsi;
-+	e->gsi = gsi;
- 	e->type = ue->type;
- 	r = kvm_set_routing_entry(kvm, e, ue);
- 	if (r)
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 6a79df88b5469..e909d9907b506 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2887,12 +2887,14 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	struct kvm_device_ops *ops = NULL;
- 	struct kvm_device *dev;
- 	bool test = cd->flags & KVM_CREATE_DEVICE_TEST;
-+	int type;
- 	int ret;
- 
- 	if (cd->type >= ARRAY_SIZE(kvm_device_ops_table))
- 		return -ENODEV;
- 
--	ops = kvm_device_ops_table[cd->type];
-+	type = array_index_nospec(cd->type, ARRAY_SIZE(kvm_device_ops_table));
-+	ops = kvm_device_ops_table[type];
- 	if (ops == NULL)
- 		return -ENODEV;
- 
-@@ -2907,7 +2909,7 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
- 	dev->kvm = kvm;
- 
- 	mutex_lock(&kvm->lock);
--	ret = ops->create(dev, cd->type);
-+	ret = ops->create(dev, type);
- 	if (ret < 0) {
- 		mutex_unlock(&kvm->lock);
- 		kfree(dev);
+-	err = cec_phys_addr_validate(phys_addr, NULL, NULL);
++	err = cec_validate_phys_addr(phys_addr);
+ 	if (err)
+ 		return err;
+ 	mutex_lock(&adap->lock);
 -- 
 2.20.1
 
