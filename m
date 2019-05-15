@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA8F1EF4C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7EB91EFE4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733010AbfEOLcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44170 "EHLO mail.kernel.org"
+        id S1726598AbfEOLik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:38:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733005AbfEOLcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:20 -0400
+        id S1732046AbfEOLaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD220206BF;
-        Wed, 15 May 2019 11:32:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F99C20843;
+        Wed, 15 May 2019 11:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919939;
-        bh=LxcjEKip1v8N/ANBHPxLhn8/Pw2YaorBIk4I7k7IVPI=;
+        s=default; t=1557919855;
+        bh=4KSBbtptG3jiW28pPbGqgjyq8g5hxBbZvktWcGJSOW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWQwTQhpkd6R1rW05m+xxQsEXfCpGoGfDyNf1ZNuaFSW39iyIk3/GLtG7CO8WEz4r
-         zQ+vVgtesRWLvUWsYGHaCegIsn2jQvNhmBzjo6EF6FCotOwDuQoMSGHjs5kXUWqrqk
-         Fw5JUYXkjrJ4dbigMCyy4u0GGyWCRkCWTr3ykJOY=
+        b=DRMfubO8lLi/4IjMNlOZyFJ53LDKAn1JqdFiKdYRDOjjfyAgu6ZvObm8SBukUOUKJ
+         rE/PpxqnLiwvQ0iMTn5fSFtWUr8/JlFEKBXQfPixljaVKZz4BxF6n5NRttwyBj91lF
+         Z/Ga5XISDSyFScxv/W+/zl+OY1ShsDS84vaHso0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 5.1 14/46] bonding: fix arp_validate toggling in active-backup mode
+        stable@vger.kernel.org,
+        Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.se>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.0 117/137] tipc: fix hanging clients using poll with EPOLLOUT flag
 Date:   Wed, 15 May 2019 12:56:38 +0200
-Message-Id: <20190515090622.798553525@linuxfoundation.org>
+Message-Id: <20190515090702.138296556@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
 
-[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
+[ Upstream commit ff946833b70e0c7f93de9a3f5b329b5ae2287b38 ]
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+commit 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
+introduced a regression for clients using non-blocking sockets.
+After the commit, we send EPOLLOUT event to the client even in
+TIPC_CONNECTING state. This causes the subsequent send() to fail
+with ENOTCONN, as the socket is still not in TIPC_ESTABLISHED state.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
+In this commit, we:
+- improve the fix for hanging poll() by replacing sk_data_ready()
+  with sk_state_change() to wake up all clients.
+- revert the faulty updates introduced by commit 517d7c79bdb398
+  ("tipc: fix hanging poll() for stream sockets").
 
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
-
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: 517d7c79bdb398 ("tipc: fix hanging poll() for stream sockets")
+Signed-off-by: Parthasarathy Bhuvaragan <parthasarathy.bhuvaragan@gmail.com>
+Acked-by: Jon Maloy <jon.maloy@ericsson.se>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_options.c |    7 -------
- 1 file changed, 7 deletions(-)
+ net/tipc/socket.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1098,13 +1098,6 @@ static int bond_option_arp_validate_set(
- {
- 	netdev_dbg(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		   newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -734,11 +734,11 @@ static __poll_t tipc_poll(struct file *f
  
- 	return 0;
+ 	switch (sk->sk_state) {
+ 	case TIPC_ESTABLISHED:
+-	case TIPC_CONNECTING:
+ 		if (!tsk->cong_link_cnt && !tsk_conn_cong(tsk))
+ 			revents |= EPOLLOUT;
+ 		/* fall thru' */
+ 	case TIPC_LISTEN:
++	case TIPC_CONNECTING:
+ 		if (!skb_queue_empty(&sk->sk_receive_queue))
+ 			revents |= EPOLLIN | EPOLLRDNORM;
+ 		break;
+@@ -2041,7 +2041,7 @@ static bool tipc_sk_filter_connect(struc
+ 			if (msg_data_sz(hdr))
+ 				return true;
+ 			/* Empty ACK-, - wake up sleeping connect() and drop */
+-			sk->sk_data_ready(sk);
++			sk->sk_state_change(sk);
+ 			msg_set_dest_droppable(hdr, 1);
+ 			return false;
+ 		}
 
 
