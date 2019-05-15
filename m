@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 652EB1F329
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93BA1F31A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbfEOMKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
+        id S1728121AbfEOLHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728532AbfEOLHA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:07:00 -0400
+        id S1726898AbfEOLHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:07:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FE5E21734;
-        Wed, 15 May 2019 11:06:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 161D620644;
+        Wed, 15 May 2019 11:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918419;
-        bh=pmDpI0mOfPRu39fWnUV4I/+4ZjVdkBEGEqtqWuIjavQ=;
+        s=default; t=1557918422;
+        bh=VDxDGFJixae4M3MK2GPddJJKLRn0YtZJJZEIYK3ak2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wym0iVvw9U2XZxjHTZZicNsqRkLQznxNl89y1QRlMIozlPLir8YzSbi4A4ZN/fQ+
-         tjD8Xv8KLTUaoKRzgGmIA+7rpib1P1bcwZpuiZfqu0UCIuZiGTRrUqKeQwNhbawBtH
-         g6JNHrU8Gjt1Y5dNRPsOjNqX8Zu1bEQE7ijzWTR8=
+        b=xXKrf2zHBX7LiBplZ22EGsFpxWUlDCcQc+Pww7m0dtqZ+fDK8+HhfgOW0eOp0i0ix
+         LBSwnmCEwrZtyEK0LbEe8BoCK1QZii5E106yyfWJoTWWvKPbfL5g6kNMC3jdYFlIUb
+         QvuYNoidUagpu8HwDoDikpFClsxJy9HjXBOIJ8nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 125/266] debugfs: fix use-after-free on symlink traversal
-Date:   Wed, 15 May 2019 12:53:52 +0200
-Message-Id: <20190515090727.007426951@linuxfoundation.org>
+Subject: [PATCH 4.4 126/266] rtc: da9063: set uie_unsupported when relevant
+Date:   Wed, 15 May 2019 12:53:53 +0200
+Message-Id: <20190515090727.220295292@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -43,52 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 93b919da64c15b90953f96a536e5e61df896ca57 ]
+[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
 
-symlink body shouldn't be freed without an RCU delay.  Switch debugfs to
-->destroy_inode() and use of call_rcu(); free both the inode and symlink
-body in the callback.  Similar to solution for bpf, only here it's even
-more obvious that ->evict_inode() can be dropped.
+The DA9063AD doesn't support alarms on any seconds and its granularity is
+the minute. Set uie_unsupported in that case.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/debugfs/inode.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-da9063.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-index 22fe11baef2b..3530e1c3ff56 100644
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -164,19 +164,24 @@ static int debugfs_show_options(struct seq_file *m, struct dentry *root)
- 	return 0;
- }
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index d6c853bbfa9f..e93beecd5010 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -491,6 +491,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
+ 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+ 	rtc->rtc_sync = false;
  
--static void debugfs_evict_inode(struct inode *inode)
-+static void debugfs_i_callback(struct rcu_head *head)
- {
--	truncate_inode_pages_final(&inode->i_data);
--	clear_inode(inode);
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
- 	if (S_ISLNK(inode->i_mode))
- 		kfree(inode->i_link);
-+	free_inode_nonrcu(inode);
-+}
++	/*
++	 * TODO: some models have alarms on a minute boundary but still support
++	 * real hardware interrupts. Add this once the core supports it.
++	 */
++	if (config->rtc_data_start != RTC_SEC)
++		rtc->rtc_dev->uie_unsupported = 1;
 +
-+static void debugfs_destroy_inode(struct inode *inode)
-+{
-+	call_rcu(&inode->i_rcu, debugfs_i_callback);
- }
- 
- static const struct super_operations debugfs_super_operations = {
- 	.statfs		= simple_statfs,
- 	.remount_fs	= debugfs_remount,
- 	.show_options	= debugfs_show_options,
--	.evict_inode	= debugfs_evict_inode,
-+	.destroy_inode	= debugfs_destroy_inode,
- };
- 
- static struct vfsmount *debugfs_automount(struct path *path)
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
 -- 
 2.20.1
 
