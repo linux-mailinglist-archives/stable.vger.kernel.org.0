@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CD61F3C6
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E861F078
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727342AbfEOLAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:00:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56852 "EHLO mail.kernel.org"
+        id S1731888AbfEOL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727316AbfEOLAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:00:07 -0400
+        id S1731670AbfEOL0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:26:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A3312084E;
-        Wed, 15 May 2019 11:00:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B45520818;
+        Wed, 15 May 2019 11:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918006;
-        bh=MutqT2n7jn8yjfQNslKMhQrXlo4Dl9tXlg8BSGnTsaQ=;
+        s=default; t=1557919580;
+        bh=DUjKZn5emODJcuQLKllJ8Z6KyVBSBziyGSgnE1R3ogA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IG4H8mPUWYFZt8hSF9W7KZJo2gg0T70JDVWfXWZY+nlL9ykShCDHx/+RZTkNUOkZC
-         B81EERCotTI+ZU5MyHqHMrXZV4xchShJwB3J0+o4X4x7roo66xT35oDE/cVQqQrD9r
-         wJOsysO07vcmvtsGF4CZYQzVKmVwrjICsITHQoRs=
+        b=n4UHVHYFTP/VyOnvQsd2oq+dp3R8O6HYpIgOQ2IFVvapvQw2sPgRIlY3HsXE7cNvi
+         Ybgdl6mgqzZT8nj2x3dUO6L3sDh4PtBpVjXrkVPDiFn8eei0aQg9Q7HKctLWigeugs
+         Q9+4FPtWX8SRbsVm0a+vSl7qWqnJMGkuWgpXhbhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 3.18 19/86] net: ks8851: Delay requesting IRQ until opened
-Date:   Wed, 15 May 2019 12:54:56 +0200
-Message-Id: <20190515090646.415819394@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 016/137] HID: input: add mapping for Expose/Overview key
+Date:   Wed, 15 May 2019 12:54:57 +0200
+Message-Id: <20190515090654.518511281@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,94 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d268f31552794abf5b6aa5af31021643411f25f5 ]
+[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
 
-The ks8851 driver currently requests the IRQ before registering the
-net_device.  Because the net_device name is used as IRQ name and is
-still "eth%d" when the IRQ is requested, it's impossibe to tell IRQs
-apart if multiple ks8851 chips are present.  Most other drivers delay
-requesting the IRQ until the net_device is opened.  Do the same.
+According to HUTRR77 usage 0x29f from the consumer page is reserved for
+the Desktop application to present all running user’s application windows.
+Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
+add the mapping.
 
-The driver doesn't enable interrupts on the chip before opening the
-net_device and disables them when closing it, so there doesn't seem to
-be a need to request the IRQ already on probe.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/hid/hid-input.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index e218e45dcf35..f90a1396535a 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -797,6 +797,15 @@ static void ks8851_tx_work(struct work_struct *work)
- static int ks8851_net_open(struct net_device *dev)
- {
- 	struct ks8851_net *ks = netdev_priv(dev);
-+	int ret;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index ff92a7b2fc897..468da6f6765db 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1042,6 +1042,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
+ 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
+ 
++		case 0x29f: map_key_clear(KEY_SCALE);		break;
 +
-+	ret = request_threaded_irq(dev->irq, NULL, ks8851_irq,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   dev->name, ks);
-+	if (ret < 0) {
-+		netdev_err(dev, "failed to get irq\n");
-+		return ret;
-+	}
- 
- 	/* lock the card, even if we may not actually be doing anything
- 	 * else at the moment */
-@@ -911,6 +920,8 @@ static int ks8851_net_stop(struct net_device *dev)
- 		dev_kfree_skb(txb);
- 	}
- 
-+	free_irq(dev->irq, ks);
-+
- 	return 0;
- }
- 
-@@ -1542,14 +1553,6 @@ static int ks8851_probe(struct spi_device *spi)
- 	ks8851_read_selftest(ks);
- 	ks8851_init_mac(ks);
- 
--	ret = request_threaded_irq(spi->irq, NULL, ks8851_irq,
--				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				   ndev->name, ks);
--	if (ret < 0) {
--		dev_err(&spi->dev, "failed to get irq\n");
--		goto err_irq;
--	}
--
- 	ret = register_netdev(ndev);
- 	if (ret) {
- 		dev_err(&spi->dev, "failed to register network device\n");
-@@ -1562,11 +1565,7 @@ static int ks8851_probe(struct spi_device *spi)
- 
- 	return 0;
- 
--
- err_netdev:
--	free_irq(ndev->irq, ks);
--
--err_irq:
- err_id:
- 	if (gpio_is_valid(gpio))
- 		gpio_set_value(gpio, 0);
-@@ -1587,7 +1586,6 @@ static int ks8851_remove(struct spi_device *spi)
- 		dev_info(&spi->dev, "remove\n");
- 
- 	unregister_netdev(priv->netdev);
--	free_irq(spi->irq, priv);
- 	if (gpio_is_valid(priv->gpio))
- 		gpio_set_value(priv->gpio, 0);
- 	regulator_disable(priv->vdd_reg);
+ 		default: map_key_clear(KEY_UNKNOWN);
+ 		}
+ 		break;
 -- 
-2.19.1
+2.20.1
 
 
 
