@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6953D1F1F8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 253571EF12
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:29:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730340AbfEOLPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52248 "EHLO mail.kernel.org"
+        id S1729018AbfEOL3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730334AbfEOLPl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:15:41 -0400
+        id S1732589AbfEOL3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A05BD2084E;
-        Wed, 15 May 2019 11:15:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8532084F;
+        Wed, 15 May 2019 11:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918941;
-        bh=IrG606G2ac9Y9jrMvCLPLa5ctK/pQzOopwKA7yfSsE8=;
+        s=default; t=1557919773;
+        bh=v8BRTtexhoVzCszqy58/ROLv4LafHU1CamMNCenkLbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QB5BPnSFumtRJVhuPviNulA77hEZiqQ5r7E3KrhKjvOHTvjKOQ6vq8pj415udPW6z
-         pLlvFxNH4gKgs11UKPMRZoaQPOouXbEDmf3XXdI6UX6wutQEDgEgchVT/RuhxfUzmv
-         yeAOaw+BNA/bfMmsYDtq4pI8P4s785/kG5my8gMc=
+        b=QC3RyL28RPpMMFwl8gdt4jaDNyIezOlP15BXWBXSKP5O3X+H1nqz3CddggpIXyJcn
+         QcFKu6NVrZIAE6S+erqnycwIEFv+tWJUhk/w84himixw1VGCQv6QbFk/PDlWi3bdR0
+         jbYkAbZraqebvj82wnHObi/50KCT56C3n8Y6GE7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/51] Revert "x86: vdso: Use $LD instead of $CC to link"
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 089/137] drm/sun4i: Unbind components before releasing DRM and memory
 Date:   Wed, 15 May 2019 12:56:10 +0200
-Message-Id: <20190515090626.919390908@linuxfoundation.org>
+Message-Id: <20190515090659.985825905@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 94c0c4f033eee2304a98cf30a141f9dae35d3a62.
+[ Upstream commit e02bc29b2cfa7806830d6da8b2322cddd67e8dfe ]
 
-The commit message in the 4.9 stable tree did not have a reference to
-the upstream commit id.
+Our components may still be using the DRM device driver (if only to
+access our driver's private data), so make sure to unbind them before
+the final drm_dev_put.
 
+Also release our reserved memory after component unbind instead of
+before to match reverse creation order.
+
+Fixes: f5a9ed867c83 ("drm/sun4i: Fix component unbinding and component master deletion")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190424090413.6918-1-paul.kocialkowski@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vdso/Makefile | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_drv.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index 2ae92c6b1de6d..d5409660f5de6 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -47,8 +47,10 @@ targets += $(vdso_img_sodbg)
+diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
+index 9a5713fa03b25..f8bf5bbec2df3 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -146,10 +146,11 @@ static void sun4i_drv_unbind(struct device *dev)
+ 	drm_dev_unregister(drm);
+ 	drm_kms_helper_poll_fini(drm);
+ 	drm_mode_config_cleanup(drm);
+-	of_reserved_mem_device_release(dev);
+-	drm_dev_put(drm);
  
- export CPPFLAGS_vdso.lds += -P -C
+ 	component_unbind_all(dev, NULL);
++	of_reserved_mem_device_release(dev);
++
++	drm_dev_put(drm);
+ }
  
--VDSO_LDFLAGS_vdso.lds = -m elf_x86_64 -soname linux-vdso.so.1 --no-undefined \
--			-z max-page-size=4096 -z common-page-size=4096
-+VDSO_LDFLAGS_vdso.lds = -m64 -Wl,-soname=linux-vdso.so.1 \
-+			-Wl,--no-undefined \
-+			-Wl,-z,max-page-size=4096 -Wl,-z,common-page-size=4096 \
-+			$(DISABLE_LTO)
- 
- $(obj)/vdso64.so.dbg: $(src)/vdso.lds $(vobjs) FORCE
- 	$(call if_changed,vdso)
-@@ -94,8 +96,10 @@ CFLAGS_REMOVE_vvar.o = -pg
- #
- 
- CPPFLAGS_vdsox32.lds = $(CPPFLAGS_vdso.lds)
--VDSO_LDFLAGS_vdsox32.lds = -m elf32_x86_64 -soname linux-vdso.so.1 \
--			   -z max-page-size=4096 -z common-page-size=4096
-+VDSO_LDFLAGS_vdsox32.lds = -Wl,-m,elf32_x86_64 \
-+			   -Wl,-soname=linux-vdso.so.1 \
-+			   -Wl,-z,max-page-size=4096 \
-+			   -Wl,-z,common-page-size=4096
- 
- # 64-bit objects to re-brand as x32
- vobjs64-for-x32 := $(filter-out $(vobjs-nox32),$(vobjs-y))
-@@ -123,7 +127,7 @@ $(obj)/vdsox32.so.dbg: $(src)/vdsox32.lds $(vobjx32s) FORCE
- 	$(call if_changed,vdso)
- 
- CPPFLAGS_vdso32.lds = $(CPPFLAGS_vdso.lds)
--VDSO_LDFLAGS_vdso32.lds = -m elf_i386 -soname linux-gate.so.1
-+VDSO_LDFLAGS_vdso32.lds = -m32 -Wl,-m,elf_i386 -Wl,-soname=linux-gate.so.1
- 
- # This makes sure the $(obj) subdirectory exists even though vdso32/
- # is not a kbuild sub-make subdirectory.
-@@ -161,13 +165,13 @@ $(obj)/vdso32.so.dbg: FORCE \
- # The DSO images are built using a special linker script.
- #
- quiet_cmd_vdso = VDSO    $@
--      cmd_vdso = $(LD) -nostdlib -o $@ \
-+      cmd_vdso = $(CC) -nostdlib -o $@ \
- 		       $(VDSO_LDFLAGS) $(VDSO_LDFLAGS_$(filter %.lds,$(^F))) \
--		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
-+		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
- 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
- 
--VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
--	$(call ld-option, --build-id) -Bsymbolic
-+VDSO_LDFLAGS = -fPIC -shared $(call cc-ldoption, -Wl$(comma)--hash-style=both) \
-+	$(call cc-ldoption, -Wl$(comma)--build-id) -Wl,-Bsymbolic $(LTO_CFLAGS)
- GCOV_PROFILE := n
- 
- #
+ static const struct component_master_ops sun4i_drv_master_ops = {
 -- 
 2.20.1
 
