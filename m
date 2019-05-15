@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 870A71F2CC
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D371F433
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbfEOMHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:07:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
+        id S1726838AbfEOK63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727932AbfEOLJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:09:16 -0400
+        id S1726827AbfEOK62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38FB92084F;
-        Wed, 15 May 2019 11:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D6EE20881;
+        Wed, 15 May 2019 10:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918555;
-        bh=KjgevnIayluyYbD7E71m24a0YTAYDPL763Wo13fyqIY=;
+        s=default; t=1557917908;
+        bh=v//jKv/3KD8xFB6an3CV5uDN/kZd5PBtM9Avw20RODM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2XKnBpkqKH3H9sTIIY0sM2MTxWxwnZi+PxnLk45EBg++5zXsM6TCjnryj/Ln/6H+Y
-         8TrDiK3m3GYyFYUq5zFsk87PmvOB17lQ1Rz7lHnXOhS1c64AVreNaDEa1vD83ElJa2
-         GK94xYEwVBL2Bp17bSJ0eSDKGl1bvFDxiPhzGMR0=
+        b=nV4K2fci/z3afb+c5QMIT6AaQt/oA6sNkoI1T7n8OwTuaH70koDXF60KPMtJtmH8N
+         l96H5hM/qHZWe2DerQU9XzuWPN49xWU3YayEcYnVJC+Knixr0KU1djJq6U5Nr26JGw
+         AwV3BAjTbiTK9C7KVEwXgnPPZOajZDXuNW1xi+Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 178/266] locking/static_keys: Provide DECLARE and well as DEFINE macros
+        stable@vger.kernel.org,
+        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 3.18 08/86] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
 Date:   Wed, 15 May 2019 12:54:45 +0200
-Message-Id: <20190515090728.946363692@linuxfoundation.org>
+Message-Id: <20190515090644.307170738@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit b8fb03785d4de097507d0cf45873525e0ac4d2b2 upstream.
+commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
 
-We will need to provide declarations of static keys in header
-files. Provide DECLARE_STATIC_KEY_{TRUE,FALSE} macros.
+syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
+is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
+(which is embedded into user-visible "struct nfs_mount_data" structure)
+despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
+bytes of AF_INET6 address to rpc_sockaddr2uaddr().
 
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Link: http://lkml.kernel.org/r/816881cf85bd3cf13385d212882618f38a3b5d33.1472754711.git.tony.luck@intel.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Since "struct nfs_mount_data" structure is user-visible, we can't change
+"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
+assuming that everybody is using AF_INET family when passing address via
+"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
+
+[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
+
+Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/jump_label.h |    6 ++++++
- 1 file changed, 6 insertions(+)
 
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -267,9 +267,15 @@ struct static_key_false {
- #define DEFINE_STATIC_KEY_TRUE(name)	\
- 	struct static_key_true name = STATIC_KEY_TRUE_INIT
+---
+ fs/nfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -2019,7 +2019,8 @@ static int nfs23_validate_mount_data(voi
+ 		memcpy(sap, &data->addr, sizeof(data->addr));
+ 		args->nfs_server.addrlen = sizeof(data->addr);
+ 		args->nfs_server.port = ntohs(data->addr.sin_port);
+-		if (!nfs_verify_server_address(sap))
++		if (sap->sa_family != AF_INET ||
++		    !nfs_verify_server_address(sap))
+ 			goto out_no_address;
  
-+#define DECLARE_STATIC_KEY_TRUE(name)	\
-+	extern struct static_key_true name
-+
- #define DEFINE_STATIC_KEY_FALSE(name)	\
- 	struct static_key_false name = STATIC_KEY_FALSE_INIT
- 
-+#define DECLARE_STATIC_KEY_FALSE(name)	\
-+	extern struct static_key_false name
-+
- extern bool ____wrong_branch_error(void);
- 
- #define static_key_enabled(x)							\
+ 		if (!(data->flags & NFS_MOUNT_TCP))
 
 
