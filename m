@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B88B1F1BF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD741F2B3
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730538AbfEOLR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55346 "EHLO mail.kernel.org"
+        id S1728842AbfEOLJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730731AbfEOLR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:57 -0400
+        id S1728818AbfEOLJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:09:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE17020862;
-        Wed, 15 May 2019 11:17:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 928A721473;
+        Wed, 15 May 2019 11:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919077;
-        bh=RiVvXlT1rWAM581dP90M99R4bVG9de482DvhP8acFcI=;
+        s=default; t=1557918582;
+        bh=JRiFLGUDlOHBiYVdynxL8b5VOINOVKM0yrdxUPsmGjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OACK4pTR4mljf+ow2IfxZKEf6MHhMMoVeNshwVfJFKwFZ35zuN5+SVMAf2mAK8yV/
-         90sIgRIhJ4+xhzogkCh36US0bk6ac9N688D0l/lDJjO9lw7jfb52tmpSuAfWJ3Jllc
-         Y/I4cBe8YVc00yOAtSe+flZ5WHMJtGbM3+fax76M=
+        b=19jrQTD3+oly45DCQNOzRfFp8cEvAOOs/6SiHewaVTIzVqBr6EaCnirYzaRWsltQs
+         tK95hQcUbt6WP2Ea8FSY7pPQUACuW+hBtknxvYNVPYyc9UMLYZE6jdyvfSKlo3/E6y
+         sNhFaC7CeaFXji+SUrNLpOcND7T8Oc/EcAZyg/1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 014/115] mac80211: fix unaligned access in mesh table hash function
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        kvm@vger.kernel.org, andrew.cooper3@citrix.com,
+        Andy Lutomirski <luto@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@suse.de>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 187/266] x86/bugs: Add AMDs variant of SSB_NO
 Date:   Wed, 15 May 2019 12:54:54 +0200
-Message-Id: <20190515090700.320632007@linuxfoundation.org>
+Message-Id: <20190515090729.256903616@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +51,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 40586e3fc400c00c11151804dcdc93f8c831c808 ]
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-The pointer to the last four bytes of the address is not guaranteed to be
-aligned, so we need to use __get_unaligned_cpu32 here
+commit 24809860012e0130fbafe536709e08a22b3e959e upstream.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The AMD document outlining the SSBD handling
+124441_AMD64_SpeculativeStoreBypassDisable_Whitepaper_final.pdf
+mentions that the CPUID 8000_0008.EBX[26] will mean that the
+speculative store bypass disable is no longer needed.
+
+A copy of this document is available at:
+    https://bugzilla.kernel.org/show_bug.cgi?id=199889
+
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Cc: kvm@vger.kernel.org
+Cc: andrew.cooper3@citrix.com
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Link: https://lkml.kernel.org/r/20180601145921.9500-2-konrad.wilk@oracle.com
+[bwh: Backported to 4.4: adjust context, indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeatures.h |    1 +
+ arch/x86/kernel/cpu/common.c       |    3 ++-
+ arch/x86/kvm/cpuid.c               |    2 +-
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 1ce068865629b..1300220912051 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -23,7 +23,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl, struct mesh_path *mpath);
- static u32 mesh_table_hash(const void *addr, u32 len, u32 seed)
- {
- 	/* Use last four bytes of hw addr as hash index */
--	return jhash_1word(*(u32 *)(addr+2), seed);
-+	return jhash_1word(__get_unaligned_cpu32((u8 *)addr + 2), seed);
- }
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -270,6 +270,7 @@
+ #define X86_FEATURE_AMD_IBRS	(13*32+14) /* "" Indirect Branch Restricted Speculation */
+ #define X86_FEATURE_AMD_STIBP	(13*32+15) /* "" Single Thread Indirect Branch Predictors */
+ #define X86_FEATURE_VIRT_SSBD	(13*32+25) /* Virtualized Speculative Store Bypass Disable */
++#define X86_FEATURE_AMD_SSB_NO	(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
  
- static const struct rhashtable_params mesh_rht_params = {
--- 
-2.20.1
-
+ /* Thermal and Power Management Leaf, CPUID level 0x00000006 (eax), word 14 */
+ #define X86_FEATURE_DTHERM	(14*32+ 0) /* Digital Thermal Sensor */
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -904,7 +904,8 @@ static void __init cpu_set_bug_bits(stru
+ 		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
+ 
+ 	if (!x86_match_cpu(cpu_no_spec_store_bypass) &&
+-	   !(ia32_cap & ARCH_CAP_SSB_NO))
++	   !(ia32_cap & ARCH_CAP_SSB_NO) &&
++	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
+ 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
+ 
+ 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -343,7 +343,7 @@ static inline int __do_cpuid_ent(struct
+ 
+ 	/* cpuid 0x80000008.ebx */
+ 	const u32 kvm_cpuid_8000_0008_ebx_x86_features =
+-		F(AMD_IBPB) | F(AMD_IBRS) | F(VIRT_SSBD);
++		F(AMD_IBPB) | F(AMD_IBRS) | F(VIRT_SSBD) | F(AMD_SSB_NO);
+ 
+ 	/* cpuid 0xC0000001.edx */
+ 	const u32 kvm_supported_word5_x86_features =
 
 
