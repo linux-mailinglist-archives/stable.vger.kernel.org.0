@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FB71F107
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9ECB1F017
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731015AbfEOLTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57598 "EHLO mail.kernel.org"
+        id S1726672AbfEOLjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730109AbfEOLTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:19:51 -0400
+        id S1732638AbfEOLaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:30:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C0A52166E;
-        Wed, 15 May 2019 11:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C683206BF;
+        Wed, 15 May 2019 11:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919190;
-        bh=svzfr6ww1SG7IFsfc8tDxKlG+G/RnbdZqTMRIy6WTvw=;
+        s=default; t=1557919799;
+        bh=ayrtaRKLFTddBdapRIYDnBNthvhOC139DJzg+GvaDf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wq7yXbkQ4Vd6Pfc+Mqr7IU/UHMtmGLwkMjgmc3NzIvu7d0I9othUeQRSE4WMy8WhZ
-         iTp9+FB+doRec/ke7hpCEilHYPjI1PeVvKS50jzsM+f5aMQa6ytjefF3jzCF6xiMcH
-         nUD8dso1/uAUjQNJraXyX3HkpOF+5LhSZhHU+iJs=
+        b=GTbCbOTpPPKGdvKShm+YAJ8vZL8rUHSTeEQxd1G5hyZoy0oh3C43z4uO3dBrIhZkG
+         Q53UFhu87UTDipMqVDxOJNMgB7uVr6axlSH8EtwS+oWFc1Ctqho2HjalVEHsTZCddE
+         AraGnwIM2pzUBW9QjEY5+ivZ5oIx9ErISkKC97tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 4.14 099/115] bonding: fix arp_validate toggling in active-backup mode
+        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 5.0 098/137] net: sched: fix cleanup NULL pointer exception in act_mirr
 Date:   Wed, 15 May 2019 12:56:19 +0200
-Message-Id: <20190515090706.340590100@linuxfoundation.org>
+Message-Id: <20190515090700.644808978@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+[ Upstream commit 064c5d6881e897077639e04973de26440ee205e6 ]
 
-[ Upstream commit a9b8a2b39ce65df45687cf9ef648885c2a99fe75 ]
+A new mirred action is created by the tcf_mirred_init function. This
+contains a list head struct which is inserted into a global list on
+successful creation of a new action. However, after a creation, it is
+still possible to error out and call the tcf_idr_release function. This,
+in turn, calls the act_mirr cleanup function via __tcf_idr_release and
+__tcf_action_put. This cleanup function tries to delete the list entry
+which is as yet uninitialised, leading to a NULL pointer exception.
 
-There's currently a problem with toggling arp_validate on and off with an
-active-backup bond. At the moment, you can start up a bond, like so:
+Fix this by initialising the list entry on creation of a new action.
 
-modprobe bonding mode=1 arp_interval=100 arp_validate=0 arp_ip_targets=192.168.1.1
-ip link set bond0 down
-echo "ens4f0" > /sys/class/net/bond0/bonding/slaves
-echo "ens4f1" > /sys/class/net/bond0/bonding/slaves
-ip link set bond0 up
-ip addr add 192.168.1.2/24 dev bond0
+Bug report:
 
-Pings to 192.168.1.1 work just fine. Now turn on arp_validate:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 8000000840c73067 P4D 8000000840c73067 PUD 858dcc067 PMD 0
+Oops: 0002 [#1] SMP PTI
+CPU: 32 PID: 5636 Comm: handler194 Tainted: G           OE     5.0.0+ #186
+Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 1.3.6 06/03/2015
+RIP: 0010:tcf_mirred_release+0x42/0xa7 [act_mirred]
+Code: f0 90 39 c0 e8 52 04 57 c8 48 c7 c7 b8 80 39 c0 e8 94 fa d4 c7 48 8b 93 d0 00 00 00 48 8b 83 d8 00 00 00 48 c7 c7 f0 90 39 c0 <48> 89 42 08 48 89 10 48 b8 00 01 00 00 00 00 ad de 48 89 83 d0 00
+RSP: 0018:ffffac4aa059f688 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff9dcd1b214d00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff9dcd1fa165f8 RDI: ffffffffc03990f0
+RBP: ffff9dccf9c7af80 R08: 0000000000000a3b R09: 0000000000000000
+R10: ffff9dccfa11f420 R11: 0000000000000000 R12: 0000000000000001
+R13: ffff9dcd16b433c0 R14: ffff9dcd1b214d80 R15: 0000000000000000
+FS:  00007f441bfff700(0000) GS:ffff9dcd1fa00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 0000000839e64004 CR4: 00000000001606e0
+Call Trace:
+tcf_action_cleanup+0x59/0xca
+__tcf_action_put+0x54/0x6b
+__tcf_idr_release.cold.33+0x9/0x12
+tcf_mirred_init.cold.20+0x22e/0x3b0 [act_mirred]
+tcf_action_init_1+0x3d0/0x4c0
+tcf_action_init+0x9c/0x130
+tcf_exts_validate+0xab/0xc0
+fl_change+0x1ca/0x982 [cls_flower]
+tc_new_tfilter+0x647/0x8d0
+? load_balance+0x14b/0x9e0
+rtnetlink_rcv_msg+0xe3/0x370
+? __switch_to_asm+0x40/0x70
+? __switch_to_asm+0x34/0x70
+? _cond_resched+0x15/0x30
+? __kmalloc_node_track_caller+0x1d4/0x2b0
+? rtnl_calcit.isra.31+0xf0/0xf0
+netlink_rcv_skb+0x49/0x110
+netlink_unicast+0x16f/0x210
+netlink_sendmsg+0x1df/0x390
+sock_sendmsg+0x36/0x40
+___sys_sendmsg+0x27b/0x2c0
+? futex_wake+0x80/0x140
+? do_futex+0x2b9/0xac0
+? ep_scan_ready_list.constprop.22+0x1f2/0x210
+? ep_poll+0x7a/0x430
+__sys_sendmsg+0x47/0x80
+do_syscall_64+0x55/0x100
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-echo 1 > /sys/class/net/bond0/bonding/arp_validate
-
-Pings to 192.168.1.1 continue to work just fine. Now when you go to turn
-arp_validate off again, the link falls flat on it's face:
-
-echo 0 > /sys/class/net/bond0/bonding/arp_validate
-dmesg
-...
-[133191.911987] bond0: Setting arp_validate to none (0)
-[133194.257793] bond0: bond_should_notify_peers: slave ens4f0
-[133194.258031] bond0: link status definitely down for interface ens4f0, disabling it
-[133194.259000] bond0: making interface ens4f1 the new active one
-[133197.330130] bond0: link status definitely down for interface ens4f1, disabling it
-[133197.331191] bond0: now running without any active interface!
-
-The problem lies in bond_options.c, where passing in arp_validate=0
-results in bond->recv_probe getting set to NULL. This flies directly in
-the face of commit 3fe68df97c7f, which says we need to set recv_probe =
-bond_arp_recv, even if we're not using arp_validate. Said commit fixed
-this in bond_option_arp_interval_set, but missed that we can get to that
-same state in bond_option_arp_validate_set as well.
-
-One solution would be to universally set recv_probe = bond_arp_recv here
-as well, but I don't think bond_option_arp_validate_set has any business
-touching recv_probe at all, and that should be left to the arp_interval
-code, so we can just make things much tidier here.
-
-Fixes: 3fe68df97c7f ("bonding: always set recv_probe to bond_arp_rcv in arp monitor")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: 4e232818bd32 ("net: sched: act_mirred: remove dependency on rtnl lock")
+Signed-off-by: John Hurley <john.hurley@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/net/bonding/bond_options.c | 7 -------
- 1 file changed, 7 deletions(-)
+ net/sched/act_mirred.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
-index 4d5d01cb8141..80867bd8f44c 100644
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1098,13 +1098,6 @@ static int bond_option_arp_validate_set(struct bonding *bond,
- {
- 	netdev_dbg(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		   newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
+diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
+index c8cf4d10c4355..971dc03304f42 100644
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -159,6 +159,9 @@ static int tcf_mirred_init(struct net *net, struct nlattr *nla,
+ 	}
+ 	m = to_mirred(*a);
  
- 	return 0;
++	if (ret == ACT_P_CREATED)
++		INIT_LIST_HEAD(&m->tcfm_list);
++
+ 	spin_lock_bh(&m->tcf_lock);
+ 	m->tcf_action = parm->action;
+ 	m->tcfm_eaction = parm->eaction;
 -- 
 2.20.1
 
