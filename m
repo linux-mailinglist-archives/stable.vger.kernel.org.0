@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E23071ECC8
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C40251F205
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:00:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726621AbfEOLBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:01:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S1729944AbfEOLPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727699AbfEOLBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:01:25 -0400
+        id S1730245AbfEOLPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:15:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E307A2173C;
-        Wed, 15 May 2019 11:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32EB92084F;
+        Wed, 15 May 2019 11:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918084;
-        bh=6zO7tVXG4/5IUdBroFzjK/pJRlz3x3muihcqwl8q3JA=;
+        s=default; t=1557918907;
+        bh=rCb+uBo+T9INmPBv9rpAsKWN6V+tUL6i3hHpei7j564=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TX5RBK60FmreAgva6/P1Lzra+/Bej6xEcYgZ4CoRUTc95OThfU47XJ7IYqtNvasEK
-         9+eQ0WdwkQljS/iBfH640HImLseOtVw+l4/3yoJUZm7XKygjKR/LN7K06obdDgb8tk
-         U30qUK9adelDYpJssiAkDjkrtLPtzrRaVs+gccvk=
+        b=cLSPd/usWxC92bgBTRbGoN3brwbDysauMdYscfeiLExu8RMS6KfHE8JJSRjdyFPXZ
+         6NOE5T/Q8x9Zc0b5K4z1xJPXMwy2BDXKhAU5Wm4Yvk5BxEH+FtsLjZD/bO0ZtMK0IB
+         mToYpAMLwY3J8H5e7vU/2GdWC5avfbofwHu7XpQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 3.18 86/86] powerpc/booke64: set RI in default MSR
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 28/51] spi: ST ST95HF NFC: declare missing of table
 Date:   Wed, 15 May 2019 12:56:03 +0200
-Message-Id: <20190515090656.280594555@linuxfoundation.org>
+Message-Id: <20190515090625.146480803@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+[ Upstream commit d04830531d0c4a99c897a44038e5da3d23331d2f ]
 
-commit 5266e58d6cd90ac85c187d673093ad9cb649e16d upstream.
+Add missing <of_device_id> table for SPI driver relying on SPI
+device match since compatible is in a DT binding or in a DTS.
 
-Set RI in the default kernel's MSR so that the architected way of
-detecting unrecoverable machine check interrupts has a chance to work.
-This is inline with the MSR setup of the rest of booke powerpc
-architectures configured here.
+Before this patch:
+modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
+alias:          spi:st95hf
 
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After this patch:
+modinfo drivers/nfc/st95hf/st95hf.ko | grep alias
+alias:          spi:st95hf
+alias:          of:N*T*Cst,st95hfC*
+alias:          of:N*T*Cst,st95hf
 
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/reg_booke.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/st95hf/core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/powerpc/include/asm/reg_booke.h
-+++ b/arch/powerpc/include/asm/reg_booke.h
-@@ -41,7 +41,7 @@
- #if defined(CONFIG_PPC_BOOK3E_64)
- #define MSR_64BIT	MSR_CM
+diff --git a/drivers/nfc/st95hf/core.c b/drivers/nfc/st95hf/core.c
+index c2840e4129624..850e75571c8ee 100644
+--- a/drivers/nfc/st95hf/core.c
++++ b/drivers/nfc/st95hf/core.c
+@@ -1074,6 +1074,12 @@ static const struct spi_device_id st95hf_id[] = {
+ };
+ MODULE_DEVICE_TABLE(spi, st95hf_id);
  
--#define MSR_		(MSR_ME | MSR_CE)
-+#define MSR_		(MSR_ME | MSR_RI | MSR_CE)
- #define MSR_KERNEL	(MSR_ | MSR_64BIT)
- #define MSR_USER32	(MSR_ | MSR_PR | MSR_EE)
- #define MSR_USER64	(MSR_USER32 | MSR_64BIT)
++static const struct of_device_id st95hf_spi_of_match[] = {
++        { .compatible = "st,st95hf" },
++        { },
++};
++MODULE_DEVICE_TABLE(of, st95hf_spi_of_match);
++
+ static int st95hf_probe(struct spi_device *nfc_spi_dev)
+ {
+ 	int ret;
+@@ -1260,6 +1266,7 @@ static struct spi_driver st95hf_driver = {
+ 	.driver = {
+ 		.name = "st95hf",
+ 		.owner = THIS_MODULE,
++		.of_match_table = of_match_ptr(st95hf_spi_of_match),
+ 	},
+ 	.id_table = st95hf_id,
+ 	.probe = st95hf_probe,
+-- 
+2.20.1
+
 
 
