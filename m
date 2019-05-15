@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 228F41F28C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 091B31F038
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727096AbfEOMEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:04:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46422 "EHLO mail.kernel.org"
+        id S1732362AbfEOL2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729411AbfEOLLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:44 -0400
+        id S1732368AbfEOL2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7B662084E;
-        Wed, 15 May 2019 11:11:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FEB22168B;
+        Wed, 15 May 2019 11:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918703;
-        bh=TMeOBgDtjVi5XUK8LA/Zc80O0TNNpj3QnIxLvUtITCE=;
+        s=default; t=1557919699;
+        bh=Va9CcQ3RtxWIJb9CuaOAPa/ilx+ReI6V6h1zZAwbByM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BTIymkAEBDD3ifWWsXqResFgXhUhcIhVLFjUg1j1sJiXIVqxDGQBNV+RZBtUhTAvy
-         rwOW3lXYpM5NV+prSHvUkuPn/3fbVlHTcLKZsWoRrqBvwsqW3zidtV2IeT6Y6osmA5
-         H2IiffEoM3Lu2nxF0ig94kwezURMsQk8Zv5MjNQg=
+        b=ADWkq4D/pKfTqj97znpQVQgF6DyxC9S1SqCrse013rVQnd3yaial6/bIvV7EaF/Qq
+         k/zrbprxlKEY2jmLbsmXtazfWgMzC1+HXcLrIhIsJXchawYM1ehofaKzYTiJ0S4zDn
+         GjeZUT21etk1fyeTi8bmCQU0/fd+SR5Aiw8nH7ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Jon Masters <jcm@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 233/266] x86/speculation/mds: Add mds_clear_cpu_buffers()
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 059/137] slab: store tagged freelist for off-slab slabmgmt
 Date:   Wed, 15 May 2019 12:55:40 +0200
-Message-Id: <20190515090730.885031770@linuxfoundation.org>
+Message-Id: <20190515090657.761132513@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,184 +53,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 1a62b18d51e5c5ecc0345c85bb9fef870ab721ed ]
 
-commit 6a9e529272517755904b7afa639f6db59ddb793e upstream.
+Commit 51dedad06b5f ("kasan, slab: make freelist stored without tags")
+calls kasan_reset_tag() for off-slab slab management object leading to
+freelist being stored non-tagged.
 
-The Microarchitectural Data Sampling (MDS) vulernabilities are mitigated by
-clearing the affected CPU buffers. The mechanism for clearing the buffers
-uses the unused and obsolete VERW instruction in combination with a
-microcode update which triggers a CPU buffer clear when VERW is executed.
+However, cache_grow_begin() calls alloc_slabmgmt() which calls
+kmem_cache_alloc_node() assigns a tag for the address and stores it in
+the shadow address.  As the result, it causes endless errors below
+during boot due to drain_freelist() -> slab_destroy() ->
+kasan_slab_free() which compares already untagged freelist against the
+stored tag in the shadow address.
 
-Provide a inline function with the assembly magic. The argument of the VERW
-instruction must be a memory operand as documented:
+Since off-slab slab management object freelist is such a special case,
+just store it tagged.  Non-off-slab management object freelist is still
+stored untagged which has not been assigned a tag and should not cause
+any other troubles with this inconsistency.
 
-  "MD_CLEAR enumerates that the memory-operand variant of VERW (for
-   example, VERW m16) has been extended to also overwrite buffers affected
-   by MDS. This buffer overwriting functionality is not guaranteed for the
-   register operand variant of VERW."
+  BUG: KASAN: double-free or invalid-free in slab_destroy+0x84/0x88
+  Pointer tag: [ff], memory tag: [99]
 
-Documentation also recommends to use a writable data segment selector:
+  CPU: 0 PID: 1376 Comm: kworker/0:4 Tainted: G        W 5.1.0-rc3+ #8
+  Hardware name: HPE Apollo 70             /C01_APACHE_MB         , BIOS L50_5.13_1.0.6 07/10/2018
+  Workqueue: cgroup_destroy css_killed_work_fn
+  Call trace:
+   print_address_description+0x74/0x2a4
+   kasan_report_invalid_free+0x80/0xc0
+   __kasan_slab_free+0x204/0x208
+   kasan_slab_free+0xc/0x18
+   kmem_cache_free+0xe4/0x254
+   slab_destroy+0x84/0x88
+   drain_freelist+0xd0/0x104
+   __kmem_cache_shrink+0x1ac/0x224
+   __kmemcg_cache_deactivate+0x1c/0x28
+   memcg_deactivate_kmem_caches+0xa0/0xe8
+   memcg_offline_kmem+0x8c/0x3d4
+   mem_cgroup_css_offline+0x24c/0x290
+   css_killed_work_fn+0x154/0x618
+   process_one_work+0x9cc/0x183c
+   worker_thread+0x9b0/0xe38
+   kthread+0x374/0x390
+   ret_from_fork+0x10/0x18
 
-  "The buffer overwriting occurs regardless of the result of the VERW
-   permission check, as well as when the selector is null or causes a
-   descriptor load segment violation. However, for lowest latency we
-   recommend using a selector that indicates a valid writable data
-   segment."
+  Allocated by task 1625:
+   __kasan_kmalloc+0x168/0x240
+   kasan_slab_alloc+0x18/0x20
+   kmem_cache_alloc_node+0x1f8/0x3a0
+   cache_grow_begin+0x4fc/0xa24
+   cache_alloc_refill+0x2f8/0x3e8
+   kmem_cache_alloc+0x1bc/0x3bc
+   sock_alloc_inode+0x58/0x334
+   alloc_inode+0xb8/0x164
+   new_inode_pseudo+0x20/0xec
+   sock_alloc+0x74/0x284
+   __sock_create+0xb0/0x58c
+   sock_create+0x98/0xb8
+   __sys_socket+0x60/0x138
+   __arm64_sys_socket+0xa4/0x110
+   el0_svc_handler+0x2c0/0x47c
+   el0_svc+0x8/0xc
 
-Add x86 specific documentation about MDS and the internal workings of the
-mitigation.
+  Freed by task 1625:
+   __kasan_slab_free+0x114/0x208
+   kasan_slab_free+0xc/0x18
+   kfree+0x1a8/0x1e0
+   single_release+0x7c/0x9c
+   close_pdeo+0x13c/0x43c
+   proc_reg_release+0xec/0x108
+   __fput+0x2f8/0x784
+   ____fput+0x1c/0x28
+   task_work_run+0xc0/0x1b0
+   do_notify_resume+0xb44/0x1278
+   work_pending+0x8/0x10
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Jon Masters <jcm@redhat.com>
-Tested-by: Jon Masters <jcm@redhat.com>
-[bwh: Backported to 4.4: drop changes to doc index and configuration]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  The buggy address belongs to the object at ffff809681b89e00
+   which belongs to the cache kmalloc-128 of size 128
+  The buggy address is located 0 bytes inside of
+   128-byte region [ffff809681b89e00, ffff809681b89e80)
+  The buggy address belongs to the page:
+  page:ffff7fe025a06e00 count:1 mapcount:0 mapping:01ff80082000fb00
+  index:0xffff809681b8fe04
+  flags: 0x17ffffffc000200(slab)
+  raw: 017ffffffc000200 ffff7fe025a06d08 ffff7fe022ef7b88 01ff80082000fb00
+  raw: ffff809681b8fe04 ffff809681b80000 00000001000000e0 0000000000000000
+  page dumped because: kasan: bad access detected
+  page allocated via order 0, migratetype Unmovable, gfp_mask
+  0x2420c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_COMP|__GFP_THISNODE)
+   prep_new_page+0x4e0/0x5e0
+   get_page_from_freelist+0x4ce8/0x50d4
+   __alloc_pages_nodemask+0x738/0x38b8
+   cache_grow_begin+0xd8/0xa24
+   ____cache_alloc_node+0x14c/0x268
+   __kmalloc+0x1c8/0x3fc
+   ftrace_free_mem+0x408/0x1284
+   ftrace_free_init_mem+0x20/0x28
+   kernel_init+0x24/0x548
+   ret_from_fork+0x10/0x18
+
+  Memory state around the buggy address:
+   ffff809681b89c00: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
+   ffff809681b89d00: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
+  >ffff809681b89e00: 99 99 99 99 99 99 99 99 fe fe fe fe fe fe fe fe
+                     ^
+   ffff809681b89f00: 43 43 43 43 43 fe fe fe fe fe fe fe fe fe fe fe
+   ffff809681b8a000: 6d fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
+
+Link: http://lkml.kernel.org/r/20190403022858.97584-1-cai@lca.pw
+Fixes: 51dedad06b5f ("kasan, slab: make freelist stored without tags")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/x86/mds.rst            |   99 +++++++++++++++++++++++++++++++++++
- arch/x86/include/asm/nospec-branch.h |   25 ++++++++
- 2 files changed, 124 insertions(+)
- create mode 100644 Documentation/x86/mds.rst
+ mm/slab.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- /dev/null
-+++ b/Documentation/x86/mds.rst
-@@ -0,0 +1,99 @@
-+Microarchitectural Data Sampling (MDS) mitigation
-+=================================================
-+
-+.. _mds:
-+
-+Overview
-+--------
-+
-+Microarchitectural Data Sampling (MDS) is a family of side channel attacks
-+on internal buffers in Intel CPUs. The variants are:
-+
-+ - Microarchitectural Store Buffer Data Sampling (MSBDS) (CVE-2018-12126)
-+ - Microarchitectural Fill Buffer Data Sampling (MFBDS) (CVE-2018-12130)
-+ - Microarchitectural Load Port Data Sampling (MLPDS) (CVE-2018-12127)
-+
-+MSBDS leaks Store Buffer Entries which can be speculatively forwarded to a
-+dependent load (store-to-load forwarding) as an optimization. The forward
-+can also happen to a faulting or assisting load operation for a different
-+memory address, which can be exploited under certain conditions. Store
-+buffers are partitioned between Hyper-Threads so cross thread forwarding is
-+not possible. But if a thread enters or exits a sleep state the store
-+buffer is repartitioned which can expose data from one thread to the other.
-+
-+MFBDS leaks Fill Buffer Entries. Fill buffers are used internally to manage
-+L1 miss situations and to hold data which is returned or sent in response
-+to a memory or I/O operation. Fill buffers can forward data to a load
-+operation and also write data to the cache. When the fill buffer is
-+deallocated it can retain the stale data of the preceding operations which
-+can then be forwarded to a faulting or assisting load operation, which can
-+be exploited under certain conditions. Fill buffers are shared between
-+Hyper-Threads so cross thread leakage is possible.
-+
-+MLPDS leaks Load Port Data. Load ports are used to perform load operations
-+from memory or I/O. The received data is then forwarded to the register
-+file or a subsequent operation. In some implementations the Load Port can
-+contain stale data from a previous operation which can be forwarded to
-+faulting or assisting loads under certain conditions, which again can be
-+exploited eventually. Load ports are shared between Hyper-Threads so cross
-+thread leakage is possible.
-+
-+
-+Exposure assumptions
-+--------------------
-+
-+It is assumed that attack code resides in user space or in a guest with one
-+exception. The rationale behind this assumption is that the code construct
-+needed for exploiting MDS requires:
-+
-+ - to control the load to trigger a fault or assist
-+
-+ - to have a disclosure gadget which exposes the speculatively accessed
-+   data for consumption through a side channel.
-+
-+ - to control the pointer through which the disclosure gadget exposes the
-+   data
-+
-+The existence of such a construct in the kernel cannot be excluded with
-+100% certainty, but the complexity involved makes it extremly unlikely.
-+
-+There is one exception, which is untrusted BPF. The functionality of
-+untrusted BPF is limited, but it needs to be thoroughly investigated
-+whether it can be used to create such a construct.
-+
-+
-+Mitigation strategy
-+-------------------
-+
-+All variants have the same mitigation strategy at least for the single CPU
-+thread case (SMT off): Force the CPU to clear the affected buffers.
-+
-+This is achieved by using the otherwise unused and obsolete VERW
-+instruction in combination with a microcode update. The microcode clears
-+the affected CPU buffers when the VERW instruction is executed.
-+
-+For virtualization there are two ways to achieve CPU buffer
-+clearing. Either the modified VERW instruction or via the L1D Flush
-+command. The latter is issued when L1TF mitigation is enabled so the extra
-+VERW can be avoided. If the CPU is not affected by L1TF then VERW needs to
-+be issued.
-+
-+If the VERW instruction with the supplied segment selector argument is
-+executed on a CPU without the microcode update there is no side effect
-+other than a small number of pointlessly wasted CPU cycles.
-+
-+This does not protect against cross Hyper-Thread attacks except for MSBDS
-+which is only exploitable cross Hyper-thread when one of the Hyper-Threads
-+enters a C-state.
-+
-+The kernel provides a function to invoke the buffer clearing:
-+
-+    mds_clear_cpu_buffers()
-+
-+The mitigation is invoked on kernel/userspace, hypervisor/guest and C-state
-+(idle) transitions.
-+
-+According to current knowledge additional mitigations inside the kernel
-+itself are not required because the necessary gadgets to expose the leaked
-+data cannot be controlled in a way which allows exploitation from malicious
-+user space or VM guests.
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -262,6 +262,31 @@ DECLARE_STATIC_KEY_FALSE(switch_to_cond_
- DECLARE_STATIC_KEY_FALSE(switch_mm_cond_ibpb);
- DECLARE_STATIC_KEY_FALSE(switch_mm_always_ibpb);
- 
-+#include <asm/segment.h>
-+
-+/**
-+ * mds_clear_cpu_buffers - Mitigation for MDS vulnerability
-+ *
-+ * This uses the otherwise unused and obsolete VERW instruction in
-+ * combination with microcode which triggers a CPU buffer flush when the
-+ * instruction is executed.
-+ */
-+static inline void mds_clear_cpu_buffers(void)
-+{
-+	static const u16 ds = __KERNEL_DS;
-+
-+	/*
-+	 * Has to be the memory-operand variant because only that
-+	 * guarantees the CPU buffer flush functionality according to
-+	 * documentation. The register-operand variant does not.
-+	 * Works with any segment selector, but a valid writable
-+	 * data segment is the fastest variant.
-+	 *
-+	 * "cc" clobber is required because VERW modifies ZF.
-+	 */
-+	asm volatile("verw %[ds]" : : [ds] "m" (ds) : "cc");
-+}
-+
- #endif /* __ASSEMBLY__ */
- 
- /*
+diff --git a/mm/slab.c b/mm/slab.c
+index 188c4b65255dc..f4bbc53008f3b 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2371,7 +2371,6 @@ static void *alloc_slabmgmt(struct kmem_cache *cachep,
+ 		/* Slab management obj is off-slab. */
+ 		freelist = kmem_cache_alloc_node(cachep->freelist_cache,
+ 					      local_flags, nodeid);
+-		freelist = kasan_reset_tag(freelist);
+ 		if (!freelist)
+ 			return NULL;
+ 	} else {
+-- 
+2.20.1
+
 
 
