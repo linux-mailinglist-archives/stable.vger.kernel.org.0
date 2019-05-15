@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 169791F28E
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995321F228
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729400AbfEOME3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:04:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46272 "EHLO mail.kernel.org"
+        id S1730062AbfEOLOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729380AbfEOLLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:11:36 -0400
+        id S1729601AbfEOLOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:14:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA3A62084E;
-        Wed, 15 May 2019 11:11:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 870C720843;
+        Wed, 15 May 2019 11:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918695;
-        bh=/54wH11Q94Jz/FkSoHx1TjmuFPhVt1TwV6MXYmywSDE=;
+        s=default; t=1557918840;
+        bh=Y87KmI3co308UEE0i8ML6W4v7reqTLE/52R1lrcrR1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miJFNoVvTjl5E7jYPk0NzzRZxuYJFNVmws2A1mXQbUOs8ujIwCD1MbQJfU2kyK9lH
-         YlEZUWFVCRR5LnNFwL6/EQDpb16NIdJv+/J7idTmKKGDiJ2x3QL/xwwiERA9DLmNlL
-         ogxVqJtTBDygyOLtUp1PDqg/mZpp9CqL7pzIvj7E=
+        b=M0efntzK2z5PekJqfQVUJNgoIcC6gWbuUgwtOtHEwvoHdVJacROQQEeCJokIa5fSD
+         ZLRYOyC6+cN313xwDXlKcrHgi8Oic8P2WRD8zZRmO1j6HP31COg0Er00FwNvceLnFI
+         9UAZrsvJACYzNPhgUCnLeemVtom7YzXpk97Hd0B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Jon Masters <jcm@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 230/266] x86/speculation/mds: Add basic bug infrastructure for MDS
+        stable@vger.kernel.org, Jonathan Perry <jonperry@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Chenbo Feng <fengc@google.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 02/51] bpf: fix struct htab_elem layout
 Date:   Wed, 15 May 2019 12:55:37 +0200
-Message-Id: <20190515090730.783711447@linuxfoundation.org>
+Message-Id: <20190515090618.200974773@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,153 +46,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andi Kleen <ak@linux.intel.com>
+commit 9f691549f76d488a0c74397b3e51e943865ea01f upstream.
 
-commit ed5194c2732c8084af9fd159c146ea92bf137128 upstream.
+when htab_elem is removed from the bucket list the htab_elem.hash_node.next
+field should not be overridden too early otherwise we have a tiny race window
+between lookup and delete.
+The bug was discovered by manual code analysis and reproducible
+only with explicit udelay() in lookup_elem_raw().
 
-Microarchitectural Data Sampling (MDS), is a class of side channel attacks
-on internal buffers in Intel CPUs. The variants are:
-
- - Microarchitectural Store Buffer Data Sampling (MSBDS) (CVE-2018-12126)
- - Microarchitectural Fill Buffer Data Sampling (MFBDS) (CVE-2018-12130)
- - Microarchitectural Load Port Data Sampling (MLPDS) (CVE-2018-12127)
-
-MSBDS leaks Store Buffer Entries which can be speculatively forwarded to a
-dependent load (store-to-load forwarding) as an optimization. The forward
-can also happen to a faulting or assisting load operation for a different
-memory address, which can be exploited under certain conditions. Store
-buffers are partitioned between Hyper-Threads so cross thread forwarding is
-not possible. But if a thread enters or exits a sleep state the store
-buffer is repartitioned which can expose data from one thread to the other.
-
-MFBDS leaks Fill Buffer Entries. Fill buffers are used internally to manage
-L1 miss situations and to hold data which is returned or sent in response
-to a memory or I/O operation. Fill buffers can forward data to a load
-operation and also write data to the cache. When the fill buffer is
-deallocated it can retain the stale data of the preceding operations which
-can then be forwarded to a faulting or assisting load operation, which can
-be exploited under certain conditions. Fill buffers are shared between
-Hyper-Threads so cross thread leakage is possible.
-
-MLDPS leaks Load Port Data. Load ports are used to perform load operations
-from memory or I/O. The received data is then forwarded to the register
-file or a subsequent operation. In some implementations the Load Port can
-contain stale data from a previous operation which can be forwarded to
-faulting or assisting loads under certain conditions, which again can be
-exploited eventually. Load ports are shared between Hyper-Threads so cross
-thread leakage is possible.
-
-All variants have the same mitigation for single CPU thread case (SMT off),
-so the kernel can treat them as one MDS issue.
-
-Add the basic infrastructure to detect if the current CPU is affected by
-MDS.
-
-[ tglx: Rewrote changelog ]
-
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Jon Masters <jcm@redhat.com>
-Tested-by: Jon Masters <jcm@redhat.com>
-[bwh: Backported to 4.4: adjust context, indentation]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6c9059817432 ("bpf: pre-allocate hash map elements")
+Reported-by: Jonathan Perry <jonperry@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chenbo Feng <fengc@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    2 ++
- arch/x86/include/asm/msr-index.h   |    5 +++++
- arch/x86/kernel/cpu/common.c       |   25 ++++++++++++++++---------
- 3 files changed, 23 insertions(+), 9 deletions(-)
+ kernel/bpf/hashtab.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -310,6 +310,7 @@
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EDX), word 18 */
- #define X86_FEATURE_AVX512_4VNNIW	(18*32+ 2) /* AVX-512 Neural Network Instructions */
- #define X86_FEATURE_AVX512_4FMAPS	(18*32+ 3) /* AVX-512 Multiply Accumulation Single precision */
-+#define X86_FEATURE_MD_CLEAR		(18*32+10) /* VERW clears CPU buffers */
- #define X86_FEATURE_SPEC_CTRL		(18*32+26) /* "" Speculation Control (IBRS + IBPB) */
- #define X86_FEATURE_INTEL_STIBP		(18*32+27) /* "" Single Thread Indirect Branch Predictors */
- #define X86_FEATURE_FLUSH_L1D		(18*32+28) /* Flush L1D cache */
-@@ -335,5 +336,6 @@
- #define X86_BUG_SPECTRE_V2	X86_BUG(16) /* CPU is affected by Spectre variant 2 attack with indirect branches */
- #define X86_BUG_SPEC_STORE_BYPASS X86_BUG(17) /* CPU is affected by speculative store bypass attack */
- #define X86_BUG_L1TF		X86_BUG(18) /* CPU is affected by L1 Terminal Fault */
-+#define X86_BUG_MDS		X86_BUG(19) /* CPU is affected by Microarchitectural data sampling */
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index a36a532c056df..f9d53ac57f640 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -41,8 +41,13 @@ enum extra_elem_state {
+ struct htab_elem {
+ 	union {
+ 		struct hlist_node hash_node;
+-		struct bpf_htab *htab;
+-		struct pcpu_freelist_node fnode;
++		struct {
++			void *padding;
++			union {
++				struct bpf_htab *htab;
++				struct pcpu_freelist_node fnode;
++			};
++		};
+ 	};
+ 	union {
+ 		struct rcu_head rcu;
+@@ -114,8 +119,10 @@ static int prealloc_elems_and_freelist(struct bpf_htab *htab)
+ 	if (err)
+ 		goto free_elems;
  
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -66,6 +66,11 @@
- 						 * attack, so no Speculative Store Bypass
- 						 * control required.
- 						 */
-+#define ARCH_CAP_MDS_NO			BIT(5)   /*
-+						  * Not susceptible to
-+						  * Microarchitectural Data
-+						  * Sampling (MDS) vulnerabilities.
-+						  */
- 
- #define MSR_IA32_BBL_CR_CTL		0x00000119
- #define MSR_IA32_BBL_CR_CTL3		0x0000011e
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -851,6 +851,7 @@ static void identify_cpu_without_cpuid(s
- #define NO_MELTDOWN	BIT(1)
- #define NO_SSB		BIT(2)
- #define NO_L1TF		BIT(3)
-+#define NO_MDS		BIT(4)
- 
- #define VULNWL(_vendor, _family, _model, _whitelist)	\
- 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-@@ -867,6 +868,7 @@ static const __initconst struct x86_cpu_
- 	VULNWL(INTEL,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 
-+	/* Intel Family 6 */
- 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION),
- 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION),
- 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION),
-@@ -883,17 +885,19 @@ static const __initconst struct x86_cpu_
- 	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
- 
- 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF),
--	VULNWL_INTEL(ATOM_GOLDMONT,		NO_L1TF),
--	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_L1TF),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_L1TF),
--
--	VULNWL_AMD(0x0f,		NO_MELTDOWN | NO_SSB | NO_L1TF),
--	VULNWL_AMD(0x10,		NO_MELTDOWN | NO_SSB | NO_L1TF),
--	VULNWL_AMD(0x11,		NO_MELTDOWN | NO_SSB | NO_L1TF),
--	VULNWL_AMD(0x12,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+-	pcpu_freelist_populate(&htab->freelist, htab->elems, htab->elem_size,
+-			       htab->map.max_entries);
++	pcpu_freelist_populate(&htab->freelist,
++			       htab->elems + offsetof(struct htab_elem, fnode),
++			       htab->elem_size, htab->map.max_entries);
 +
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF),
+ 	return 0;
+ 
+ free_elems:
+@@ -148,6 +155,11 @@ static struct bpf_map *htab_map_alloc(union bpf_attr *attr)
+ 	int err, i;
+ 	u64 cost;
+ 
++	BUILD_BUG_ON(offsetof(struct htab_elem, htab) !=
++		     offsetof(struct htab_elem, hash_node.pprev));
++	BUILD_BUG_ON(offsetof(struct htab_elem, fnode.next) !=
++		     offsetof(struct htab_elem, hash_node.pprev));
 +
-+	/* AMD Family 0xf - 0x12 */
-+	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
-+	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
-+	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
-+	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS),
+ 	if (attr->map_flags & ~BPF_F_NO_PREALLOC)
+ 		/* reserved bits should not be used */
+ 		return ERR_PTR(-EINVAL);
+@@ -429,9 +441,13 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
+ 	int err = 0;
  
- 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
--	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF),
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS),
- 	{}
- };
- 
-@@ -924,6 +928,9 @@ static void __init cpu_set_bug_bits(stru
- 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
- 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
- 
-+	if (!cpu_matches(NO_MDS) && !(ia32_cap & ARCH_CAP_MDS_NO))
-+		setup_force_cpu_bug(X86_BUG_MDS);
+ 	if (prealloc) {
+-		l_new = (struct htab_elem *)pcpu_freelist_pop(&htab->freelist);
+-		if (!l_new)
++		struct pcpu_freelist_node *l;
 +
- 	if (cpu_matches(NO_MELTDOWN))
- 		return;
- 
++		l = pcpu_freelist_pop(&htab->freelist);
++		if (!l)
+ 			err = -E2BIG;
++		else
++			l_new = container_of(l, struct htab_elem, fnode);
+ 	} else {
+ 		if (atomic_inc_return(&htab->count) > htab->map.max_entries) {
+ 			atomic_dec(&htab->count);
+-- 
+2.20.1
+
 
 
