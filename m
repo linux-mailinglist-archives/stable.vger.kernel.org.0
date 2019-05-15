@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 877351F24C
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD471F3D4
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729176AbfEOMBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:01:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
+        id S1726994AbfEOLAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729761AbfEOLNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:40 -0400
+        id S1727501AbfEOLAl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:00:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B70B620644;
-        Wed, 15 May 2019 11:13:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3CCB2084F;
+        Wed, 15 May 2019 11:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918819;
-        bh=Nc2YgTqwsgxczvB4E+Mh1BjslV4IUV3hlHpngQqXUok=;
+        s=default; t=1557918040;
+        bh=6CGHxvSPUNadHsSw3fgET+Nwo0Dk1Zy9r8hB2vGTd+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vpVtMcaHYWmdb7QgX+VOragxAbY/uMYauvK2OE334TzBJgxB2gpd7unojAUOio3GI
-         zXCOXjQQoPf8QN79AdnnXiDX0xetZvJYhG7Fk7DsKlozN1Vmp4PNzeb7DJe78Onwkw
-         3UQtkJY1zY3XjR0CSL6sCya6M+ZHvJq3rvUKsllQ=
+        b=jWfyomjDHuWyUvIE0E8j67M+j0ckiWNgigHNc2vHtBcg4ymwksMYCgXTBIb8G/DF7
+         9h+0VpO657qWVMoQjuPUf1rl1ar+9PsYbHnmABqadb2JmzjQoHbrqOaAvn1l4g0QT3
+         qsRXPZb87mPkx0xGAg0tcy6u6KYkz3I6RdK3bq6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/51] s390/dasd: Fix capacity calculation for large volumes
+Subject: [PATCH 3.18 70/86] tools lib traceevent: Fix missing equality check for strcmp
 Date:   Wed, 15 May 2019 12:55:47 +0200
-Message-Id: <20190515090621.135203735@linuxfoundation.org>
+Message-Id: <20190515090654.969299842@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
+[ Upstream commit f32c2877bcb068a718bb70094cd59ccc29d4d082 ]
 
-The DASD driver incorrectly limits the maximum number of blocks of ECKD
-DASD volumes to 32 bit numbers. Volumes with a capacity greater than
-2^32-1 blocks are incorrectly recognized as smaller volumes.
+There was a missing comparison with 0 when checking if type is "s64" or
+"u64". Therefore, the body of the if-statement was entered if "type" was
+"u64" or not "s64", which made the first strcmp() redundant since if
+type is "u64", it's not "s64".
 
-This results in the following volume capacity limits depending on the
-formatted block size:
+If type is "s64", the body of the if-statement is not entered but since
+the remainder of the function consists of if-statements which will not
+be entered if type is "s64", we will just return "val", which is
+correct, albeit at the cost of a few more calls to strcmp(), i.e., it
+will behave just as if the if-statement was entered.
 
-  BLKSIZE  MAX_GB   MAX_CYL
-      512    2047   5843492
-     1024    4095   8676701
-     2048    8191  13634816
-     4096   16383  23860929
+If type is neither "s64" or "u64", the body of the if-statement will be
+entered incorrectly and "val" returned. This means that any type that is
+checked after "s64" and "u64" is handled the same way as "s64" and
+"u64", i.e., the limiting of "val" to fit in for example "s8" is never
+reached.
 
-The same problem occurs when a volume with more than 17895697 cylinders
-is accessed in raw-track-access mode.
+This was introduced in the kernel tree when the sources were copied from
+trace-cmd in commit f7d82350e597 ("tools/events: Add files to create
+libtraceevent.a"), and in the trace-cmd repo in 1cdbae6035cei
+("Implement typecasting in parser") when the function was introduced,
+i.e., it has always behaved the wrong way.
 
-Fix this problem by adding an explicit type cast when calculating the
-maximum number of blocks.
+Detected by cppcheck.
 
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Fixes: f7d82350e597 ("tools/events: Add files to create libtraceevent.a")
+Link: http://lkml.kernel.org/r/20190409091529.2686-1-rikard.falkeborn@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/lib/traceevent/event-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 11c6335b19516..9d772201e3347 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -2054,14 +2054,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 84374e313e3f8..d404c3ded0e36 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -2065,7 +2065,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
+ 		return val & 0xffffffff;
  
- raw:
--	block->blocks = (private->real_cyl *
-+	block->blocks = ((unsigned long) private->real_cyl *
- 			  private->rdc_data.trk_per_cyl *
- 			  blk_per_trk);
+ 	if (strcmp(type, "u64") == 0 ||
+-	    strcmp(type, "s64"))
++	    strcmp(type, "s64") == 0)
+ 		return val;
  
- 	dev_info(&device->cdev->dev,
--		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
-+		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
- 		 "%s\n", (block->bp_block >> 10),
--		 ((private->real_cyl *
-+		 (((unsigned long) private->real_cyl *
- 		   private->rdc_data.trk_per_cyl *
- 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
- 		 ((blk_per_trk * block->bp_block) >> 10),
+ 	if (strcmp(type, "s8") == 0)
 -- 
 2.20.1
 
