@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F4A1F423
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 396941F132
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfEOMU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55494 "EHLO mail.kernel.org"
+        id S1731114AbfEOLWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbfEOK7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:59:05 -0400
+        id S1731382AbfEOLWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EF2C216F4;
-        Wed, 15 May 2019 10:59:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 839FD20818;
+        Wed, 15 May 2019 11:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917944;
-        bh=kLulZLzUhkByAZrZe2XqhPOfttVK+QVkjuEqGDQP47E=;
+        s=default; t=1557919320;
+        bh=/RZNkOEy9RpGkPQRFCiWVgNa/ydrQi1vf5+n8uojKD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4nyXwdJtUdZHtTkdjMQts8wYmDMUJzQSBZQgTPPHVbWukySJFCV04jBjc2K9Qh6C
-         UGKKa5d3X4elwNRDT0/Gb7zLHRqgsf8U2uyLVw52JQ2DqM67fwde8mLWubO2E3975E
-         /i6RuH7+SL0zTsEH9ZCF4vilyzIFeqLqNwDhFRHQ=
+        b=T9hYmzHuaEKbvfjRnqDCTCjnIrxIJ8VOI5iNim/a+crdTzVv4xAMtN62MIv8Yjfvr
+         cqHYY8qT/Lt7IKnx/BFttuyveVpQbgMamoD5wmoLIcEC678Qy1hTw3kSatRwPIKC4a
+         nhjTlTxgjp0bbnXH3uY715fz8nJJXxYX2sZvF4oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 3.18 17/86] net: ks8851: Dequeue RX packets explicitly
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 003/113] platform/x86: thinkpad_acpi: Disable Bluetooth for some machines
 Date:   Wed, 15 May 2019 12:54:54 +0200
-Message-Id: <20190515090645.962899484@linuxfoundation.org>
+Message-Id: <20190515090653.198561680@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 536d3680fd2dab5c39857d62a3e084198fc74ff9 ]
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-The ks8851 driver lets the chip auto-dequeue received packets once they
-have been read in full. It achieves that by setting the ADRFE flag in
-the RXQCR register ("Auto-Dequeue RXQ Frame Enable").
+commit f7db839fccf087664e5587966220821289b6a9cb upstream.
 
-However if allocation of a packet's socket buffer or retrieval of the
-packet over the SPI bus fails, the packet will not have been read in
-full and is not auto-dequeued. Such partial retrieval of a packet
-confuses the chip's RX queue management:  On the next RX interrupt,
-the first packet read from the queue will be the one left there
-previously and this one can be retrieved without issues. But for any
-newly received packets, the frame header status and byte count registers
-(RXFHSR and RXFHBCR) contain bogus values, preventing their retrieval.
+Some AMD based ThinkPads have a firmware bug that calling
+"GBDC" will cause Bluetooth on Intel wireless cards blocked.
 
-The chip allows explicitly dequeueing a packet from the RX queue by
-setting the RRXEF flag in the RXQCR register ("Release RX Error Frame").
-This could be used to dequeue the packet in case of an error, but if
-that error is a failed SPI transfer, it is unknown if the packet was
-transferred in full and was auto-dequeued or if it was only transferred
-in part and requires an explicit dequeue. The safest approach is thus
-to always dequeue packets explicitly and forgo auto-dequeueing.
+Probe these models by DMI match and disable Bluetooth subdriver
+if specified Intel wireless card exist.
 
-Without this change, I've witnessed packet retrieval break completely
-when an SPI DMA transfer fails, requiring a chip reset. Explicit
-dequeueing magically fixes this and makes packet retrieval absolutely
-robust for me.
+Cc: stable <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The chip's documentation suggests auto-dequeuing and uses the RRXEF
-flag only to dequeue error frames which the driver doesn't want to
-retrieve. But that seems to be a fair-weather approach.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c |   72 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 70 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index 66d4ab703f45..4a29e191819f 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -547,9 +547,8 @@ static void ks8851_rx_pkts(struct ks8851_net *ks)
- 		/* set dma read address */
- 		ks8851_wrreg16(ks, KS_RXFDPR, RXFDPR_RXFPAI | 0x00);
- 
--		/* start the packet dma process, and set auto-dequeue rx */
--		ks8851_wrreg16(ks, KS_RXQCR,
--			       ks->rc_rxqcr | RXQCR_SDA | RXQCR_ADRFE);
-+		/* start DMA access */
-+		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr | RXQCR_SDA);
- 
- 		if (rxlen > 4) {
- 			unsigned int rxalign;
-@@ -580,7 +579,8 @@ static void ks8851_rx_pkts(struct ks8851_net *ks)
- 			}
- 		}
- 
--		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr);
-+		/* end DMA access and dequeue packet */
-+		ks8851_wrreg16(ks, KS_RXQCR, ks->rc_rxqcr | RXQCR_RRXEF);
- 	}
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -79,7 +79,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/workqueue.h>
+ #include <linux/acpi.h>
+-#include <linux/pci_ids.h>
++#include <linux/pci.h>
+ #include <linux/power_supply.h>
+ #include <linux/thinkpad_acpi.h>
+ #include <sound/core.h>
+@@ -4496,6 +4496,74 @@ static void bluetooth_exit(void)
+ 	bluetooth_shutdown();
  }
  
--- 
-2.19.1
-
++static const struct dmi_system_id bt_fwbug_list[] __initconst = {
++	{
++		.ident = "ThinkPad E485",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20KU"),
++		},
++	},
++	{
++		.ident = "ThinkPad E585",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20KV"),
++		},
++	},
++	{
++		.ident = "ThinkPad A285 - 20MW",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MW"),
++		},
++	},
++	{
++		.ident = "ThinkPad A285 - 20MX",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MX"),
++		},
++	},
++	{
++		.ident = "ThinkPad A485 - 20MU",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MU"),
++		},
++	},
++	{
++		.ident = "ThinkPad A485 - 20MV",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20MV"),
++		},
++	},
++	{}
++};
++
++static const struct pci_device_id fwbug_cards_ids[] __initconst = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24F3) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24FD) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2526) },
++	{}
++};
++
++
++static int __init have_bt_fwbug(void)
++{
++	/*
++	 * Some AMD based ThinkPads have a firmware bug that calling
++	 * "GBDC" will cause bluetooth on Intel wireless cards blocked
++	 */
++	if (dmi_check_system(bt_fwbug_list) && pci_dev_present(fwbug_cards_ids)) {
++		vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
++			FW_BUG "disable bluetooth subdriver for Intel cards\n");
++		return 1;
++	} else
++		return 0;
++}
++
+ static int __init bluetooth_init(struct ibm_init_struct *iibm)
+ {
+ 	int res;
+@@ -4508,7 +4576,7 @@ static int __init bluetooth_init(struct
+ 
+ 	/* bluetooth not supported on 570, 600e/x, 770e, 770x, A21e, A2xm/p,
+ 	   G4x, R30, R31, R40e, R50e, T20-22, X20-21 */
+-	tp_features.bluetooth = hkey_handle &&
++	tp_features.bluetooth = !have_bt_fwbug() && hkey_handle &&
+ 	    acpi_evalf(hkey_handle, &status, "GBDC", "qd");
+ 
+ 	vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
 
 
