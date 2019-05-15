@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2E41EFA0
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00901EFD9
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733167AbfEOLdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1731502AbfEOLht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732868AbfEOLdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:33:17 -0400
+        id S1727939AbfEOLbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:31:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F5A020843;
-        Wed, 15 May 2019 11:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C517C2084F;
+        Wed, 15 May 2019 11:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919997;
-        bh=iajolfmDkExgkErxz/VgBj8MRe1bH0OyF4BKtvzNiw4=;
+        s=default; t=1557919897;
+        bh=hntAyRFrvw6Cr9yi4hm6U6Z3YwulC1viRtaaSaqeOA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLvaoS0T80G/BAK+aHXgUXKDGkY+IEsB780BtDbQqCtaSpsb0KdNhelvze9oHpBS+
-         SUJy7/bs9xxBZYVN1AD77wbPj/KW8y/+GDXHVpOMX9uFcQGziGtFFlZkAKhmDKD2Yo
-         3S4sLyI+bH/TVuz8d25bKIbjvK3sdVCpnAj7wkPE=
+        b=2Z/03CD/ogprc5LpOkCqJ6Lt3IpHMI1aS+nZaXWGBNZ1E7Na+JN1f4gBKBR6d6TcB
+         Z2i+hjYY/yVoJ7DUVeiYXPPVoZ6siHNLDrXDIMssFsOsEhSCWPGkkENTNrYg2IWyxZ
+         9hsdtdNG7b3qMjWiF+fwT0ixqnjKhziG8RMsf6T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 32/46] tuntap: fix dividing by zero in ebpf queue selection
-Date:   Wed, 15 May 2019 12:56:56 +0200
-Message-Id: <20190515090626.573484348@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Michael Kelley <mikelley@microsoft.com>
+Subject: [PATCH 5.0 136/137] PCI: hv: Add pci_destroy_slot() in pci_devices_present_work(), if necessary
+Date:   Wed, 15 May 2019 12:56:57 +0200
+Message-Id: <20190515090703.727867468@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit a35d310f03a692bf4798eb309a1950a06a150620 ]
+commit 340d455699400f2c2c0f9b3f703ade3085cdb501 upstream.
 
-We need check if tun->numqueues is zero (e.g for the persist device)
-before trying to use it for modular arithmetic.
+When we hot-remove a device, usually the host sends us a PCI_EJECT message,
+and a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: 96f84061620c6("tun: add eBPF based queue selection method")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When we execute the quick hot-add/hot-remove test, the host may not send
+us the PCI_EJECT message if the guest has not fully finished the
+initialization by sending the PCI_RESOURCES_ASSIGNED* message to the
+host, so it's potentially unsafe to only depend on the
+pci_destroy_slot() in hv_eject_device_work() because the code path
+
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+is not called in this case. Note: in this case, the host still sends the
+guest a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
+
+In the quick hot-add/hot-remove test, we can have such a race before
+the code path
+
+pci_devices_present_work()
+ -> new_pcichild_device()
+
+adds the new device into the hbus->children list, we may have already
+received the PCI_EJECT message, and since the tasklet handler
+
+hv_pci_onchannelcallback()
+
+may fail to find the "hpdev" by calling
+
+get_pcichild_wslot(hbus, dev_message->wslot.slot)
+
+hv_pci_eject_device() is not called; Later, by continuing execution
+
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+creates the slot and the PCI_BUS_RELATIONS message with
+bus_rel->device_count == 0 removes the device from hbus->children, and
+we end up being unable to remove the slot in
+
+hv_pci_remove()
+ -> hv_pci_remove_slots()
+
+Remove the slot in pci_devices_present_work() when the device
+is removed to address this race.
+
+pci_devices_present_work() and hv_eject_device_work() run in the
+singled-threaded hbus->wq, so there is not a double-remove issue for the
+slot.
+
+We cannot offload hv_pci_eject_device() from hv_pci_onchannelcallback()
+to the workqueue, because we need the hv_pci_onchannelcallback()
+synchronously call hv_pci_eject_device() to poll the channel
+ringbuffer to work around the "hangs in hv_compose_msi_msg()" issue
+fixed in commit de0aa7b2f97d ("PCI: hv: Fix 2 hang issues in
+hv_compose_msi_msg()")
+
+Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+[lorenzo.pieralisi@arm.com: rewritten commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/tun.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -596,13 +596,18 @@ static u16 tun_automq_select_queue(struc
- static u16 tun_ebpf_select_queue(struct tun_struct *tun, struct sk_buff *skb)
- {
- 	struct tun_prog *prog;
-+	u32 numqueues;
- 	u16 ret = 0;
- 
-+	numqueues = READ_ONCE(tun->numqueues);
-+	if (!numqueues)
-+		return 0;
+---
+ drivers/pci/controller/pci-hyperv.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1781,6 +1781,10 @@ static void pci_devices_present_work(str
+ 		hpdev = list_first_entry(&removed, struct hv_pci_dev,
+ 					 list_entry);
+ 		list_del(&hpdev->list_entry);
 +
- 	prog = rcu_dereference(tun->steering_prog);
- 	if (prog)
- 		ret = bpf_prog_run_clear_cb(prog->prog, skb);
++		if (hpdev->pci_slot)
++			pci_destroy_slot(hpdev->pci_slot);
++
+ 		put_pcichild(hpdev);
+ 	}
  
--	return ret % tun->numqueues;
-+	return ret % numqueues;
- }
- 
- static u16 tun_select_queue(struct net_device *dev, struct sk_buff *skb,
 
 
