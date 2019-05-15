@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 396941F132
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450F01F083
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731114AbfEOLWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60110 "EHLO mail.kernel.org"
+        id S1731841AbfEOLoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:44:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731382AbfEOLWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:01 -0400
+        id S1731851AbfEOL0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:26:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 839FD20818;
-        Wed, 15 May 2019 11:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 321E62084F;
+        Wed, 15 May 2019 11:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919320;
-        bh=/RZNkOEy9RpGkPQRFCiWVgNa/ydrQi1vf5+n8uojKD0=;
+        s=default; t=1557919572;
+        bh=CERp3i2iLB2TEaVHKwjI6GCZatALGM64HOa2MbAtixU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9hYmzHuaEKbvfjRnqDCTCjnIrxIJ8VOI5iNim/a+crdTzVv4xAMtN62MIv8Yjfvr
-         cqHYY8qT/Lt7IKnx/BFttuyveVpQbgMamoD5wmoLIcEC678Qy1hTw3kSatRwPIKC4a
-         nhjTlTxgjp0bbnXH3uY715fz8nJJXxYX2sZvF4oc=
+        b=MYCiECqqCKyhIDyuwrOj9/ohcUQyLvY5UTK3ZZjX+S5xG8/QSGwiGpRpJsjil38PY
+         4zqrCnuAq88/TsxrbISan0gtf/zJzJDlfGEBL6iBT1QPUHWV9X/KDWYs2ieCHU5RTs
+         J7g8iBbwhj6xse07BeIlKtKN7ekNYSeHoBk0hZdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 003/113] platform/x86: thinkpad_acpi: Disable Bluetooth for some machines
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 013/137] iio: adc: xilinx: prevent touching unclocked h/w on remove
 Date:   Wed, 15 May 2019 12:54:54 +0200
-Message-Id: <20190515090653.198561680@linuxfoundation.org>
+Message-Id: <20190515090654.305543987@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,119 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+[ Upstream commit 2e4b88f73966adead360e47621df0183586fac32 ]
 
-commit f7db839fccf087664e5587966220821289b6a9cb upstream.
+In remove, the clock is disabled before canceling the
+delayed work. This means that the delayed work may be
+touching unclocked hardware.
 
-Some AMD based ThinkPads have a firmware bug that calling
-"GBDC" will cause Bluetooth on Intel wireless cards blocked.
+Fix by disabling the clock after the delayed work is
+fully canceled. This is consistent with the probe error
+path order.
 
-Probe these models by DMI match and disable Bluetooth subdriver
-if specified Intel wireless card exist.
-
-Cc: stable <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c |   72 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 70 insertions(+), 2 deletions(-)
+ drivers/iio/adc/xilinx-xadc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -79,7 +79,7 @@
- #include <linux/jiffies.h>
- #include <linux/workqueue.h>
- #include <linux/acpi.h>
--#include <linux/pci_ids.h>
-+#include <linux/pci.h>
- #include <linux/power_supply.h>
- #include <linux/thinkpad_acpi.h>
- #include <sound/core.h>
-@@ -4496,6 +4496,74 @@ static void bluetooth_exit(void)
- 	bluetooth_shutdown();
- }
+diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
+index 15e1a103f37da..1ae86e7359f73 100644
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -1320,8 +1320,8 @@ static int xadc_remove(struct platform_device *pdev)
+ 		iio_triggered_buffer_cleanup(indio_dev);
+ 	}
+ 	free_irq(xadc->irq, indio_dev);
+-	clk_disable_unprepare(xadc->clk);
+ 	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
++	clk_disable_unprepare(xadc->clk);
+ 	kfree(xadc->data);
+ 	kfree(indio_dev->channels);
  
-+static const struct dmi_system_id bt_fwbug_list[] __initconst = {
-+	{
-+		.ident = "ThinkPad E485",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20KU"),
-+		},
-+	},
-+	{
-+		.ident = "ThinkPad E585",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20KV"),
-+		},
-+	},
-+	{
-+		.ident = "ThinkPad A285 - 20MW",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20MW"),
-+		},
-+	},
-+	{
-+		.ident = "ThinkPad A285 - 20MX",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20MX"),
-+		},
-+	},
-+	{
-+		.ident = "ThinkPad A485 - 20MU",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20MU"),
-+		},
-+	},
-+	{
-+		.ident = "ThinkPad A485 - 20MV",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "20MV"),
-+		},
-+	},
-+	{}
-+};
-+
-+static const struct pci_device_id fwbug_cards_ids[] __initconst = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24F3) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x24FD) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2526) },
-+	{}
-+};
-+
-+
-+static int __init have_bt_fwbug(void)
-+{
-+	/*
-+	 * Some AMD based ThinkPads have a firmware bug that calling
-+	 * "GBDC" will cause bluetooth on Intel wireless cards blocked
-+	 */
-+	if (dmi_check_system(bt_fwbug_list) && pci_dev_present(fwbug_cards_ids)) {
-+		vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
-+			FW_BUG "disable bluetooth subdriver for Intel cards\n");
-+		return 1;
-+	} else
-+		return 0;
-+}
-+
- static int __init bluetooth_init(struct ibm_init_struct *iibm)
- {
- 	int res;
-@@ -4508,7 +4576,7 @@ static int __init bluetooth_init(struct
- 
- 	/* bluetooth not supported on 570, 600e/x, 770e, 770x, A21e, A2xm/p,
- 	   G4x, R30, R31, R40e, R50e, T20-22, X20-21 */
--	tp_features.bluetooth = hkey_handle &&
-+	tp_features.bluetooth = !have_bt_fwbug() && hkey_handle &&
- 	    acpi_evalf(hkey_handle, &status, "GBDC", "qd");
- 
- 	vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
+-- 
+2.20.1
+
 
 
