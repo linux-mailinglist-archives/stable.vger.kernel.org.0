@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FCC1F36B
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F3A1F368
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728422AbfEOLEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        id S1727675AbfEOLEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbfEOLEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:04:21 -0400
+        id S1728432AbfEOLEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:04:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6844820881;
-        Wed, 15 May 2019 11:04:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B03B2084F;
+        Wed, 15 May 2019 11:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918260;
-        bh=dvCDnZeiJu6gG4l8p6ZHwSqeri0h0jPKwc5tIqUHTAE=;
+        s=default; t=1557918263;
+        bh=yNF5fBcZBeHofcbFX4RGA8qq7oiAsCqYqoSBSysuYh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kC3gq2Mh0gR33z44ZrnsKGKta1vZxqVNQI4jjct+FKoywwqUfs6YEsONw5m8JfljS
-         rEcUIafTmV3MHY4Rapc6Q9DUaubbPbU3ALnNoAgIxS1bduhcIZSEnVMR7BsIUDiDKX
-         W+JJ5R9uBR64q77WpJTxOGjj4Tm167NX57z4d1A0=
+        b=P6A5rPv48JI5jyp7vEaX3/HInQYRIUZH5wvxc2HUBF9te1kwgHe06A87uMrYXrz4C
+         jo7H+2S/rCErIhD0EFY8K5KTUVXCIOb4JFkh2GUxKZ/888dbkWS2c8dW+wPX2gB7PT
+         /ZC4Vw8ZgIF+tPjue+j0nBtZhslhdYqbyJCj/Tn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Diana Craciun <diana.craciun@nxp.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 064/266] powerpc/fsl: Fix the flush of branch predictor.
-Date:   Wed, 15 May 2019 12:52:51 +0200
-Message-Id: <20190515090724.605371541@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 065/266] tipc: handle the err returned from cmd header function
+Date:   Wed, 15 May 2019 12:52:52 +0200
+Message-Id: <20190515090724.638985599@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,42 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 27da80719ef132cf8c80eb406d5aeb37dddf78cc upstream.
+commit 2ac695d1d602ce00b12170242f58c3d3a8e36d04 upstream.
 
-The commit identified below adds MC_BTB_FLUSH macro only when
-CONFIG_PPC_FSL_BOOK3E is defined. This results in the following error
-on some configs (seen several times with kisskb randconfig_defconfig)
+Syzbot found a crash:
 
-arch/powerpc/kernel/exceptions-64e.S:576: Error: Unrecognized opcode: `mc_btb_flush'
-make[3]: *** [scripts/Makefile.build:367: arch/powerpc/kernel/exceptions-64e.o] Error 1
-make[2]: *** [scripts/Makefile.build:492: arch/powerpc/kernel] Error 2
-make[1]: *** [Makefile:1043: arch/powerpc] Error 2
-make: *** [Makefile:152: sub-make] Error 2
+  BUG: KMSAN: uninit-value in tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+  Call Trace:
+    tipc_nl_compat_name_table_dump+0x54f/0xcd0 net/tipc/netlink_compat.c:872
+    __tipc_nl_compat_dumpit+0x59e/0xda0 net/tipc/netlink_compat.c:215
+    tipc_nl_compat_dumpit+0x63a/0x820 net/tipc/netlink_compat.c:280
+    tipc_nl_compat_handle net/tipc/netlink_compat.c:1226 [inline]
+    tipc_nl_compat_recv+0x1b5f/0x2750 net/tipc/netlink_compat.c:1265
+    genl_family_rcv_msg net/netlink/genetlink.c:601 [inline]
+    genl_rcv_msg+0x185f/0x1a60 net/netlink/genetlink.c:626
+    netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
+    genl_rcv+0x63/0x80 net/netlink/genetlink.c:637
+    netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+    netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1336
+    netlink_sendmsg+0x127f/0x1300 net/netlink/af_netlink.c:1917
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
 
-This patch adds a blank definition of MC_BTB_FLUSH for other cases.
+  Uninit was created at:
+    __alloc_skb+0x309/0xa20 net/core/skbuff.c:208
+    alloc_skb include/linux/skbuff.h:1012 [inline]
+    netlink_alloc_large_skb net/netlink/af_netlink.c:1182 [inline]
+    netlink_sendmsg+0xb82/0x1300 net/netlink/af_netlink.c:1892
+    sock_sendmsg_nosec net/socket.c:622 [inline]
+    sock_sendmsg net/socket.c:632 [inline]
 
-Fixes: 10c5e83afd4a ("powerpc/fsl: Flush the branch predictor at each kernel entry (64bit)")
-Cc: Diana Craciun <diana.craciun@nxp.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Reviewed-by: Diana Craciun <diana.craciun@nxp.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+It was supposed to be fixed on commit 974cb0e3e7c9 ("tipc: fix uninit-value
+in tipc_nl_compat_name_table_dump") by checking TLV_GET_DATA_LEN(msg->req)
+in cmd->header()/tipc_nl_compat_name_table_dump_header(), which is called
+ahead of tipc_nl_compat_name_table_dump().
+
+However, tipc_nl_compat_dumpit() doesn't handle the error returned from cmd
+header function. It means even when the check added in that fix fails, it
+won't stop calling tipc_nl_compat_name_table_dump(), and the issue will be
+triggered again.
+
+So this patch is to add the process for the err returned from cmd header
+function in tipc_nl_compat_dumpit().
+
+Reported-by: syzbot+3ce8520484b0d4e260a5@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/kernel/exceptions-64e.S |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/kernel/exceptions-64e.S
-+++ b/arch/powerpc/kernel/exceptions-64e.S
-@@ -348,6 +348,7 @@ ret_from_mc_except:
- #define GEN_BTB_FLUSH
- #define CRIT_BTB_FLUSH
- #define DBG_BTB_FLUSH
-+#define MC_BTB_FLUSH
- #define GDBELL_BTB_FLUSH
- #endif
+---
+ net/tipc/netlink_compat.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -262,8 +262,14 @@ static int tipc_nl_compat_dumpit(struct
+ 	if (msg->rep_type)
+ 		tipc_tlv_init(msg->rep, msg->rep_type);
  
+-	if (cmd->header)
+-		(*cmd->header)(msg);
++	if (cmd->header) {
++		err = (*cmd->header)(msg);
++		if (err) {
++			kfree_skb(msg->rep);
++			msg->rep = NULL;
++			return err;
++		}
++	}
+ 
+ 	arg = nlmsg_new(0, GFP_KERNEL);
+ 	if (!arg) {
 
 
