@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 540391EA34
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 419A71EA35
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 10:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725902AbfEOIee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 04:34:34 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53131 "EHLO
+        id S1725933AbfEOIel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 04:34:41 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37093 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725871AbfEOIee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:34:34 -0400
+        by vger.kernel.org with ESMTP id S1725871AbfEOIel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 04:34:41 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id CB52F2593A;
-        Wed, 15 May 2019 04:34:32 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D637E25749;
+        Wed, 15 May 2019 04:34:40 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 15 May 2019 04:34:32 -0400
+  by compute6.internal (MEProxy); Wed, 15 May 2019 04:34:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=C8+ftm
-        irWCQLKNZ3voVv1UcF7L7mHJXMuspS++VK7Vk=; b=lMQmftvwZT8tYoZF98hgFs
-        PAH2VP9mkNYB4HUOiN462V+LsQZK0tvWd2SBQdzrIP5d7T+Z32w30uyhEYRRY0tY
-        taMJ5KkB6gyl6LgQZITtUUR640w7zUgAyspk29xmQoq8iR7fXYAsM7z6IULJ+Hd+
-        QlSdgjzQxWwihdPTce84d7fWRCRNHxXYMtQgawrveCF+NiBu7mXuBhJ5ZZgRwdq6
-        vYnKJzm9tylF6Ybs6s5hWait5rKLTXXIspBVe3Vr8xCDteDptsxDgNb7AewKRrpj
-        EIwEFegYaY1eFGoJiXyFCdWRz1rJ+OtrJ2N2PrlAcjCQQ8CZmEwc0iEOxYRywFKg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fmHslR
+        xeRUtqECcn7t0vxX+zKcVSQsU3/bV1nfC/bxE=; b=WVhUO4nfwTXPfFKzvxXwCh
+        cQwHCvJCAoxvoYKcr9pCNV3iE7dFNUcgWDhZ7mcHLR+syxZWaj/jyrkthINQJ1aj
+        1VlUZC5mkWDv89ZTqx/dCu03O/JyRF8cvqHTsfY/hw6vNQAdn4zhqy+gcuiEjKDz
+        LusE9JF4weFzJ5+jmrnBwI6n0VbCNNtfxiae/r3MTc/9FPJqihGFGyTfbKL0l4lU
+        tDT+j9GtSYyzDUtEZEdwMbZtNLmEjk0Z79joIWXi/xSH6z0fl/wmDNFFBXE7tRnE
+        0NfJFEQOMM83EcaSHbAQ3dRZznvKe9pt7UmWkY0ltT16bviwDS2uqtuh2HXzb6MQ
         ==
-X-ME-Sender: <xms:GM_bXJiueUHdRjJX5RRTJq_3hPb53uvAEkb4DK-kbZMbUMm_nO0t2g>
+X-ME-Sender: <xms:IM_bXGxWwD2blfjERJvdXGeb4kuyBXUpgeFGZlwvAYFUvdRjs4U3Jw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleekgddtiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:GM_bXPM57zSHcifw3uqB5eBwSqbn_fzcQ2G5fqQ8f2eSXvnN4raueg>
-    <xmx:GM_bXJjoqoKZQbnvgwb5fErIPNqwD6v0gf9K3hccmrA4K7YT7lh6Tw>
-    <xmx:GM_bXHocKegBfaEAXSAJb_kZdkAXrHmJOr8w7__j0GdCUQ4syquRVQ>
-    <xmx:GM_bXNyd8zbPZB3-AR9wFhZwPJQ0lMz89Tpoxm7qcwXYuQGqk2VA4g>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:IM_bXJ8D35mhQbQHH20k56FSTaqEBXIaT86h7Ng9ShUcRGzoLT2pkA>
+    <xmx:IM_bXOL6Z1_LaK-bDmCrWSZrvjsKNuvOUNU8abtOIHpgbMvm10bclA>
+    <xmx:IM_bXN4g1ymXC2v_oBl4566N9oYtlfdz2HNK1TW-Ab-vBSG6mALEKA>
+    <xmx:IM_bXDrcFa-L1P5rd7U3QmXP_N-WaKeGrf7I75nru-xqyVvbcDO4GQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B422480063;
-        Wed, 15 May 2019 04:34:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in hv_eject_device_work()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3F55B80068;
+        Wed, 15 May 2019 04:34:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in hv_eject_device_work()" failed to apply to 4.9-stable tree
 To:     decui@microsoft.com, lorenzo.pieralisi@arm.com,
         mikelley@microsoft.com, stephen@networkplumber.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 May 2019 10:34:30 +0200
-Message-ID: <1557909270643@kroah.com>
+Date:   Wed, 15 May 2019 10:34:31 +0200
+Message-ID: <1557909271235151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
