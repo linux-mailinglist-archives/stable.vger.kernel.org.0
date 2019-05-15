@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7C81ECE1
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4CB1F370
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727989AbfEOLCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60048 "EHLO mail.kernel.org"
+        id S1728000AbfEOLCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727986AbfEOLCl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:02:41 -0400
+        id S1727993AbfEOLCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:02:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43C50216FD;
-        Wed, 15 May 2019 11:02:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E054321773;
+        Wed, 15 May 2019 11:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918160;
-        bh=cB7C2rdeXhlw1GTRykvWKkt0d+laEj4WY0yc+UBmENk=;
+        s=default; t=1557918163;
+        bh=C/41zQokk2RkWXL4oom5Y6XlHM52K9uDoMPwKvbFLmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JUnWxEQjCnHu4EFkpe0DlQ8KtRISP6RkWej5kPfOl1pcoXm4cJUBBQerY8G6AKFj
-         Wj2hj99a3t3Uv5AMQ+/W23A4KG/RyKwIsEPYfH+10ysVMEJGElFjFP5up00L6ipxHF
-         z3SRuDW2NnKgUDcGi2Zy1nyTsfiT4xPiJkAyPvX8=
+        b=IOp9LwCLQ1D8NpZ9Us6Gszmine5TTNUAt5xYZ0z7UH34RMs+IYTWzkvvHQk9adSzL
+         nmea41HzeNBP+wFdjAi79wzDbld5QHcfjPZL5damy3otOHgqHRo2rdDXLEnNwUYWZP
+         jnjt4U5kIV98ByvAY8VrgPEvWAX4lumwpG3ovtVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Luis Henriques <lhenriques@suse.com>
-Subject: [PATCH 4.4 008/266] ceph: fix ci->i_head_snapc leak
-Date:   Wed, 15 May 2019 12:51:55 +0200
-Message-Id: <20190515090722.945408079@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.4 009/266] nfsd: Dont release the callback slot unless it was actually held
+Date:   Wed, 15 May 2019 12:51:56 +0200
+Message-Id: <20190515090722.973000199@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,59 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan, Zheng <zyan@redhat.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 37659182bff1eeaaeadcfc8f853c6d2b6dbc3f47 upstream.
+commit e6abc8caa6deb14be2a206253f7e1c5e37e9515b upstream.
 
-We missed two places that i_wrbuffer_ref_head, i_wr_ref, i_dirty_caps
-and i_flushing_caps may change. When they are all zeros, we should free
-i_head_snapc.
+If there are multiple callbacks queued, waiting for the callback
+slot when the callback gets shut down, then they all currently
+end up acting as if they hold the slot, and call
+nfsd4_cb_sequence_done() resulting in interesting side-effects.
+
+In addition, the 'retry_nowait' path in nfsd4_cb_sequence_done()
+causes a loop back to nfsd4_cb_prepare() without first freeing the
+slot, which causes a deadlock when nfsd41_cb_get_slot() gets called
+a second time.
+
+This patch therefore adds a boolean to track whether or not the
+callback did pick up the slot, so that it can do the right thing
+in these 2 cases.
 
 Cc: stable@vger.kernel.org
-Link: https://tracker.ceph.com/issues/38224
-Reported-and-tested-by: Luis Henriques <lhenriques@suse.com>
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ceph/mds_client.c |    9 +++++++++
- fs/ceph/snap.c       |    7 ++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ fs/nfsd/nfs4callback.c |    8 +++++++-
+ fs/nfsd/state.h        |    1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -1198,6 +1198,15 @@ static int remove_session_caps_cb(struct
- 			list_add(&ci->i_prealloc_cap_flush->list, &to_remove);
- 			ci->i_prealloc_cap_flush = NULL;
- 		}
-+
-+               if (drop &&
-+                  ci->i_wrbuffer_ref_head == 0 &&
-+                  ci->i_wr_ref == 0 &&
-+                  ci->i_dirty_caps == 0 &&
-+                  ci->i_flushing_caps == 0) {
-+                      ceph_put_snap_context(ci->i_head_snapc);
-+                      ci->i_head_snapc = NULL;
-+               }
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -874,8 +874,9 @@ static void nfsd4_cb_prepare(struct rpc_
+ 	cb->cb_seq_status = 1;
+ 	cb->cb_status = 0;
+ 	if (minorversion) {
+-		if (!nfsd41_cb_get_slot(clp, task))
++		if (!cb->cb_holds_slot && !nfsd41_cb_get_slot(clp, task))
+ 			return;
++		cb->cb_holds_slot = true;
  	}
- 	spin_unlock(&ci->i_ceph_lock);
- 	while (!list_empty(&to_remove)) {
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -567,7 +567,12 @@ void ceph_queue_cap_snap(struct ceph_ino
- 	capsnap = NULL;
+ 	rpc_call_start(task);
+ }
+@@ -902,6 +903,9 @@ static bool nfsd4_cb_sequence_done(struc
+ 		return true;
+ 	}
  
- update_snapc:
--	if (ci->i_head_snapc) {
-+       if (ci->i_wrbuffer_ref_head == 0 &&
-+           ci->i_wr_ref == 0 &&
-+           ci->i_dirty_caps == 0 &&
-+           ci->i_flushing_caps == 0) {
-+               ci->i_head_snapc = NULL;
-+       } else {
- 		ci->i_head_snapc = ceph_get_snap_context(new_snapc);
- 		dout(" new snapc is %p\n", new_snapc);
++	if (!cb->cb_holds_slot)
++		goto need_restart;
++
+ 	switch (cb->cb_seq_status) {
+ 	case 0:
+ 		/*
+@@ -939,6 +943,7 @@ static bool nfsd4_cb_sequence_done(struc
+ 			cb->cb_seq_status);
  	}
+ 
++	cb->cb_holds_slot = false;
+ 	clear_bit(0, &clp->cl_cb_slot_busy);
+ 	rpc_wake_up_next(&clp->cl_cb_waitq);
+ 	dprintk("%s: freed slot, new seqid=%d\n", __func__,
+@@ -1146,6 +1151,7 @@ void nfsd4_init_cb(struct nfsd4_callback
+ 	cb->cb_seq_status = 1;
+ 	cb->cb_status = 0;
+ 	cb->cb_need_restart = false;
++	cb->cb_holds_slot = false;
+ }
+ 
+ void nfsd4_run_cb(struct nfsd4_callback *cb)
+--- a/fs/nfsd/state.h
++++ b/fs/nfsd/state.h
+@@ -70,6 +70,7 @@ struct nfsd4_callback {
+ 	int cb_seq_status;
+ 	int cb_status;
+ 	bool cb_need_restart;
++	bool cb_holds_slot;
+ };
+ 
+ struct nfsd4_callback_ops {
 
 
