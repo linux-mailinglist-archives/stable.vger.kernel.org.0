@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B14E01ECF9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCBE1F38E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbfEOLDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33170 "EHLO mail.kernel.org"
+        id S1728386AbfEOLEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:04:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727502AbfEOLDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:03:47 -0400
+        id S1727806AbfEOLEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:04:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3645C2084F;
-        Wed, 15 May 2019 11:03:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CFA021734;
+        Wed, 15 May 2019 11:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918226;
-        bh=4wTWFXDjryCe5iFXbF2nI5BOQ8SlDGdkom76bwAV1Hs=;
+        s=default; t=1557918255;
+        bh=7LtjtEm+6npGd7blV5Zih9bJoLdFSeN4DjT2mASQb8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQhYdomCZybn3vb4hNeatzwL2XRPcKgL1bXw9NjylvJ7lqIqczrLjOBzvQSUFBEUY
-         R+fp2M5s3NA6xiGVvGSXIlnLqN1T2AsfMBSzjQs3hWscx4Z+PKvpO0Q4I5HNFeqNu1
-         /ipbwqfNPYZK1W5NIevjRPog72vGSvB07Iney3bc=
+        b=dg7bl4YOrsnrx+iA9hwF57K3yHXRfmJwHeoUqqfFY1dxtQhgkoU9VerG50FBsii/A
+         iMF1TO7HMWMp5amovg+8wH4vEzE/PfNdB7YU8tUXKOYXz0X6p3qkECRUB6m0tvI3tB
+         m8IOgcRxmXLl9+jebPKneoGYfvwz06JQ87Xoiock=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 026/266] powerpc/64s: Move cpu_show_meltdown()
-Date:   Wed, 15 May 2019 12:52:13 +0200
-Message-Id: <20190515090723.454615121@linuxfoundation.org>
+Subject: [PATCH 4.4 027/266] powerpc/64s: Enhance the information in cpu_show_meltdown()
+Date:   Wed, 15 May 2019 12:52:14 +0200
+Message-Id: <20190515090723.486260500@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -44,57 +44,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 8ad33041563a10b34988800c682ada14b2612533 upstream.
+commit ff348355e9c72493947be337bb4fae4fc1a41eba upstream.
 
-This landed in setup_64.c for no good reason other than we had nowhere
-else to put it. Now that we have a security-related file, that is a
-better place for it so move it.
+Now that we have the security feature flags we can make the
+information displayed in the "meltdown" file more informative.
 
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/security.c |   11 +++++++++++
- arch/powerpc/kernel/setup_64.c |    8 --------
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/security_features.h |    1 
+ arch/powerpc/kernel/security.c               |   30 +++++++++++++++++++++++++--
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -10,6 +10,7 @@
+ 
+ 
+ extern unsigned long powerpc_security_features;
++extern bool rfi_flush;
+ 
+ static inline void security_ftr_set(unsigned long feature)
+ {
 --- a/arch/powerpc/kernel/security.c
 +++ b/arch/powerpc/kernel/security.c
-@@ -5,6 +5,8 @@
- // Copyright 2018, Michael Ellerman, IBM Corporation.
+@@ -6,6 +6,7 @@
  
  #include <linux/kernel.h>
-+#include <linux/device.h>
-+
+ #include <linux/device.h>
++#include <linux/seq_buf.h>
+ 
  #include <asm/security_features.h>
  
+@@ -19,8 +20,33 @@ unsigned long powerpc_security_features
  
-@@ -13,3 +15,12 @@ unsigned long powerpc_security_features
- 	SEC_FTR_L1D_FLUSH_PR | \
- 	SEC_FTR_BNDS_CHK_SPEC_BAR | \
- 	SEC_FTR_FAVOUR_SECURITY;
-+
-+
-+ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	if (rfi_flush)
-+		return sprintf(buf, "Mitigation: RFI Flush\n");
-+
-+	return sprintf(buf, "Vulnerable\n");
-+}
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -961,12 +961,4 @@ static __init int rfi_flush_debugfs_init
- }
- device_initcall(rfi_flush_debugfs_init);
- #endif
--
--ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, char *buf)
--{
+ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, char *buf)
+ {
 -	if (rfi_flush)
 -		return sprintf(buf, "Mitigation: RFI Flush\n");
--
--	return sprintf(buf, "Vulnerable\n");
--}
- #endif /* CONFIG_PPC_BOOK3S_64 */
++	bool thread_priv;
++
++	thread_priv = security_ftr_enabled(SEC_FTR_L1D_THREAD_PRIV);
++
++	if (rfi_flush || thread_priv) {
++		struct seq_buf s;
++		seq_buf_init(&s, buf, PAGE_SIZE - 1);
++
++		seq_buf_printf(&s, "Mitigation: ");
++
++		if (rfi_flush)
++			seq_buf_printf(&s, "RFI Flush");
++
++		if (rfi_flush && thread_priv)
++			seq_buf_printf(&s, ", ");
++
++		if (thread_priv)
++			seq_buf_printf(&s, "L1D private per thread");
++
++		seq_buf_printf(&s, "\n");
++
++		return s.len;
++	}
++
++	if (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) &&
++	    !security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR))
++		return sprintf(buf, "Not affected\n");
+ 
+ 	return sprintf(buf, "Vulnerable\n");
+ }
 
 
