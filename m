@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41CAA1F407
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C88D1EF7E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726290AbfEOMSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:18:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
+        id S1732863AbfEOLbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:31:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727689AbfEOLBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:01:22 -0400
+        id S1732855AbfEOLbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:31:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5811C20881;
-        Wed, 15 May 2019 11:01:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B3FC20843;
+        Wed, 15 May 2019 11:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918081;
-        bh=xSihnVmtY+9iC4up/Mcox0MkU/6kFtZPpELlpQf8rew=;
+        s=default; t=1557919870;
+        bh=150jhkgBPAGqDHBLd7kUBOwIldgeC8zcqCG3Pz6Cp34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTsy5WE3uf9Z2xyj0/3V62Bnos0tUjFhWAw0yCK8WlHHtHsk+Ur1EEYKUoAUaVSAu
-         2wnfplIpAbk09b4WBTa7N82IzEk5wdBekPUFU8sGZOXpVuLMgcJt13Pvc9DNYWegfC
-         3SHQLHYiDUYVD9m02Z3KsY0xDMCYUinS2zG9Xr1k=
+        b=Udxz9BWkaBGQolMyWkcfU9bNN4sMKrd04kDVYez989voV07muqCYqG5rPjC4Wp8Go
+         6Wr3Z8nlxFDfarU3+lQBbYxW+ex1QnwwKLBLFxefK7DS8iBCshsASV/eG1mkrpjcht
+         gaHgsvzzMhTIeRc7SnJdvhNE8/WWi7UU6Z3w0X0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Timur Tabi <timur@freescale.com>,
-        Mihai Caraman <mihai.caraman@freescale.com>,
-        Kumar Gala <galak@kernel.crashing.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 3.18 85/86] drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        Jonathan Marek <jonathan@marek.ca>
+Subject: [PATCH 5.0 081/137] gpu: ipu-v3: dp: fix CSC handling
 Date:   Wed, 15 May 2019 12:56:02 +0200
-Message-Id: <20190515090656.194382694@linuxfoundation.org>
+Message-Id: <20190515090659.363951177@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+[ Upstream commit d4fad0a426c6e26f48c9a7cdd21a7fe9c198d645 ]
 
-commit 6a024330650e24556b8a18cc654ad00cfecf6c6c upstream.
+Initialize the flow input colorspaces to unknown and reset to that value
+when the channel gets disabled. This avoids the state getting mixed up
+with a previous mode.
 
-The "param.count" value is a u64 thatcomes from the user.  The code
-later in the function assumes that param.count is at least one and if
-it's not then it leads to an Oops when we dereference the ZERO_SIZE_PTR.
+Also keep the CSC settings for the background flow intact when disabling
+the foreground flow.
 
-Also the addition can have an integer overflow which would lead us to
-allocate a smaller "pages" array than required.  I can't immediately
-tell what the possible run times implications are, but it's safest to
-prevent the overflow.
-
-Link: http://lkml.kernel.org/r/20181218082129.GE32567@kadam
-Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Timur Tabi <timur@freescale.com>
-Cc: Mihai Caraman <mihai.caraman@freescale.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Root-caused-by: Jonathan Marek <jonathan@marek.ca>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/fsl_hypervisor.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/ipu-v3/ipu-dp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -215,6 +215,9 @@ static long ioctl_memcpy(struct fsl_hv_i
- 	 * hypervisor.
- 	 */
- 	lb_offset = param.local_vaddr & (PAGE_SIZE - 1);
-+	if (param.count == 0 ||
-+	    param.count > U64_MAX - lb_offset - PAGE_SIZE + 1)
-+		return -EINVAL;
- 	num_pages = (param.count + lb_offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+diff --git a/drivers/gpu/ipu-v3/ipu-dp.c b/drivers/gpu/ipu-v3/ipu-dp.c
+index 9b2b3fa479c46..5e44ff1f20851 100644
+--- a/drivers/gpu/ipu-v3/ipu-dp.c
++++ b/drivers/gpu/ipu-v3/ipu-dp.c
+@@ -195,7 +195,8 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
+ 		ipu_dp_csc_init(flow, flow->foreground.in_cs, flow->out_cs,
+ 				DP_COM_CONF_CSC_DEF_BOTH);
+ 	} else {
+-		if (flow->foreground.in_cs == flow->out_cs)
++		if (flow->foreground.in_cs == IPUV3_COLORSPACE_UNKNOWN ||
++		    flow->foreground.in_cs == flow->out_cs)
+ 			/*
+ 			 * foreground identical to output, apply color
+ 			 * conversion on background
+@@ -261,6 +262,8 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
+ 	struct ipu_dp_priv *priv = flow->priv;
+ 	u32 reg, csc;
  
- 	/* Allocate the buffers we need */
++	dp->in_cs = IPUV3_COLORSPACE_UNKNOWN;
++
+ 	if (!dp->foreground)
+ 		return;
+ 
+@@ -268,8 +271,9 @@ void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync)
+ 
+ 	reg = readl(flow->base + DP_COM_CONF);
+ 	csc = reg & DP_COM_CONF_CSC_DEF_MASK;
+-	if (csc == DP_COM_CONF_CSC_DEF_FG)
+-		reg &= ~DP_COM_CONF_CSC_DEF_MASK;
++	reg &= ~DP_COM_CONF_CSC_DEF_MASK;
++	if (csc == DP_COM_CONF_CSC_DEF_BOTH || csc == DP_COM_CONF_CSC_DEF_BG)
++		reg |= DP_COM_CONF_CSC_DEF_BG;
+ 
+ 	reg &= ~DP_COM_CONF_FG_EN;
+ 	writel(reg, flow->base + DP_COM_CONF);
+@@ -347,6 +351,8 @@ int ipu_dp_init(struct ipu_soc *ipu, struct device *dev, unsigned long base)
+ 	mutex_init(&priv->mutex);
+ 
+ 	for (i = 0; i < IPUV3_NUM_FLOWS; i++) {
++		priv->flow[i].background.in_cs = IPUV3_COLORSPACE_UNKNOWN;
++		priv->flow[i].foreground.in_cs = IPUV3_COLORSPACE_UNKNOWN;
+ 		priv->flow[i].foreground.foreground = true;
+ 		priv->flow[i].base = priv->base + ipu_dp_flow_base[i];
+ 		priv->flow[i].priv = priv;
+-- 
+2.20.1
+
 
 
