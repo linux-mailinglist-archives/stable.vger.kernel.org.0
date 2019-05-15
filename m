@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C691EC98
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 12:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835071F000
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727130AbfEOK7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:59:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
+        id S1732501AbfEOL3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727127AbfEOK7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:59:20 -0400
+        id S1731818AbfEOL3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:29:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87BD82084F;
-        Wed, 15 May 2019 10:59:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94FBF20843;
+        Wed, 15 May 2019 11:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917960;
-        bh=w3BV+k1uizd45hFPlEb6uBJvBBqknqvC89YUx9rsraw=;
+        s=default; t=1557919752;
+        bh=Yx3WQak/aTWgcbpjeR3qw4nu2BfrfB+OfSk2eJbZTyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWfDMAAK3YoB5cCpPyhN9cYK6NK+IZ6lzg5ywCxXdAO93uZHz/uG5Ei/oLR0s9Yyt
-         amVily6Nl8h2HiU3k1queZpEEkwWhu6Cr1CukRzvNhy+4D+tIyMseL3P2vmhrLMgsZ
-         KF5QSlHvy4E6hRw08/ovbZYqeb7VdZv19ONnb5tA=
+        b=fIvCw+uOWc6xo9+naTPoOo0vpw/FWLoWsDbMb66BCK+fDVAM8cg/4oCEo9QesCmjX
+         vX6Tyxr0iHLMgsPAJ9wBMthOt3RupA5298sx9Qc894y1WkJyKQWfYZ3Bc6UzhDu9NS
+         ymQNbTga5GydX8mHGTo3sUc3lL4k5uJTnSw2WDts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 3.18 40/86] bonding: show full hw address in sysfs for slave entries
+Subject: [PATCH 5.0 036/137] mISDN: Check address length before reading address family
 Date:   Wed, 15 May 2019 12:55:17 +0200
-Message-Id: <20190515090650.541157042@linuxfoundation.org>
+Message-Id: <20190515090655.987485141@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 18bebc6dd3281955240062655a4df35eef2c46b3 ]
+[ Upstream commit 238ffdc49ef98b15819cfd5e3fb23194e3ea3d39 ]
 
-Bond expects ethernet hwaddr for its slave, but it can be longer than 6
-bytes - infiniband interface for example.
+KMSAN will complain if valid address length passed to bind() is shorter
+than sizeof("struct sockaddr_mISDN"->family) bytes.
 
- # cat /sys/devices/<skipped>/net/ib0/address
- 80:00:02:08:fe:80:00:00:00:00:00:00:7c:fe:90:03:00:be:5d:e1
-
- # cat /sys/devices/<skipped>/net/ib0/bonding_slave/perm_hwaddr
- 80:00:02:08:fe:80
-
-So print full hwaddr in sysfs "bonding_slave/perm_hwaddr" as well.
-
-Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_sysfs_slave.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/isdn/mISDN/socket.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
-index b01b0ce4d1be..cf9e9a3d4a48 100644
---- a/drivers/net/bonding/bond_sysfs_slave.c
-+++ b/drivers/net/bonding/bond_sysfs_slave.c
-@@ -55,7 +55,9 @@ static SLAVE_ATTR_RO(link_failure_count);
+diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
+index 15d3ca37669a4..04da3a17cd950 100644
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -710,10 +710,10 @@ base_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
+ 	struct sock *sk = sock->sk;
+ 	int err = 0;
  
- static ssize_t perm_hwaddr_show(struct slave *slave, char *buf)
- {
--	return sprintf(buf, "%pM\n", slave->perm_hwaddr);
-+	return sprintf(buf, "%*phC\n",
-+		       slave->dev->addr_len,
-+		       slave->perm_hwaddr);
- }
- static SLAVE_ATTR_RO(perm_hwaddr);
+-	if (!maddr || maddr->family != AF_ISDN)
++	if (addr_len < sizeof(struct sockaddr_mISDN))
+ 		return -EINVAL;
  
+-	if (addr_len < sizeof(struct sockaddr_mISDN))
++	if (!maddr || maddr->family != AF_ISDN)
+ 		return -EINVAL;
+ 
+ 	lock_sock(sk);
 -- 
 2.20.1
 
