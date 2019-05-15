@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB321F1E4
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42A81F053
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728287AbfEOL5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54688 "EHLO mail.kernel.org"
+        id S1726406AbfEOLnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728459AbfEOLR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:29 -0400
+        id S1731306AbfEOL1g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:27:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA8E8206BF;
-        Wed, 15 May 2019 11:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 202AF20818;
+        Wed, 15 May 2019 11:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919048;
-        bh=lRWpwBxAKkzSsOcpMD/arrQGly+y9KLqL+kJlimOI38=;
+        s=default; t=1557919654;
+        bh=D8dQ+KSEvbP22k2LL3YU1+HslayP/1uvJ8PmgsXlCL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEKZSknXB0Cf9iDB/YX2LLDRPZWiyFa6lVMwXfKkR9dQzCL3TOw6UzFEG0k0hUc8e
-         6DdE4O+vVbpKCFLoEXdCTV6SjNoAouXHmjLKVVcIt4Lzw2W1vvO1aAUT8i1o5H7zUv
-         AZXz8atjJNXnRv61r5g16VPPDDb9vvHrtsxpiWXY=
+        b=qH/y3/fyeCELxBiJAF3JLgvUoATIVGZhkrzHxZoLsjBx0Hcybzyg8r/MdbHBhEQNZ
+         EMN6JFmbDn7miU6BIQu/A/oNwcpqJ6lTs1T3OirER/AasI1N15P4oCB7ShdrfwL1v5
+         swe048T00thZ6EY6NePU8SPIVz3kWQscnZdWNiXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Howell <seth.howell@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 045/115] IB/rxe: Revise the ib_wr_opcode enum
+        stable@vger.kernel.org, Denis Bolotin <dbolotin@marvell.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 044/137] qed: Fix the DORQs attentions handling
 Date:   Wed, 15 May 2019 12:55:25 +0200
-Message-Id: <20190515090702.763611027@linuxfoundation.org>
+Message-Id: <20190515090656.640334411@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,125 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a59739bd01f77db6fbe2955a4fce165f0f43568 ]
+[ Upstream commit 0d72c2ac89185f179da1e8a91c40c82f3fa38f0b ]
 
-This enum has become part of the uABI, as both RXE and the
-ib_uverbs_post_send() command expect userspace to supply values from this
-enum. So it should be properly placed in include/uapi/rdma.
+Separate the overflow handling from the hardware interrupt status analysis.
+The interrupt status is a single register and is common for all PFs. The
+first PF reading the register is not necessarily the one who overflowed.
+All PFs must check their overflow status on every attention.
+In this change we clear the sticky indication in the attention handler to
+allow doorbells to be processed again as soon as possible, but running
+the doorbell recovery is scheduled for the periodic handler to reduce the
+time spent in the attention handler.
+Checking the need for DORQ flush was changed to "db_bar_no_edpm" because
+qed_edpm_enabled()'s result could change dynamically and might have
+prevented a needed flush.
 
-In userspace this enum is called 'enum ibv_wr_opcode' as part of
-libibverbs.h. That enum defines different values for IB_WR_LOCAL_INV,
-IB_WR_SEND_WITH_INV, and IB_WR_LSO. These were introduced (incorrectly, it
-turns out) into libiberbs in 2015.
-
-The kernel has changed its mind on the numbering for several of the IB_WC
-values over the years, but has remained stable on IB_WR_LOCAL_INV and
-below.
-
-Based on this we can conclude that there is no real user space user of the
-values beyond IB_WR_ATOMIC_FETCH_AND_ADD, as they have never worked via
-rdma-core. This is confirmed by inspection, only rxe uses the kernel enum
-and implements the latter operations. rxe has clearly never worked with
-these attributes from userspace. Other drivers that support these opcodes
-implement the functionality without calling out to the kernel.
-
-To make IB_WR_SEND_WITH_INV and related work for RXE in userspace we
-choose to renumber the IB_WR enum in the kernel to match the uABI that
-userspace has bee using since before Soft RoCE was merged. This is an
-overall simpler configuration for the whole software stack, and obviously
-can't break anything existing.
-
-Reported-by: Seth Howell <seth.howell@intel.com>
-Tested-by: Seth Howell <seth.howell@intel.com>
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Denis Bolotin <dbolotin@marvell.com>
+Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/rdma/ib_verbs.h           | 34 ++++++++++++++++++-------------
- include/uapi/rdma/ib_user_verbs.h | 20 +++++++++++++++++-
- 2 files changed, 39 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed.h     |  3 ++
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 61 +++++++++++++++++------
+ 2 files changed, 48 insertions(+), 16 deletions(-)
 
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 5a24b4c700e59..9e76b2410d03f 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -1251,21 +1251,27 @@ struct ib_qp_attr {
+diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
+index 07ae600d0f357..f458c9776a89c 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed.h
++++ b/drivers/net/ethernet/qlogic/qed/qed.h
+@@ -431,6 +431,8 @@ struct qed_qm_info {
+ 	u8 num_pf_rls;
  };
  
- enum ib_wr_opcode {
--	IB_WR_RDMA_WRITE,
--	IB_WR_RDMA_WRITE_WITH_IMM,
--	IB_WR_SEND,
--	IB_WR_SEND_WITH_IMM,
--	IB_WR_RDMA_READ,
--	IB_WR_ATOMIC_CMP_AND_SWP,
--	IB_WR_ATOMIC_FETCH_AND_ADD,
--	IB_WR_LSO,
--	IB_WR_SEND_WITH_INV,
--	IB_WR_RDMA_READ_WITH_INV,
--	IB_WR_LOCAL_INV,
--	IB_WR_REG_MR,
--	IB_WR_MASKED_ATOMIC_CMP_AND_SWP,
--	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD,
-+	/* These are shared with userspace */
-+	IB_WR_RDMA_WRITE = IB_UVERBS_WR_RDMA_WRITE,
-+	IB_WR_RDMA_WRITE_WITH_IMM = IB_UVERBS_WR_RDMA_WRITE_WITH_IMM,
-+	IB_WR_SEND = IB_UVERBS_WR_SEND,
-+	IB_WR_SEND_WITH_IMM = IB_UVERBS_WR_SEND_WITH_IMM,
-+	IB_WR_RDMA_READ = IB_UVERBS_WR_RDMA_READ,
-+	IB_WR_ATOMIC_CMP_AND_SWP = IB_UVERBS_WR_ATOMIC_CMP_AND_SWP,
-+	IB_WR_ATOMIC_FETCH_AND_ADD = IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD,
-+	IB_WR_LSO = IB_UVERBS_WR_TSO,
-+	IB_WR_SEND_WITH_INV = IB_UVERBS_WR_SEND_WITH_INV,
-+	IB_WR_RDMA_READ_WITH_INV = IB_UVERBS_WR_RDMA_READ_WITH_INV,
-+	IB_WR_LOCAL_INV = IB_UVERBS_WR_LOCAL_INV,
-+	IB_WR_MASKED_ATOMIC_CMP_AND_SWP =
-+		IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP,
-+	IB_WR_MASKED_ATOMIC_FETCH_AND_ADD =
-+		IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD,
++#define QED_OVERFLOW_BIT	1
 +
-+	/* These are kernel only and can not be issued by userspace */
-+	IB_WR_REG_MR = 0x20,
- 	IB_WR_REG_SIG_MR,
-+
- 	/* reserve values for low level drivers' internal use.
- 	 * These values will not be used at all in the ib core layer.
- 	 */
-diff --git a/include/uapi/rdma/ib_user_verbs.h b/include/uapi/rdma/ib_user_verbs.h
-index e0e83a105953a..e11b4def8630f 100644
---- a/include/uapi/rdma/ib_user_verbs.h
-+++ b/include/uapi/rdma/ib_user_verbs.h
-@@ -751,10 +751,28 @@ struct ib_uverbs_sge {
- 	__u32 lkey;
+ struct qed_db_recovery_info {
+ 	struct list_head list;
+ 
+@@ -438,6 +440,7 @@ struct qed_db_recovery_info {
+ 	spinlock_t lock;
+ 	bool dorq_attn;
+ 	u32 db_recovery_counter;
++	unsigned long overflow;
  };
  
-+enum ib_uverbs_wr_opcode {
-+	IB_UVERBS_WR_RDMA_WRITE = 0,
-+	IB_UVERBS_WR_RDMA_WRITE_WITH_IMM = 1,
-+	IB_UVERBS_WR_SEND = 2,
-+	IB_UVERBS_WR_SEND_WITH_IMM = 3,
-+	IB_UVERBS_WR_RDMA_READ = 4,
-+	IB_UVERBS_WR_ATOMIC_CMP_AND_SWP = 5,
-+	IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD = 6,
-+	IB_UVERBS_WR_LOCAL_INV = 7,
-+	IB_UVERBS_WR_BIND_MW = 8,
-+	IB_UVERBS_WR_SEND_WITH_INV = 9,
-+	IB_UVERBS_WR_TSO = 10,
-+	IB_UVERBS_WR_RDMA_READ_WITH_INV = 11,
-+	IB_UVERBS_WR_MASKED_ATOMIC_CMP_AND_SWP = 12,
-+	IB_UVERBS_WR_MASKED_ATOMIC_FETCH_AND_ADD = 13,
-+	/* Review enum ib_wr_opcode before modifying this */
-+};
+ struct storm_stats {
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index 00688f4c04645..a7e95f239317f 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -376,6 +376,9 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
+ 	u32 count = QED_DB_REC_COUNT;
+ 	u32 usage = 1;
+ 
++	/* Flush any pending (e)dpms as they may never arrive */
++	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
 +
- struct ib_uverbs_send_wr {
- 	__u64 wr_id;
- 	__u32 num_sge;
--	__u32 opcode;
-+	__u32 opcode;		/* see enum ib_uverbs_wr_opcode */
- 	__u32 send_flags;
- 	union {
- 		__u32 imm_data;
+ 	/* wait for usage to zero or count to run out. This is necessary since
+ 	 * EDPM doorbell transactions can take multiple 64b cycles, and as such
+ 	 * can "split" over the pci. Possibly, the doorbell drop can happen with
+@@ -404,23 +407,24 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
+ 
+ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ {
+-	u32 overflow;
++	u32 attn_ovfl, cur_ovfl;
+ 	int rc;
+ 
+-	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
+-	DP_NOTICE(p_hwfn, "PF Overflow sticky 0x%x\n", overflow);
+-	if (!overflow)
++	attn_ovfl = test_and_clear_bit(QED_OVERFLOW_BIT,
++				       &p_hwfn->db_recovery_info.overflow);
++	cur_ovfl = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
++	if (!cur_ovfl && !attn_ovfl)
+ 		return 0;
+ 
+-	if (qed_edpm_enabled(p_hwfn)) {
++	DP_NOTICE(p_hwfn, "PF Overflow sticky: attn %u current %u\n",
++		  attn_ovfl, cur_ovfl);
++
++	if (cur_ovfl && !p_hwfn->db_bar_no_edpm) {
+ 		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
+ 		if (rc)
+ 			return rc;
+ 	}
+ 
+-	/* Flush any pending (e)dpm as they may never arrive */
+-	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
+-
+ 	/* Release overflow sticky indication (stop silently dropping everything) */
+ 	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
+ 
+@@ -430,13 +434,35 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ 	return 0;
+ }
+ 
+-static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
++static void qed_dorq_attn_overflow(struct qed_hwfn *p_hwfn)
+ {
+-	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
+ 	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
++	u32 overflow;
+ 	int rc;
+ 
+-	p_hwfn->db_recovery_info.dorq_attn = true;
++	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
++	if (!overflow)
++		goto out;
++
++	/* Run PF doorbell recovery in next periodic handler */
++	set_bit(QED_OVERFLOW_BIT, &p_hwfn->db_recovery_info.overflow);
++
++	if (!p_hwfn->db_bar_no_edpm) {
++		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
++		if (rc)
++			goto out;
++	}
++
++	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
++out:
++	/* Schedule the handler even if overflow was not detected */
++	qed_periodic_db_rec_start(p_hwfn);
++}
++
++static int qed_dorq_attn_int_sts(struct qed_hwfn *p_hwfn)
++{
++	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
++	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
+ 
+ 	/* int_sts may be zero since all PFs were interrupted for doorbell
+ 	 * overflow but another one already handled it. Can abort here. If
+@@ -475,11 +501,6 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
+ 			  GET_FIELD(details, QED_DORQ_ATTENTION_SIZE) * 4,
+ 			  first_drop_reason, all_drops_reason);
+ 
+-		rc = qed_db_rec_handler(p_hwfn, p_ptt);
+-		qed_periodic_db_rec_start(p_hwfn);
+-		if (rc)
+-			return rc;
+-
+ 		/* Clear the doorbell drop details and prepare for next drop */
+ 		qed_wr(p_hwfn, p_ptt, DORQ_REG_DB_DROP_DETAILS_REL, 0);
+ 
+@@ -505,6 +526,14 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
+ 	return -EINVAL;
+ }
+ 
++static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
++{
++	p_hwfn->db_recovery_info.dorq_attn = true;
++	qed_dorq_attn_overflow(p_hwfn);
++
++	return qed_dorq_attn_int_sts(p_hwfn);
++}
++
+ static void qed_dorq_attn_handler(struct qed_hwfn *p_hwfn)
+ {
+ 	if (p_hwfn->db_recovery_info.dorq_attn)
 -- 
 2.20.1
 
