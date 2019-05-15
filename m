@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7973B1ED00
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1066E1F388
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbfEOLEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33454 "EHLO mail.kernel.org"
+        id S1728337AbfEOLEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727501AbfEOLED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:04:03 -0400
+        id S1728335AbfEOLEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:04:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132332084F;
-        Wed, 15 May 2019 11:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A042C20881;
+        Wed, 15 May 2019 11:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918242;
-        bh=pJOGQxL8js92D2ZmrZ8Cv29N2yQDX0ZLCt6D+jVAz7g=;
+        s=default; t=1557918245;
+        bh=w5hkg+vbRu2d+V+WxG2zm1dOgYprY6sw7r2tBXuaWcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsGAoY+5x6dOeOTeSaZP1LPgjcTdnSSdwmh8l7Nvd+IjZiRAXuNyZOCLB2T1qgpT0
-         uKJHmwo8LXeeSlWceJC5sXUbcYpXd2mR7icU27XZNWLep5ymYhJKA8vKOdk/hxyvdv
-         5Nbullod1IKO3KhpTTGpRHgPh0QSYF2rBoI3/GPw=
+        b=PVZdKUkcjPwPPHrmX7kNZszj9t4LJN7lKqDDBguK/QKF59dxhlVKK+Y9wIWGYWlg8
+         YWSiQTnmhmnnuOodwwVln5Omw61QpOUv5OG1UnOr2pebFCv07lVCFCWwU/KoGsfb2d
+         tJL+X5Z14u/vePeaOsYmdWH6z7opR93CQushTVG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Diana Craciun <diana.craciun@nxp.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 058/266] powerpc/fsl: Add macro to flush the branch predictor
-Date:   Wed, 15 May 2019 12:52:45 +0200
-Message-Id: <20190515090724.402733242@linuxfoundation.org>
+Subject: [PATCH 4.4 059/266] powerpc/fsl: Fix spectre_v2 mitigations reporting
+Date:   Wed, 15 May 2019 12:52:46 +0200
+Message-Id: <20190515090724.435839040@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -45,35 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Diana Craciun <diana.craciun@nxp.com>
 
-commit 1cbf8990d79ff69da8ad09e8a3df014e1494462b upstream.
+commit 7d8bad99ba5a22892f0cad6881289fdc3875a930 upstream.
 
-The BUCSR register can be used to invalidate the entries in the
-branch prediction mechanisms.
+Currently for CONFIG_PPC_FSL_BOOK3E the spectre_v2 file is incorrect:
 
+  $ cat /sys/devices/system/cpu/vulnerabilities/spectre_v2
+  "Mitigation: Software count cache flush"
+
+Which is wrong. Fix it to report vulnerable for now.
+
+Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
+Cc: stable@vger.kernel.org # v4.19+
 Signed-off-by: Diana Craciun <diana.craciun@nxp.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/ppc_asm.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/powerpc/kernel/security.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/ppc_asm.h
-+++ b/arch/powerpc/include/asm/ppc_asm.h
-@@ -821,4 +821,15 @@ END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,C
- 	.long 0x2400004c  /* rfid				*/
- #endif /* !CONFIG_PPC_BOOK3E */
- #endif /*  __ASSEMBLY__ */
-+
-+#ifdef CONFIG_PPC_FSL_BOOK3E
-+#define BTB_FLUSH(reg)			\
-+	lis reg,BUCSR_INIT@h;		\
-+	ori reg,reg,BUCSR_INIT@l;	\
-+	mtspr SPRN_BUCSR,reg;		\
-+	isync;
-+#else
-+#define BTB_FLUSH(reg)
-+#endif /* CONFIG_PPC_FSL_BOOK3E */
-+
- #endif /* _ASM_POWERPC_PPC_ASM_H */
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -23,7 +23,7 @@ enum count_cache_flush_type {
+ 	COUNT_CACHE_FLUSH_SW	= 0x2,
+ 	COUNT_CACHE_FLUSH_HW	= 0x4,
+ };
+-static enum count_cache_flush_type count_cache_flush_type;
++static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
+ 
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
 
 
