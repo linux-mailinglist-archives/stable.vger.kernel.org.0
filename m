@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7101EDEA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:15:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CAA1F407
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729739AbfEOLOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:14:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50826 "EHLO mail.kernel.org"
+        id S1726290AbfEOMSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730165AbfEOLOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:14:40 -0400
+        id S1727689AbfEOLBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B0002084E;
-        Wed, 15 May 2019 11:14:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5811C20881;
+        Wed, 15 May 2019 11:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918879;
-        bh=PsE3L0Tytn+xs1zWFdeYNbl+o7QgsJvAnDvvDVgEk5c=;
+        s=default; t=1557918081;
+        bh=xSihnVmtY+9iC4up/Mcox0MkU/6kFtZPpELlpQf8rew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kodF4943Kqay9LAUa6WUwsix8wj65/YJrX0xzidKeW/lA0Yhq9lAGRBWcyVcM8UKz
-         Vwz7N9so1gzKVl9Zi2OhSVq5U3BeO50nw/C20hVzIDp4ZUPtH1sBl7TtyYphAGkPEr
-         KjhcdcVTU2+XNReLW1zhNOkQLIBVhhj0RGTym6+o=
+        b=rTsy5WE3uf9Z2xyj0/3V62Bnos0tUjFhWAw0yCK8WlHHtHsk+Ur1EEYKUoAUaVSAu
+         2wnfplIpAbk09b4WBTa7N82IzEk5wdBekPUFU8sGZOXpVuLMgcJt13Pvc9DNYWegfC
+         3SHQLHYiDUYVD9m02Z3KsY0xDMCYUinS2zG9Xr1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        Daniel Gomez <dagmcr@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 27/51] spi: Micrel eth switch: declare missing of table
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Timur Tabi <timur@freescale.com>,
+        Mihai Caraman <mihai.caraman@freescale.com>,
+        Kumar Gala <galak@kernel.crashing.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 3.18 85/86] drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
 Date:   Wed, 15 May 2019 12:56:02 +0200
-Message-Id: <20190515090625.036443999@linuxfoundation.org>
+Message-Id: <20190515090656.194382694@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2f23a2a768bee7ad2ff1e9527c3f7e279e794a46 ]
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-Add missing <of_device_id> table for SPI driver relying on SPI
-device match since compatible is in a DT binding or in a DTS.
+commit 6a024330650e24556b8a18cc654ad00cfecf6c6c upstream.
 
-Before this patch:
-modinfo drivers/net/phy/spi_ks8995.ko | grep alias
-alias:          spi:ksz8795
-alias:          spi:ksz8864
-alias:          spi:ks8995
+The "param.count" value is a u64 thatcomes from the user.  The code
+later in the function assumes that param.count is at least one and if
+it's not then it leads to an Oops when we dereference the ZERO_SIZE_PTR.
 
-After this patch:
-modinfo drivers/net/phy/spi_ks8995.ko | grep alias
-alias:          spi:ksz8795
-alias:          spi:ksz8864
-alias:          spi:ks8995
-alias:          of:N*T*Cmicrel,ksz8795C*
-alias:          of:N*T*Cmicrel,ksz8795
-alias:          of:N*T*Cmicrel,ksz8864C*
-alias:          of:N*T*Cmicrel,ksz8864
-alias:          of:N*T*Cmicrel,ks8995C*
-alias:          of:N*T*Cmicrel,ks8995
+Also the addition can have an integer overflow which would lead us to
+allocate a smaller "pages" array than required.  I can't immediately
+tell what the possible run times implications are, but it's safest to
+prevent the overflow.
 
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20181218082129.GE32567@kadam
+Fixes: 6db7199407ca ("drivers/virt: introduce Freescale hypervisor management driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Timur Tabi <timur@freescale.com>
+Cc: Mihai Caraman <mihai.caraman@freescale.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/phy/spi_ks8995.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/virt/fsl_hypervisor.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
-index 1e2d4f1179da3..45df03673e010 100644
---- a/drivers/net/phy/spi_ks8995.c
-+++ b/drivers/net/phy/spi_ks8995.c
-@@ -162,6 +162,14 @@ static const struct spi_device_id ks8995_id[] = {
- };
- MODULE_DEVICE_TABLE(spi, ks8995_id);
+--- a/drivers/virt/fsl_hypervisor.c
++++ b/drivers/virt/fsl_hypervisor.c
+@@ -215,6 +215,9 @@ static long ioctl_memcpy(struct fsl_hv_i
+ 	 * hypervisor.
+ 	 */
+ 	lb_offset = param.local_vaddr & (PAGE_SIZE - 1);
++	if (param.count == 0 ||
++	    param.count > U64_MAX - lb_offset - PAGE_SIZE + 1)
++		return -EINVAL;
+ 	num_pages = (param.count + lb_offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
  
-+static const struct of_device_id ks8895_spi_of_match[] = {
-+        { .compatible = "micrel,ks8995" },
-+        { .compatible = "micrel,ksz8864" },
-+        { .compatible = "micrel,ksz8795" },
-+        { },
-+ };
-+MODULE_DEVICE_TABLE(of, ks8895_spi_of_match);
-+
- static inline u8 get_chip_id(u8 val)
- {
- 	return (val >> ID1_CHIPID_S) & ID1_CHIPID_M;
-@@ -529,6 +537,7 @@ static int ks8995_remove(struct spi_device *spi)
- static struct spi_driver ks8995_driver = {
- 	.driver = {
- 		.name	    = "spi-ks8995",
-+		.of_match_table = of_match_ptr(ks8895_spi_of_match),
- 	},
- 	.probe	  = ks8995_probe,
- 	.remove	  = ks8995_remove,
--- 
-2.20.1
-
+ 	/* Allocate the buffers we need */
 
 
