@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF801EFEF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24B81F11A
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732724AbfEOLa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:30:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
+        id S1730798AbfEOLUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732722AbfEOLa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:30:26 -0400
+        id S1730354AbfEOLUz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D10E20843;
-        Wed, 15 May 2019 11:30:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73F09206BF;
+        Wed, 15 May 2019 11:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919825;
-        bh=JDCjz2uejUGz1Wl/+wSooTpOrcmdF/YYT9dMSQKOIF8=;
+        s=default; t=1557919253;
+        bh=e9SlbsSwwGqGYGbtJo8NT4Zf+Ol+2sOs+dlgoDuvKFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJphTH4aw5YX6A6+kZFVtmY2WKcFGDCbVYHTZ73EDeBiSAD5Rl/tNIx4YIVRKDg77
-         kIKRZ0TZWOX501za6V7OY5HgU+U0TfmgS2jyPf5nz/Bmap58LbglIEZ1aSl1HRkdsr
-         XzYqS4eSck6yKDrFz9QDwedLKZRjvlR89A8LOgJw=
+        b=DZWwMpAvBRgTqANX9CvCtF8WqeEH0aUzaMS7PLi0KIImlN4Nc0MGVmnxdfXl2kXpA
+         j2XmfG6J/gm6c0k9CgkegumTacjxJ7t6laYL991b0CV7wnU84h8E7z5lLpLABO+b1J
+         DRymqKzNwSgWGvt2+9CSPF4AWeK2hBxrbjaoWoQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Madalin Bucur <madalin.bucur@nxp.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 107/137] dpaa_eth: fix SG frame cleanup
+Subject: [PATCH 4.14 108/115] packet: Fix error path in packet_init
 Date:   Wed, 15 May 2019 12:56:28 +0200
-Message-Id: <20190515090701.337352286@linuxfoundation.org>
+Message-Id: <20190515090706.952441016@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 17170e6570c082717c142733d9a638bcd20551f8 ]
+[ Upstream commit 36096f2f4fa05f7678bc87397665491700bae757 ]
 
-Fix issue with the entry indexing in the sg frame cleanup code being
-off-by-1. This problem showed up when doing some basic iperf tests and
-manifested in traffic coming to a halt.
+kernel BUG at lib/list_debug.c:47!
+invalid opcode: 0000 [#1
+CPU: 0 PID: 12914 Comm: rmmod Tainted: G        W         5.1.0+ #47
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:__list_del_entry_valid+0x53/0x90
+Code: 48 8b 32 48 39 fe 75 35 48 8b 50 08 48 39 f2 75 40 b8 01 00 00 00 5d c3 48
+89 fe 48 89 c2 48 c7 c7 18 75 fe 82 e8 cb 34 78 ff <0f> 0b 48 89 fe 48 c7 c7 50 75 fe 82 e8 ba 34 78 ff 0f 0b 48 89 f2
+RSP: 0018:ffffc90001c2fe40 EFLAGS: 00010286
+RAX: 000000000000004e RBX: ffffffffa0184000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888237a17788 RDI: 00000000ffffffff
+RBP: ffffc90001c2fe40 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffc90001c2fe10 R11: 0000000000000000 R12: 0000000000000000
+R13: ffffc90001c2fe50 R14: ffffffffa0184000 R15: 0000000000000000
+FS:  00007f3d83634540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000555c350ea818 CR3: 0000000231677000 CR4: 00000000000006f0
+Call Trace:
+ unregister_pernet_operations+0x34/0x120
+ unregister_pernet_subsys+0x1c/0x30
+ packet_exit+0x1c/0x369 [af_packet
+ __x64_sys_delete_module+0x156/0x260
+ ? lockdep_hardirqs_on+0x133/0x1b0
+ ? do_syscall_64+0x12/0x1f0
+ do_syscall_64+0x6e/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Acked-by: Madalin Bucur <madalin.bucur@nxp.com>
+When modprobe af_packet, register_pernet_subsys
+fails and does a cleanup, ops->list is set to LIST_POISON1,
+but the module init is considered to success, then while rmmod it,
+BUG() is triggered in __list_del_entry_valid which is called from
+unregister_pernet_subsys. This patch fix error handing path in
+packet_init to avoid possilbe issue if some error occur.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/packet/af_packet.c |   25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -1648,7 +1648,7 @@ static struct sk_buff *dpaa_cleanup_tx_f
- 				 qm_sg_entry_get_len(&sgt[0]), dma_dir);
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4629,14 +4629,29 @@ static void __exit packet_exit(void)
  
- 		/* remaining pages were mapped with skb_frag_dma_map() */
--		for (i = 1; i < nr_frags; i++) {
-+		for (i = 1; i <= nr_frags; i++) {
- 			WARN_ON(qm_sg_entry_is_ext(&sgt[i]));
+ static int __init packet_init(void)
+ {
+-	int rc = proto_register(&packet_proto, 0);
++	int rc;
  
- 			dma_unmap_page(dev, qm_sg_addr(&sgt[i]),
+-	if (rc != 0)
++	rc = proto_register(&packet_proto, 0);
++	if (rc)
+ 		goto out;
++	rc = sock_register(&packet_family_ops);
++	if (rc)
++		goto out_proto;
++	rc = register_pernet_subsys(&packet_net_ops);
++	if (rc)
++		goto out_sock;
++	rc = register_netdevice_notifier(&packet_netdev_notifier);
++	if (rc)
++		goto out_pernet;
+ 
+-	sock_register(&packet_family_ops);
+-	register_pernet_subsys(&packet_net_ops);
+-	register_netdevice_notifier(&packet_netdev_notifier);
++	return 0;
++
++out_pernet:
++	unregister_pernet_subsys(&packet_net_ops);
++out_sock:
++	sock_unregister(PF_PACKET);
++out_proto:
++	proto_unregister(&packet_proto);
+ out:
+ 	return rc;
+ }
 
 
