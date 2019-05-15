@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEFB91EF48
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7E01F201
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732490AbfEOLcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43920 "EHLO mail.kernel.org"
+        id S1728662AbfEOL7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:59:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732976AbfEOLcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:32:08 -0400
+        id S1729400AbfEOLPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:15:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6DD3206BF;
-        Wed, 15 May 2019 11:32:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 157E52084F;
+        Wed, 15 May 2019 11:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919926;
-        bh=pL0hkTf2rl78dlcSOKzwSlb/2Hh1mO15LS8IoPCp9ww=;
+        s=default; t=1557918920;
+        bh=2G32cP8HtH00Rjv2anrTKi7M+acenD3LjABGwolUVdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3NnG/gPuF1iQebiKEZXiKwrxoy+WUvkkYAqxM2BG9ERvSe7eT6NAG/qEM8fqicrI
-         gWIgpLVB6DY6efCEsO2SaYeSGmbfs7c1P9er4MygDLAzjzoroxFPBreBCfZ1VEm70m
-         mcZ9p1qJSDtKcGYbTO8s9IpyqqcywuD1HAapEqiI=
+        b=DJg/7NVhYHVVKAysf0wlGGh5476+XU5zUWFiqMw23omKjWQt/CQnAD8HFs1j2MYg/
+         sFQUWnCeQlUPusrxBzhKm5ppKRIHBhK5ITWMfsQ6nr6wrOhrcJtGz4JOdHLMuGDJqD
+         LnR6iCG1zUUHzv9GYQMTQRCo/iskY3/zS9/swuWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.1 01/46] platform/x86: sony-laptop: Fix unintentional fall-through
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 50/51] powerpc/lib: fix book3s/32 boot failure due to code patching
 Date:   Wed, 15 May 2019 12:56:25 +0200
-Message-Id: <20190515090618.003500697@linuxfoundation.org>
+Message-Id: <20190515090629.871639485@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
-References: <20190515090616.670410738@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,53 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 1cbd7a64959d33e7a2a1fa2bf36a62b350a9fcbd upstream.
+commit b45ba4a51cde29b2939365ef0c07ad34c8321789 upstream.
 
-It seems that the default case should return AE_CTRL_TERMINATE, instead
-of falling through to case ACPI_RESOURCE_TYPE_END_TAG and returning AE_OK;
-otherwise the line of code at the end of the function is unreachable and
-makes no sense:
+Commit 51c3c62b58b3 ("powerpc: Avoid code patching freed init
+sections") accesses 'init_mem_is_free' flag too early, before the
+kernel is relocated. This provokes early boot failure (before the
+console is active).
 
-return AE_CTRL_TERMINATE;
+As it is not necessary to do this verification that early, this
+patch moves the test into patch_instruction() instead of
+__patch_instruction().
 
-This fix is based on the following thread of discussion:
+This modification also has the advantage of avoiding unnecessary
+remappings.
 
-https://lore.kernel.org/patchwork/patch/959782/
-
-Fixes: 33a04454527e ("sony-laptop: Add SNY6001 device handling (sonypi reimplementation)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 51c3c62b58b3 ("powerpc: Avoid code patching freed init sections")
+Cc: stable@vger.kernel.org # 4.13+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/sony-laptop.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/lib/code-patching.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -4424,14 +4424,16 @@ sony_pic_read_possible_resource(struct a
- 			}
- 			return AE_OK;
- 		}
-+
-+	case ACPI_RESOURCE_TYPE_END_TAG:
-+		return AE_OK;
-+
- 	default:
- 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
- 			resource->type);
-+		return AE_CTRL_TERMINATE;
+--- a/arch/powerpc/lib/code-patching.c
++++ b/arch/powerpc/lib/code-patching.c
+@@ -23,7 +23,7 @@ int patch_instruction(unsigned int *addr
+ 	int err;
  
--	case ACPI_RESOURCE_TYPE_END_TAG:
--		return AE_OK;
+ 	/* Make sure we aren't patching a freed init section */
+-	if (init_mem_is_free && init_section_contains(addr, 4)) {
++	if (*PTRRELOC(&init_mem_is_free) && init_section_contains(addr, 4)) {
+ 		pr_debug("Skipping init section patching addr: 0x%px\n", addr);
+ 		return 0;
  	}
--	return AE_CTRL_TERMINATE;
- }
- 
- static int sony_pic_possible_resources(struct acpi_device *device)
 
 
