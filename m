@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 652B11F0BD
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7700E1F23E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731866AbfEOLYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:24:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35384 "EHLO mail.kernel.org"
+        id S1729914AbfEOMA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 08:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731304AbfEOLYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:24:44 -0400
+        id S1729241AbfEOLOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:14:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6729206BF;
-        Wed, 15 May 2019 11:24:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A60B720843;
+        Wed, 15 May 2019 11:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919483;
-        bh=QRIcsYA0LLSvrk8VqBiIl1h66y0bmjVOy1B1lOgme4Y=;
+        s=default; t=1557918861;
+        bh=ItPj+Nbvo0KNZmmn+28rj26rGJqd7jzYZpfB+8lrKk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0GxEHjYIF65PxecHj93V50KAZYoZUdb/i4Pm4V6NIcrC0HVd80l7oI2Kd4UitjMc
-         7sR0it+kCPtcuDQt4AkA8HYy7kLrnj1kaDj8/Yf1/o9Q/n/V0PJ4+goWcQ76taTYKl
-         E18lsXlVggmV54bLqxAg2WgeP0knBYlcqwqJ2w1g=
+        b=L5JrIk+dz/PA0sEIbrO6C4CYHsBYg6mXGNVLvQIfvIA10TFzSa0ImVjiNwkhffzAM
+         pqIN9IwYp0mgGJ/gM3F/6afgcmVxFaaN261POyLVchwmbAxy+j5kA91vvZCwxExSIg
+         /KmX/bhsvDJS+UFSAAV0ZZnYtivUQuegOAxEmjJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/113] netfilter: ctnetlink: dont use conntrack/expect object addresses as id
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.9 04/51] platform/x86: sony-laptop: Fix unintentional fall-through
 Date:   Wed, 15 May 2019 12:55:39 +0200
-Message-Id: <20190515090657.286176213@linuxfoundation.org>
+Message-Id: <20190515090618.650346484@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
+References: <20190515090616.669619870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,176 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c79107631db1f7fd32cf3f7368e4672004a3010 ]
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-else, we leak the addresses to userspace via ctnetlink events
-and dumps.
+commit 1cbd7a64959d33e7a2a1fa2bf36a62b350a9fcbd upstream.
 
-Compute an ID on demand based on the immutable parts of nf_conn struct.
+It seems that the default case should return AE_CTRL_TERMINATE, instead
+of falling through to case ACPI_RESOURCE_TYPE_END_TAG and returning AE_OK;
+otherwise the line of code at the end of the function is unreachable and
+makes no sense:
 
-Another advantage compared to using an address is that there is no
-immediate re-use of the same ID in case the conntrack entry is freed and
-reallocated again immediately.
+return AE_CTRL_TERMINATE;
 
-Fixes: 3583240249ef ("[NETFILTER]: nf_conntrack_expect: kill unique ID")
-Fixes: 7f85f914721f ("[NETFILTER]: nf_conntrack: kill unique ID")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix is based on the following thread of discussion:
+
+https://lore.kernel.org/patchwork/patch/959782/
+
+Fixes: 33a04454527e ("sony-laptop: Add SNY6001 device handling (sonypi reimplementation)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/netfilter/nf_conntrack.h |  2 ++
- net/netfilter/nf_conntrack_core.c    | 35 ++++++++++++++++++++++++++++
- net/netfilter/nf_conntrack_netlink.c | 34 +++++++++++++++++++++++----
- 3 files changed, 66 insertions(+), 5 deletions(-)
+ drivers/platform/x86/sony-laptop.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
-index 7e012312cd610..f45141bdbb837 100644
---- a/include/net/netfilter/nf_conntrack.h
-+++ b/include/net/netfilter/nf_conntrack.h
-@@ -313,6 +313,8 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
- 				 gfp_t flags);
- void nf_ct_tmpl_free(struct nf_conn *tmpl);
- 
-+u32 nf_ct_get_id(const struct nf_conn *ct);
+--- a/drivers/platform/x86/sony-laptop.c
++++ b/drivers/platform/x86/sony-laptop.c
+@@ -4422,14 +4422,16 @@ sony_pic_read_possible_resource(struct a
+ 			}
+ 			return AE_OK;
+ 		}
 +
- static inline void
- nf_ct_set(struct sk_buff *skb, struct nf_conn *ct, enum ip_conntrack_info info)
- {
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 9a249478abf28..27eff89fad01c 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -25,6 +25,7 @@
- #include <linux/slab.h>
- #include <linux/random.h>
- #include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <linux/err.h>
- #include <linux/percpu.h>
- #include <linux/moduleparam.h>
-@@ -424,6 +425,40 @@ nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
++	case ACPI_RESOURCE_TYPE_END_TAG:
++		return AE_OK;
++
+ 	default:
+ 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
+ 			resource->type);
++		return AE_CTRL_TERMINATE;
+ 
+-	case ACPI_RESOURCE_TYPE_END_TAG:
+-		return AE_OK;
+ 	}
+-	return AE_CTRL_TERMINATE;
  }
- EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
  
-+/* Generate a almost-unique pseudo-id for a given conntrack.
-+ *
-+ * intentionally doesn't re-use any of the seeds used for hash
-+ * table location, we assume id gets exposed to userspace.
-+ *
-+ * Following nf_conn items do not change throughout lifetime
-+ * of the nf_conn after it has been committed to main hash table:
-+ *
-+ * 1. nf_conn address
-+ * 2. nf_conn->ext address
-+ * 3. nf_conn->master address (normally NULL)
-+ * 4. tuple
-+ * 5. the associated net namespace
-+ */
-+u32 nf_ct_get_id(const struct nf_conn *ct)
-+{
-+	static __read_mostly siphash_key_t ct_id_seed;
-+	unsigned long a, b, c, d;
-+
-+	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
-+
-+	a = (unsigned long)ct;
-+	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
-+	c = (unsigned long)ct->ext;
-+	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
-+				   &ct_id_seed);
-+#ifdef CONFIG_64BIT
-+	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
-+#else
-+	return siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &ct_id_seed);
-+#endif
-+}
-+EXPORT_SYMBOL_GPL(nf_ct_get_id);
-+
- static void
- clean_from_lists(struct nf_conn *ct)
- {
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 036207ecaf166..47e5a076522d8 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -29,6 +29,7 @@
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/slab.h>
-+#include <linux/siphash.h>
- 
- #include <linux/netfilter.h>
- #include <net/netlink.h>
-@@ -487,7 +488,9 @@ static int ctnetlink_dump_ct_synproxy(struct sk_buff *skb, struct nf_conn *ct)
- 
- static int ctnetlink_dump_id(struct sk_buff *skb, const struct nf_conn *ct)
- {
--	if (nla_put_be32(skb, CTA_ID, htonl((unsigned long)ct)))
-+	__be32 id = (__force __be32)nf_ct_get_id(ct);
-+
-+	if (nla_put_be32(skb, CTA_ID, id))
- 		goto nla_put_failure;
- 	return 0;
- 
-@@ -1275,8 +1278,9 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
- 	}
- 
- 	if (cda[CTA_ID]) {
--		u_int32_t id = ntohl(nla_get_be32(cda[CTA_ID]));
--		if (id != (u32)(unsigned long)ct) {
-+		__be32 id = nla_get_be32(cda[CTA_ID]);
-+
-+		if (id != (__force __be32)nf_ct_get_id(ct)) {
- 			nf_ct_put(ct);
- 			return -ENOENT;
- 		}
-@@ -2675,6 +2679,25 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
- 
- static const union nf_inet_addr any_addr;
- 
-+static __be32 nf_expect_get_id(const struct nf_conntrack_expect *exp)
-+{
-+	static __read_mostly siphash_key_t exp_id_seed;
-+	unsigned long a, b, c, d;
-+
-+	net_get_random_once(&exp_id_seed, sizeof(exp_id_seed));
-+
-+	a = (unsigned long)exp;
-+	b = (unsigned long)exp->helper;
-+	c = (unsigned long)exp->master;
-+	d = (unsigned long)siphash(&exp->tuple, sizeof(exp->tuple), &exp_id_seed);
-+
-+#ifdef CONFIG_64BIT
-+	return (__force __be32)siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &exp_id_seed);
-+#else
-+	return (__force __be32)siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &exp_id_seed);
-+#endif
-+}
-+
- static int
- ctnetlink_exp_dump_expect(struct sk_buff *skb,
- 			  const struct nf_conntrack_expect *exp)
-@@ -2722,7 +2745,7 @@ ctnetlink_exp_dump_expect(struct sk_buff *skb,
- 	}
- #endif
- 	if (nla_put_be32(skb, CTA_EXPECT_TIMEOUT, htonl(timeout)) ||
--	    nla_put_be32(skb, CTA_EXPECT_ID, htonl((unsigned long)exp)) ||
-+	    nla_put_be32(skb, CTA_EXPECT_ID, nf_expect_get_id(exp)) ||
- 	    nla_put_be32(skb, CTA_EXPECT_FLAGS, htonl(exp->flags)) ||
- 	    nla_put_be32(skb, CTA_EXPECT_CLASS, htonl(exp->class)))
- 		goto nla_put_failure;
-@@ -3027,7 +3050,8 @@ static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
- 
- 	if (cda[CTA_EXPECT_ID]) {
- 		__be32 id = nla_get_be32(cda[CTA_EXPECT_ID]);
--		if (ntohl(id) != (u32)(unsigned long)exp) {
-+
-+		if (id != nf_expect_get_id(exp)) {
- 			nf_ct_expect_put(exp);
- 			return -ENOENT;
- 		}
--- 
-2.20.1
-
+ static int sony_pic_possible_resources(struct acpi_device *device)
 
 
