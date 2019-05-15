@@ -2,142 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 257231E604
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 02:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C8D1E622
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 02:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbfEOAZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 May 2019 20:25:37 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:40337 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726044AbfEOAZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 20:25:36 -0400
-Received: by mail-ed1-f68.google.com with SMTP id j12so1464261eds.7
-        for <stable@vger.kernel.org>; Tue, 14 May 2019 17:25:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=h2wbbn+50G92UFcNx+QSq8qpoP65Z/vv5qYbllDR5Ck=;
-        b=hyfPiTJWmJAGpYFESdcTFQGUPSNerIfzomB0VLHaskLki1GvQNf72HX91KqN6a3PyO
-         noBbTyEmWtNZf2MBRjL431v2s4zD7LvvNjoTv3+Xy4HNz7L3JaAEFFbi0elMTPOIGxgx
-         F8yCQUBJ197IbEgqb+ktN7UfrErSmh3TPQanyR7HhVAu/dpsaA+vyZRgOTVDqwq8rraG
-         eMu+gmZurufPCmlRzx2K/EOH46POjPOpVf3BsI33pUmEt77GXRb8ORc+Tj9RuAlAzJHD
-         WZTUbCuqcUjOp8bXKjXEAnoZvQn7gZ6ial21dUaFjB1UAUoYfvXPA+ccvrxAgPq4MG1T
-         Yn5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=h2wbbn+50G92UFcNx+QSq8qpoP65Z/vv5qYbllDR5Ck=;
-        b=UJTH2jg7fG8XrWSQ3eMsOkTM9LZw+spppa4MhdG1ROgBNuvSIz8pYXEibYB7xj63AF
-         8dJ+mJRL6qO/tosjXmq9cqnX7LT5MPTOKnGcjGn7X0n9afuhRG67JJDa4N3Iifrrfaai
-         +LSDANmaEfkfn+2vImYK7CMgfyL5PB1QzyO6MvBi48q8zBXIm8oqOK+XcQecUGgvM4BH
-         aKTmd32EnlYkegMvu8LTdYb6SF/yNkJY9IGFF//r0aQh99QMJnjQZaqKgQAeXP/iCtcf
-         ygDHr9zcbmtkYk5vCOqc/M+l1a1GA0mKvYcWPvJS//Kmhx/iB5C16c5S5twobPm9QYkn
-         j3GA==
-X-Gm-Message-State: APjAAAX3QZRX88QSM8G3y126Y7MALEuGR+zud2e0bwtA9ePwZn/hcHMq
-        9xu2NiIzx6MfXyGD4cT7PsA=
-X-Google-Smtp-Source: APXvYqyyGI1b0COx6hEo5DBLBDaIXHgsZJAWOS+gufbUGFm6Q0Fu528oemstoouAYXEhS9OcizlWJg==
-X-Received: by 2002:a50:b6b2:: with SMTP id d47mr40524369ede.169.1557879934915;
-        Tue, 14 May 2019 17:25:34 -0700 (PDT)
-Received: from archlinux-i9 ([2a01:4f9:2b:2b84::2])
-        by smtp.gmail.com with ESMTPSA id y46sm187540edd.29.2019.05.14.17.25.32
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 14 May 2019 17:25:33 -0700 (PDT)
-Date:   Tue, 14 May 2019 17:25:31 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        Sasha Levin <sashal@kernel.org>, stable@kernel.org,
-        Alistair Strachan <astrachan@google.com>,
-        Florian Weimer <fweimer@redhat.com>,
-        Carlos O'Donell <carlos@redhat.com>,
-        "H. J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
-        Laura Abbott <labbott@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        kernel-team@android.com, stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>
-Subject: Re: [PATCH for 4.4, 4.9 and 4.14] x86/vdso: Pass --eh-frame-hdr to
- the linker
-Message-ID: <20190515002531.GA12671@archlinux-i9>
-References: <20190514073429.17537-1-nobuhiro1.iwamatsu@toshiba.co.jp>
- <20190514075004.GD27017@kroah.com>
+        id S1726314AbfEOA37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 May 2019 20:29:59 -0400
+Received: from dc8-smtprelay2.synopsys.com ([198.182.47.102]:38602 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726319AbfEOA36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 May 2019 20:29:58 -0400
+Received: from mailhost.synopsys.com (dc8-mailhost1.synopsys.com [10.13.135.209])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 79857C125A;
+        Wed, 15 May 2019 00:30:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1557880203; bh=c+tBAWKr/xKiZA4fRxsv2x0bDL2srnRGcv7daF0X8oU=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=fm8wJJTRYvByHd81d5Z5I9rzlO3TJp/3oPm3BJr7Q2pL+QY82ToWFR8FvRXXNZzVO
+         AC9KoJovQdsJWDB/o3C5Lp+YSD8G5FztED2SkH56d1JpgEzdF7mqo86yJye/L7Nt3r
+         DwgF1YwoMyFwgBj0POwA+4ywtkEMRXV4zS7Yit4HVNy6JA/kKWVEdOxcmcnCdoYAAE
+         qVzKE66HS7Tlv88d4rnQa2/+dxprK3Ke29tSTdBnxgddP5e/q9ZOkviyAJDu2XWVNB
+         9V+gT1d+/dkMtlkPDs4WejwVBZRy9txAF2qEmOTeMbtWo6YqWzD6+gMnEa3aurgEa6
+         xbRq0T9YfkvUQ==
+Received: from US01WEHTC2.internal.synopsys.com (us01wehtc2.internal.synopsys.com [10.12.239.237])
+        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id 0751CA023C;
+        Wed, 15 May 2019 00:29:58 +0000 (UTC)
+Received: from IN01WEHTCB.internal.synopsys.com (10.144.199.106) by
+ US01WEHTC2.internal.synopsys.com (10.12.239.237) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Tue, 14 May 2019 17:29:57 -0700
+Received: from IN01WEHTCA.internal.synopsys.com (10.144.199.103) by
+ IN01WEHTCB.internal.synopsys.com (10.144.199.105) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Wed, 15 May 2019 05:59:54 +0530
+Received: from vineetg-Latitude-E7450.internal.synopsys.com (10.13.182.230) by
+ IN01WEHTCA.internal.synopsys.com (10.144.199.243) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Wed, 15 May 2019 06:00:05 +0530
+From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
+To:     <linux-snps-arc@lists.infradead.org>
+CC:     <paltsev@snyopsys.com>, <linux-kernel@vger.kernel.org>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        <stable@vger.kernel.org>, Vineet Gupta <Vineet.Gupta1@synopsys.com>
+Subject: [PATCH 1/9] ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
+Date:   Tue, 14 May 2019 17:29:28 -0700
+Message-ID: <1557880176-24964-2-git-send-email-vgupta@synopsys.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1557880176-24964-1-git-send-email-vgupta@synopsys.com>
+References: <1557880176-24964-1-git-send-email-vgupta@synopsys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190514075004.GD27017@kroah.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Type: text/plain
+X-Originating-IP: [10.13.182.230]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 14, 2019 at 09:50:04AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, May 14, 2019 at 04:34:29PM +0900, Nobuhiro Iwamatsu wrote:
-> > From: Alistair Strachan <astrachan@google.com>
-> > 
-> > commit cd01544a268ad8ee5b1dfe42c4393f1095f86879 upstream.
-> > 
-> > Commit
-> > 
-> >   379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
-> > 
-> > accidentally broke unwinding from userspace, because ld would strip the
-> > .eh_frame sections when linking.
-> > 
-> > Originally, the compiler would implicitly add --eh-frame-hdr when
-> > invoking the linker, but when this Makefile was converted from invoking
-> > ld via the compiler, to invoking it directly (like vmlinux does),
-> > the flag was missed. (The EH_FRAME section is important for the VDSO
-> > shared libraries, but not for vmlinux.)
-> > 
-> > Fix the problem by explicitly specifying --eh-frame-hdr, which restores
-> > parity with the old method.
-> > 
-> > See relevant bug reports for additional info:
-> > 
-> >   https://bugzilla.kernel.org/show_bug.cgi?id=201741
-> >   https://bugzilla.redhat.com/show_bug.cgi?id=1659295
-> > 
-> > Fixes: 379d98ddf413 ("x86: vdso: Use $LD instead of $CC to link")
-> > Reported-by: Florian Weimer <fweimer@redhat.com>
-> > Reported-by: Carlos O'Donell <carlos@redhat.com>
-> > Reported-by: "H. J. Lu" <hjl.tools@gmail.com>
-> > Signed-off-by: Alistair Strachan <astrachan@google.com>
-> > Signed-off-by: Borislav Petkov <bp@suse.de>
-> > Tested-by: Laura Abbott <labbott@redhat.com>
-> > Cc: Andy Lutomirski <luto@kernel.org>
-> > Cc: Carlos O'Donell <carlos@redhat.com>
-> > Cc: "H. Peter Anvin" <hpa@zytor.com>
-> > Cc: Ingo Molnar <mingo@redhat.com>
-> > Cc: Joel Fernandes <joel@joelfernandes.org>
-> > Cc: kernel-team@android.com
-> > Cc: Laura Abbott <labbott@redhat.com>
-> > Cc: stable <stable@vger.kernel.org>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: X86 ML <x86@kernel.org>
-> > Link: https://lkml.kernel.org/r/20181214223637.35954-1-astrachan@google.com
-> > Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-> > ---
-> >  arch/x86/entry/vdso/Makefile | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> This is already in the 4.14 stable queue.
-> 
-> Sasha, how did you tools miss it for 4.4 and 4.9?
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-Not Sasha's fault but mine, I forgot to git grep for the short hash like
-I usually do to ensure I catch all fixes (or I didn't do it properly, I
-forget which) when I added this to all of the trees.
+As of today if userspace process tries to access a kernel virtual addres
+(0x7000_0000 to 0x7ffff_ffff) such that a legit kernel mapping already
+exists, that process hangs instead of being killed with SIGSEGV
 
-I currently see it queued up for 4.9 and 4.14, don't forget 4.4.
+Fix that by ensuring that do_page_fault() handles kenrel vaddr only if
+in kernel mode.
 
-Sorry for the breakage,
-Nathan
+And given this, we can also simplify the code a bit. Now a vmalloc fault
+implies kernel mode so its failure (for some reason) can reuse the
+@no_context label and we can remove @bad_area_nosemaphore.
 
-> 
-> thanks,
-> 
-> greg k-h
+Reproduce user test for original problem:
+
+------------------------>8-----------------
+ #include <stdlib.h>
+ #include <stdint.h>
+
+ int main(int argc, char *argv[])
+ {
+ 	volatile uint32_t temp;
+
+ 	temp = *(uint32_t *)(0x70000000);
+ }
+------------------------>8-----------------
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+---
+ arch/arc/mm/fault.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
+index 8df1638259f3..6836095251ed 100644
+--- a/arch/arc/mm/fault.c
++++ b/arch/arc/mm/fault.c
+@@ -66,7 +66,7 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ 	struct vm_area_struct *vma = NULL;
+ 	struct task_struct *tsk = current;
+ 	struct mm_struct *mm = tsk->mm;
+-	int si_code = 0;
++	int si_code = SEGV_MAPERR;
+ 	int ret;
+ 	vm_fault_t fault;
+ 	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
+@@ -81,16 +81,14 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ 	 * only copy the information from the master page table,
+ 	 * nothing more.
+ 	 */
+-	if (address >= VMALLOC_START) {
++	if (address >= VMALLOC_START && !user_mode(regs)) {
+ 		ret = handle_kernel_vaddr_fault(address);
+ 		if (unlikely(ret))
+-			goto bad_area_nosemaphore;
++			goto no_context;
+ 		else
+ 			return;
+ 	}
+ 
+-	si_code = SEGV_MAPERR;
+-
+ 	/*
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
+@@ -198,7 +196,6 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ bad_area:
+ 	up_read(&mm->mmap_sem);
+ 
+-bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+ 	if (user_mode(regs)) {
+ 		tsk->thread.fault_address = address;
+-- 
+2.7.4
+
