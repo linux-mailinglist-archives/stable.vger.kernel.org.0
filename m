@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD991F21F
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E23071ECC8
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729688AbfEOLNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49046 "EHLO mail.kernel.org"
+        id S1726621AbfEOLBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:01:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729954AbfEOLNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:22 -0400
+        id S1727699AbfEOLBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:01:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA36D20644;
-        Wed, 15 May 2019 11:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E307A2173C;
+        Wed, 15 May 2019 11:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918801;
-        bh=xQWJvhUWOCUfqGEpbljHBdQAtSO3UWwxklGIO0XC+y8=;
+        s=default; t=1557918084;
+        bh=6zO7tVXG4/5IUdBroFzjK/pJRlz3x3muihcqwl8q3JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SjoG19G3xHkcO6cv1fOJzYUPJKxzw3+/HVLL9c5AP5jdYDwXiFuixEruFGDGzQZ8X
-         Mpr+1eNzO9isA2lDb33N61qOGPPLSbkVoZOYGNlCjGAEgAK4IC1/ed9QTSjK6h6EJ2
-         WgtGR3y0D2tVE4RByJc/RebFag8vB7NmTBqB6AZk=
+        b=TX5RBK60FmreAgva6/P1Lzra+/Bej6xEcYgZ4CoRUTc95OThfU47XJ7IYqtNvasEK
+         9+eQ0WdwkQljS/iBfH640HImLseOtVw+l4/3yoJUZm7XKygjKR/LN7K06obdDgb8tk
+         U30qUK9adelDYpJssiAkDjkrtLPtzrRaVs+gccvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Breno Leitao <leitao@debian.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Major Hayden <major@redhat.com>
-Subject: [PATCH 4.4 256/266] powerpc/64s: Include cpu header
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 3.18 86/86] powerpc/booke64: set RI in default MSR
 Date:   Wed, 15 May 2019 12:56:03 +0200
-Message-Id: <20190515090731.676191139@linuxfoundation.org>
+Message-Id: <20190515090656.280594555@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-commit 42e2acde1237878462b028f5a27d9cc5bea7502c upstream.
+commit 5266e58d6cd90ac85c187d673093ad9cb649e16d upstream.
 
-Current powerpc security.c file is defining functions, as
-cpu_show_meltdown(), cpu_show_spectre_v{1,2} and others, that are being
-declared at linux/cpu.h header without including the header file that
-contains these declarations.
+Set RI in the default kernel's MSR so that the architected way of
+detecting unrecoverable machine check interrupts has a chance to work.
+This is inline with the MSR setup of the rest of booke powerpc
+architectures configured here.
 
-This is being reported by sparse, which thinks that these functions are
-static, due to the lack of declaration:
-
-	arch/powerpc/kernel/security.c:105:9: warning: symbol 'cpu_show_meltdown' was not declared. Should it be static?
-	arch/powerpc/kernel/security.c:139:9: warning: symbol 'cpu_show_spectre_v1' was not declared. Should it be static?
-	arch/powerpc/kernel/security.c:161:9: warning: symbol 'cpu_show_spectre_v2' was not declared. Should it be static?
-	arch/powerpc/kernel/security.c:209:6: warning: symbol 'stf_barrier' was not declared. Should it be static?
-	arch/powerpc/kernel/security.c:289:9: warning: symbol 'cpu_show_spec_store_bypass' was not declared. Should it be static?
-
-This patch simply includes the proper header (linux/cpu.h) to match
-function definition and declaration.
-
-Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Joel Stanley <joel@jms.id.au>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Major Hayden <major@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/security.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/reg_booke.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -4,6 +4,7 @@
- //
- // Copyright 2018, Michael Ellerman, IBM Corporation.
+--- a/arch/powerpc/include/asm/reg_booke.h
++++ b/arch/powerpc/include/asm/reg_booke.h
+@@ -41,7 +41,7 @@
+ #if defined(CONFIG_PPC_BOOK3E_64)
+ #define MSR_64BIT	MSR_CM
  
-+#include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/debugfs.h>
- #include <linux/device.h>
+-#define MSR_		(MSR_ME | MSR_CE)
++#define MSR_		(MSR_ME | MSR_RI | MSR_CE)
+ #define MSR_KERNEL	(MSR_ | MSR_64BIT)
+ #define MSR_USER32	(MSR_ | MSR_PR | MSR_EE)
+ #define MSR_USER64	(MSR_USER32 | MSR_64BIT)
 
 
