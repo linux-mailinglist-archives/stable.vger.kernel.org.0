@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9171F3CA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355AA1F140
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727395AbfEOLAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
+        id S1731489AbfEOLWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726871AbfEOLAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:00:20 -0400
+        id S1731498AbfEOLWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 006062173C;
-        Wed, 15 May 2019 11:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D67E5206BF;
+        Wed, 15 May 2019 11:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918019;
-        bh=vo7pB0BKLG9yBOtmC9NETLZsnrgre1dFnVX5xGVxn7c=;
+        s=default; t=1557919359;
+        bh=yFUPSDZ95GbfUlJh8l0YvnrDeDlNtW1xQQ7ma0Nb+8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ediuh3tiM+UiPAq6hW7l1G+pSWAoGfq/l90QkSn5sS622dEqaQAyxhMnhTA3GzT5g
-         nmu8q3T1r4gQxLloUmgLjLzcVjePx4pMg+7B8aNYoUn4GWUSLOZ+4l6Pa7Cn6Cgo2L
-         vtPYSGjjDeFB04atdSRW/fzmxGWAhoxklwT+a5gw=
+        b=BGRe/lqJdWkoBA++lbpwDYEPcxZ71kOZtnHN6MqXA2iPVT7cPEgM33oHNgQhcZMdL
+         QgRvjtPmLVyZe9xj4kd6gRWeG11l+yAFJqU7MwbhKQMpJR8iUts2x4l7ZQ6WEl/Ufn
+         B7Xj/3N6VvGovZyxle0a7GSemJv/nIeeo5O+GIDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 3.18 22/86] scsi: qla4xxx: fix a potential NULL pointer dereference
-Date:   Wed, 15 May 2019 12:54:59 +0200
-Message-Id: <20190515090647.105586549@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 009/113] iio: adc: xilinx: fix potential use-after-free on remove
+Date:   Wed, 15 May 2019 12:55:00 +0200
+Message-Id: <20190515090654.166330986@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fba1bdd2a9a93f3e2181ec1936a3c2f6b37e7ed6 ]
+[ Upstream commit 62039b6aef63380ba7a37c113bbaeee8a55c5342 ]
 
-In case iscsi_lookup_endpoint fails, the fix returns -EINVAL to avoid NULL
-pointer dereference.
+When cancel_delayed_work() returns, the delayed work may still
+be running. This means that the core could potentially free
+the private structure (struct xadc) while the delayed work
+is still using it. This is a potential use-after-free.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Fix by calling cancel_delayed_work_sync(), which waits for
+any residual work to finish before returning.
+
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla4xxx/ql4_os.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/adc/xilinx-xadc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index a9fac1eb8306..28f6d5ef04e0 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -3213,6 +3213,8 @@ static int qla4xxx_conn_bind(struct iscsi_cls_session *cls_session,
- 	if (iscsi_conn_bind(cls_session, cls_conn, is_leading))
- 		return -EINVAL;
- 	ep = iscsi_lookup_endpoint(transport_fd);
-+	if (!ep)
-+		return -EINVAL;
- 	conn = cls_conn->dd_data;
- 	qla_conn = conn->dd_data;
- 	qla_conn->qla_ep = ep->dd_data;
+diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
+index 3f6be5ac049a8..1960694e80076 100644
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -1320,7 +1320,7 @@ static int xadc_remove(struct platform_device *pdev)
+ 	}
+ 	free_irq(xadc->irq, indio_dev);
+ 	clk_disable_unprepare(xadc->clk);
+-	cancel_delayed_work(&xadc->zynq_unmask_work);
++	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
+ 	kfree(xadc->data);
+ 	kfree(indio_dev->channels);
+ 
 -- 
-2.19.1
+2.20.1
 
 
 
