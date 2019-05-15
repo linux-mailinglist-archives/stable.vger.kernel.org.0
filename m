@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F4A1F418
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D961F198
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726609AbfEOK7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S1730409AbfEOLQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727177AbfEOK7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:59:33 -0400
+        id S1729738AbfEOLQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:16:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0CF21726;
-        Wed, 15 May 2019 10:59:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5801620843;
+        Wed, 15 May 2019 11:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917973;
-        bh=jm02f6r3ja8E6ZgprEgR7RUosz5EhAKEbLMC+rj/3Ps=;
+        s=default; t=1557918961;
+        bh=FEcgngtZEuyg9UX8fft4+eshJZJxiuhsK5c2ub4emgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCjIKCzc+XooxsdY6h7f/z4VbzdNxSee+rBbMtVyoYxJ4NvNlCf/d86z4PltYzIc5
-         DGRWN+41GvXUNHYOtIImuo/KctS50T8aRA+LyszfKHbGlXP9zBOqQ0dnHSEM3yr6h8
-         J/Ry3dD++U4Y1ZFOFaYXstOB8q1ZcEnCTEJC2axY=
+        b=swZjVYmOhAYnUw/2FzdtGg2spOEmeamW0J7GLpcg1jKBtApa1C9RhfTRlN2jBkQLN
+         4IUEBJTp/dj6hdE+MkJWlQ7vO9srhx71zUWJo1hY0RScKuCMwWXL0kjDzZN+cXPaAx
+         RA13jA6DP4eE8e09Sv7orWjsJHNPPyWMUHT1NG4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Frank Pavlic <f.pavlic@kunbus.de>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Nishanth Menon <nm@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Sasha Levin (Microsoft)" <sashal@kernel.org>
-Subject: [PATCH 3.18 18/86] net: ks8851: Reassert reset pin if chip ID check fails
+        stable@vger.kernel.org,
+        Andrei Otcheretianski <andrei.otcheretianski@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 015/115] mac80211: Increase MAX_MSG_LEN
 Date:   Wed, 15 May 2019 12:54:55 +0200
-Message-Id: <20190515090646.270274808@linuxfoundation.org>
+Message-Id: <20190515090700.395972086@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 761cfa979a0c177d6c2d93ef5585cd79ae49a7d5 ]
+[ Upstream commit 78be2d21cc1cd3069c6138dcfecec62583130171 ]
 
-Commit 73fdeb82e963 ("net: ks8851: Add optional vdd_io regulator and
-reset gpio") amended the ks8851 driver to briefly assert the chip's
-reset pin on probe. It also amended the probe routine's error path to
-reassert the reset pin if a subsequent initialization step fails.
+Looks that 100 chars isn't enough for messages, as we keep getting
+warnings popping from different places due to message shortening.
+Instead of trying to shorten the prints, just increase the buffer size.
 
-However the commit misplaced reassertion of the reset pin in the error
-path such that it is not performed if the check of the Chip ID and
-Enable Register (CIDER) fails. The error path is therefore slightly
-asymmetrical to the probe routine's body. Fix it.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Frank Pavlic <f.pavlic@kunbus.de>
-Cc: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Nishanth Menon <nm@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/trace_msg.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index 4a29e191819f..e218e45dcf35 100644
---- a/drivers/net/ethernet/micrel/ks8851.c
-+++ b/drivers/net/ethernet/micrel/ks8851.c
-@@ -1567,9 +1567,9 @@ static int ks8851_probe(struct spi_device *spi)
- 	free_irq(ndev->irq, ks);
+diff --git a/net/mac80211/trace_msg.h b/net/mac80211/trace_msg.h
+index 366b9e6f043e2..40141df09f255 100644
+--- a/net/mac80211/trace_msg.h
++++ b/net/mac80211/trace_msg.h
+@@ -1,4 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Portions of this file
++ * Copyright (C) 2019 Intel Corporation
++ */
++
+ #ifdef CONFIG_MAC80211_MESSAGE_TRACING
  
- err_irq:
-+err_id:
- 	if (gpio_is_valid(gpio))
- 		gpio_set_value(gpio, 0);
--err_id:
- 	regulator_disable(ks->vdd_reg);
- err_reg:
- 	regulator_disable(ks->vdd_io);
+ #if !defined(__MAC80211_MSG_DRIVER_TRACE) || defined(TRACE_HEADER_MULTI_READ)
+@@ -11,7 +16,7 @@
+ #undef TRACE_SYSTEM
+ #define TRACE_SYSTEM mac80211_msg
+ 
+-#define MAX_MSG_LEN	100
++#define MAX_MSG_LEN	120
+ 
+ DECLARE_EVENT_CLASS(mac80211_msg_event,
+ 	TP_PROTO(struct va_format *vaf),
 -- 
-2.19.1
+2.20.1
 
 
 
