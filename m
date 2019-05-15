@@ -2,57 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DC01F29D
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382E81F1AA
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbfEOLKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:10:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44558 "EHLO mail.kernel.org"
+        id S1730562AbfEOLQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729431AbfEOLKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:10:36 -0400
+        id S1730551AbfEOLQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:16:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BA412084F;
-        Wed, 15 May 2019 11:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76B6620644;
+        Wed, 15 May 2019 11:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918634;
-        bh=N93FoCanKW+t8w2WAwAyPKBHEcqsnpdW47AZe0O+MdY=;
+        s=default; t=1557919005;
+        bh=53h/qjjxNcbShhTthqx19K0XQn9X+ml3ZCdPOFaCXBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSUKpxuddJW7lNUW4KJD173YV+LJwti0n+zB1KHsLAfBTCBeqwDhmIAe8P1o5Tz0T
-         W1tTPDgVC1C8+hlsCMh+xt0A6lK0vx3POMLNgXcqAtcyQcYcP8z2IBvKhiEwPmt7yc
-         eyBVfVyUzlq6Sc9SgD6o6vBQcDTL+JDt7JArvEPg=
+        b=ri2hMsNOXeYS1dokmLvVbVQDw8doafIk808yAPLJ8S6ptceRbAdiPS8jMzJaekb7I
+         qdNzntAlPsMN3NnYohvZl1Z4kni/9vHrz6hq0sYkqbscS2XVzrklkM0SSjtxy7G/jM
+         JtQ48XI0VBSmLh1BKlnnb+xi9raIkqJt35om/Wqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        stable@vger.kernel.org,
+        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        John Crispin <john@phrozen.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Dave Stewart <david.c.stewart@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 204/266] x86/speculation: Move STIPB/IBPB string conditionals out of cpu_show_common()
+        Jason Cooper <jason@lakedaemon.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 031/115] MIPS: perf: ath79: Fix perfcount IRQ assignment
 Date:   Wed, 15 May 2019 12:55:11 +0200
-Message-Id: <20190515090729.858917277@linuxfoundation.org>
+Message-Id: <20190515090701.626906351@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,82 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Chen <tim.c.chen@linux.intel.com>
+[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
 
-commit a8f76ae41cd633ac00be1b3019b1eb4741be3828 upstream.
+Currently it's not possible to use perf on ath79 due to genirq flags
+mismatch happening on static virtual IRQ 13 which is used for
+performance counters hardware IRQ 5.
 
-The Spectre V2 printout in cpu_show_common() handles conditionals for the
-various mitigation methods directly in the sprintf() argument list. That's
-hard to read and will become unreadable if more complex decisions need to
-be made for a particular method.
+On TP-Link Archer C7v5:
 
-Move the conditionals for STIBP and IBPB string selection into helper
-functions, so they can be extended later on.
+           CPU0
+  2:          0      MIPS   2  ath9k
+  4:        318      MIPS   4  19000000.eth
+  7:      55034      MIPS   7  timer
+  8:       1236      MISC   3  ttyS0
+ 12:          0      INTC   1  ehci_hcd:usb1
+ 13:          0  gpio-ath79   2  keys
+ 14:          0  gpio-ath79   5  keys
+ 15:         31  AR724X PCI    1  ath10k_pci
 
-Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185003.874479208@linutronix.de
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
+
+On TP-Link Archer C7v4:
+
+         CPU0
+  4:          0      MIPS   4  19000000.eth
+  5:       7135      MIPS   5  1a000000.eth
+  7:      98379      MIPS   7  timer
+  8:         30      MISC   3  ttyS0
+ 12:      90028      INTC   0  ath9k
+ 13:       5520      INTC   1  ehci_hcd:usb1
+ 14:       4623      INTC   2  ehci_hcd:usb2
+ 15:      32844  AR724X PCI    1  ath10k_pci
+ 16:          0  gpio-ath79  16  keys
+ 23:          0  gpio-ath79  23  keys
+
+ $ perf top
+ genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
+
+This problem is happening, because currently statically assigned virtual
+IRQ 13 for performance counters is not claimed during the initialization
+of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
+this interrupt isn't available for further use.
+
+So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
+
+Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Acked-by: John Crispin <john@phrozen.org>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/mips/ath79/setup.c          |  6 ------
+ drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -759,6 +759,22 @@ static void __init l1tf_select_mitigatio
+diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
+index 26a058d58d37b..c7c31e2148136 100644
+--- a/arch/mips/ath79/setup.c
++++ b/arch/mips/ath79/setup.c
+@@ -183,12 +183,6 @@ const char *get_system_type(void)
+ 	return ath79_sys_type;
+ }
  
- #ifdef CONFIG_SYSFS
- 
-+static char *stibp_state(void)
-+{
-+	if (x86_spec_ctrl_base & SPEC_CTRL_STIBP)
-+		return ", STIBP";
-+	else
-+		return "";
-+}
-+
-+static char *ibpb_state(void)
-+{
-+	if (boot_cpu_has(X86_FEATURE_USE_IBPB))
-+		return ", IBPB";
-+	else
-+		return "";
-+}
-+
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
- 			       char *buf, unsigned int bug)
+-int get_c0_perfcount_int(void)
+-{
+-	return ATH79_MISC_IRQ(5);
+-}
+-EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+-
+ unsigned int get_c0_compare_int(void)
  {
-@@ -777,9 +793,9 @@ static ssize_t cpu_show_common(struct de
+ 	return CP0_LEGACY_COMPARE_IRQ;
+diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
+index aa72907846360..0390603170b40 100644
+--- a/drivers/irqchip/irq-ath79-misc.c
++++ b/drivers/irqchip/irq-ath79-misc.c
+@@ -22,6 +22,15 @@
+ #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
  
- 	case X86_BUG_SPECTRE_V2:
- 		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
--			       boot_cpu_has(X86_FEATURE_USE_IBPB) ? ", IBPB" : "",
-+			       ibpb_state(),
- 			       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
--			       (x86_spec_ctrl_base & SPEC_CTRL_STIBP) ? ", STIBP" : "",
-+			       stibp_state(),
- 			       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
- 			       spectre_v2_module_string());
+ #define ATH79_MISC_IRQ_COUNT			32
++#define ATH79_MISC_PERF_IRQ			5
++
++static int ath79_perfcount_irq;
++
++int get_c0_perfcount_int(void)
++{
++	return ath79_perfcount_irq;
++}
++EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
  
+ static void ath79_misc_irq_handler(struct irq_desc *desc)
+ {
+@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
+ {
+ 	void __iomem *base = domain->host_data;
+ 
++	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
++
+ 	/* Disable and clear all interrupts */
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
+-- 
+2.20.1
+
 
 
