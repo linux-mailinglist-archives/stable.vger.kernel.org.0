@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E711F360
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2821F358
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbfEOMNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 08:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34416 "EHLO mail.kernel.org"
+        id S1728589AbfEOLFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728504AbfEOLEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:04:45 -0400
+        id S1728584AbfEOLFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:05:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D522084F;
-        Wed, 15 May 2019 11:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29635216FD;
+        Wed, 15 May 2019 11:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918284;
-        bh=3MXXRQIN9u0AIHHsj+cZ1IpD+Y3GZnq8CFETqx8WJys=;
+        s=default; t=1557918313;
+        bh=eVlJ+zk+ssm+9J1mWh7TqSbZOEEqNko1lH+GcUZ3KsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rk+gGHY8yZQatD2KyY+2iJxLbdm7evCtsRANqXIutyGAZuh6Gs4YNopSVym6Dml6A
-         yTuo9BNin25Xje0AMwX9m2H/ovLrNgtN0WmEhBCR8mFNauxFKBjgCywhC3aKkvbJ2Q
-         okFFskgnjtFf5X5lTb8qGwrgRiuIVe6G91wDtY4I=
+        b=j1yxq075iGfQOaB8mZiEzKamTTBMkrIABOPSZWeXbK3+TdQ+rHqcROhFEsnYi9WLn
+         de7IFiZQDWOjkS15JdcIt+56VbVJsszaGXPOTcPvB3rFhoxIkrALJRPPJl9Y6QFCqY
+         xmnwOmV8nO3ZvpVZgCVd2TMQDsiAdKTukw1dtCKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 068/266] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
-Date:   Wed, 15 May 2019 12:52:55 +0200
-Message-Id: <20190515090724.738733252@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.4 069/266] NFS: Forbid setting AF_INET6 to "struct sockaddr_in"->sin_family.
+Date:   Wed, 15 May 2019 12:52:56 +0200
+Message-Id: <20190515090724.772236899@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
 References: <20190515090722.696531131@linuxfoundation.org>
@@ -50,97 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
+commit 7c2bd9a39845bfb6d72ddb55ce737650271f6f96 upstream.
 
-Syzkaller report this:
+syzbot is reporting uninitialized value at rpc_sockaddr2uaddr() [1]. This
+is because syzbot is setting AF_INET6 to "struct sockaddr_in"->sin_family
+(which is embedded into user-visible "struct nfs_mount_data" structure)
+despite nfs23_validate_mount_data() cannot pass sizeof(struct sockaddr_in6)
+bytes of AF_INET6 address to rpc_sockaddr2uaddr().
 
-  sysctl could not get directory: /net//bridge -12
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
-  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
-  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
-  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
-  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
-  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
-  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
-  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
-  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
-  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   erase_entry fs/proc/proc_sysctl.c:178 [inline]
-   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
-   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
-   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
-   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
-   br_netfilter_init+0x68/0x1000 [br_netfilter]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
-   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  ---[ end trace 68741688d5fbfe85 ]---
+Since "struct nfs_mount_data" structure is user-visible, we can't change
+"struct nfs_mount_data" to use "struct sockaddr_storage". Therefore,
+assuming that everybody is using AF_INET family when passing address via
+"struct nfs_mount_data"->addr, reject if its sin_family is not AF_INET.
 
-commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
-dereference in put_links") forgot to handle start_unregistering() case,
-while header->parent is NULL, it calls erase_header() and as seen in the
-above syzkaller call trace, accessing &header->parent->root will trigger
-a NULL pointer dereference.
+[1] https://syzkaller.appspot.com/bug?id=599993614e7cbbf66bc2656a919ab2a95fb5d75c
 
-As that commit explained, there is also no need to call
-start_unregistering() if header->parent is NULL.
-
-Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
-Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
-Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot <syzbot+047a11c361b872896a4f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/proc_sysctl.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1550,9 +1550,11 @@ static void drop_sysctl_table(struct ctl
- 	if (--header->nreg)
- 		return;
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -2020,7 +2020,8 @@ static int nfs23_validate_mount_data(voi
+ 		memcpy(sap, &data->addr, sizeof(data->addr));
+ 		args->nfs_server.addrlen = sizeof(data->addr);
+ 		args->nfs_server.port = ntohs(data->addr.sin_port);
+-		if (!nfs_verify_server_address(sap))
++		if (sap->sa_family != AF_INET ||
++		    !nfs_verify_server_address(sap))
+ 			goto out_no_address;
  
--	if (parent)
-+	if (parent) {
- 		put_links(header);
--	start_unregistering(header);
-+		start_unregistering(header);
-+	}
-+
- 	if (!--header->count)
- 		kfree_rcu(header, rcu);
- 
+ 		if (!(data->flags & NFS_MOUNT_TCP))
 
 
