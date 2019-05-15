@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A19C81F1E2
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A378E1F141
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730476AbfEOL4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:56:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55086 "EHLO mail.kernel.org"
+        id S1731130AbfEOLts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728287AbfEOLRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:17:44 -0400
+        id S1730379AbfEOLWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9414320644;
-        Wed, 15 May 2019 11:17:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20F33206BF;
+        Wed, 15 May 2019 11:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919064;
-        bh=zumhebDlMS+1xOtQgAdOJf5PiuJ3GAZZf018nQT37s8=;
+        s=default; t=1557919364;
+        bh=g9jCtB5gl9JiHyWKlpnL0NFovymRrGJkLdFVFGcjShA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FssqqGYWu7DipBd8B3M69Tc56riIo8yu6EWtYvt/eulqakU8d5civH1oJ+3n5apyL
-         7ZFUh2TlcjRQkWHGOL26f6qqHDOyIR1P9WAKGqTqnRoWte7a0JnUAISgkTzW6DS6lH
-         rvZRfMAxwuIkinwnZZFqMjeN04WTEIpedY+KzsBo=
+        b=v9uPRBhpeD/QLChV1aIfp+BO/SHj6UIDYsMz3YPvOTfG868nVvF1ffZRRJ6r0Py+7
+         cZY5dykfarihYT2gcrNE9pseokk4Hoh9CZz6Ktzr7Cyit5RV8O6MFkkx5adIQTYiDJ
+         jQLVeiFgTed1xMPkgQZcotrl3mRyFQn9REipFotw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Subject: [PATCH 4.14 051/115] media: adv7842: when the EDID is cleared, unconfigure CEC as well
+        stable@vger.kernel.org,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 040/113] tools lib traceevent: Fix missing equality check for strcmp
 Date:   Wed, 15 May 2019 12:55:31 +0200
-Message-Id: <20190515090703.304859002@linuxfoundation.org>
+Message-Id: <20190515090656.657160855@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ab83203e181015b099720aff43ffabc1812e0fb3 ]
+[ Upstream commit f32c2877bcb068a718bb70094cd59ccc29d4d082 ]
 
-When there is no EDID the CEC adapter should be unconfigured as
-well. So call cec_phys_addr_invalidate() when this happens.
+There was a missing comparison with 0 when checking if type is "s64" or
+"u64". Therefore, the body of the if-statement was entered if "type" was
+"u64" or not "s64", which made the first strcmp() redundant since if
+type is "u64", it's not "s64".
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: <stable@vger.kernel.org>      # for v4.18 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+If type is "s64", the body of the if-statement is not entered but since
+the remainder of the function consists of if-statements which will not
+be entered if type is "s64", we will just return "val", which is
+correct, albeit at the cost of a few more calls to strcmp(), i.e., it
+will behave just as if the if-statement was entered.
+
+If type is neither "s64" or "u64", the body of the if-statement will be
+entered incorrectly and "val" returned. This means that any type that is
+checked after "s64" and "u64" is handled the same way as "s64" and
+"u64", i.e., the limiting of "val" to fit in for example "s8" is never
+reached.
+
+This was introduced in the kernel tree when the sources were copied from
+trace-cmd in commit f7d82350e597 ("tools/events: Add files to create
+libtraceevent.a"), and in the trace-cmd repo in 1cdbae6035cei
+("Implement typecasting in parser") when the function was introduced,
+i.e., it has always behaved the wrong way.
+
+Detected by cppcheck.
+
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Fixes: f7d82350e597 ("tools/events: Add files to create libtraceevent.a")
+Link: http://lkml.kernel.org/r/20190409091529.2686-1-rikard.falkeborn@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv7842.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/lib/traceevent/event-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-index f9c23173c9fa0..dcce8d030e5db 100644
---- a/drivers/media/i2c/adv7842.c
-+++ b/drivers/media/i2c/adv7842.c
-@@ -799,8 +799,10 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
- 	/* Disable I2C access to internal EDID ram from HDMI DDC ports */
- 	rep_write_and_or(sd, 0x77, 0xf3, 0x00);
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 10985d991ed29..6ccfd13d5cf9c 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -2192,7 +2192,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
+ 		return val & 0xffffffff;
  
--	if (!state->hdmi_edid.present)
-+	if (!state->hdmi_edid.present) {
-+		cec_phys_addr_invalidate(state->cec_adap);
- 		return 0;
-+	}
+ 	if (strcmp(type, "u64") == 0 ||
+-	    strcmp(type, "s64"))
++	    strcmp(type, "s64") == 0)
+ 		return val;
  
- 	pa = cec_get_edid_phys_addr(edid, 256, &spa_loc);
- 	err = cec_phys_addr_validate(pa, &pa, NULL);
+ 	if (strcmp(type, "s8") == 0)
 -- 
 2.20.1
 
