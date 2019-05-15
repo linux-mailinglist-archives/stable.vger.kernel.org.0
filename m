@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 450F01F083
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004281EE7D
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:22:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731841AbfEOLoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:44:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S1731451AbfEOLW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731851AbfEOL0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:26:13 -0400
+        id S1731447AbfEOLW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 321E62084F;
-        Wed, 15 May 2019 11:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 628CF20843;
+        Wed, 15 May 2019 11:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919572;
-        bh=CERp3i2iLB2TEaVHKwjI6GCZatALGM64HOa2MbAtixU=;
+        s=default; t=1557919345;
+        bh=ic2X2wucdWAIqyc+kMQUO+l9ciH1tOKalvmRNY0QTWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYCiECqqCKyhIDyuwrOj9/ohcUQyLvY5UTK3ZZjX+S5xG8/QSGwiGpRpJsjil38PY
-         4zqrCnuAq88/TsxrbISan0gtf/zJzJDlfGEBL6iBT1QPUHWV9X/KDWYs2ieCHU5RTs
-         J7g8iBbwhj6xse07BeIlKtKN7ekNYSeHoBk0hZdE=
+        b=j+6gFNMhMur9JCPwpY12645G3H3V/f2QIuJOt2u2U65AGyY/Vmd2eD8a2UQPHNIHV
+         FQA4oYSvBntO2tMMHj5/i1D53pBoKLL4OOEDGmyDzy8+kNxOQ3APZgIJJHmJFRdWnj
+         WYDPuIdyiRNbwr42hoa2xtwE142rL7icRFfhdsMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 013/137] iio: adc: xilinx: prevent touching unclocked h/w on remove
-Date:   Wed, 15 May 2019 12:54:54 +0200
-Message-Id: <20190515090654.305543987@linuxfoundation.org>
+        stable@vger.kernel.org, Pepijn de Vos <pepijndevos@gmail.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        "Darren Hart (VMware)" <dvhart@infradead.org>
+Subject: [PATCH 4.19 004/113] platform/x86: dell-laptop: fix rfkill functionality
+Date:   Wed, 15 May 2019 12:54:55 +0200
+Message-Id: <20190515090653.362635170@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e4b88f73966adead360e47621df0183586fac32 ]
+From: Mario Limonciello <mario.limonciello@dell.com>
 
-In remove, the clock is disabled before canceling the
-delayed work. This means that the delayed work may be
-touching unclocked hardware.
+commit 6cc13c28da5beee0f706db6450e190709700b34a upstream.
 
-Fix by disabling the clock after the delayed work is
-fully canceled. This is consistent with the probe error
-path order.
+When converting the driver two arguments were transposed leading
+to rfkill not working.
 
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201427
+Reported-by: Pepijn de Vos <pepijndevos@gmail.com>
+Fixes: 549b49 ("platform/x86: dell-smbios: Introduce dispatcher for SMM calls")
+Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
+Acked-by: Pali Rohár <pali.rohar@gmail.com>
+Cc: <stable@vger.kernel.org> # 4.14.x
+Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/xilinx-xadc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/dell-laptop.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 15e1a103f37da..1ae86e7359f73 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1320,8 +1320,8 @@ static int xadc_remove(struct platform_device *pdev)
- 		iio_triggered_buffer_cleanup(indio_dev);
+--- a/drivers/platform/x86/dell-laptop.c
++++ b/drivers/platform/x86/dell-laptop.c
+@@ -532,7 +532,7 @@ static void dell_rfkill_query(struct rfk
+ 		return;
  	}
- 	free_irq(xadc->irq, indio_dev);
--	clk_disable_unprepare(xadc->clk);
- 	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
-+	clk_disable_unprepare(xadc->clk);
- 	kfree(xadc->data);
- 	kfree(indio_dev->channels);
  
--- 
-2.20.1
-
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
+ 	hwswitch = buffer.output[1];
+ 
+@@ -563,7 +563,7 @@ static int dell_debugfs_show(struct seq_
+ 		return ret;
+ 	status = buffer.output[1];
+ 
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	hwswitch_ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
+ 	if (hwswitch_ret)
+ 		return hwswitch_ret;
+@@ -648,7 +648,7 @@ static void dell_update_rfkill(struct wo
+ 	if (ret != 0)
+ 		return;
+ 
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
+ 
+ 	if (ret == 0 && (status & BIT(0)))
 
 
