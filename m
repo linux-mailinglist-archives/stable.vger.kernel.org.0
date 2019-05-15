@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EE41F424
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9ED61F128
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727039AbfEOK7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55408 "EHLO mail.kernel.org"
+        id S1730870AbfEOLV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:21:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbfEOK7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:59:00 -0400
+        id S1730751AbfEOLV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:21:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A0F021473;
-        Wed, 15 May 2019 10:58:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B966F206BF;
+        Wed, 15 May 2019 11:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917939;
-        bh=42zUaAaH9kR/pOsbplX2AEbGuInHv/eCmvgX5punsP0=;
+        s=default; t=1557919288;
+        bh=llpclzGwnL3zP91thyCqSmhhwD6Du3MwcCp19NEdLtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZUjIxJRU6uSWiiAUENWdeOT/DnDervK+PmcKEVZ7KrGOaWfwvFqvbxUf7BUbzsdU
-         6iYP9CR+wO/vV78Wla4TOfjtnI8q+TOjwqsG4k/OdzrsvHkJWRkN+qB2u6VOjxSl9R
-         oK/R8LAWS0cADWgHPocd3vp7R8aXscqVhFmUPSro=
+        b=p2Y5JQhstPuY3Ac66HkvSNV0XbhJ9HE2LoUbficFDzNoCMlmHO8VJ+Gf90RcEa09+
+         SR5wOUmDdrAqw9Zyxb3+fvDiO4NhCvCLibTGnbCB89Z/nA/kO5Cy8QxM2a2jlOnITS
+         W+WDtKswUK3eQDW0y1o1okLXbCDHK/xWxMrVn4P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
-Subject: [PATCH 3.18 33/86] USB: w1 ds2490: Fix bug caused by improper use of altsetting array
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 019/113] mac80211: fix unaligned access in mesh table hash function
 Date:   Wed, 15 May 2019 12:55:10 +0200
-Message-Id: <20190515090649.435966500@linuxfoundation.org>
+Message-Id: <20190515090654.939869893@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+[ Upstream commit 40586e3fc400c00c11151804dcdc93f8c831c808 ]
 
-commit c114944d7d67f24e71562fcfc18d550ab787e4d4 upstream.
+The pointer to the last four bytes of the address is not guaranteed to be
+aligned, so we need to use __get_unaligned_cpu32 here
 
-The syzkaller USB fuzzer spotted a slab-out-of-bounds bug in the
-ds2490 driver.  This bug is caused by improper use of the altsetting
-array in the usb_interface structure (the array's entries are not
-always stored in numerical order), combined with a naive assumption
-that all interfaces probed by the driver will have the expected number
-of altsettings.
-
-The bug can be fixed by replacing references to the possibly
-non-existent intf->altsetting[alt] entry with the guaranteed-to-exist
-intf->cur_altsetting entry.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/masters/ds2490.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/mac80211/mesh_pathtbl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/w1/masters/ds2490.c
-+++ b/drivers/w1/masters/ds2490.c
-@@ -1013,15 +1013,15 @@ static int ds_probe(struct usb_interface
- 	/* alternative 3, 1ms interrupt (greatly speeds search), 64 byte bulk */
- 	alt = 3;
- 	err = usb_set_interface(dev->udev,
--		intf->altsetting[alt].desc.bInterfaceNumber, alt);
-+		intf->cur_altsetting->desc.bInterfaceNumber, alt);
- 	if (err) {
- 		dev_err(&dev->udev->dev, "Failed to set alternative setting %d "
- 			"for %d interface: err=%d.\n", alt,
--			intf->altsetting[alt].desc.bInterfaceNumber, err);
-+			intf->cur_altsetting->desc.bInterfaceNumber, err);
- 		goto err_out_clear;
- 	}
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index c3a7396fb9556..49a90217622bd 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -23,7 +23,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl, struct mesh_path *mpath);
+ static u32 mesh_table_hash(const void *addr, u32 len, u32 seed)
+ {
+ 	/* Use last four bytes of hw addr as hash index */
+-	return jhash_1word(*(u32 *)(addr+2), seed);
++	return jhash_1word(__get_unaligned_cpu32((u8 *)addr + 2), seed);
+ }
  
--	iface_desc = &intf->altsetting[alt];
-+	iface_desc = intf->cur_altsetting;
- 	if (iface_desc->desc.bNumEndpoints != NUM_EP-1) {
- 		pr_info("Num endpoints=%d. It is not DS9490R.\n",
- 			iface_desc->desc.bNumEndpoints);
+ static const struct rhashtable_params mesh_rht_params = {
+-- 
+2.20.1
+
 
 
