@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E58241EEBF
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87DA81F0B3
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731929AbfEOLZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:25:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1731500AbfEOLZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:25:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729575AbfEOLZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:25:07 -0400
+        id S1731937AbfEOLZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:25:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 671B320818;
-        Wed, 15 May 2019 11:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E98E220881;
+        Wed, 15 May 2019 11:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919506;
-        bh=lgP2eJjeACuVhUDY1zgIkgmzILEegNIYX0SgacTjsOc=;
+        s=default; t=1557919509;
+        bh=IAEDZlt8A6hzSw6P9V2pngCWWFZv96wHAGTdZ7IvUfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FX5P+6jIRD72Cuj2Huv7oBVZkbiapBfyVoNsGVgLojVc0C85FmpNvkIE0rn+8hAbd
-         r3j07SXywNop6568yyTdxP0uOzJQUnW89a+gvYo/ysp/S3BaAL3MH84sc6BjCUdGRd
-         A9SiHK2Ih7tx1fFXzg/ejgB3W50v86mRqp7WDlvM=
+        b=bEBUITnFhn2Dvvk3a2Oux1LG9ntkCAulzqyRWumlndkJG48D6756hzmNp/g9NgDZJ
+         rlqzHT4zqK7BE+xvkq7oSJtT2iiXiEGOVXnomQFLKMatAICjw+b9XV5QKtcMh9oCwP
+         qOgd8e0eua2XybBKT2VyIQkDg4r08XancXUHJjmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "weiyongjun (A)" <weiyongjun1@huawei.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
         Jason Wang <jasowang@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 102/113] tuntap: fix dividing by zero in ebpf queue selection
-Date:   Wed, 15 May 2019 12:56:33 +0200
-Message-Id: <20190515090701.371335121@linuxfoundation.org>
+Subject: [PATCH 4.19 103/113] tuntap: synchronize through tfiles array instead of tun->numqueues
+Date:   Wed, 15 May 2019 12:56:34 +0200
+Message-Id: <20190515090701.460414501@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
 References: <20190515090652.640988966@linuxfoundation.org>
@@ -47,15 +49,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Wang <jasowang@redhat.com>
 
-[ Upstream commit a35d310f03a692bf4798eb309a1950a06a150620 ]
+[ Upstream commit 9871a9e47a2646fe30ae7fd2e67668a8d30912f6 ]
 
-We need check if tun->numqueues is zero (e.g for the persist device)
-before trying to use it for modular arithmetic.
+When a queue(tfile) is detached through __tun_detach(), we move the
+last enabled tfile to the position where detached one sit but don't
+NULL out last position. We expect to synchronize the datapath through
+tun->numqueues. Unfortunately, this won't work since we're lacking
+sufficient mechanism to order or synchronize the access to
+tun->numqueues.
 
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: 96f84061620c6("tun: add eBPF based queue selection method")
+To fix this, NULL out the last position during detaching and check
+RCU protected tfile against NULL instead of checking tun->numqueues in
+datapath.
+
+Cc: YueHaibing <yuehaibing@huawei.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: weiyongjun (A) <weiyongjun1@huawei.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: c8d68e6be1c3b ("tuntap: multiqueue support")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -64,25 +77,40 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -599,13 +599,18 @@ static u16 tun_automq_select_queue(struc
- static u16 tun_ebpf_select_queue(struct tun_struct *tun, struct sk_buff *skb)
- {
- 	struct tun_prog *prog;
-+	u32 numqueues;
- 	u16 ret = 0;
+@@ -708,6 +708,8 @@ static void __tun_detach(struct tun_file
+ 				   tun->tfiles[tun->numqueues - 1]);
+ 		ntfile = rtnl_dereference(tun->tfiles[index]);
+ 		ntfile->queue_index = index;
++		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
++				   NULL);
  
-+	numqueues = READ_ONCE(tun->numqueues);
-+	if (!numqueues)
-+		return 0;
-+
- 	prog = rcu_dereference(tun->steering_prog);
- 	if (prog)
- 		ret = bpf_prog_run_clear_cb(prog->prog, skb);
+ 		--tun->numqueues;
+ 		if (clean) {
+@@ -1090,7 +1092,7 @@ static netdev_tx_t tun_net_xmit(struct s
+ 	tfile = rcu_dereference(tun->tfiles[txq]);
  
--	return ret % tun->numqueues;
-+	return ret % numqueues;
- }
+ 	/* Drop packet if interface is not attached */
+-	if (txq >= tun->numqueues)
++	if (!tfile)
+ 		goto drop;
  
- static u16 tun_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 	if (!rcu_dereference(tun->steering_prog))
+@@ -1281,6 +1283,7 @@ static int tun_xdp_xmit(struct net_devic
+ 
+ 	rcu_read_lock();
+ 
++resample:
+ 	numqueues = READ_ONCE(tun->numqueues);
+ 	if (!numqueues) {
+ 		rcu_read_unlock();
+@@ -1289,6 +1292,8 @@ static int tun_xdp_xmit(struct net_devic
+ 
+ 	tfile = rcu_dereference(tun->tfiles[smp_processor_id() %
+ 					    numqueues]);
++	if (unlikely(!tfile))
++		goto resample;
+ 
+ 	spin_lock(&tfile->tx_ring.producer_lock);
+ 	for (i = 0; i < n; i++) {
 
 
