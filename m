@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B521F0FA
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696E01EE53
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbfEOLWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
+        id S1729543AbfEOLUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731274AbfEOLWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:22:50 -0400
+        id S1729438AbfEOLUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:20:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 446AA20881;
-        Wed, 15 May 2019 11:22:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F0DB2084F;
+        Wed, 15 May 2019 11:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919369;
-        bh=Wk3h8qta0dSeyNdeZXz5+gFK1Qw7oSRFsGllNW+DLJU=;
+        s=default; t=1557919203;
+        bh=Mdzso0n6Y2cRilWrPApcH6XZH0UplbFVE/NfqqY9/s8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yW2IJ7R0Oq2etNDpLKXMwYKkzocCZtzkHZH3id1ve77P31CIB5SCj+BCtr6Ol5MKD
-         LDs3Ka2B9ZGoJ3s7euMY+6nj5eBAQs+hEIfPZWUdjIHP6XrwH9Ndsg1PZpZuPPmz10
-         O7pHM4RF50Qs+ftEmfK8SI8HbrEEaqKSyIS1y/VI=
+        b=mEs9W5eX/qm/W94pLyGkzh8HzasM8TrMu0rhIKxsl1Hz85ZTgywSbC73SqfaKFgGx
+         y4+tgJjBTxZkxAO8y/52W1p2FLHwEKrohsSKalxqTxeaD0+5d4DbagevVMfgbYz5eE
+         xbiKEjw1z9LlR8czUBZHyt48K6m1WzDWQQaZ7QkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        John Crispin <john@phrozen.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/113] MIPS: perf: ath79: Fix perfcount IRQ assignment
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: [PATCH 4.14 061/115] staging: olpc_dcon: add a missing dependency
 Date:   Wed, 15 May 2019 12:55:41 +0200
-Message-Id: <20190515090657.452540426@linuxfoundation.org>
+Message-Id: <20190515090703.975269496@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
-References: <20190515090652.640988966@linuxfoundation.org>
+In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
+References: <20190515090659.123121100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 ]
+[ Upstream commit 33f49571d75024b1044cd02689ad2bdb4924cc80 ]
 
-Currently it's not possible to use perf on ath79 due to genirq flags
-mismatch happening on static virtual IRQ 13 which is used for
-performance counters hardware IRQ 5.
+  WARNING: unmet direct dependencies detected for BACKLIGHT_CLASS_DEVICE
+    Depends on [n]: HAS_IOMEM [=y] && BACKLIGHT_LCD_SUPPORT [=n]
+    Selected by [y]:
+    - FB_OLPC_DCON [=y] && STAGING [=y] && X86 [=y] && OLPC [=y] && FB [=y]
+                        && I2C [=y] && (GPIO_CS5535 [=n] || GPIO_CS5535 [=n]=n)
 
-On TP-Link Archer C7v5:
-
-           CPU0
-  2:          0      MIPS   2  ath9k
-  4:        318      MIPS   4  19000000.eth
-  7:      55034      MIPS   7  timer
-  8:       1236      MISC   3  ttyS0
- 12:          0      INTC   1  ehci_hcd:usb1
- 13:          0  gpio-ath79   2  keys
- 14:          0  gpio-ath79   5  keys
- 15:         31  AR724X PCI    1  ath10k_pci
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c83 (mips_perf_pmu) vs. 00002003 (keys)
-
-On TP-Link Archer C7v4:
-
-         CPU0
-  4:          0      MIPS   4  19000000.eth
-  5:       7135      MIPS   5  1a000000.eth
-  7:      98379      MIPS   7  timer
-  8:         30      MISC   3  ttyS0
- 12:      90028      INTC   0  ath9k
- 13:       5520      INTC   1  ehci_hcd:usb1
- 14:       4623      INTC   2  ehci_hcd:usb2
- 15:      32844  AR724X PCI    1  ath10k_pci
- 16:          0  gpio-ath79  16  keys
- 23:          0  gpio-ath79  23  keys
-
- $ perf top
- genirq: Flags mismatch irq 13. 00014c80 (mips_perf_pmu) vs. 00000080 (ehci_hcd:usb1)
-
-This problem is happening, because currently statically assigned virtual
-IRQ 13 for performance counters is not claimed during the initialization
-of MIPS PMU during the bootup, so the IRQ subsystem doesn't know, that
-this interrupt isn't available for further use.
-
-So this patch fixes the issue by simply booking hardware IRQ 5 for MIPS PMU.
-
-Tested-by: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Acked-by: John Crispin <john@phrozen.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jason Cooper <jason@lakedaemon.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- arch/mips/ath79/setup.c          |  6 ------
- drivers/irqchip/irq-ath79-misc.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/staging/olpc_dcon/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
-index 4c7a93f4039a0..7c0b2e6cdfbd7 100644
---- a/arch/mips/ath79/setup.c
-+++ b/arch/mips/ath79/setup.c
-@@ -211,12 +211,6 @@ const char *get_system_type(void)
- 	return ath79_sys_type;
- }
- 
--int get_c0_perfcount_int(void)
--{
--	return ATH79_MISC_IRQ(5);
--}
--EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
--
- unsigned int get_c0_compare_int(void)
- {
- 	return CP0_LEGACY_COMPARE_IRQ;
-diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
-index aa72907846360..0390603170b40 100644
---- a/drivers/irqchip/irq-ath79-misc.c
-+++ b/drivers/irqchip/irq-ath79-misc.c
-@@ -22,6 +22,15 @@
- #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
- 
- #define ATH79_MISC_IRQ_COUNT			32
-+#define ATH79_MISC_PERF_IRQ			5
-+
-+static int ath79_perfcount_irq;
-+
-+int get_c0_perfcount_int(void)
-+{
-+	return ath79_perfcount_irq;
-+}
-+EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
- 
- static void ath79_misc_irq_handler(struct irq_desc *desc)
- {
-@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
- {
- 	void __iomem *base = domain->host_data;
- 
-+	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
-+
- 	/* Disable and clear all interrupts */
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
+diff --git a/drivers/staging/olpc_dcon/Kconfig b/drivers/staging/olpc_dcon/Kconfig
+index d277f048789e6..8c6cc61d634bf 100644
+--- a/drivers/staging/olpc_dcon/Kconfig
++++ b/drivers/staging/olpc_dcon/Kconfig
+@@ -2,6 +2,7 @@ config FB_OLPC_DCON
+ 	tristate "One Laptop Per Child Display CONtroller support"
+ 	depends on OLPC && FB
+ 	depends on I2C
++	depends on BACKLIGHT_LCD_SUPPORT
+ 	depends on (GPIO_CS5535 || GPIO_CS5535=n)
+ 	select BACKLIGHT_CLASS_DEVICE
+ 	---help---
 -- 
 2.20.1
 
