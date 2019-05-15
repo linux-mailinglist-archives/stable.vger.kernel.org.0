@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D42A81F053
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E73651F138
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726406AbfEOLnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38478 "EHLO mail.kernel.org"
+        id S1728247AbfEOLWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731306AbfEOL1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:27:36 -0400
+        id S1730766AbfEOLWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:22:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 202AF20818;
-        Wed, 15 May 2019 11:27:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A9F32084F;
+        Wed, 15 May 2019 11:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919654;
-        bh=D8dQ+KSEvbP22k2LL3YU1+HslayP/1uvJ8PmgsXlCL8=;
+        s=default; t=1557919335;
+        bh=OvkSBB7K7hW8SJ8tMYZbKKhX0P9yKk386rOjr/OaGk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qH/y3/fyeCELxBiJAF3JLgvUoATIVGZhkrzHxZoLsjBx0Hcybzyg8r/MdbHBhEQNZ
-         EMN6JFmbDn7miU6BIQu/A/oNwcpqJ6lTs1T3OirER/AasI1N15P4oCB7ShdrfwL1v5
-         swe048T00thZ6EY6NePU8SPIVz3kWQscnZdWNiXw=
+        b=mloF8jMLpzjQ0QSdswlehra5tZZS5QDiplVagyFZwo1h4RLyVgqatIU12tBlugQV6
+         g1/eLpGQ44a1+B/CuEcrfmu9lJcNQP6ncChTgMswfw0+hDIMnNwbxChhjJxS4iYHze
+         v5ng3Y1Yh/CV9bVBpIA5RCRAtD2y0puqsPkBGTBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Bolotin <dbolotin@marvell.com>,
-        Michal Kalderon <mkalderon@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Christian Rund <Christian.Rund@de.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 044/137] qed: Fix the DORQs attentions handling
-Date:   Wed, 15 May 2019 12:55:25 +0200
-Message-Id: <20190515090656.640334411@linuxfoundation.org>
+Subject: [PATCH 4.19 035/113] s390/pkey: add one more argument space for debug feature entry
+Date:   Wed, 15 May 2019 12:55:26 +0200
+Message-Id: <20190515090656.262044590@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
-References: <20190515090651.633556783@linuxfoundation.org>
+In-Reply-To: <20190515090652.640988966@linuxfoundation.org>
+References: <20190515090652.640988966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,164 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0d72c2ac89185f179da1e8a91c40c82f3fa38f0b ]
+[ Upstream commit 6b1f16ba730d4c0cda1247568c3a1bf4fa3a2f2f ]
 
-Separate the overflow handling from the hardware interrupt status analysis.
-The interrupt status is a single register and is common for all PFs. The
-first PF reading the register is not necessarily the one who overflowed.
-All PFs must check their overflow status on every attention.
-In this change we clear the sticky indication in the attention handler to
-allow doorbells to be processed again as soon as possible, but running
-the doorbell recovery is scheduled for the periodic handler to reduce the
-time spent in the attention handler.
-Checking the need for DORQ flush was changed to "db_bar_no_edpm" because
-qed_edpm_enabled()'s result could change dynamically and might have
-prevented a needed flush.
+The debug feature entries have been used with up to 5 arguents
+(including the pointer to the format string) but there was only
+space reserved for 4 arguemnts. So now the registration does
+reserve space for 5 times a long value.
 
-Signed-off-by: Denis Bolotin <dbolotin@marvell.com>
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fixes a sometime appearing weired value as the last
+value of an debug feature entry like this:
+
+... pkey_sec2protkey zcrypt_send_cprb (cardnr=10 domain=12)
+   failed with errno -2143346254
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reported-by: Christian Rund <Christian.Rund@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed.h     |  3 ++
- drivers/net/ethernet/qlogic/qed/qed_int.c | 61 +++++++++++++++++------
- 2 files changed, 48 insertions(+), 16 deletions(-)
+ drivers/s390/crypto/pkey_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
-index 07ae600d0f357..f458c9776a89c 100644
---- a/drivers/net/ethernet/qlogic/qed/qed.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed.h
-@@ -431,6 +431,8 @@ struct qed_qm_info {
- 	u8 num_pf_rls;
- };
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 1b4001e0285fe..b16344479959b 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -45,7 +45,8 @@ static debug_info_t *debug_info;
  
-+#define QED_OVERFLOW_BIT	1
-+
- struct qed_db_recovery_info {
- 	struct list_head list;
- 
-@@ -438,6 +440,7 @@ struct qed_db_recovery_info {
- 	spinlock_t lock;
- 	bool dorq_attn;
- 	u32 db_recovery_counter;
-+	unsigned long overflow;
- };
- 
- struct storm_stats {
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
-index 00688f4c04645..a7e95f239317f 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_int.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
-@@ -376,6 +376,9 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
- 	u32 count = QED_DB_REC_COUNT;
- 	u32 usage = 1;
- 
-+	/* Flush any pending (e)dpms as they may never arrive */
-+	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
-+
- 	/* wait for usage to zero or count to run out. This is necessary since
- 	 * EDPM doorbell transactions can take multiple 64b cycles, and as such
- 	 * can "split" over the pci. Possibly, the doorbell drop can happen with
-@@ -404,23 +407,24 @@ static int qed_db_rec_flush_queue(struct qed_hwfn *p_hwfn,
- 
- int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+ static void __init pkey_debug_init(void)
  {
--	u32 overflow;
-+	u32 attn_ovfl, cur_ovfl;
- 	int rc;
- 
--	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
--	DP_NOTICE(p_hwfn, "PF Overflow sticky 0x%x\n", overflow);
--	if (!overflow)
-+	attn_ovfl = test_and_clear_bit(QED_OVERFLOW_BIT,
-+				       &p_hwfn->db_recovery_info.overflow);
-+	cur_ovfl = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
-+	if (!cur_ovfl && !attn_ovfl)
- 		return 0;
- 
--	if (qed_edpm_enabled(p_hwfn)) {
-+	DP_NOTICE(p_hwfn, "PF Overflow sticky: attn %u current %u\n",
-+		  attn_ovfl, cur_ovfl);
-+
-+	if (cur_ovfl && !p_hwfn->db_bar_no_edpm) {
- 		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
- 		if (rc)
- 			return rc;
- 	}
- 
--	/* Flush any pending (e)dpm as they may never arrive */
--	qed_wr(p_hwfn, p_ptt, DORQ_REG_DPM_FORCE_ABORT, 0x1);
--
- 	/* Release overflow sticky indication (stop silently dropping everything) */
- 	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
- 
-@@ -430,13 +434,35 @@ int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- 	return 0;
+-	debug_info = debug_register("pkey", 1, 1, 4 * sizeof(long));
++	/* 5 arguments per dbf entry (including the format string ptr) */
++	debug_info = debug_register("pkey", 1, 1, 5 * sizeof(long));
+ 	debug_register_view(debug_info, &debug_sprintf_view);
+ 	debug_set_level(debug_info, 3);
  }
- 
--static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
-+static void qed_dorq_attn_overflow(struct qed_hwfn *p_hwfn)
- {
--	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
- 	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
-+	u32 overflow;
- 	int rc;
- 
--	p_hwfn->db_recovery_info.dorq_attn = true;
-+	overflow = qed_rd(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY);
-+	if (!overflow)
-+		goto out;
-+
-+	/* Run PF doorbell recovery in next periodic handler */
-+	set_bit(QED_OVERFLOW_BIT, &p_hwfn->db_recovery_info.overflow);
-+
-+	if (!p_hwfn->db_bar_no_edpm) {
-+		rc = qed_db_rec_flush_queue(p_hwfn, p_ptt);
-+		if (rc)
-+			goto out;
-+	}
-+
-+	qed_wr(p_hwfn, p_ptt, DORQ_REG_PF_OVFL_STICKY, 0x0);
-+out:
-+	/* Schedule the handler even if overflow was not detected */
-+	qed_periodic_db_rec_start(p_hwfn);
-+}
-+
-+static int qed_dorq_attn_int_sts(struct qed_hwfn *p_hwfn)
-+{
-+	u32 int_sts, first_drop_reason, details, address, all_drops_reason;
-+	struct qed_ptt *p_ptt = p_hwfn->p_dpc_ptt;
- 
- 	/* int_sts may be zero since all PFs were interrupted for doorbell
- 	 * overflow but another one already handled it. Can abort here. If
-@@ -475,11 +501,6 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
- 			  GET_FIELD(details, QED_DORQ_ATTENTION_SIZE) * 4,
- 			  first_drop_reason, all_drops_reason);
- 
--		rc = qed_db_rec_handler(p_hwfn, p_ptt);
--		qed_periodic_db_rec_start(p_hwfn);
--		if (rc)
--			return rc;
--
- 		/* Clear the doorbell drop details and prepare for next drop */
- 		qed_wr(p_hwfn, p_ptt, DORQ_REG_DB_DROP_DETAILS_REL, 0);
- 
-@@ -505,6 +526,14 @@ static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
- 	return -EINVAL;
- }
- 
-+static int qed_dorq_attn_cb(struct qed_hwfn *p_hwfn)
-+{
-+	p_hwfn->db_recovery_info.dorq_attn = true;
-+	qed_dorq_attn_overflow(p_hwfn);
-+
-+	return qed_dorq_attn_int_sts(p_hwfn);
-+}
-+
- static void qed_dorq_attn_handler(struct qed_hwfn *p_hwfn)
- {
- 	if (p_hwfn->db_recovery_info.dorq_attn)
 -- 
 2.20.1
 
