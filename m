@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0815E1EDD9
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855361EFFC
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730034AbfEOLNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:13:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
+        id S1732457AbfEOL2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:28:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbfEOLNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:13:52 -0400
+        id S1732455AbfEOL2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:28:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D63012084E;
-        Wed, 15 May 2019 11:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB77120818;
+        Wed, 15 May 2019 11:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557918832;
-        bh=Lngxvj9aDcojAtm97Ea3iz5LdfpXYW2n78C2GqWzHoI=;
+        s=default; t=1557919733;
+        bh=0Fnyoql+kdy/sAypx07YxOWkmMw4biyzyM65/a7OMAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGtvYzanUyjK9W8+uFm8uoUMreR6gJUYJu39RPcr6TtkWK3vzcRueoJ7tL1yUqdQD
-         DOfpUzFPeZC8kfOXeEEYXOmr7xEt1WCZ+F1N1ZI7DQzQytINMBXg7Vi8gEtXgMt3DV
-         m/C1QQcYCmzUCcI+gQ1n0QCOvZii6BgBjU1uqeZ4=
+        b=WbAbmEbtO9nhIYS373egcRV8Q48OkhKRz5HIRSdmhaV5xO4+GHbUS40tgDTTfwt2a
+         +c8UF1vGN6r6PnE4rY6dORrk0EJA5uW4Dfx9gwK/hqMUhyiYsEwAvTYSb4vpCWaP2V
+         QG9RqPf1hY9BY0SBHoOiYKfCrrD8pH0h1s2KeNkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/51] KVM: x86: avoid misreporting level-triggered irqs as edge-triggered in tracing
+Subject: [PATCH 5.0 071/137] s390: ctcm: fix ctcm_new_device error return code
 Date:   Wed, 15 May 2019 12:55:52 +0200
-Message-Id: <20190515090622.715265324@linuxfoundation.org>
+Message-Id: <20190515090658.590949153@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090616.669619870@linuxfoundation.org>
-References: <20190515090616.669619870@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7a223e06b1a411cef6c4cd7a9b9a33c8d225b10e ]
+[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
 
-In __apic_accept_irq() interface trig_mode is int and actually on some code
-paths it is set above u8:
+clang points out that the return code from this function is
+undefined for one of the error paths:
 
-kvm_apic_set_irq() extracts it from 'struct kvm_lapic_irq' where trig_mode
-is u16. This is done on purpose as e.g. kvm_set_msi_irq() sets it to
-(1 << 15) & e->msi.data
+../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
+      [-Wsometimes-uninitialized]
+                if (priv->channel[direction] == NULL) {
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
+        return result;
+               ^~~~~~
+../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
+                if (priv->channel[direction] == NULL) {
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
+        int result;
+                  ^
 
-kvm_apic_local_deliver sets it to reg & (1 << 15).
+Make it return -ENODEV here, as in the related failure cases.
+gcc has a known bug in underreporting some of these warnings
+when it has already eliminated the assignment of the return code
+based on some earlier optimization step.
 
-Fix the immediate issue by making 'tm' into u16. We may also want to adjust
-__apic_accept_irq() interface and use proper sizes for vector, level,
-trig_mode but this is not urgent.
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/trace.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/net/ctcm_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/trace.h b/arch/x86/kvm/trace.h
-index 0a6cc6754ec5a..ea618b713b6f2 100644
---- a/arch/x86/kvm/trace.h
-+++ b/arch/x86/kvm/trace.h
-@@ -434,13 +434,13 @@ TRACE_EVENT(kvm_apic_ipi,
- );
- 
- TRACE_EVENT(kvm_apic_accept_irq,
--	    TP_PROTO(__u32 apicid, __u16 dm, __u8 tm, __u8 vec),
-+	    TP_PROTO(__u32 apicid, __u16 dm, __u16 tm, __u8 vec),
- 	    TP_ARGS(apicid, dm, tm, vec),
- 
- 	TP_STRUCT__entry(
- 		__field(	__u32,		apicid		)
- 		__field(	__u16,		dm		)
--		__field(	__u8,		tm		)
-+		__field(	__u16,		tm		)
- 		__field(	__u8,		vec		)
- 	),
- 
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 7617d21cb2960..f63c5c871d3dd 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
+ 		if (priv->channel[direction] == NULL) {
+ 			if (direction == CTCM_WRITE)
+ 				channel_free(priv->channel[CTCM_READ]);
++			result = -ENODEV;
+ 			goto out_dev;
+ 		}
+ 		priv->channel[direction]->netdev = dev;
 -- 
 2.20.1
 
