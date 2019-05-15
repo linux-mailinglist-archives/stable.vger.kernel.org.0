@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4248C1F1A6
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0EA1EC8E
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 12:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730530AbfEOLQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 07:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+        id S1727003AbfEOK66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 06:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730531AbfEOLQl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 07:16:41 -0400
+        id S1727014AbfEOK65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 06:58:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5630A2084F;
-        Wed, 15 May 2019 11:16:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77B70216F4;
+        Wed, 15 May 2019 10:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557919000;
-        bh=7c5ntonY/1/Kjcfq8ZqMYSg/kmIuQsvsh1gAFIEDZzg=;
+        s=default; t=1557917936;
+        bh=UaSRcyMnz8YwZQ5JXfK4M9gajoohZJeJ7Jei2hd85AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABqKsrwBWCE7mp6Cc459q2uMbak91Ef/pEzHh9WKNvFakze185OFWcd4Fa44khjsD
-         NgUcix39PEOr7oIM9p04GQ7whedgoi6aTTRNSoEgyDQ/AqTMzF5Bc64KNtSCZC6bGw
-         O975i/2c/vOx/P/aJaYhjm2AneyYtswAFAikjvIQ=
+        b=K/BhjFlWYx8E+0zGXTqEt2c0fm/qsv9lBG0g0pBkV2J8Eltz/4ZVEJQuIQHI9bFKc
+         tGCPCWfwUABhnPTMxKrHckm/Gfh8fspJh44BftMyQn0jpOKR73kIZbRZYhZzM+4jri
+         UmgBeHqfX1DosahUoMMgwHXf592U+KeIcRNu/1W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 029/115] ipvs: do not schedule icmp errors from tunnels
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
+Subject: [PATCH 3.18 32/86] USB: yurex: Fix protection fault after device removal
 Date:   Wed, 15 May 2019 12:55:09 +0200
-Message-Id: <20190515090701.463773153@linuxfoundation.org>
+Message-Id: <20190515090649.318699162@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090659.123121100@linuxfoundation.org>
-References: <20190515090659.123121100@linuxfoundation.org>
+In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
+References: <20190515090642.339346723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0261ea1bd1eb0da5c0792a9119b8655cf33c80a3 ]
+From: Alan Stern <stern@rowland.harvard.edu>
 
-We can receive ICMP errors from client or from
-tunneling real server. While the former can be
-scheduled to real server, the latter should
-not be scheduled, they are decapsulated only when
-existing connection is found.
+commit ef61eb43ada6c1d6b94668f0f514e4c268093ff3 upstream.
 
-Fixes: 6044eeffafbe ("ipvs: attempt to schedule icmp packets")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The syzkaller USB fuzzer found a general-protection-fault bug in the
+yurex driver.  The fault occurs when a device has been unplugged; the
+driver's interrupt-URB handler logs an error message referring to the
+device by name, after the device has been unregistered and its name
+deallocated.
+
+This problem is caused by the fact that the interrupt URB isn't
+cancelled until the driver's private data structure is released, which
+can happen long after the device is gone.  The cure is to make sure
+that the interrupt URB is killed before yurex_disconnect() returns;
+this is exactly the sort of thing that usb_poison_urb() was meant for.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+2eb9121678bdb36e6d57@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/ipvs/ip_vs_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/misc/yurex.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index 4278f5c947abd..d1c0378144f3d 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -1635,7 +1635,7 @@ ip_vs_in_icmp(struct netns_ipvs *ipvs, struct sk_buff *skb, int *related,
- 	if (!cp) {
- 		int v;
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -332,6 +332,7 @@ static void yurex_disconnect(struct usb_
+ 	usb_deregister_dev(interface, &yurex_class);
  
--		if (!sysctl_schedule_icmp(ipvs))
-+		if (ipip || !sysctl_schedule_icmp(ipvs))
- 			return NF_ACCEPT;
- 
- 		if (!ip_vs_try_to_schedule(ipvs, AF_INET, skb, pd, &v, &cp, &ciph))
--- 
-2.20.1
-
+ 	/* prevent more I/O from starting */
++	usb_poison_urb(dev->urb);
+ 	mutex_lock(&dev->io_mutex);
+ 	dev->interface = NULL;
+ 	mutex_unlock(&dev->io_mutex);
 
 
