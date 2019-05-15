@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF09D1F431
-	for <lists+stable@lfdr.de>; Wed, 15 May 2019 14:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967F31EEDE
+	for <lists+stable@lfdr.de>; Wed, 15 May 2019 13:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbfEOK62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 06:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
+        id S1730992AbfEOL0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 07:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbfEOK60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 06:58:26 -0400
+        id S1730953AbfEOL0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 May 2019 07:26:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0111921473;
-        Wed, 15 May 2019 10:58:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 839F820843;
+        Wed, 15 May 2019 11:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557917905;
-        bh=Y0ssn2XPbUpsrgHn1eVi5t9a9Va/ZQ9aOK9p8xDoHg0=;
+        s=default; t=1557919615;
+        bh=Rw5aZz2Yzs6QVR9aXm4MlXZDJk78bhm1T0dAQyRCfG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrIca87eGsPXryTWrx73cF0eR3pcFHPsqHPWntSMWoVjQlXs5ivXmV0qtVB1J9qBR
-         Z0stHedE36GS2vq2Zqu5tE9FBbxj28p1iI/iHsRyjgY0178z8wPZBy4s8sQddAk+hP
-         0/eWFXBdTQOU9gtfyxwanOX2sLRv569uo/FSOctA=
+        b=dzC8uRnlOIQRiP2/byw3Mk0gC89TbGMQFwFjJ2dtAs20PKTNcAQ10DDp1O3WH0CeY
+         OAkhV3MlSbe+nBf0nQpoxAg9MoGsnf9kdwdyevZEx/kITtSkQKvru6cxcbMkmBzU/W
+         QN4GqXSi0y0KUVI+iwLKBpqnwMjReWhGAvBUIZ88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 3.18 07/86] fs/proc/proc_sysctl.c: Fix a NULL pointer dereference
-Date:   Wed, 15 May 2019 12:54:44 +0200
-Message-Id: <20190515090643.908752341@linuxfoundation.org>
+        stable@vger.kernel.org, Pepijn de Vos <pepijndevos@gmail.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        "Darren Hart (VMware)" <dvhart@infradead.org>
+Subject: [PATCH 5.0 004/137] platform/x86: dell-laptop: fix rfkill functionality
+Date:   Wed, 15 May 2019 12:54:45 +0200
+Message-Id: <20190515090652.501909486@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190515090642.339346723@linuxfoundation.org>
-References: <20190515090642.339346723@linuxfoundation.org>
+In-Reply-To: <20190515090651.633556783@linuxfoundation.org>
+References: <20190515090651.633556783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mario Limonciello <mario.limonciello@dell.com>
 
-commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
+commit 6cc13c28da5beee0f706db6450e190709700b34a upstream.
 
-Syzkaller report this:
+When converting the driver two arguments were transposed leading
+to rfkill not working.
 
-  sysctl could not get directory: /net//bridge -12
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
-  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
-  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
-  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
-  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
-  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
-  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
-  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
-  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
-  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
-  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   erase_entry fs/proc/proc_sysctl.c:178 [inline]
-   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
-   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
-   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
-   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
-   br_netfilter_init+0x68/0x1000 [br_netfilter]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
-   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  ---[ end trace 68741688d5fbfe85 ]---
-
-commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
-dereference in put_links") forgot to handle start_unregistering() case,
-while header->parent is NULL, it calls erase_header() and as seen in the
-above syzkaller call trace, accessing &header->parent->root will trigger
-a NULL pointer dereference.
-
-As that commit explained, there is also no need to call
-start_unregistering() if header->parent is NULL.
-
-Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
-Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
-Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201427
+Reported-by: Pepijn de Vos <pepijndevos@gmail.com>
+Fixes: 549b49 ("platform/x86: dell-smbios: Introduce dispatcher for SMM calls")
+Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
+Acked-by: Pali Rohár <pali.rohar@gmail.com>
+Cc: <stable@vger.kernel.org> # 4.14.x
+Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/proc_sysctl.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/platform/x86/dell-laptop.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1512,9 +1512,11 @@ static void drop_sysctl_table(struct ctl
- 	if (--header->nreg)
+--- a/drivers/platform/x86/dell-laptop.c
++++ b/drivers/platform/x86/dell-laptop.c
+@@ -531,7 +531,7 @@ static void dell_rfkill_query(struct rfk
+ 		return;
+ 	}
+ 
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
+ 	hwswitch = buffer.output[1];
+ 
+@@ -562,7 +562,7 @@ static int dell_debugfs_show(struct seq_
+ 		return ret;
+ 	status = buffer.output[1];
+ 
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	hwswitch_ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
+ 	if (hwswitch_ret)
+ 		return hwswitch_ret;
+@@ -647,7 +647,7 @@ static void dell_update_rfkill(struct wo
+ 	if (ret != 0)
  		return;
  
--	if (parent)
-+	if (parent) {
- 		put_links(header);
--	start_unregistering(header);
-+		start_unregistering(header);
-+	}
-+
- 	if (!--header->count)
- 		kfree_rcu(header, rcu);
+-	dell_fill_request(&buffer, 0, 0x2, 0, 0);
++	dell_fill_request(&buffer, 0x2, 0, 0, 0);
+ 	ret = dell_send_request(&buffer, CLASS_INFO, SELECT_RFKILL);
  
+ 	if (ret == 0 && (status & BIT(0)))
 
 
