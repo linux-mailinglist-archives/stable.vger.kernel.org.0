@@ -2,143 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF2420261
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 11:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13852203F3
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 12:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbfEPJQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 05:16:42 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:52918 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726336AbfEPJQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 05:16:42 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 50EE9792CD;
-        Thu, 16 May 2019 09:16:41 +0000 (UTC)
-Received: from localhost (ovpn-117-183.ams2.redhat.com [10.36.117.183])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D367019936;
-        Thu, 16 May 2019 09:16:40 +0000 (UTC)
-Date:   Thu, 16 May 2019 10:16:39 +0100
-From:   Stefan Hajnoczi <stefanha@redhat.com>
-To:     "David S. Miller" <davem@davemloft.net>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        kernel-team@android.com, stable@vger.kernel.org,
-        "Jorge E. Moreira" <jemoreira@google.com>
-Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
- registering the driver
-Message-ID: <20190516091639.GP29507@stefanha-x1.localdomain>
-References: <20190501003001.186239-1-jemoreira@google.com>
+        id S1727042AbfEPK5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 06:57:54 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:4092 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726660AbfEPK5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 06:57:53 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5cdd422c0000>; Thu, 16 May 2019 03:57:48 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Thu, 16 May 2019 03:57:52 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Thu, 16 May 2019 03:57:52 -0700
+Received: from [10.21.132.148] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 16 May
+ 2019 10:57:49 +0000
+Subject: Re: [PATCH 4.4 000/266] 4.4.180-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        Michal Hocko <mhocko@suse.com>
+References: <20190515090722.696531131@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <f32de22f-c928-2eaa-ee3f-d2b26c184dd4@nvidia.com>
+Date:   Thu, 16 May 2019 11:57:48 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="l7GkBbkEatsaRqBf"
-Content-Disposition: inline
-In-Reply-To: <20190501003001.186239-1-jemoreira@google.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 16 May 2019 09:16:41 +0000 (UTC)
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1558004268; bh=d6xdDPGIBvJ5QstgC2Nw2Cwip3DSHDDaU8lNDLsgEBo=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=kV7MXgTbsuYCFRp9BGASRRlQFID1B4ja9jyM8K1cR1QUg7WrUyXD8gRtXhUXH7HH4
+         to9MCDz//AU0t1JSrZKtEuRCTDZkvU1N6Ot7OihzYCUQFgK8MzP3N68V8CW5UcyUcE
+         wRrdO/EyrIMmlqfuLRfl4nZrrtlLs9tdKhR5jq7+qHN4dFaNq0x0WnHYaY0c85RcZj
+         uDL84FzvR5a0U+ma4kW1TLPelwa2e96MHyk8CpGAzeEkN67YJ5kjCK2JSVvHqQcNTZ
+         ECxR6PRCvOLnWmRROXL4wHqRVDrpq3gT06HT4nTyS/JmHFo/xR7SUoncfnCmZWJEcQ
+         DghHt3gn3kVFA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---l7GkBbkEatsaRqBf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 15/05/2019 11:51, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.180 release.
+> There are 266 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 17 May 2019 09:04:49 AM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.180-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
-> Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-> accessed (while handling interrupts) before they are initialized.
->=20
-> [    4.201410] BUG: unable to handle kernel paging request at fffffffffff=
-fffe8
-> [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-> [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-> [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-> [    4.211379] Modules linked in:
-> [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-4192=
-97-gd7e28cc1f241 #1
-> [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIO=
-S 1.10.2-1 04/01/2014
-> [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-> [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-> [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-> [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-> [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb=
-94e42f0
-> [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea18=
-00ebdd0
-> [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 000000000=
-0000001
-> [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea18=
-00ebdd0
-> [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea18=
-00ebdc0
-> [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlG=
-S:0000000000000000
-> [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 000000000=
-01606e0
-> [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 000000000=
-0000000
-> [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 000000000=
-0000400
-> [    4.211379] Call Trace:
-> [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-> [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-> [    4.211379]  ? detach_buf+0x1b5/0x210
-> [    4.211379]  virtio_transport_rx_work+0xb7/0x140
-> [    4.211379]  process_one_work+0x1ef/0x480
-> [    4.211379]  worker_thread+0x312/0x460
-> [    4.211379]  kthread+0x132/0x140
-> [    4.211379]  ? process_one_work+0x480/0x480
-> [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-> [    4.211379]  ret_from_fork+0x35/0x40
-> [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff f=
-f ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 0=
-8 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-> [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-> [    4.211379] CR2: ffffffffffffffe8
-> [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-> [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-> [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocat=
-ion range: 0xffffffff80000000-0xffffffffbfffffff)
-> [    4.211379] Rebooting in 5 seconds..
->=20
-> Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unp=
-lug")
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: kvm@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Cc: kernel-team@android.com
-> Cc: stable@vger.kernel.org [4.9+]
-> Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-> ---
->  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
 
-This patch is good to go, I've posted my R-b downthread.
+Boot regression detected for Tegra ...
 
-Stefan
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    15 boots:	6 pass, 9 fail
+    8 tests:	8 pass, 0 fail
 
---l7GkBbkEatsaRqBf
-Content-Type: application/pgp-signature; name="signature.asc"
+Linux version:	4.4.180-rc1-gbe756da
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
------BEGIN PGP SIGNATURE-----
+Bisect is point to the following commit ...
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzdKncACgkQnKSrs4Gr
-c8j9OwgAvc2/4f5xfLlbobymDJBg1CcNAUHQBHRVHoj4h+zCxvuHRO6TnZtDXtsl
-MJ5ORu5AKDYS5OLvtMScWDrSXC329Uv1cqDKYtyIG7efL56ofYqiJmrIiq+Ju16n
-Cec9A6+RMYwBDHNHK5iqzo7if6bh7m5BPeYlXO2YXj5x0IOlNPJxIhVzK1jEmo4O
-6jjzRSGuHKdqsfNX7qXC8+ibzUX3IwGw0A4dZHJe/gFY4zp36fH23L89WmKbwyv8
-6KgDGj1N6ByNkSeEUTIse8nxyI0KSgQcw12q61dS1wahgJJqePzwWP/gMxt3D5tM
-5MEnPpeSB1ovsKDGnxqzUOiB7S8z3A==
-=04Ga
------END PGP SIGNATURE-----
+# first bad commit: [7849d64a1700ddae1963ff22a77292e9fb5c2983] mm, vmstat: make quiet_vmstat lighter
 
---l7GkBbkEatsaRqBf--
+Reverting this on top v4.4.180-rc1 fixes the problem.  
+
+Crash observed ...
+
+[   17.155812] ------------[ cut here ]------------
+[   17.160431] kernel BUG at /home/jonathanh/workdir/tegra/mlt-linux_stable-4.4/kernel/mm/vmstat.c:1425!
+[   17.169632] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+[   17.175450] Modules linked in: ttm
+[   17.178859] CPU: 0 PID: 92 Comm: kworker/0:2 Not tainted 4.4.179-00160-g7849d64a1700 #8
+[   17.186843] Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+[   17.193100] Workqueue: vmstat vmstat_update
+[   17.197279] task: ee14e700 ti: ee17a000 task.ti: ee17a000
+[   17.202663] PC is at vmstat_update+0x9c/0xa4
+[   17.206921] LR is at vmstat_update+0x94/0xa4
+[   17.211179] pc : [<c00cdd80>]    lr : [<c00cdd78>]    psr: 20000113
+[   17.211179] sp : ee17bef8  ip : 00000000  fp : eef91ac0
+[   17.222629] r10: 00000008  r9 : 00000000  r8 : 00000000
+[   17.227840] r7 : eef99900  r6 : eef91ac0  r5 : eef8f34c  r4 : ee13dc00
+[   17.234350] r3 : 00000001  r2 : 0000000f  r1 : c0a885e0  r0 : 00000001
+[   17.240861] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   17.247978] Control: 10c5387d  Table: ad02006a  DAC: 00000051
+[   17.253708] Process kworker/0:2 (pid: 92, stack limit = 0xee17a210)
+[   17.259957] Stack: (0xee17bef8 to 0xee17c000)
+[   17.264301] bee0:                                                       ee13dc00 eef8f34c
+[   17.272459] bf00: eef91ac0 c003b69c eef91ac0 ee17a038 c0a4ba60 eef91ac0 eef91ad4 ee17a038
+[   17.280618] bf20: c0a4ba60 ee13dc18 ee13dc00 00000008 eef91ac0 c003b8f8 00000000 c09f6100
+[   17.288778] bf40: c003b8b0 ee102a00 00000000 ee13dc00 c003b8b0 00000000 00000000 00000000
+[   17.296937] bf60: 00000000 c0040ad0 00000000 00000000 00000000 ee13dc00 00000000 00000000
+[   17.305094] bf80: ee17bf80 ee17bf80 00000000 00000000 ee17bf90 ee17bf90 ee17bfac ee102a00
+[   17.313253] bfa0: c00409d0 00000000 00000000 c000f650 00000000 00000000 00000000 00000000
+[   17.321412] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[   17.329570] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[   17.337733] [<c00cdd80>] (vmstat_update) from [<c003b69c>] (process_one_work+0x124/0x338)
+[   17.345893] [<c003b69c>] (process_one_work) from [<c003b8f8>] (worker_thread+0x48/0x4c4)
+[   17.353966] [<c003b8f8>] (worker_thread) from [<c0040ad0>] (kthread+0x100/0x118)
+[   17.361348] [<c0040ad0>] (kthread) from [<c000f650>] (ret_from_fork+0x14/0x24)
+[   17.368553] Code: e5930010 eb05c417 e3500000 08bd8070 (e7f001f2) 
+[   17.374633] ---[ end trace 17cf004302766810 ]---
+
+Cheers
+Jon
+
+-- 
+nvpublic
