@@ -2,219 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EF91FE8C
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 06:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1171FF44
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 07:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726319AbfEPEkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 00:40:02 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:33437 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbfEPEkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 00:40:02 -0400
-Received: by mail-lj1-f194.google.com with SMTP id w1so1824598ljw.0
-        for <stable@vger.kernel.org>; Wed, 15 May 2019 21:40:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=t/yxYlsGZjMrGCDvf8/6m1cTXsqp5AKZTp8TY48QFvI=;
-        b=pwgN1ApuOdceCJgr0/pvhFR+ueL15U+3s1cU7qQTSZBuPbEppTkWnCysvMAmGG44KO
-         uLMDo/gpvEqmbnOAZUZCxF3kY+qV9dajgmlcmL2q8PFvlChPtEHPkavR58a8L4KOa5bx
-         1HUwiM6BszI43YhgIilElluaEyNjmSHAYRJEk8t2j7U7mJhAGJnBGZh6Y16ccPBv3HKP
-         6lqUnGA98XJB83uKYZirNxJUtOSYTTRpaXDYkTsur/B1nn7SyFERSZLPHe6W9cp7LUMl
-         B5VUik/kS52QgECNWAVWiPJDkXDdQyaNAdB2/udah7mB9z1wnzVVDdM/dFpfr0NxRyY5
-         RQdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=t/yxYlsGZjMrGCDvf8/6m1cTXsqp5AKZTp8TY48QFvI=;
-        b=IoQ6HYU7L8lRx5R31I+JYnhdOek346J5cxpLerU8sQBSJzNT1N4owdPfKKntg/noWl
-         XCEXjPqOfEVoVuiV18U5JbrnVJGDxo1cZ3RyRwnMi0be0+/BivonsJZHNwK+IzQan66K
-         uekn+7RlevWbaGaLimDjXv7jdLTbqoTbKod6QH0Z8sev8IYzmFb4iNFdHWqSVNtfh1GV
-         9wUnyPJbqBVjUAoKN4RSOKQI12Lzv3hyyyLAOybkGWYNNKawEWpqb+nDfXVScCZgy1k6
-         P1SqLSXqs39m3Y9BJJG75Orsy+atWxi+ANLYKjan9mEfJBPPC9WpRPunhUXhp5VD8hDx
-         TlGw==
-X-Gm-Message-State: APjAAAVJqI1Soa9CNPtnGCone+9xdOJMhxfp0nDdFeZ+PCACFEc8mLfo
-        FOGzEUpYMPVCZkTfFu4pauSEwaUQooB+BwJWIZLjlw==
-X-Google-Smtp-Source: APXvYqxM0ieUhv9K5uL09LD6pyZgA8iT0SRupjeCQY1qrr1nZMbYmCWJ/F7L/UfY+zz2tbRrAEUuhKi9JsdY6PaTtLs=
-X-Received: by 2002:a2e:8796:: with SMTP id n22mr10236816lji.75.1557981600193;
- Wed, 15 May 2019 21:40:00 -0700 (PDT)
+        id S1726336AbfEPF5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 01:57:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726324AbfEPF5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 01:57:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3648820818;
+        Thu, 16 May 2019 05:57:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557986230;
+        bh=Q7qR++elTHU3WNUzfNbH2FnOmoOxrV/+vBSVYyJs4AM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0+tMQ/JldqKcHcdise1vEQoNGFJcfcl79bo7I6kb2Kk9w1zf6i1ZnnxcH2kEj2Elz
+         cmiFROdWtefVTlOvsR6VG6jl1aAESMQesco1WiPPfZd+HjWHYxtDe9xDhgmJZwySjJ
+         NPXmqT04jOup4n5wM8t6ibfr5J1a2bE1/EpzRovE=
+Date:   Thu, 16 May 2019 07:57:08 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Tobin C. Harding" <me@tobin.cc>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Tobin C. Harding" <tobin@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 3.18 78/86] bridge: Fix error path for
+ kobject_init_and_add()
+Message-ID: <20190516055708.GA12518@kroah.com>
+References: <20190515090642.339346723@linuxfoundation.org>
+ <20190515090655.622147146@linuxfoundation.org>
+ <20190515204840.GE11749@eros.localdomain>
 MIME-Version: 1.0
-References: <20190515090722.696531131@linuxfoundation.org>
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 16 May 2019 10:09:48 +0530
-Message-ID: <CA+G9fYuqG0VGyMQQRA1UT4rTH9fku7ZoZByB2D8rh-mppAVwkg@mail.gmail.com>
-Subject: Re: [PATCH 4.4 000/266] 4.4.180-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190515204840.GE11749@eros.localdomain>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 May 2019 at 16:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.180 release.
-> There are 266 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri 17 May 2019 09:04:49 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.180-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Thu, May 16, 2019 at 06:48:40AM +1000, Tobin C. Harding wrote:
+> On Wed, May 15, 2019 at 12:55:55PM +0200, Greg Kroah-Hartman wrote:
+> > From: "Tobin C. Harding" <tobin@kernel.org>
+> > 
+> > [ Upstream commit bdfad5aec1392b93495b77b864d58d7f101dc1c1 ]
+> 
+> Greg you are not going to back port all of these kobject fixes are you?
+> There is going to be a _lot_ of them.  I'm not super comfortable
+> generating all this work for you.  And besides that, I keep making
+> mistakes (reference to last nights find of double free in powerpc that
+> you reviewed already), then we have to back port those too.
+> 
+> For the record I've been going through all uses of kobject and splitting
+> them into categories
+> 
+>  1. Broken
+>  2. Too complex to immediately tell
+>  3. Done correctly
+> 
+> I'm not getting many in category #3, let's hope that some in #1 and #2 are
+> my misunderstanding and that many in #2 should be in #3.  I'm having fun
+> fixing them but I shudder at making life hard for other people.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I took this one as it was forwarded on to me by David Miller as a fix to
+be queued up for networking issues.
 
-Summary
-------------------------------------------------------------------------
+If a maintainer wants to mark the patch for stable, I'll be glad to take
+it, but I'm not going to be going and digging all of these out by hand
+an backporting them :)
 
-kernel: 4.4.180-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: be756dada5b771fe51be37a77ad0bdfba543fdae
-git describe: v4.4.179-267-gbe756dada5b7
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.179-267-gbe756dada5b7
+thanks,
 
-
-No regressions (compared to build v4.4.179)
-
-No fixes (compared to build v4.4.179)
-
-Ran 13304 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* prep-tmp-disk
-* spectre-meltdown-checker-test
-* kvm-unit-tests
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.180-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.180-rc1-hikey-20190515-440
-git commit: 4acf8bfa73bb083efe32d6b2623a48f49e662657
-git describe: 4.4.180-rc1-hikey-20190515-440
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.180-rc1-hikey-20190515-440
-
-
-No regressions (compared to build 4.4.180-rc1-hikey-20190515-439)
-
-
-No fixes (compared to build 4.4.180-rc1-hikey-20190515-439)
-
-Ran 3043 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-- qemu_arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
