@@ -2,41 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDBE5205C6
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E03B205C7
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727627AbfEPLkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48278 "EHLO mail.kernel.org"
+        id S1727649AbfEPLkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:40:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727623AbfEPLkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:40:10 -0400
+        id S1727623AbfEPLkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:40:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22E822166E;
-        Thu, 16 May 2019 11:40:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27D222089E;
+        Thu, 16 May 2019 11:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006809;
-        bh=l+F/wCaVQwtNPXQ5GJJyzT3CrQGWxxyIwZ5VERIBQE8=;
+        s=default; t=1558006814;
+        bh=Jsp4ZW27gPw6nL7ENlx29FDCLLb0NiL3Wc0CyIRJsbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y92i/Lo/L0ES+yj6L+BPRokmkrhBiw3iRXIY8teKMO3JPLrhoaFngOWWd0J0k4Iug
-         bLLB9uFeXQpx7cYig8IY6Tqnx9kUtfUu/UgI88aDR+AMWHug9X8JC9neTmKM2NEXfF
-         dZ4I/VE+B1apPto7SLiyoa2iyHTB+jn91fbLZ/Hw=
+        b=aG0cdbO1wk7akSYSTHAQbs1W2xEKiozYeKpDAGgGR2whbVsdgzRWDoTDcJQKgPHp5
+         XOa+gTuL2VfIOo4Mc2jP2p11hkj+W6teBOW7GFS39aY23PyHgqWPiGjP7ONA3BqxFs
+         wkP9jSxeS51gshg9ca2Hhq4SdzsWEf4xmngXgkKE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Tobin C. Harding" <tobin@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 26/34] sched/cpufreq: Fix kobject memleak
-Date:   Thu, 16 May 2019 07:39:23 -0400
-Message-Id: <20190516113932.8348-26-sashal@kernel.org>
+Cc:     Gary Hook <Gary.Hook@amd.com>, Li RongQing <lirongqing@baidu.com>,
+        Gary R Hook <gary.hook@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Coly Li <colyli@suse.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        "luto@kernel.org" <luto@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 27/34] x86/mm/mem_encrypt: Disable all instrumentation for early SME setup
+Date:   Thu, 16 May 2019 07:39:24 -0400
+Message-Id: <20190516113932.8348-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
@@ -49,45 +59,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tobin C. Harding" <tobin@kernel.org>
+From: Gary Hook <Gary.Hook@amd.com>
 
-[ Upstream commit 9a4f26cc98d81b67ecc23b890c28e2df324e29f3 ]
+[ Upstream commit b51ce3744f115850166f3d6c292b9c8cb849ad4f ]
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+Enablement of AMD's Secure Memory Encryption feature is determined very
+early after start_kernel() is entered. Part of this procedure involves
+scanning the command line for the parameter 'mem_encrypt'.
 
-Fix it by adding a call to kobject_put() in the error path of
-kobject_init_and_add().
+To determine intended state, the function sme_enable() uses library
+functions cmdline_find_option() and strncmp(). Their use occurs early
+enough such that it cannot be assumed that any instrumentation subsystem
+is initialized.
 
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+For example, making calls to a KASAN-instrumented function before KASAN
+is set up will result in the use of uninitialized memory and a boot
+failure.
+
+When AMD's SME support is enabled, conditionally disable instrumentation
+of these dependent functions in lib/string.c and arch/x86/lib/cmdline.c.
+
+ [ bp: Get rid of intermediary nostackp var and cleanup whitespace. ]
+
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Coly Li <colyli@suse.de>
+Cc: "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: "luto@kernel.org" <luto@kernel.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: "mingo@redhat.com" <mingo@redhat.com>
+Cc: "peterz@infradead.org" <peterz@infradead.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tobin C. Harding <tobin@kernel.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Link: http://lkml.kernel.org/r/20190430001144.24890-1-tobin@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/155657657552.7116.18363762932464011367.stgit@sosrh3.amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cpufreq_schedutil.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/lib/Makefile | 12 ++++++++++++
+ lib/Makefile          | 11 +++++++++++
+ 2 files changed, 23 insertions(+)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 1ccf77f6d346d..d4ab9245e016c 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -771,6 +771,7 @@ static int sugov_init(struct cpufreq_policy *policy)
- 	return 0;
+diff --git a/arch/x86/lib/Makefile b/arch/x86/lib/Makefile
+index 140e61843a079..3cb3af51ec897 100644
+--- a/arch/x86/lib/Makefile
++++ b/arch/x86/lib/Makefile
+@@ -6,6 +6,18 @@
+ # Produces uninteresting flaky coverage.
+ KCOV_INSTRUMENT_delay.o	:= n
  
- fail:
-+	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
- 	sugov_tunables_free(tunables);
++# Early boot use of cmdline; don't instrument it
++ifdef CONFIG_AMD_MEM_ENCRYPT
++KCOV_INSTRUMENT_cmdline.o := n
++KASAN_SANITIZE_cmdline.o  := n
++
++ifdef CONFIG_FUNCTION_TRACER
++CFLAGS_REMOVE_cmdline.o = -pg
++endif
++
++CFLAGS_cmdline.o := $(call cc-option, -fno-stack-protector)
++endif
++
+ inat_tables_script = $(srctree)/arch/x86/tools/gen-insn-attr-x86.awk
+ inat_tables_maps = $(srctree)/arch/x86/lib/x86-opcode-map.txt
+ quiet_cmd_inat_tables = GEN     $@
+diff --git a/lib/Makefile b/lib/Makefile
+index e1b59da714186..d1f312096bec5 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -17,6 +17,17 @@ KCOV_INSTRUMENT_list_debug.o := n
+ KCOV_INSTRUMENT_debugobjects.o := n
+ KCOV_INSTRUMENT_dynamic_debug.o := n
  
++# Early boot use of cmdline, don't instrument it
++ifdef CONFIG_AMD_MEM_ENCRYPT
++KASAN_SANITIZE_string.o := n
++
++ifdef CONFIG_FUNCTION_TRACER
++CFLAGS_REMOVE_string.o = -pg
++endif
++
++CFLAGS_string.o := $(call cc-option, -fno-stack-protector)
++endif
++
+ lib-y := ctype.o string.o vsprintf.o cmdline.o \
+ 	 rbtree.o radix-tree.o timerqueue.o xarray.o \
+ 	 idr.o int_sqrt.o extable.o \
 -- 
 2.20.1
 
