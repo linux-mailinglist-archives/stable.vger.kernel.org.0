@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB7B205E4
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C18205E6
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727999AbfEPLlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49684 "EHLO mail.kernel.org"
+        id S1728008AbfEPLlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727993AbfEPLlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:41:05 -0400
+        id S1728003AbfEPLlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:41:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC04320862;
-        Thu, 16 May 2019 11:41:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3597F2166E;
+        Thu, 16 May 2019 11:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006864;
-        bh=xcUcbum0kznZymBbTt8oBKddPT2MqmREwPtkhstbCAU=;
+        s=default; t=1558006866;
+        bh=fkeIAf6B3LFqNrSfMbNf5EJe+4kfmM+BmS9hz8rZlb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCSAJfGtVcnXhA09JzPsZ3Vd81WjfAeenP8sliNidVCstu3t7XylM4cOnaXL04WvA
-         wCJl7mmUtDcnNmDfXLukw7+lb5JpEoYumpTPFPtgxy3Hr6MrdN3Ok79Yd3Uk7m+8r2
-         HwqpMFOSBD0hPlMQRWeb7/ybhkt54mugiGdvaasE=
+        b=mY2T94dAWupC/qZ5CS0CU6WRDrdkL7eVxizPpMNrlJfRrSIezDZZJrwIhJYOG7Tsu
+         g0kIPppQ53Y+VAtlhl4rtWtffe5bn4V+2uLmX599dhgbL4aobLBdgk0xXYrCJ//12D
+         XOBz+0KPlXudCJiw6urZl0tABS4H+F7fVjvOr7wE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jiri Olsa <jolsa@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Namhyung Kim <namhyung@kernel.org>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 24/25] perf bench numa: Add define for RUSAGE_THREAD if not present
-Date:   Thu, 16 May 2019 07:40:27 -0400
-Message-Id: <20190516114029.8682-24-sashal@kernel.org>
+Cc:     Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        David Arcari <darcari@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Lendacky Thomas <Thomas.Lendacky@amd.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/25] perf/x86/intel: Fix race in intel_pmu_disable_event()
+Date:   Thu, 16 May 2019 07:40:28 -0400
+Message-Id: <20190516114029.8682-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516114029.8682-1-sashal@kernel.org>
 References: <20190516114029.8682-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,66 +52,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit bf561d3c13423fc54daa19b5d49dc15fafdb7acc ]
+[ Upstream commit 6f55967ad9d9752813e36de6d5fdbd19741adfc7 ]
 
-While cross building perf to the ARC architecture on a fedora 30 host,
-we were failing with:
+New race in x86_pmu_stop() was introduced by replacing the
+atomic __test_and_clear_bit() of cpuc->active_mask by separate
+test_bit() and __clear_bit() calls in the following commit:
 
-      CC       /tmp/build/perf/bench/numa.o
-  bench/numa.c: In function ‘worker_thread’:
-  bench/numa.c:1261:12: error: ‘RUSAGE_THREAD’ undeclared (first use in this function); did you mean ‘SIGEV_THREAD’?
-    getrusage(RUSAGE_THREAD, &rusage);
-              ^~~~~~~~~~~~~
-              SIGEV_THREAD
-  bench/numa.c:1261:12: note: each undeclared identifier is reported only once for each function it appears in
+  3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
 
-[perfbuilder@60d5802468f6 perf]$ /arc_gnu_2019.03-rc1_prebuilt_uclibc_le_archs_linux_install/bin/arc-linux-gcc --version | head -1
-arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2019.03-rc1) 8.3.1 20190225
-[perfbuilder@60d5802468f6 perf]$
+The race causes panic for PEBS events with enabled callchains:
 
-Trying to reproduce a report by Vineet, I noticed that, with just
-cross-built zlib and numactl libraries, I ended up with the above
-failure.
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+  ...
+  RIP: 0010:perf_prepare_sample+0x8c/0x530
+  Call Trace:
+   <NMI>
+   perf_event_output_forward+0x2a/0x80
+   __perf_event_overflow+0x51/0xe0
+   handle_pmi_common+0x19e/0x240
+   intel_pmu_handle_irq+0xad/0x170
+   perf_event_nmi_handler+0x2e/0x50
+   nmi_handle+0x69/0x110
+   default_do_nmi+0x3e/0x100
+   do_nmi+0x11a/0x180
+   end_repeat_nmi+0x16/0x1a
+  RIP: 0010:native_write_msr+0x6/0x20
+  ...
+   </NMI>
+   intel_pmu_disable_event+0x98/0xf0
+   x86_pmu_stop+0x6e/0xb0
+   x86_pmu_del+0x46/0x140
+   event_sched_out.isra.97+0x7e/0x160
+  ...
 
-So, since RUSAGE_THREAD is available as a define, check for that and
-numactl libraries, I ended up with the above failure.
+The event is configured to make samples from PEBS drain code,
+but when it's disabled, we'll go through NMI path instead,
+where data->callchain will not get allocated and we'll crash:
 
-So, since RUSAGE_THREAD is available as a define in the system headers,
-check if it is defined in the 'perf bench numa' sources and define it if
-not.
+          x86_pmu_stop
+            test_bit(hwc->idx, cpuc->active_mask)
+            intel_pmu_disable_event(event)
+            {
+              ...
+              intel_pmu_pebs_disable(event);
+              ...
 
-Now it builds and I have to figure out if the problem reported by Vineet
-only takes place if we have libelf or some other library available.
+EVENT OVERFLOW ->  <NMI>
+                     intel_pmu_handle_irq
+                       handle_pmi_common
+   TEST PASSES ->        test_bit(bit, cpuc->active_mask))
+                           perf_event_overflow
+                             perf_prepare_sample
+                             {
+                               ...
+                               if (!(sample_type & __PERF_SAMPLE_CALLCHAIN_EARLY))
+                                     data->callchain = perf_callchain(event, regs);
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Link: https://lkml.kernel.org/n/tip-2wb4r1gir9xrevbpq7qp0amk@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+         CRASH ->              size += data->callchain->nr;
+                             }
+                   </NMI>
+              ...
+              x86_pmu_disable_event(event)
+            }
+
+            __clear_bit(hwc->idx, cpuc->active_mask);
+
+Fixing this by disabling the event itself before setting
+off the PEBS bit.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Lendacky Thomas <Thomas.Lendacky@amd.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Fixes: 3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
+Link: http://lkml.kernel.org/r/20190504151556.31031-1-jolsa@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/events/intel/core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 44195514b19e6..fa56fde6e8d80 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -38,6 +38,10 @@
- #include <numa.h>
- #include <numaif.h>
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index a759e59990fbd..09c53bcbd497d 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2074,15 +2074,19 @@ static void intel_pmu_disable_event(struct perf_event *event)
+ 	cpuc->intel_ctrl_host_mask &= ~(1ull << hwc->idx);
+ 	cpuc->intel_cp_status &= ~(1ull << hwc->idx);
  
-+#ifndef RUSAGE_THREAD
-+# define RUSAGE_THREAD 1
-+#endif
+-	if (unlikely(event->attr.precise_ip))
+-		intel_pmu_pebs_disable(event);
+-
+ 	if (unlikely(hwc->config_base == MSR_ARCH_PERFMON_FIXED_CTR_CTRL)) {
+ 		intel_pmu_disable_fixed(hwc);
+ 		return;
+ 	}
+ 
+ 	x86_pmu_disable_event(event);
 +
- /*
-  * Regular printout to the terminal, supressed if -q is specified:
-  */
++	/*
++	 * Needs to be called after x86_pmu_disable_event,
++	 * so we don't trigger the event without PEBS bit set.
++	 */
++	if (unlikely(event->attr.precise_ip))
++		intel_pmu_pebs_disable(event);
+ }
+ 
+ static void intel_pmu_del_event(struct perf_event *event)
 -- 
 2.20.1
 
