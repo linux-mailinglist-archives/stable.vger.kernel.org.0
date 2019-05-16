@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A1C20C54
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5648A20C58
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726881AbfEPQD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:03:58 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42518 "EHLO
+        id S1727508AbfEPQEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:04:12 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42452 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726357AbfEPP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:43 -0400
+        by vger.kernel.org with ESMTP id S1726697AbfEPP6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:42 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImG-0006zQ-MV; Thu, 16 May 2019 16:58:40 +0100
+        id 1hRImG-0006zN-E1; Thu, 16 May 2019 16:58:40 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0001Qa-5P; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImD-0001Py-Su; Thu, 16 May 2019 16:58:37 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,32 +26,33 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Arjan van de Ven" <arjan@linux.intel.com>,
-        "Andrea Arcangeli" <aarcange@redhat.com>,
-        "Andy Lutomirski" <luto@kernel.org>,
-        "Tim Chen" <tim.c.chen@linux.intel.com>,
-        "Casey Schaufler" <casey.schaufler@intel.com>,
-        "Waiman Long" <longman9394@gmail.com>,
-        "Jon Masters" <jcm@redhat.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Dave Stewart" <david.c.stewart@intel.com>,
         "Josh Poimboeuf" <jpoimboe@redhat.com>,
         "Greg KH" <gregkh@linuxfoundation.org>,
         "Tom Lendacky" <thomas.lendacky@amd.com>,
-        "Jiri Kosina" <jkosina@suse.cz>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "David Woodhouse" <dwmw@amazon.co.uk>,
-        "Asit Mallick" <asit.k.mallick@intel.com>,
-        "Kees Cook" <keescook@chromium.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Tim Chen" <tim.c.chen@linux.intel.com>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Casey Schaufler" <casey.schaufler@intel.com>,
+        "Waiman Long" <longman9394@gmail.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Jon Masters" <jcm@redhat.com>,
+        "Dave Stewart" <david.c.stewart@intel.com>,
+        "Arjan van de Ven" <arjan@linux.intel.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>,
+        "Dave Hansen" <dave.hansen@intel.com>,
         "Ingo Molnar" <mingo@kernel.org>,
         "Andi Kleen" <ak@linux.intel.com>,
-        "Dave Hansen" <dave.hansen@intel.com>
+        "Asit Mallick" <asit.k.mallick@intel.com>,
+        "David Woodhouse" <dwmw@amazon.co.uk>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Kees Cook" <keescook@chromium.org>,
+        "Jiri Kosina" <jkosina@suse.cz>,
+        "Peter Zijlstra" <peterz@infradead.org>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.731637659@decadent.org.uk>
+Message-ID: <lsq.1558022133.58793405@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 53/86] x86/speculation: Split out TIF update
+Subject: [PATCH 3.16 46/86] x86/speculataion: Mark command line parser
+ data __initdata
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -67,15 +68,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit e6da8bb6f9abb2628381904b24163c770e630bac upstream.
+commit 30ba72a990f5096ae08f284de17986461efcc408 upstream.
 
-The update of the TIF_SSBD flag and the conditional speculation control MSR
-update is done in the ssb_prctl_set() function directly. The upcoming prctl
-support for controlling indirect branch speculation via STIBP needs the
-same mechanism.
-
-Split the code out and make it reusable. Reword the comment about updates
-for other tasks.
+No point to keep that around.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Ingo Molnar <mingo@kernel.org>
@@ -98,75 +93,30 @@ Cc: Waiman Long <longman9394@gmail.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>
 Cc: Dave Stewart <david.c.stewart@intel.com>
 Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185005.652305076@linutronix.de
+Link: https://lkml.kernel.org/r/20181125185004.893886356@linutronix.de
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/cpu/bugs.c | 35 +++++++++++++++++++++++------------
- 1 file changed, 23 insertions(+), 12 deletions(-)
+ arch/x86/kernel/cpu/bugs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -760,10 +760,29 @@ static void ssb_select_mitigation(void)
- #undef pr_fmt
- #define pr_fmt(fmt)     "Speculation prctl: " fmt
- 
--static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
-+static void task_update_spec_tif(struct task_struct *tsk, int tifbit, bool on)
- {
- 	bool update;
- 
-+	if (on)
-+		update = !test_and_set_tsk_thread_flag(tsk, tifbit);
-+	else
-+		update = test_and_clear_tsk_thread_flag(tsk, tifbit);
-+
-+	/*
-+	 * Immediately update the speculation control MSRs for the current
-+	 * task, but for a non-current task delay setting the CPU
-+	 * mitigation until it is scheduled next.
-+	 *
-+	 * This can only happen for SECCOMP mitigation. For PRCTL it's
-+	 * always the current task.
-+	 */
-+	if (tsk == current && update)
-+		speculation_ctrl_update_current();
-+}
-+
-+static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
-+{
- 	if (ssb_mode != SPEC_STORE_BYPASS_PRCTL &&
- 	    ssb_mode != SPEC_STORE_BYPASS_SECCOMP)
- 		return -ENXIO;
-@@ -774,28 +793,20 @@ static int ssb_prctl_set(struct task_str
- 		if (task_spec_ssb_force_disable(task))
- 			return -EPERM;
- 		task_clear_spec_ssb_disable(task);
--		update = test_and_clear_tsk_thread_flag(task, TIF_SSBD);
-+		task_update_spec_tif(task, TIF_SSBD, false);
- 		break;
- 	case PR_SPEC_DISABLE:
- 		task_set_spec_ssb_disable(task);
--		update = !test_and_set_tsk_thread_flag(task, TIF_SSBD);
-+		task_update_spec_tif(task, TIF_SSBD, true);
- 		break;
- 	case PR_SPEC_FORCE_DISABLE:
- 		task_set_spec_ssb_disable(task);
- 		task_set_spec_ssb_force_disable(task);
--		update = !test_and_set_tsk_thread_flag(task, TIF_SSBD);
-+		task_update_spec_tif(task, TIF_SSBD, true);
- 		break;
- 	default:
- 		return -ERANGE;
- 	}
--
--	/*
--	 * If being set on non-current task, delay setting the CPU
--	 * mitigation until it is next scheduled.
--	 */
--	if (task == current && update)
--		speculation_ctrl_update_current();
--
- 	return 0;
- }
- 
+@@ -303,7 +303,7 @@ static const struct {
+ 	const char *option;
+ 	enum spectre_v2_mitigation_cmd cmd;
+ 	bool secure;
+-} mitigation_options[] = {
++} mitigation_options[] __initdata = {
+ 	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
+ 	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
+ 	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
+@@ -546,7 +546,7 @@ static const char * const ssb_strings[]
+ static const struct {
+ 	const char *option;
+ 	enum ssb_mitigation_cmd cmd;
+-} ssb_mitigation_options[] = {
++} ssb_mitigation_options[]  __initdata = {
+ 	{ "auto",	SPEC_STORE_BYPASS_CMD_AUTO },    /* Platform decides */
+ 	{ "on",		SPEC_STORE_BYPASS_CMD_ON },      /* Disable Speculative Store Bypass */
+ 	{ "off",	SPEC_STORE_BYPASS_CMD_NONE },    /* Don't touch Speculative Store Bypass */
 
