@@ -2,166 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 520FD20DCE
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 19:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014E520E24
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 19:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727421AbfEPRVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 13:21:31 -0400
-Received: from mga04.intel.com ([192.55.52.120]:30647 "EHLO mga04.intel.com"
+        id S1728857AbfEPRnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 13:43:16 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38860 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726807AbfEPRVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 13:21:31 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 May 2019 10:21:30 -0700
-X-ExtLoop1: 1
-Received: from orsmsx103.amr.corp.intel.com ([10.22.225.130])
-  by fmsmga008.fm.intel.com with ESMTP; 16 May 2019 10:21:30 -0700
-Received: from orsmsx116.amr.corp.intel.com (10.22.240.14) by
- ORSMSX103.amr.corp.intel.com (10.22.225.130) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Thu, 16 May 2019 10:21:29 -0700
-Received: from orsmsx121.amr.corp.intel.com ([169.254.10.47]) by
- ORSMSX116.amr.corp.intel.com ([169.254.7.165]) with mapi id 14.03.0415.000;
- Thu, 16 May 2019 10:21:29 -0700
-From:   "Schmauss, Erik" <erik.schmauss@intel.com>
-To:     "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
- interpreter: add region addresses...")
-Thread-Topic: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
- interpreter: add region addresses...")
-Thread-Index: AQHVA3sHg6huTCc9j0i77n2Wgo9sv6ZePXSAgA0zAMCAALM+gIABDBMA///KRSCAAW6WgP//pwSA
-Date:   Thu, 16 May 2019 17:21:28 +0000
-Message-ID: <CF6A88132359CE47947DB4C6E1709ED53C5D1AC2@ORSMSX121.amr.corp.intel.com>
-References: <20190505194448.GA2649@windriver.com>
- <20190506084145.GA23991@kroah.com>
- <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
- <20190515045711.GA16452@kroah.com>
- <f2110cb8-8d80-65df-55a9-5428e6e4e9c3@intel.com>
- <CF6A88132359CE47947DB4C6E1709ED53C5D0845@ORSMSX121.amr.corp.intel.com>
- <feae8022-17ac-d11c-17a8-86ba9598e681@intel.com>
-In-Reply-To: <feae8022-17ac-d11c-17a8-86ba9598e681@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNjgxOWFjYzItZmVhZC00OGNiLTlhNjUtOTY2Nzc3MGE1MGE5IiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoibmRyelRXaHRxRzdiOTN1M2VGTERFU3hmZURoWlByOUVrZHJUdHFkYmtzdlZHMjQyUFdzSXRaWDh6NlUzOHhkNSJ9
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.138]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726336AbfEPRnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 13:43:16 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 966D830043F8;
+        Thu, 16 May 2019 17:43:15 +0000 (UTC)
+Received: from treble (ovpn-120-91.rdu2.redhat.com [10.10.120.91])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5A8C2608A6;
+        Thu, 16 May 2019 17:43:14 +0000 (UTC)
+Date:   Thu, 16 May 2019 12:43:12 -0500
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] cpu/speculation: Warn on unsupported mitigations=
+ parameter
+Message-ID: <20190516174312.f3ipwv4io4tnulnn@treble>
+References: <20190516070935.22546-1-geert@linux-m68k.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20190516070935.22546-1-geert@linux-m68k.org>
+User-Agent: NeoMutt/20180716
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Thu, 16 May 2019 17:43:15 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV3lzb2NraSwgUmFmYWVs
-IEoNCj4gU2VudDogVGh1cnNkYXksIE1heSAxNiwgMjAxOSA4OjM2IEFNDQo+IFRvOiBTY2htYXVz
-cywgRXJpayA8ZXJpay5zY2htYXVzc0BpbnRlbC5jb20+OyBHcmVnIEtyb2FoLUhhcnRtYW4NCj4g
-PGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPg0KPiBDYzogUGF1bCBHb3J0bWFrZXIgPHBhdWwu
-Z29ydG1ha2VyQHdpbmRyaXZlci5jb20+Ow0KPiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IFN1
-YmplY3Q6IFJlOiBQb3NzaWJsZSBtaXMtYmFja3BvcnQgb2YgNGFiYjk1MWIgaW4gNC4xOS4zNSAo
-IkFDUElDQTogQU1MDQo+IGludGVycHJldGVyOiBhZGQgcmVnaW9uIGFkZHJlc3Nlcy4uLiIpDQo+
-IA0KPiBPbiA1LzE2LzIwMTkgMjo0NSBBTSwgU2NobWF1c3MsIEVyaWsgd3JvdGU6DQo+ID4NCj4g
-Pj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogV3lzb2NraSwgUmFmYWVs
-IEoNCj4gPj4gU2VudDogV2VkbmVzZGF5LCBNYXkgMTUsIDIwMTkgMTo1NyBQTQ0KPiA+PiBUbzog
-U2NobWF1c3MsIEVyaWsgPGVyaWsuc2NobWF1c3NAaW50ZWwuY29tPg0KPiA+PiBDYzogR3JlZyBL
-cm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz47IFBhdWwgR29ydG1ha2Vy
-DQo+ID4+IDxwYXVsLmdvcnRtYWtlckB3aW5kcml2ZXIuY29tPjsgc3RhYmxlQHZnZXIua2VybmVs
-Lm9yZw0KPiA+PiBTdWJqZWN0OiBSZTogUG9zc2libGUgbWlzLWJhY2twb3J0IG9mIDRhYmI5NTFi
-IGluIDQuMTkuMzUgKCJBQ1BJQ0E6DQo+ID4+IEFNTA0KPiA+PiBpbnRlcnByZXRlcjogYWRkIHJl
-Z2lvbiBhZGRyZXNzZXMuLi4iKQ0KPiA+Pg0KPiA+PiBPbiA1LzE1LzIwMTkgNjo1NyBBTSwgR3Jl
-ZyBLcm9haC1IYXJ0bWFuIHdyb3RlOg0KPiA+Pj4gT24gV2VkLCBNYXkgMTUsIDIwMTkgYXQgMDE6
-MTc6MjhBTSArMDAwMCwgU2NobWF1c3MsIEVyaWsgd3JvdGU6DQo+ID4+Pj4+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQo+ID4+Pj4+IEZyb206IEdyZWcgS3JvYWgtSGFydG1hbiBbbWFpbHRv
-OmdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnXQ0KPiA+Pj4+PiBTZW50OiBNb25kYXksIE1heSA2
-LCAyMDE5IDE6NDIgQU0NCj4gPj4+Pj4gVG86IFBhdWwgR29ydG1ha2VyIDxwYXVsLmdvcnRtYWtl
-ckB3aW5kcml2ZXIuY29tPjsgV3lzb2NraSwNCj4gUmFmYWVsDQo+ID4+Pj4+IEogPHJhZmFlbC5q
-Lnd5c29ja2lAaW50ZWwuY29tPg0KPiA+Pj4+PiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZzsg
-U2NobWF1c3MsIEVyaWsNCj4gPj4+Pj4gPGVyaWsuc2NobWF1c3NAaW50ZWwuY29tPg0KPiA+Pj4+
-PiBTdWJqZWN0OiBSZTogUG9zc2libGUgbWlzLWJhY2twb3J0IG9mIDRhYmI5NTFiIGluIDQuMTku
-MzUgKCJBQ1BJQ0E6DQo+ID4+Pj4+IEFNTA0KPiA+Pj4+PiBpbnRlcnByZXRlcjogYWRkIHJlZ2lv
-biBhZGRyZXNzZXMuLi4iKQ0KPiA+Pj4+Pg0KPiA+Pj4+PiBPbiBTdW4sIE1heSAwNSwgMjAxOSBh
-dCAwMzo0NDo0OFBNIC0wNDAwLCBQYXVsIEdvcnRtYWtlciB3cm90ZToNCj4gPj4+Pj4+IEkgbm90
-aWNlZCA0LjE5LjM1IGdvdCBhIGJhY2twb3J0IG9mIG1haW5saW5lIDRhYmI5NTFiLCBidXQgaXQN
-Cj4gPj4+Pj4+IGFwcGVhcnMgdG8gYmUgYSBkdXBsaWNhdGUgYmFja3BvcnQgdGhhdCBsYW5kZWQg
-aW4gdGhlIHdyb25nDQo+ID4+Pj4+PiBmdW5jdGlvbi4gIFdlIGNhbiBzZWUgdGhpcyBpbiB0aGUg
-c3RhYmxlLXF1ZXVlIHJlcG86DQo+ID4+Pj4+Pg0KPiA+Pj4+Pj4gc3RhYmxlLXF1ZXVlJCBmaW5k
-IC4gLW5hbWUgJyphY3BpY2EtYW1sLWludGVycHJldGVyLWFkZC1yZWdpb24tDQo+IGFkZHIqJw0K
-PiA+Pj4+Pj4gfGdyZXAgNC4xOQ0KPiA+Pj4+Pj4gLi9yZWxlYXNlcy80LjE5LjYvYWNwaWNhLWFt
-bC1pbnRlcnByZXRlci1hZGQtcmVnaW9uLWFkZHJlc3Nlcy1pbi0NCj4gPj4+Pj4+IGdsDQo+ID4+
-Pj4+PiBvYmENCj4gPj4+Pj4+IGwtbGlzdC1kdXJpbmctaW5pdGlhbGl6YXRpb24ucGF0Y2gNCj4g
-Pj4+Pj4+IC4vcmVsZWFzZXMvNC4xOS4zL3JldmVydC1hY3BpY2EtYW1sLWludGVycHJldGVyLWFk
-ZC1yZWdpb24tYWRkcmVzDQo+ID4+Pj4+PiBzZQ0KPiA+Pj4+Pj4gcy1pDQo+ID4+Pj4+PiBuLnBh
-dGNoDQo+ID4+Pj4+PiAuL3JlbGVhc2VzLzQuMTkuMzUvYWNwaWNhLWFtbC1pbnRlcnByZXRlci1h
-ZGQtcmVnaW9uLWFkZHJlc3Nlcy1pbg0KPiA+Pj4+Pj4gLWcgbG9iIGFsLWxpc3QtZHVyaW5nLWlu
-aXRpYWxpemF0aW9uLnBhdGNoDQo+ID4+Pj4+PiAuL3JlbGVhc2VzLzQuMTkuMi9hY3BpY2EtYW1s
-LWludGVycHJldGVyLWFkZC1yZWdpb24tYWRkcmVzc2VzLWluLQ0KPiA+Pj4+Pj4gZ2wNCj4gPj4+
-Pj4+IG9iYQ0KPiA+Pj4+Pj4gbC1saXN0LWR1cmluZy1pbml0aWFsaXphdGlvbi5wYXRjaA0KPiA+
-Pj4+Pj4NCj4gPj4+Pj4+IFNvIGl0IHdhcyBhZGRlZCB0byA0LjE5LjIsIHJldmVydGVkIGluIC4z
-LCByZS1hZGRlZCBpbiAuNiwgYW5kDQo+ID4+Pj4+PiB0aGVuIGZpbmFsbHkgcGF0Y2hlZCBpbnRv
-IGEgc2ltaWxhciBsb29raW5nIGJ1dCB3cm9uZyBmdW5jdGlvbiBpbg0KPiA+Pj4+Pj4gLjM1DQo+
-ID4+Pj4+Pg0KPiA+Pj4+Pj4gSWYgd2UgZGlmZiB0aGUgLjYgYW5kIC4zNSB2ZXJzaW9ucywgd2Ug
-c2VlIHRoZSBmdW5jdGlvbiBkaWZmZXJlbmNlOg0KPiA+Pj4+Pj4NCj4gPj4+Pj4+IC1AQCAtNDE3
-LDYgKzQxNywxMCBAQCBhY3BpX2RzX2V2YWxfcmVnaW9uX29wZXJhbmRzKHN0cnVjdCBhY3BpDQo+
-ID4+Pj4+PiArQEAgLTUyMyw2ICs1MjMsMTAgQEANCj4gYWNwaV9kc19ldmFsX3RhYmxlX3JlZ2lv
-bl9vcGVyYW5kcyhzdHJ1Yw0KPiA+Pj4+Pj4NCj4gPj4+Pj4+IEkgZG9uJ3Qga25vdyB3aGF0IHRo
-ZSBoaXN0b3J5IGlzL3dhcyBhcm91bmQgdGhlIDIvMy82IGNodXJuLCBidXQNCj4gPj4+Pj4+IHRo
-ZSByZS1hZGRpdGlvbiBpbiA0LjE5LjM1IHRvIGEgZGlmZmVyZW50IGZ1bmN0aW9uIHN1cmUgbG9v
-a3Mgd3JvbmcuDQo+ID4+Pj4+Pg0KPiA+Pj4+Pj4gVGhlIGNvbW1pdCBhZGRzIGEgY2FsbCAic3Rh
-dHVzID0gYWNwaV91dF9hZGRfYWRkcmVzc19yYW5nZSguLi4iDQo+ID4+Pj4+PiBhbmQgaWYgd2Ug
-Y2hlY2sgbWFpbmxpbmUsIHRoZXJlIGlzIG9ubHkgb25lIGluIHRoYXQgZmlsZSwgYnV0IGluDQo+
-ID4+Pj4+PiA0LjE5LjM1KyB0aGVyZSBub3cgYXJlIHR3byBjYWxscyAtIHNpbmNlIHRoZSB0d28g
-ZnVuY3Rpb25zIGhhZA0KPiA+Pj4+Pj4gc2ltaWxhciBjb250ZXh0IGFuZCBjb21tZW50cywgaXQg
-aXNuJ3QgaGFyZCB0byBzZWUgaG93IHBhdGNoDQo+ID4+Pj4+PiBjb3VsZC93b3VsZCBhcHBseSBp
-dCBhIDJuZCB0aW1lIGluIHRoZSB3cm9uZyBwbGFjZS4NCj4gPj4+Pj4+DQo+ID4+Pj4+PiBJIGRp
-ZG4ndCBjaGVjayBpZiBhbnkgb2YgdGhlIG90aGVyIGN1cnJlbnRseSBtYWludGFpbmVkDQo+ID4+
-Pj4+PiBsaW51eC1zdGFibGUgdmVyc2lvbnMgYWxzbyBoYWQgdGhpcyBwb3NzaWJsZSBpc3N1ZS4N
-Cj4gPj4+Pj4+DQo+ID4+Pj4gSGkgR3JlZywNCj4gPj4+Pg0KPiA+Pj4+PiBVZ2gsIFJhZmFlbCwg
-ZGlkIEkgbWVzcyB0aGlzIHVwIGFnYWluPyAgQ2FuIHlvdSBjaGVjayB0byBzZWUgaWYgSQ0KPiA+
-Pj4+PiBuZWVkIHRvIGZpeCB0aGlzIHNvbWVob3c/DQo+ID4+Pj4gSXQgc2hvdWxkIGJlIGNhbGxl
-ZCBpbiBhY3BpX2RzX2V2YWxfcmVnaW9uX29wZXJhbmRzIHJhdGhlciB0aGFuDQo+ID4+IGFjcGlf
-ZHNfZXZhbF90YWJsZV9yZWdpb25fb3BlcmFuZHMuDQo+ID4+Pj4gUGxlYXNlIHJlbW92ZSB0aGUg
-Y2FsbCBmcm9tIGFjcGlfZHNfZXZhbF90YWJsZV9yZWdpb25fb3BlcmFuZHMuDQo+ID4+PiBHcmVh
-dCwgY2FuIHNvbWVvbmUgcGxlYXNlIHNlbmQgbWUgYSBwYXRjaCBmb3IgdGhpcyBzbyB0aGF0IEkg
-ZG9uJ3QNCj4gPj4+IGdldCBpdCB3cm9uZyBteXNlbGY/DQo+ID4+IEVyaWssIGNhbiB5b3UgcGxl
-YXNlIGN1dCBhIHBhdGNoIGZvciB0aGF0IGFnYWluc3QgNC4xOS4zNSBhbmQgc2VuZCBpdCB0bw0K
-PiBHcmVnPw0KPiA+Pg0KPiA+IEknbSBub3Qgc3VyZSB3aGF0IHRoZSBwcm9jZXNzIGlzIGZvciB0
-aGlzIGNhc2UgYnV0IGhlcmUncyB0aGUgcGF0Y2guLi4NCj4gPiBMZXQgbWUga25vdyBpZiB5b3Ug
-bmVlZCBtZSB0byBzZW5kIGl0IHNvbWUgb3RoZXIgd2F5Li4uDQo+ID4NCj4gPiAgRnJvbSBhNzM4
-ZjFjNDUyYzA3NjJkM2MwYTFiMWE5YTEyYzc4YmQ5N2IwYTIzIE1vbiBTZXAgMTcgMDA6MDA6MDAN
-Cj4gPiAyMDAxDQo+ID4gRnJvbTogRXJpayBTY2htYXVzcyA8ZXJpay5zY2htYXVzc0BpbnRlbC5j
-b20+DQo+ID4gRGF0ZTogV2VkLCAxNSBNYXkgMjAxOSAxNzoyNTozMSAtMDcwMA0KPiA+IFN1Ympl
-Y3Q6IFtQQVRDSF0gUmV2ZXJ0ICJBQ1BJQ0E6IEFNTCBpbnRlcnByZXRlcjogYWRkIHJlZ2lvbiBh
-ZGRyZXNzZXMNCj4gaW4NCj4gPiAgIGdsb2JhbCBsaXN0IGR1cmluZyBpbml0aWFsaXphdGlvbiIN
-Cj4gPg0KPiA+IFRoaXMgcmV2ZXJ0cyBjb21taXQgZjgwNTNkZjYzNGQ0MGM3MzNmMjZjYTQ5YzJj
-MzgzNTAwMmU2MWI3NyB0aGF0IHdhcw0KPiA+IHVuaW50ZW50aW9uYWxseSBpbmNsdWRlZCBhcyBh
-IHBhcnQgb2YgdGhlIHN0YWJsZSBicmFuY2guDQo+ID4NCj4gPiBSZXBvcnRlZC1ieTogUGF1bCBH
-b3J0bWFrZXIgPHBhdWwuZ29ydG1ha2VyQHdpbmRyaXZlci5jb20+DQo+ID4gU2lnbmVkLW9mZi1i
-eTogRXJpayBTY2htYXVzcyA8ZXJpay5zY2htYXVzc0BpbnRlbC5jb20+DQo+ID4gLS0tDQo+ID4g
-ICBkcml2ZXJzL2FjcGkvYWNwaWNhL2Rzb3Bjb2RlLmMgfCA0IC0tLS0NCj4gPiAgIDEgZmlsZSBj
-aGFuZ2VkLCA0IGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYWNw
-aS9hY3BpY2EvZHNvcGNvZGUuYw0KPiA+IGIvZHJpdmVycy9hY3BpL2FjcGljYS9kc29wY29kZS5j
-IGluZGV4IDJmNDY0MWU1ZWNkZS4uNzhmOWRlMjYwZDVmDQo+ID4gMTAwNjQ0DQo+ID4gLS0tIGEv
-ZHJpdmVycy9hY3BpL2FjcGljYS9kc29wY29kZS5jDQo+ID4gKysrIGIvZHJpdmVycy9hY3BpL2Fj
-cGljYS9kc29wY29kZS5jDQo+ID4gQEAgLTUyMywxMCArNTIzLDYgQEAgYWNwaV9kc19ldmFsX3Rh
-YmxlX3JlZ2lvbl9vcGVyYW5kcyhzdHJ1Y3QNCj4gYWNwaV93YWxrX3N0YXRlICp3YWxrX3N0YXRl
-LA0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFDUElfRk9STUFUX1VJTlQ2NChvYmpf
-ZGVzYy0+cmVnaW9uLmFkZHJlc3MpLA0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9i
-al9kZXNjLT5yZWdpb24ubGVuZ3RoKSk7DQo+ID4NCj4gPiAtICAgICAgIHN0YXR1cyA9IGFjcGlf
-dXRfYWRkX2FkZHJlc3NfcmFuZ2Uob2JqX2Rlc2MtPnJlZ2lvbi5zcGFjZV9pZCwNCj4gPiAtICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb2JqX2Rlc2MtPnJlZ2lvbi5h
-ZGRyZXNzLA0KPiA+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBv
-YmpfZGVzYy0+cmVnaW9uLmxlbmd0aCwgbm9kZSk7DQo+ID4gLQ0KPiA+ICAgICAgICAgIC8qIE5v
-dyB0aGUgYWRkcmVzcyBhbmQgbGVuZ3RoIGFyZSB2YWxpZCBmb3IgdGhpcyBvcHJlZ2lvbiAqLw0K
-PiA+DQo+ID4gICAgICAgICAgb2JqX2Rlc2MtPnJlZ2lvbi5mbGFncyB8PSBBT1BPQkpfREFUQV9W
-QUxJRDsNCj4gPiAtLQ0KPiA+IDIuMTcuMg0KPiANCj4gVGhhbmtzIEVyaWssIExHVE0uDQo+IA0K
-DQpUaGFua3MgZm9yIHlvdXIgcGF0aWVuY2Ugd2l0aCB0aGVzZSBwYXRjaGVzIQ0KDQpFcmlrDQoN
-Cg==
+On Thu, May 16, 2019 at 09:09:35AM +0200, Geert Uytterhoeven wrote:
+> Currently, if the user specifies an unsupported mitigation strategy on
+> the kernel command line, it will be ignored silently.  The code will
+> fall back to the default strategy, possibly leaving the system more
+> vulnerable than expected.
+> 
+> This may happen due to e.g. a simple typo, or, for a stable kernel
+> release, because not all mitigation strategies have been backported.
+> 
+> Inform the user by printing a message.
+> 
+> Fixes: 98af8452945c5565 ("cpu/speculation: Add 'mitigations=' cmdline option")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> ---
+>  kernel/cpu.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/kernel/cpu.c b/kernel/cpu.c
+> index f2ef10460698e9ec..8458fda00e6ddb88 100644
+> --- a/kernel/cpu.c
+> +++ b/kernel/cpu.c
+> @@ -2339,6 +2339,9 @@ static int __init mitigations_parse_cmdline(char *arg)
+>  		cpu_mitigations = CPU_MITIGATIONS_AUTO;
+>  	else if (!strcmp(arg, "auto,nosmt"))
+>  		cpu_mitigations = CPU_MITIGATIONS_AUTO_NOSMT;
+> +	else
+> +		pr_crit("Unsupported mitigations=%s, system may still be vulnerable\n",
+> +			arg);
+>  
+>  	return 0;
+>  }
+> -- 
+> 2.17.1
+> 
+
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+
+-- 
+Josh
