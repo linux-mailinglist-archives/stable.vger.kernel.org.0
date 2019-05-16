@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA83F20C31
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C76120C46
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbfEPQCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:02:39 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42812 "EHLO
+        id S1727330AbfEPQDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:03:31 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42578 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726935AbfEPP6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:46 -0400
+        by vger.kernel.org with ESMTP id S1726775AbfEPP6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:43 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0006zu-Ja; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImH-0006zc-3h; Thu, 16 May 2019 16:58:41 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001Pg-Pb; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImE-0001RI-EW; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Konrad Rzeszutek Wilk" <konrad.wilk@oracle.com>,
+        "Borislav Petkov" <bp@suse.de>,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Ingo Molnar" <mingo@kernel.org>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Jon Masters" <jcm@redhat.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Frederic Weisbecker" <frederic@kernel.org>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.626986316@decadent.org.uk>
+Message-ID: <lsq.1558022133.767838303@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 42/86] sched: Add sched_smt_active()
+Subject: [PATCH 3.16 62/86] x86/speculation: Consolidate CPU whitelists
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,99 +50,168 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Add the sched_smt_active() function needed for some x86 speculation
-mitigations.  This was introduced upstream by commits 1b568f0aabf2
-"sched/core: Optimize SCHED_SMT", ba2591a5993e "sched/smt: Update
-sched_smt_present at runtime", c5511d03ec09 "sched/smt: Make
-sched_smt_present track topology", and 321a874a7ef8 "sched/smt: Expose
-sched_smt_present static key".  The upstream implementation uses the
-static_key_{disable,enable}_cpuslocked() functions, which aren't
-practical to backport.
+commit 36ad35131adacc29b328b9c8b6277a8bf0d6fd5d upstream.
 
+The CPU vulnerability whitelists have some overlap and there are more
+whitelists coming along.
+
+Use the driver_data field in the x86_cpu_id struct to denote the
+whitelisted vulnerabilities and combine all whitelists into one.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+Tested-by: Jon Masters <jcm@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
- include/linux/sched/smt.h |   18 ++++++++++++++++++
- kernel/sched/core.c       |   19 +++++++++++++++++++
- kernel/sched/sched.h      |    1 +
- 3 files changed, 38 insertions(+)
+ arch/x86/kernel/cpu/common.c | 105 +++++++++++++++++++----------------
+ 1 file changed, 56 insertions(+), 49 deletions(-)
 
---- /dev/null
-+++ b/include/linux/sched/smt.h
-@@ -0,0 +1,18 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_SCHED_SMT_H
-+#define _LINUX_SCHED_SMT_H
-+
-+#include <linux/atomic.h>
-+
-+#ifdef CONFIG_SCHED_SMT
-+extern atomic_t sched_smt_present;
-+
-+static __always_inline bool sched_smt_active(void)
-+{
-+	return atomic_read(&sched_smt_present);
-+}
-+#else
-+static inline bool sched_smt_active(void) { return false; }
-+#endif
-+
-+#endif
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5210,6 +5210,10 @@ static void __cpuinit set_cpu_rq_start_t
- 	rq->age_stamp = sched_clock_cpu(cpu);
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -807,60 +807,68 @@ static void identify_cpu_without_cpuid(s
+ #endif
  }
  
-+#ifdef CONFIG_SCHED_SMT
-+atomic_t sched_smt_present = ATOMIC_INIT(0);
-+#endif
+-static const __initconst struct x86_cpu_id cpu_no_speculation[] = {
+-	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL,	X86_FEATURE_ANY },
+-	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_TABLET,	X86_FEATURE_ANY },
+-	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL_MID,	X86_FEATURE_ANY },
+-	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_MID,	X86_FEATURE_ANY },
+-	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL,	X86_FEATURE_ANY },
+-	{ X86_VENDOR_CENTAUR,	5 },
+-	{ X86_VENDOR_INTEL,	5 },
+-	{ X86_VENDOR_NSC,	5 },
+-	{ X86_VENDOR_ANY,	4 },
+-	{}
+-};
++#define NO_SPECULATION	BIT(0)
++#define NO_MELTDOWN	BIT(1)
++#define NO_SSB		BIT(2)
++#define NO_L1TF		BIT(3)
 +
- static int sched_cpu_active(struct notifier_block *nfb,
- 				      unsigned long action, void *hcpu)
- {
-@@ -5226,6 +5230,13 @@ static int sched_cpu_active(struct notif
- 		 * Thus, fall-through and help the starting CPU along.
- 		 */
- 	case CPU_DOWN_FAILED:
-+#ifdef CONFIG_SCHED_SMT
-+		/*
-+		 * When going up, increment the number of cores with SMT present.
-+		 */
-+		if (cpumask_weight(cpu_smt_mask((long)hcpu)) == 2)
-+			atomic_inc(&sched_smt_present);
-+#endif
- 		set_cpu_active((long)hcpu, true);
- 		return NOTIFY_OK;
- 	default:
-@@ -5243,6 +5254,14 @@ static int sched_cpu_inactive(struct not
- 	case CPU_DOWN_PREPARE:
- 		set_cpu_active(cpu, false);
++#define VULNWL(_vendor, _family, _model, _whitelist)	\
++	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
++
++#define VULNWL_INTEL(model, whitelist)		\
++	VULNWL(INTEL, 6, INTEL_FAM6_##model, whitelist)
++
++#define VULNWL_AMD(family, whitelist)		\
++	VULNWL(AMD, family, X86_MODEL_ANY, whitelist)
++
++static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
++	VULNWL(ANY,	4, X86_MODEL_ANY,	NO_SPECULATION),
++	VULNWL(CENTAUR,	5, X86_MODEL_ANY,	NO_SPECULATION),
++	VULNWL(INTEL,	5, X86_MODEL_ANY,	NO_SPECULATION),
++	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
++
++	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION),
++	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION),
++	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION),
++	VULNWL_INTEL(ATOM_BONNELL,		NO_SPECULATION),
++	VULNWL_INTEL(ATOM_BONNELL_MID,		NO_SPECULATION),
++
++	VULNWL_INTEL(ATOM_SILVERMONT,		NO_SSB | NO_L1TF),
++	VULNWL_INTEL(ATOM_SILVERMONT_X,		NO_SSB | NO_L1TF),
++	VULNWL_INTEL(ATOM_SILVERMONT_MID,	NO_SSB | NO_L1TF),
++	VULNWL_INTEL(ATOM_AIRMONT,		NO_SSB | NO_L1TF),
++	VULNWL_INTEL(XEON_PHI_KNL,		NO_SSB | NO_L1TF),
++	VULNWL_INTEL(XEON_PHI_KNM,		NO_SSB | NO_L1TF),
++
++	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
++
++	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF),
++	VULNWL_INTEL(ATOM_GOLDMONT,		NO_L1TF),
++	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_L1TF),
++	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_L1TF),
++
++	VULNWL_AMD(0x0f,		NO_MELTDOWN | NO_SSB | NO_L1TF),
++	VULNWL_AMD(0x10,		NO_MELTDOWN | NO_SSB | NO_L1TF),
++	VULNWL_AMD(0x11,		NO_MELTDOWN | NO_SSB | NO_L1TF),
++	VULNWL_AMD(0x12,		NO_MELTDOWN | NO_SSB | NO_L1TF),
  
-+#ifdef CONFIG_SCHED_SMT
-+		/*
-+		 * When going down, decrement the number of cores with SMT present.
-+		 */
-+		if (cpumask_weight(cpu_smt_mask(cpu)) == 2)
-+			atomic_dec(&sched_smt_present);
-+#endif
-+
- 		/* explicitly allow suspend */
- 		if (!(action & CPU_TASKS_FROZEN)) {
- 			struct dl_bw *dl_b = dl_bw_of(cpu);
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2,6 +2,7 @@
- #include <linux/sched.h>
- #include <linux/sched/sysctl.h>
- #include <linux/sched/rt.h>
-+#include <linux/sched/smt.h>
- #include <linux/sched/deadline.h>
- #include <linux/mutex.h>
- #include <linux/spinlock.h>
+-static const __initconst struct x86_cpu_id cpu_no_meltdown[] = {
+-	{ X86_VENDOR_AMD },
++	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
++	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF),
+ 	{}
+ };
+ 
+-/* Only list CPUs which speculate but are non susceptible to SSB */
+-static const __initconst struct x86_cpu_id cpu_no_spec_store_bypass[] = {
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_CORE_YONAH		},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
+-	{ X86_VENDOR_AMD,	0x12,					},
+-	{ X86_VENDOR_AMD,	0x11,					},
+-	{ X86_VENDOR_AMD,	0x10,					},
+-	{ X86_VENDOR_AMD,	0xf,					},
+-	{}
+-};
++static bool __init cpu_matches(unsigned long which)
++{
++	const struct x86_cpu_id *m = x86_match_cpu(cpu_vuln_whitelist);
+ 
+-static const __initconst struct x86_cpu_id cpu_no_l1tf[] = {
+-	/* in addition to cpu_no_speculation */
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT_MID	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_X	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_PLUS	},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
+-	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
+-	{}
+-};
++	return m && !!(m->driver_data & which);
++}
+ 
+ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ {
+ 	u64 ia32_cap = 0;
+ 
+-	if (x86_match_cpu(cpu_no_speculation))
++	if (cpu_matches(NO_SPECULATION))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
+@@ -869,15 +877,14 @@ static void __init cpu_set_bug_bits(stru
+ 	if (cpu_has(c, X86_FEATURE_ARCH_CAPABILITIES))
+ 		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
+ 
+-	if (!x86_match_cpu(cpu_no_spec_store_bypass) &&
+-	   !(ia32_cap & ARCH_CAP_SSB_NO) &&
++	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
+ 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
+ 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
+ 
+ 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
+ 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
+ 
+-	if (x86_match_cpu(cpu_no_meltdown))
++	if (cpu_matches(NO_MELTDOWN))
+ 		return;
+ 
+ 	/* Rogue Data Cache Load? No! */
+@@ -886,7 +893,7 @@ static void __init cpu_set_bug_bits(stru
+ 
+ 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
+ 
+-	if (x86_match_cpu(cpu_no_l1tf))
++	if (cpu_matches(NO_L1TF))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_L1TF);
 
