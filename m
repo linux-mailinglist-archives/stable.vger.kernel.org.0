@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB45820C4B
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE09120C68
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:06:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbfEPQDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:03:44 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42568 "EHLO
+        id S1727193AbfEPQEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:04:12 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42454 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726762AbfEPP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:43 -0400
+        by vger.kernel.org with ESMTP id S1726699AbfEPP6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:42 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0006yp-5s; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImE-0006zk-HI; Thu, 16 May 2019 16:58:38 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImC-0001N3-J7; Thu, 16 May 2019 16:58:36 +0100
+        id 1hRImD-0001P9-Hh; Thu, 16 May 2019 16:58:37 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,23 +26,32 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        mpe@ellerman.id.au, mgorman@suse.de,
-        "Ingo Molnar" <mingo@kernel.org>, catalin.marinas@arm.com,
+        "Dave Hansen" <dave.hansen@intel.com>,
+        "Andi Kleen" <ak@linux.intel.com>,
+        "Ingo Molnar" <mingo@kernel.org>,
+        "Asit Mallick" <asit.k.mallick@intel.com>,
+        "David Woodhouse" <dwmw@amazon.co.uk>,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, paulus@samba.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, mmarek@suse.cz,
-        davem@davemloft.net, will.deacon@arm.com, benh@kernel.crashing.org,
-        "Anton Blanchard" <anton@samba.org>, schwidefsky@de.ibm.com,
-        ralf@linux-mips.org, linux@arm.linux.org.uk, jbaron@akamai.com,
+        "Kees Cook" <keescook@chromium.org>,
+        "Jiri Kosina" <jkosina@suse.cz>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Josh Poimboeuf" <jpoimboe@redhat.com>,
+        "Tom Lendacky" <thomas.lendacky@amd.com>,
+        "Greg KH" <gregkh@linuxfoundation.org>,
+        "Casey Schaufler" <casey.schaufler@intel.com>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Tim Chen" <tim.c.chen@linux.intel.com>,
         "Linus Torvalds" <torvalds@linux-foundation.org>,
-        heiko.carstens@de.ibm.com, linuxppc-dev@lists.ozlabs.org,
-        rostedt@goodmis.org, liuj97@gmail.com
-Date:   Thu, 16 May 2019 16:55:32 +0100
-Message-ID: <lsq.1558022132.38146636@decadent.org.uk>
+        "Jon Masters" <jcm@redhat.com>,
+        "Dave Stewart" <david.c.stewart@intel.com>,
+        "Waiman Long" <longman9394@gmail.com>,
+        "Arjan van de Ven" <arjan@linux.intel.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>
+Date:   Thu, 16 May 2019 16:55:33 +0100
+Message-ID: <lsq.1558022133.547613@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 09/86] jump_label: Allow jump labels to be used in
- assembly
+Subject: [PATCH 3.16 35/86] x86/speculation: Clean up spectre_v2_parse_cmdline()
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -56,108 +65,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Anton Blanchard <anton@samba.org>
+From: Tim Chen <tim.c.chen@linux.intel.com>
 
-commit c0ccf6f99e3a43b87980c9df7da48427885206d0 upstream.
+commit 24848509aa55eac39d524b587b051f4e86df3c12 upstream.
 
-To use jump labels in assembly we need the HAVE_JUMP_LABEL
-define, so we select a fallback version if the toolchain does
-not support them.
+Remove the unnecessary 'else' statement in spectre_v2_parse_cmdline()
+to save an indentation level.
 
-Modify linux/jump_label.h so it can be included by assembly
-files. We also need to add -DCC_HAVE_ASM_GOTO to KBUILD_AFLAGS.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: benh@kernel.crashing.org
-Cc: catalin.marinas@arm.com
-Cc: davem@davemloft.net
-Cc: heiko.carstens@de.ibm.com
-Cc: jbaron@akamai.com
-Cc: linux@arm.linux.org.uk
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: liuj97@gmail.com
-Cc: mgorman@suse.de
-Cc: mmarek@suse.cz
-Cc: mpe@ellerman.id.au
-Cc: paulus@samba.org
-Cc: ralf@linux-mips.org
-Cc: rostedt@goodmis.org
-Cc: schwidefsky@de.ibm.com
-Cc: will.deacon@arm.com
-Link: http://lkml.kernel.org/r/1428551492-21977-2-git-send-email-anton@samba.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Asit Mallick <asit.k.mallick@intel.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Waiman Long <longman9394@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Dave Stewart <david.c.stewart@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20181125185003.688010903@linutronix.de
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- Makefile                   |  1 +
- include/linux/jump_label.h | 21 +++++++++++++++++----
- 2 files changed, 18 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/bugs.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -761,6 +761,7 @@ KBUILD_ARFLAGS := $(call ar-option,D)
- # check for 'asm goto'
- ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
- 	KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
-+	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
- endif
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -336,22 +336,21 @@ static enum spectre_v2_mitigation_cmd __
  
- include $(srctree)/scripts/Makefile.extrawarn
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -45,6 +45,12 @@
-  * same as using STATIC_KEY_INIT_FALSE.
-  */
+ 	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
+ 		return SPECTRE_V2_CMD_NONE;
+-	else {
+-		ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
+-		if (ret < 0)
+-			return SPECTRE_V2_CMD_AUTO;
  
-+#if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
-+# define HAVE_JUMP_LABEL
-+#endif
+-		for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
+-			if (!match_option(arg, ret, mitigation_options[i].option))
+-				continue;
+-			cmd = mitigation_options[i].cmd;
+-			break;
+-		}
++	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
++	if (ret < 0)
++		return SPECTRE_V2_CMD_AUTO;
+ 
+-		if (i >= ARRAY_SIZE(mitigation_options)) {
+-			pr_err("unknown option (%s). Switching to AUTO select\n", arg);
+-			return SPECTRE_V2_CMD_AUTO;
+-		}
++	for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
++		if (!match_option(arg, ret, mitigation_options[i].option))
++			continue;
++		cmd = mitigation_options[i].cmd;
++		break;
++	}
 +
-+#ifndef __ASSEMBLY__
-+
- #include <linux/types.h>
- #include <linux/compiler.h>
- #include <linux/bug.h>
-@@ -55,7 +61,7 @@ extern bool static_key_initialized;
- 				    "%s used before call to jump_label_init", \
- 				    __func__)
++	if (i >= ARRAY_SIZE(mitigation_options)) {
++		pr_err("unknown option (%s). Switching to AUTO select\n", arg);
++		return SPECTRE_V2_CMD_AUTO;
+ 	}
  
--#if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
-+#ifdef HAVE_JUMP_LABEL
- 
- struct static_key {
- 	atomic_t enabled;
-@@ -66,13 +72,18 @@ struct static_key {
- #endif
- };
- 
--# include <asm/jump_label.h>
--# define HAVE_JUMP_LABEL
- #else
- struct static_key {
- 	atomic_t enabled;
- };
--#endif	/* CC_HAVE_ASM_GOTO && CONFIG_JUMP_LABEL */
-+#endif	/* HAVE_JUMP_LABEL */
-+#endif /* __ASSEMBLY__ */
-+
-+#ifdef HAVE_JUMP_LABEL
-+#include <asm/jump_label.h>
-+#endif
-+
-+#ifndef __ASSEMBLY__
- 
- enum jump_label_type {
- 	JUMP_LABEL_DISABLE = 0,
-@@ -223,3 +234,5 @@ static inline void static_key_disable(st
- }
- 
- #endif	/* _LINUX_JUMP_LABEL_H */
-+
-+#endif /* __ASSEMBLY__ */
+ 	if ((cmd == SPECTRE_V2_CMD_RETPOLINE ||
 
