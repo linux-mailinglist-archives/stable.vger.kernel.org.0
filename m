@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E576205B8
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B43205BB
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727480AbfEPLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:39:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47928 "EHLO mail.kernel.org"
+        id S1727495AbfEPLjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727427AbfEPLjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:39:52 -0400
+        id S1727485AbfEPLjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:39:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A09B62166E;
-        Thu, 16 May 2019 11:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3DDC2089E;
+        Thu, 16 May 2019 11:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006792;
-        bh=Ws+bFHUyMptDpf6Ro3V5FFO0qL8keE+Bq8CM4i285u8=;
+        s=default; t=1558006793;
+        bh=Anoh9xdY8HHEQE8H4Fo0vsBCQwnkQmV1/a4MRT0gwvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKg8MOv+4yU0eXv86kBtyV31dI+wqZ+VAALgaRrTwjPph5sn/M3ggxrg0FD8VOFRz
-         oyl9+pxHukLRmCFc+fXDWSDCJA1nAtezbpw/avS6Pv0XIUWdBYUg+csSL2O3Ba4wfe
-         EmJxG1MobILRBZJ9GxkoB+InmeJPc++bqgDjHHpY=
+        b=gJyDzA8kqkIDRSAgpNYICpmSEzotW27o2BujG6J/zHT87+quKLJzS/fHmSMipofFn
+         5omzhgj+BJJHSWnzvdQJ1q2LBpUedCMDPhDcP7c+tWUUT+EYAv8GfaTFA3xB4YNhp1
+         xYvJv1Qxy5thBlnRlUcG1vtxIGmn5zbYc23GLU14=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 15/34] apparmorfs: fix use-after-free on symlink traversal
-Date:   Thu, 16 May 2019 07:39:12 -0400
-Message-Id: <20190516113932.8348-15-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 16/34] PCI: Fix issue with "pci=disable_acs_redir" parameter being ignored
+Date:   Thu, 16 May 2019 07:39:13 -0400
+Message-Id: <20190516113932.8348-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
@@ -42,51 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit f51dcd0f621caac5380ce90fbbeafc32ce4517ae ]
+[ Upstream commit d5bc73f34cc97c4b4b9202cc93182c2515076edf ]
 
-symlink body shouldn't be freed without an RCU delay.  Switch apparmorfs
-to ->destroy_inode() and use of call_rcu(); free both the inode and symlink
-body in the callback.
+In most cases, kmalloc() will not be available early in boot when
+pci_setup() is called.  Thus, the kstrdup() call that was added to fix the
+__initdata bug with the disable_acs_redir parameter usually returns NULL,
+so the parameter is discarded and has no effect.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+To fix this, store the string that's in initdata until an initcall function
+can allocate the memory appropriately.  This way we don't need any
+additional static memory.
+
+Fixes: d2fd6e81912a ("PCI: Fix __initdata issue with "pci=disable_acs_redir" parameter")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/apparmorfs.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/pci/pci.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 3f80a684c232a..665853dd517ca 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -123,17 +123,22 @@ static int aafs_show_path(struct seq_file *seq, struct dentry *dentry)
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index e91005d0f20c7..3f77bab698ced 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -6266,8 +6266,7 @@ static int __init pci_setup(char *str)
+ 			} else if (!strncmp(str, "pcie_scan_all", 13)) {
+ 				pci_add_flags(PCI_SCAN_ALL_PCIE_DEVS);
+ 			} else if (!strncmp(str, "disable_acs_redir=", 18)) {
+-				disable_acs_redir_param =
+-					kstrdup(str + 18, GFP_KERNEL);
++				disable_acs_redir_param = str + 18;
+ 			} else {
+ 				printk(KERN_ERR "PCI: Unknown option `%s'\n",
+ 						str);
+@@ -6278,3 +6277,19 @@ static int __init pci_setup(char *str)
  	return 0;
  }
- 
--static void aafs_evict_inode(struct inode *inode)
-+static void aafs_i_callback(struct rcu_head *head)
- {
--	truncate_inode_pages_final(&inode->i_data);
--	clear_inode(inode);
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
- 	if (S_ISLNK(inode->i_mode))
- 		kfree(inode->i_link);
-+	free_inode_nonrcu(inode);
-+}
+ early_param("pci", pci_setup);
 +
-+static void aafs_destroy_inode(struct inode *inode)
++/*
++ * 'disable_acs_redir_param' is initialized in pci_setup(), above, to point
++ * to data in the __initdata section which will be freed after the init
++ * sequence is complete. We can't allocate memory in pci_setup() because some
++ * architectures do not have any memory allocation service available during
++ * an early_param() call. So we allocate memory and copy the variable here
++ * before the init section is freed.
++ */
++static int __init pci_realloc_setup_params(void)
 +{
-+	call_rcu(&inode->i_rcu, aafs_i_callback);
- }
- 
- static const struct super_operations aafs_super_ops = {
- 	.statfs = simple_statfs,
--	.evict_inode = aafs_evict_inode,
-+	.destroy_inode = aafs_destroy_inode,
- 	.show_path = aafs_show_path,
- };
- 
++	disable_acs_redir_param = kstrdup(disable_acs_redir_param, GFP_KERNEL);
++
++	return 0;
++}
++pure_initcall(pci_realloc_setup_params);
 -- 
 2.20.1
 
