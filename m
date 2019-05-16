@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B89420C09
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DDC20C57
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727412AbfEPQBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:01:14 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42840 "EHLO
+        id S1726729AbfEPP6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 11:58:42 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42416 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726974AbfEPP6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:46 -0400
+        by vger.kernel.org with ESMTP id S1726645AbfEPP6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:41 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0006zr-Nv; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImD-0006z3-HA; Thu, 16 May 2019 16:58:37 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001PS-N5; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImD-0001Nw-0m; Thu, 16 May 2019 16:58:37 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,32 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Andrea Arcangeli" <aarcange@redhat.com>,
-        "Arjan van de Ven" <arjan@linux.intel.com>,
-        "Waiman Long" <longman9394@gmail.com>,
-        "Dave Stewart" <david.c.stewart@intel.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Jon Masters" <jcm@redhat.com>,
-        "Tim Chen" <tim.c.chen@linux.intel.com>,
-        "Andy Lutomirski" <luto@kernel.org>,
-        "Casey Schaufler" <casey.schaufler@intel.com>,
-        "Greg KH" <gregkh@linuxfoundation.org>,
-        "Tom Lendacky" <thomas.lendacky@amd.com>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Jiri Kosina" <jkosina@suse.cz>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Kees Cook" <keescook@chromium.org>,
-        "David Woodhouse" <dwmw@amazon.co.uk>,
-        "Asit Mallick" <asit.k.mallick@intel.com>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Andi Kleen" <ak@linux.intel.com>,
-        "Dave Hansen" <dave.hansen@intel.com>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Tejun Heo" <tj@kernel.org>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.563712630@decadent.org.uk>
+Message-ID: <lsq.1558022133.853826899@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 39/86] x86/speculation: Rename SSBD update functions
+Subject: [PATCH 3.16 20/86] jump_label: make static_key_enabled() work on
+ static_key_true/false types too
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -65,131 +47,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Tejun Heo <tj@kernel.org>
 
-commit 26c4d75b234040c11728a8acb796b3a85ba7507c upstream.
+commit fa128fd735bd236b6b04d3fedfed7a784137c185 upstream.
 
-During context switch, the SSBD bit in SPEC_CTRL MSR is updated according
-to changes of the TIF_SSBD flag in the current and next running task.
+static_key_enabled() can be used on struct static_key but not on its
+wrapper types static_key_true and static_key_false.  The function is
+useful for debugging and management of static keys.  Update it so that
+it can be used for the wrapper types too.
 
-Currently, only the bit controlling speculative store bypass disable in
-SPEC_CTRL MSR is updated and the related update functions all have
-"speculative_store" or "ssb" in their names.
-
-For enhanced mitigation control other bits in SPEC_CTRL MSR need to be
-updated as well, which makes the SSB names inadequate.
-
-Rename the "speculative_store*" functions to a more generic name. No
-functional change.
-
-Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Asit Mallick <asit.k.mallick@intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Waiman Long <longman9394@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Stewart <david.c.stewart@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185004.058866968@linutronix.de
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/include/asm/spec-ctrl.h |  6 +++---
- arch/x86/kernel/cpu/bugs.c       |  4 ++--
- arch/x86/kernel/process.c        | 12 ++++++------
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ include/linux/jump_label.h | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/spec-ctrl.h
-+++ b/arch/x86/include/asm/spec-ctrl.h
-@@ -70,11 +70,11 @@ extern void speculative_store_bypass_ht_
- static inline void speculative_store_bypass_ht_init(void) { }
- #endif
+--- a/include/linux/jump_label.h
++++ b/include/linux/jump_label.h
+@@ -214,11 +214,6 @@ static inline int jump_label_apply_nops(
+ #define STATIC_KEY_INIT STATIC_KEY_INIT_FALSE
+ #define jump_label_enabled static_key_enabled
  
--extern void speculative_store_bypass_update(unsigned long tif);
-+extern void speculation_ctrl_update(unsigned long tif);
- 
--static inline void speculative_store_bypass_update_current(void)
-+static inline void speculation_ctrl_update_current(void)
+-static inline bool static_key_enabled(struct static_key *key)
+-{
+-	return static_key_count(key) > 0;
+-}
+-
+ static inline void static_key_enable(struct static_key *key)
  {
--	speculative_store_bypass_update(current_thread_info()->flags);
-+	speculation_ctrl_update(current_thread_info()->flags);
- }
+ 	int count = static_key_count(key);
+@@ -265,6 +260,17 @@ struct static_key_false {
+ #define DEFINE_STATIC_KEY_FALSE(name)	\
+ 	struct static_key_false name = STATIC_KEY_FALSE_INIT
  
- #endif
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -255,7 +255,7 @@ x86_virt_spec_ctrl(u64 guest_spec_ctrl,
- 		tif = setguest ? ssbd_spec_ctrl_to_tif(guestval) :
- 				 ssbd_spec_ctrl_to_tif(hostval);
- 
--		speculative_store_bypass_update(tif);
-+		speculation_ctrl_update(tif);
- 	}
- }
- EXPORT_SYMBOL_GPL(x86_virt_spec_ctrl);
-@@ -692,7 +692,7 @@ static int ssb_prctl_set(struct task_str
- 	 * mitigation until it is next scheduled.
- 	 */
- 	if (task == current && update)
--		speculative_store_bypass_update_current();
-+		speculation_ctrl_update_current();
- 
- 	return 0;
- }
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -335,27 +335,27 @@ static __always_inline void amd_set_ssb_
- 	wrmsrl(MSR_AMD64_VIRT_SPEC_CTRL, ssbd_tif_to_spec_ctrl(tifn));
- }
- 
--static __always_inline void intel_set_ssb_state(unsigned long tifn)
-+static __always_inline void spec_ctrl_update_msr(unsigned long tifn)
- {
- 	u64 msr = x86_spec_ctrl_base | ssbd_tif_to_spec_ctrl(tifn);
- 
- 	wrmsrl(MSR_IA32_SPEC_CTRL, msr);
- }
- 
--static __always_inline void __speculative_store_bypass_update(unsigned long tifn)
-+static __always_inline void __speculation_ctrl_update(unsigned long tifn)
- {
- 	if (static_cpu_has(X86_FEATURE_VIRT_SSBD))
- 		amd_set_ssb_virt_state(tifn);
- 	else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD))
- 		amd_set_core_ssb_state(tifn);
- 	else
--		intel_set_ssb_state(tifn);
-+		spec_ctrl_update_msr(tifn);
- }
- 
--void speculative_store_bypass_update(unsigned long tif)
-+void speculation_ctrl_update(unsigned long tif)
- {
- 	preempt_disable();
--	__speculative_store_bypass_update(tif);
-+	__speculation_ctrl_update(tif);
- 	preempt_enable();
- }
- 
-@@ -393,7 +393,7 @@ void __switch_to_xtra(struct task_struct
- 	}
- 
- 	if ((tifp ^ tifn) & _TIF_SSBD)
--		__speculative_store_bypass_update(tifn);
-+		__speculation_ctrl_update(tifn);
- }
++extern bool ____wrong_branch_error(void);
++
++#define static_key_enabled(x)							\
++({										\
++	if (!__builtin_types_compatible_p(typeof(*x), struct static_key) &&	\
++	    !__builtin_types_compatible_p(typeof(*x), struct static_key_true) &&\
++	    !__builtin_types_compatible_p(typeof(*x), struct static_key_false))	\
++		____wrong_branch_error();					\
++	static_key_count((struct static_key *)x) > 0;				\
++})
++
+ #ifdef HAVE_JUMP_LABEL
  
  /*
+@@ -323,8 +329,6 @@ struct static_key_false {
+  * See jump_label_type() / jump_label_init_type().
+  */
+ 
+-extern bool ____wrong_branch_error(void);
+-
+ #define static_branch_likely(x)							\
+ ({										\
+ 	bool branch;								\
 
