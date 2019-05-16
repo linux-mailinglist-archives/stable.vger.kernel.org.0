@@ -2,79 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFD22084C
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 15:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0F0208AD
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 15:55:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727279AbfEPNee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 09:34:34 -0400
-Received: from mail-it1-f193.google.com ([209.85.166.193]:51829 "EHLO
-        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726703AbfEPNee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 09:34:34 -0400
-Received: by mail-it1-f193.google.com with SMTP id m3so2350498itl.1
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 06:34:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=cI/QL9iFVJPYS/RXsOJlVyjYcvn7v6cU3O6ni3DD6Jc=;
-        b=iq5Xqzn72kwrglcbjKyVZPgzKCEiTPZVXhCgyF+nMK9rAtjfRRUXmG7Czyr2zExI13
-         r5ubmsA7CJ2wQAXBDsgmz1xaoYv0sQRbj9lPiiQNuOg597McdDusCGu9z3On/e3kD4tL
-         LFNX+Bt3rWLqrYgVun7LK+XgK2VIdFEp7T16mlP2Z8RgAalNIgpkAAO4iiG8Uo7cqhzY
-         /xGp6jx69ghpdud2fyl9f5t++jsy3Lt6g/sWXb4ByIAd4+IhCOioOfE2Nh6vaGLlrlSV
-         sp7Bjov3Dq/rM0UQtYq7Y56Jq1d36nMtWBZSQchCFu4eVajk8EbqUdx5dZZl5+awJcW8
-         /b8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=cI/QL9iFVJPYS/RXsOJlVyjYcvn7v6cU3O6ni3DD6Jc=;
-        b=I45gi0hAzigWzquRF39gcCGaog3MkGc08FhRPepPr2uYKT5msEp6Q2AzgQKD0v5mn7
-         kTY6bSuGD54DQysvw/4ud+TAsRcFLzBm+1rtxbo0K6si/yMyxgTMolUKgYeOGCax6GgV
-         j9GuZGFIXTFdANq0C4cdV03QF9uVHl15hTL5g91FzRUnAOao41w/DdIM9nnTH3Kgk28V
-         4m67RBuKJ+kXgaOMmcHn2uyWPgiOi6gaERzNuE24O49cu58Yp0+GuYn2dUf7MiqHE4qw
-         HKoB6jTYqIIpX0XaFRk7MkyxVH7sG491ogkmkSkk0V9JxviNFe1YDJC055+QEM5ld5Xn
-         uRXg==
-X-Gm-Message-State: APjAAAVql7ylp7iBmPtmscR7Xpu6s/eykwDmq82RdaRUlhr355KgpNiQ
-        AvtLA9TUG7evHVtV19dgm08YgM4uVtEgK5GxbSw=
-X-Google-Smtp-Source: APXvYqyuc3K+T1+kb7kT8VgnRJTdDwQUAZlELkE5fGhMsWQnov/6ml3MSZQmKXTSEyOmcJ5cwIpefgy+isVgbGKgqns=
-X-Received: by 2002:a02:a890:: with SMTP id l16mr33311660jam.137.1558013673804;
- Thu, 16 May 2019 06:34:33 -0700 (PDT)
+        id S1726736AbfEPNzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 09:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726623AbfEPNzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 09:55:55 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E22F620657;
+        Thu, 16 May 2019 13:55:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558014954;
+        bh=BvXt+eR4jR0LUyZlbGdZ51x2LIrl45NN9y7NG5dGC9s=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=UpoTFQ/JWVo7a9UoCtESEVaHEbqguTunbA6Bw/K9JWTyBGrhJp8JWY7J7m80hF63B
+         R436BoQqvmQRhB77Fx2eUOSUg5e+agLBWYry7rXyriP4BjDKBtDr9DSjvRHn9eWQ9Y
+         Nfe0zHdLcRpbZCfLx4Phi4x47DT8+zM+vAL2lf4Q=
+Subject: Re: [PATCH 5.1 00/46] 5.1.3-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20190515090616.670410738@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <38cc4651-4e70-48c8-5793-5857d0f33cc5@kernel.org>
+Date:   Thu, 16 May 2019 07:55:43 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Received: by 2002:a4f:a28b:0:0:0:0:0 with HTTP; Thu, 16 May 2019 06:34:33
- -0700 (PDT)
-Reply-To: mrtapioka_lirnalaboso@outlook.fr
-From:   "Mr.Tapioka Lirnalaboso" <mralharirilzzeddin@gmail.com>
-Date:   Thu, 16 May 2019 15:34:33 +0200
-Message-ID: <CAAXN-Kv7UE_d2_sdy5=Y=OjFhSisN1vXYQRwuBNkS7gnJOCQ3Q@mail.gmail.com>
-Subject: very very urgent
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190515090616.670410738@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On 5/15/19 4:56 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.3 release.
+> There are 46 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 17 May 2019 09:04:22 AM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I Mr Taptoka Lornalaboso, Head of operation  at Bank of Africa. I want
-you to know that the amount of $ 18.5 million will be
-transferred to your name as a  foreign partner.
+Compiled and booted on my test system. No dmesg regressions.
 
-I need your help to get this fund to be transfer out from here to your
-account, and we  share at a ratio of 50% for me,
-while50% is for you in any assistance that you may require  to give
-during the transferring process of this fund into
-your account. You will receive  this amount by bank transfer.
-
-Please send your full name and your directly phone numbers, and
-address, and I will  details you about this transaction.
-You have to contact me through my private e-mail at
-(mrtapioka_lirnalaboso@outlook.fr)
-Your prompt reply will be highly appreciated.
-
-Sincerely,
-CONTACTS ME THROUGH MY INFORMATION
-African Development Bank.(ADB).BF
-
-Contact: E-Mail :(mrtapioka_lirnalaboso@outlook.fr)
-Mr TAPIOKA LORNALABOSO.
+thanks,
+-- Shuah
