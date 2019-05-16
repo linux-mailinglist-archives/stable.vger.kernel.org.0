@@ -2,51 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3745C20527
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C22ED20575
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728167AbfEPLlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728193AbfEPLlc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 May 2019 07:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727202AbfEPLlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727496AbfEPLlb (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 May 2019 07:41:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D98521473;
-        Thu, 16 May 2019 11:41:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6592B21726;
+        Thu, 16 May 2019 11:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1558006890;
-        bh=hbQTVOgTbztDZsYFpeQC08xeIXWV1gVSSPiaepHIZLc=;
+        bh=TUQU0ao3WYeoFy+YytAi8+uhzS+S6UFxSVk7Y+p8ViY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5ceduKu9GMuxGuty+jA6IOClO+AqT6Jd2LMhk/oBaTIOjQqVYiySl4CNg+56q6PS
-         3BpVyIYzZ4JpDJGZRKqrNKwmngXaXkZJXvyhGoXCu49LRj9ZkuHLFu3phrFebrLbQu
-         tRkWLoV3vpEFanHGc+UHYvWXhw6CgsQm+mcc6SEE=
+        b=b9U2cWPltY9LXQ6lYvmW+WrjBALBb2Kktg3UfCSMwHDrevAxJbh89goyloGe8VkzU
+         fLVyBvrBJoHhqloPNpgZ2sv+fTsbapNIX2nsj5MmqjaNfv1ogOkCMVN61O+7GHCoDb
+         Dh0cV6bYhAl8kmxevq2AAU8ltIiFU1khyelDJrbI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gary Hook <Gary.Hook@amd.com>, Li RongQing <lirongqing@baidu.com>,
-        Gary R Hook <gary.hook@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Coly Li <colyli@suse.de>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        "luto@kernel.org" <luto@kernel.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/16] x86/mm/mem_encrypt: Disable all instrumentation for early SME setup
-Date:   Thu, 16 May 2019 07:41:05 -0400
-Message-Id: <20190516114107.8963-14-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 15/16] ufs: fix braino in ufs_get_inode_gid() for solaris UFS flavour
+Date:   Thu, 16 May 2019 07:41:06 -0400
+Message-Id: <20190516114107.8963-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516114107.8963-1-sashal@kernel.org>
 References: <20190516114107.8963-1-sashal@kernel.org>
@@ -59,102 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gary Hook <Gary.Hook@amd.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit b51ce3744f115850166f3d6c292b9c8cb849ad4f ]
+[ Upstream commit 4e9036042fedaffcd868d7f7aa948756c48c637d ]
 
-Enablement of AMD's Secure Memory Encryption feature is determined very
-early after start_kernel() is entered. Part of this procedure involves
-scanning the command line for the parameter 'mem_encrypt'.
+To choose whether to pick the GID from the old (16bit) or new (32bit)
+field, we should check if the old gid field is set to 0xffff.  Mainline
+checks the old *UID* field instead - cut'n'paste from the corresponding
+code in ufs_get_inode_uid().
 
-To determine intended state, the function sme_enable() uses library
-functions cmdline_find_option() and strncmp(). Their use occurs early
-enough such that it cannot be assumed that any instrumentation subsystem
-is initialized.
-
-For example, making calls to a KASAN-instrumented function before KASAN
-is set up will result in the use of uninitialized memory and a boot
-failure.
-
-When AMD's SME support is enabled, conditionally disable instrumentation
-of these dependent functions in lib/string.c and arch/x86/lib/cmdline.c.
-
- [ bp: Get rid of intermediary nostackp var and cleanup whitespace. ]
-
-Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
-Reported-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Boris Brezillon <bbrezillon@kernel.org>
-Cc: Coly Li <colyli@suse.de>
-Cc: "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: "luto@kernel.org" <luto@kernel.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: "mingo@redhat.com" <mingo@redhat.com>
-Cc: "peterz@infradead.org" <peterz@infradead.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/155657657552.7116.18363762932464011367.stgit@sosrh3.amd.com
+Fixes: 252e211e90ce
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/Makefile | 12 ++++++++++++
- lib/Makefile          | 11 +++++++++++
- 2 files changed, 23 insertions(+)
+ fs/ufs/util.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/Makefile b/arch/x86/lib/Makefile
-index d435c89875c14..60b410ff31e8a 100644
---- a/arch/x86/lib/Makefile
-+++ b/arch/x86/lib/Makefile
-@@ -6,6 +6,18 @@
- # Produces uninteresting flaky coverage.
- KCOV_INSTRUMENT_delay.o	:= n
- 
-+# Early boot use of cmdline; don't instrument it
-+ifdef CONFIG_AMD_MEM_ENCRYPT
-+KCOV_INSTRUMENT_cmdline.o := n
-+KASAN_SANITIZE_cmdline.o  := n
-+
-+ifdef CONFIG_FUNCTION_TRACER
-+CFLAGS_REMOVE_cmdline.o = -pg
-+endif
-+
-+CFLAGS_cmdline.o := $(call cc-option, -fno-stack-protector)
-+endif
-+
- inat_tables_script = $(srctree)/arch/x86/tools/gen-insn-attr-x86.awk
- inat_tables_maps = $(srctree)/arch/x86/lib/x86-opcode-map.txt
- quiet_cmd_inat_tables = GEN     $@
-diff --git a/lib/Makefile b/lib/Makefile
-index b1ac450329033..4ea31c2d982df 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -17,6 +17,17 @@ KCOV_INSTRUMENT_list_debug.o := n
- KCOV_INSTRUMENT_debugobjects.o := n
- KCOV_INSTRUMENT_dynamic_debug.o := n
- 
-+# Early boot use of cmdline, don't instrument it
-+ifdef CONFIG_AMD_MEM_ENCRYPT
-+KASAN_SANITIZE_string.o := n
-+
-+ifdef CONFIG_FUNCTION_TRACER
-+CFLAGS_REMOVE_string.o = -pg
-+endif
-+
-+CFLAGS_string.o := $(call cc-option, -fno-stack-protector)
-+endif
-+
- lib-y := ctype.o string.o vsprintf.o cmdline.o \
- 	 rbtree.o radix-tree.o dump_stack.o timerqueue.o\
- 	 idr.o int_sqrt.o extable.o \
+diff --git a/fs/ufs/util.h b/fs/ufs/util.h
+index 1907be6d58085..f3092d513551a 100644
+--- a/fs/ufs/util.h
++++ b/fs/ufs/util.h
+@@ -229,7 +229,7 @@ ufs_get_inode_gid(struct super_block *sb, struct ufs_inode *inode)
+ 	case UFS_UID_44BSD:
+ 		return fs32_to_cpu(sb, inode->ui_u3.ui_44.ui_gid);
+ 	case UFS_UID_EFT:
+-		if (inode->ui_u1.oldids.ui_suid == 0xFFFF)
++		if (inode->ui_u1.oldids.ui_sgid == 0xFFFF)
+ 			return fs32_to_cpu(sb, inode->ui_u3.ui_sun.ui_gid);
+ 		/* Fall through */
+ 	default:
 -- 
 2.20.1
 
