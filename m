@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 622DF20C6D
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ADCA20BF3
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726811AbfEPQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:04:36 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42412 "EHLO
+        id S1727263AbfEPQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:00:23 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43088 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726678AbfEPP6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:42 -0400
+        by vger.kernel.org with ESMTP id S1727105AbfEPP6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:48 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0006yt-CX; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImK-0006zr-Fx; Thu, 16 May 2019 16:58:44 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImC-0001NS-Pt; Thu, 16 May 2019 16:58:36 +0100
+        id 1hRImE-0001Rj-LS; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,19 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Ingo Molnar" <mingo@kernel.org>,
+        "Frederic Weisbecker" <frederic@kernel.org>,
+        "Dominik Brodowski" <linux@dominikbrodowski.net>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Jon Masters" <jcm@redhat.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, x86@kernel.org,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        "Peter Zijlstra" <peterz@infradead.org>
+        "Borislav Petkov" <bp@suse.de>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.477445986@decadent.org.uk>
+Message-ID: <lsq.1558022133.38392125@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 14/86] locking/static_keys: Rework update logic
+Subject: [PATCH 3.16 67/86] x86/speculation/mds: Clear CPU buffers on exit
+ to user
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,228 +52,263 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 706249c222f68471b6f8e9e8e9b77665c404b226 upstream.
+commit 04dcbdb8057827b043b3c71aa397c4c63e67d086 upstream.
 
-Instead of spreading the branch_default logic all over the place,
-concentrate it into the one jump_label_type() function.
+Add a static key which controls the invocation of the CPU buffer clear
+mechanism on exit to user space and add the call into
+prepare_exit_to_usermode() and do_nmi() right before actually returning.
 
-This does mean we need to actually increment/decrement the enabled
-count _before_ calling the update path, otherwise jump_label_type()
-will not see the right state.
+Add documentation which kernel to user space transition this covers and
+explain why some corner cases are not mitigated.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+Tested-by: Jon Masters <jcm@redhat.com>
+[bwh: Backported to 3.16: Add an assembly macro equivalent to
+ mds_user_clear_cpu_buffers() and use this in the system call exit path,
+ as we don't have prepare_exit_to_usermode()]
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: x86@kernel.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/jump_label.c | 88 ++++++++++++++++++++-------------------------
- 1 file changed, 38 insertions(+), 50 deletions(-)
-
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -54,12 +54,7 @@ jump_label_sort_entries(struct jump_entr
- 	sort(start, size, sizeof(struct jump_entry), jump_label_cmp, NULL);
+--- a/Documentation/x86/mds.rst
++++ b/Documentation/x86/mds.rst
+@@ -97,3 +97,55 @@ According to current knowledge additiona
+ itself are not required because the necessary gadgets to expose the leaked
+ data cannot be controlled in a way which allows exploitation from malicious
+ user space or VM guests.
++
++Mitigation points
++-----------------
++
++1. Return to user space
++^^^^^^^^^^^^^^^^^^^^^^^
++
++   When transitioning from kernel to user space the CPU buffers are flushed
++   on affected CPUs when the mitigation is not disabled on the kernel
++   command line. The migitation is enabled through the static key
++   mds_user_clear.
++
++   The mitigation is invoked in prepare_exit_to_usermode() which covers
++   most of the kernel to user space transitions. There are a few exceptions
++   which are not invoking prepare_exit_to_usermode() on return to user
++   space. These exceptions use the paranoid exit code.
++
++   - Non Maskable Interrupt (NMI):
++
++     Access to sensible data like keys, credentials in the NMI context is
++     mostly theoretical: The CPU can do prefetching or execute a
++     misspeculated code path and thereby fetching data which might end up
++     leaking through a buffer.
++
++     But for mounting other attacks the kernel stack address of the task is
++     already valuable information. So in full mitigation mode, the NMI is
++     mitigated on the return from do_nmi() to provide almost complete
++     coverage.
++
++   - Double fault (#DF):
++
++     A double fault is usually fatal, but the ESPFIX workaround, which can
++     be triggered from user space through modify_ldt(2) is a recoverable
++     double fault. #DF uses the paranoid exit path, so explicit mitigation
++     in the double fault handler is required.
++
++   - Machine Check Exception (#MC):
++
++     Another corner case is a #MC which hits between the CPU buffer clear
++     invocation and the actual return to user. As this still is in kernel
++     space it takes the paranoid exit path which does not clear the CPU
++     buffers. So the #MC handler repopulates the buffers to some
++     extent. Machine checks are not reliably controllable and the window is
++     extremly small so mitigation would just tick a checkbox that this
++     theoretical corner case is covered. To keep the amount of special
++     cases small, ignore #MC.
++
++   - Debug Exception (#DB):
++
++     This takes the paranoid exit path only when the INT1 breakpoint is in
++     kernel space. #DB on a user space address takes the regular exit path,
++     so no extra mitigation required.
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -262,6 +262,8 @@ DECLARE_STATIC_KEY_FALSE(switch_to_cond_
+ DECLARE_STATIC_KEY_FALSE(switch_mm_cond_ibpb);
+ DECLARE_STATIC_KEY_FALSE(switch_mm_always_ibpb);
+ 
++DECLARE_STATIC_KEY_FALSE(mds_user_clear);
++
+ #include <asm/segment.h>
+ 
+ /**
+@@ -287,5 +289,31 @@ static inline void mds_clear_cpu_buffers
+ 	asm volatile("verw %[ds]" : : [ds] "m" (ds) : "cc");
  }
  
--static void jump_label_update(struct static_key *key, int enable);
--
--static inline bool static_key_type(struct static_key *key)
--{
--	return (unsigned long)key->entries & JUMP_TYPE_MASK;
--}
-+static void jump_label_update(struct static_key *key);
- 
- void static_key_slow_inc(struct static_key *key)
- {
-@@ -68,13 +63,8 @@ void static_key_slow_inc(struct static_k
- 		return;
- 
- 	jump_label_lock();
--	if (atomic_read(&key->enabled) == 0) {
--		if (!static_key_type(key))
--			jump_label_update(key, JUMP_LABEL_JMP);
--		else
--			jump_label_update(key, JUMP_LABEL_NOP);
--	}
--	atomic_inc(&key->enabled);
-+	if (atomic_inc_return(&key->enabled) == 1)
-+		jump_label_update(key);
- 	jump_label_unlock();
- }
- EXPORT_SYMBOL_GPL(static_key_slow_inc);
-@@ -92,10 +82,7 @@ static void __static_key_slow_dec(struct
- 		atomic_inc(&key->enabled);
- 		schedule_delayed_work(work, rate_limit);
- 	} else {
--		if (!static_key_type(key))
--			jump_label_update(key, JUMP_LABEL_NOP);
--		else
--			jump_label_update(key, JUMP_LABEL_JMP);
-+		jump_label_update(key);
- 	}
- 	jump_label_unlock();
- }
-@@ -161,7 +148,7 @@ static int __jump_label_text_reserved(st
- 	return 0;
- }
- 
--/* 
-+/*
-  * Update code which is definitely not currently executing.
-  * Architectures which need heavyweight synchronization to modify
-  * running code can override this to make the non-live update case
-@@ -170,29 +157,17 @@ static int __jump_label_text_reserved(st
- void __weak __init_or_module arch_jump_label_transform_static(struct jump_entry *entry,
- 					    enum jump_label_type type)
- {
--	arch_jump_label_transform(entry, type);	
-+	arch_jump_label_transform(entry, type);
- }
- 
--static void __jump_label_update(struct static_key *key,
--				struct jump_entry *entry,
--				struct jump_entry *stop, int enable)
-+static inline struct jump_entry *static_key_entries(struct static_key *key)
- {
--	for (; (entry < stop) &&
--	      (entry->key == (jump_label_t)(unsigned long)key);
--	      entry++) {
--		/*
--		 * entry->code set to 0 invalidates module init text sections
--		 * kernel_text_address() verifies we are not in core kernel
--		 * init code, see jump_label_invalidate_module_init().
--		 */
--		if (entry->code && kernel_text_address(entry->code))
--			arch_jump_label_transform(entry, enable);
--	}
-+	return (struct jump_entry *)((unsigned long)key->entries & ~JUMP_TYPE_MASK);
- }
- 
--static inline struct jump_entry *static_key_entries(struct static_key *key)
-+static inline bool static_key_type(struct static_key *key)
- {
--	return (struct jump_entry *)((unsigned long)key->entries & ~JUMP_TYPE_MASK);
-+	return (unsigned long)key->entries & JUMP_TYPE_MASK;
- }
- 
- static inline struct static_key *jump_entry_key(struct jump_entry *entry)
-@@ -200,14 +175,30 @@ static inline struct static_key *jump_en
- 	return (struct static_key *)((unsigned long)entry->key);
- }
- 
--static enum jump_label_type jump_label_type(struct static_key *key)
-+static enum jump_label_type jump_label_type(struct jump_entry *entry)
- {
-+	struct static_key *key = jump_entry_key(entry);
- 	bool enabled = static_key_enabled(key);
- 	bool type = static_key_type(key);
- 
- 	return enabled ^ type;
- }
- 
-+static void __jump_label_update(struct static_key *key,
-+				struct jump_entry *entry,
-+				struct jump_entry *stop)
++/**
++ * mds_user_clear_cpu_buffers - Mitigation for MDS vulnerability
++ *
++ * Clear CPU buffers if the corresponding static key is enabled
++ */
++static inline void mds_user_clear_cpu_buffers(void)
 +{
-+	for (; (entry < stop) && (jump_entry_key(entry) == key); entry++) {
-+		/*
-+		 * entry->code set to 0 invalidates module init text sections
-+		 * kernel_text_address() verifies we are not in core kernel
-+		 * init code, see jump_label_invalidate_module_init().
-+		 */
-+		if (entry->code && kernel_text_address(entry->code))
-+			arch_jump_label_transform(entry, jump_label_type(entry));
-+	}
++	if (static_branch_likely(&mds_user_clear))
++		mds_clear_cpu_buffers();
 +}
 +
- void __init jump_label_init(void)
- {
- 	struct jump_entry *iter_start = __start___jump_table;
-@@ -221,8 +212,8 @@ void __init jump_label_init(void)
- 	for (iter = iter_start; iter < iter_stop; iter++) {
- 		struct static_key *iterk;
+ #endif /* __ASSEMBLY__ */
++
++#ifdef __ASSEMBLY__
++.macro MDS_USER_CLEAR_CPU_BUFFERS
++#ifdef CONFIG_JUMP_LABEL
++	STATIC_JUMP_IF_FALSE .Lmds_skip_clear_\@, mds_user_clear, def=0
++#endif
++#ifdef CONFIG_X86_64
++	verw	mds_clear_cpu_buffers_ds(%rip)
++#else
++	verw	mds_clear_cpu_buffers_ds
++#endif
++.Lmds_skip_clear_\@:
++.endm
++#endif
++
+ #endif /* _ASM_X86_NOSPEC_BRANCH_H_ */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -58,6 +58,12 @@ DEFINE_STATIC_KEY_FALSE(switch_mm_cond_i
+ /* Control unconditional IBPB in switch_mm() */
+ DEFINE_STATIC_KEY_FALSE(switch_mm_always_ibpb);
  
-+		arch_jump_label_transform_static(iter, jump_label_type(iter));
- 		iterk = jump_entry_key(iter);
--		arch_jump_label_transform_static(iter, jump_label_type(iterk));
- 		if (iterk == key)
- 			continue;
++/* Control MDS CPU buffer clear before returning to user space */
++DEFINE_STATIC_KEY_FALSE(mds_user_clear);
++
++/* For use by asm MDS_CLEAR_CPU_BUFFERS */
++const u16 mds_clear_cpu_buffers_ds = __KERNEL_DS;
++
+ #ifdef CONFIG_X86_32
  
-@@ -262,17 +253,15 @@ static int __jump_label_mod_text_reserve
- 				start, end);
+ static double __initdata x = 4195835.0;
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -29,6 +29,7 @@
+ #include <asm/mach_traps.h>
+ #include <asm/nmi.h>
+ #include <asm/x86_init.h>
++#include <asm/nospec-branch.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/nmi.h>
+@@ -522,6 +523,9 @@ nmi_restart:
+ 		write_cr2(this_cpu_read(nmi_cr2));
+ 	if (this_cpu_dec_return(nmi_state))
+ 		goto nmi_restart;
++
++	if (user_mode(regs))
++		mds_user_clear_cpu_buffers();
  }
+ NOKPROBE_SYMBOL(do_nmi);
  
--static void __jump_label_mod_update(struct static_key *key, int enable)
-+static void __jump_label_mod_update(struct static_key *key)
- {
--	struct static_key_mod *mod = key->next;
-+	struct static_key_mod *mod;
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -55,6 +55,7 @@
+ #include <asm/fixmap.h>
+ #include <asm/mach_traps.h>
+ #include <asm/alternative.h>
++#include <asm/nospec-branch.h>
  
--	while (mod) {
-+	for (mod = key->next; mod; mod = mod->next) {
- 		struct module *m = mod->mod;
- 
- 		__jump_label_update(key, mod->entries,
--				    m->jump_entries + m->num_jump_entries,
--				    enable);
--		mod = mod->next;
-+				    m->jump_entries + m->num_jump_entries);
- 	}
- }
- 
-@@ -294,9 +283,8 @@ void jump_label_apply_nops(struct module
- 	if (iter_start == iter_stop)
+ #ifdef CONFIG_X86_64
+ #include <asm/x86_init.h>
+@@ -258,6 +259,14 @@ dotraplinkage void do_double_fault(struc
+ 		normal_regs->orig_ax = 0;  /* Missing (lost) #GP error code */
+ 		regs->ip = (unsigned long)general_protection;
+ 		regs->sp = (unsigned long)&normal_regs->orig_ax;
++
++		/*
++		 * This situation can be triggered by userspace via
++		 * modify_ldt(2) and the return does not take the regular
++		 * user space exit, so a CPU buffer clear is required when
++		 * MDS mitigation is enabled.
++		 */
++		mds_user_clear_cpu_buffers();
  		return;
- 
--	for (iter = iter_start; iter < iter_stop; iter++) {
-+	for (iter = iter_start; iter < iter_stop; iter++)
- 		arch_jump_label_transform_static(iter, JUMP_LABEL_NOP);
--	}
- }
- 
- static int jump_label_add_module(struct module *mod)
-@@ -337,8 +325,8 @@ static int jump_label_add_module(struct
- 		jlm->next = key->next;
- 		key->next = jlm;
- 
--		if (jump_label_type(key) == JUMP_LABEL_JMP)
--			__jump_label_update(key, iter, iter_stop, JUMP_LABEL_JMP);
-+		if (jump_label_type(iter) == JUMP_LABEL_JMP)
-+			__jump_label_update(key, iter, iter_stop);
  	}
- 
- 	return 0;
-@@ -458,14 +446,14 @@ int jump_label_text_reserved(void *start
- 	return ret;
- }
- 
--static void jump_label_update(struct static_key *key, int enable)
-+static void jump_label_update(struct static_key *key)
- {
- 	struct jump_entry *stop = __stop___jump_table;
- 	struct jump_entry *entry = static_key_entries(key);
- #ifdef CONFIG_MODULES
- 	struct module *mod;
- 
--	__jump_label_mod_update(key, enable);
-+	__jump_label_mod_update(key);
- 
- 	preempt_disable();
- 	mod = __module_address((unsigned long)key);
-@@ -475,7 +463,7 @@ static void jump_label_update(struct sta
  #endif
- 	/* if there are no users, entry can be NULL */
- 	if (entry)
--		__jump_label_update(key, entry, stop, enable);
-+		__jump_label_update(key, entry, stop);
- }
+--- a/arch/x86/kernel/entry_32.S
++++ b/arch/x86/kernel/entry_32.S
+@@ -443,6 +443,7 @@ sysenter_after_call:
+ 	testl $_TIF_ALLWORK_MASK, %ecx
+ 	jne sysexit_audit
+ sysenter_exit:
++	MDS_USER_CLEAR_CPU_BUFFERS
+ /* if something modifies registers it must also disable sysexit */
+ 	movl PT_EIP(%esp), %edx
+ 	movl PT_OLDESP(%esp), %ecx
+@@ -531,6 +532,7 @@ syscall_exit:
+ 	jne syscall_exit_work
  
- #endif
+ restore_all:
++	MDS_USER_CLEAR_CPU_BUFFERS
+ 	TRACE_IRQS_IRET
+ restore_all_notrace:
+ #ifdef CONFIG_X86_ESPFIX32
+--- a/arch/x86/kernel/entry_64.S
++++ b/arch/x86/kernel/entry_64.S
+@@ -475,6 +475,7 @@ sysret_check:
+ 	movl TI_flags+THREAD_INFO(%rsp,RIP-ARGOFFSET),%edx
+ 	andl %edi,%edx
+ 	jnz  sysret_careful
++	MDS_USER_CLEAR_CPU_BUFFERS
+ 	CFI_REMEMBER_STATE
+ 	/*
+ 	 * sysretq will re-enable interrupts:
+@@ -870,6 +871,7 @@ retint_swapgs:		/* return to user-space
+ 	 * The iretq could re-enable interrupts:
+ 	 */
+ 	DISABLE_INTERRUPTS(CLBR_ANY)
++	MDS_USER_CLEAR_CPU_BUFFERS
+ 	TRACE_IRQS_IRETQ
+ 	/*
+ 	 * This opens a window where we have a user CR3, but are
+@@ -1384,7 +1386,7 @@ paranoid_userspace:
+ 	GET_THREAD_INFO(%rcx)
+ 	movl TI_flags(%rcx),%ebx
+ 	andl $_TIF_WORK_MASK,%ebx
+-	jz paranoid_kernel
++	jz paranoid_userspace_done
+ 	movq %rsp,%rdi			/* &pt_regs */
+ 	call sync_regs
+ 	movq %rax,%rsp			/* switch stack for scheduling */
+@@ -1406,6 +1408,9 @@ paranoid_schedule:
+ 	DISABLE_INTERRUPTS(CLBR_ANY)
+ 	TRACE_IRQS_OFF
+ 	jmp paranoid_userspace
++paranoid_userspace_done:
++	MDS_USER_CLEAR_CPU_BUFFERS
++	jmp paranoid_kernel
+ 	CFI_ENDPROC
+ END(paranoid_exit)
+ 
+--- a/arch/x86/ia32/ia32entry.S
++++ b/arch/x86/ia32/ia32entry.S
+@@ -188,6 +188,7 @@ sysenter_dispatch:
+ 	testl	$_TIF_ALLWORK_MASK,TI_flags+THREAD_INFO(%rsp,RIP-ARGOFFSET)
+ 	jnz	sysexit_audit
+ sysexit_from_sys_call:
++	MDS_USER_CLEAR_CPU_BUFFERS
+ 	andl    $~TS_COMPAT,TI_status+THREAD_INFO(%rsp,RIP-ARGOFFSET)
+ 	/* clear IF, that popfq doesn't enable interrupts early */
+ 	andl  $~0x200,EFLAGS-R11(%rsp) 
+@@ -362,6 +363,7 @@ cstar_dispatch:
+ 	testl $_TIF_ALLWORK_MASK,TI_flags+THREAD_INFO(%rsp,RIP-ARGOFFSET)
+ 	jnz sysretl_audit
+ sysretl_from_sys_call:
++	MDS_USER_CLEAR_CPU_BUFFERS
+ 	andl $~TS_COMPAT,TI_status+THREAD_INFO(%rsp,RIP-ARGOFFSET)
+ 	RESTORE_ARGS 0,-ARG_SKIP,0,0,0
+ 	movl RIP-ARGOFFSET(%rsp),%ecx
 
