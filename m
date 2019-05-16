@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8136720BBD
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 17:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6437120BE5
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbfEPP6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 11:58:41 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42362 "EHLO
+        id S1727145AbfEPP6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 11:58:49 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43168 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726523AbfEPP6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:41 -0400
+        by vger.kernel.org with ESMTP id S1727120AbfEPP6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:49 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0006zQ-7d; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImK-0006zd-7s; Thu, 16 May 2019 16:58:44 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001Ob-BZ; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImE-0001SJ-SB; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        bp@suse.de, "Thomas Gleixner" <tglx@linutronix.de>,
-        konrad.wilk@oracle.com,
-        "Dominik Brodowski" <linux@dominikbrodowski.net>
+        "Jon Masters" <jcm@redhat.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.174232137@decadent.org.uk>
+Message-ID: <lsq.1558022133.445844442@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 28/86] x86/speculation: Simplify the CPU bug
- detection logic
+Subject: [PATCH 3.16 74/86] Documentation: Add MDS vulnerability documentation
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,82 +46,338 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 8ecc4979b1bd9c94168e6fc92960033b7a951336 upstream.
+commit 5999bbe7a6ea3c62029532ec84dc06003a1fa258 upstream.
 
-Only CPUs which speculate can speculate. Therefore, it seems prudent
-to test for cpu_no_speculation first and only then determine whether
-a specific speculating CPU is susceptible to store bypass speculation.
-This is underlined by all CPUs currently listed in cpu_no_speculation
-were present in cpu_no_spec_store_bypass as well.
+Add the initial MDS vulnerability documentation.
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@suse.de
-Cc: konrad.wilk@oracle.com
-Link: https://lkml.kernel.org/r/20180522090539.GA24668@light.dominikbrodowski.net
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+[bwh: Backported to 3.16:
+ - Drop the index updates
+ - Adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/cpu/common.c | 22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
-
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -825,12 +825,8 @@ static const __initconst struct x86_cpu_
- 	{}
- };
- 
-+/* Only list CPUs which speculate but are non susceptible to SSB */
- static const __initconst struct x86_cpu_id cpu_no_spec_store_bypass[] = {
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_PINEVIEW	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_LINCROFT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_PENWELL		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_CLOVERVIEW	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_CEDARVIEW	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT1	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT2	},
-@@ -838,14 +834,10 @@ static const __initconst struct x86_cpu_
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_CORE_YONAH		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
--	{ X86_VENDOR_CENTAUR,	5,					},
--	{ X86_VENDOR_INTEL,	5,					},
--	{ X86_VENDOR_NSC,	5,					},
- 	{ X86_VENDOR_AMD,	0x12,					},
- 	{ X86_VENDOR_AMD,	0x11,					},
- 	{ X86_VENDOR_AMD,	0x10,					},
- 	{ X86_VENDOR_AMD,	0xf,					},
--	{ X86_VENDOR_ANY,	4,					},
- 	{}
- };
- 
-@@ -868,6 +860,12 @@ static void __init cpu_set_bug_bits(stru
- {
- 	u64 ia32_cap = 0;
- 
-+	if (x86_match_cpu(cpu_no_speculation))
-+		return;
+--- /dev/null
++++ b/Documentation/hw-vuln/mds.rst
+@@ -0,0 +1,307 @@
++MDS - Microarchitectural Data Sampling
++======================================
 +
-+	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
-+	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
++Microarchitectural Data Sampling is a hardware vulnerability which allows
++unprivileged speculative access to data which is available in various CPU
++internal buffers.
 +
- 	if (cpu_has(c, X86_FEATURE_ARCH_CAPABILITIES))
- 		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
++Affected processors
++-------------------
++
++This vulnerability affects a wide range of Intel processors. The
++vulnerability is not present on:
++
++   - Processors from AMD, Centaur and other non Intel vendors
++
++   - Older processor models, where the CPU family is < 6
++
++   - Some Atoms (Bonnell, Saltwell, Goldmont, GoldmontPlus)
++
++   - Intel processors which have the ARCH_CAP_MDS_NO bit set in the
++     IA32_ARCH_CAPABILITIES MSR.
++
++Whether a processor is affected or not can be read out from the MDS
++vulnerability file in sysfs. See :ref:`mds_sys_info`.
++
++Not all processors are affected by all variants of MDS, but the mitigation
++is identical for all of them so the kernel treats them as a single
++vulnerability.
++
++Related CVEs
++------------
++
++The following CVE entries are related to the MDS vulnerability:
++
++   ==============  =====  ==============================================
++   CVE-2018-12126  MSBDS  Microarchitectural Store Buffer Data Sampling
++   CVE-2018-12130  MFBDS  Microarchitectural Fill Buffer Data Sampling
++   CVE-2018-12127  MLPDS  Microarchitectural Load Port Data Sampling
++   ==============  =====  ==============================================
++
++Problem
++-------
++
++When performing store, load, L1 refill operations, processors write data
++into temporary microarchitectural structures (buffers). The data in the
++buffer can be forwarded to load operations as an optimization.
++
++Under certain conditions, usually a fault/assist caused by a load
++operation, data unrelated to the load memory address can be speculatively
++forwarded from the buffers. Because the load operation causes a fault or
++assist and its result will be discarded, the forwarded data will not cause
++incorrect program execution or state changes. But a malicious operation
++may be able to forward this speculative data to a disclosure gadget which
++allows in turn to infer the value via a cache side channel attack.
++
++Because the buffers are potentially shared between Hyper-Threads cross
++Hyper-Thread attacks are possible.
++
++Deeper technical information is available in the MDS specific x86
++architecture section: :ref:`Documentation/x86/mds.rst <mds>`.
++
++
++Attack scenarios
++----------------
++
++Attacks against the MDS vulnerabilities can be mounted from malicious non
++priviledged user space applications running on hosts or guest. Malicious
++guest OSes can obviously mount attacks as well.
++
++Contrary to other speculation based vulnerabilities the MDS vulnerability
++does not allow the attacker to control the memory target address. As a
++consequence the attacks are purely sampling based, but as demonstrated with
++the TLBleed attack samples can be postprocessed successfully.
++
++Web-Browsers
++^^^^^^^^^^^^
++
++  It's unclear whether attacks through Web-Browsers are possible at
++  all. The exploitation through Java-Script is considered very unlikely,
++  but other widely used web technologies like Webassembly could possibly be
++  abused.
++
++
++.. _mds_sys_info:
++
++MDS system information
++-----------------------
++
++The Linux kernel provides a sysfs interface to enumerate the current MDS
++status of the system: whether the system is vulnerable, and which
++mitigations are active. The relevant sysfs file is:
++
++/sys/devices/system/cpu/vulnerabilities/mds
++
++The possible values in this file are:
++
++  =========================================   =================================
++  'Not affected'				The processor is not vulnerable
++
++  'Vulnerable'					The processor is vulnerable,
++						but no mitigation enabled
++
++  'Vulnerable: Clear CPU buffers attempted'	The processor is vulnerable but
++						microcode is not updated.
++						The mitigation is enabled on a
++						best effort basis.
++						See :ref:`vmwerv`
++
++  'Mitigation: CPU buffer clear'		The processor is vulnerable and the
++						CPU buffer clearing mitigation is
++						enabled.
++  =========================================   =================================
++
++If the processor is vulnerable then the following information is appended
++to the above information:
++
++    ========================  ============================================
++    'SMT vulnerable'          SMT is enabled
++    'SMT mitigated'           SMT is enabled and mitigated
++    'SMT disabled'            SMT is disabled
++    'SMT Host state unknown'  Kernel runs in a VM, Host SMT state unknown
++    ========================  ============================================
++
++.. _vmwerv:
++
++Best effort mitigation mode
++^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++  If the processor is vulnerable, but the availability of the microcode based
++  mitigation mechanism is not advertised via CPUID the kernel selects a best
++  effort mitigation mode.  This mode invokes the mitigation instructions
++  without a guarantee that they clear the CPU buffers.
++
++  This is done to address virtualization scenarios where the host has the
++  microcode update applied, but the hypervisor is not yet updated to expose
++  the CPUID to the guest. If the host has updated microcode the protection
++  takes effect otherwise a few cpu cycles are wasted pointlessly.
++
++  The state in the mds sysfs file reflects this situation accordingly.
++
++
++Mitigation mechanism
++-------------------------
++
++The kernel detects the affected CPUs and the presence of the microcode
++which is required.
++
++If a CPU is affected and the microcode is available, then the kernel
++enables the mitigation by default. The mitigation can be controlled at boot
++time via a kernel command line option. See
++:ref:`mds_mitigation_control_command_line`.
++
++.. _cpu_buffer_clear:
++
++CPU buffer clearing
++^^^^^^^^^^^^^^^^^^^
++
++  The mitigation for MDS clears the affected CPU buffers on return to user
++  space and when entering a guest.
++
++  If SMT is enabled it also clears the buffers on idle entry when the CPU
++  is only affected by MSBDS and not any other MDS variant, because the
++  other variants cannot be protected against cross Hyper-Thread attacks.
++
++  For CPUs which are only affected by MSBDS the user space, guest and idle
++  transition mitigations are sufficient and SMT is not affected.
++
++.. _virt_mechanism:
++
++Virtualization mitigation
++^^^^^^^^^^^^^^^^^^^^^^^^^
++
++  The protection for host to guest transition depends on the L1TF
++  vulnerability of the CPU:
++
++  - CPU is affected by L1TF:
++
++    If the L1D flush mitigation is enabled and up to date microcode is
++    available, the L1D flush mitigation is automatically protecting the
++    guest transition.
++
++    If the L1D flush mitigation is disabled then the MDS mitigation is
++    invoked explicit when the host MDS mitigation is enabled.
++
++    For details on L1TF and virtualization see:
++    :ref:`Documentation/hw-vuln//l1tf.rst <mitigation_control_kvm>`.
++
++  - CPU is not affected by L1TF:
++
++    CPU buffers are flushed before entering the guest when the host MDS
++    mitigation is enabled.
++
++  The resulting MDS protection matrix for the host to guest transition:
++
++  ============ ===== ============= ============ =================
++   L1TF         MDS   VMX-L1FLUSH   Host MDS     MDS-State
++
++   Don't care   No    Don't care    N/A          Not affected
++
++   Yes          Yes   Disabled      Off          Vulnerable
++
++   Yes          Yes   Disabled      Full         Mitigated
++
++   Yes          Yes   Enabled       Don't care   Mitigated
++
++   No           Yes   N/A           Off          Vulnerable
++
++   No           Yes   N/A           Full         Mitigated
++  ============ ===== ============= ============ =================
++
++  This only covers the host to guest transition, i.e. prevents leakage from
++  host to guest, but does not protect the guest internally. Guests need to
++  have their own protections.
++
++.. _xeon_phi:
++
++XEON PHI specific considerations
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++  The XEON PHI processor family is affected by MSBDS which can be exploited
++  cross Hyper-Threads when entering idle states. Some XEON PHI variants allow
++  to use MWAIT in user space (Ring 3) which opens an potential attack vector
++  for malicious user space. The exposure can be disabled on the kernel
++  command line with the 'ring3mwait=disable' command line option.
++
++  XEON PHI is not affected by the other MDS variants and MSBDS is mitigated
++  before the CPU enters a idle state. As XEON PHI is not affected by L1TF
++  either disabling SMT is not required for full protection.
++
++.. _mds_smt_control:
++
++SMT control
++^^^^^^^^^^^
++
++  All MDS variants except MSBDS can be attacked cross Hyper-Threads. That
++  means on CPUs which are affected by MFBDS or MLPDS it is necessary to
++  disable SMT for full protection. These are most of the affected CPUs; the
++  exception is XEON PHI, see :ref:`xeon_phi`.
++
++  Disabling SMT can have a significant performance impact, but the impact
++  depends on the type of workloads.
++
++  See the relevant chapter in the L1TF mitigation documentation for details:
++  :ref:`Documentation/hw-vuln/l1tf.rst <smt_control>`.
++
++
++.. _mds_mitigation_control_command_line:
++
++Mitigation control on the kernel command line
++---------------------------------------------
++
++The kernel command line allows to control the MDS mitigations at boot
++time with the option "mds=". The valid arguments for this option are:
++
++  ============  =============================================================
++  full		If the CPU is vulnerable, enable all available mitigations
++		for the MDS vulnerability, CPU buffer clearing on exit to
++		userspace and when entering a VM. Idle transitions are
++		protected as well if SMT is enabled.
++
++		It does not automatically disable SMT.
++
++  off		Disables MDS mitigations completely.
++
++  ============  =============================================================
++
++Not specifying this option is equivalent to "mds=full".
++
++
++Mitigation selection guide
++--------------------------
++
++1. Trusted userspace
++^^^^^^^^^^^^^^^^^^^^
++
++   If all userspace applications are from a trusted source and do not
++   execute untrusted code which is supplied externally, then the mitigation
++   can be disabled.
++
++
++2. Virtualization with trusted guests
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++   The same considerations as above versus trusted user space apply.
++
++3. Virtualization with untrusted guests
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++   The protection depends on the state of the L1TF mitigations.
++   See :ref:`virt_mechanism`.
++
++   If the MDS mitigation is enabled and SMT is disabled, guest to host and
++   guest to guest attacks are prevented.
++
++.. _mds_default_mitigations:
++
++Default mitigations
++-------------------
++
++  The kernel default mitigations for vulnerable processors are:
++
++  - Enable CPU buffer clearing
++
++  The kernel does not by default enforce the disabling of SMT, which leaves
++  SMT systems vulnerable when running untrusted code. The same rationale as
++  for L1TF applies.
++  See :ref:`Documentation/hw-vuln//l1tf.rst <default_mitigations>`.
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1796,6 +1796,8 @@ bytes respectively. Such letter suffixes
+ 			Not specifying this option is equivalent to
+ 			mds=full.
  
-@@ -876,12 +874,6 @@ static void __init cpu_set_bug_bits(stru
- 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
- 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
- 
--	if (x86_match_cpu(cpu_no_speculation))
--		return;
--
--	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
--	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
--
- 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
- 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
- 
++			For details see: Documentation/hw-vuln/mds.rst
++
+ 	mem=nn[KMG]	[KNL,BOOT] Force usage of a specific amount of memory
+ 			Amount of memory to be used when the kernel is not able
+ 			to see the whole system memory or for test.
 
