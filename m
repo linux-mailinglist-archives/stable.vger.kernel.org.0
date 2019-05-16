@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B146C20C1D
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796B020BDB
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 17:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbfEPQCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:02:05 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42816 "EHLO
+        id S1727000AbfEPP7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 11:59:51 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43952 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726940AbfEPP6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:46 -0400
+        by vger.kernel.org with ESMTP id S1727345AbfEPP7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:59:04 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0006zU-6n; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImJ-0006zW-P7; Thu, 16 May 2019 16:58:43 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001Ol-DY; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImF-0001Sj-2I; Thu, 16 May 2019 16:58:39 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,20 +26,37 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        dave.hansen@linux.intel.com,
-        "Vince Weaver" <vincent.weaver@maine.edu>,
-        "Stephane Eranian" <eranian@google.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>, len.brown@intel.com,
+        "Catalin Marinas" <catalin.marinas@arm.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Borislav Petkov" <bp@alien8.de>,
+        "Tyler Hicks" <tyhicks@canonical.com>,
         "Peter Zijlstra" <peterz@infradead.org>,
-        "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
-        "Arnaldo Carvalho de Melo" <acme@redhat.com>,
-        "Jiri Olsa" <jolsa@redhat.com>, "Ingo Molnar" <mingo@kernel.org>
+        "Jiri Kosina" <jkosina@suse.cz>,
+        "Paul Mackerras" <paulus@samba.org>,
+        "Randy Dunlap" <rdunlap@infradead.org>,
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "Jiri Kosina" <jikos@kernel.org>,
+        "Waiman Long" <longman@redhat.com>,
+        "Steven Price" <steven.price@arm.com>, linux-s390@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org,
+        "Heiko Carstens" <heiko.carstens@de.ibm.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>,
+        linux-arch@vger.kernel.org,
+        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Will Deacon" <will.deacon@arm.com>,
+        "Phil Auld" <pauld@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>,
+        "Josh Poimboeuf" <jpoimboe@redhat.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Jon Masters" <jcm@redhat.com>,
+        "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
+        "Andy Lutomirski" <luto@kernel.org>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.901333999@decadent.org.uk>
+Message-ID: <lsq.1558022133.486480847@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 30/86] x86/cpu: Sanitize FAM6_ATOM naming
+Subject: [PATCH 3.16 79/86] cpu/speculation: Add 'mitigations=' cmdline option
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -53,144 +70,144 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit f2c4db1bd80720cd8cb2a5aa220d9bc9f374f04e upstream.
+commit 98af8452945c55652de68536afdde3b520fec429 upstream.
 
-Going primarily by:
+Keeping track of the number of mitigations for all the CPU speculation
+bugs has become overwhelming for many users.  It's getting more and more
+complicated to decide which mitigations are needed for a given
+architecture.  Complicating matters is the fact that each arch tends to
+have its own custom way to mitigate the same vulnerability.
 
-  https://en.wikipedia.org/wiki/List_of_Intel_Atom_microprocessors
+Most users fall into a few basic categories:
 
-with additional information gleaned from other related pages; notably:
+a) they want all mitigations off;
 
- - Bonnell shrink was called Saltwell
- - Moorefield is the Merriefield refresh which makes it Airmont
+b) they want all reasonable mitigations on, with SMT enabled even if
+   it's vulnerable; or
 
-The general naming scheme is: FAM6_ATOM_UARCH_SOCTYPE
+c) they want all reasonable mitigations on, with SMT disabled if
+   vulnerable.
 
-  for i in `git grep -l FAM6_ATOM` ; do
-	sed -i  -e 's/ATOM_PINEVIEW/ATOM_BONNELL/g'		\
-		-e 's/ATOM_LINCROFT/ATOM_BONNELL_MID/'		\
-		-e 's/ATOM_PENWELL/ATOM_SALTWELL_MID/g'		\
-		-e 's/ATOM_CLOVERVIEW/ATOM_SALTWELL_TABLET/g'	\
-		-e 's/ATOM_CEDARVIEW/ATOM_SALTWELL/g'		\
-		-e 's/ATOM_SILVERMONT1/ATOM_SILVERMONT/g'	\
-		-e 's/ATOM_SILVERMONT2/ATOM_SILVERMONT_X/g'	\
-		-e 's/ATOM_MERRIFIELD/ATOM_SILVERMONT_MID/g'	\
-		-e 's/ATOM_MOOREFIELD/ATOM_AIRMONT_MID/g'	\
-		-e 's/ATOM_DENVERTON/ATOM_GOLDMONT_X/g'		\
-		-e 's/ATOM_GEMINI_LAKE/ATOM_GOLDMONT_PLUS/g' ${i}
-  done
+Define a set of curated, arch-independent options, each of which is an
+aggregation of existing options:
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: dave.hansen@linux.intel.com
-Cc: len.brown@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+- mitigations=off: Disable all mitigations.
+
+- mitigations=auto: [default] Enable all the default mitigations, but
+  leave SMT enabled, even if it's vulnerable.
+
+- mitigations=auto,nosmt: Enable all the default mitigations, disabling
+  SMT if needed by a mitigation.
+
+Currently, these options are placeholders which don't actually do
+anything.  They will be fleshed out in upcoming patches.
+
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jiri Kosina <jkosina@suse.cz> (on x86)
+Reviewed-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-arch@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Tyler Hicks <tyhicks@canonical.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Phil Auld <pauld@redhat.com>
+Link: https://lkml.kernel.org/r/b07a8ef9b7c5055c3a4637c87d07c296d5016fe0.1555085500.git.jpoimboe@redhat.com
 [bwh: Backported to 3.16:
- - Drop changes to CPU IDs that weren't already included
- - Adjust filenames, context]
+ - Drop the auto,nosmt option which we can't support
+ - Adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -50,19 +50,23 @@
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1906,6 +1906,25 @@ bytes respectively. Such letter suffixes
+ 			in the "bleeding edge" mini2440 support kernel at
+ 			http://repo.or.cz/w/linux-2.6/mini2440.git
  
- /* "Small Core" Processors (Atom) */
++	mitigations=
++			Control optional mitigations for CPU vulnerabilities.
++			This is a set of curated, arch-independent options, each
++			of which is an aggregation of existing arch-specific
++			options.
++
++			off
++				Disable all optional CPU mitigations.  This
++				improves system performance, but it may also
++				expose users to several CPU vulnerabilities.
++
++			auto (default)
++				Mitigate all CPU vulnerabilities, but leave SMT
++				enabled, even if it's vulnerable.  This is for
++				users who don't want to be surprised by SMT
++				getting disabled across kernel upgrades, or who
++				have other ways of avoiding SMT-based attacks.
++				This is the default behavior.
++
+ 	mminit_loglevel=
+ 			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
+ 			parameter allows control of the logging verbosity for
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -277,4 +277,21 @@ void arch_cpu_idle_enter(void);
+ void arch_cpu_idle_exit(void);
+ void arch_cpu_idle_dead(void);
  
--#define INTEL_FAM6_ATOM_PINEVIEW	0x1C
--#define INTEL_FAM6_ATOM_LINCROFT	0x26
--#define INTEL_FAM6_ATOM_PENWELL		0x27
--#define INTEL_FAM6_ATOM_CLOVERVIEW	0x35
--#define INTEL_FAM6_ATOM_CEDARVIEW	0x36
--#define INTEL_FAM6_ATOM_SILVERMONT1	0x37 /* BayTrail/BYT / Valleyview */
--#define INTEL_FAM6_ATOM_SILVERMONT2	0x4D /* Avaton/Rangely */
--#define INTEL_FAM6_ATOM_AIRMONT		0x4C /* CherryTrail / Braswell */
--#define INTEL_FAM6_ATOM_MERRIFIELD	0x4A /* Tangier */
--#define INTEL_FAM6_ATOM_MOOREFIELD	0x5A /* Anniedale */
--#define INTEL_FAM6_ATOM_GOLDMONT	0x5C
--#define INTEL_FAM6_ATOM_DENVERTON	0x5F /* Goldmont Microserver */
--#define INTEL_FAM6_ATOM_GEMINI_LAKE	0x7A
-+#define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
-+#define INTEL_FAM6_ATOM_BONNELL_MID	0x26 /* Silverthorne, Lincroft */
++/*
++ * These are used for a global "mitigations=" cmdline option for toggling
++ * optional CPU mitigations.
++ */
++enum cpu_mitigations {
++	CPU_MITIGATIONS_OFF,
++	CPU_MITIGATIONS_AUTO,
++};
 +
-+#define INTEL_FAM6_ATOM_SALTWELL	0x36 /* Cedarview */
-+#define INTEL_FAM6_ATOM_SALTWELL_MID	0x27 /* Penwell */
-+#define INTEL_FAM6_ATOM_SALTWELL_TABLET	0x35 /* Cloverview */
++extern enum cpu_mitigations cpu_mitigations;
 +
-+#define INTEL_FAM6_ATOM_SILVERMONT	0x37 /* Bay Trail, Valleyview */
-+#define INTEL_FAM6_ATOM_SILVERMONT_X	0x4D /* Avaton, Rangely */
-+#define INTEL_FAM6_ATOM_SILVERMONT_MID	0x4A /* Merriefield */
++/* mitigations=off */
++static inline bool cpu_mitigations_off(void)
++{
++	return cpu_mitigations == CPU_MITIGATIONS_OFF;
++}
 +
-+#define INTEL_FAM6_ATOM_AIRMONT		0x4C /* Cherry Trail, Braswell */
-+#define INTEL_FAM6_ATOM_AIRMONT_MID	0x5A /* Moorefield */
-+
-+#define INTEL_FAM6_ATOM_GOLDMONT	0x5C /* Apollo Lake */
-+#define INTEL_FAM6_ATOM_GOLDMONT_X	0x5F /* Denverton */
-+#define INTEL_FAM6_ATOM_GOLDMONT_PLUS	0x7A /* Gemini Lake */
- 
- /* Xeon Phi */
- 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -808,11 +808,11 @@ static void identify_cpu_without_cpuid(s
+ #endif /* _LINUX_CPU_H_ */
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -795,3 +795,16 @@ void init_cpu_online(const struct cpumas
+ {
+ 	cpumask_copy(to_cpumask(cpu_online_bits), src);
  }
- 
- static const __initconst struct x86_cpu_id cpu_no_speculation[] = {
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_CEDARVIEW,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_CLOVERVIEW,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_LINCROFT,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_PENWELL,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_PINEVIEW,	X86_FEATURE_ANY },
-+	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL,	X86_FEATURE_ANY },
-+	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_TABLET,	X86_FEATURE_ANY },
-+	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL_MID,	X86_FEATURE_ANY },
-+	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_MID,	X86_FEATURE_ANY },
-+	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL,	X86_FEATURE_ANY },
- 	{ X86_VENDOR_CENTAUR,	5 },
- 	{ X86_VENDOR_INTEL,	5 },
- 	{ X86_VENDOR_NSC,	5 },
-@@ -827,10 +827,10 @@ static const __initconst struct x86_cpu_
- 
- /* Only list CPUs which speculate but are non susceptible to SSB */
- static const __initconst struct x86_cpu_id cpu_no_spec_store_bypass[] = {
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT1	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT2	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_MERRIFIELD	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_CORE_YONAH		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
-@@ -843,14 +843,14 @@ static const __initconst struct x86_cpu_
- 
- static const __initconst struct x86_cpu_id cpu_no_l1tf[] = {
- 	/* in addition to cpu_no_speculation */
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT1	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT2	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_MERRIFIELD	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_MOOREFIELD	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT_MID	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_DENVERTON	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GEMINI_LAKE	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_X	},
-+	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_PLUS	},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
- 	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
- 	{}
++
++enum cpu_mitigations cpu_mitigations = CPU_MITIGATIONS_AUTO;
++
++static int __init mitigations_parse_cmdline(char *arg)
++{
++	if (!strcmp(arg, "off"))
++		cpu_mitigations = CPU_MITIGATIONS_OFF;
++	else if (!strcmp(arg, "auto"))
++		cpu_mitigations = CPU_MITIGATIONS_AUTO;
++
++	return 0;
++}
++early_param("mitigations", mitigations_parse_cmdline);
 
