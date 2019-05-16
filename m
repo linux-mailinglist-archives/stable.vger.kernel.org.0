@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3D020BDC
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 17:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF2A20BEE
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbfEPP7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 11:59:52 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43402 "EHLO
+        id S1726400AbfEPQAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:00:12 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43322 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727172AbfEPP6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:51 -0400
+        by vger.kernel.org with ESMTP id S1727160AbfEPP6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:50 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImM-0006zE-R1; Thu, 16 May 2019 16:58:47 +0100
+        id 1hRImM-0006zD-QO; Thu, 16 May 2019 16:58:46 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001Pq-Qz; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImE-0001Qg-65; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -30,16 +30,16 @@ CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Jiri Kosina" <jkosina@suse.cz>,
         "Kees Cook" <keescook@chromium.org>,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "David Woodhouse" <dwmw@amazon.co.uk>,
         "Asit Mallick" <asit.k.mallick@intel.com>,
+        "David Woodhouse" <dwmw@amazon.co.uk>,
         "Andi Kleen" <ak@linux.intel.com>,
         "Ingo Molnar" <mingo@kernel.org>,
         "Dave Hansen" <dave.hansen@intel.com>,
         "Andrea Arcangeli" <aarcange@redhat.com>,
         "Arjan van de Ven" <arjan@linux.intel.com>,
         "Dave Stewart" <david.c.stewart@intel.com>,
-        "Jon Masters" <jcm@redhat.com>,
         "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Jon Masters" <jcm@redhat.com>,
         "Waiman Long" <longman9394@gmail.com>,
         "Casey Schaufler" <casey.schaufler@intel.com>,
         "Tim Chen" <tim.c.chen@linux.intel.com>,
@@ -48,10 +48,11 @@ CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Greg KH" <gregkh@linuxfoundation.org>,
         "Josh Poimboeuf" <jpoimboe@redhat.com>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.149714206@decadent.org.uk>
+Message-ID: <lsq.1558022133.200385341@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 44/86] x86/speculation: Reorder the spec_v2 code
+Subject: [PATCH 3.16 54/86] x86/speculation: Prepare arch_smt_update() for
+ PRCTL mode
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -67,9 +68,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 15d6b7aab0793b2de8a05d8a828777dd24db424e upstream.
+commit 6893a959d7fdebbab5f5aa112c277d5a44435ba1 upstream.
 
-Reorder the code so it is better grouped. No functional change.
+The upcoming fine grained per task STIBP control needs to be updated on CPU
+hotplug as well.
+
+Split out the code which controls the strict mode so the prctl control code
+can be added later. Mark the SMP function call argument __unused while at it.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Ingo Molnar <mingo@kernel.org>
@@ -92,169 +97,60 @@ Cc: Waiman Long <longman9394@gmail.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>
 Cc: Dave Stewart <david.c.stewart@intel.com>
 Cc: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20181125185004.707122879@linutronix.de
-[bwh: Backported to 3.16:
- - We still have the minimal mitigation modes
- - Adjust context]
+Link: https://lkml.kernel.org/r/20181125185005.759457117@linutronix.de
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
+ arch/x86/kernel/cpu/bugs.c | 46 +++++++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 21 deletions(-)
+
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -178,30 +178,6 @@ void __init check_bugs(void)
- #endif
- }
- 
--/* The kernel command line selection */
--enum spectre_v2_mitigation_cmd {
--	SPECTRE_V2_CMD_NONE,
--	SPECTRE_V2_CMD_AUTO,
--	SPECTRE_V2_CMD_FORCE,
--	SPECTRE_V2_CMD_RETPOLINE,
--	SPECTRE_V2_CMD_RETPOLINE_GENERIC,
--	SPECTRE_V2_CMD_RETPOLINE_AMD,
--};
--
--static const char *spectre_v2_strings[] = {
--	[SPECTRE_V2_NONE]			= "Vulnerable",
--	[SPECTRE_V2_RETPOLINE_MINIMAL]		= "Vulnerable: Minimal generic ASM retpoline",
--	[SPECTRE_V2_RETPOLINE_MINIMAL_AMD]	= "Vulnerable: Minimal AMD ASM retpoline",
--	[SPECTRE_V2_RETPOLINE_GENERIC]		= "Mitigation: Full generic retpoline",
--	[SPECTRE_V2_RETPOLINE_AMD]		= "Mitigation: Full AMD retpoline",
--	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
--};
--
--#undef pr_fmt
--#define pr_fmt(fmt)     "Spectre V2 : " fmt
--
--static enum spectre_v2_mitigation spectre_v2_enabled = SPECTRE_V2_NONE;
--
- void
- x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
- {
-@@ -271,6 +247,11 @@ static void x86_amd_ssb_disable(void)
- 		wrmsrl(MSR_AMD64_LS_CFG, msrval);
- }
- 
-+#undef pr_fmt
-+#define pr_fmt(fmt)     "Spectre V2 : " fmt
-+
-+static enum spectre_v2_mitigation spectre_v2_enabled = SPECTRE_V2_NONE;
-+
- #ifdef RETPOLINE
- static bool spectre_v2_bad_module;
- 
-@@ -292,6 +273,45 @@ static inline const char *spectre_v2_mod
- static inline const char *spectre_v2_module_string(void) { return ""; }
- #endif
- 
-+static inline bool match_option(const char *arg, int arglen, const char *opt)
-+{
-+	int len = strlen(opt);
-+
-+	return len == arglen && !strncmp(arg, opt, len);
-+}
-+
-+/* The kernel command line selection for spectre v2 */
-+enum spectre_v2_mitigation_cmd {
-+	SPECTRE_V2_CMD_NONE,
-+	SPECTRE_V2_CMD_AUTO,
-+	SPECTRE_V2_CMD_FORCE,
-+	SPECTRE_V2_CMD_RETPOLINE,
-+	SPECTRE_V2_CMD_RETPOLINE_GENERIC,
-+	SPECTRE_V2_CMD_RETPOLINE_AMD,
-+};
-+
-+static const char *spectre_v2_strings[] = {
-+	[SPECTRE_V2_NONE]			= "Vulnerable",
-+	[SPECTRE_V2_RETPOLINE_MINIMAL]		= "Vulnerable: Minimal generic ASM retpoline",
-+	[SPECTRE_V2_RETPOLINE_MINIMAL_AMD]	= "Vulnerable: Minimal AMD ASM retpoline",
-+	[SPECTRE_V2_RETPOLINE_GENERIC]		= "Mitigation: Full generic retpoline",
-+	[SPECTRE_V2_RETPOLINE_AMD]		= "Mitigation: Full AMD retpoline",
-+	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
-+};
-+
-+static const struct {
-+	const char *option;
-+	enum spectre_v2_mitigation_cmd cmd;
-+	bool secure;
-+} mitigation_options[] = {
-+	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
-+	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
-+	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
-+	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_AMD,	  false },
-+	{ "retpoline,generic",	SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
-+	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
-+};
-+
- static void __init spec2_print_if_insecure(const char *reason)
- {
- 	if (boot_cpu_has_bug(X86_BUG_SPECTRE_V2))
-@@ -309,31 +329,11 @@ static inline bool retp_compiler(void)
- 	return __is_defined(RETPOLINE);
- }
- 
--static inline bool match_option(const char *arg, int arglen, const char *opt)
--{
--	int len = strlen(opt);
--
--	return len == arglen && !strncmp(arg, opt, len);
--}
--
--static const struct {
--	const char *option;
--	enum spectre_v2_mitigation_cmd cmd;
--	bool secure;
--} mitigation_options[] = {
--	{ "off",               SPECTRE_V2_CMD_NONE,              false },
--	{ "on",                SPECTRE_V2_CMD_FORCE,             true },
--	{ "retpoline",         SPECTRE_V2_CMD_RETPOLINE,         false },
--	{ "retpoline,amd",     SPECTRE_V2_CMD_RETPOLINE_AMD,     false },
--	{ "retpoline,generic", SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
--	{ "auto",              SPECTRE_V2_CMD_AUTO,              false },
--};
--
- static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
- {
-+	enum spectre_v2_mitigation_cmd cmd = SPECTRE_V2_CMD_AUTO;
- 	char arg[20];
- 	int ret, i;
--	enum spectre_v2_mitigation_cmd cmd = SPECTRE_V2_CMD_AUTO;
- 
- 	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
- 		return SPECTRE_V2_CMD_NONE;
-@@ -376,48 +376,6 @@ static enum spectre_v2_mitigation_cmd __
- 	return cmd;
+@@ -588,40 +588,44 @@ specv2_set_mode:
+ 	arch_smt_update();
  }
  
 -static bool stibp_needed(void)
--{
--	if (spectre_v2_enabled == SPECTRE_V2_NONE)
--		return false;
--
++static void update_stibp_msr(void * __unused)
+ {
 -	/* Enhanced IBRS makes using STIBP unnecessary. */
 -	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
 -		return false;
 -
--	if (!boot_cpu_has(X86_FEATURE_STIBP))
--		return false;
--
--	return true;
--}
--
+-	/* Check for strict user mitigation mode */
+-	return spectre_v2_user == SPECTRE_V2_USER_STRICT;
++	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+ }
+ 
 -static void update_stibp_msr(void *info)
--{
++/* Update x86_spec_ctrl_base in case SMT state changed. */
++static void update_stibp_strict(void)
+ {
 -	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
--}
--
--void arch_smt_update(void)
--{
++	u64 mask = x86_spec_ctrl_base & ~SPEC_CTRL_STIBP;
++
++	if (sched_smt_active())
++		mask |= SPEC_CTRL_STIBP;
++
++	if (mask == x86_spec_ctrl_base)
++		return;
++
++	pr_info("Update user space SMT mitigation: STIBP %s\n",
++		mask & SPEC_CTRL_STIBP ? "always-on" : "off");
++	x86_spec_ctrl_base = mask;
++	on_each_cpu(update_stibp_msr, NULL, 1);
+ }
+ 
+ void arch_smt_update(void)
+ {
 -	u64 mask;
 -
 -	if (!stibp_needed())
--		return;
--
--	mutex_lock(&spec_ctrl_mutex);
--
++	/* Enhanced IBRS implies STIBP. No update required. */
++	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
+ 
+ 	mutex_lock(&spec_ctrl_mutex);
+ 
 -	mask = x86_spec_ctrl_base & ~SPEC_CTRL_STIBP;
 -	if (sched_smt_active())
 -		mask |= SPEC_CTRL_STIBP;
@@ -264,60 +160,15 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 -			mask & SPEC_CTRL_STIBP ? "Enabling" : "Disabling");
 -		x86_spec_ctrl_base = mask;
 -		on_each_cpu(update_stibp_msr, NULL, 1);
--	}
--	mutex_unlock(&spec_ctrl_mutex);
--}
--
- static void __init spectre_v2_select_mitigation(void)
- {
- 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
-@@ -522,6 +480,48 @@ specv2_set_mode:
- 	arch_smt_update();
++	switch (spectre_v2_user) {
++	case SPECTRE_V2_USER_NONE:
++		break;
++	case SPECTRE_V2_USER_STRICT:
++		update_stibp_strict();
++		break;
+ 	}
++
+ 	mutex_unlock(&spec_ctrl_mutex);
  }
- 
-+static bool stibp_needed(void)
-+{
-+	if (spectre_v2_enabled == SPECTRE_V2_NONE)
-+		return false;
-+
-+	/* Enhanced IBRS makes using STIBP unnecessary. */
-+	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+		return false;
-+
-+	if (!boot_cpu_has(X86_FEATURE_STIBP))
-+		return false;
-+
-+	return true;
-+}
-+
-+static void update_stibp_msr(void *info)
-+{
-+	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+}
-+
-+void arch_smt_update(void)
-+{
-+	u64 mask;
-+
-+	if (!stibp_needed())
-+		return;
-+
-+	mutex_lock(&spec_ctrl_mutex);
-+
-+	mask = x86_spec_ctrl_base & ~SPEC_CTRL_STIBP;
-+	if (sched_smt_active())
-+		mask |= SPEC_CTRL_STIBP;
-+
-+	if (mask != x86_spec_ctrl_base) {
-+		pr_info("Spectre v2 cross-process SMT mitigation: %s STIBP\n",
-+			mask & SPEC_CTRL_STIBP ? "Enabling" : "Disabling");
-+		x86_spec_ctrl_base = mask;
-+		on_each_cpu(update_stibp_msr, NULL, 1);
-+	}
-+	mutex_unlock(&spec_ctrl_mutex);
-+}
-+
- #undef pr_fmt
- #define pr_fmt(fmt)	"Speculative Store Bypass: " fmt
  
 
