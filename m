@@ -2,194 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E53320B3D
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 17:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F9F20B5F
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 17:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727375AbfEPP3k convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 16 May 2019 11:29:40 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:17233 "EHLO mx1.redhat.com"
+        id S1726977AbfEPPg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 11:36:28 -0400
+Received: from mga02.intel.com ([134.134.136.20]:34298 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726758AbfEPP3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 11:29:40 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 51C93307C940;
-        Thu, 16 May 2019 15:29:39 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 371B45D6A9;
-        Thu, 16 May 2019 15:29:39 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 902B31806B11;
-        Thu, 16 May 2019 15:29:38 +0000 (UTC)
-Date:   Thu, 16 May 2019 11:29:35 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Will Deacon <will.deacon@arm.com>
-Cc:     Yang Shi <yang.shi@linux.alibaba.com>, peterz@infradead.org,
-        namit@vmware.com, minchan@kernel.org, mgorman@suse.de,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Jan Stancek <jstancek@redhat.com>
-Message-ID: <1158926942.23199905.1558020575293.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20190514145445.GB2825@fuggles.cambridge.arm.com>
-References: <1557444414-12090-1-git-send-email-yang.shi@linux.alibaba.com> <20190513163804.GB10754@fuggles.cambridge.arm.com> <360170d7-b16f-f130-f930-bfe54be9747a@linux.alibaba.com> <20190514145445.GB2825@fuggles.cambridge.arm.com>
-Subject: Re: [v2 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
- flush
+        id S1726692AbfEPPg2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 11:36:28 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 May 2019 08:36:27 -0700
+X-ExtLoop1: 1
+Received: from rjwysock-mobl1.ger.corp.intel.com (HELO [10.249.138.118]) ([10.249.138.118])
+  by orsmga004.jf.intel.com with ESMTP; 16 May 2019 08:36:26 -0700
+Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+ interpreter: add region addresses...")
+To:     "Schmauss, Erik" <erik.schmauss@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20190505194448.GA2649@windriver.com>
+ <20190506084145.GA23991@kroah.com>
+ <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
+ <20190515045711.GA16452@kroah.com>
+ <f2110cb8-8d80-65df-55a9-5428e6e4e9c3@intel.com>
+ <CF6A88132359CE47947DB4C6E1709ED53C5D0845@ORSMSX121.amr.corp.intel.com>
+From:   "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Organization: Intel Technology Poland Sp. z o. o., KRS 101882, ul. Slowackiego
+ 173, 80-298 Gdansk
+Message-ID: <feae8022-17ac-d11c-17a8-86ba9598e681@intel.com>
+Date:   Thu, 16 May 2019 17:36:25 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [10.43.17.163, 10.4.195.10]
-Thread-Topic: mmu_gather: remove __tlb_reset_range() for force flush
-Thread-Index: uzKTPt4zsaol+2IqXYgAH+t+3N7Fug==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Thu, 16 May 2019 15:29:39 +0000 (UTC)
+In-Reply-To: <CF6A88132359CE47947DB4C6E1709ED53C5D0845@ORSMSX121.amr.corp.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/16/2019 2:45 AM, Schmauss, Erik wrote:
+>
+>> -----Original Message-----
+>> From: Wysocki, Rafael J
+>> Sent: Wednesday, May 15, 2019 1:57 PM
+>> To: Schmauss, Erik <erik.schmauss@intel.com>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; Paul Gortmaker
+>> <paul.gortmaker@windriver.com>; stable@vger.kernel.org
+>> Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
+>> interpreter: add region addresses...")
+>>
+>> On 5/15/2019 6:57 AM, Greg Kroah-Hartman wrote:
+>>> On Wed, May 15, 2019 at 01:17:28AM +0000, Schmauss, Erik wrote:
+>>>>> -----Original Message-----
+>>>>> From: Greg Kroah-Hartman [mailto:gregkh@linuxfoundation.org]
+>>>>> Sent: Monday, May 6, 2019 1:42 AM
+>>>>> To: Paul Gortmaker <paul.gortmaker@windriver.com>; Wysocki, Rafael J
+>>>>> <rafael.j.wysocki@intel.com>
+>>>>> Cc: stable@vger.kernel.org; Schmauss, Erik <erik.schmauss@intel.com>
+>>>>> Subject: Re: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA:
+>>>>> AML
+>>>>> interpreter: add region addresses...")
+>>>>>
+>>>>> On Sun, May 05, 2019 at 03:44:48PM -0400, Paul Gortmaker wrote:
+>>>>>> I noticed 4.19.35 got a backport of mainline 4abb951b, but it
+>>>>>> appears to be a duplicate backport that landed in the wrong
+>>>>>> function.  We can see this in the stable-queue repo:
+>>>>>>
+>>>>>> stable-queue$ find . -name '*acpica-aml-interpreter-add-region-addr*'
+>>>>>> |grep 4.19
+>>>>>> ./releases/4.19.6/acpica-aml-interpreter-add-region-addresses-in-gl
+>>>>>> oba
+>>>>>> l-list-during-initialization.patch
+>>>>>> ./releases/4.19.3/revert-acpica-aml-interpreter-add-region-addresse
+>>>>>> s-i
+>>>>>> n.patch
+>>>>>> ./releases/4.19.35/acpica-aml-interpreter-add-region-addresses-in-g
+>>>>>> lob al-list-during-initialization.patch
+>>>>>> ./releases/4.19.2/acpica-aml-interpreter-add-region-addresses-in-gl
+>>>>>> oba
+>>>>>> l-list-during-initialization.patch
+>>>>>>
+>>>>>> So it was added to 4.19.2, reverted in .3, re-added in .6, and then
+>>>>>> finally patched into a similar looking but wrong function in .35
+>>>>>>
+>>>>>> If we diff the .6 and .35 versions, we see the function difference:
+>>>>>>
+>>>>>> -@@ -417,6 +417,10 @@ acpi_ds_eval_region_operands(struct acpi
+>>>>>> +@@ -523,6 +523,10 @@ acpi_ds_eval_table_region_operands(struc
+>>>>>>
+>>>>>> I don't know what the history is/was around the 2/3/6 churn, but
+>>>>>> the re-addition in 4.19.35 to a different function sure looks wrong.
+>>>>>>
+>>>>>> The commit adds a call "status = acpi_ut_add_address_range(..." and
+>>>>>> if we check mainline, there is only one in that file, but in
+>>>>>> 4.19.35+ there now are two calls - since the two functions had
+>>>>>> similar context and comments, it isn't hard to see how patch
+>>>>>> could/would apply it a 2nd time in the wrong place.
+>>>>>>
+>>>>>> I didn't check if any of the other currently maintained
+>>>>>> linux-stable versions also had this possible issue.
+>>>>>>
+>>>> Hi Greg,
+>>>>
+>>>>> Ugh, Rafael, did I mess this up again?  Can you check to see if I
+>>>>> need to fix this somehow?
+>>>> It should be called in acpi_ds_eval_region_operands rather than
+>> acpi_ds_eval_table_region_operands.
+>>>> Please remove the call from acpi_ds_eval_table_region_operands.
+>>> Great, can someone please send me a patch for this so that I don't get
+>>> it wrong myself?
+>> Erik, can you please cut a patch for that against 4.19.35 and send it to Greg?
+>>
+> I'm not sure what the process is for this case but here's the patch...
+> Let me know if you need me to send it some other way...
+>
+>  From a738f1c452c0762d3c0a1b1a9a12c78bd97b0a23 Mon Sep 17 00:00:00 2001
+> From: Erik Schmauss <erik.schmauss@intel.com>
+> Date: Wed, 15 May 2019 17:25:31 -0700
+> Subject: [PATCH] Revert "ACPICA: AML interpreter: add region addresses in
+>   global list during initialization"
+>
+> This reverts commit f8053df634d40c733f26ca49c2c3835002e61b77 that was
+> unintentionally included as a part of the stable branch.
+>
+> Reported-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
+> ---
+>   drivers/acpi/acpica/dsopcode.c | 4 ----
+>   1 file changed, 4 deletions(-)
+>
+> diff --git a/drivers/acpi/acpica/dsopcode.c b/drivers/acpi/acpica/dsopcode.c
+> index 2f4641e5ecde..78f9de260d5f 100644
+> --- a/drivers/acpi/acpica/dsopcode.c
+> +++ b/drivers/acpi/acpica/dsopcode.c
+> @@ -523,10 +523,6 @@ acpi_ds_eval_table_region_operands(struct acpi_walk_state *walk_state,
+>                            ACPI_FORMAT_UINT64(obj_desc->region.address),
+>                            obj_desc->region.length));
+>
+> -       status = acpi_ut_add_address_range(obj_desc->region.space_id,
+> -                                          obj_desc->region.address,
+> -                                          obj_desc->region.length, node);
+> -
+>          /* Now the address and length are valid for this opregion */
+>
+>          obj_desc->region.flags |= AOPOBJ_DATA_VALID;
+> --
+> 2.17.2
+
+Thanks Erik, LGTM.
 
 
------ Original Message -----
-> On Mon, May 13, 2019 at 04:01:09PM -0700, Yang Shi wrote:
-> > 
-> > 
-> > On 5/13/19 9:38 AM, Will Deacon wrote:
-> > > On Fri, May 10, 2019 at 07:26:54AM +0800, Yang Shi wrote:
-> > > > diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-> > > > index 99740e1..469492d 100644
-> > > > --- a/mm/mmu_gather.c
-> > > > +++ b/mm/mmu_gather.c
-> > > > @@ -245,14 +245,39 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
-> > > >   {
-> > > >   	/*
-> > > >   	 * If there are parallel threads are doing PTE changes on same range
-> > > > -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
-> > > > -	 * flush by batching, a thread has stable TLB entry can fail to flush
-> > > > -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
-> > > > -	 * forcefully if we detect parallel PTE batching threads.
-> > > > +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
-> > > > +	 * flush by batching, one thread may end up seeing inconsistent PTEs
-> > > > +	 * and result in having stale TLB entries.  So flush TLB forcefully
-> > > > +	 * if we detect parallel PTE batching threads.
-> > > > +	 *
-> > > > +	 * However, some syscalls, e.g. munmap(), may free page tables, this
-> > > > +	 * needs force flush everything in the given range. Otherwise this
-> > > > +	 * may result in having stale TLB entries for some architectures,
-> > > > +	 * e.g. aarch64, that could specify flush what level TLB.
-> > > >   	 */
-> > > > -	if (mm_tlb_flush_nested(tlb->mm)) {
-> > > > -		__tlb_reset_range(tlb);
-> > > > -		__tlb_adjust_range(tlb, start, end - start);
-> > > > +	if (mm_tlb_flush_nested(tlb->mm) && !tlb->fullmm) {
-> > > > +		/*
-> > > > +		 * Since we can't tell what we actually should have
-> > > > +		 * flushed, flush everything in the given range.
-> > > > +		 */
-> > > > +		tlb->freed_tables = 1;
-> > > > +		tlb->cleared_ptes = 1;
-> > > > +		tlb->cleared_pmds = 1;
-> > > > +		tlb->cleared_puds = 1;
-> > > > +		tlb->cleared_p4ds = 1;
-> > > > +
-> > > > +		/*
-> > > > +		 * Some architectures, e.g. ARM, that have range invalidation
-> > > > +		 * and care about VM_EXEC for I-Cache invalidation, need force
-> > > > +		 * vma_exec set.
-> > > > +		 */
-> > > > +		tlb->vma_exec = 1;
-> > > > +
-> > > > +		/* Force vma_huge clear to guarantee safer flush */
-> > > > +		tlb->vma_huge = 0;
-> > > > +
-> > > > +		tlb->start = start;
-> > > > +		tlb->end = end;
-> > > >   	}
-> > > Whilst I think this is correct, it would be interesting to see whether
-> > > or not it's actually faster than just nuking the whole mm, as I mentioned
-> > > before.
-> > > 
-> > > At least in terms of getting a short-term fix, I'd prefer the diff below
-> > > if it's not measurably worse.
-> > 
-> > I did a quick test with ebizzy (96 threads with 5 iterations) on my x86 VM,
-> > it shows slightly slowdown on records/s but much more sys time spent with
-> > fullmm flush, the below is the data.
-> > 
-> >                                     nofullmm                 fullmm
-> > ops (records/s)              225606                  225119
-> > sys (s)                            0.69                        1.14
-> > 
-> > It looks the slight reduction of records/s is caused by the increase of sys
-> > time.
-> 
-> That's not what I expected, and I'm unable to explain why moving to fullmm
-> would /increase/ the system time. I would've thought the time spent doing
-> the invalidation would decrease, with the downside that the TLB is cold
-> when returning back to userspace.
-> 
-
-I tried ebizzy with various parameters (malloc vs mmap, ran it for hour),
-but performance was very similar for both patches.
-
-So, I was looking for workload that would demonstrate the largest difference.
-Inspired by python xml-rpc, which can handle each request in new thread,
-I tried following [1]:
-
-16 threads, each looping 100k times over:
-  mmap(16M)
-  touch 1 page
-  madvise(DONTNEED)
-  munmap(16M)
-
-This yields quite significant difference for 2 patches when running on
-my 46 CPU arm host. I checked it twice - applied patch, recompiled, rebooted,
-but numbers stayed +- couple seconds the same.
-
-Does it somewhat match your expectation?
-
-v2 patch
----------
-real    2m33.460s
-user    0m3.359s
-sys     15m32.307s
-
-real    2m33.895s
-user    0m2.749s
-sys     16m34.500s
-
-real    2m35.666s
-user    0m3.528s
-sys     15m23.377s
-
-real    2m32.898s
-user    0m2.789s
-sys     16m18.801s
-
-real    2m33.087s
-user    0m3.565s
-sys     16m23.815s
-
-
-fullmm version
----------------
-real    0m46.811s
-user    0m1.596s
-sys     1m47.500s
-
-real    0m47.322s
-user    0m1.803s
-sys     1m48.449s
-
-real    0m46.668s
-user    0m1.508s
-sys     1m47.352s
-
-real    0m46.742s
-user    0m2.007s
-sys     1m47.217s
-
-real    0m46.948s
-user    0m1.785s
-sys     1m47.906s
-
-[1] https://github.com/jstancek/reproducers/blob/master/kernel/page_fault_stall/mmap8.c
