@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70323205BD
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 115D92062D
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727523AbfEPLj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47978 "EHLO mail.kernel.org"
+        id S1727636AbfEPLsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:48:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727515AbfEPLj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:39:57 -0400
+        id S1727525AbfEPLj7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:39:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C5DE20833;
-        Thu, 16 May 2019 11:39:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7970320862;
+        Thu, 16 May 2019 11:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006797;
-        bh=FRsqlhJ86Xm8rM/DwoFwEN6ZtybTAK/8JYVVl1LB7Jc=;
+        s=default; t=1558006798;
+        bh=CF5+kLRFNxDfWRKm3e7Wn+rgcDaHbU6jyhlCwi/ZtrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjOzhcxVFbJ6YsQSnknxsttbT39p8jMNQmzhoNu/lNp81FMFy7yhQCex/3CiI9fWV
-         RYSk/b85O4DaARKDtt0DLWWjv0RjEtaUfKwVauJkVRNV4bTFFaE4kdjE/wUnY17i5+
-         pmzPk8d9IkB0n7QI+5HX3MrNnvVo4oiup7L3wkPs=
+        b=whVd+GPSv+oRmFk9phUWD1DSKTWXK+KEbZ5uLiHobr3sZzXtZ0EheIjJnT3JmTxMw
+         iUyHpwLv2lpNqJ7Nb72dBr16EJGPWLtoqehizCqBAx4CI9+nKA1xW3Y9N+XNvuM3W9
+         549e5BexC8S6mDrgP47J1yJz4dWkAQTCZ8O+/wbM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>, Mukesh Ojha <mojha@codeaurora.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 19/34] net: ieee802154: fix missing checks for regmap_update_bits
-Date:   Thu, 16 May 2019 07:39:16 -0400
-Message-Id: <20190516113932.8348-19-sashal@kernel.org>
+Cc:     Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.0 20/34] KVM: arm/arm64: Ensure vcpu target is unset on reset failure
+Date:   Thu, 16 May 2019 07:39:17 -0400
+Message-Id: <20190516113932.8348-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
@@ -44,52 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Andrew Jones <drjones@redhat.com>
 
-[ Upstream commit 22e8860cf8f777fbf6a83f2fb7127f682a8e9de4 ]
+[ Upstream commit 811328fc3222f7b55846de0cd0404339e2e1e6d7 ]
 
-regmap_update_bits could fail and deserves a check.
+A failed KVM_ARM_VCPU_INIT should not set the vcpu target,
+as the vcpu target is used by kvm_vcpu_initialized() to
+determine if other vcpu ioctls may proceed. We need to set
+the target before calling kvm_reset_vcpu(), but if that call
+fails, we should then unset it and clear the feature bitmap
+while we're at it.
 
-The patch adds the checks and if it fails, returns its error
-code upstream.
-
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+[maz: Simplified patch, completed commit message]
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mcr20a.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ virt/kvm/arm/arm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mcr20a.c b/drivers/net/ieee802154/mcr20a.c
-index c589f5ae75bb5..8bb53ec8d9cf2 100644
---- a/drivers/net/ieee802154/mcr20a.c
-+++ b/drivers/net/ieee802154/mcr20a.c
-@@ -533,6 +533,8 @@ mcr20a_start(struct ieee802154_hw *hw)
- 	dev_dbg(printdev(lp), "no slotted operation\n");
- 	ret = regmap_update_bits(lp->regmap_dar, DAR_PHY_CTRL1,
- 				 DAR_PHY_CTRL1_SLOTTED, 0x0);
-+	if (ret < 0)
-+		return ret;
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index 9c486fad3f9f8..6202b4f718cea 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -949,7 +949,7 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
+ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
+ 			       const struct kvm_vcpu_init *init)
+ {
+-	unsigned int i;
++	unsigned int i, ret;
+ 	int phys_target = kvm_target_cpu();
  
- 	/* enable irq */
- 	enable_irq(lp->spi->irq);
-@@ -540,11 +542,15 @@ mcr20a_start(struct ieee802154_hw *hw)
- 	/* Unmask SEQ interrupt */
- 	ret = regmap_update_bits(lp->regmap_dar, DAR_PHY_CTRL2,
- 				 DAR_PHY_CTRL2_SEQMSK, 0x0);
-+	if (ret < 0)
-+		return ret;
+ 	if (init->target != phys_target)
+@@ -984,9 +984,14 @@ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
+ 	vcpu->arch.target = phys_target;
  
- 	/* Start the RX sequence */
- 	dev_dbg(printdev(lp), "start the RX sequence\n");
- 	ret = regmap_update_bits(lp->regmap_dar, DAR_PHY_CTRL1,
- 				 DAR_PHY_CTRL1_XCVSEQ_MASK, MCR20A_XCVSEQ_RX);
-+	if (ret < 0)
-+		return ret;
+ 	/* Now we know what it is, we can reset it. */
+-	return kvm_reset_vcpu(vcpu);
+-}
++	ret = kvm_reset_vcpu(vcpu);
++	if (ret) {
++		vcpu->arch.target = -1;
++		bitmap_zero(vcpu->arch.features, KVM_VCPU_MAX_FEATURES);
++	}
  
- 	return 0;
- }
++	return ret;
++}
+ 
+ static int kvm_arch_vcpu_ioctl_vcpu_init(struct kvm_vcpu *vcpu,
+ 					 struct kvm_vcpu_init *init)
 -- 
 2.20.1
 
