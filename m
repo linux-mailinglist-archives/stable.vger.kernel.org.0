@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 689C1205D8
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E202060A
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727834AbfEPLkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49072 "EHLO mail.kernel.org"
+        id S1727828AbfEPLqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727828AbfEPLkk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:40:40 -0400
+        id S1727838AbfEPLkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:40:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7629E20833;
-        Thu, 16 May 2019 11:40:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A56762087E;
+        Thu, 16 May 2019 11:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006840;
-        bh=aPpF74asY5kHDrkay7c2MpxiyGQsuQ60iTO7Rb3MIVc=;
+        s=default; t=1558006841;
+        bh=IMJiCZPSYS+y4kCm9xDnxJHtTTXzXjnfjEhhpmvOUww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/mK02O8AMqnjNKWtWTHvN1tOpUZ0Fx72y8iwXbjpZnhGeoNmaVle+UNyDSYDkmLx
-         dbGS6r7sgWlqTXJRUAzTcm2GMhTWqf7hbnW8rL6K1+rN21DlA4fU2GT6RpFVzMNQXD
-         oS/fcj4AoOyWHfFlyj0YMOiZfDJTFvuFPYcUt2rU=
+        b=bcWotE/z0WKiOdEvle406B1BVDGeYpHi5wNaOBDQ31HTbjmBGANfhD2RqHo+tA6/i
+         J/9zmcnSDHLows4K0wvOeR39kfr7RbnoeKlHscfBG+pOKMLZVsIdywUWf7svpB1ylh
+         1xFIguL92KXFa3wovU5eb1y69p18qm0jAfs3Ly+8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/25] power: supply: cpcap-battery: Fix division by zero
-Date:   Thu, 16 May 2019 07:40:12 -0400
-Message-Id: <20190516114029.8682-9-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/25] securityfs: fix use-after-free on symlink traversal
+Date:   Thu, 16 May 2019 07:40:13 -0400
+Message-Id: <20190516114029.8682-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516114029.8682-1-sashal@kernel.org>
 References: <20190516114029.8682-1-sashal@kernel.org>
@@ -43,44 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit dbe7208c6c4aec083571f2ec742870a0d0edbea3 ]
+[ Upstream commit 46c874419652bbefdfed17420fd6e88d8a31d9ec ]
 
-If called fast enough so samples do not increment, we can get
-division by zero in kernel:
+symlink body shouldn't be freed without an RCU delay.  Switch securityfs
+to ->destroy_inode() and use of call_rcu(); free both the inode and symlink
+body in the callback.
 
-__div0
-cpcap_battery_cc_raw_div
-cpcap_battery_get_property
-power_supply_get_property.part.1
-power_supply_get_property
-power_supply_show_property
-power_supply_uevent
-
-Fixes: 874b2adbed12 ("power: supply: cpcap-battery: Add a battery driver")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cpcap-battery.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
-index 98ba07869c3b0..3bae02380bb22 100644
---- a/drivers/power/supply/cpcap-battery.c
-+++ b/drivers/power/supply/cpcap-battery.c
-@@ -221,6 +221,9 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
- 	int avg_current;
- 	u32 cc_lsb;
+diff --git a/security/inode.c b/security/inode.c
+index 8dd9ca8848e43..829f15672e01f 100644
+--- a/security/inode.c
++++ b/security/inode.c
+@@ -26,17 +26,22 @@
+ static struct vfsmount *mount;
+ static int mount_count;
  
-+	if (!divider)
-+		return 0;
+-static void securityfs_evict_inode(struct inode *inode)
++static void securityfs_i_callback(struct rcu_head *head)
+ {
+-	truncate_inode_pages_final(&inode->i_data);
+-	clear_inode(inode);
++	struct inode *inode = container_of(head, struct inode, i_rcu);
+ 	if (S_ISLNK(inode->i_mode))
+ 		kfree(inode->i_link);
++	free_inode_nonrcu(inode);
++}
 +
- 	sample &= 0xffffff;		/* 24-bits, unsigned */
- 	offset &= 0x7ff;		/* 10-bits, signed */
++static void securityfs_destroy_inode(struct inode *inode)
++{
++	call_rcu(&inode->i_rcu, securityfs_i_callback);
+ }
  
+ static const struct super_operations securityfs_super_operations = {
+ 	.statfs		= simple_statfs,
+-	.evict_inode	= securityfs_evict_inode,
++	.destroy_inode	= securityfs_destroy_inode,
+ };
+ 
+ static int fill_super(struct super_block *sb, void *data, int silent)
 -- 
 2.20.1
 
