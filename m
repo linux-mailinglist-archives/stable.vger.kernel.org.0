@@ -2,159 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F53520FC1
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 22:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CA120FD8
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 23:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727525AbfEPUvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 16:51:11 -0400
-Received: from mail-pf1-f202.google.com ([209.85.210.202]:44914 "EHLO
-        mail-pf1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727509AbfEPUvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 16:51:11 -0400
-Received: by mail-pf1-f202.google.com with SMTP id 5so2954102pff.11
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 13:51:10 -0700 (PDT)
+        id S1728120AbfEPVLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 17:11:03 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:32774 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727443AbfEPVLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 17:11:03 -0400
+Received: by mail-ot1-f68.google.com with SMTP id 66so4840445otq.0
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 14:11:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=O0A3Y6O8QZ1jZo/IAcyQwbrOJctQs0ZeB/K1vYWmuBI=;
-        b=V3SH9UWTXhecnBvY9y5BQamRei5+qE2Sfjc4eidha3qPpIUKiFC2Za/3ErpPsnlN8W
-         2+YfB6DRHUxK86SVsJQ6HjeCgq/V+ywqPMuLW2kErg8FmTPzKnWZu3K3jboTADUzrV+/
-         zJHSv1CG9E1NrqB6ZtXofWvgyI/BMJDpbHgRgfXupGEBoOI6rca9n+8JFme6U3Z9NyOf
-         sil6q/xnC5ZppxoSW1dAZmXM51G91MNKXOu/ApqMaUGTEpL7g+Qw9gm8nm9uYsS0SrzG
-         WOp24BXJeHc9i1WyrUKHdAnHDB8xbzO44RPj+JlDVuyfvKCTZDppOjyT6w8dy5JqtqQe
-         uo/Q==
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rncqV+v/sler+WaccX6aFzyW2GBZSvBqWUUQAw2Omxg=;
+        b=sBwrHSYohh/5AbGwZanEBCpP/ONR4apwYXhQR3Gh/nmGJtaYsMQTILIps0vPrhK0t4
+         CFYcTvs94aN+IOc+2QZpIXl51EU5IBQlgFonCamtkrRCVj/m9LnNsdaUArIfw/wnVMX1
+         it246fg4xNMigWkvBlEoYYGsJfwssAsUdk0iD+mLFtO/R/3IlWHbu3tqxSmWEw6cY0BX
+         4XjHiTUAOuJdPSch+xJSHicRb+bZZ3UaTbvFnIGhFEKbOFTSbXlsjy65Yr90mqwgS0g+
+         F54PjHp1w24jDlC42LFHVVZElkpBuaZb2H3aaORxH/+8FksYfNLY93NcnkFWw0Yb3+aM
+         op3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=O0A3Y6O8QZ1jZo/IAcyQwbrOJctQs0ZeB/K1vYWmuBI=;
-        b=VIL4iQdZf+LHjIElMXtV1hrG1ISHt+tkBraIHWeTlFWdrpobsjerT+rmxjcNINXYXz
-         EzhSj2thwDnTbTsYwox53GUnweAE/1vbWbqT5k/rBwFA2ttNKm6nzql2ncDp2gjaExgu
-         himTCe0eLztTHvT7aFJuQl+IGmaYaPjyq+5fA1AKUjm0zkO6byNgjFD+od5+15sYl8hI
-         CjKYdlxvf5v9TuW5+6vCFtmpt8bDlIL72atVBlvOoFTHMqIcRMQX3UPd/2fgFZR7f8y+
-         4UdueXYaskZCJWpzAVfY0BnXEdtSbAd7OxcaRiOT20ANx6p3t7uJHnRNQE056SUoYI++
-         smyw==
-X-Gm-Message-State: APjAAAVMM9n4iMpwNmIGrgVikPWsq8hOA240Yp6+ZaHew50ZFk5Gyedu
-        Fo6+qDDGp7EPNKJZC1Ez4ASZZdex+mEcIqY=
-X-Google-Smtp-Source: APXvYqwf41flQIat3KOIsyjjpw5N63ZvcHDik9EhfhYXCkBPgjXrtlDQs2OKDmjNAjHU9uyT/bCBM5OoUqnw6s4=
-X-Received: by 2002:a63:7552:: with SMTP id f18mr49259106pgn.234.1558039869914;
- Thu, 16 May 2019 13:51:09 -0700 (PDT)
-Date:   Thu, 16 May 2019 13:51:07 -0700
-Message-Id: <20190516205107.222003-1-jemoreira@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
-Subject: [PATCH RESEND] vsock/virtio: Initialize core virtio vsock before
- registering the driver
-From:   "Jorge E. Moreira" <jemoreira@google.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        kernel-team@android.com, stable@vger.kernel.org
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rncqV+v/sler+WaccX6aFzyW2GBZSvBqWUUQAw2Omxg=;
+        b=I3jbBe5quy2L24FqFOKwT52lgFyqHejthM9Y2BXQP4lgrDSJo4ouxUgehMCowXF5Xw
+         CN215R3U3hZ4e2CpLGolfFy3CeLs4iZH0pFCG2W2CyIAGzcg4aQ4ycRWrH0nUe+DUUOr
+         lGP7cZ2085KGXZGXuWjxlruh1SG0YGzQ5uOUNN5kW0JAErn+cX5lzbhpAPwaVsHwcvk9
+         Zuo5Q0bvMXj73S/htSWQmB0C63jrOAVHF4BuWxKhGdxU2KsFjiao811oV5zVqOEQi6Oo
+         k9WtqFGkObl806CPnRFj0qySY/DNSg0lcBqipY0LP/Z/WsYhE5Bucu6TS0VB3tlaj2++
+         iVJg==
+X-Gm-Message-State: APjAAAUpYjhybcSWoEYGlOzJEajvLNepWfbjtz+tnDiFxbVvua81vccK
+        lpzEq/6iVP37eU4pflAm7ZXVNQlZIc/s7Br3fUNUFw==
+X-Google-Smtp-Source: APXvYqxulCJOUDUzJnfXBMN0SCHXR6S91sR3HjlOoR5MHBwl1p8VnIbStmYVv5DJAXlVl4H2Wm68Ee2JYrTDQVx19M4=
+X-Received: by 2002:a9d:61ca:: with SMTP id h10mr3517132otk.247.1558041062704;
+ Thu, 16 May 2019 14:11:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <155789172402.748145.11853718580748830476.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20190516185732.GA27796@redhat.com>
+In-Reply-To: <20190516185732.GA27796@redhat.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Thu, 16 May 2019 14:10:51 -0700
+Message-ID: <CAPcyv4j5M7ZgJqFtRxw1t2p4tb579azdb6=FedV-rcqJ3GJPNw@mail.gmail.com>
+Subject: Re: dax: Arrange for dax_supported check to span multiple devices
+To:     Mike Snitzer <snitzer@redhat.com>
+Cc:     stable <stable@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Pankaj Gupta <pagupta@redhat.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        device-mapper development <dm-devel@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
+On Thu, May 16, 2019 at 11:58 AM Mike Snitzer <snitzer@redhat.com> wrote:
+>
+> On Tue, May 14 2019 at 11:48pm -0400,
+> Dan Williams <dan.j.williams@intel.com> wrote:
+>
+> > Pankaj reports that starting with commit ad428cdb525a "dax: Check the
+> > end of the block-device capacity with dax_direct_access()" device-mapper
+> > no longer allows dax operation. This results from the stricter checks in
+> > __bdev_dax_supported() that validate that the start and end of a
+> > block-device map to the same 'pagemap' instance.
+> >
+> > Teach the dax-core and device-mapper to validate the 'pagemap' on a
+> > per-target basis. This is accomplished by refactoring the
+> > bdev_dax_supported() internals into generic_fsdax_supported() which
+> > takes a sector range to validate. Consequently generic_fsdax_supported()
+> > is suitable to be used in a device-mapper ->iterate_devices() callback.
+> > A new ->dax_supported() operation is added to allow composite devices to
+> > split and route upper-level bdev_dax_supported() requests.
+> >
+> > Fixes: ad428cdb525a ("dax: Check the end of the block-device...")
+> > Cc: <stable@vger.kernel.org>
+> > Cc: Jan Kara <jack@suse.cz>
+> > Cc: Ira Weiny <ira.weiny@intel.com>
+> > Cc: Dave Jiang <dave.jiang@intel.com>
+> > Cc: Mike Snitzer <snitzer@redhat.com>
+> > Cc: Keith Busch <keith.busch@intel.com>
+> > Cc: Matthew Wilcox <willy@infradead.org>
+> > Cc: Vishal Verma <vishal.l.verma@intel.com>
+> > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> > Reported-by: Pankaj Gupta <pagupta@redhat.com>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > ---
+> > Hi Mike,
+> >
+> > Another day another new dax operation to allow device-mapper to better
+> > scope dax operations.
+> >
+> > Let me know if the device-mapper changes look sane. This passes a new
+> > unit test that indeed fails on current mainline.
+> >
+> > https://github.com/pmem/ndctl/blob/device-mapper-pending/test/dm.sh
+> >
+> >  drivers/dax/super.c          |   88 +++++++++++++++++++++++++++---------------
+> >  drivers/md/dm-table.c        |   17 +++++---
+> >  drivers/md/dm.c              |   20 ++++++++++
+> >  drivers/md/dm.h              |    1
+> >  drivers/nvdimm/pmem.c        |    1
+> >  drivers/s390/block/dcssblk.c |    1
+> >  include/linux/dax.h          |   19 +++++++++
+> >  7 files changed, 110 insertions(+), 37 deletions(-)
+> >
+>
+> ...
+>
+> > diff --git a/drivers/md/dm.h b/drivers/md/dm.h
+> > index 2d539b82ec08..e5e240bfa2d0 100644
+> > --- a/drivers/md/dm.h
+> > +++ b/drivers/md/dm.h
+> > @@ -78,6 +78,7 @@ void dm_unlock_md_type(struct mapped_device *md);
+> >  void dm_set_md_type(struct mapped_device *md, enum dm_queue_mode type);
+> >  enum dm_queue_mode dm_get_md_type(struct mapped_device *md);
+> >  struct target_type *dm_get_immutable_target_type(struct mapped_device *md);
+> > +bool dm_table_supports_dax(struct dm_table *t, int blocksize);
+> >
+> >  int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t);
+> >
+>
+> I'd prefer to have dm_table_supports_dax come just after
+> dm_table_get_md_mempools in the preceding dm_table section of dm.h (just
+> above this mapped_device section you extended).
+>
+> But other than that nit, patch looks great on a DM level:
+>
+> Reviewed-by: Mike Snitzer <snitzer@redhat.com>
 
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
+Thanks Mike, I folded in this change:
 
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
----
- net/vmw_vsock/virtio_transport.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+@@ -72,13 +72,13 @@ bool dm_table_bio_based(struct dm_table *t);
+ bool dm_table_request_based(struct dm_table *t);
+ void dm_table_free_md_mempools(struct dm_table *t);
+ struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t);
++bool dm_table_supports_dax(struct dm_table *t, int blocksize);
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 15eb5d3d4750..96ab344f17bb 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
- 
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
- 
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
- 
--- 
-2.21.0.1020.gf2820cf01a-goog
+ void dm_lock_md_type(struct mapped_device *md);
+ void dm_unlock_md_type(struct mapped_device *md);
+ void dm_set_md_type(struct mapped_device *md, enum dm_queue_mode type);
+ enum dm_queue_mode dm_get_md_type(struct mapped_device *md);
+ struct target_type *dm_get_immutable_target_type(struct mapped_device *md);
+-bool dm_table_supports_dax(struct dm_table *t, int blocksize);
 
+ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t);
