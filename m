@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C7320C76
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083CE20C3D
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbfEPQEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:04:55 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42426 "EHLO
+        id S1727340AbfEPQDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:03:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42622 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726666AbfEPP6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:41 -0400
+        by vger.kernel.org with ESMTP id S1726833AbfEPP6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:44 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0006zA-SW; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImH-0006zh-7s; Thu, 16 May 2019 16:58:41 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0001O5-3H; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImE-0001Ra-Hn; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,23 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Brian Gerst" <brgerst@gmail.com>,
-        "Frederic Weisbecker" <fweisbec@gmail.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Andy Lutomirski" <luto@kernel.org>,
-        "Andy Lutomirski" <luto@amacapital.net>,
-        "Denys Vlasenko" <dvlasenk@redhat.com>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Borislav Petkov" <bp@alien8.de>,
-        "Peter Zijlstra" <peterz@infradead.org>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Jon Masters" <jcm@redhat.com>,
+        "Frederic Weisbecker" <frederic@kernel.org>,
+        "Andi Kleen" <ak@linux.intel.com>, "Borislav Petkov" <bp@suse.de>,
+        "Thomas Gleixner" <tglx@linutronix.de>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.193580430@decadent.org.uk>
+Message-ID: <lsq.1558022133.54295812@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 22/86] x86/asm: Add asm macros for static keys/jump
- labels
+Subject: [PATCH 3.16 65/86] x86/kvm: Expose X86_FEATURE_MD_CLEAR to guests
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -56,111 +49,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Andi Kleen <ak@linux.intel.com>
 
-commit 2671c3e4fe2a34bd9bf2eecdf5d1149d4b55dbdf upstream.
+commit 6c4dbbd14730c43f4ed808a9c42ca41625925c22 upstream.
 
-Unfortunately, we can only do this if HAVE_JUMP_LABEL.  In
-principle, we could do some serious surgery on the core jump
-label infrastructure to keep the patch infrastructure available
-on x86 on all builds, but that's probably not worth it.
+X86_FEATURE_MD_CLEAR is a new CPUID bit which is set when microcode
+provides the mechanism to invoke a flush of various exploitable CPU buffers
+by invoking the VERW instruction.
 
-Implementing the macros using a conditional branch as a fallback
-seems like a bad idea: we'd have to clobber flags.
+Hand it through to guests so they can adjust their mitigations.
 
-This limitation can't cause silent failures -- trying to include
-asm/jump_label.h at all on a non-HAVE_JUMP_LABEL kernel will
-error out.  The macro's users are responsible for handling this
-issue themselves.
+This also requires corresponding qemu changes, which are available
+separately.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/63aa45c4b692e8469e1876d6ccbb5da707972990.1447361906.git.luto@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[ tglx: Massaged changelog ]
+
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Jon Masters <jcm@redhat.com>
+Tested-by: Jon Masters <jcm@redhat.com>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/include/asm/jump_label.h | 52 ++++++++++++++++++++++++++-----
- 1 file changed, 44 insertions(+), 8 deletions(-)
+ arch/x86/kvm/cpuid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/jump_label.h
-+++ b/arch/x86/include/asm/jump_label.h
-@@ -14,13 +14,6 @@
- #error asm/jump_label.h included on a non-jump-label kernel
- #endif
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -320,7 +320,7 @@ static inline int __do_cpuid_ent(struct
+ 	/* cpuid 7.0.edx*/
+ 	const u32 kvm_cpuid_7_0_edx_x86_features =
+ 		F(SPEC_CTRL) | F(SPEC_CTRL_SSBD) | F(ARCH_CAPABILITIES) |
+-		F(INTEL_STIBP);
++		F(INTEL_STIBP) | F(MD_CLEAR);
  
--#ifndef __ASSEMBLY__
--
--#include <linux/stringify.h>
--#include <linux/types.h>
--#include <asm/nops.h>
--#include <asm/asm.h>
--
- #define JUMP_LABEL_NOP_SIZE 5
- 
- #ifdef CONFIG_X86_64
-@@ -29,6 +22,14 @@
- # define STATIC_KEY_INIT_NOP GENERIC_NOP5_ATOMIC
- #endif
- 
-+#include <asm/asm.h>
-+#include <asm/nops.h>
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <linux/stringify.h>
-+#include <linux/types.h>
-+
- static __always_inline bool arch_static_branch(struct static_key *key, bool branch)
- {
- 	asm_volatile_goto("1:"
-@@ -72,5 +73,40 @@ struct jump_entry {
- 	jump_label_t key;
- };
- 
--#endif  /* __ASSEMBLY__ */
-+#else	/* __ASSEMBLY__ */
-+
-+.macro STATIC_JUMP_IF_TRUE target, key, def
-+.Lstatic_jump_\@:
-+	.if \def
-+	/* Equivalent to "jmp.d32 \target" */
-+	.byte		0xe9
-+	.long		\target - .Lstatic_jump_after_\@
-+.Lstatic_jump_after_\@:
-+	.else
-+	.byte		STATIC_KEY_INIT_NOP
-+	.endif
-+	.pushsection __jump_table, "aw"
-+	_ASM_ALIGN
-+	_ASM_PTR	.Lstatic_jump_\@, \target, \key
-+	.popsection
-+.endm
-+
-+.macro STATIC_JUMP_IF_FALSE target, key, def
-+.Lstatic_jump_\@:
-+	.if \def
-+	.byte		STATIC_KEY_INIT_NOP
-+	.else
-+	/* Equivalent to "jmp.d32 \target" */
-+	.byte		0xe9
-+	.long		\target - .Lstatic_jump_after_\@
-+.Lstatic_jump_after_\@:
-+	.endif
-+	.pushsection __jump_table, "aw"
-+	_ASM_ALIGN
-+	_ASM_PTR	.Lstatic_jump_\@, \target, \key + 1
-+	.popsection
-+.endm
-+
-+#endif	/* __ASSEMBLY__ */
-+
- #endif
+ 	/* all calls to cpuid_count() should be made on the same cpu */
+ 	get_cpu();
 
