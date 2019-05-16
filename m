@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB2120C3F
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E13C820C62
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727255AbfEPQDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:03:13 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42570 "EHLO
+        id S1726594AbfEPP6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 11:58:40 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42328 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726757AbfEPP6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:44 -0400
+        by vger.kernel.org with ESMTP id S1726409AbfEPP6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:40 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImD-0006yn-6T; Thu, 16 May 2019 16:58:37 +0100
+        id 1hRImC-0006yj-U0; Thu, 16 May 2019 16:58:37 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImC-0001My-Ht; Thu, 16 May 2019 16:58:36 +0100
+        id 1hRImC-0001Mg-ER; Thu, 16 May 2019 16:58:36 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,24 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        mgorman@suse.de, mpe@ellerman.id.au,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>, catalin.marinas@arm.com,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, paulus@samba.org,
-        benh@kernel.crashing.org, "Anton Blanchard" <anton@samba.org>,
-        will.deacon@arm.com, davem@davemloft.net, mmarek@suse.cz,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        jbaron@akamai.com, linux@arm.linux.org.uk, ralf@linux-mips.org,
-        schwidefsky@de.ibm.com, rostedt@goodmis.org,
-        linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com,
-        liuj97@gmail.com
+        "Maciej W. Rozycki" <macro@codesourcery.com>,
+        linux-mips@linux-mips.org, "Ralf Baechle" <ralf@linux-mips.org>
 Date:   Thu, 16 May 2019 16:55:32 +0100
-Message-ID: <lsq.1558022132.722723753@decadent.org.uk>
+Message-ID: <lsq.1558022132.250828593@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 08/86] jump_label: Allow asm/jump_label.h to be
- included in assembly
+Subject: [PATCH 3.16 05/86] MIPS: jump_label.c: Handle the microMIPS J
+ instruction encoding
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -57,208 +47,111 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Anton Blanchard <anton@samba.org>
+From: "Maciej W. Rozycki" <macro@codesourcery.com>
 
-commit 55dd0df781e58ec23d218376ea4a676e7362a98c upstream.
+commit 935c2dbec4d6d3163ee8e7409996904a734ad89a upstream.
 
-Wrap asm/jump_label.h for all archs with #ifndef __ASSEMBLY__.
-Since these are kernel only headers, we don't need #ifdef
-__KERNEL__ so can simplify things a bit.
+Implement the microMIPS encoding of the J instruction for the purpose of
+the static keys feature, fixing a crash early on in bootstrap as the
+kernel is unhappy seeing the ISA bit set in jump table entries.  Make
+sure the ISA bit correctly reflects the instruction encoding chosen for
+the kernel, 0 for the standard MIPS and 1 for the microMIPS encoding.
 
-If an architecture wants to use jump labels in assembly, it
-will still need to define a macro to create the __jump_table
-entries (see ARCH_STATIC_BRANCH in the powerpc asm/jump_label.h
-for an example).
+Also make sure the instruction to patch is a 32-bit NOP in the microMIPS
+mode as by default the 16-bit short encoding is assumed
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: benh@kernel.crashing.org
-Cc: catalin.marinas@arm.com
-Cc: davem@davemloft.net
-Cc: heiko.carstens@de.ibm.com
-Cc: jbaron@akamai.com
-Cc: linux@arm.linux.org.uk
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: liuj97@gmail.com
-Cc: mgorman@suse.de
-Cc: mmarek@suse.cz
-Cc: mpe@ellerman.id.au
-Cc: paulus@samba.org
-Cc: ralf@linux-mips.org
-Cc: rostedt@goodmis.org
-Cc: schwidefsky@de.ibm.com
-Cc: will.deacon@arm.com
-Link: http://lkml.kernel.org/r/1428551492-21977-1-git-send-email-anton@samba.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Maciej W. Rozycki <macro@codesourcery.com>
+Cc: linux-mips@linux-mips.org
+Patchwork: https://patchwork.linux-mips.org/patch/8516/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/arm/include/asm/jump_label.h   | 5 ++---
- arch/arm64/include/asm/jump_label.h | 8 ++++----
- arch/mips/include/asm/jump_label.h  | 7 +++----
- arch/s390/include/asm/jump_label.h  | 3 +++
- arch/sparc/include/asm/jump_label.h | 5 ++---
- arch/x86/include/asm/jump_label.h   | 5 ++---
- 6 files changed, 16 insertions(+), 17 deletions(-)
+ arch/mips/include/asm/jump_label.h |  8 +++++-
+ arch/mips/kernel/jump_label.c      | 40 +++++++++++++++++++++++-------
+ 2 files changed, 38 insertions(+), 10 deletions(-)
 
---- a/arch/arm/include/asm/jump_label.h
-+++ b/arch/arm/include/asm/jump_label.h
-@@ -1,7 +1,7 @@
- #ifndef _ASM_ARM_JUMP_LABEL_H
- #define _ASM_ARM_JUMP_LABEL_H
- 
--#ifdef __KERNEL__
-+#ifndef __ASSEMBLY__
- 
- #include <linux/types.h>
- 
-@@ -27,8 +27,6 @@ l_yes:
- 	return true;
- }
- 
--#endif /* __KERNEL__ */
--
- typedef u32 jump_label_t;
- 
- struct jump_entry {
-@@ -37,4 +35,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
- 
-+#endif  /* __ASSEMBLY__ */
- #endif
---- a/arch/arm64/include/asm/jump_label.h
-+++ b/arch/arm64/include/asm/jump_label.h
-@@ -18,11 +18,12 @@
-  */
- #ifndef __ASM_JUMP_LABEL_H
- #define __ASM_JUMP_LABEL_H
-+
-+#ifndef __ASSEMBLY__
-+
- #include <linux/types.h>
- #include <asm/insn.h>
- 
--#ifdef __KERNEL__
--
- #define JUMP_LABEL_NOP_SIZE		AARCH64_INSN_SIZE
- 
- static __always_inline bool arch_static_branch(struct static_key *key)
-@@ -39,8 +40,6 @@ l_yes:
- 	return true;
- }
- 
--#endif /* __KERNEL__ */
--
- typedef u64 jump_label_t;
- 
- struct jump_entry {
-@@ -49,4 +48,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
- 
-+#endif  /* __ASSEMBLY__ */
- #endif	/* __ASM_JUMP_LABEL_H */
 --- a/arch/mips/include/asm/jump_label.h
 +++ b/arch/mips/include/asm/jump_label.h
-@@ -8,9 +8,9 @@
- #ifndef _ASM_MIPS_JUMP_LABEL_H
- #define _ASM_MIPS_JUMP_LABEL_H
+@@ -20,9 +20,15 @@
+ #define WORD_INSN ".word"
+ #endif
  
--#include <linux/types.h>
-+#ifndef __ASSEMBLY__
- 
--#ifdef __KERNEL__
-+#include <linux/types.h>
- 
- #define JUMP_LABEL_NOP_SIZE 4
- 
-@@ -39,8 +39,6 @@ l_yes:
- 	return true;
- }
- 
--#endif /* __KERNEL__ */
--
- #ifdef CONFIG_64BIT
- typedef u64 jump_label_t;
- #else
-@@ -53,4 +51,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
- 
-+#endif  /* __ASSEMBLY__ */
- #endif /* _ASM_MIPS_JUMP_LABEL_H */
---- a/arch/s390/include/asm/jump_label.h
-+++ b/arch/s390/include/asm/jump_label.h
-@@ -1,6 +1,8 @@
- #ifndef _ASM_S390_JUMP_LABEL_H
- #define _ASM_S390_JUMP_LABEL_H
- 
-+#ifndef __ASSEMBLY__
++#ifdef CONFIG_CPU_MICROMIPS
++#define NOP_INSN "nop32"
++#else
++#define NOP_INSN "nop"
++#endif
 +
- #include <linux/types.h>
+ static __always_inline bool arch_static_branch(struct static_key *key)
+ {
+-	asm_volatile_goto("1:\tnop\n\t"
++	asm_volatile_goto("1:\t" NOP_INSN "\n\t"
+ 		"nop\n\t"
+ 		".pushsection __jump_table,  \"aw\"\n\t"
+ 		WORD_INSN " 1b, %l[l_yes], %0\n\t"
+--- a/arch/mips/kernel/jump_label.c
++++ b/arch/mips/kernel/jump_label.c
+@@ -18,31 +18,53 @@
  
- #define JUMP_LABEL_NOP_SIZE 6
-@@ -39,4 +41,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
+ #ifdef HAVE_JUMP_LABEL
  
-+#endif  /* __ASSEMBLY__ */
- #endif
---- a/arch/sparc/include/asm/jump_label.h
-+++ b/arch/sparc/include/asm/jump_label.h
-@@ -1,7 +1,7 @@
- #ifndef _ASM_SPARC_JUMP_LABEL_H
- #define _ASM_SPARC_JUMP_LABEL_H
+-#define J_RANGE_MASK ((1ul << 28) - 1)
++/*
++ * Define parameters for the standard MIPS and the microMIPS jump
++ * instruction encoding respectively:
++ *
++ * - the ISA bit of the target, either 0 or 1 respectively,
++ *
++ * - the amount the jump target address is shifted right to fit in the
++ *   immediate field of the machine instruction, either 2 or 1,
++ *
++ * - the mask determining the size of the jump region relative to the
++ *   delay-slot instruction, either 256MB or 128MB,
++ *
++ * - the jump target alignment, either 4 or 2 bytes.
++ */
++#define J_ISA_BIT	IS_ENABLED(CONFIG_CPU_MICROMIPS)
++#define J_RANGE_SHIFT	(2 - J_ISA_BIT)
++#define J_RANGE_MASK	((1ul << (26 + J_RANGE_SHIFT)) - 1)
++#define J_ALIGN_MASK	((1ul << J_RANGE_SHIFT) - 1)
  
--#ifdef __KERNEL__
-+#ifndef __ASSEMBLY__
+ void arch_jump_label_transform(struct jump_entry *e,
+ 			       enum jump_label_type type)
+ {
++	union mips_instruction *insn_p;
+ 	union mips_instruction insn;
+-	union mips_instruction *insn_p =
+-		(union mips_instruction *)(unsigned long)e->code;
  
- #include <linux/types.h>
+-	/* Jump only works within a 256MB aligned region of its delay slot. */
++	insn_p = (union mips_instruction *)msk_isa16_mode(e->code);
++
++	/* Jump only works within an aligned region its delay slot is in. */
+ 	BUG_ON((e->target & ~J_RANGE_MASK) != ((e->code + 4) & ~J_RANGE_MASK));
  
-@@ -22,8 +22,6 @@ l_yes:
- 	return true;
- }
+-	/* Target must have 4 byte alignment. */
+-	BUG_ON((e->target & 3) != 0);
++	/* Target must have the right alignment and ISA must be preserved. */
++	BUG_ON((e->target & J_ALIGN_MASK) != J_ISA_BIT);
  
--#endif /* __KERNEL__ */
--
- typedef u32 jump_label_t;
+ 	if (type == JUMP_LABEL_ENABLE) {
+-		insn.j_format.opcode = j_op;
+-		insn.j_format.target = (e->target & J_RANGE_MASK) >> 2;
++		insn.j_format.opcode = J_ISA_BIT ? mm_j32_op : j_op;
++		insn.j_format.target = e->target >> J_RANGE_SHIFT;
+ 	} else {
+ 		insn.word = 0; /* nop */
+ 	}
  
- struct jump_entry {
-@@ -32,4 +30,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
+ 	get_online_cpus();
+ 	mutex_lock(&text_mutex);
+-	*insn_p = insn;
++	if (IS_ENABLED(CONFIG_CPU_MICROMIPS)) {
++		insn_p->halfword[0] = insn.word >> 16;
++		insn_p->halfword[1] = insn.word;
++	} else
++		*insn_p = insn;
  
-+#endif  /* __ASSEMBLY__ */
- #endif
---- a/arch/x86/include/asm/jump_label.h
-+++ b/arch/x86/include/asm/jump_label.h
-@@ -1,7 +1,7 @@
- #ifndef _ASM_X86_JUMP_LABEL_H
- #define _ASM_X86_JUMP_LABEL_H
- 
--#ifdef __KERNEL__
-+#ifndef __ASSEMBLY__
- 
- #include <linux/stringify.h>
- #include <linux/types.h>
-@@ -30,8 +30,6 @@ l_yes:
- 	return true;
- }
- 
--#endif /* __KERNEL__ */
--
- #ifdef CONFIG_X86_64
- typedef u64 jump_label_t;
- #else
-@@ -44,4 +42,5 @@ struct jump_entry {
- 	jump_label_t key;
- };
- 
-+#endif  /* __ASSEMBLY__ */
- #endif
+ 	flush_icache_range((unsigned long)insn_p,
+ 			   (unsigned long)insn_p + sizeof(*insn_p));
 
