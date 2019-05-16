@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 573A020506
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D008B20620
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727693AbfEPLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48610 "EHLO mail.kernel.org"
+        id S1727969AbfEPLrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:47:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727680AbfEPLkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:40:25 -0400
+        id S1727704AbfEPLk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:40:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABF6E20833;
-        Thu, 16 May 2019 11:40:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 116BF20862;
+        Thu, 16 May 2019 11:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006824;
-        bh=xcUcbum0kznZymBbTt8oBKddPT2MqmREwPtkhstbCAU=;
+        s=default; t=1558006826;
+        bh=BKXauO2Zc4XHHOgQk7SKdfzxMgK8rT1MjX+j7lxm+lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y90vPrIPwOtGt6ZXqdrNNmci+R1U7Us0nAyHrdHm7XUG14R6NIkmsxhaWhvUnkOSi
-         rGa5pp2/44L1BgJ+xHDOjbV6uYQAtSCuDkfnrs5pJjlRy5F00ehL3xPeaOAA1MLBzA
-         WinjpvJ/WmMevt4NBwr+HAJzuDOfDHKvFin+mpBc=
+        b=ShVi1q9RGjETx5YfaYeLBBDUBvBn+JBESMurjuWmIpW8YOqtc+Ki2OODaujZIZbjx
+         Z0DySjk7hddFCaVBQSQrDm5FKHbPRbXGd5HNAwMZ9rh4sZvr+svdmQgIbm1/HvcCFN
+         1lICgZmT24uymnEfRmgblJOvHDIcmUTiBKS+ZiPs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jiri Olsa <jolsa@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
+Cc:     Leo Yan <leo.yan@linaro.org>,
+        Robert Walker <robert.walker@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
         Namhyung Kim <namhyung@kernel.org>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
+        Suzuki K Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 32/34] perf bench numa: Add define for RUSAGE_THREAD if not present
-Date:   Thu, 16 May 2019 07:39:29 -0400
-Message-Id: <20190516113932.8348-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 33/34] perf cs-etm: Always allocate memory for cs_etm_queue::prev_packet
+Date:   Thu, 16 May 2019 07:39:30 -0400
+Message-Id: <20190516113932.8348-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,66 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit bf561d3c13423fc54daa19b5d49dc15fafdb7acc ]
+[ Upstream commit 35bb59c10a6d0578806dd500477dae9cb4be344e ]
 
-While cross building perf to the ARC architecture on a fedora 30 host,
-we were failing with:
+Robert Walker reported a segmentation fault is observed when process
+CoreSight trace data; this issue can be easily reproduced by the command
+'perf report --itrace=i1000i' for decoding tracing data.
 
-      CC       /tmp/build/perf/bench/numa.o
-  bench/numa.c: In function ‘worker_thread’:
-  bench/numa.c:1261:12: error: ‘RUSAGE_THREAD’ undeclared (first use in this function); did you mean ‘SIGEV_THREAD’?
-    getrusage(RUSAGE_THREAD, &rusage);
-              ^~~~~~~~~~~~~
-              SIGEV_THREAD
-  bench/numa.c:1261:12: note: each undeclared identifier is reported only once for each function it appears in
+If neither the 'b' flag (synthesize branches events) nor 'l' flag
+(synthesize last branch entries) are specified to option '--itrace',
+cs_etm_queue::prev_packet will not been initialised.  After merging the
+code to support exception packets and sample flags, there introduced a
+number of uses of cs_etm_queue::prev_packet without checking whether it
+is valid, for these cases any accessing to uninitialised prev_packet
+will cause crash.
 
-[perfbuilder@60d5802468f6 perf]$ /arc_gnu_2019.03-rc1_prebuilt_uclibc_le_archs_linux_install/bin/arc-linux-gcc --version | head -1
-arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2019.03-rc1) 8.3.1 20190225
-[perfbuilder@60d5802468f6 perf]$
+As cs_etm_queue::prev_packet is used more widely now and it's already
+hard to follow which functions have been called in a context where the
+validity of cs_etm_queue::prev_packet has been checked, this patch
+always allocates memory for cs_etm_queue::prev_packet.
 
-Trying to reproduce a report by Vineet, I noticed that, with just
-cross-built zlib and numactl libraries, I ended up with the above
-failure.
-
-So, since RUSAGE_THREAD is available as a define, check for that and
-numactl libraries, I ended up with the above failure.
-
-So, since RUSAGE_THREAD is available as a define in the system headers,
-check if it is defined in the 'perf bench numa' sources and define it if
-not.
-
-Now it builds and I have to figure out if the problem reported by Vineet
-only takes place if we have libelf or some other library available.
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: linux-snps-arc@lists.infradead.org
+Reported-by: Robert Walker <robert.walker@arm.com>
+Suggested-by: Robert Walker <robert.walker@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Tested-by: Robert Walker <robert.walker@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Link: https://lkml.kernel.org/n/tip-2wb4r1gir9xrevbpq7qp0amk@git.kernel.org
+Cc: Suzuki K Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Fixes: 7100b12cf474 ("perf cs-etm: Generate branch sample for exception packet")
+Fixes: 24fff5eb2b93 ("perf cs-etm: Avoid stale branch samples when flush packet")
+Link: http://lkml.kernel.org/r/20190428083228.20246-1-leo.yan@linaro.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/util/cs-etm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 44195514b19e6..fa56fde6e8d80 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -38,6 +38,10 @@
- #include <numa.h>
- #include <numaif.h>
+diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+index 27a374ddf6615..947f1bb2fbdfb 100644
+--- a/tools/perf/util/cs-etm.c
++++ b/tools/perf/util/cs-etm.c
+@@ -345,11 +345,9 @@ static struct cs_etm_queue *cs_etm__alloc_queue(struct cs_etm_auxtrace *etm,
+ 	if (!etmq->packet)
+ 		goto out_free;
  
-+#ifndef RUSAGE_THREAD
-+# define RUSAGE_THREAD 1
-+#endif
-+
- /*
-  * Regular printout to the terminal, supressed if -q is specified:
-  */
+-	if (etm->synth_opts.last_branch || etm->sample_branches) {
+-		etmq->prev_packet = zalloc(szp);
+-		if (!etmq->prev_packet)
+-			goto out_free;
+-	}
++	etmq->prev_packet = zalloc(szp);
++	if (!etmq->prev_packet)
++		goto out_free;
+ 
+ 	if (etm->synth_opts.last_branch) {
+ 		size_t sz = sizeof(struct branch_stack);
 -- 
 2.20.1
 
