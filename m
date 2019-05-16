@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3745205B3
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C18205B5
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727424AbfEPLjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:39:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47828 "EHLO mail.kernel.org"
+        id S1727446AbfEPLju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:39:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727408AbfEPLjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:39:47 -0400
+        id S1727427AbfEPLjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:39:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0AA920881;
-        Thu, 16 May 2019 11:39:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 115322089E;
+        Thu, 16 May 2019 11:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006786;
-        bh=tBCzZByeN4C91PgXW1UqMiCBhoEnLvF0UumL/e18Rc4=;
+        s=default; t=1558006787;
+        bh=+ZPCNg3ruihxdWeoGY0MhxzDP6Lb0DhGX7m8k9gKt40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1oNB/ukrGnBywjVn/X2wQN+8NEDG9YU6SYAaVu+ZZO4IlLrCbZH0mgbn4phR/v1d9
-         y0wJexXmb2Hc+zX1ox5wH+FK9h/Le42yDD50LeZZ4Xq7ruXb8lJ342g2TdJZ2gkm3Z
-         bnC5M9hYplEhdR2ipzodslYjID3VYluqCz9T1roA=
+        b=fyEYQTsMdX4VCkIj6Q6rPCr8xxaRu9yhF3dDZWjp4/7slOTZ5a2Ru1R3kApho6A26
+         WVKySUqpIRFSgPDu/ZdagV/a4CD7fFzonteBDYHuzka3DKDY1IuqOJDhYfNVQE3YIB
+         o4CB4xj/N/Ui6CtpNzf0JnNqbuchP+gmKf8ZwsQE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 10/34] clk: sunxi-ng: nkmp: Avoid GENMASK(-1, 0)
-Date:   Thu, 16 May 2019 07:39:07 -0400
-Message-Id: <20190516113932.8348-10-sashal@kernel.org>
+Cc:     Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.0 11/34] KVM: PPC: Book3S HV: Perserve PSSCR FAKE_SUSPEND bit on guest exit
+Date:   Thu, 16 May 2019 07:39:08 -0400
+Message-Id: <20190516113932.8348-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
@@ -43,139 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
 
-[ Upstream commit 2abc330c514fe56c570bb1a6318b054b06a4f72e ]
+[ Upstream commit 7cb9eb106d7a4efab6bcf30ec9503f1d703c77f5 ]
 
-Sometimes one of the nkmp factors is unused. This means that one of the
-factors shift and width values are set to 0. Current nkmp clock code
-generates a mask for each factor with GENMASK(width + shift - 1, shift).
-For unused factor this translates to GENMASK(-1, 0). This code is
-further expanded by C preprocessor to final version:
-(((~0UL) - (1UL << (0)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (-1))))
-or a bit simplified:
-(~0UL & (~0UL >> BITS_PER_LONG))
+There is a hardware bug in some POWER9 processors where a treclaim in
+fake suspend mode can cause an inconsistency in the XER[SO] bit across
+the threads of a core, the workaround being to force the core into SMT4
+when doing the treclaim.
 
-It turns out that result of the second part (~0UL >> BITS_PER_LONG) is
-actually undefined by C standard, which clearly specifies:
+The FAKE_SUSPEND bit (bit 10) in the PSSCR is used to control whether a
+thread is in fake suspend or real suspend. The important difference here
+being that thread reconfiguration is blocked in real suspend but not
+fake suspend mode.
 
-"If the value of the right operand is negative or is greater than or
-equal to the width of the promoted left operand, the behavior is
-undefined."
+When we exit a guest which was in fake suspend mode, we force the core
+into SMT4 while we do the treclaim in kvmppc_save_tm_hv().
+However on the new exit path introduced with the function
+kvmhv_run_single_vcpu() we restore the host PSSCR before calling
+kvmppc_save_tm_hv() which means that if we were in fake suspend mode we
+put the thread into real suspend mode when we clear the
+PSSCR[FAKE_SUSPEND] bit. This means that we block thread reconfiguration
+and the thread which is trying to get the core into SMT4 before it can
+do the treclaim spins forever since it itself is blocking thread
+reconfiguration. The result is that that core is essentially lost.
 
-Additionally, compiling kernel with aarch64-linux-gnu-gcc 8.3.0 gave
-different results whether literals or variables with same values as
-literals were used. GENMASK with literals -1 and 0 gives zero and with
-variables gives 0xFFFFFFFFFFFFFFF (~0UL). Because nkmp driver uses
-GENMASK with variables as parameter, expression calculates mask as ~0UL
-instead of 0. This has further consequences that LSB in register is
-always set to 1 (1 is neutral value for a factor and shift is 0).
+This results in a trace such as:
+[   93.512904] CPU: 7 PID: 13352 Comm: qemu-system-ppc Not tainted 5.0.0 #4
+[   93.512905] NIP:  c000000000098a04 LR: c0000000000cc59c CTR: 0000000000000000
+[   93.512908] REGS: c000003fffd2bd70 TRAP: 0100   Not tainted  (5.0.0)
+[   93.512908] MSR:  9000000302883033 <SF,HV,VEC,VSX,FP,ME,IR,DR,RI,LE,TM[SE]>  CR: 22222444  XER: 00000000
+[   93.512914] CFAR: c000000000098a5c IRQMASK: 3
+[   93.512915] PACATMSCRATCH: 0000000000000001
+[   93.512916] GPR00: 0000000000000001 c000003f6cc1b830 c000000001033100 0000000000000004
+[   93.512928] GPR04: 0000000000000004 0000000000000002 0000000000000004 0000000000000007
+[   93.512930] GPR08: 0000000000000000 0000000000000004 0000000000000000 0000000000000004
+[   93.512932] GPR12: c000203fff7fc000 c000003fffff9500 0000000000000000 0000000000000000
+[   93.512935] GPR16: 2000000000300375 000000000000059f 0000000000000000 0000000000000000
+[   93.512951] GPR20: 0000000000000000 0000000000080053 004000000256f41f c000003f6aa88ef0
+[   93.512953] GPR24: c000003f6aa89100 0000000000000010 0000000000000000 0000000000000000
+[   93.512956] GPR28: c000003f9e9a0800 0000000000000000 0000000000000001 c000203fff7fc000
+[   93.512959] NIP [c000000000098a04] pnv_power9_force_smt4_catch+0x1b4/0x2c0
+[   93.512960] LR [c0000000000cc59c] kvmppc_save_tm_hv+0x40/0x88
+[   93.512960] Call Trace:
+[   93.512961] [c000003f6cc1b830] [0000000000080053] 0x80053 (unreliable)
+[   93.512965] [c000003f6cc1b8a0] [c00800001e9cb030] kvmhv_p9_guest_entry+0x508/0x6b0 [kvm_hv]
+[   93.512967] [c000003f6cc1b940] [c00800001e9cba44] kvmhv_run_single_vcpu+0x2dc/0xb90 [kvm_hv]
+[   93.512968] [c000003f6cc1ba10] [c00800001e9cc948] kvmppc_vcpu_run_hv+0x650/0xb90 [kvm_hv]
+[   93.512969] [c000003f6cc1bae0] [c00800001e8f620c] kvmppc_vcpu_run+0x34/0x48 [kvm]
+[   93.512971] [c000003f6cc1bb00] [c00800001e8f2d4c] kvm_arch_vcpu_ioctl_run+0x2f4/0x400 [kvm]
+[   93.512972] [c000003f6cc1bb90] [c00800001e8e3918] kvm_vcpu_ioctl+0x460/0x7d0 [kvm]
+[   93.512974] [c000003f6cc1bd00] [c0000000003ae2c0] do_vfs_ioctl+0xe0/0x8e0
+[   93.512975] [c000003f6cc1bdb0] [c0000000003aeb24] ksys_ioctl+0x64/0xe0
+[   93.512978] [c000003f6cc1be00] [c0000000003aebc8] sys_ioctl+0x28/0x80
+[   93.512981] [c000003f6cc1be20] [c00000000000b3a4] system_call+0x5c/0x70
+[   93.512983] Instruction dump:
+[   93.512986] 419dffbc e98c0000 2e8b0000 38000001 60000000 60000000 60000000 40950068
+[   93.512993] 392bffff 39400000 79290020 39290001 <7d2903a6> 60000000 60000000 7d235214
 
-For example, H6 pll-de clock is set to 600 MHz by sun4i-drm driver, but
-due to this bug ends up being 300 MHz. Additionally, 300 MHz seems to be
-too low because following warning can be found in dmesg:
+To fix this we preserve the PSSCR[FAKE_SUSPEND] bit until we call
+kvmppc_save_tm_hv() which will mean the core can get into SMT4 and
+perform the treclaim. Note kvmppc_save_tm_hv() clears the
+PSSCR[FAKE_SUSPEND] bit again so there is no need to explicitly do that.
 
-[    1.752763] WARNING: CPU: 2 PID: 41 at drivers/clk/sunxi-ng/ccu_common.c:41 ccu_helper_wait_for_lock.part.0+0x6c/0x90
-[    1.763378] Modules linked in:
-[    1.766441] CPU: 2 PID: 41 Comm: kworker/2:1 Not tainted 5.1.0-rc2-next-20190401 #138
-[    1.774269] Hardware name: Pine H64 (DT)
-[    1.778200] Workqueue: events deferred_probe_work_func
-[    1.783341] pstate: 40000005 (nZcv daif -PAN -UAO)
-[    1.788135] pc : ccu_helper_wait_for_lock.part.0+0x6c/0x90
-[    1.793623] lr : ccu_helper_wait_for_lock.part.0+0x48/0x90
-[    1.799107] sp : ffff000010f93840
-[    1.802422] x29: ffff000010f93840 x28: 0000000000000000
-[    1.807735] x27: ffff800073ce9d80 x26: ffff000010afd1b8
-[    1.813049] x25: ffffffffffffffff x24: 00000000ffffffff
-[    1.818362] x23: 0000000000000001 x22: ffff000010abd5c8
-[    1.823675] x21: 0000000010000000 x20: 00000000685f367e
-[    1.828987] x19: 0000000000001801 x18: 0000000000000001
-[    1.834300] x17: 0000000000000001 x16: 0000000000000000
-[    1.839613] x15: 0000000000000000 x14: ffff000010789858
-[    1.844926] x13: 0000000000000000 x12: 0000000000000001
-[    1.850239] x11: 0000000000000000 x10: 0000000000000970
-[    1.855551] x9 : ffff000010f936c0 x8 : ffff800074cec0d0
-[    1.860864] x7 : 0000800067117000 x6 : 0000000115c30b41
-[    1.866177] x5 : 00ffffffffffffff x4 : 002c959300bfe500
-[    1.871490] x3 : 0000000000000018 x2 : 0000000029aaaaab
-[    1.876802] x1 : 00000000000002e6 x0 : 00000000686072bc
-[    1.882114] Call trace:
-[    1.884565]  ccu_helper_wait_for_lock.part.0+0x6c/0x90
-[    1.889705]  ccu_helper_wait_for_lock+0x10/0x20
-[    1.894236]  ccu_nkmp_set_rate+0x244/0x2a8
-[    1.898334]  clk_change_rate+0x144/0x290
-[    1.902258]  clk_core_set_rate_nolock+0x180/0x1b8
-[    1.906963]  clk_set_rate+0x34/0xa0
-[    1.910455]  sun8i_mixer_bind+0x484/0x558
-[    1.914466]  component_bind_all+0x10c/0x230
-[    1.918651]  sun4i_drv_bind+0xc4/0x1a0
-[    1.922401]  try_to_bring_up_master+0x164/0x1c0
-[    1.926932]  __component_add+0xa0/0x168
-[    1.930769]  component_add+0x10/0x18
-[    1.934346]  sun8i_dw_hdmi_probe+0x18/0x20
-[    1.938443]  platform_drv_probe+0x50/0xa0
-[    1.942455]  really_probe+0xcc/0x280
-[    1.946032]  driver_probe_device+0x54/0xe8
-[    1.950130]  __device_attach_driver+0x80/0xb8
-[    1.954488]  bus_for_each_drv+0x78/0xc8
-[    1.958326]  __device_attach+0xd4/0x130
-[    1.962163]  device_initial_probe+0x10/0x18
-[    1.966348]  bus_probe_device+0x90/0x98
-[    1.970185]  deferred_probe_work_func+0x6c/0xa0
-[    1.974720]  process_one_work+0x1e0/0x320
-[    1.978732]  worker_thread+0x228/0x428
-[    1.982484]  kthread+0x120/0x128
-[    1.985714]  ret_from_fork+0x10/0x18
-[    1.989290] ---[ end trace 9babd42e1ca4b84f ]---
+Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
 
-This commit solves the issue by first checking value of the factor
-width. If it is equal to 0 (unused factor), mask is set to 0, otherwise
-GENMASK() macro is used as before.
-
-Fixes: d897ef56faf9 ("clk: sunxi-ng: Mask nkmp factors when setting register")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu_nkmp.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu_nkmp.c b/drivers/clk/sunxi-ng/ccu_nkmp.c
-index 9b49adb20d07c..69dfc6de1c4e6 100644
---- a/drivers/clk/sunxi-ng/ccu_nkmp.c
-+++ b/drivers/clk/sunxi-ng/ccu_nkmp.c
-@@ -167,7 +167,7 @@ static int ccu_nkmp_set_rate(struct clk_hw *hw, unsigned long rate,
- 			   unsigned long parent_rate)
- {
- 	struct ccu_nkmp *nkmp = hw_to_ccu_nkmp(hw);
--	u32 n_mask, k_mask, m_mask, p_mask;
-+	u32 n_mask = 0, k_mask = 0, m_mask = 0, p_mask = 0;
- 	struct _ccu_nkmp _nkmp;
- 	unsigned long flags;
- 	u32 reg;
-@@ -186,10 +186,18 @@ static int ccu_nkmp_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 5a066fc299e17..f17065f2c962f 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3407,7 +3407,9 @@ static int kvmhv_load_hv_regs_and_go(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	vcpu->arch.shregs.sprg2 = mfspr(SPRN_SPRG2);
+ 	vcpu->arch.shregs.sprg3 = mfspr(SPRN_SPRG3);
  
- 	ccu_nkmp_find_best(parent_rate, rate, &_nkmp);
- 
--	n_mask = GENMASK(nkmp->n.width + nkmp->n.shift - 1, nkmp->n.shift);
--	k_mask = GENMASK(nkmp->k.width + nkmp->k.shift - 1, nkmp->k.shift);
--	m_mask = GENMASK(nkmp->m.width + nkmp->m.shift - 1, nkmp->m.shift);
--	p_mask = GENMASK(nkmp->p.width + nkmp->p.shift - 1, nkmp->p.shift);
-+	if (nkmp->n.width)
-+		n_mask = GENMASK(nkmp->n.width + nkmp->n.shift - 1,
-+				 nkmp->n.shift);
-+	if (nkmp->k.width)
-+		k_mask = GENMASK(nkmp->k.width + nkmp->k.shift - 1,
-+				 nkmp->k.shift);
-+	if (nkmp->m.width)
-+		m_mask = GENMASK(nkmp->m.width + nkmp->m.shift - 1,
-+				 nkmp->m.shift);
-+	if (nkmp->p.width)
-+		p_mask = GENMASK(nkmp->p.width + nkmp->p.shift - 1,
-+				 nkmp->p.shift);
- 
- 	spin_lock_irqsave(nkmp->common.lock, flags);
- 
+-	mtspr(SPRN_PSSCR, host_psscr);
++	/* Preserve PSSCR[FAKE_SUSPEND] until we've called kvmppc_save_tm_hv */
++	mtspr(SPRN_PSSCR, host_psscr |
++	      (local_paca->kvm_hstate.fake_suspend << PSSCR_FAKE_SUSPEND_LG));
+ 	mtspr(SPRN_HFSCR, host_hfscr);
+ 	mtspr(SPRN_CIABR, host_ciabr);
+ 	mtspr(SPRN_DAWR, host_dawr);
 -- 
 2.20.1
 
