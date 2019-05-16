@@ -2,148 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 631D21FD8A
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 03:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FD81FD96
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 03:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727033AbfEPBqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 May 2019 21:46:21 -0400
-Received: from mga03.intel.com ([134.134.136.65]:58859 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726528AbfEPAp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 May 2019 20:45:56 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 May 2019 17:45:55 -0700
-X-ExtLoop1: 1
-Received: from orsmsx107.amr.corp.intel.com ([10.22.240.5])
-  by orsmga003.jf.intel.com with ESMTP; 15 May 2019 17:45:55 -0700
-Received: from orsmsx126.amr.corp.intel.com (10.22.240.126) by
- ORSMSX107.amr.corp.intel.com (10.22.240.5) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Wed, 15 May 2019 17:45:55 -0700
-Received: from orsmsx121.amr.corp.intel.com ([169.254.10.47]) by
- ORSMSX126.amr.corp.intel.com ([169.254.4.35]) with mapi id 14.03.0415.000;
- Wed, 15 May 2019 17:45:55 -0700
-From:   "Schmauss, Erik" <erik.schmauss@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>
-Subject: RE: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
- interpreter: add region addresses...")
-Thread-Topic: Possible mis-backport of 4abb951b in 4.19.35 ("ACPICA: AML
- interpreter: add region addresses...")
-Thread-Index: AQHVA3sHg6huTCc9j0i77n2Wgo9sv6ZePXSAgA0zAMCAALM+gIABDBMA///KRSA=
-Date:   Thu, 16 May 2019 00:45:54 +0000
-Message-ID: <CF6A88132359CE47947DB4C6E1709ED53C5D0845@ORSMSX121.amr.corp.intel.com>
-References: <20190505194448.GA2649@windriver.com>
- <20190506084145.GA23991@kroah.com>
- <CF6A88132359CE47947DB4C6E1709ED53C5CF0B6@ORSMSX121.amr.corp.intel.com>
- <20190515045711.GA16452@kroah.com>
- <f2110cb8-8d80-65df-55a9-5428e6e4e9c3@intel.com>
-In-Reply-To: <f2110cb8-8d80-65df-55a9-5428e6e4e9c3@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiM2FjNDMxYjAtZmY0Ni00MjcwLWEwNmItOGVhMzVmNWJlNzhjIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiUmpyb3VPZFNybjV2WEN2cXpTRnhTQWRucEl0QlFTTHdcL1YzR2xSNnBCcENneFVsa2xFRFQwK3JSckNSaEdvK2QifQ==
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.139]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726229AbfEPB54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 May 2019 21:57:56 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:46716 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725977AbfEPB54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 May 2019 21:57:56 -0400
+Received: by mail-lj1-f196.google.com with SMTP id h21so1513130ljk.13
+        for <stable@vger.kernel.org>; Wed, 15 May 2019 18:57:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=IBkvWkfjbo2qhlfdTqhbC3Z8epUXswTdb3LlL4ihZQk=;
+        b=GTW/fJD50G4i93ASZPIJ8j7jisA4gxQEkpi3pOeJMwZmkLnFE9vaJwOay3xrlYbeOb
+         Sa28FHESKBdZ5mTV+pwhIijvqNRpeQOFEXnKkV402zC/L09tj8Dq3CbGk9llFXrU9XSM
+         0TSwswhCsFlz0Qqw+2Rq+0iGsbTO91aDjQf0egzGhlTIPsGAMRgH0QGEYLlzLefrxAAk
+         mTpT90gmYUItC1mod7CEEwJ8RlEWR+QexsWGBh9sozEcPYzQRlklA+JwgmFQ8ZID2doH
+         KD2LXPjATScr2URA5lBsPbdsiWZmcrARzwJsYycxLjMaK6hevhR4vr8swivMgzwirUZm
+         7hfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=IBkvWkfjbo2qhlfdTqhbC3Z8epUXswTdb3LlL4ihZQk=;
+        b=EQKKTiEwg1aE53c+6AEn7eChXIdYdV2loSQjzrpYzJjazNSIdW+qbz/xVXPdtTkCyN
+         m1fMQCjy62elRF/0nsJPIR1Ti1x3r3yZESKlNn95F5A4BEg/0vZGcccPWVByfOzGW6Nm
+         EOlNNghBPov3puXtCnuyfxQ9Ut6E0mqyeQul+4wgX0bcUiqCb7pRQANFA27OV6XnhQl3
+         v0qc32xKMSUAa9Qc6iqOBllJoSNW/+02jUYP79rlTMmUyfT2VU+l4RqG6sItkCSIOFU1
+         yfr+8rP+Gyh5L7VgBTMFQb5yMyeO4QFS2pLrJ47EiJ8OXefpb0HLtH+mqnwCOe4gw6Ej
+         w+Lw==
+X-Gm-Message-State: APjAAAXn6r5DdqsBHxe/uVWGiP7mzv+DkvQTVI5h3QFvFz16ObBQ0vJf
+        offGQAOQDZoJw9pY4tZBV5MRRd1s1xFtPSsUBKpk0ptHRvc=
+X-Google-Smtp-Source: APXvYqwLavl5xqcrY4wECeWHxyMenU5o/VgW46ojJJBdtWMUqQj5/mlqtcpa/UMsQNQErRG/93zcbkxVTPWOBdhgSDs=
+X-Received: by 2002:a2e:8583:: with SMTP id b3mr23688152lji.136.1557971874021;
+ Wed, 15 May 2019 18:57:54 -0700 (PDT)
 MIME-Version: 1.0
+References: <20190515090659.123121100@linuxfoundation.org> <20190515181705.GB16742@roeck-us.net>
+ <20190515182427.GA26029@kroah.com> <20190515183729.GA2978@kroah.com>
+In-Reply-To: <20190515183729.GA2978@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 16 May 2019 07:27:42 +0530
+Message-ID: <CA+G9fYt0u15cKi-dEk7yW=6mTZvbRrvh=y4UWjo+SF+fPN2EvQ@mail.gmail.com>
+Subject: Re: [PATCH 4.14 000/115] 4.14.120-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV3lzb2NraSwgUmFmYWVs
-IEoNCj4gU2VudDogV2VkbmVzZGF5LCBNYXkgMTUsIDIwMTkgMTo1NyBQTQ0KPiBUbzogU2NobWF1
-c3MsIEVyaWsgPGVyaWsuc2NobWF1c3NAaW50ZWwuY29tPg0KPiBDYzogR3JlZyBLcm9haC1IYXJ0
-bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz47IFBhdWwgR29ydG1ha2VyDQo+IDxwYXVs
-LmdvcnRtYWtlckB3aW5kcml2ZXIuY29tPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJq
-ZWN0OiBSZTogUG9zc2libGUgbWlzLWJhY2twb3J0IG9mIDRhYmI5NTFiIGluIDQuMTkuMzUgKCJB
-Q1BJQ0E6IEFNTA0KPiBpbnRlcnByZXRlcjogYWRkIHJlZ2lvbiBhZGRyZXNzZXMuLi4iKQ0KPiAN
-Cj4gT24gNS8xNS8yMDE5IDY6NTcgQU0sIEdyZWcgS3JvYWgtSGFydG1hbiB3cm90ZToNCj4gPiBP
-biBXZWQsIE1heSAxNSwgMjAxOSBhdCAwMToxNzoyOEFNICswMDAwLCBTY2htYXVzcywgRXJpayB3
-cm90ZToNCj4gPj4NCj4gPj4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4+PiBGcm9t
-OiBHcmVnIEtyb2FoLUhhcnRtYW4gW21haWx0bzpncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZ10N
-Cj4gPj4+IFNlbnQ6IE1vbmRheSwgTWF5IDYsIDIwMTkgMTo0MiBBTQ0KPiA+Pj4gVG86IFBhdWwg
-R29ydG1ha2VyIDxwYXVsLmdvcnRtYWtlckB3aW5kcml2ZXIuY29tPjsgV3lzb2NraSwgUmFmYWVs
-IEoNCj4gPj4+IDxyYWZhZWwuai53eXNvY2tpQGludGVsLmNvbT4NCj4gPj4+IENjOiBzdGFibGVA
-dmdlci5rZXJuZWwub3JnOyBTY2htYXVzcywgRXJpayA8ZXJpay5zY2htYXVzc0BpbnRlbC5jb20+
-DQo+ID4+PiBTdWJqZWN0OiBSZTogUG9zc2libGUgbWlzLWJhY2twb3J0IG9mIDRhYmI5NTFiIGlu
-IDQuMTkuMzUgKCJBQ1BJQ0E6DQo+ID4+PiBBTUwNCj4gPj4+IGludGVycHJldGVyOiBhZGQgcmVn
-aW9uIGFkZHJlc3Nlcy4uLiIpDQo+ID4+Pg0KPiA+Pj4gT24gU3VuLCBNYXkgMDUsIDIwMTkgYXQg
-MDM6NDQ6NDhQTSAtMDQwMCwgUGF1bCBHb3J0bWFrZXIgd3JvdGU6DQo+ID4+Pj4gSSBub3RpY2Vk
-IDQuMTkuMzUgZ290IGEgYmFja3BvcnQgb2YgbWFpbmxpbmUgNGFiYjk1MWIsIGJ1dCBpdA0KPiA+
-Pj4+IGFwcGVhcnMgdG8gYmUgYSBkdXBsaWNhdGUgYmFja3BvcnQgdGhhdCBsYW5kZWQgaW4gdGhl
-IHdyb25nDQo+ID4+Pj4gZnVuY3Rpb24uICBXZSBjYW4gc2VlIHRoaXMgaW4gdGhlIHN0YWJsZS1x
-dWV1ZSByZXBvOg0KPiA+Pj4+DQo+ID4+Pj4gc3RhYmxlLXF1ZXVlJCBmaW5kIC4gLW5hbWUgJyph
-Y3BpY2EtYW1sLWludGVycHJldGVyLWFkZC1yZWdpb24tYWRkcionDQo+ID4+Pj4gfGdyZXAgNC4x
-OQ0KPiA+Pj4+IC4vcmVsZWFzZXMvNC4xOS42L2FjcGljYS1hbWwtaW50ZXJwcmV0ZXItYWRkLXJl
-Z2lvbi1hZGRyZXNzZXMtaW4tZ2wNCj4gPj4+PiBvYmENCj4gPj4+PiBsLWxpc3QtZHVyaW5nLWlu
-aXRpYWxpemF0aW9uLnBhdGNoDQo+ID4+Pj4gLi9yZWxlYXNlcy80LjE5LjMvcmV2ZXJ0LWFjcGlj
-YS1hbWwtaW50ZXJwcmV0ZXItYWRkLXJlZ2lvbi1hZGRyZXNzZQ0KPiA+Pj4+IHMtaQ0KPiA+Pj4+
-IG4ucGF0Y2gNCj4gPj4+PiAuL3JlbGVhc2VzLzQuMTkuMzUvYWNwaWNhLWFtbC1pbnRlcnByZXRl
-ci1hZGQtcmVnaW9uLWFkZHJlc3Nlcy1pbi1nDQo+ID4+Pj4gbG9iIGFsLWxpc3QtZHVyaW5nLWlu
-aXRpYWxpemF0aW9uLnBhdGNoDQo+ID4+Pj4gLi9yZWxlYXNlcy80LjE5LjIvYWNwaWNhLWFtbC1p
-bnRlcnByZXRlci1hZGQtcmVnaW9uLWFkZHJlc3Nlcy1pbi1nbA0KPiA+Pj4+IG9iYQ0KPiA+Pj4+
-IGwtbGlzdC1kdXJpbmctaW5pdGlhbGl6YXRpb24ucGF0Y2gNCj4gPj4+Pg0KPiA+Pj4+IFNvIGl0
-IHdhcyBhZGRlZCB0byA0LjE5LjIsIHJldmVydGVkIGluIC4zLCByZS1hZGRlZCBpbiAuNiwgYW5k
-IHRoZW4NCj4gPj4+PiBmaW5hbGx5IHBhdGNoZWQgaW50byBhIHNpbWlsYXIgbG9va2luZyBidXQg
-d3JvbmcgZnVuY3Rpb24gaW4gLjM1DQo+ID4+Pj4NCj4gPj4+PiBJZiB3ZSBkaWZmIHRoZSAuNiBh
-bmQgLjM1IHZlcnNpb25zLCB3ZSBzZWUgdGhlIGZ1bmN0aW9uIGRpZmZlcmVuY2U6DQo+ID4+Pj4N
-Cj4gPj4+PiAtQEAgLTQxNyw2ICs0MTcsMTAgQEAgYWNwaV9kc19ldmFsX3JlZ2lvbl9vcGVyYW5k
-cyhzdHJ1Y3QgYWNwaQ0KPiA+Pj4+ICtAQCAtNTIzLDYgKzUyMywxMCBAQCBhY3BpX2RzX2V2YWxf
-dGFibGVfcmVnaW9uX29wZXJhbmRzKHN0cnVjDQo+ID4+Pj4NCj4gPj4+PiBJIGRvbid0IGtub3cg
-d2hhdCB0aGUgaGlzdG9yeSBpcy93YXMgYXJvdW5kIHRoZSAyLzMvNiBjaHVybiwgYnV0DQo+ID4+
-Pj4gdGhlIHJlLWFkZGl0aW9uIGluIDQuMTkuMzUgdG8gYSBkaWZmZXJlbnQgZnVuY3Rpb24gc3Vy
-ZSBsb29rcyB3cm9uZy4NCj4gPj4+Pg0KPiA+Pj4+IFRoZSBjb21taXQgYWRkcyBhIGNhbGwgInN0
-YXR1cyA9IGFjcGlfdXRfYWRkX2FkZHJlc3NfcmFuZ2UoLi4uIiBhbmQNCj4gPj4+PiBpZiB3ZSBj
-aGVjayBtYWlubGluZSwgdGhlcmUgaXMgb25seSBvbmUgaW4gdGhhdCBmaWxlLCBidXQgaW4NCj4g
-Pj4+PiA0LjE5LjM1KyB0aGVyZSBub3cgYXJlIHR3byBjYWxscyAtIHNpbmNlIHRoZSB0d28gZnVu
-Y3Rpb25zIGhhZA0KPiA+Pj4+IHNpbWlsYXIgY29udGV4dCBhbmQgY29tbWVudHMsIGl0IGlzbid0
-IGhhcmQgdG8gc2VlIGhvdyBwYXRjaA0KPiA+Pj4+IGNvdWxkL3dvdWxkIGFwcGx5IGl0IGEgMm5k
-IHRpbWUgaW4gdGhlIHdyb25nIHBsYWNlLg0KPiA+Pj4+DQo+ID4+Pj4gSSBkaWRuJ3QgY2hlY2sg
-aWYgYW55IG9mIHRoZSBvdGhlciBjdXJyZW50bHkgbWFpbnRhaW5lZA0KPiA+Pj4+IGxpbnV4LXN0
-YWJsZSB2ZXJzaW9ucyBhbHNvIGhhZCB0aGlzIHBvc3NpYmxlIGlzc3VlLg0KPiA+Pj4+DQo+ID4+
-IEhpIEdyZWcsDQo+ID4+DQo+ID4+PiBVZ2gsIFJhZmFlbCwgZGlkIEkgbWVzcyB0aGlzIHVwIGFn
-YWluPyAgQ2FuIHlvdSBjaGVjayB0byBzZWUgaWYgSQ0KPiA+Pj4gbmVlZCB0byBmaXggdGhpcyBz
-b21laG93Pw0KPiA+PiBJdCBzaG91bGQgYmUgY2FsbGVkIGluIGFjcGlfZHNfZXZhbF9yZWdpb25f
-b3BlcmFuZHMgcmF0aGVyIHRoYW4NCj4gYWNwaV9kc19ldmFsX3RhYmxlX3JlZ2lvbl9vcGVyYW5k
-cy4NCj4gPj4gUGxlYXNlIHJlbW92ZSB0aGUgY2FsbCBmcm9tIGFjcGlfZHNfZXZhbF90YWJsZV9y
-ZWdpb25fb3BlcmFuZHMuDQo+ID4gR3JlYXQsIGNhbiBzb21lb25lIHBsZWFzZSBzZW5kIG1lIGEg
-cGF0Y2ggZm9yIHRoaXMgc28gdGhhdCBJIGRvbid0IGdldA0KPiA+IGl0IHdyb25nIG15c2VsZj8N
-Cj4gDQo+IEVyaWssIGNhbiB5b3UgcGxlYXNlIGN1dCBhIHBhdGNoIGZvciB0aGF0IGFnYWluc3Qg
-NC4xOS4zNSBhbmQgc2VuZCBpdCB0byBHcmVnPw0KPiANCg0KSSdtIG5vdCBzdXJlIHdoYXQgdGhl
-IHByb2Nlc3MgaXMgZm9yIHRoaXMgY2FzZSBidXQgaGVyZSdzIHRoZSBwYXRjaC4uLg0KTGV0IG1l
-IGtub3cgaWYgeW91IG5lZWQgbWUgdG8gc2VuZCBpdCBzb21lIG90aGVyIHdheS4uLg0KDQpGcm9t
-IGE3MzhmMWM0NTJjMDc2MmQzYzBhMWIxYTlhMTJjNzhiZDk3YjBhMjMgTW9uIFNlcCAxNyAwMDow
-MDowMCAyMDAxDQpGcm9tOiBFcmlrIFNjaG1hdXNzIDxlcmlrLnNjaG1hdXNzQGludGVsLmNvbT4N
-CkRhdGU6IFdlZCwgMTUgTWF5IDIwMTkgMTc6MjU6MzEgLTA3MDANClN1YmplY3Q6IFtQQVRDSF0g
-UmV2ZXJ0ICJBQ1BJQ0E6IEFNTCBpbnRlcnByZXRlcjogYWRkIHJlZ2lvbiBhZGRyZXNzZXMgaW4N
-CiBnbG9iYWwgbGlzdCBkdXJpbmcgaW5pdGlhbGl6YXRpb24iDQoNClRoaXMgcmV2ZXJ0cyBjb21t
-aXQgZjgwNTNkZjYzNGQ0MGM3MzNmMjZjYTQ5YzJjMzgzNTAwMmU2MWI3NyB0aGF0IHdhcw0KdW5p
-bnRlbnRpb25hbGx5IGluY2x1ZGVkIGFzIGEgcGFydCBvZiB0aGUgc3RhYmxlIGJyYW5jaC4NCg0K
-UmVwb3J0ZWQtYnk6IFBhdWwgR29ydG1ha2VyIDxwYXVsLmdvcnRtYWtlckB3aW5kcml2ZXIuY29t
-Pg0KU2lnbmVkLW9mZi1ieTogRXJpayBTY2htYXVzcyA8ZXJpay5zY2htYXVzc0BpbnRlbC5jb20+
-DQotLS0NCiBkcml2ZXJzL2FjcGkvYWNwaWNhL2Rzb3Bjb2RlLmMgfCA0IC0tLS0NCiAxIGZpbGUg
-Y2hhbmdlZCwgNCBkZWxldGlvbnMoLSkNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvYWNwaS9hY3Bp
-Y2EvZHNvcGNvZGUuYyBiL2RyaXZlcnMvYWNwaS9hY3BpY2EvZHNvcGNvZGUuYw0KaW5kZXggMmY0
-NjQxZTVlY2RlLi43OGY5ZGUyNjBkNWYgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2FjcGkvYWNwaWNh
-L2Rzb3Bjb2RlLmMNCisrKyBiL2RyaXZlcnMvYWNwaS9hY3BpY2EvZHNvcGNvZGUuYw0KQEAgLTUy
-MywxMCArNTIzLDYgQEAgYWNwaV9kc19ldmFsX3RhYmxlX3JlZ2lvbl9vcGVyYW5kcyhzdHJ1Y3Qg
-YWNwaV93YWxrX3N0YXRlICp3YWxrX3N0YXRlLA0KICAgICAgICAgICAgICAgICAgICAgICAgICBB
-Q1BJX0ZPUk1BVF9VSU5UNjQob2JqX2Rlc2MtPnJlZ2lvbi5hZGRyZXNzKSwNCiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgb2JqX2Rlc2MtPnJlZ2lvbi5sZW5ndGgpKTsNCg0KLSAgICAgICBzdGF0
-dXMgPSBhY3BpX3V0X2FkZF9hZGRyZXNzX3JhbmdlKG9ial9kZXNjLT5yZWdpb24uc3BhY2VfaWQs
-DQotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb2JqX2Rlc2MtPnJl
-Z2lvbi5hZGRyZXNzLA0KLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IG9ial9kZXNjLT5yZWdpb24ubGVuZ3RoLCBub2RlKTsNCi0NCiAgICAgICAgLyogTm93IHRoZSBh
-ZGRyZXNzIGFuZCBsZW5ndGggYXJlIHZhbGlkIGZvciB0aGlzIG9wcmVnaW9uICovDQoNCiAgICAg
-ICAgb2JqX2Rlc2MtPnJlZ2lvbi5mbGFncyB8PSBBT1BPQkpfREFUQV9WQUxJRDsNCi0tDQoyLjE3
-LjINCg==
+On Thu, 16 May 2019 at 00:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, May 15, 2019 at 08:24:27PM +0200, Greg Kroah-Hartman wrote:
+> > On Wed, May 15, 2019 at 11:17:05AM -0700, Guenter Roeck wrote:
+> > > On Wed, May 15, 2019 at 12:54:40PM +0200, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 4.14.120 relea=
+se.
+> > > > There are 115 patches in this series, all will be posted as a respo=
+nse
+> > > > to this one.  If anyone has any issues with these being applied, pl=
+ease
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Fri 17 May 2019 09:04:39 AM UTC.
+> > > > Anything received after that time might be too late.
+> > > >
+> > >
+> > > mips:malta_defconfig, parisc:defconfig with
+> > > CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=3Dn:
+> > >
+> > > In file included from crypto/testmgr.c:54:0:
+> > > crypto/testmgr.h:16081:4: error:
+> > >     'const struct cipher_testvec' has no member named 'ptext'
+> > > crypto/testmgr.h:16089:4: error:
+> > >     'const struct cipher_testvec' has no member named 'ctext'
+> > >
+> > > and several more. Commit c97feceb948b6 ("crypto: testmgr - add AES-CF=
+B tests")
+> > > [upstream commit 7da66670775d201f633577f5b15a4bbeebaaa2b0] is the cul=
+prit -
+> > > aplying it to v4.14.y would require a backport.
+> >
+> > Already dropped.  I'll push out a -rc2 as you aren't the only one that
+> > hit this...
+>
+> -rc2 is pushed out now, thanks.
+
+4.14.120-rc2 test results report,
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.14.120-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: 76f297797325042039484d833822c683d6335075
+git describe: v4.14.119-115-g76f297797325
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.119-115-g76f297797325
+
+No regressions (compared to build v4.14.119)
+
+No fixes (compared to build v4.14.119)
+
+Ran 23545 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* perf
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
