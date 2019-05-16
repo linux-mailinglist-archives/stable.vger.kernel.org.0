@@ -2,122 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2624E210B3
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 00:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEE1210B8
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 00:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbfEPWr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 18:47:28 -0400
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:51325 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726586AbfEPWr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 18:47:28 -0400
-Received: by mail-wm1-f48.google.com with SMTP id c77so3649266wmd.1
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 15:47:26 -0700 (PDT)
+        id S1727349AbfEPWtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 18:49:07 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:51125 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726685AbfEPWtG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 18:49:06 -0400
+Received: by mail-wm1-f67.google.com with SMTP id f204so5152358wme.0
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 15:49:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Z4y+oBse4h2DIKq237jGw6N+8ppsiQQOm5pBTMGW5l0=;
-        b=Bz85tydsM6Vh34iwO1Fb9c1EIpPJTtbYj7+qsU0QH1BBPw+hlvVYstKElYl50i3nI9
-         FB9n62fr62VaL3gMQknmGBPi/m6qT5SG07wFj/ONHNJuP/H7aZoloV2OkAIAw8GpxYTZ
-         wmypyJ2/glU3Gf0HdB7BcuDiEqZMi5mUwwW3dMj9okht8YvlP+s7oDWeWIXWz6rC0Kv4
-         yyCaU26VQib6dvBx/O8a4sa5v7un24exQHiY1FzXj4bhJhboujKTAs8FM3OpcwSwACi9
-         PGB9DOiS5EmUnou1p7aTareHvecfIsyy5SBi0bM82ChBbBcpLkV7NYEKC4BOdPhHh0mI
-         2uyw==
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=EoLt5XjbcxumHfA1Q5ZMdY29OUsszdQVthXNYUnIeok=;
+        b=W6cwBcJ6wOmiBe7h+zQ40Mt2DlThKrJStaBIN2s42/2hgPom6nuyNKRkPd5Pfh1eON
+         5dzhO2VRvjOGpTP2pH/pArUICT4uOmD0V2FeRMgCDHa6oG1t3qsTIppc7zHLdQTCVk57
+         Hu7rahETX+fqTa0KLj11ZCnJKSSGish2v7lsDSz4XEImuL6/uMxNSncQyGVPaA8UbHK9
+         KQh9KlOkSL1mlgrBshB9XizLVh4klPfuBD1sLe83de7Wc8yPQu/tEChPgluWW0UGkzc9
+         IIYptvtFLhW4inshqz0c7otthbeMN7RjOAf74+6V+0sJaixLjktD4XG/qzhzCrQulEnQ
+         XNQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Z4y+oBse4h2DIKq237jGw6N+8ppsiQQOm5pBTMGW5l0=;
-        b=ZmyEvzry13hUR10lLyROEQKtHXA68q8ct1XcETzaU5stA9z5ZL0NC7ye2VBCF2zsHB
-         oRhKBaiUaV+mOcwuF/IrnpvZXNep2TPS3MTysN1E9Yq6zMQjzTRje/dZRZH5eCUqUjHK
-         Och3dJODApK1BprrOjcb/5L8yM1HZYQGDSwI6YuIN1AB0YM660Yd0fpivXpzNhH7kkVQ
-         V8mIyKw0u3paPBPLC5wyDTAJjIUpnktjx2ptvZEWmlxEPePLMoWzg4abf+YANZtv54Gf
-         6Zk67nn1CJpwIT1cjv1URuy/K8bwugze1SPB4IvEu1D/XtUBdOoTVnAZBhViIZYuX9/q
-         1o2w==
-X-Gm-Message-State: APjAAAXPXS7dCFkm26AuvI0SnJLoewqKGxx7+V+zH8w7pMMALL2U26cS
-        Yrw2JdjWZWJ+ETfJNFqOnctrt5BuDvajaQ==
-X-Google-Smtp-Source: APXvYqxJlSFPqUmAv+bVnARvdCZJcQTS1KwyNYJXRbCS9XnhzJ/ciUzZn1z5FRGq+4ZxTJXLssa16Q==
-X-Received: by 2002:a1c:40c6:: with SMTP id n189mr81963wma.65.1558046845712;
-        Thu, 16 May 2019 15:47:25 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x22sm7250204wmi.4.2019.05.16.15.47.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 May 2019 15:47:25 -0700 (PDT)
-Message-ID: <5cdde87d.1c69fb81.64c1f.b378@mx.google.com>
-Date:   Thu, 16 May 2019 15:47:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=EoLt5XjbcxumHfA1Q5ZMdY29OUsszdQVthXNYUnIeok=;
+        b=LQ9eYDYmjrxRm1bshig5yimfwoesH/m+YjqE6z0fthvDUHIuWDN7IlcjMd2h2RvbNU
+         OHqg+C6uvKUtWrq6Wt/s4gE3MMA2b0g/S2ZeSGPrXsKt+3F8MLKEfxcZgav3AkPJ5zOt
+         LPFF1Uh0t5bloegD2NH9FEEvYHWPhXRayFDXJOs6wqietOMuVLDG1F47iokvLod+5Zj9
+         U3M5N5U5FElLq771a56jqddmOv1TKvC4hep6g1gljDq9dVTDHadAZsSntcszf2m0dHFb
+         QZobeSSkydAXxIsErol2Ht/wKJ8EeLr6gBiDNKeze7I6n1/LBCCU4f65/abk3DVxFQ1V
+         OkEQ==
+X-Gm-Message-State: APjAAAWOJjoSQb6+9pYV9dm6rvIywGESxBJHv55DGl1bjywrQr60oxmi
+        zgm9/JpaZaT2tX79+DjnMFb2An7ysXViREFjprA=
+X-Google-Smtp-Source: APXvYqyagYvtJHWFDOobrRRJBYSCP7F3RCdWJoCvzrBteOeeK+RlnhDR12G6P+4hrWwVfsXI5nsrTBe9A0rlnXGo9Hc=
+X-Received: by 2002:a1c:f50a:: with SMTP id t10mr102546wmh.86.1558046944767;
+ Thu, 16 May 2019 15:49:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.16
-Subject: stable-rc/linux-5.0.y boot: 133 boots: 1 failed,
- 128 passed with 1 offline, 2 untried/unknown, 1 conflict (v5.0.16)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:adf:c047:0:0:0:0:0 with HTTP; Thu, 16 May 2019 15:49:04
+ -0700 (PDT)
+From:   Miss Abibatu Ali <abibatuali55@gmail.com>
+Date:   Thu, 16 May 2019 22:49:04 +0000
+X-Google-Sender-Auth: QuyxL1c0HY8bUGEfpShfEhs5P-Q
+Message-ID: <CAAiAw2Gs8q00r63wneD2E-kwh7=P1bB2PAx0POeZ878vkFRbRQ@mail.gmail.com>
+Subject: HELLO FRIEND
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 133 boots: 1 failed, 128 passed with 1 offline,=
- 2 untried/unknown, 1 conflict (v5.0.16)
+my good friend, i am introducing you into this business with trust and
+not betray mind, i want you to help claim the  fund that is about
+$25,000,000.00 USD and this fund is in the security company here in
+Burkina Faso register as a family treasure and also luck with a secret
+CODE whereby no one can open the box except the beneficiary.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.16/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.16/
+I am contacting you to help and claim the fund, it belong to LATE
+GHADAFFI the money will be shared at ratio of 60% for me and 40% will
+be for you Please indicate your wiliness if you are capable to handle
+this deal with
+sincerity.
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.16
-Git Commit: 89e11ec0280be9132b81e4cba5ea6c10a8012038
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 71 unique boards, 22 SoC families, 14 builds out of 208
+with the below information for more details:
 
-Boot Regressions Detected:
+Your full names................
+Your country of origin................
+Your Mobile Number;......................
 
-arm:
+i wait your respond.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v5.0.16-138-g174f1e44d0=
-16)
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v5.0.16-105-gce=
-dd923508e9 - first fail: v5.0.16-138-g174f1e44d016)
-
-Boot Failure Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    omap2plus_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Best Regards
+Miss Abibatu Ali
