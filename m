@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5461F201C6
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 10:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E022021D
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 11:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726447AbfEPIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 04:55:36 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:39946 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726383AbfEPIzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 04:55:35 -0400
-Received: by mail-wr1-f68.google.com with SMTP id h4so2413973wre.7
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 01:54:57 -0700 (PDT)
+        id S1726466AbfEPJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 05:04:27 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:34568 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726448AbfEPJE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 05:04:26 -0400
+Received: by mail-wm1-f65.google.com with SMTP id j187so6538060wma.1
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 02:04:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=OLsZ+hLPJZHV1nyaQawQ/V1PxuKUZLaa9nweWq6GGwI=;
-        b=dHkMtHjliK3n1yocMW8nNfa5GEGeKR0vDlEJv0lf0lohDCUzfXIscvCOU+KDFFwqeO
-         zU+1iXoewd5HRiGiTBuIyMS3j9vnEoK0v1TXMRhYya5jX/iVS2xtFpWKmXlIjtDuDHb4
-         I4uXTVDFDacOt8UejngSVcisOeVrlynrACNYs1+yEl9EnA2hKlNhs+2xpaMivPm80eej
-         O0WJUIu3jNvyQnT9OyenB2Tu53KvfM2kLrTcfoh6ZML7n+bo2eV0saiYQ8LWugYkIGC5
-         BkPrJHXzxdJsI1o5381oKDCDPJ1j3hmxXZqf4M8TfNdusHfT879J6qvckkud3wFSSjxi
-         8Qpw==
+        bh=v3JLWQZp4DnK4bD398NtJpKepfPgViZgZ86zHDjrhCI=;
+        b=CbmdiAzGGB/+J1Ei9rWXsdpQmSw0aaUjn0t7X3V7NcBmzX1qpDQ7mjjb69I3ahIky9
+         9UomEzCtJgvIXFottntIlrxstPJC36xenebG6NTaa1UDAN/5bb+NeFXSBA4kURwPOng7
+         NDKCQ0Aqcv4DV7qHHFlL4W2cvUxkIOThaWM8n5jdy1ApWsidtryC7edPp5nMXWKHJs2+
+         nBwMrhmmwi7a9XoKw/rOYel2bd+16F7lhIY2irMDDj/EUTRA8xKZ7xBz8aMEQ7JBYnfk
+         mDWE10natceWSD7ItruzR51vZXWc6zvr04t/GUepIYb+sgPAGFtMXphK1DThE764SXvc
+         5adQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=OLsZ+hLPJZHV1nyaQawQ/V1PxuKUZLaa9nweWq6GGwI=;
-        b=LnB+51/mBs14qoiG8egueKhtFKEfrswf2dD/Vz093/BojfJUYPf8aFvqrgPNSm5Wly
-         MSHJcZBOPMiEHmGeYPySQcrJW4DEKm9k7vdMWv3YOq6k2srgET2hHqK11QKmZ/KNNt87
-         4QLKGvzywAk6kjOUm1LNzrVKocqm+wu+I2l+iquk5eZm2c49HzSlMzbbnwoZ87ErJU+e
-         njln8GmjatGSJdUVz9j2Nx7+NjB101mnzAcUhUfTLuwTZl9YBBgowP2ic89g/j0eSbsl
-         a+abfCf7ljdgcpgP2eXC/9uqu9PKFuIkwQho6qCXMD0Nuaz2DM3eIG7g5sMpo/Hfhq4n
-         S/jw==
-X-Gm-Message-State: APjAAAXiFhI8lvd8YTkWZRX3ldVVCsomVeYUkDyxzJB3Y2/mxKolyq9F
-        BXz+KgPkQiLqRl04NugNlSYOb66rHdV2IA==
-X-Google-Smtp-Source: APXvYqx6Dr1giDKDQRTFaes3ubriwLNNQ2s2woqCL5RJ4eRhyOrFWRbDQHuQIMzz6ale032bOsiBXw==
-X-Received: by 2002:a5d:554f:: with SMTP id g15mr1219379wrw.318.1557996894545;
-        Thu, 16 May 2019 01:54:54 -0700 (PDT)
+        bh=v3JLWQZp4DnK4bD398NtJpKepfPgViZgZ86zHDjrhCI=;
+        b=MkDp9iOZHPzmgqGzW3lRF2UHR2OzR8wtrrQ5rEG+qlC0Ny5gzp2+/rTs9HOKFHE0ZN
+         9PjWj0PiFnhMfjO8MwV2a+d/3PetaKT0mt5yLkGVQpGVhyFaykHyFvMr3tCJRG6ypzUB
+         bDIRz+IFpaJ/0A40jdmclKXjVVSJtfPsMqdmz5u6FxK8FzKs5orCMheS9NHcZVCZJdxn
+         pIVrd194dt0lcqRB7NdFop9GqqQVvoZdL0aGGVDTAfBxdE1YLrm/8OuC+8UBI9LDWLKz
+         7qS0mGZ762BAFJjKlaMxwZZh+Pgu5J5sPNzOshHNZ6jKsxL8mwuCqptBfkT2NxJ3IOlW
+         H0xA==
+X-Gm-Message-State: APjAAAXJoJnkRUGggnoiNf13CL43wRNlV+cjDhGOMBtUfx8C6WFD/ecF
+        enkpj6m5/1jsz/iLb+jpCxIcUiUvp71ToA==
+X-Google-Smtp-Source: APXvYqwPJ49eqy2y7vqhSE0vdM2SzE2eh+gjKgeAgwv7qE0dRQrKnMVH8481wRcUGH7nGvWmGr2QoA==
+X-Received: by 2002:a1c:f207:: with SMTP id s7mr27436547wmc.137.1557997450699;
+        Thu, 16 May 2019 02:04:10 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f81sm4604645wmf.10.2019.05.16.01.54.53
+        by smtp.gmail.com with ESMTPSA id s127sm5232169wmf.48.2019.05.16.02.04.09
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 May 2019 01:54:53 -0700 (PDT)
-Message-ID: <5cdd255d.1c69fb81.90fb5.9f00@mx.google.com>
-Date:   Thu, 16 May 2019 01:54:53 -0700 (PDT)
+        Thu, 16 May 2019 02:04:09 -0700 (PDT)
+Message-ID: <5cdd2789.1c69fb81.dca85.e7ef@mx.google.com>
+Date:   Thu, 16 May 2019 02:04:09 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable
+X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: linux-3.18.y
 X-Kernelci-Kernel: v3.18.140
-Subject: stable/linux-3.18.y build: 189 builds: 8 failed, 181 passed, 42 errors,
- 2910 warnings (v3.18.140)
+Subject: stable-rc/linux-3.18.y build: 189 builds: 8 failed, 181 passed,
+ 43 errors, 2887 warnings (v3.18.140)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,18 +63,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-3.18.y build: 189 builds: 8 failed, 181 passed, 42 errors, 291=
-0 warnings (v3.18.140)
+stable-rc/linux-3.18.y build: 189 builds: 8 failed, 181 passed, 43 errors, =
+2887 warnings (v3.18.140)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-3.18.y/k=
-ernel/v3.18.140/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.18.=
+y/kernel/v3.18.140/
 
-Tree: stable
+Tree: stable-rc
 Branch: linux-3.18.y
 Git Describe: v3.18.140
 Git Commit: 6b1ae527b1fdee86e81da0cb26ced75731c6c0fa
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 6 unique architectures
 
 Build Failures Detected:
@@ -94,10 +94,10 @@ mips:
 Errors and Warnings Detected:
 
 arc:
-    allnoconfig (gcc-8): 3 errors, 205 warnings
+    allnoconfig (gcc-8): 3 errors, 112 warnings
     fpga_defconfig (gcc-8): 3 warnings
-    fpga_noramfs_defconfig (gcc-8): 3 errors, 8 warnings
-    tinyconfig (gcc-8): 1 error, 320 warnings
+    fpga_noramfs_defconfig (gcc-8): 4 errors, 8 warnings
+    tinyconfig (gcc-8): 1 error, 390 warnings
 
 arm64:
     defconfig (gcc-8): 1 warning
@@ -275,7 +275,7 @@ x86_64:
 
 Errors summary:
 
-    3    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint=
+    4    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint=
  in 'asm'
     2    include/linux/swiotlb.h:96:21: error: 'enum dma_data_direction' de=
 clared inside parameter list will not be visible outside of this definition=
@@ -338,8 +338,8 @@ Warnings summary:
 ression [-Wbool-operation]
     294  arch/mips/math-emu/cp1emu.c:684:14: warning: '~' on a boolean expr=
 ession [-Wbool-operation]
-    269  arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    254  cc1: warning: '-mno-mpy' is deprecated
+    260  arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    245  cc1: warning: '-mno-mpy' is deprecated
     104  net/socket.c:490:4: warning: 'strncpy' specified bound depends on =
 the length of the source argument [-Wstringop-overflow=3D]
     14   include/linux/sh_intc.h:99:63: warning: division 'sizeof (void *) =
@@ -352,9 +352,6 @@ XLR_BOARD)
     4    include/linux/syscalls.h:195:18: warning: 'sys_close' alias betwee=
 n functions of incompatible types 'long int(unsigned int)' and 'long int(lo=
 ng int)' [-Wattribute-alias]
-    3    mm/memory.c:581:7: warning: assignment to 'pgtable_t' {aka 'long u=
-nsigned int'} from 'void *' makes integer from pointer without a cast [-Win=
-t-conversion]
     3    lib/string_helpers.c:64:33: warning: '%03lld' directive output may=
  be truncated writing between 3 and 13 bytes into a region of size 7 [-Wfor=
 mat-truncation=3D]
@@ -1151,8 +1148,6 @@ nt(long int)' [-Wattribute-alias]
     3    include/linux/syscalls.h:195:18: warning: 'sys_access' alias betwe=
 en functions of incompatible types 'long int(const char *, int)' and 'long =
 int(long int,  long int)' [-Wattribute-alias]
-    3    include/linux/kernel.h:707:17: warning: comparison of distinct poi=
-nter types lacks a cast
     3    cc1: all warnings being treated as errors
     3    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias betwee=
 n functions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} a=
@@ -1163,17 +1158,22 @@ tion `.bss..page_aligned'
 tion `.bss..page_aligned'
     3    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in sec=
 tion `.bss..page_aligned'
-    2    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in=
- this function [-Wmaybe-uninitialized]
-    2    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in t=
-his function [-Wmaybe-uninitialized]
-    2    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this=
- function [-Wmaybe-uninitialized]
+    2    mm/memory.c:581:7: warning: assignment to 'pgtable_t' {aka 'long u=
+nsigned int'} from 'void *' makes integer from pointer without a cast [-Win=
+t-conversion]
+    2    include/linux/kernel.h:707:17: warning: comparison of distinct poi=
+nter types lacks a cast
     2    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_=
 address' with a nonzero argument is unsafe [-Wframe-address]
     1    net/sunrpc/clnt.c:527:46: warning: '%s' directive output may be tr=
 uncated writing up to 107 bytes into a region of size 48 [-Wformat-truncati=
 on=3D]
+    1    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in=
+ this function [-Wmaybe-uninitialized]
+    1    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in t=
+his function [-Wmaybe-uninitialized]
+    1    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this=
+ function [-Wmaybe-uninitialized]
     1    kernel/sched/core.c:2766:1: warning: control reaches end of non-vo=
 id function [-Wreturn-type]
     1    kernel/relay.c:423:35: warning: 'snprintf' output may be truncated=
@@ -2257,7 +2257,7 @@ ength of the source argument [-Wstringop-overflow=3D]
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 3 errors, 205 warnings, 0 section =
+allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 3 errors, 112 warnings, 0 section =
 mismatches
 
 Errors:
@@ -2379,105 +2379,6 @@ Warnings:
     cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    mm/memory.c:581:7: warning: assignment to 'pgtable_t' {aka 'long unsign=
-ed int'} from 'void *' makes integer from pointer without a cast [-Wint-con=
-version]
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    mm/mmap.c:684:2: warning: 'rb_link' may be used uninitialized in this f=
-unction [-Wmaybe-uninitialized]
-    mm/mmap.c:684:2: warning: 'rb_parent' may be used uninitialized in this=
- function [-Wmaybe-uninitialized]
-    mm/mmap.c:683:2: warning: 'prev' may be used uninitialized in this func=
-tion [-Wmaybe-uninitialized]
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
-types lacks a cast
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
 
 ---------------------------------------------------------------------------=
 -----
@@ -2552,6 +2453,19 @@ n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 215 warnings, 0 secti=
 on mismatches
 
@@ -2569,6 +2483,9 @@ t,  int *, int *, int)' and 'long int(long int,  long int,  long int,  long=
     include/linux/syscalls.h:195:18: warning: 'sys_personality' alias betwe=
 en functions of incompatible types 'long int(unsigned int)' and 'long int(l=
 ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_iopl' alias between func=
+tions of incompatible types 'long int(unsigned int)' and 'long int(long int=
+)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_exit' alias between func=
 tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
 ribute-alias]
@@ -2588,13 +2505,6 @@ ong int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_exit_group' alias betwee=
 n functions of incompatible types 'long int(int)' and 'long int(long int)' =
 [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_iopl' alias between func=
-tions of incompatible types 'long int(unsigned int)' and 'long int(long int=
-)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
- functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
-ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
-long long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_sysctl' alias between fu=
 nctions of incompatible types 'long int(struct __sysctl_args *)' and 'long =
 int(long int)' [-Wattribute-alias]
@@ -2606,10 +2516,73 @@ tribute-alias]
 nctions of incompatible types 'long int(struct __user_cap_header_struct *, =
 struct __user_cap_data_struct * const)' and 'long int(long int,  long int)'=
  [-Wattribute-alias]
+    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
+ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
+ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_ptrace' alias between fu=
 nctions of incompatible types 'long int(long int,  long int,  long unsigned=
  int,  long unsigned int)' and 'long int(long int,  long int,  long int,  l=
 ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigprocmask' alias be=
+tween functions of incompatible types 'long int(int,  sigset_t *, sigset_t =
+*, size_t)' {aka 'long int(int,  struct <anonymous> *, struct <anonymous> *=
+, long unsigned int)'} and 'long int(long int,  long int,  long int,  long =
+int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigsuspend' alias bet=
+ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
+ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_signal' alias between fu=
+nctions of incompatible types 'long int(int,  void (*)(int))' and 'long int=
+(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigaction' alias betw=
+een functions of incompatible types 'long int(int,  const struct sigaction =
+*, struct sigaction *, size_t)' {aka 'long int(int,  const struct sigaction=
+ *, struct sigaction *, long unsigned int)'} and 'long int(long int,  long =
+int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigprocmask' alias betwe=
+en functions of incompatible types 'long int(int,  old_sigset_t *, old_sigs=
+et_t *)' {aka 'long int(int,  long unsigned int *, long unsigned int *)'} a=
+nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigpending' alias betwee=
+n functions of incompatible types 'long int(old_sigset_t *)' {aka 'long int=
+(long unsigned int *)'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigaltstack' alias betwe=
+en functions of incompatible types 'long int(const stack_t *, stack_t *)' {=
+aka 'long int(const struct sigaltstack *, struct sigaltstack *)'} and 'long=
+ int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_tgsigqueueinfo' alias=
+ between functions of incompatible types 'long int(pid_t,  pid_t,  int,  si=
+ginfo_t *)' {aka 'long int(int,  int,  int,  struct siginfo *)'} and 'long =
+int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigqueueinfo' alias b=
+etween functions of incompatible types 'long int(pid_t,  int,  siginfo_t *)=
+' {aka 'long int(int,  int,  struct siginfo *)'} and 'long int(long int,  l=
+ong int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tkill' alias between fun=
+ctions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  i=
+nt)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tgkill' alias between fu=
+nctions of incompatible types 'long int(pid_t,  pid_t,  int)' {aka 'long in=
+t(int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattr=
+ibute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_kill' alias between func=
+tions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  in=
+t)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigtimedwait' alias b=
+etween functions of incompatible types 'long int(const sigset_t *, siginfo_=
+t *, const struct timespec *, size_t)' {aka 'long int(const struct <anonymo=
+us> *, struct siginfo *, const struct timespec *, long unsigned int)'} and =
+'long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigpending' alias bet=
+ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
+ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mmap' alias between func=
+tions of incompatible types 'long int(long unsigned int,  long unsigned int=
+,  long unsigned int,  long unsigned int,  long unsigned int,  long unsigne=
+d int)' and 'long int(long int,  long int,  long int,  long int,  long int,=
+  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_setpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int,  int)' and 'long in=
 t(long int,  long int,  long int)' [-Wattribute-alias]
@@ -2713,89 +2686,16 @@ te-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int)' and 'long int(long=
  int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigprocmask' alias be=
-tween functions of incompatible types 'long int(int,  sigset_t *, sigset_t =
-*, size_t)' {aka 'long int(int,  struct <anonymous> *, struct <anonymous> *=
-, long unsigned int)'} and 'long int(long int,  long int,  long int,  long =
-int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigsuspend' alias bet=
-ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
-ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_signal' alias between fu=
-nctions of incompatible types 'long int(int,  void (*)(int))' and 'long int=
-(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigaction' alias betw=
-een functions of incompatible types 'long int(int,  const struct sigaction =
-*, struct sigaction *, size_t)' {aka 'long int(int,  const struct sigaction=
- *, struct sigaction *, long unsigned int)'} and 'long int(long int,  long =
-int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigprocmask' alias betwe=
-en functions of incompatible types 'long int(int,  old_sigset_t *, old_sigs=
-et_t *)' {aka 'long int(int,  long unsigned int *, long unsigned int *)'} a=
-nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigpending' alias betwee=
-n functions of incompatible types 'long int(old_sigset_t *)' {aka 'long int=
-(long unsigned int *)'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigaltstack' alias betwe=
-en functions of incompatible types 'long int(const stack_t *, stack_t *)' {=
-aka 'long int(const struct sigaltstack *, struct sigaltstack *)'} and 'long=
- int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_tgsigqueueinfo' alias=
- between functions of incompatible types 'long int(pid_t,  pid_t,  int,  si=
-ginfo_t *)' {aka 'long int(int,  int,  int,  struct siginfo *)'} and 'long =
-int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigqueueinfo' alias b=
-etween functions of incompatible types 'long int(pid_t,  int,  siginfo_t *)=
-' {aka 'long int(int,  int,  struct siginfo *)'} and 'long int(long int,  l=
-ong int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tkill' alias between fun=
-ctions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  i=
-nt)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tgkill' alias between fu=
-nctions of incompatible types 'long int(pid_t,  pid_t,  int)' {aka 'long in=
-t(int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattr=
-ibute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_kill' alias between func=
-tions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  in=
-t)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigtimedwait' alias b=
-etween functions of incompatible types 'long int(const sigset_t *, siginfo_=
-t *, const struct timespec *, size_t)' {aka 'long int(const struct <anonymo=
-us> *, struct siginfo *, const struct timespec *, long unsigned int)'} and =
-'long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigpending' alias bet=
-ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
-ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mmap' alias between func=
-tions of incompatible types 'long int(long unsigned int,  long unsigned int=
-,  long unsigned int,  long unsigned int,  long unsigned int,  long unsigne=
-d int)' and 'long int(long int,  long int,  long int,  long int,  long int,=
-  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
+ functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
+ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
+long long int,  long int)' [-Wattribute-alias]
     kernel/workqueue.c:1720:40: warning: '%d' directive output may be trunc=
 ated writing between 1 and 10 bytes into a region of size between 5 and 14 =
 [-Wformat-truncation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_setns' alias between fun=
 ctions of incompatible types 'long int(int,  int)' and 'long int(long int, =
  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_reboot' alias between fu=
-nctions of incompatible types 'long int(int,  int,  unsigned int,  void *)'=
- and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_getgroups' alias between=
- functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
-nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_setgroups' alias between=
- functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
-nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
-between functions of incompatible types 'long int(long unsigned int,  long =
-unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
-and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
-ribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_truncate' alias between =
 functions of incompatible types 'long int(const char *, long int)' and 'lon=
 g int(long int,  long int)' [-Wattribute-alias]
@@ -2865,6 +2765,10 @@ g int,  long int,  long long int,  long long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_ftruncate' alias between=
  functions of incompatible types 'long int(unsigned int,  long unsigned int=
 )' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_reboot' alias between fu=
+nctions of incompatible types 'long int(int,  int,  unsigned int,  void *)'=
+ and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_lseek' alias between fun=
 ctions of incompatible types 'long int(unsigned int,  off_t,  unsigned int)=
 ' {aka 'long int(unsigned int,  long int,  unsigned int)'} and 'long int(lo=
@@ -2919,27 +2823,14 @@ long unsigned int,  loff_t *, unsigned int)' {aka 'long int(unsigned int,  =
 long unsigned int,  long unsigned int,  long long int *, unsigned int)'} an=
 d 'long int(long int,  long int,  long int,  long int,  long int)' [-Wattri=
 bute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_perf_event_open' alias b=
-etween functions of incompatible types 'long int(struct perf_event_attr *, =
-pid_t,  int,  int,  long unsigned int)' {aka 'long int(struct perf_event_at=
-tr *, int,  int,  int,  long unsigned int)'} and 'long int(long int,  long =
-int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
-ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
-d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
+    include/linux/syscalls.h:195:18: warning: 'sys_getgroups' alias between=
+ functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
+nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
 as]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
-ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
-functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
-'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_setgroups' alias between=
+ functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
+nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_stat' alias between func=
 tions of incompatible types 'long int(const char *, struct __old_kernel_sta=
 t *)' and 'long int(long int,  long int)' [-Wattribute-alias]
@@ -2973,38 +2864,22 @@ at *)' and 'long int(long int,  long int)' [-Wattribute-alias]
 nctions of incompatible types 'long int(const char *, const char * const*, =
 const char * const*)' and 'long int(long int,  long int,  long int)' [-Watt=
 ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
-ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
- int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
-long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
-n functions of incompatible types 'long int(long unsigned int,  long unsign=
-ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
-nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
-g int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
-functions of incompatible types 'long int(long unsigned int,  size_t,  long=
- unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
- unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
-e-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_perf_event_open' alias b=
+etween functions of incompatible types 'long int(struct perf_event_attr *, =
+pid_t,  int,  int,  long unsigned int)' {aka 'long int(struct perf_event_at=
+tr *, int,  int,  int,  long unsigned int)'} and 'long int(long int,  long =
+int,  long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_pipe2' alias between fun=
 ctions of incompatible types 'long int(int *, int)' and 'long int(long int,=
   long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_pipe' alias between func=
 tions of incompatible types 'long int(int *)' and 'long int(long int)' [-Wa=
 ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
-nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
-int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
-aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
-long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
+between functions of incompatible types 'long int(long unsigned int,  long =
+unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
+and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
+ribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_mknodat' alias between f=
 unctions of incompatible types 'long int(int,  const char *, umode_t,  unsi=
 gned int)' {aka 'long int(int,  const char *, short unsigned int,  unsigned=
@@ -3075,6 +2950,11 @@ ttribute-alias]
 functions of incompatible types 'long int(unsigned int,  struct linux_diren=
 t *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wattri=
 bute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
+ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
+d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_select' alias between fu=
 nctions of incompatible types 'long int(int,  fd_set *, fd_set *, fd_set *,=
  struct timeval *)' {aka 'long int(int,  struct <anonymous> *, struct <anon=
@@ -3095,8 +2975,54 @@ functions of incompatible types 'long int(int,  fd_set *, fd_set *, fd_set =
 truct <anonymous> *, struct <anonymous> *, struct timespec *, void *)'} and=
  'long int(long int,  long int,  long int,  long int,  long int,  long int)=
 ' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
+ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
+functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
+Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
+'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getcwd' alias between fu=
 nctions of incompatible types 'long int(char *, long unsigned int)' and 'lo=
+ng int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
+ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
+ int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
+long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
+n functions of incompatible types 'long int(long unsigned int,  long unsign=
+ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
+nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
+functions of incompatible types 'long int(long unsigned int,  size_t,  long=
+ unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
+ unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
+e-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
+nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
+int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
+aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
+long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_dup3' alias between func=
+tions of incompatible types 'long int(unsigned int,  unsigned int,  int)' a=
+nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_dup' alias between funct=
+ions of incompatible types 'long int(unsigned int)' and 'long int(long int)=
+' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_dup2' alias between func=
+tions of incompatible types 'long int(unsigned int,  unsigned int)' and 'lo=
 ng int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_nice' alias between func=
 tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
@@ -3143,15 +3069,6 @@ ong int)' [-Wattribute-alias]
 s between functions of incompatible types 'long int(pid_t,  int,  struct sc=
 hed_param *)' {aka 'long int(int,  int,  struct sched_param *)'} and 'long =
 int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_dup3' alias between func=
-tions of incompatible types 'long int(unsigned int,  unsigned int,  int)' a=
-nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_dup' alias between funct=
-ions of incompatible types 'long int(unsigned int)' and 'long int(long int)=
-' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_dup2' alias between func=
-tions of incompatible types 'long int(unsigned int,  unsigned int)' and 'lo=
-ng int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_umount' alias between fu=
 nctions of incompatible types 'long int(char *, int)' and 'long int(long in=
 t,  long int)' [-Wattribute-alias]
@@ -3215,12 +3132,54 @@ gned int,  int)'} and 'long int(long int,  long int,  long int,  long int, =
 t void *, size_t,  int)' {aka 'long int(const char *, const char *, const v=
 oid *, long unsigned int,  int)'} and 'long int(long int,  long int,  long =
 int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
+functions of incompatible types 'long int(int,  const struct iovec *, long =
+unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
+  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
+ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
+ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
+long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
+nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
+e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
+int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
+t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_syncfs' alias between fu=
+nctions of incompatible types 'long int(int)' and 'long int(long int)' [-Wa=
+ttribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range2' alias =
+between functions of incompatible types 'long int(int,  unsigned int,  loff=
+_t,  loff_t)' {aka 'long int(int,  unsigned int,  long long int,  long long=
+ int)'} and 'long int(long int,  long int,  long long int,  long long int)'=
+ [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range' alias b=
+etween functions of incompatible types 'long int(int,  loff_t,  loff_t,  un=
+signed int)' {aka 'long int(int,  long long int,  long long int,  unsigned =
+int)'} and 'long int(long int,  long long int,  long long int,  long int)' =
+[-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fdatasync' alias between=
+ functions of incompatible types 'long int(unsigned int)' and 'long int(lon=
+g int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fsync' alias between fun=
+ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
+t)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_alarm' alias between fun=
 ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
 t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_nanosleep' alias between=
- functions of incompatible types 'long int(struct timespec *, struct timesp=
-ec *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utime' alias between fun=
+ctions of incompatible types 'long int(char *, struct utimbuf *)' and 'long=
+ int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utimes' alias between fu=
+nctions of incompatible types 'long int(char *, struct timeval *)' and 'lon=
+g int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_futimesat' alias between=
+ functions of incompatible types 'long int(int,  const char *, struct timev=
+al *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utimensat' alias between=
+ functions of incompatible types 'long int(int,  const char *, struct times=
+pec *, int)' and 'long int(long int,  long int,  long int,  long int)' [-Wa=
+ttribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getitimer' alias between=
  functions of incompatible types 'long int(int,  struct itimerval *)' and '=
 long int(long int,  long int)' [-Wattribute-alias]
@@ -3228,6 +3187,26 @@ long int(long int,  long int)' [-Wattribute-alias]
  functions of incompatible types 'long int(int,  struct itimerval *, struct=
  itimerval *)' and 'long int(long int,  long int,  long int)' [-Wattribute-=
 alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_nanosleep' alias between=
+ functions of incompatible types 'long int(struct timespec *, struct timesp=
+ec *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_statfs' alias between fu=
+nctions of incompatible types 'long int(const char *, struct statfs *)' and=
+ 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_ustat' alias between fun=
+ctions of incompatible types 'long int(unsigned int,  struct ustat *)' and =
+'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs64' alias between=
+ functions of incompatible types 'long int(unsigned int,  size_t,  struct s=
+tatfs64 *)' {aka 'long int(unsigned int,  long unsigned int,  struct statfs=
+64 *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs' alias between f=
+unctions of incompatible types 'long int(unsigned int,  struct statfs *)' a=
+nd 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_statfs64' alias between =
+functions of incompatible types 'long int(const char *, size_t,  struct sta=
+tfs64 *)' {aka 'long int(const char *, long unsigned int,  struct statfs64 =
+*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_timer_create' alias betw=
 een functions of incompatible types 'long int(const clockid_t,  struct sige=
 vent *, timer_t *)' {aka 'long int(const int,  struct sigevent *, int *)'} =
@@ -3268,68 +3247,6 @@ int)'} and 'long int(long int)' [-Wattribute-alias]
 ween functions of incompatible types 'long int(timer_t,  struct itimerspec =
 *)' {aka 'long int(int,  struct itimerspec *)'} and 'long int(long int,  lo=
 ng int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_syncfs' alias between fu=
-nctions of incompatible types 'long int(int)' and 'long int(long int)' [-Wa=
-ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range2' alias =
-between functions of incompatible types 'long int(int,  unsigned int,  loff=
-_t,  loff_t)' {aka 'long int(int,  unsigned int,  long long int,  long long=
- int)'} and 'long int(long int,  long int,  long long int,  long long int)'=
- [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range' alias b=
-etween functions of incompatible types 'long int(int,  loff_t,  loff_t,  un=
-signed int)' {aka 'long int(int,  long long int,  long long int,  unsigned =
-int)'} and 'long int(long int,  long long int,  long long int,  long int)' =
-[-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fdatasync' alias between=
- functions of incompatible types 'long int(unsigned int)' and 'long int(lon=
-g int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fsync' alias between fun=
-ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
-t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
-functions of incompatible types 'long int(int,  const struct iovec *, long =
-unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
-  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
-ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
-ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
-long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
-nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
-e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
-int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
-t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utime' alias between fun=
-ctions of incompatible types 'long int(char *, struct utimbuf *)' and 'long=
- int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utimes' alias between fu=
-nctions of incompatible types 'long int(char *, struct timeval *)' and 'lon=
-g int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_futimesat' alias between=
- functions of incompatible types 'long int(int,  const char *, struct timev=
-al *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utimensat' alias between=
- functions of incompatible types 'long int(int,  const char *, struct times=
-pec *, int)' and 'long int(long int,  long int,  long int,  long int)' [-Wa=
-ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_statfs' alias between fu=
-nctions of incompatible types 'long int(const char *, struct statfs *)' and=
- 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_ustat' alias between fun=
-ctions of incompatible types 'long int(unsigned int,  struct ustat *)' and =
-'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs64' alias between=
- functions of incompatible types 'long int(unsigned int,  size_t,  struct s=
-tatfs64 *)' {aka 'long int(unsigned int,  long unsigned int,  struct statfs=
-64 *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs' alias between f=
-unctions of incompatible types 'long int(unsigned int,  struct statfs *)' a=
-nd 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_statfs64' alias between =
-functions of incompatible types 'long int(const char *, size_t,  struct sta=
-tfs64 *)' {aka 'long int(const char *, long unsigned int,  struct statfs64 =
-*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_time' alias between func=
 tions of incompatible types 'long int(time_t *)' {aka 'long int(long int *)=
 '} and 'long int(long int)' [-Wattribute-alias]
@@ -3345,9 +3262,6 @@ zone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_stime' alias between fun=
 ctions of incompatible types 'long int(time_t *)' {aka 'long int(long int *=
 )'} and 'long int(long int)' [-Wattribute-alias]
-    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
-ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
-ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getrandom' alias between=
  functions of incompatible types 'long int(char *, size_t,  unsigned int)' =
 {aka 'long int(char *, long unsigned int,  unsigned int)'} and 'long int(lo=
@@ -3355,19 +3269,6 @@ ng int,  long int,  long int)' [-Wattribute-alias]
     lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
 runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
 runcation=3D]
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
-`.bss..page_aligned'
-    arch/x86/kernel/head_32.S:677: Warning: ignoring fill value in section =
-`.bss..page_aligned'
-    arch/x86/kernel/head_32.S:679: Warning: ignoring fill value in section =
-`.bss..page_aligned'
 
 ---------------------------------------------------------------------------=
 -----
@@ -4368,12 +4269,14 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-fpga_noramfs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 3 errors, 8 warnings, 0=
+fpga_noramfs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 4 errors, 8 warnings, 0=
  section mismatches
 
 Errors:
     arch/arc/mm/tlbex.S:291: Error: unknown opcode 'lsl'
     arch/arc/mm/tlbex.S:348: Error: unknown opcode 'lsl'
+    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in '=
+asm'
     arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in '=
 asm'
 
@@ -7324,12 +7227,6 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 215 warnings, 0 sectio=
 n mismatches
 
 Warnings:
-    include/linux/syscalls.h:195:18: warning: 'sys_iopl' alias between func=
-tions of incompatible types 'long int(unsigned int)' and 'long int(long int=
-)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_personality' alias betwe=
-en functions of incompatible types 'long int(unsigned int)' and 'long int(l=
-ong int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_set_tid_address' alias b=
 etween functions of incompatible types 'long int(int *)' and 'long int(long=
  int)' [-Wattribute-alias]
@@ -7340,6 +7237,12 @@ long int)' [-Wattribute-alias]
 ctions of incompatible types 'long int(long unsigned int,  long unsigned in=
 t,  int *, int *, int)' and 'long int(long int,  long int,  long int,  long=
  int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_personality' alias betwe=
+en functions of incompatible types 'long int(unsigned int)' and 'long int(l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_iopl' alias between func=
+tions of incompatible types 'long int(unsigned int)' and 'long int(long int=
+)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_exit' alias between func=
 tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
 ribute-alias]
@@ -7359,6 +7262,10 @@ ong int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_exit_group' alias betwee=
 n functions of incompatible types 'long int(int)' and 'long int(long int)' =
 [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
+ functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
+ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
+long long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_sysctl' alias between fu=
 nctions of incompatible types 'long int(struct __sysctl_args *)' and 'long =
 int(long int)' [-Wattribute-alias]
@@ -7370,10 +7277,6 @@ tribute-alias]
 nctions of incompatible types 'long int(struct __user_cap_header_struct *, =
 struct __user_cap_data_struct * const)' and 'long int(long int,  long int)'=
  [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
- functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
-ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
-long long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_mmap' alias between func=
 tions of incompatible types 'long int(long unsigned int,  long unsigned int=
 ,  long unsigned int,  long unsigned int,  long unsigned int,  long unsigne=
@@ -7383,6 +7286,9 @@ d int)' and 'long int(long int,  long int,  long int,  long int,  long int,=
 nctions of incompatible types 'long int(long int,  long int,  long unsigned=
  int,  long unsigned int)' and 'long int(long int,  long int,  long int,  l=
 ong int)' [-Wattribute-alias]
+    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
+ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
+ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_rt_sigprocmask' alias be=
 tween functions of incompatible types 'long int(int,  sigset_t *, sigset_t =
 *, size_t)' {aka 'long int(int,  struct <anonymous> *, struct <anonymous> *=
@@ -7438,6 +7344,75 @@ us> *, struct siginfo *, const struct timespec *, long unsigned int)'} and =
 ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
 ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_truncate' alias between =
+functions of incompatible types 'long int(const char *, long int)' and 'lon=
+g int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_close' alias between fun=
+ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
+t)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_creat' alias between fun=
+ctions of incompatible types 'long int(const char *, umode_t)' {aka 'long i=
+nt(const char *, short unsigned int)'} and 'long int(long int,  long int)' =
+[-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_openat' alias between fu=
+nctions of incompatible types 'long int(int,  const char *, int,  umode_t)'=
+ {aka 'long int(int,  const char *, int,  short unsigned int)'} and 'long i=
+nt(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_open' alias between func=
+tions of incompatible types 'long int(const char *, int,  umode_t)' {aka 'l=
+ong int(const char *, int,  short unsigned int)'} and 'long int(long int,  =
+long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fchown' alias between fu=
+nctions of incompatible types 'long int(unsigned int,  uid_t,  gid_t)' {aka=
+ 'long int(unsigned int,  unsigned int,  unsigned int)'} and 'long int(long=
+ int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_lchown' alias between fu=
+nctions of incompatible types 'long int(const char *, uid_t,  gid_t)' {aka =
+'long int(const char *, unsigned int,  unsigned int)'} and 'long int(long i=
+nt,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_chown' alias between fun=
+ctions of incompatible types 'long int(const char *, uid_t,  gid_t)' {aka '=
+long int(const char *, unsigned int,  unsigned int)'} and 'long int(long in=
+t,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fchownat' alias between =
+functions of incompatible types 'long int(int,  const char *, uid_t,  gid_t=
+,  int)' {aka 'long int(int,  const char *, unsigned int,  unsigned int,  i=
+nt)'} and 'long int(long int,  long int,  long int,  long int,  long int)' =
+[-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_chmod' alias between fun=
+ctions of incompatible types 'long int(const char *, umode_t)' {aka 'long i=
+nt(const char *, short unsigned int)'} and 'long int(long int,  long int)' =
+[-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fchmodat' alias between =
+functions of incompatible types 'long int(int,  const char *, umode_t)' {ak=
+a 'long int(int,  const char *, short unsigned int)'} and 'long int(long in=
+t,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fchmod' alias between fu=
+nctions of incompatible types 'long int(unsigned int,  umode_t)' {aka 'long=
+ int(unsigned int,  short unsigned int)'} and 'long int(long int,  long int=
+)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_chroot' alias between fu=
+nctions of incompatible types 'long int(const char *)' and 'long int(long i=
+nt)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fchdir' alias between fu=
+nctions of incompatible types 'long int(unsigned int)' and 'long int(long i=
+nt)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_chdir' alias between fun=
+ctions of incompatible types 'long int(const char *)' and 'long int(long in=
+t)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_access' alias between fu=
+nctions of incompatible types 'long int(const char *, int)' and 'long int(l=
+ong int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_faccessat' alias between=
+ functions of incompatible types 'long int(int,  const char *, int)' and 'l=
+ong int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fallocate' alias between=
+ functions of incompatible types 'long int(int,  int,  loff_t,  loff_t)' {a=
+ka 'long int(int,  int,  long long int,  long long int)'} and 'long int(lon=
+g int,  long int,  long long int,  long long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_ftruncate' alias between=
+ functions of incompatible types 'long int(unsigned int,  long unsigned int=
+)' and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_setpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int,  int)' and 'long in=
 t(long int,  long int,  long int)' [-Wattribute-alias]
@@ -7541,78 +7516,6 @@ te-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int)' and 'long int(long=
  int,  long int)' [-Wattribute-alias]
-    kernel/workqueue.c:1720:40: warning: '%d' directive output may be trunc=
-ated writing between 1 and 10 bytes into a region of size between 5 and 14 =
-[-Wformat-truncation=3D]
-    include/linux/syscalls.h:195:18: warning: 'sys_truncate' alias between =
-functions of incompatible types 'long int(const char *, long int)' and 'lon=
-g int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_close' alias between fun=
-ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
-t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_creat' alias between fun=
-ctions of incompatible types 'long int(const char *, umode_t)' {aka 'long i=
-nt(const char *, short unsigned int)'} and 'long int(long int,  long int)' =
-[-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_openat' alias between fu=
-nctions of incompatible types 'long int(int,  const char *, int,  umode_t)'=
- {aka 'long int(int,  const char *, int,  short unsigned int)'} and 'long i=
-nt(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_open' alias between func=
-tions of incompatible types 'long int(const char *, int,  umode_t)' {aka 'l=
-ong int(const char *, int,  short unsigned int)'} and 'long int(long int,  =
-long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fchown' alias between fu=
-nctions of incompatible types 'long int(unsigned int,  uid_t,  gid_t)' {aka=
- 'long int(unsigned int,  unsigned int,  unsigned int)'} and 'long int(long=
- int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_lchown' alias between fu=
-nctions of incompatible types 'long int(const char *, uid_t,  gid_t)' {aka =
-'long int(const char *, unsigned int,  unsigned int)'} and 'long int(long i=
-nt,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_chown' alias between fun=
-ctions of incompatible types 'long int(const char *, uid_t,  gid_t)' {aka '=
-long int(const char *, unsigned int,  unsigned int)'} and 'long int(long in=
-t,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fchownat' alias between =
-functions of incompatible types 'long int(int,  const char *, uid_t,  gid_t=
-,  int)' {aka 'long int(int,  const char *, unsigned int,  unsigned int,  i=
-nt)'} and 'long int(long int,  long int,  long int,  long int,  long int)' =
-[-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_chmod' alias between fun=
-ctions of incompatible types 'long int(const char *, umode_t)' {aka 'long i=
-nt(const char *, short unsigned int)'} and 'long int(long int,  long int)' =
-[-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fchmodat' alias between =
-functions of incompatible types 'long int(int,  const char *, umode_t)' {ak=
-a 'long int(int,  const char *, short unsigned int)'} and 'long int(long in=
-t,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fchmod' alias between fu=
-nctions of incompatible types 'long int(unsigned int,  umode_t)' {aka 'long=
- int(unsigned int,  short unsigned int)'} and 'long int(long int,  long int=
-)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_chroot' alias between fu=
-nctions of incompatible types 'long int(const char *)' and 'long int(long i=
-nt)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fchdir' alias between fu=
-nctions of incompatible types 'long int(unsigned int)' and 'long int(long i=
-nt)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_chdir' alias between fun=
-ctions of incompatible types 'long int(const char *)' and 'long int(long in=
-t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_access' alias between fu=
-nctions of incompatible types 'long int(const char *, int)' and 'long int(l=
-ong int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_faccessat' alias between=
- functions of incompatible types 'long int(int,  const char *, int)' and 'l=
-ong int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fallocate' alias between=
- functions of incompatible types 'long int(int,  int,  loff_t,  loff_t)' {a=
-ka 'long int(int,  int,  long long int,  long long int)'} and 'long int(lon=
-g int,  long int,  long long int,  long long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_ftruncate' alias between=
- functions of incompatible types 'long int(unsigned int,  long unsigned int=
-)' and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_lseek' alias between fun=
 ctions of incompatible types 'long int(unsigned int,  off_t,  unsigned int)=
 ' {aka 'long int(unsigned int,  long int,  unsigned int)'} and 'long int(lo=
@@ -7667,14 +7570,9 @@ long unsigned int,  loff_t *, unsigned int)' {aka 'long int(unsigned int,  =
 long unsigned int,  long unsigned int,  long long int *, unsigned int)'} an=
 d 'long int(long int,  long int,  long int,  long int,  long int)' [-Wattri=
 bute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_setns' alias between fun=
-ctions of incompatible types 'long int(int,  int)' and 'long int(long int, =
- long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
-between functions of incompatible types 'long int(long unsigned int,  long =
-unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
-and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
-ribute-alias]
+    kernel/workqueue.c:1720:40: warning: '%d' directive output may be trunc=
+ated writing between 1 and 10 bytes into a region of size between 5 and 14 =
+[-Wformat-truncation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_stat' alias between func=
 tions of incompatible types 'long int(const char *, struct __old_kernel_sta=
 t *)' and 'long int(long int,  long int)' [-Wattribute-alias]
@@ -7704,43 +7602,18 @@ tat *)' and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_lstat' alias between fun=
 ctions of incompatible types 'long int(const char *, struct __old_kernel_st=
 at *)' and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_reboot' alias between fu=
-nctions of incompatible types 'long int(int,  int,  unsigned int,  void *)'=
- and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-ali=
-as]
     include/linux/syscalls.h:195:18: warning: 'sys_execve' alias between fu=
 nctions of incompatible types 'long int(const char *, const char * const*, =
 const char * const*)' and 'long int(long int,  long int,  long int)' [-Watt=
 ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_getgroups' alias between=
- functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
-nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_setgroups' alias between=
- functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
-nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
-as]
     include/linux/syscalls.h:195:18: warning: 'sys_pipe2' alias between fun=
 ctions of incompatible types 'long int(int *, int)' and 'long int(long int,=
   long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_pipe' alias between func=
 tions of incompatible types 'long int(int *)' and 'long int(long int)' [-Wa=
 ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
-ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
-d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
-ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
-functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
-'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
+    include/linux/syscalls.h:195:18: warning: 'sys_setns' alias between fun=
+ctions of incompatible types 'long int(int,  int)' and 'long int(long int, =
  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_mknodat' alias between f=
 unctions of incompatible types 'long int(int,  const char *, umode_t,  unsi=
@@ -7796,32 +7669,27 @@ ong int(long int,  long int,  long int)' [-Wattribute-alias]
 ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
 nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
 lias]
-    include/linux/syscalls.h:195:18: warning: 'sys_perf_event_open' alias b=
-etween functions of incompatible types 'long int(struct perf_event_attr *, =
-pid_t,  int,  int,  long unsigned int)' {aka 'long int(struct perf_event_at=
-tr *, int,  int,  int,  long unsigned int)'} and 'long int(long int,  long =
-int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
-ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
- int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
-long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
-n functions of incompatible types 'long int(long unsigned int,  long unsign=
-ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
-nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
-g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
+between functions of incompatible types 'long int(long unsigned int,  long =
+unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
+and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
+ribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_reboot' alias between fu=
+nctions of incompatible types 'long int(int,  int,  unsigned int,  void *)'=
+ and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_ioctl' alias between fun=
 ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
 nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
 lias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
-functions of incompatible types 'long int(long unsigned int,  size_t,  long=
- unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
- unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
-e-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_getgroups' alias between=
+ functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
+nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_setgroups' alias between=
+ functions of incompatible types 'long int(int,  gid_t *)' {aka 'long int(i=
+nt,  unsigned int *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_old_readdir' alias betwe=
 en functions of incompatible types 'long int(unsigned int,  struct old_linu=
 x_dirent *, unsigned int)' and 'long int(long int,  long int,  long int)' [=
@@ -7834,15 +7702,6 @@ ttribute-alias]
 functions of incompatible types 'long int(unsigned int,  struct linux_diren=
 t *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wattri=
 bute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
-nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
-int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
-aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
-long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_select' alias between fu=
 nctions of incompatible types 'long int(int,  fd_set *, fd_set *, fd_set *,=
  struct timeval *)' {aka 'long int(int,  struct <anonymous> *, struct <anon=
@@ -7863,9 +7722,47 @@ functions of incompatible types 'long int(int,  fd_set *, fd_set *, fd_set =
 truct <anonymous> *, struct <anonymous> *, struct timespec *, void *)'} and=
  'long int(long int,  long int,  long int,  long int,  long int,  long int)=
 ' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
+ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
+d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
+as]
     include/linux/syscalls.h:195:18: warning: 'sys_getcwd' alias between fu=
 nctions of incompatible types 'long int(char *, long unsigned int)' and 'lo=
 ng int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
+ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
+functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
+Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
+'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_perf_event_open' alias b=
+etween functions of incompatible types 'long int(struct perf_event_attr *, =
+pid_t,  int,  int,  long unsigned int)' {aka 'long int(struct perf_event_at=
+tr *, int,  int,  int,  long unsigned int)'} and 'long int(long int,  long =
+int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
+ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
+ int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
+long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
+n functions of incompatible types 'long int(long unsigned int,  long unsign=
+ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
+nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
+functions of incompatible types 'long int(long unsigned int,  size_t,  long=
+ unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
+ unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
+e-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_dup3' alias between func=
 tions of incompatible types 'long int(unsigned int,  unsigned int,  int)' a=
 nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
@@ -7875,6 +7772,15 @@ ions of incompatible types 'long int(unsigned int)' and 'long int(long int)=
     include/linux/syscalls.h:195:18: warning: 'sys_dup2' alias between func=
 tions of incompatible types 'long int(unsigned int,  unsigned int)' and 'lo=
 ng int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
+nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
+int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
+aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
+long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_umount' alias between fu=
 nctions of incompatible types 'long int(char *, int)' and 'long int(long in=
 t,  long int)' [-Wattribute-alias]
@@ -7938,9 +7844,68 @@ gned int,  int)'} and 'long int(long int,  long int,  long int,  long int, =
 t void *, size_t,  int)' {aka 'long int(const char *, const char *, const v=
 oid *, long unsigned int,  int)'} and 'long int(long int,  long int,  long =
 int,  long int,  long int)' [-Wattribute-alias]
-    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
-ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
-ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
+functions of incompatible types 'long int(int,  const struct iovec *, long =
+unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
+  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
+ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
+ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
+long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
+nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
+e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
+int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
+t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_syncfs' alias between fu=
+nctions of incompatible types 'long int(int)' and 'long int(long int)' [-Wa=
+ttribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range2' alias =
+between functions of incompatible types 'long int(int,  unsigned int,  loff=
+_t,  loff_t)' {aka 'long int(int,  unsigned int,  long long int,  long long=
+ int)'} and 'long int(long int,  long int,  long long int,  long long int)'=
+ [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range' alias b=
+etween functions of incompatible types 'long int(int,  loff_t,  loff_t,  un=
+signed int)' {aka 'long int(int,  long long int,  long long int,  unsigned =
+int)'} and 'long int(long int,  long long int,  long long int,  long int)' =
+[-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fdatasync' alias between=
+ functions of incompatible types 'long int(unsigned int)' and 'long int(lon=
+g int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fsync' alias between fun=
+ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
+t)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utime' alias between fun=
+ctions of incompatible types 'long int(char *, struct utimbuf *)' and 'long=
+ int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utimes' alias between fu=
+nctions of incompatible types 'long int(char *, struct timeval *)' and 'lon=
+g int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_futimesat' alias between=
+ functions of incompatible types 'long int(int,  const char *, struct timev=
+al *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_utimensat' alias between=
+ functions of incompatible types 'long int(int,  const char *, struct times=
+pec *, int)' and 'long int(long int,  long int,  long int,  long int)' [-Wa=
+ttribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_statfs' alias between fu=
+nctions of incompatible types 'long int(const char *, struct statfs *)' and=
+ 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_ustat' alias between fun=
+ctions of incompatible types 'long int(unsigned int,  struct ustat *)' and =
+'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs64' alias between=
+ functions of incompatible types 'long int(unsigned int,  size_t,  struct s=
+tatfs64 *)' {aka 'long int(unsigned int,  long unsigned int,  struct statfs=
+64 *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs' alias between f=
+unctions of incompatible types 'long int(unsigned int,  struct statfs *)' a=
+nd 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_statfs64' alias between =
+functions of incompatible types 'long int(const char *, size_t,  struct sta=
+tfs64 *)' {aka 'long int(const char *, long unsigned int,  struct statfs64 =
+*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_nice' alias between func=
 tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
 ribute-alias]
@@ -7986,68 +7951,6 @@ ong int)' [-Wattribute-alias]
 s between functions of incompatible types 'long int(pid_t,  int,  struct sc=
 hed_param *)' {aka 'long int(int,  int,  struct sched_param *)'} and 'long =
 int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_syncfs' alias between fu=
-nctions of incompatible types 'long int(int)' and 'long int(long int)' [-Wa=
-ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range2' alias =
-between functions of incompatible types 'long int(int,  unsigned int,  loff=
-_t,  loff_t)' {aka 'long int(int,  unsigned int,  long long int,  long long=
- int)'} and 'long int(long int,  long int,  long long int,  long long int)'=
- [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sync_file_range' alias b=
-etween functions of incompatible types 'long int(int,  loff_t,  loff_t,  un=
-signed int)' {aka 'long int(int,  long long int,  long long int,  unsigned =
-int)'} and 'long int(long int,  long long int,  long long int,  long int)' =
-[-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fdatasync' alias between=
- functions of incompatible types 'long int(unsigned int)' and 'long int(lon=
-g int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fsync' alias between fun=
-ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
-t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
-functions of incompatible types 'long int(int,  const struct iovec *, long =
-unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
-  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
-ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
-ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
-long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
-nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
-e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
-int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
-t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utime' alias between fun=
-ctions of incompatible types 'long int(char *, struct utimbuf *)' and 'long=
- int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utimes' alias between fu=
-nctions of incompatible types 'long int(char *, struct timeval *)' and 'lon=
-g int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_futimesat' alias between=
- functions of incompatible types 'long int(int,  const char *, struct timev=
-al *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_utimensat' alias between=
- functions of incompatible types 'long int(int,  const char *, struct times=
-pec *, int)' and 'long int(long int,  long int,  long int,  long int)' [-Wa=
-ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_statfs' alias between fu=
-nctions of incompatible types 'long int(const char *, struct statfs *)' and=
- 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_ustat' alias between fun=
-ctions of incompatible types 'long int(unsigned int,  struct ustat *)' and =
-'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs64' alias between=
- functions of incompatible types 'long int(unsigned int,  size_t,  struct s=
-tatfs64 *)' {aka 'long int(unsigned int,  long unsigned int,  struct statfs=
-64 *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fstatfs' alias between f=
-unctions of incompatible types 'long int(unsigned int,  struct statfs *)' a=
-nd 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_statfs64' alias between =
-functions of incompatible types 'long int(const char *, size_t,  struct sta=
-tfs64 *)' {aka 'long int(const char *, long unsigned int,  struct statfs64 =
-*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_alarm' alias between fun=
 ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
 t)' [-Wattribute-alias]
@@ -8101,13 +8004,13 @@ int)'} and 'long int(long int)' [-Wattribute-alias]
 ween functions of incompatible types 'long int(timer_t,  struct itimerspec =
 *)' {aka 'long int(int,  struct itimerspec *)'} and 'long int(long int,  lo=
 ng int)' [-Wattribute-alias]
-    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
-runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
-runcation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_getrandom' alias between=
  functions of incompatible types 'long int(char *, size_t,  unsigned int)' =
 {aka 'long int(char *, long unsigned int,  unsigned int)'} and 'long int(lo=
 ng int,  long int,  long int)' [-Wattribute-alias]
+    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
+runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
+runcation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_time' alias between func=
 tions of incompatible types 'long int(time_t *)' {aka 'long int(long int *)=
 '} and 'long int(long int)' [-Wattribute-alias]
@@ -8201,7 +8104,7 @@ n [-Wbool-operation]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 320 warnings, 0 section mi=
+tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 390 warnings, 0 section mi=
 smatches
 
 Errors:
@@ -8214,6 +8117,70 @@ Warnings:
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
@@ -8449,6 +8416,28 @@ version]
     cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
     kernel/sched/core.c:2766:1: warning: control reaches end of non-void fu=
 nction [-Wreturn-type]
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
@@ -8459,34 +8448,18 @@ nction [-Wreturn-type]
     cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
-    arc-linux-gcc: warning: '-mno-mpy' is deprecated
-    cc1: warning: '-mno-mpy' is deprecated
     include/linux/kernel.h:707:17: warning: comparison of distinct pointer =
 types lacks a cast
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
+    arc-linux-gcc: warning: '-mno-mpy' is deprecated
+    cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
     cc1: warning: '-mno-mpy' is deprecated
     arc-linux-gcc: warning: '-mno-mpy' is deprecated
@@ -8673,9 +8646,6 @@ t,  int *, int *, int)' and 'long int(long int,  long int,  long int,  long=
     include/linux/syscalls.h:195:18: warning: 'sys_personality' alias betwe=
 en functions of incompatible types 'long int(unsigned int)' and 'long int(l=
 ong int)' [-Wattribute-alias]
-    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
-ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
-ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_iopl' alias between func=
 tions of incompatible types 'long int(unsigned int)' and 'long int(long int=
 )' [-Wattribute-alias]
@@ -8698,6 +8668,10 @@ ong int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_exit_group' alias betwee=
 n functions of incompatible types 'long int(int)' and 'long int(long int)' =
 [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
+ functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
+ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
+long long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_sysctl' alias between fu=
 nctions of incompatible types 'long int(struct __sysctl_args *)' and 'long =
 int(long int)' [-Wattribute-alias]
@@ -8725,6 +8699,108 @@ tions of incompatible types 'long int(long unsigned int,  long unsigned int=
 ,  long unsigned int,  long unsigned int,  long unsigned int,  long unsigne=
 d int)' and 'long int(long int,  long int,  long int,  long int,  long int,=
   long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigprocmask' alias be=
+tween functions of incompatible types 'long int(int,  sigset_t *, sigset_t =
+*, size_t)' {aka 'long int(int,  struct <anonymous> *, struct <anonymous> *=
+, long unsigned int)'} and 'long int(long int,  long int,  long int,  long =
+int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigsuspend' alias betwee=
+n functions of incompatible types 'long int(int,  int,  old_sigset_t)' {aka=
+ 'long int(int,  int,  long unsigned int)'} and 'long int(long int,  long i=
+nt,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigsuspend' alias=
+ between functions of incompatible types 'long int(compat_sigset_t *, compa=
+t_size_t)' {aka 'long int(struct <anonymous> *, unsigned int)'} and 'long i=
+nt(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigsuspend' alias bet=
+ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
+ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_signal' alias between fu=
+nctions of incompatible types 'long int(int,  void (*)(int))' and 'long int=
+(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_ssetmask' alias between =
+functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
+Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_sigaction' alias bet=
+ween functions of incompatible types 'long int(int,  const struct compat_ol=
+d_sigaction *, struct compat_old_sigaction *)' and 'long int(long int,  lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigaction' alias =
+between functions of incompatible types 'long int(int,  const struct compat=
+_sigaction *, struct compat_sigaction *, compat_size_t)' {aka 'long int(int=
+,  const struct compat_sigaction *, struct compat_sigaction *, unsigned int=
+)'} and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-=
+alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigaction' alias betw=
+een functions of incompatible types 'long int(int,  const struct sigaction =
+*, struct sigaction *, size_t)' {aka 'long int(int,  const struct sigaction=
+ *, struct sigaction *, long unsigned int)'} and 'long int(long int,  long =
+int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigprocmask' alias betwe=
+en functions of incompatible types 'long int(int,  old_sigset_t *, old_sigs=
+et_t *)' {aka 'long int(int,  long unsigned int *, long unsigned int *)'} a=
+nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigpending' alias betwee=
+n functions of incompatible types 'long int(old_sigset_t *)' {aka 'long int=
+(long unsigned int *)'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_sigaltstack' alias b=
+etween functions of incompatible types 'long int(const compat_stack_t *, co=
+mpat_stack_t *)' {aka 'long int(const struct compat_sigaltstack *, struct c=
+ompat_sigaltstack *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_sigaltstack' alias betwe=
+en functions of incompatible types 'long int(const stack_t *, stack_t *)' {=
+aka 'long int(const struct sigaltstack *, struct sigaltstack *)'} and 'long=
+ int(long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_tgsigqueueinfo' a=
+lias between functions of incompatible types 'long int(compat_pid_t,  compa=
+t_pid_t,  int,  struct compat_siginfo *)' {aka 'long int(int,  int,  int,  =
+struct compat_siginfo *)'} and 'long int(long int,  long int,  long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_tgsigqueueinfo' alias=
+ between functions of incompatible types 'long int(pid_t,  pid_t,  int,  si=
+ginfo_t *)' {aka 'long int(int,  int,  int,  struct siginfo *)'} and 'long =
+int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigqueueinfo' ali=
+as between functions of incompatible types 'long int(compat_pid_t,  int,  s=
+truct compat_siginfo *)' {aka 'long int(int,  int,  struct compat_siginfo *=
+)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigqueueinfo' alias b=
+etween functions of incompatible types 'long int(pid_t,  int,  siginfo_t *)=
+' {aka 'long int(int,  int,  struct siginfo *)'} and 'long int(long int,  l=
+ong int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tkill' alias between fun=
+ctions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  i=
+nt)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tgkill' alias between fu=
+nctions of incompatible types 'long int(pid_t,  pid_t,  int)' {aka 'long in=
+t(int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattr=
+ibute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_kill' alias between func=
+tions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  in=
+t)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigtimedwait' alias b=
+etween functions of incompatible types 'long int(const sigset_t *, siginfo_=
+t *, const struct timespec *, size_t)' {aka 'long int(const struct <anonymo=
+us> *, struct siginfo *, const struct timespec *, long unsigned int)'} and =
+'long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigpending' alias=
+ between functions of incompatible types 'long int(compat_sigset_t *, compa=
+t_size_t)' {aka 'long int(struct <anonymous> *, unsigned int)'} and 'long i=
+nt(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigpending' alias bet=
+ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
+ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigprocmask' alia=
+s between functions of incompatible types 'long int(int,  compat_sigset_t *=
+, compat_sigset_t *, compat_size_t)' {aka 'long int(int,  struct <anonymous=
+> *, struct <anonymous> *, unsigned int)'} and 'long int(long int,  long in=
+t,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_memfd_create' alias betw=
+een functions of incompatible types 'long int(const char *, unsigned int)' =
+and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_setpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int,  int)' and 'long in=
 t(long int,  long int,  long int)' [-Wattribute-alias]
@@ -8834,105 +8910,9 @@ te-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_getpriority' alias betwe=
 en functions of incompatible types 'long int(int,  int)' and 'long int(long=
  int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigprocmask' alias be=
-tween functions of incompatible types 'long int(int,  sigset_t *, sigset_t =
-*, size_t)' {aka 'long int(int,  struct <anonymous> *, struct <anonymous> *=
-, long unsigned int)'} and 'long int(long int,  long int,  long int,  long =
-int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigsuspend' alias betwee=
-n functions of incompatible types 'long int(int,  int,  old_sigset_t)' {aka=
- 'long int(int,  int,  long unsigned int)'} and 'long int(long int,  long i=
-nt,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigsuspend' alias=
- between functions of incompatible types 'long int(compat_sigset_t *, compa=
-t_size_t)' {aka 'long int(struct <anonymous> *, unsigned int)'} and 'long i=
-nt(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigsuspend' alias bet=
-ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
-ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_signal' alias between fu=
-nctions of incompatible types 'long int(int,  void (*)(int))' and 'long int=
-(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_ssetmask' alias between =
-functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_sigaction' alias bet=
-ween functions of incompatible types 'long int(int,  const struct compat_ol=
-d_sigaction *, struct compat_old_sigaction *)' and 'long int(long int,  lon=
-g int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigaction' alias =
-between functions of incompatible types 'long int(int,  const struct compat=
-_sigaction *, struct compat_sigaction *, compat_size_t)' {aka 'long int(int=
-,  const struct compat_sigaction *, struct compat_sigaction *, unsigned int=
-)'} and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-=
-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigaction' alias betw=
-een functions of incompatible types 'long int(int,  const struct sigaction =
-*, struct sigaction *, size_t)' {aka 'long int(int,  const struct sigaction=
- *, struct sigaction *, long unsigned int)'} and 'long int(long int,  long =
-int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigprocmask' alias betwe=
-en functions of incompatible types 'long int(int,  old_sigset_t *, old_sigs=
-et_t *)' {aka 'long int(int,  long unsigned int *, long unsigned int *)'} a=
-nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigpending' alias betwee=
-n functions of incompatible types 'long int(old_sigset_t *)' {aka 'long int=
-(long unsigned int *)'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_sigaltstack' alias b=
-etween functions of incompatible types 'long int(const compat_stack_t *, co=
-mpat_stack_t *)' {aka 'long int(const struct compat_sigaltstack *, struct c=
-ompat_sigaltstack *)'} and 'long int(long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_sigaltstack' alias betwe=
-en functions of incompatible types 'long int(const stack_t *, stack_t *)' {=
-aka 'long int(const struct sigaltstack *, struct sigaltstack *)'} and 'long=
- int(long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_tgsigqueueinfo' a=
-lias between functions of incompatible types 'long int(compat_pid_t,  compa=
-t_pid_t,  int,  struct compat_siginfo *)' {aka 'long int(int,  int,  int,  =
-struct compat_siginfo *)'} and 'long int(long int,  long int,  long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_tgsigqueueinfo' alias=
- between functions of incompatible types 'long int(pid_t,  pid_t,  int,  si=
-ginfo_t *)' {aka 'long int(int,  int,  int,  struct siginfo *)'} and 'long =
-int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigqueueinfo' ali=
-as between functions of incompatible types 'long int(compat_pid_t,  int,  s=
-truct compat_siginfo *)' {aka 'long int(int,  int,  struct compat_siginfo *=
-)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigqueueinfo' alias b=
-etween functions of incompatible types 'long int(pid_t,  int,  siginfo_t *)=
-' {aka 'long int(int,  int,  struct siginfo *)'} and 'long int(long int,  l=
-ong int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tkill' alias between fun=
-ctions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  i=
-nt)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tgkill' alias between fu=
-nctions of incompatible types 'long int(pid_t,  pid_t,  int)' {aka 'long in=
-t(int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattr=
-ibute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_kill' alias between func=
-tions of incompatible types 'long int(pid_t,  int)' {aka 'long int(int,  in=
-t)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigtimedwait' alias b=
-etween functions of incompatible types 'long int(const sigset_t *, siginfo_=
-t *, const struct timespec *, size_t)' {aka 'long int(const struct <anonymo=
-us> *, struct siginfo *, const struct timespec *, long unsigned int)'} and =
-'long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigpending' alias=
- between functions of incompatible types 'long int(compat_sigset_t *, compa=
-t_size_t)' {aka 'long int(struct <anonymous> *, unsigned int)'} and 'long i=
-nt(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_rt_sigpending' alias bet=
-ween functions of incompatible types 'long int(sigset_t *, size_t)' {aka 'l=
-ong int(struct <anonymous> *, long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_rt_sigprocmask' alia=
-s between functions of incompatible types 'long int(int,  compat_sigset_t *=
-, compat_sigset_t *, compat_size_t)' {aka 'long int(int,  struct <anonymous=
-> *, struct <anonymous> *, unsigned int)'} and 'long int(long int,  long in=
-t,  long int,  long int)' [-Wattribute-alias]
+    arch/x86/vdso/vclock_gettime.c:352:5: warning: 'time' alias between fun=
+ctions of incompatible types 'int(time_t *)' {aka 'int(long int *)'} and 't=
+ime_t(time_t *)' {aka 'long int(long int *)'} [-Wattribute-alias]
     kernel/workqueue.c:1720:40: warning: '%d' directive output may be trunc=
 ated writing between 1 and 10 bytes into a region of size between 5 and 14 =
 [-Wformat-truncation=3D]
@@ -8957,15 +8937,263 @@ long int(long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_get_thread_area' alias b=
 etween functions of incompatible types 'long int(struct user_desc *)' and '=
 long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
+between functions of incompatible types 'long int(long unsigned int,  long =
+unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
+and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
+ribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_perf_event_open' alias b=
 etween functions of incompatible types 'long int(struct perf_event_attr *, =
 pid_t,  int,  int,  long unsigned int)' {aka 'long int(struct perf_event_at=
 tr *, int,  int,  int,  long unsigned int)'} and 'long int(long int,  long =
 int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_readahead' alias between=
- functions of incompatible types 'long int(int,  loff_t,  size_t)' {aka 'lo=
-ng int(int,  long long int,  long unsigned int)'} and 'long int(long int,  =
-long long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
+ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
+d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
+ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
+functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
+Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
+'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
+ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
+ int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
+long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
+n functions of incompatible types 'long int(long unsigned int,  long unsign=
+ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
+nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
+functions of incompatible types 'long int(long unsigned int,  size_t,  long=
+ unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
+ unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
+e-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
+nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
+nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
+int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
+as]
+    include/linux/syscalls.h:195:18: warning: 'sys_syslog' alias between fu=
+nctions of incompatible types 'long int(int,  char *, int)' and 'long int(l=
+ong int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
+aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
+long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_process_vm_readv' alias =
+between functions of incompatible types 'long int(pid_t,  const struct iove=
+c *, long unsigned int,  const struct iovec *, long unsigned int,  long uns=
+igned int)' {aka 'long int(int,  const struct iovec *, long unsigned int,  =
+const struct iovec *, long unsigned int,  long unsigned int)'} and 'long in=
+t(long int,  long int,  long int,  long int,  long int,  long int)' [-Wattr=
+ibute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_process_vm_writev' a=
+lias between functions of incompatible types 'long int(compat_pid_t,  const=
+ struct compat_iovec *, compat_ulong_t,  const struct compat_iovec *, compa=
+t_ulong_t,  compat_ulong_t)' {aka 'long int(int,  const struct compat_iovec=
+ *, unsigned int,  const struct compat_iovec *, unsigned int,  unsigned int=
+)'} and 'long int(long int,  long int,  long int,  long int,  long int,  lo=
+ng int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_process_vm_readv' al=
+ias between functions of incompatible types 'long int(compat_pid_t,  const =
+struct compat_iovec *, compat_ulong_t,  const struct compat_iovec *, compat=
+_ulong_t,  compat_ulong_t)' {aka 'long int(int,  const struct compat_iovec =
+*, unsigned int,  const struct compat_iovec *, unsigned int,  unsigned int)=
+'} and 'long int(long int,  long int,  long int,  long int,  long int,  lon=
+g int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_process_vm_writev' alias=
+ between functions of incompatible types 'long int(pid_t,  const struct iov=
+ec *, long unsigned int,  const struct iovec *, long unsigned int,  long un=
+signed int)' {aka 'long int(int,  const struct iovec *, long unsigned int, =
+ const struct iovec *, long unsigned int,  long unsigned int)'} and 'long i=
+nt(long int,  long int,  long int,  long int,  long int,  long int)' [-Watt=
+ribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fadvise64_64' alias betw=
+een functions of incompatible types 'long int(int,  loff_t,  loff_t,  int)'=
+ {aka 'long int(int,  long long int,  long long int,  int)'} and 'long int(=
+long int,  long long int,  long long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_fadvise64' alias between=
+ functions of incompatible types 'long int(int,  loff_t,  size_t,  int)' {a=
+ka 'long int(int,  long long int,  long unsigned int,  int)'} and 'long int=
+(long int,  long long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_madvise' alias between f=
+unctions of incompatible types 'long int(long unsigned int,  size_t,  int)'=
+ {aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long in=
+t(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_alarm' alias between fun=
+ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
+t)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_nice' alias between func=
+tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
+ribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_rr_get_interval' a=
+lias between functions of incompatible types 'long int(pid_t,  struct times=
+pec *)' {aka 'long int(int,  struct timespec *)'} and 'long int(long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_get_priority_min' =
+alias between functions of incompatible types 'long int(int)' and 'long int=
+(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_get_priority_max' =
+alias between functions of incompatible types 'long int(int)' and 'long int=
+(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_getaffinity' alias=
+ between functions of incompatible types 'long int(pid_t,  unsigned int,  l=
+ong unsigned int *)' {aka 'long int(int,  unsigned int,  long unsigned int =
+*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_setaffinity' alias=
+ between functions of incompatible types 'long int(pid_t,  unsigned int,  l=
+ong unsigned int *)' {aka 'long int(int,  unsigned int,  long unsigned int =
+*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_getattr' alias bet=
+ween functions of incompatible types 'long int(pid_t,  struct sched_attr *,=
+ unsigned int,  unsigned int)' {aka 'long int(int,  struct sched_attr *, un=
+signed int,  unsigned int)'} and 'long int(long int,  long int,  long int, =
+ long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_getparam' alias be=
+tween functions of incompatible types 'long int(pid_t,  struct sched_param =
+*)' {aka 'long int(int,  struct sched_param *)'} and 'long int(long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_getscheduler' alia=
+s between functions of incompatible types 'long int(pid_t)' {aka 'long int(=
+int)'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_setattr' alias bet=
+ween functions of incompatible types 'long int(pid_t,  struct sched_attr *,=
+ unsigned int)' {aka 'long int(int,  struct sched_attr *, unsigned int)'} a=
+nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_setparam' alias be=
+tween functions of incompatible types 'long int(pid_t,  struct sched_param =
+*)' {aka 'long int(int,  struct sched_param *)'} and 'long int(long int,  l=
+ong int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_sched_setscheduler' alia=
+s between functions of incompatible types 'long int(pid_t,  int,  struct sc=
+hed_param *)' {aka 'long int(int,  int,  struct sched_param *)'} and 'long =
+int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
+ss' with a nonzero argument is unsafe [-Wframe-address]
+    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
+ss' with a nonzero argument is unsafe [-Wframe-address]
+    include/linux/syscalls.h:195:18: warning: 'sys_nanosleep' alias between=
+ functions of incompatible types 'long int(struct timespec *, struct timesp=
+ec *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_getitimer' alias between=
+ functions of incompatible types 'long int(int,  struct itimerval *)' and '=
+long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_setitimer' alias between=
+ functions of incompatible types 'long int(int,  struct itimerval *, struct=
+ itimerval *)' and 'long int(long int,  long int,  long int)' [-Wattribute-=
+alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_timer_create' alias betw=
+een functions of incompatible types 'long int(const clockid_t,  struct sige=
+vent *, timer_t *)' {aka 'long int(const int,  struct sigevent *, int *)'} =
+and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_clock_nanosleep' alias b=
+etween functions of incompatible types 'long int(const clockid_t,  int,  co=
+nst struct timespec *, struct timespec *)' {aka 'long int(const int,  int, =
+ const struct timespec *, struct timespec *)'} and 'long int(long int,  lon=
+g int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_clock_getres' alias betw=
+een functions of incompatible types 'long int(const clockid_t,  struct time=
+spec *)' {aka 'long int(const int,  struct timespec *)'} and 'long int(long=
+ int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_clock_adjtime' alias bet=
+ween functions of incompatible types 'long int(const clockid_t,  struct tim=
+ex *)' {aka 'long int(const int,  struct timex *)'} and 'long int(long int,=
+  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_clock_gettime' alias bet=
+ween functions of incompatible types 'long int(const clockid_t,  struct tim=
+espec *)' {aka 'long int(const int,  struct timespec *)'} and 'long int(lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_clock_settime' alias bet=
+ween functions of incompatible types 'long int(const clockid_t,  const stru=
+ct timespec *)' {aka 'long int(const int,  const struct timespec *)'} and '=
+long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_timer_delete' alias betw=
+een functions of incompatible types 'long int(timer_t)' {aka 'long int(int)=
+'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_timer_settime' alias bet=
+ween functions of incompatible types 'long int(timer_t,  int,  const struct=
+ itimerspec *, struct itimerspec *)' {aka 'long int(int,  int,  const struc=
+t itimerspec *, struct itimerspec *)'} and 'long int(long int,  long int,  =
+long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_timer_getoverrun' alias =
+between functions of incompatible types 'long int(timer_t)' {aka 'long int(=
+int)'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_timer_gettime' alias bet=
+ween functions of incompatible types 'long int(timer_t,  struct itimerspec =
+*)' {aka 'long int(int,  struct itimerspec *)'} and 'long int(long int,  lo=
+ng int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_swapoff' alias between f=
+unctions of incompatible types 'long int(const char *)' and 'long int(long =
+int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_swapon' alias between fu=
+nctions of incompatible types 'long int(const char *, int)' and 'long int(l=
+ong int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mbind' alias between fun=
+ctions of incompatible types 'long int(long unsigned int,  long unsigned in=
+t,  long unsigned int,  const long unsigned int *, long unsigned int,  unsi=
+gned int)' and 'long int(long int,  long int,  long int,  long int,  long i=
+nt,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_mbind' alias between=
+ functions of incompatible types 'long int(compat_ulong_t,  compat_ulong_t,=
+  compat_ulong_t,  compat_ulong_t *, compat_ulong_t,  compat_ulong_t)' {aka=
+ 'long int(unsigned int,  unsigned int,  unsigned int,  unsigned int *, uns=
+igned int,  unsigned int)'} and 'long int(long int,  long int,  long int,  =
+long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_set_mempolicy' alias=
+ between functions of incompatible types 'long int(int,  compat_ulong_t *, =
+compat_ulong_t)' {aka 'long int(int,  unsigned int *, unsigned int)'} and '=
+long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_get_mempolicy' alias=
+ between functions of incompatible types 'long int(int *, compat_ulong_t *,=
+ compat_ulong_t,  compat_ulong_t,  compat_ulong_t)' {aka 'long int(int *, u=
+nsigned int *, unsigned int,  unsigned int,  unsigned int)'} and 'long int(=
+long int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_get_mempolicy' alias bet=
+ween functions of incompatible types 'long int(int *, long unsigned int *, =
+long unsigned int,  long unsigned int,  long unsigned int)' and 'long int(l=
+ong int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_migrate_pages' alias bet=
+ween functions of incompatible types 'long int(pid_t,  long unsigned int,  =
+const long unsigned int *, const long unsigned int *)' {aka 'long int(int, =
+ long unsigned int,  const long unsigned int *, const long unsigned int *)'=
+} and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-al=
+ias]
+    include/linux/syscalls.h:195:18: warning: 'sys_set_mempolicy' alias bet=
+ween functions of incompatible types 'long int(int,  const long unsigned in=
+t *, long unsigned int)' and 'long int(long int,  long int,  long int)' [-W=
+attribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_time' alias between func=
+tions of incompatible types 'long int(time_t *)' {aka 'long int(long int *)=
+'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_adjtimex' alias between =
+functions of incompatible types 'long int(struct timex *)' and 'long int(lo=
+ng int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_settimeofday' alias betw=
+een functions of incompatible types 'long int(struct timeval *, struct time=
+zone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_gettimeofday' alias betw=
+een functions of incompatible types 'long int(struct timeval *, struct time=
+zone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_stime' alias between fun=
+ctions of incompatible types 'long int(time_t *)' {aka 'long int(long int *=
+)'} and 'long int(long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_move_pages' alias betwee=
+n functions of incompatible types 'long int(pid_t,  long unsigned int,  con=
+st void **, const int *, int *, int)' {aka 'long int(int,  long unsigned in=
+t,  const void **, const int *, int *, int)'} and 'long int(long int,  long=
+ int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_truncate' alias between =
 functions of incompatible types 'long int(const char *, long int)' and 'lon=
 g int(long int,  long int)' [-Wattribute-alias]
@@ -9176,12 +9404,12 @@ tat *)' and 'long int(long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_lstat' alias between fun=
 ctions of incompatible types 'long int(const char *, struct __old_kernel_st=
 at *)' and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_syslog' alias between fu=
-nctions of incompatible types 'long int(int,  char *, int)' and 'long int(l=
-ong int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_memfd_create' alias betw=
-een functions of incompatible types 'long int(const char *, unsigned int)' =
-and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_pipe2' alias between fun=
+ctions of incompatible types 'long int(int *, int)' and 'long int(long int,=
+  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_pipe' alias between func=
+tions of incompatible types 'long int(int *)' and 'long int(long int)' [-Wa=
+ttribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_uselib' alias between fu=
 nctions of incompatible types 'long int(const char *)' and 'long int(long i=
 nt)' [-Wattribute-alias]
@@ -9194,12 +9422,26 @@ nt *, const unsigned int *)'} and 'long int(long int,  long int,  long int)=
 nctions of incompatible types 'long int(const char *, const char * const*, =
 const char * const*)' and 'long int(long int,  long int,  long int)' [-Watt=
 ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_pipe2' alias between fun=
-ctions of incompatible types 'long int(int *, int)' and 'long int(long int,=
-  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_pipe' alias between func=
-tions of incompatible types 'long int(int *)' and 'long int(long int)' [-Wa=
+    include/linux/syscalls.h:195:18: warning: 'sys_fcntl' alias between fun=
+ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
+nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
+lias]
+    include/linux/syscalls.h:195:18: warning: 'sys_ioctl' alias between fun=
+ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
+nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
+lias]
+    include/linux/syscalls.h:195:18: warning: 'sys_old_readdir' alias betwe=
+en functions of incompatible types 'long int(unsigned int,  struct old_linu=
+x_dirent *, unsigned int)' and 'long int(long int,  long int,  long int)' [=
+-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_getdents64' alias betwee=
+n functions of incompatible types 'long int(unsigned int,  struct linux_dir=
+ent64 *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wa=
 ttribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_getdents' alias between =
+functions of incompatible types 'long int(unsigned int,  struct linux_diren=
+t *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wattri=
+bute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_mknodat' alias between f=
 unctions of incompatible types 'long int(int,  const char *, umode_t,  unsi=
 gned int)' {aka 'long int(int,  const char *, short unsigned int,  unsigned=
@@ -9250,75 +9492,6 @@ unctions of incompatible types 'long int(int,  const char *, umode_t)' {aka=
 ctions of incompatible types 'long int(const char *, umode_t,  unsigned int=
 )' {aka 'long int(const char *, short unsigned int,  unsigned int)'} and 'l=
 ong int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fcntl' alias between fun=
-ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
-nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
-lias]
-    include/linux/syscalls.h:195:18: warning: 'sys_ioctl' alias between fun=
-ctions of incompatible types 'long int(unsigned int,  unsigned int,  long u=
-nsigned int)' and 'long int(long int,  long int,  long int)' [-Wattribute-a=
-lias]
-    include/linux/syscalls.h:195:18: warning: 'sys_old_readdir' alias betwe=
-en functions of incompatible types 'long int(unsigned int,  struct old_linu=
-x_dirent *, unsigned int)' and 'long int(long int,  long int,  long int)' [=
--Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_getdents64' alias betwee=
-n functions of incompatible types 'long int(unsigned int,  struct linux_dir=
-ent64 *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wa=
-ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_getdents' alias between =
-functions of incompatible types 'long int(unsigned int,  struct linux_diren=
-t *, unsigned int)' and 'long int(long int,  long int,  long int)' [-Wattri=
-bute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_nice' alias between func=
-tions of incompatible types 'long int(int)' and 'long int(long int)' [-Watt=
-ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_rr_get_interval' a=
-lias between functions of incompatible types 'long int(pid_t,  struct times=
-pec *)' {aka 'long int(int,  struct timespec *)'} and 'long int(long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_get_priority_min' =
-alias between functions of incompatible types 'long int(int)' and 'long int=
-(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_get_priority_max' =
-alias between functions of incompatible types 'long int(int)' and 'long int=
-(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_getaffinity' alias=
- between functions of incompatible types 'long int(pid_t,  unsigned int,  l=
-ong unsigned int *)' {aka 'long int(int,  unsigned int,  long unsigned int =
-*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_setaffinity' alias=
- between functions of incompatible types 'long int(pid_t,  unsigned int,  l=
-ong unsigned int *)' {aka 'long int(int,  unsigned int,  long unsigned int =
-*)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_getattr' alias bet=
-ween functions of incompatible types 'long int(pid_t,  struct sched_attr *,=
- unsigned int,  unsigned int)' {aka 'long int(int,  struct sched_attr *, un=
-signed int,  unsigned int)'} and 'long int(long int,  long int,  long int, =
- long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_getparam' alias be=
-tween functions of incompatible types 'long int(pid_t,  struct sched_param =
-*)' {aka 'long int(int,  struct sched_param *)'} and 'long int(long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_getscheduler' alia=
-s between functions of incompatible types 'long int(pid_t)' {aka 'long int(=
-int)'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_setattr' alias bet=
-ween functions of incompatible types 'long int(pid_t,  struct sched_attr *,=
- unsigned int)' {aka 'long int(int,  struct sched_attr *, unsigned int)'} a=
-nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_setparam' alias be=
-tween functions of incompatible types 'long int(pid_t,  struct sched_param =
-*)' {aka 'long int(int,  struct sched_param *)'} and 'long int(long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_sched_setscheduler' alia=
-s between functions of incompatible types 'long int(pid_t,  int,  struct sc=
-hed_param *)' {aka 'long int(int,  int,  struct sched_param *)'} and 'long =
-int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
-ss' with a nonzero argument is unsafe [-Wframe-address]
-    include/linux/ftrace.h:632:36: warning: calling '__builtin_return_addre=
-ss' with a nonzero argument is unsafe [-Wframe-address]
     include/linux/syscalls.h:195:18: warning: 'sys_select' alias between fu=
 nctions of incompatible types 'long int(int,  fd_set *, fd_set *, fd_set *,=
  struct timeval *)' {aka 'long int(int,  struct <anonymous> *, struct <anon=
@@ -9354,24 +9527,6 @@ ions of incompatible types 'long int(unsigned int)' and 'long int(long int)=
     include/linux/syscalls.h:195:18: warning: 'sys_dup2' alias between func=
 tions of incompatible types 'long int(unsigned int,  unsigned int)' and 'lo=
 ng int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_remap_file_pages' alias =
-between functions of incompatible types 'long int(long unsigned int,  long =
-unsigned int,  long unsigned int,  long unsigned int,  long unsigned int)' =
-and 'long int(long int,  long int,  long int,  long int,  long int)' [-Watt=
-ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_umount' alias between fu=
-nctions of incompatible types 'long int(char *, int)' and 'long int(long in=
-t,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_pivot_root' alias betwee=
-n functions of incompatible types 'long int(const char *, const char *)' an=
-d 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mount' alias between fun=
-ctions of incompatible types 'long int(char *, char *, char *, long unsigne=
-d int,  void *)' and 'long int(long int,  long int,  long int,  long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_oldumount' alias between=
- functions of incompatible types 'long int(char *)' and 'long int(long int)=
-' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_setxattr' alias between =
 functions of incompatible types 'long int(const char *, const char *, const=
  void *, size_t,  int)' {aka 'long int(const char *, const char *, const vo=
@@ -9422,22 +9577,36 @@ gned int,  int)'} and 'long int(long int,  long int,  long int,  long int, =
 t void *, size_t,  int)' {aka 'long int(const char *, const char *, const v=
 oid *, long unsigned int,  int)'} and 'long int(long int,  long int,  long =
 int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mincore' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t,  unsig=
-ned char *)' {aka 'long int(long unsigned int,  long unsigned int,  unsigne=
-d char *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-ali=
-as]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlock' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t)' {aka 'l=
-ong int(long unsigned int,  long unsigned int)'} and 'long int(long int,  l=
-ong int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mlockall' alias between =
-functions of incompatible types 'long int(int)' and 'long int(long int)' [-=
-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munlock' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t)' {aka =
-'long int(long unsigned int,  long unsigned int)'} and 'long int(long int, =
- long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_umount' alias between fu=
+nctions of incompatible types 'long int(char *, int)' and 'long int(long in=
+t,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_pivot_root' alias betwee=
+n functions of incompatible types 'long int(const char *, const char *)' an=
+d 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_mount' alias between fun=
+ctions of incompatible types 'long int(char *, char *, char *, long unsigne=
+d int,  void *)' and 'long int(long int,  long int,  long int,  long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_oldumount' alias between=
+ functions of incompatible types 'long int(char *)' and 'long int(long int)=
+' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
+functions of incompatible types 'long int(int,  const struct iovec *, long =
+unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
+  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
+ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
+ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
+long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
+nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
+e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
+int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
+t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_vmsplice' alias betw=
+een functions of incompatible types 'long int(int,  const struct compat_iov=
+ec *, unsigned int,  unsigned int)' and 'long int(long int,  long int,  lon=
+g int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_syncfs' alias between fu=
 nctions of incompatible types 'long int(int)' and 'long int(long int)' [-Wa=
 ttribute-alias]
@@ -9457,35 +9626,6 @@ g int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_fsync' alias between fun=
 ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
 t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_vmsplice' alias between =
-functions of incompatible types 'long int(int,  const struct iovec *, long =
-unsigned int,  unsigned int)' and 'long int(long int,  long int,  long int,=
-  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_tee' alias between funct=
-ions of incompatible types 'long int(int,  int,  size_t,  unsigned int)' {a=
-ka 'long int(int,  int,  long unsigned int,  unsigned int)'} and 'long int(=
-long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_splice' alias between fu=
-nctions of incompatible types 'long int(int,  loff_t *, int,  loff_t *, siz=
-e_t,  unsigned int)' {aka 'long int(int,  long long int *, int,  long long =
-int *, long unsigned int,  unsigned int)'} and 'long int(long int,  long in=
-t,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_vmsplice' alias betw=
-een functions of incompatible types 'long int(int,  const struct compat_iov=
-ec *, unsigned int,  unsigned int)' and 'long int(long int,  long int,  lon=
-g int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_brk' alias between funct=
-ions of incompatible types 'long int(long unsigned int)' and 'long int(long=
- int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_munmap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  size_t)' {aka '=
-long int(long unsigned int,  long unsigned int)'} and 'long int(long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mmap_pgoff' alias betwee=
-n functions of incompatible types 'long int(long unsigned int,  long unsign=
-ed int,  long unsigned int,  long unsigned int,  long unsigned int,  long u=
-nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
-g int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_utime' alias between fun=
 ctions of incompatible types 'long int(char *, struct utimbuf *)' and 'long=
  int(long int,  long int)' [-Wattribute-alias]
@@ -9499,29 +9639,20 @@ al *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
  functions of incompatible types 'long int(int,  const char *, struct times=
 pec *, int)' and 'long int(long int,  long int,  long int,  long int)' [-Wa=
 ttribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_alarm' alias between fun=
-ctions of incompatible types 'long int(unsigned int)' and 'long int(long in=
-t)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_nanosleep' alias between=
- functions of incompatible types 'long int(struct timespec *, struct timesp=
-ec *)' and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mprotect' alias between =
-functions of incompatible types 'long int(long unsigned int,  size_t,  long=
- unsigned int)' {aka 'long int(long unsigned int,  long unsigned int,  long=
- unsigned int)'} and 'long int(long int,  long int,  long int)' [-Wattribut=
-e-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_getitimer' alias between=
- functions of incompatible types 'long int(int,  struct itimerval *)' and '=
-long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_setitimer' alias between=
- functions of incompatible types 'long int(int,  struct itimerval *, struct=
- itimerval *)' and 'long int(long int,  long int,  long int)' [-Wattribute-=
-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mremap' alias between fu=
-nctions of incompatible types 'long int(long unsigned int,  long unsigned i=
-nt,  long unsigned int,  long unsigned int,  long unsigned int)' and 'long =
-int(long int,  long int,  long int,  long int,  long int)' [-Wattribute-ali=
-as]
+    include/linux/compat.h:48:18: warning: 'compat_sys_set_robust_list' ali=
+as between functions of incompatible types 'long int(struct compat_robust_l=
+ist_head *, compat_size_t)' {aka 'long int(struct compat_robust_list_head *=
+, unsigned int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_futex' alias between=
+ functions of incompatible types 'long int(u32 *, int,  u32,  struct compat=
+_timespec *, u32 *, u32)' {aka 'long int(unsigned int *, int,  unsigned int=
+,  struct compat_timespec *, unsigned int *, unsigned int)'} and 'long int(=
+long int,  long int,  long int,  long int,  long int,  long int)' [-Wattrib=
+ute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_get_robust_list' ali=
+as between functions of incompatible types 'long int(int,  compat_uptr_t *,=
+ compat_size_t *)' {aka 'long int(int,  unsigned int *, unsigned int *)'} a=
+nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_statfs' alias between fu=
 nctions of incompatible types 'long int(const char *, struct statfs *)' and=
  'long int(long int,  long int)' [-Wattribute-alias]
@@ -9539,148 +9670,6 @@ nd 'long int(long int,  long int)' [-Wattribute-alias]
 functions of incompatible types 'long int(const char *, size_t,  struct sta=
 tfs64 *)' {aka 'long int(const char *, long unsigned int,  struct statfs64 =
 *)'} and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_msync' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  size_t,  int)' {=
-aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long int(=
-long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_timer_create' alias betw=
-een functions of incompatible types 'long int(const clockid_t,  struct sige=
-vent *, timer_t *)' {aka 'long int(const int,  struct sigevent *, int *)'} =
-and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_clock_nanosleep' alias b=
-etween functions of incompatible types 'long int(const clockid_t,  int,  co=
-nst struct timespec *, struct timespec *)' {aka 'long int(const int,  int, =
- const struct timespec *, struct timespec *)'} and 'long int(long int,  lon=
-g int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_clock_getres' alias betw=
-een functions of incompatible types 'long int(const clockid_t,  struct time=
-spec *)' {aka 'long int(const int,  struct timespec *)'} and 'long int(long=
- int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_clock_adjtime' alias bet=
-ween functions of incompatible types 'long int(const clockid_t,  struct tim=
-ex *)' {aka 'long int(const int,  struct timex *)'} and 'long int(long int,=
-  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_clock_gettime' alias bet=
-ween functions of incompatible types 'long int(const clockid_t,  struct tim=
-espec *)' {aka 'long int(const int,  struct timespec *)'} and 'long int(lon=
-g int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_clock_settime' alias bet=
-ween functions of incompatible types 'long int(const clockid_t,  const stru=
-ct timespec *)' {aka 'long int(const int,  const struct timespec *)'} and '=
-long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_timer_delete' alias betw=
-een functions of incompatible types 'long int(timer_t)' {aka 'long int(int)=
-'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_timer_settime' alias bet=
-ween functions of incompatible types 'long int(timer_t,  int,  const struct=
- itimerspec *, struct itimerspec *)' {aka 'long int(int,  int,  const struc=
-t itimerspec *, struct itimerspec *)'} and 'long int(long int,  long int,  =
-long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_timer_getoverrun' alias =
-between functions of incompatible types 'long int(timer_t)' {aka 'long int(=
-int)'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_timer_gettime' alias bet=
-ween functions of incompatible types 'long int(timer_t,  struct itimerspec =
-*)' {aka 'long int(int,  struct itimerspec *)'} and 'long int(long int,  lo=
-ng int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_bdflush' alias between f=
-unctions of incompatible types 'long int(int,  long int)' and 'long int(lon=
-g int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_process_vm_readv' alias =
-between functions of incompatible types 'long int(pid_t,  const struct iove=
-c *, long unsigned int,  const struct iovec *, long unsigned int,  long uns=
-igned int)' {aka 'long int(int,  const struct iovec *, long unsigned int,  =
-const struct iovec *, long unsigned int,  long unsigned int)'} and 'long in=
-t(long int,  long int,  long int,  long int,  long int,  long int)' [-Wattr=
-ibute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_process_vm_writev' a=
-lias between functions of incompatible types 'long int(compat_pid_t,  const=
- struct compat_iovec *, compat_ulong_t,  const struct compat_iovec *, compa=
-t_ulong_t,  compat_ulong_t)' {aka 'long int(int,  const struct compat_iovec=
- *, unsigned int,  const struct compat_iovec *, unsigned int,  unsigned int=
-)'} and 'long int(long int,  long int,  long int,  long int,  long int,  lo=
-ng int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_process_vm_readv' al=
-ias between functions of incompatible types 'long int(compat_pid_t,  const =
-struct compat_iovec *, compat_ulong_t,  const struct compat_iovec *, compat=
-_ulong_t,  compat_ulong_t)' {aka 'long int(int,  const struct compat_iovec =
-*, unsigned int,  const struct compat_iovec *, unsigned int,  unsigned int)=
-'} and 'long int(long int,  long int,  long int,  long int,  long int,  lon=
-g int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_process_vm_writev' alias=
- between functions of incompatible types 'long int(pid_t,  const struct iov=
-ec *, long unsigned int,  const struct iovec *, long unsigned int,  long un=
-signed int)' {aka 'long int(int,  const struct iovec *, long unsigned int, =
- const struct iovec *, long unsigned int,  long unsigned int)'} and 'long i=
-nt(long int,  long int,  long int,  long int,  long int,  long int)' [-Watt=
-ribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fadvise64_64' alias betw=
-een functions of incompatible types 'long int(int,  loff_t,  loff_t,  int)'=
- {aka 'long int(int,  long long int,  long long int,  int)'} and 'long int(=
-long int,  long long int,  long long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_fadvise64' alias between=
- functions of incompatible types 'long int(int,  loff_t,  size_t,  int)' {a=
-ka 'long int(int,  long long int,  long unsigned int,  int)'} and 'long int=
-(long int,  long long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_madvise' alias between f=
-unctions of incompatible types 'long int(long unsigned int,  size_t,  int)'=
- {aka 'long int(long unsigned int,  long unsigned int,  int)'} and 'long in=
-t(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_swapoff' alias between f=
-unctions of incompatible types 'long int(const char *)' and 'long int(long =
-int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_swapon' alias between fu=
-nctions of incompatible types 'long int(const char *, int)' and 'long int(l=
-ong int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_time' alias between func=
-tions of incompatible types 'long int(time_t *)' {aka 'long int(long int *)=
-'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_adjtimex' alias between =
-functions of incompatible types 'long int(struct timex *)' and 'long int(lo=
-ng int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_settimeofday' alias betw=
-een functions of incompatible types 'long int(struct timeval *, struct time=
-zone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_gettimeofday' alias betw=
-een functions of incompatible types 'long int(struct timeval *, struct time=
-zone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_stime' alias between fun=
-ctions of incompatible types 'long int(time_t *)' {aka 'long int(long int *=
-)'} and 'long int(long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_mbind' alias between fun=
-ctions of incompatible types 'long int(long unsigned int,  long unsigned in=
-t,  long unsigned int,  const long unsigned int *, long unsigned int,  unsi=
-gned int)' and 'long int(long int,  long int,  long int,  long int,  long i=
-nt,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_mbind' alias between=
- functions of incompatible types 'long int(compat_ulong_t,  compat_ulong_t,=
-  compat_ulong_t,  compat_ulong_t *, compat_ulong_t,  compat_ulong_t)' {aka=
- 'long int(unsigned int,  unsigned int,  unsigned int,  unsigned int *, uns=
-igned int,  unsigned int)'} and 'long int(long int,  long int,  long int,  =
-long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_set_mempolicy' alias=
- between functions of incompatible types 'long int(int,  compat_ulong_t *, =
-compat_ulong_t)' {aka 'long int(int,  unsigned int *, unsigned int)'} and '=
-long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_get_mempolicy' alias=
- between functions of incompatible types 'long int(int *, compat_ulong_t *,=
- compat_ulong_t,  compat_ulong_t,  compat_ulong_t)' {aka 'long int(int *, u=
-nsigned int *, unsigned int,  unsigned int,  unsigned int)'} and 'long int(=
-long int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_get_mempolicy' alias bet=
-ween functions of incompatible types 'long int(int *, long unsigned int *, =
-long unsigned int,  long unsigned int,  long unsigned int)' and 'long int(l=
-ong int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_migrate_pages' alias bet=
-ween functions of incompatible types 'long int(pid_t,  long unsigned int,  =
-const long unsigned int *, const long unsigned int *)' {aka 'long int(int, =
- long unsigned int,  const long unsigned int *, const long unsigned int *)'=
-} and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-al=
-ias]
-    include/linux/syscalls.h:195:18: warning: 'sys_set_mempolicy' alias bet=
-ween functions of incompatible types 'long int(int,  const long unsigned in=
-t *, long unsigned int)' and 'long int(long int,  long int,  long int)' [-W=
-attribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_set_robust_list' alias b=
 etween functions of incompatible types 'long int(struct robust_list_head *,=
  size_t)' {aka 'long int(struct robust_list_head *, long unsigned int)'} an=
@@ -9695,20 +9684,6 @@ etween functions of incompatible types 'long int(int,  struct robust_list_h=
 ead **, size_t *)' {aka 'long int(int,  struct robust_list_head **, long un=
 signed int *)'} and 'long int(long int,  long int,  long int)' [-Wattribute=
 -alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_set_robust_list' ali=
-as between functions of incompatible types 'long int(struct compat_robust_l=
-ist_head *, compat_size_t)' {aka 'long int(struct compat_robust_list_head *=
-, unsigned int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_futex' alias between=
- functions of incompatible types 'long int(u32 *, int,  u32,  struct compat=
-_timespec *, u32 *, u32)' {aka 'long int(unsigned int *, int,  unsigned int=
-,  struct compat_timespec *, unsigned int *, unsigned int)'} and 'long int(=
-long int,  long int,  long int,  long int,  long int,  long int)' [-Wattrib=
-ute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_get_robust_list' ali=
-as between functions of incompatible types 'long int(int,  compat_uptr_t *,=
- compat_size_t *)' {aka 'long int(int,  unsigned int *, unsigned int *)'} a=
-nd 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_chown16' alias between f=
 unctions of incompatible types 'long int(const char *, old_uid_t,  old_gid_=
 t)' {aka 'long int(const char *, short unsigned int,  short unsigned int)'}=
@@ -9767,11 +9742,12 @@ d_t)' {aka 'long int(unsigned int,  short unsigned int,  short unsigned int=
 functions of incompatible types 'long int(const char *, old_uid_t,  old_gid=
 _t)' {aka 'long int(const char *, short unsigned int,  short unsigned int)'=
 } and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_move_pages' alias betwee=
-n functions of incompatible types 'long int(pid_t,  long unsigned int,  con=
-st void **, const int *, int *, int)' {aka 'long int(int,  long unsigned in=
-t,  const void **, const int *, int *, int)'} and 'long int(long int,  long=
- int,  long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_bdflush' alias between f=
+unctions of incompatible types 'long int(int,  long int)' and 'long int(lon=
+g int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_acct' alias between func=
+tions of incompatible types 'long int(const char *)' and 'long int(long int=
+)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_delete_module' alias bet=
 ween functions of incompatible types 'long int(const char *, unsigned int)'=
  and 'long int(long int,  long int)' [-Wattribute-alias]
@@ -9782,55 +9758,6 @@ een functions of incompatible types 'long int(int,  const char *, int)' and=
 en functions of incompatible types 'long int(void *, long unsigned int,  co=
 nst char *)' and 'long int(long int,  long int,  long int)' [-Wattribute-al=
 ias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_ipc' alias between f=
-unctions of incompatible types 'long int(u32,  int,  int,  u32,  compat_upt=
-r_t,  u32)' {aka 'long int(unsigned int,  int,  int,  unsigned int,  unsign=
-ed int,  unsigned int)'} and 'long int(long int,  long int,  long int,  lon=
-g int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_semtimedop' alias be=
-tween functions of incompatible types 'long int(int,  struct sembuf *, unsi=
-gned int,  const struct compat_timespec *)' and 'long int(long int,  long i=
-nt,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_shmctl' alias betwee=
-n functions of incompatible types 'long int(int,  int,  void *)' and 'long =
-int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_shmat' alias between=
- functions of incompatible types 'long int(int,  compat_uptr_t,  int)' {aka=
- 'long int(int,  unsigned int,  int)'} and 'long int(long int,  long int,  =
-long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_msgctl' alias betwee=
-n functions of incompatible types 'long int(int,  int,  void *)' and 'long =
-int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_msgrcv' alias betwee=
-n functions of incompatible types 'long int(int,  compat_uptr_t,  compat_ss=
-ize_t,  compat_long_t,  int)' {aka 'long int(int,  unsigned int,  int,  int=
-,  int)'} and 'long int(long int,  long int,  long int,  long int,  long in=
-t)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_msgsnd' alias betwee=
-n functions of incompatible types 'long int(int,  compat_uptr_t,  compat_ss=
-ize_t,  int)' {aka 'long int(int,  unsigned int,  int,  int)'} and 'long in=
-t(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_semctl' alias betwee=
-n functions of incompatible types 'long int(int,  int,  int,  int)' and 'lo=
-ng int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_acct' alias between func=
-tions of incompatible types 'long int(const char *)' and 'long int(long int=
-)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_msgget' alias between fu=
-nctions of incompatible types 'long int(key_t,  int)' {aka 'long int(int,  =
-int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_msgrcv' alias between fu=
-nctions of incompatible types 'long int(int,  struct msgbuf *, size_t,  lon=
-g int,  int)' {aka 'long int(int,  struct msgbuf *, long unsigned int,  lon=
-g int,  int)'} and 'long int(long int,  long int,  long int,  long int,  lo=
-ng int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_msgsnd' alias between fu=
-nctions of incompatible types 'long int(int,  struct msgbuf *, size_t,  int=
-)' {aka 'long int(int,  struct msgbuf *, long unsigned int,  int)'} and 'lo=
-ng int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_msgctl' alias between fu=
-nctions of incompatible types 'long int(int,  int,  struct msqid_ds *)' and=
- 'long int(long int,  long int,  long int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_kexec_load' alias betwee=
 n functions of incompatible types 'long int(long unsigned int,  long unsign=
 ed int,  struct kexec_segment *, long unsigned int)' and 'long int(long int=
@@ -9840,21 +9767,6 @@ tween functions of incompatible types 'long int(compat_ulong_t,  compat_ulo=
 ng_t,  struct compat_kexec_segment *, compat_ulong_t)' {aka 'long int(unsig=
 ned int,  unsigned int,  struct compat_kexec_segment *, unsigned int)'} and=
  'long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_semget' alias between fu=
-nctions of incompatible types 'long int(key_t,  int,  int)' {aka 'long int(=
-int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattrib=
-ute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_semop' alias between fun=
-ctions of incompatible types 'long int(int,  struct sembuf *, unsigned int)=
-' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_semtimedop' alias betwee=
-n functions of incompatible types 'long int(int,  struct sembuf *, unsigned=
- int,  const struct timespec *)' and 'long int(long int,  long int,  long i=
-nt,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_semctl' alias between fu=
-nctions of incompatible types 'long int(int,  int,  int,  long unsigned int=
-)' and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-a=
-lias]
     include/linux/compat.h:48:18: warning: 'compat_sys_gettimeofday' alias =
 between functions of incompatible types 'long int(struct compat_timeval *, =
 struct timezone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
@@ -9972,6 +9884,67 @@ lias]
     include/linux/compat.h:48:18: warning: 'compat_sys_settimeofday' alias =
 between functions of incompatible types 'long int(struct compat_timeval *, =
 struct timezone *)' and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_ipc' alias between f=
+unctions of incompatible types 'long int(u32,  int,  int,  u32,  compat_upt=
+r_t,  u32)' {aka 'long int(unsigned int,  int,  int,  unsigned int,  unsign=
+ed int,  unsigned int)'} and 'long int(long int,  long int,  long int,  lon=
+g int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_semtimedop' alias be=
+tween functions of incompatible types 'long int(int,  struct sembuf *, unsi=
+gned int,  const struct compat_timespec *)' and 'long int(long int,  long i=
+nt,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_shmctl' alias betwee=
+n functions of incompatible types 'long int(int,  int,  void *)' and 'long =
+int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_shmat' alias between=
+ functions of incompatible types 'long int(int,  compat_uptr_t,  int)' {aka=
+ 'long int(int,  unsigned int,  int)'} and 'long int(long int,  long int,  =
+long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_msgctl' alias betwee=
+n functions of incompatible types 'long int(int,  int,  void *)' and 'long =
+int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_msgrcv' alias betwee=
+n functions of incompatible types 'long int(int,  compat_uptr_t,  compat_ss=
+ize_t,  compat_long_t,  int)' {aka 'long int(int,  unsigned int,  int,  int=
+,  int)'} and 'long int(long int,  long int,  long int,  long int,  long in=
+t)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_msgsnd' alias betwee=
+n functions of incompatible types 'long int(int,  compat_uptr_t,  compat_ss=
+ize_t,  int)' {aka 'long int(int,  unsigned int,  int,  int)'} and 'long in=
+t(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/compat.h:48:18: warning: 'compat_sys_semctl' alias betwee=
+n functions of incompatible types 'long int(int,  int,  int,  int)' and 'lo=
+ng int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_msgget' alias between fu=
+nctions of incompatible types 'long int(key_t,  int)' {aka 'long int(int,  =
+int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_msgrcv' alias between fu=
+nctions of incompatible types 'long int(int,  struct msgbuf *, size_t,  lon=
+g int,  int)' {aka 'long int(int,  struct msgbuf *, long unsigned int,  lon=
+g int,  int)'} and 'long int(long int,  long int,  long int,  long int,  lo=
+ng int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_msgsnd' alias between fu=
+nctions of incompatible types 'long int(int,  struct msgbuf *, size_t,  int=
+)' {aka 'long int(int,  struct msgbuf *, long unsigned int,  int)'} and 'lo=
+ng int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_msgctl' alias between fu=
+nctions of incompatible types 'long int(int,  int,  struct msqid_ds *)' and=
+ 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_semget' alias between fu=
+nctions of incompatible types 'long int(key_t,  int,  int)' {aka 'long int(=
+int,  int,  int)'} and 'long int(long int,  long int,  long int)' [-Wattrib=
+ute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_semop' alias between fun=
+ctions of incompatible types 'long int(int,  struct sembuf *, unsigned int)=
+' and 'long int(long int,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_semtimedop' alias betwee=
+n functions of incompatible types 'long int(int,  struct sembuf *, unsigned=
+ int,  const struct timespec *)' and 'long int(long int,  long int,  long i=
+nt,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_semctl' alias between fu=
+nctions of incompatible types 'long int(int,  int,  int,  long unsigned int=
+)' and 'long int(long int,  long int,  long int,  long int)' [-Wattribute-a=
+lias]
     include/linux/syscalls.h:195:18: warning: 'sys_shmget' alias between fu=
 nctions of incompatible types 'long int(key_t,  size_t,  int)' {aka 'long i=
 nt(int,  long unsigned int,  int)'} and 'long int(long int,  long int,  lon=
@@ -10053,17 +10026,20 @@ en functions of incompatible types 'long int(const char *, const char *, co=
 nst char *, key_serial_t)' {aka 'long int(const char *, const char *, const=
  char *, int)'} and 'long int(long int,  long int,  long int,  long int)' [=
 -Wattribute-alias]
-    include/linux/compat.h:48:18: warning: 'compat_sys_keyctl' alias betwee=
-n functions of incompatible types 'long int(u32,  u32,  u32,  u32,  u32)' {=
-aka 'long int(unsigned int,  unsigned int,  unsigned int,  unsigned int,  u=
-nsigned int)'} and 'long int(long int,  long int,  long int,  long int,  lo=
-ng int)' [-Wattribute-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_seccomp' alias between f=
 unctions of incompatible types 'long int(unsigned int,  unsigned int,  cons=
 t char *)' and 'long int(long int,  long int,  long int)' [-Wattribute-alia=
 s]
     kernel/relay.c:423:35: warning: 'snprintf' output may be truncated befo=
 re the last format character [-Wformat-truncation=3D]
+    include/linux/compat.h:48:18: warning: 'compat_sys_keyctl' alias betwee=
+n functions of incompatible types 'long int(u32,  u32,  u32,  u32,  u32)' {=
+aka 'long int(unsigned int,  unsigned int,  unsigned int,  unsigned int,  u=
+nsigned int)'} and 'long int(long int,  long int,  long int,  long int,  lo=
+ng int)' [-Wattribute-alias]
+    fs/nfs/client.c:1380:23: warning: '%u' directive output may be truncate=
+d writing between 1 and 7 bytes into a region of size between 3 and 6 [-Wfo=
+rmat-truncation=3D]
     block/elevator.c:841:14: warning: 'snprintf' output may be truncated be=
 fore the last format character [-Wformat-truncation=3D]
     block/partition-generic.c:41:37: warning: 'snprintf' output may be trun=
@@ -10071,9 +10047,6 @@ cated before the last format character [-Wformat-truncation=3D]
     block/partition-generic.c:39:36: warning: '%d' directive output may be =
 truncated writing between 1 and 11 bytes into a region of size between 0 an=
 d 31 [-Wformat-truncation=3D]
-    fs/nfs/client.c:1380:23: warning: '%u' directive output may be truncate=
-d writing between 1 and 7 bytes into a region of size between 3 and 6 [-Wfo=
-rmat-truncation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_ioprio_set' alias betwee=
 n functions of incompatible types 'long int(int,  int,  int)' and 'long int=
 (long int,  long int,  long int)' [-Wattribute-alias]
@@ -10083,6 +10056,21 @@ int,  long int)' [-Wattribute-alias]
     arch/x86/pci/mmconfig-shared.c:90:28: warning: '%02x' directive output =
 may be truncated writing between 2 and 8 bytes into a region of size betwee=
 n 3 and 7 [-Wformat-truncation=3D]
+    include/linux/syscalls.h:195:18: warning: 'sys_inotify_init1' alias bet=
+ween functions of incompatible types 'long int(int)' and 'long int(long int=
+)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_inotify_rm_watch' alias =
+between functions of incompatible types 'long int(int,  __s32)' {aka 'long =
+int(int,  int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_inotify_add_watch' alias=
+ between functions of incompatible types 'long int(int,  const char *, u32)=
+' {aka 'long int(int,  const char *, unsigned int)'} and 'long int(long int=
+,  long int,  long int)' [-Wattribute-alias]
+    include/linux/syscalls.h:195:18: warning: 'sys_quotactl' alias between =
+functions of incompatible types 'long int(unsigned int,  const char *, qid_=
+t,  void *)' {aka 'long int(unsigned int,  const char *, unsigned int,  voi=
+d *)'} and 'long int(long int,  long int,  long int,  long int)' [-Wattribu=
+te-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_socket' alias between fu=
 nctions of incompatible types 'long int(int,  int,  int)' and 'long int(lon=
 g int,  long int,  long int)' [-Wattribute-alias]
@@ -10159,48 +10147,6 @@ n functions of incompatible types 'long int(int,  int,  int,  int *)' and '=
 long int(long int,  long int,  long int,  long int)' [-Wattribute-alias]
     net/socket.c:490:4: warning: 'strncpy' specified bound depends on the l=
 ength of the source argument [-Wstringop-overflow=3D]
-    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
-runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
-runcation=3D]
-    include/linux/syscalls.h:195:18: warning: 'sys_inotify_init1' alias bet=
-ween functions of incompatible types 'long int(int)' and 'long int(long int=
-)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_inotify_rm_watch' alias =
-between functions of incompatible types 'long int(int,  __s32)' {aka 'long =
-int(int,  int)'} and 'long int(long int,  long int)' [-Wattribute-alias]
-    include/linux/syscalls.h:195:18: warning: 'sys_inotify_add_watch' alias=
- between functions of incompatible types 'long int(int,  const char *, u32)=
-' {aka 'long int(int,  const char *, unsigned int)'} and 'long int(long int=
-,  long int,  long int)' [-Wattribute-alias]
-    drivers/ata/libata-core.c:2962:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2963:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2964:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2965:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2966:31: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2967:32: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2968:35: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2969:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2970:30: warning: '*' in boolean context, sug=
-gest '&&' instead [-Wint-in-bool-context]
-    drivers/ata/libata-core.c:2141:42: warning: '%d' directive output may b=
-e truncated writing between 1 and 2 bytes into a region of size between 1 a=
-nd 11 [-Wformat-truncation=3D]
-    drivers/ata/libata-eh.c:2442:45: warning: '%d' directive output may be =
-truncated writing between 1 and 11 bytes into a region of size 4 [-Wformat-=
-truncation=3D]
-    include/linux/syscalls.h:195:18: warning: 'sys_quotactl' alias between =
-functions of incompatible types 'long int(unsigned int,  const char *, qid_=
-t,  void *)' {aka 'long int(unsigned int,  const char *, unsigned int,  voi=
-d *)'} and 'long int(long int,  long int,  long int,  long int)' [-Wattribu=
-te-alias]
     include/linux/syscalls.h:195:18: warning: 'sys_epoll_create1' alias bet=
 ween functions of incompatible types 'long int(int)' and 'long int(long int=
 )' [-Wattribute-alias]
@@ -10419,42 +10365,36 @@ s between functions of incompatible types 'long int(u32,  u32,  char *, com=
 pat_size_t)' {aka 'long int(unsigned int,  unsigned int,  char *, unsigned =
 int)'} and 'long int(long int,  long int,  long int,  long int)' [-Wattribu=
 te-alias]
+    drivers/ata/libata-core.c:2962:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2963:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2964:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2965:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2966:31: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2967:32: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2968:35: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2969:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2970:30: warning: '*' in boolean context, sug=
+gest '&&' instead [-Wint-in-bool-context]
+    drivers/ata/libata-core.c:2141:42: warning: '%d' directive output may b=
+e truncated writing between 1 and 2 bytes into a region of size between 1 a=
+nd 11 [-Wformat-truncation=3D]
+    drivers/ata/libata-eh.c:2442:45: warning: '%d' directive output may be =
+truncated writing between 1 and 11 bytes into a region of size 4 [-Wformat-=
+truncation=3D]
     include/linux/syscalls.h:195:18: warning: 'sys_getrandom' alias between=
  functions of incompatible types 'long int(char *, size_t,  unsigned int)' =
 {aka 'long int(char *, long unsigned int,  unsigned int)'} and 'long int(lo=
 ng int,  long int,  long int)' [-Wattribute-alias]
-    drivers/input/keyboard/atkbd.c:1069:7: warning: '/input0' directive out=
-put may be truncated writing 7 bytes into a region of size between 1 and 32=
- [-Wformat-truncation=3D]
-    drivers/input/mouse/psmouse-base.c:1466:52: warning: '/input0' directiv=
-e output may be truncated writing 7 bytes into a region of size between 1 a=
-nd 32 [-Wformat-truncation=3D]
-    drivers/input/mouse/alps.c:2418:46: warning: '/input1' directive output=
- may be truncated writing 7 bytes into a region of size between 1 and 32 [-=
-Wformat-truncation=3D]
-    drivers/input/mouse/lifebook.c:287:7: warning: '/input1' directive outp=
-ut may be truncated writing 7 bytes into a region of size between 1 and 32 =
-[-Wformat-truncation=3D]
-    drivers/net/ethernet/broadcom/tg3.c:11184:10: warning: '%d' directive o=
-utput may be truncated writing between 1 and 11 bytes into a region of size=
- between 0 and 15 [-Wformat-truncation=3D]
-    drivers/net/ethernet/broadcom/tg3.c:11181:9: warning: '-rx-' directive =
-output may be truncated writing 4 bytes into a region of size between 1 and=
- 16 [-Wformat-truncation=3D]
-    drivers/net/ethernet/broadcom/tg3.c:11178:9: warning: '-tx-' directive =
-output may be truncated writing 4 bytes into a region of size between 1 and=
- 16 [-Wformat-truncation=3D]
-    drivers/net/ethernet/broadcom/tg3.c:11175:9: warning: '-txrx-' directiv=
-e output may be truncated writing 6 bytes into a region of size between 1 a=
-nd 16 [-Wformat-truncation=3D]
     net/sunrpc/clnt.c:527:46: warning: '%s' directive output may be truncat=
 ed writing up to 107 bytes into a region of size 48 [-Wformat-truncation=3D]
-    drivers/usb/core/usb.c:471:9: warning: '%d' directive output may be tru=
-ncated writing between 1 and 11 bytes into a region of size between 0 and 1=
-5 [-Wformat-truncation=3D]
-    drivers/usb/core/hcd.c:450:34: warning: '%s' directive output may be tr=
-uncated writing up to 64 bytes into a region of size between 35 and 99 [-Wf=
-ormat-truncation=3D]
     include/linux/compat.h:48:18: warning: 'compat_sys_setsockopt' alias be=
 tween functions of incompatible types 'long int(int,  int,  int,  char *, u=
 nsigned int)' and 'long int(long int,  long int,  long int,  long int,  lon=
@@ -10493,6 +10433,39 @@ alias]
 tween functions of incompatible types 'long int(int,  int,  int,  char *, i=
 nt *)' and 'long int(long int,  long int,  long int,  long int,  long int)'=
  [-Wattribute-alias]
+    lib/string_helpers.c:64:33: warning: '%03lld' directive output may be t=
+runcated writing between 3 and 13 bytes into a region of size 7 [-Wformat-t=
+runcation=3D]
+    drivers/input/keyboard/atkbd.c:1069:7: warning: '/input0' directive out=
+put may be truncated writing 7 bytes into a region of size between 1 and 32=
+ [-Wformat-truncation=3D]
+    drivers/input/mouse/psmouse-base.c:1466:52: warning: '/input0' directiv=
+e output may be truncated writing 7 bytes into a region of size between 1 a=
+nd 32 [-Wformat-truncation=3D]
+    drivers/input/mouse/alps.c:2418:46: warning: '/input1' directive output=
+ may be truncated writing 7 bytes into a region of size between 1 and 32 [-=
+Wformat-truncation=3D]
+    drivers/input/mouse/lifebook.c:287:7: warning: '/input1' directive outp=
+ut may be truncated writing 7 bytes into a region of size between 1 and 32 =
+[-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11184:10: warning: '%d' directive o=
+utput may be truncated writing between 1 and 11 bytes into a region of size=
+ between 0 and 15 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11181:9: warning: '-rx-' directive =
+output may be truncated writing 4 bytes into a region of size between 1 and=
+ 16 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11178:9: warning: '-tx-' directive =
+output may be truncated writing 4 bytes into a region of size between 1 and=
+ 16 [-Wformat-truncation=3D]
+    drivers/net/ethernet/broadcom/tg3.c:11175:9: warning: '-txrx-' directiv=
+e output may be truncated writing 6 bytes into a region of size between 1 a=
+nd 16 [-Wformat-truncation=3D]
+    drivers/usb/core/usb.c:471:9: warning: '%d' directive output may be tru=
+ncated writing between 1 and 11 bytes into a region of size between 0 and 1=
+5 [-Wformat-truncation=3D]
+    drivers/usb/core/hcd.c:450:34: warning: '%s' directive output may be tr=
+uncated writing up to 64 bytes into a region of size between 35 and 99 [-Wf=
+ormat-truncation=3D]
     drivers/video/fbdev/core/../edid.h:74:72: warning: '*' in boolean conte=
 xt, suggest '&&' instead [-Wint-in-bool-context]
 
