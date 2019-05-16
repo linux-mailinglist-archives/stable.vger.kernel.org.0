@@ -2,111 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CE320549
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:44:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B2020680
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 14:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbfEPLmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 07:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51064 "EHLO mail.kernel.org"
+        id S1727061AbfEPL7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 07:59:48 -0400
+Received: from mail.monom.org ([188.138.9.77]:44448 "EHLO mail.monom.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbfEPLmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:42:09 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE60E2087E;
-        Thu, 16 May 2019 11:42:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006928;
-        bh=1RiErlNn61ROnzQSqJNhjijxZ5GP+7NWKAJRQ/+eMwM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6HeR2kSfHgwdIaPtObzNkiaOF4dCae68U2NM/G4NNLN0R0MSavq53ldSn2kosfDS
-         umjhO3dr7+yMUBD2SQ+3QevTWgprayeyzjQ+Tzb2J/xS0T0BPeejMAHHOVF4TGlKzt
-         AhiFSHUWw7ZI619K6unwebZf2xdGcgXaRBG/wL0g=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jiri Olsa <jolsa@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Namhyung Kim <namhyung@kernel.org>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 6/6] perf bench numa: Add define for RUSAGE_THREAD if not present
-Date:   Thu, 16 May 2019 07:41:59 -0400
-Message-Id: <20190516114159.9382-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190516114159.9382-1-sashal@kernel.org>
-References: <20190516114159.9382-1-sashal@kernel.org>
+        id S1726618AbfEPL7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:59:48 -0400
+Received: from mail.monom.org (localhost [127.0.0.1])
+        by filter.mynetwork.local (Postfix) with ESMTP id 2871C5006D0;
+        Thu, 16 May 2019 13:59:45 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.monom.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.5 required=5.0 tests=ALL_TRUSTED,BAYES_00
+        autolearn=ham autolearn_force=no version=3.4.2
+Received: from [127.0.0.1] (mail.monom.org [188.138.9.77])
+        by mail.monom.org (Postfix) with ESMTPSA id D82B250051C;
+        Thu, 16 May 2019 13:59:43 +0200 (CEST)
+Subject: Re: [PATCH 4.4 000/266] 4.4.180-stable review
+To:     Jon Hunter <jonathanh@nvidia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>,
+        Michal Hocko <mhocko@suse.com>
+References: <20190515090722.696531131@linuxfoundation.org>
+ <f32de22f-c928-2eaa-ee3f-d2b26c184dd4@nvidia.com>
+From:   Daniel Wagner <wagi@monom.org>
+Message-ID: <75c1f549-9098-933e-ab8b-4d0eeab87ddd@monom.org>
+Date:   Thu, 16 May 2019 13:59:43 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <f32de22f-c928-2eaa-ee3f-d2b26c184dd4@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Hi Jon,
 
-[ Upstream commit bf561d3c13423fc54daa19b5d49dc15fafdb7acc ]
+> Boot regression detected for Tegra ...
+> 
+> Test results for stable-v4.4:
+>     6 builds:	6 pass, 0 fail
+>     15 boots:	6 pass, 9 fail
+>     8 tests:	8 pass, 0 fail
+> 
+> Linux version:	4.4.180-rc1-gbe756da
+> Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+>                 tegra30-cardhu-a04
+> 
+> Bisect is point to the following commit ...
+> 
+> # first bad commit: [7849d64a1700ddae1963ff22a77292e9fb5c2983] mm, vmstat: make quiet_vmstat lighter
+> 
+> Reverting this on top v4.4.180-rc1 fixes the problem.  
 
-While cross building perf to the ARC architecture on a fedora 30 host,
-we were failing with:
+I guess the patch depends on another change. I'll try to figure out what
+is missing.
 
-      CC       /tmp/build/perf/bench/numa.o
-  bench/numa.c: In function ‘worker_thread’:
-  bench/numa.c:1261:12: error: ‘RUSAGE_THREAD’ undeclared (first use in this function); did you mean ‘SIGEV_THREAD’?
-    getrusage(RUSAGE_THREAD, &rusage);
-              ^~~~~~~~~~~~~
-              SIGEV_THREAD
-  bench/numa.c:1261:12: note: each undeclared identifier is reported only once for each function it appears in
+> Crash observed ...
+> 
+> [   17.155812] ------------[ cut here ]------------
+> [   17.160431] kernel BUG at /home/jonathanh/workdir/tegra/mlt-linux_stable-4.4/kernel/mm/vmstat.c:1425!
+> [   17.169632] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+> [   17.175450] Modules linked in: ttm
+> [   17.178859] CPU: 0 PID: 92 Comm: kworker/0:2 Not tainted 4.4.179-00160-g7849d64a1700 #8
+> [   17.186843] Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+> [   17.193100] Workqueue: vmstat vmstat_update
+> [   17.197279] task: ee14e700 ti: ee17a000 task.ti: ee17a000
+> [   17.202663] PC is at vmstat_update+0x9c/0xa4
+> [   17.206921] LR is at vmstat_update+0x94/0xa4
+> [   17.211179] pc : [<c00cdd80>]    lr : [<c00cdd78>]    psr: 20000113
+> [   17.211179] sp : ee17bef8  ip : 00000000  fp : eef91ac0
+> [   17.222629] r10: 00000008  r9 : 00000000  r8 : 00000000
+> [   17.227840] r7 : eef99900  r6 : eef91ac0  r5 : eef8f34c  r4 : ee13dc00
+> [   17.234350] r3 : 00000001  r2 : 0000000f  r1 : c0a885e0  r0 : 00000001
+> [   17.240861] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> [   17.247978] Control: 10c5387d  Table: ad02006a  DAC: 00000051
+> [   17.253708] Process kworker/0:2 (pid: 92, stack limit = 0xee17a210)
+> [   17.259957] Stack: (0xee17bef8 to 0xee17c000)
+> [   17.264301] bee0:                                                       ee13dc00 eef8f34c
+> [   17.272459] bf00: eef91ac0 c003b69c eef91ac0 ee17a038 c0a4ba60 eef91ac0 eef91ad4 ee17a038
+> [   17.280618] bf20: c0a4ba60 ee13dc18 ee13dc00 00000008 eef91ac0 c003b8f8 00000000 c09f6100
+> [   17.288778] bf40: c003b8b0 ee102a00 00000000 ee13dc00 c003b8b0 00000000 00000000 00000000
+> [   17.296937] bf60: 00000000 c0040ad0 00000000 00000000 00000000 ee13dc00 00000000 00000000
+> [   17.305094] bf80: ee17bf80 ee17bf80 00000000 00000000 ee17bf90 ee17bf90 ee17bfac ee102a00
+> [   17.313253] bfa0: c00409d0 00000000 00000000 c000f650 00000000 00000000 00000000 00000000
+> [   17.321412] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+> [   17.329570] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+> [   17.337733] [<c00cdd80>] (vmstat_update) from [<c003b69c>] (process_one_work+0x124/0x338)
+> [   17.345893] [<c003b69c>] (process_one_work) from [<c003b8f8>] (worker_thread+0x48/0x4c4)
+> [   17.353966] [<c003b8f8>] (worker_thread) from [<c0040ad0>] (kthread+0x100/0x118)
+> [   17.361348] [<c0040ad0>] (kthread) from [<c000f650>] (ret_from_fork+0x14/0x24)
+> [   17.368553] Code: e5930010 eb05c417 e3500000 08bd8070 (e7f001f2) 
+> [   17.374633] ---[ end trace 17cf004302766810 ]---
 
-[perfbuilder@60d5802468f6 perf]$ /arc_gnu_2019.03-rc1_prebuilt_uclibc_le_archs_linux_install/bin/arc-linux-gcc --version | head -1
-arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2019.03-rc1) 8.3.1 20190225
-[perfbuilder@60d5802468f6 perf]$
-
-Trying to reproduce a report by Vineet, I noticed that, with just
-cross-built zlib and numactl libraries, I ended up with the above
-failure.
-
-So, since RUSAGE_THREAD is available as a define, check for that and
-numactl libraries, I ended up with the above failure.
-
-So, since RUSAGE_THREAD is available as a define in the system headers,
-check if it is defined in the 'perf bench numa' sources and define it if
-not.
-
-Now it builds and I have to figure out if the problem reported by Vineet
-only takes place if we have libelf or some other library available.
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Link: https://lkml.kernel.org/n/tip-2wb4r1gir9xrevbpq7qp0amk@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/perf/bench/numa.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 90d416ba76475..c00919df69172 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -30,6 +30,10 @@
- #include <numa.h>
- #include <numaif.h>
- 
-+#ifndef RUSAGE_THREAD
-+# define RUSAGE_THREAD 1
-+#endif
-+
- /*
-  * Regular printout to the terminal, supressed if -q is specified:
-  */
--- 
-2.20.1
-
+Thanks,
+Daniel
