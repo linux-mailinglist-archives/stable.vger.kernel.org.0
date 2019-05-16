@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E2620507
+	by mail.lfdr.de (Postfix) with ESMTP id 573A020506
 	for <lists+stable@lfdr.de>; Thu, 16 May 2019 13:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbfEPLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727693AbfEPLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 May 2019 07:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48554 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726889AbfEPLkX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 07:40:23 -0400
+        id S1727680AbfEPLkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 07:40:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21F94216F4;
-        Thu, 16 May 2019 11:40:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABF6E20833;
+        Thu, 16 May 2019 11:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558006822;
-        bh=PXifvUHuuQK85JMTllo051teFNdbF1ONRuJwNs8C5bk=;
+        s=default; t=1558006824;
+        bh=xcUcbum0kznZymBbTt8oBKddPT2MqmREwPtkhstbCAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXfuqfmamnjARqxFxA6wUg5uszLFM2FYm5K/Oh2qt/w+uyKZT35TGf6aQP3sVSS3h
-         UUz9sr0H6vNEeekt4JJtyHcBYqCWiJ2EFirYG98R0HYd2zgSFocTKYx0AQUaLtIn8r
-         g5nJG61yT/s4LQ2dSFH/PGj0hfuJ0VHkIgBMT7gU=
+        b=y90vPrIPwOtGt6ZXqdrNNmci+R1U7Us0nAyHrdHm7XUG14R6NIkmsxhaWhvUnkOSi
+         rGa5pp2/44L1BgJ+xHDOjbV6uYQAtSCuDkfnrs5pJjlRy5F00ehL3xPeaOAA1MLBzA
+         WinjpvJ/WmMevt4NBwr+HAJzuDOfDHKvFin+mpBc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        skidnik <skidnik@gmail.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 31/34] i2c: designware: ratelimit 'transfer when suspended' errors
-Date:   Thu, 16 May 2019 07:39:28 -0400
-Message-Id: <20190516113932.8348-31-sashal@kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jiri Olsa <jolsa@kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Namhyung Kim <namhyung@kernel.org>,
+        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 32/34] perf bench numa: Add define for RUSAGE_THREAD if not present
+Date:   Thu, 16 May 2019 07:39:29 -0400
+Message-Id: <20190516113932.8348-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
 References: <20190516113932.8348-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,45 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 6bac9bc273cdab6157ad7a2ead09400aabfc445b ]
+[ Upstream commit bf561d3c13423fc54daa19b5d49dc15fafdb7acc ]
 
-There are two problems with dev_err() here. One: It is not ratelimited.
-Two: We don't see which driver tried to transfer something with a
-suspended adapter. Switch to dev_WARN_ONCE to fix both issues. Drawback
-is that we don't see if multiple drivers are trying to transfer while
-suspended. They need to be discovered one after the other now. This is
-better than a high CPU load because a really broken driver might try to
-resend endlessly.
+While cross building perf to the ARC architecture on a fedora 30 host,
+we were failing with:
 
-Link: https://bugs.archlinux.org/task/62391
-Fixes: 275154155538 ("i2c: designware: Do not allow i2c_dw_xfer() calls while suspended")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: skidnik <skidnik@gmail.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: skidnik <skidnik@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+      CC       /tmp/build/perf/bench/numa.o
+  bench/numa.c: In function ‘worker_thread’:
+  bench/numa.c:1261:12: error: ‘RUSAGE_THREAD’ undeclared (first use in this function); did you mean ‘SIGEV_THREAD’?
+    getrusage(RUSAGE_THREAD, &rusage);
+              ^~~~~~~~~~~~~
+              SIGEV_THREAD
+  bench/numa.c:1261:12: note: each undeclared identifier is reported only once for each function it appears in
+
+[perfbuilder@60d5802468f6 perf]$ /arc_gnu_2019.03-rc1_prebuilt_uclibc_le_archs_linux_install/bin/arc-linux-gcc --version | head -1
+arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2019.03-rc1) 8.3.1 20190225
+[perfbuilder@60d5802468f6 perf]$
+
+Trying to reproduce a report by Vineet, I noticed that, with just
+cross-built zlib and numactl libraries, I ended up with the above
+failure.
+
+So, since RUSAGE_THREAD is available as a define, check for that and
+numactl libraries, I ended up with the above failure.
+
+So, since RUSAGE_THREAD is available as a define in the system headers,
+check if it is defined in the 'perf bench numa' sources and define it if
+not.
+
+Now it builds and I have to figure out if the problem reported by Vineet
+only takes place if we have libelf or some other library available.
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+Link: https://lkml.kernel.org/n/tip-2wb4r1gir9xrevbpq7qp0amk@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-designware-master.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/perf/bench/numa.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index bb8e3f1499796..d464799e40a30 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -426,8 +426,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index 44195514b19e6..fa56fde6e8d80 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -38,6 +38,10 @@
+ #include <numa.h>
+ #include <numaif.h>
  
- 	pm_runtime_get_sync(dev->dev);
- 
--	if (dev->suspended) {
--		dev_err(dev->dev, "Error %s call while suspended\n", __func__);
-+	if (dev_WARN_ONCE(dev->dev, dev->suspended, "Transfer while suspended\n")) {
- 		ret = -ESHUTDOWN;
- 		goto done_nolock;
- 	}
++#ifndef RUSAGE_THREAD
++# define RUSAGE_THREAD 1
++#endif
++
+ /*
+  * Regular printout to the terminal, supressed if -q is specified:
+  */
 -- 
 2.20.1
 
