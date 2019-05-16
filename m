@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C76120C46
-	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6816520C37
+	for <lists+stable@lfdr.de>; Thu, 16 May 2019 18:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727330AbfEPQDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 12:03:31 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42578 "EHLO
+        id S1727299AbfEPQC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 12:02:59 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:42638 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726775AbfEPP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:43 -0400
+        by vger.kernel.org with ESMTP id S1726853AbfEPP6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 11:58:44 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImH-0006zc-3h; Thu, 16 May 2019 16:58:41 +0100
+        id 1hRImH-0006zl-EE; Thu, 16 May 2019 16:58:41 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hRImE-0001RI-EW; Thu, 16 May 2019 16:58:38 +0100
+        id 1hRImE-0001R4-Bb; Thu, 16 May 2019 16:58:38 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,33 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Borislav Petkov" <bp@suse.de>,
+        "Ingo Molnar" <mingo@kernel.org>,
+        "Andi Kleen" <ak@linux.intel.com>,
+        "Dave Hansen" <dave.hansen@intel.com>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Jiri Kosina" <jkosina@suse.cz>,
+        "Asit Mallick" <asit.k.mallick@intel.com>,
+        "David Woodhouse" <dwmw@amazon.co.uk>,
+        "Kees Cook" <keescook@chromium.org>,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Jon Masters" <jcm@redhat.com>,
+        "Tim Chen" <tim.c.chen@linux.intel.com>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Casey Schaufler" <casey.schaufler@intel.com>,
+        "Waiman Long" <longman9394@gmail.com>,
+        "Dave Stewart" <david.c.stewart@intel.com>,
         "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Frederic Weisbecker" <frederic@kernel.org>
+        "Jon Masters" <jcm@redhat.com>,
+        "Josh Poimboeuf" <jpoimboe@redhat.com>,
+        "Greg KH" <gregkh@linuxfoundation.org>,
+        "Tom Lendacky" <thomas.lendacky@amd.com>,
+        "Arjan van de Ven" <arjan@linux.intel.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>
 Date:   Thu, 16 May 2019 16:55:33 +0100
-Message-ID: <lsq.1558022133.767838303@decadent.org.uk>
+Message-ID: <lsq.1558022133.915450840@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 62/86] x86/speculation: Consolidate CPU whitelists
+Subject: [PATCH 3.16 59/86] x86/speculation: Provide IBPB always command
+ line options
 In-Reply-To: <lsq.1558022132.52852998@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -52,166 +68,158 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 36ad35131adacc29b328b9c8b6277a8bf0d6fd5d upstream.
+commit 55a974021ec952ee460dc31ca08722158639de72 upstream.
 
-The CPU vulnerability whitelists have some overlap and there are more
-whitelists coming along.
+Provide the possibility to enable IBPB always in combination with 'prctl'
+and 'seccomp'.
 
-Use the driver_data field in the x86_cpu_id struct to denote the
-whitelisted vulnerabilities and combine all whitelists into one.
+Add the extra command line options and rework the IBPB selection to
+evaluate the command instead of the mode selected by the STIPB switch case.
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jon Masters <jcm@redhat.com>
-Tested-by: Jon Masters <jcm@redhat.com>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Asit Mallick <asit.k.mallick@intel.com>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Waiman Long <longman9394@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Dave Stewart <david.c.stewart@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20181125185006.144047038@linutronix.de
+[bwh: Backported to 3.16: adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/cpu/common.c | 105 +++++++++++++++++++----------------
- 1 file changed, 56 insertions(+), 49 deletions(-)
+ Documentation/kernel-parameters.txt | 12 +++++++
+ arch/x86/kernel/cpu/bugs.c          | 34 +++++++++++++------
+ 2 files changed, 35 insertions(+), 11 deletions(-)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -807,60 +807,68 @@ static void identify_cpu_without_cpuid(s
- #endif
- }
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -3223,11 +3223,23 @@ bytes respectively. Such letter suffixes
+ 				  per thread.  The mitigation control state
+ 				  is inherited on fork.
  
--static const __initconst struct x86_cpu_id cpu_no_speculation[] = {
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_TABLET,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL_MID,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_SALTWELL_MID,	X86_FEATURE_ANY },
--	{ X86_VENDOR_INTEL,	6, INTEL_FAM6_ATOM_BONNELL,	X86_FEATURE_ANY },
--	{ X86_VENDOR_CENTAUR,	5 },
--	{ X86_VENDOR_INTEL,	5 },
--	{ X86_VENDOR_NSC,	5 },
--	{ X86_VENDOR_ANY,	4 },
--	{}
--};
-+#define NO_SPECULATION	BIT(0)
-+#define NO_MELTDOWN	BIT(1)
-+#define NO_SSB		BIT(2)
-+#define NO_L1TF		BIT(3)
++			prctl,ibpb
++				- Like "prctl" above, but only STIBP is
++				  controlled per thread. IBPB is issued
++				  always when switching between different user
++				  space processes.
 +
-+#define VULNWL(_vendor, _family, _model, _whitelist)	\
-+	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-+
-+#define VULNWL_INTEL(model, whitelist)		\
-+	VULNWL(INTEL, 6, INTEL_FAM6_##model, whitelist)
-+
-+#define VULNWL_AMD(family, whitelist)		\
-+	VULNWL(AMD, family, X86_MODEL_ANY, whitelist)
-+
-+static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
-+	VULNWL(ANY,	4, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(CENTAUR,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(INTEL,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
-+
-+	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_BONNELL,		NO_SPECULATION),
-+	VULNWL_INTEL(ATOM_BONNELL_MID,		NO_SPECULATION),
-+
-+	VULNWL_INTEL(ATOM_SILVERMONT,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_SILVERMONT_X,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_SILVERMONT_MID,	NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(ATOM_AIRMONT,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(XEON_PHI_KNL,		NO_SSB | NO_L1TF),
-+	VULNWL_INTEL(XEON_PHI_KNM,		NO_SSB | NO_L1TF),
-+
-+	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
-+
-+	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_L1TF),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_L1TF),
-+
-+	VULNWL_AMD(0x0f,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x10,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x11,		NO_MELTDOWN | NO_SSB | NO_L1TF),
-+	VULNWL_AMD(0x12,		NO_MELTDOWN | NO_SSB | NO_L1TF),
+ 			seccomp
+ 				- Same as "prctl" above, but all seccomp
+ 				  threads will enable the mitigation unless
+ 				  they explicitly opt out.
  
--static const __initconst struct x86_cpu_id cpu_no_meltdown[] = {
--	{ X86_VENDOR_AMD },
-+	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF),
- 	{}
++			seccomp,ibpb
++				- Like "seccomp" above, but only STIBP is
++				  controlled per thread. IBPB is issued
++				  always when switching between different
++				  user space processes.
++
+ 			auto    - Kernel selects the mitigation depending on
+ 				  the available CPU features and vulnerability.
+ 
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -308,7 +308,9 @@ enum spectre_v2_user_cmd {
+ 	SPECTRE_V2_USER_CMD_AUTO,
+ 	SPECTRE_V2_USER_CMD_FORCE,
+ 	SPECTRE_V2_USER_CMD_PRCTL,
++	SPECTRE_V2_USER_CMD_PRCTL_IBPB,
+ 	SPECTRE_V2_USER_CMD_SECCOMP,
++	SPECTRE_V2_USER_CMD_SECCOMP_IBPB,
  };
  
--/* Only list CPUs which speculate but are non susceptible to SSB */
--static const __initconst struct x86_cpu_id cpu_no_spec_store_bypass[] = {
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_CORE_YONAH		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
--	{ X86_VENDOR_AMD,	0x12,					},
--	{ X86_VENDOR_AMD,	0x11,					},
--	{ X86_VENDOR_AMD,	0x10,					},
--	{ X86_VENDOR_AMD,	0xf,					},
--	{}
--};
-+static bool __init cpu_matches(unsigned long which)
-+{
-+	const struct x86_cpu_id *m = x86_match_cpu(cpu_vuln_whitelist);
+ static const char * const spectre_v2_user_strings[] = {
+@@ -323,11 +325,13 @@ static const struct {
+ 	enum spectre_v2_user_cmd	cmd;
+ 	bool				secure;
+ } v2_user_options[] __initdata = {
+-	{ "auto",	SPECTRE_V2_USER_CMD_AUTO,	false },
+-	{ "off",	SPECTRE_V2_USER_CMD_NONE,	false },
+-	{ "on",		SPECTRE_V2_USER_CMD_FORCE,	true  },
+-	{ "prctl",	SPECTRE_V2_USER_CMD_PRCTL,	false },
+-	{ "seccomp",	SPECTRE_V2_USER_CMD_SECCOMP,	false },
++	{ "auto",		SPECTRE_V2_USER_CMD_AUTO,		false },
++	{ "off",		SPECTRE_V2_USER_CMD_NONE,		false },
++	{ "on",			SPECTRE_V2_USER_CMD_FORCE,		true  },
++	{ "prctl",		SPECTRE_V2_USER_CMD_PRCTL,		false },
++	{ "prctl,ibpb",		SPECTRE_V2_USER_CMD_PRCTL_IBPB,		false },
++	{ "seccomp",		SPECTRE_V2_USER_CMD_SECCOMP,		false },
++	{ "seccomp,ibpb",	SPECTRE_V2_USER_CMD_SECCOMP_IBPB,	false },
+ };
  
--static const __initconst struct x86_cpu_id cpu_no_l1tf[] = {
--	/* in addition to cpu_no_speculation */
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_SILVERMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_AIRMONT_MID	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_X	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_ATOM_GOLDMONT_PLUS	},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNL		},
--	{ X86_VENDOR_INTEL,	6,	INTEL_FAM6_XEON_PHI_KNM		},
--	{}
--};
-+	return m && !!(m->driver_data & which);
-+}
- 
- static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ static void __init spec_v2_user_print_cond(const char *reason, bool secure)
+@@ -373,6 +377,7 @@ spectre_v2_user_select_mitigation(enum s
  {
- 	u64 ia32_cap = 0;
+ 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
+ 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
++	enum spectre_v2_user_cmd cmd;
  
--	if (x86_match_cpu(cpu_no_speculation))
-+	if (cpu_matches(NO_SPECULATION))
+ 	if (!boot_cpu_has(X86_FEATURE_IBPB) && !boot_cpu_has(X86_FEATURE_STIBP))
  		return;
+@@ -380,17 +385,20 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (!IS_ENABLED(CONFIG_X86_HT))
+ 		smt_possible = false;
  
- 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
-@@ -869,15 +877,14 @@ static void __init cpu_set_bug_bits(stru
- 	if (cpu_has(c, X86_FEATURE_ARCH_CAPABILITIES))
- 		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
+-	switch (spectre_v2_parse_user_cmdline(v2_cmd)) {
++	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
++	switch (cmd) {
+ 	case SPECTRE_V2_USER_CMD_NONE:
+ 		goto set_mode;
+ 	case SPECTRE_V2_USER_CMD_FORCE:
+ 		mode = SPECTRE_V2_USER_STRICT;
+ 		break;
+ 	case SPECTRE_V2_USER_CMD_PRCTL:
++	case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
+ 		mode = SPECTRE_V2_USER_PRCTL;
+ 		break;
+ 	case SPECTRE_V2_USER_CMD_AUTO:
+ 	case SPECTRE_V2_USER_CMD_SECCOMP:
++	case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
+ 		if (IS_ENABLED(CONFIG_SECCOMP))
+ 			mode = SPECTRE_V2_USER_SECCOMP;
+ 		else
+@@ -402,12 +410,15 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
  
--	if (!x86_match_cpu(cpu_no_spec_store_bypass) &&
--	   !(ia32_cap & ARCH_CAP_SSB_NO) &&
-+	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
- 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
- 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
+-		switch (mode) {
+-		case SPECTRE_V2_USER_STRICT:
++		switch (cmd) {
++		case SPECTRE_V2_USER_CMD_FORCE:
++		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
++		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
+ 			static_branch_enable(&switch_mm_always_ibpb);
+ 			break;
+-		case SPECTRE_V2_USER_PRCTL:
+-		case SPECTRE_V2_USER_SECCOMP:
++		case SPECTRE_V2_USER_CMD_PRCTL:
++		case SPECTRE_V2_USER_CMD_AUTO:
++		case SPECTRE_V2_USER_CMD_SECCOMP:
+ 			static_branch_enable(&switch_mm_cond_ibpb);
+ 			break;
+ 		default:
+@@ -415,7 +426,8 @@ spectre_v2_user_select_mitigation(enum s
+ 		}
  
- 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
- 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
+ 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
+-			mode == SPECTRE_V2_USER_STRICT ? "always-on" : "conditional");
++			static_key_enabled(&switch_mm_always_ibpb) ?
++			"always-on" : "conditional");
+ 	}
  
--	if (x86_match_cpu(cpu_no_meltdown))
-+	if (cpu_matches(NO_MELTDOWN))
- 		return;
- 
- 	/* Rogue Data Cache Load? No! */
-@@ -886,7 +893,7 @@ static void __init cpu_set_bug_bits(stru
- 
- 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
- 
--	if (x86_match_cpu(cpu_no_l1tf))
-+	if (cpu_matches(NO_L1TF))
- 		return;
- 
- 	setup_force_cpu_bug(X86_BUG_L1TF);
+ 	/* If enhanced IBRS is enabled no STIPB required */
 
