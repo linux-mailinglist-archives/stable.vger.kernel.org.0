@@ -2,87 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9FE21C4F
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 19:19:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B29821C54
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 19:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726532AbfEQRTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 13:19:43 -0400
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:39176 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbfEQRTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 13:19:43 -0400
-Received: by mail-wm1-f46.google.com with SMTP id n25so7077052wmk.4
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 10:19:42 -0700 (PDT)
+        id S1725933AbfEQRUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 13:20:18 -0400
+Received: from mail-pl1-f169.google.com ([209.85.214.169]:33657 "EHLO
+        mail-pl1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725932AbfEQRUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 13:20:18 -0400
+Received: by mail-pl1-f169.google.com with SMTP id y3so3658438plp.0
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 10:20:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G3uFDQl4Q8RNv5F1w6KDAH0NmcKYtSWSTt62zs9i4Js=;
-        b=0AbAxgx9bZ0FBQ02wclxeI660+PIuq+Ckswl1Ip2WWT7/VjySTS30nl+qpK4I5W5LY
-         lMdPeuRrCMSmYvEudqOyTR7sgYpl2BfEE3MthpguRHTQApT2AucWURQ1MW3WGRbCuU7y
-         T/lOfFRRo6AOaCN4zQ9C56iORyyt2fl/d6YNz1BFAeMuBH4U+jOquES5YA0oNQK2jfC5
-         aGA8D3xADZN0NXj5jKhgZuKHtLdxS/RjBvK+nzcqnBIVDxD/bKkEaP1D5il5/1/uH5km
-         yildnnUxIztvJIpwWzlh4lBMqmc3m30LJ2rXwXJRiXMKUu1Re8A2k5GZCpLaIT6gnUsi
-         6c7Q==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Cy6EU6RevmtdEuidmGiho3CGseD99MMaVvLLi5iY4rk=;
+        b=QEvKKGxquZQCNjmEEWdt2uottYV0hhiE3JD/SlApzlnI3rYWAGIghxEBVtk4M59k5f
+         DD3u72ON8Hbuj5ahPeEaeDaRcngHK0nv4eBFewu++tNfoYWhNr5EwN7OfNP+yqrVZQxU
+         YtblTTscS0eunqLrvGz6PEEbyeqqnliyptPBLT9QPwTxpxa4hgpBQFG/b09CI+udZmkn
+         peMWeeI69XwIlcQJBxMxyH0/zFafp3fF72NwfIqpZRp8AfudKnVNXfz3bvmyc3GHWpLQ
+         kBrEb8xtxkZ4jvWOC+uNl5S4YHFBIQvFVQWRpVjIbMUqrPm+31ZiOZgcVV/Ikc+zT6os
+         ks+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G3uFDQl4Q8RNv5F1w6KDAH0NmcKYtSWSTt62zs9i4Js=;
-        b=oQfT2XQXRspHf/LGMmCLObeQtjcv2Tzkimz9IQNq2QL/guxVO1l/vi6/7G0adFUmCK
-         eGrTm8IEz5EHrEf21A//Noh1Gr/Dushmxp6SYnzms6ibVu/bpya/SW/RqlaUrVtvwO0O
-         /Yh9jkx4YXeF2Du30J/ka92aeQ8YV7N7GPviB7aylds2xb+176Aa8nf3DhYCJByBDbuh
-         gU37lf6FjB8Qzb4/MGvUbiWzqwckH09J3P0TExfLFNHo7hYgYsawm4OrpZ9woA+F0ekb
-         q58Y/CCiK3Hx3ilol9j3DQCh9PSqEswa1yi9vIvgGVVpu6TY909AbHVdqWAAEqZptIQf
-         /nWw==
-X-Gm-Message-State: APjAAAVDl63rWt+cimJPBj9OxOZsYoQ/hCfXHidaMf+j++g/IcYfqEn9
-        Mt9ROa9BQaTQ+zBh1TlqLGFpwYDEEeD1DQ==
-X-Google-Smtp-Source: APXvYqxPPcHhGcGkcEbZLVWIsKjg+bxU6Lo8ckA6PFwOHU3a9vhEMmF5byyVRjWZutRuz3HPN2OX8A==
-X-Received: by 2002:a7b:c5c7:: with SMTP id n7mr3176061wmk.9.1558113581651;
-        Fri, 17 May 2019 10:19:41 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g6sm12243129wro.29.2019.05.17.10.19.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 17 May 2019 10:19:41 -0700 (PDT)
-Message-ID: <5cdeed2d.1c69fb81.5fa5b.891f@mx.google.com>
-Date:   Fri, 17 May 2019 10:19:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Cy6EU6RevmtdEuidmGiho3CGseD99MMaVvLLi5iY4rk=;
+        b=rb0THVDMp14XTbSTIbxBhFkczvfvYb3NTPA88qhAp5vfTPEy2RKpKTaoxm8+WM/6Fz
+         fgimdK8r7YarI5a/ghcWph3RuSqPd1mtkEW3k5/jYakgTiMaMYmvGmD4Kt7F1FyjoZUH
+         /mlYwRUtJpA7TgI/9ESUm4RWcKNe1fQ0FwU8tCOshBEtmEwEJCdAjsmR/CxjoGu4NYtJ
+         iMXHxW0o+0PqIpK1k9XV4+uq2ky8l1sgW1GKRAkUiTSmRqn1vonJwIwBAK53Pufcy8Ou
+         GJsGLPgd5wCO1vBLRBgCr2q9wft4YMaF32i51c58J6J6EdPWHQBF6XfsHBKRoPIVTdOV
+         dFFw==
+X-Gm-Message-State: APjAAAULpVfxSCSKk18mdbHn1cjeyezoYoQk7J3TvAYy54xGtMk3jWXn
+        y+XZkqgz2NE/rSHVvsTnq0+xdQ==
+X-Google-Smtp-Source: APXvYqxF9pmYrB/7pMMBl2ffYzNFZzGSdCYVqGLWuylAr4xCoitUQjLMEoK9HkqvvUsNzlwzr3PzCQ==
+X-Received: by 2002:a17:902:b204:: with SMTP id t4mr6916122plr.285.1558113617396;
+        Fri, 17 May 2019 10:20:17 -0700 (PDT)
+Received: from google.com ([2620:15c:201:2:765b:31cb:30c4:166])
+        by smtp.gmail.com with ESMTPSA id f4sm10852202pfn.118.2019.05.17.10.20.16
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 17 May 2019 10:20:16 -0700 (PDT)
+Date:   Fri, 17 May 2019 10:20:12 -0700
+From:   Eric Biggers <ebiggers@google.com>
+To:     gregkh@linuxfoundation.org
+Cc:     herbert@gondor.apana.org.au, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] crypto: ccm - fix incompatibility between
+ "ccm" and" failed to apply to 4.14-stable tree
+Message-ID: <20190517172012.GA223128@google.com>
+References: <1558096328102192@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Kernel: v5.1.3
-Subject: stable/linux-5.1.y boot: 67 boots: 1 failed, 66 passed (v5.1.3)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1558096328102192@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.1.y boot: 67 boots: 1 failed, 66 passed (v5.1.3)
+On Fri, May 17, 2019 at 02:32:08PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 6a1faa4a43f5fabf9cbeaa742d916e7b5e73120f Mon Sep 17 00:00:00 2001
+> From: Eric Biggers <ebiggers@google.com>
+> Date: Thu, 18 Apr 2019 14:44:27 -0700
+> Subject: [PATCH] crypto: ccm - fix incompatibility between "ccm" and
+>  "ccm_base"
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-1.y/kernel/v5.1.3/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
-rnel/v5.1.3/
+Why did this fail to apply?  For me it cleanly cherry picks to 4.14 and later.
 
-Tree: stable
-Branch: linux-5.1.y
-Git Describe: v5.1.3
-Git Commit: 7cb9c5d341b95274b4f1fccfc5db122f945f6730
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 35 unique boards, 16 SoC families, 11 builds out of 209
-
-Boot Failure Detected:
-
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap4-panda: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+- Eric
