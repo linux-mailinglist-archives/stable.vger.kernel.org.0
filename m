@@ -2,106 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28361213CB
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 08:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454A521397
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 08:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727644AbfEQGiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 02:38:01 -0400
-Received: from [128.1.224.119] ([128.1.224.119]:55012 "EHLO deadmen.hmeau.com"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727145AbfEQGiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 02:38:01 -0400
-X-Greylist: delayed 2250 seconds by postgrey-1.27 at vger.kernel.org; Fri, 17 May 2019 02:38:00 EDT
-Received: from gondobar.mordor.me.apana.org.au ([192.168.128.4] helo=gondobar)
-        by deadmen.hmeau.com with esmtps (Exim 4.89 #2 (Debian))
-        id 1hRVuv-0007s9-76; Fri, 17 May 2019 14:00:29 +0800
-Received: from herbert by gondobar with local (Exim 4.89)
-        (envelope-from <herbert@gondor.apana.org.au>)
-        id 1hRVut-0000YN-9B; Fri, 17 May 2019 14:00:27 +0800
-Date:   Fri, 17 May 2019 14:00:27 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-crypto@vger.kernel.org,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] crypto: hash - fix incorrect HASH_MAX_DESCSIZE
-Message-ID: <20190517060027.wqowv4aazpcrr6pv@gondor.apana.org.au>
-References: <20190514231315.7729-1-ebiggers@kernel.org>
+        id S1727419AbfEQGCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 02:02:36 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:8203 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727242AbfEQGCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 02:02:36 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 5203840D642EC3827BCA;
+        Fri, 17 May 2019 14:02:31 +0800 (CST)
+Received: from use12-sp2.huawei.com (10.67.188.162) by
+ DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
+ 14.3.439.0; Fri, 17 May 2019 14:02:21 +0800
+From:   jianhong chen <chenjianhong2@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <akpm@linux-foundation.org>,
+        <mhocko@suse.com>, <vbabka@suse.cz>,
+        <kirill.shutemov@linux.intel.com>, <yang.shi@linux.alibaba.com>,
+        <jannh@google.com>, <steve.capper@arm.com>,
+        <tiny.windzz@gmail.com>, <walken@google.com>
+CC:     <chenjianhong2@huawei.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <stable@vger.kernel.org>
+Subject: [PATCH] mm/mmap: fix the adjusted length error
+Date:   Fri, 17 May 2019 14:06:49 +0800
+Message-ID: <1558073209-79549-1-git-send-email-chenjianhong2@huawei.com>
+X-Mailer: git-send-email 1.8.5.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190514231315.7729-1-ebiggers@kernel.org>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.188.162]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 14, 2019 at 04:13:15PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> The "hmac(sha3-224-generic)" algorithm has a descsize of 368 bytes,
-> which is greater than HASH_MAX_DESCSIZE (360) which is only enough for
-> sha3-224-generic.  The check in shash_prepare_alg() doesn't catch this
-> because the HMAC template doesn't set descsize on the algorithms, but
-> rather sets it on each individual HMAC transform.
-> 
-> This causes a stack buffer overflow when SHASH_DESC_ON_STACK() is used
-> with hmac(sha3-224-generic).
-> 
-> Fix it by increasing HASH_MAX_DESCSIZE to the real maximum.  Also add a
-> sanity check to hmac_init().
-> 
-> This was detected by the improved crypto self-tests in v5.2, by loading
-> the tcrypt module with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y enabled.  I
-> didn't notice this bug when I ran the self-tests by requesting the
-> algorithms via AF_ALG (i.e., not using tcrypt), probably because the
-> stack layout differs in the two cases and that made a difference here.
-> 
-> KASAN report:
-> 
->     BUG: KASAN: stack-out-of-bounds in memcpy include/linux/string.h:359 [inline]
->     BUG: KASAN: stack-out-of-bounds in shash_default_import+0x52/0x80 crypto/shash.c:223
->     Write of size 360 at addr ffff8880651defc8 by task insmod/3689
-> 
->     CPU: 2 PID: 3689 Comm: insmod Tainted: G            E     5.1.0-10741-g35c99ffa20edd #11
->     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
->     Call Trace:
->      __dump_stack lib/dump_stack.c:77 [inline]
->      dump_stack+0x86/0xc5 lib/dump_stack.c:113
->      print_address_description+0x7f/0x260 mm/kasan/report.c:188
->      __kasan_report+0x144/0x187 mm/kasan/report.c:317
->      kasan_report+0x12/0x20 mm/kasan/common.c:614
->      check_memory_region_inline mm/kasan/generic.c:185 [inline]
->      check_memory_region+0x137/0x190 mm/kasan/generic.c:191
->      memcpy+0x37/0x50 mm/kasan/common.c:125
->      memcpy include/linux/string.h:359 [inline]
->      shash_default_import+0x52/0x80 crypto/shash.c:223
->      crypto_shash_import include/crypto/hash.h:880 [inline]
->      hmac_import+0x184/0x240 crypto/hmac.c:102
->      hmac_init+0x96/0xc0 crypto/hmac.c:107
->      crypto_shash_init include/crypto/hash.h:902 [inline]
->      shash_digest_unaligned+0x9f/0xf0 crypto/shash.c:194
->      crypto_shash_digest+0xe9/0x1b0 crypto/shash.c:211
->      generate_random_hash_testvec.constprop.11+0x1ec/0x5b0 crypto/testmgr.c:1331
->      test_hash_vs_generic_impl+0x3f7/0x5c0 crypto/testmgr.c:1420
->      __alg_test_hash+0x26d/0x340 crypto/testmgr.c:1502
->      alg_test_hash+0x22e/0x330 crypto/testmgr.c:1552
->      alg_test.part.7+0x132/0x610 crypto/testmgr.c:4931
->      alg_test+0x1f/0x40 crypto/testmgr.c:4952
-> 
-> Fixes: b68a7ec1e9a3 ("crypto: hash - Remove VLA usage")
-> Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Cc: Kees Cook <keescook@chromium.org>
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->  crypto/hmac.c         | 2 ++
->  include/crypto/hash.h | 8 +++++++-
->  2 files changed, 9 insertions(+), 1 deletion(-)
+In linux version 4.4, a 32-bit process may fail to allocate 64M hugepage
+memory by function shmat even though there is a 64M memory gap in
+the process.
 
-Patch applied.  Thanks.
+It is the adjusted length that causes the problem, introduced from
+commit db4fbfb9523c935 ("mm: vm_unmapped_area() lookup function").
+Accounting for the worst case alignment overhead, function unmapped_area
+and unmapped_area_topdown adjust the search length before searching
+for available vma gap. This is an estimated length, sum of the desired
+length and the longest alignment offset, which can cause misjudgement
+if the system has very few virtual memory left. For example, if the
+longest memory gap available is 64M, we can’t get it from the system
+by allocating 64M hugepage memory via shmat function. The reason is
+that it requires a longger length, the sum of the desired length(64M)
+and the longest alignment offset.
+
+To fix this error ,we can calculate the alignment offset of
+gap_start or gap_end to get a desired gap_start or gap_end value,
+before searching for the available gap. In this way, we don't
+need to adjust the search length.
+
+Problem reproduces procedure:
+1. allocate a lot of virtual memory segments via shmat and malloc
+2. release one of the biggest memory segment via shmdt
+3. attach the biggest memory segment via shmat
+
+e.g.
+process maps:
+00008000-00009000 r-xp 00000000 00:12 3385    /tmp/memory_mmap
+00011000-00012000 rw-p 00001000 00:12 3385    /tmp/memory_mmap
+27536000-f756a000 rw-p 00000000 00:00 0
+f756a000-f7691000 r-xp 00000000 01:00 560     /lib/libc-2.11.1.so
+f7691000-f7699000 ---p 00127000 01:00 560     /lib/libc-2.11.1.so
+f7699000-f769b000 r--p 00127000 01:00 560     /lib/libc-2.11.1.so
+f769b000-f769c000 rw-p 00129000 01:00 560     /lib/libc-2.11.1.so
+f769c000-f769f000 rw-p 00000000 00:00 0
+f769f000-f76c0000 r-xp 00000000 01:00 583     /lib/libgcc_s.so.1
+f76c0000-f76c7000 ---p 00021000 01:00 583     /lib/libgcc_s.so.1
+f76c7000-f76c8000 rw-p 00020000 01:00 583     /lib/libgcc_s.so.1
+f76c8000-f76e5000 r-xp 00000000 01:00 543     /lib/ld-2.11.1.so
+f76e9000-f76ea000 rw-p 00000000 00:00 0
+f76ea000-f76ec000 rw-p 00000000 00:00 0
+f76ec000-f76ed000 r--p 0001c000 01:00 543     /lib/ld-2.11.1.so
+f76ed000-f76ee000 rw-p 0001d000 01:00 543     /lib/ld-2.11.1.so
+f7800000-f7a00000 rw-s 00000000 00:0e 0       /SYSV000000ea (deleted)
+fba00000-fca00000 rw-s 00000000 00:0e 65538   /SYSV000000ec (deleted)
+fca00000-fce00000 rw-s 00000000 00:0e 98307   /SYSV000000ed (deleted)
+fce00000-fd800000 rw-s 00000000 00:0e 131076  /SYSV000000ee (deleted)
+ff913000-ff934000 rw-p 00000000 00:00 0       [stack]
+ffff0000-ffff1000 r-xp 00000000 00:00 0       [vectors]
+
+from 0xf7a00000 to fba00000, it has 64M memory gap, but we can't get
+it from kernel.
+
+Signed-off-by: jianhong chen <chenjianhong2@huawei.com>
+Cc: stable@vger.kernel.org
+---
+ mm/mmap.c | 43 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
+
+diff --git a/mm/mmap.c b/mm/mmap.c
+index bd7b9f2..c5a5782 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1865,6 +1865,22 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 	return error;
+ }
+ 
++static inline unsigned long gap_start_offset(struct vm_unmapped_area_info *info,
++					unsigned long addr)
++{
++	/* get gap_start offset to adjust gap address to the
++	 * desired alignment
++	 */
++	return (info->align_offset - addr) & info->align_mask;
++}
++
++static inline unsigned long gap_end_offset(struct vm_unmapped_area_info *info,
++					unsigned long addr)
++{
++	/* get gap_end offset to adjust gap address to the desired alignment */
++	return (addr - info->align_offset) & info->align_mask;
++}
++
+ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ {
+ 	/*
+@@ -1879,10 +1895,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 	struct vm_area_struct *vma;
+ 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
+ 
+-	/* Adjust search length to account for worst case alignment overhead */
+-	length = info->length + info->align_mask;
+-	if (length < info->length)
+-		return -ENOMEM;
++	length = info->length;
+ 
+ 	/* Adjust search limits by the desired length */
+ 	if (info->high_limit < length)
+@@ -1914,6 +1927,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 		}
+ 
+ 		gap_start = vma->vm_prev ? vm_end_gap(vma->vm_prev) : 0;
++		gap_start += gap_start_offset(info, gap_start);
+ check_current:
+ 		/* Check if current node has a suitable gap */
+ 		if (gap_start > high_limit)
+@@ -1942,6 +1956,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 				       struct vm_area_struct, vm_rb);
+ 			if (prev == vma->vm_rb.rb_left) {
+ 				gap_start = vm_end_gap(vma->vm_prev);
++				gap_start += gap_start_offset(info, gap_start);
+ 				gap_end = vm_start_gap(vma);
+ 				goto check_current;
+ 			}
+@@ -1951,17 +1966,17 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ check_highest:
+ 	/* Check highest gap, which does not precede any rbtree node */
+ 	gap_start = mm->highest_vm_end;
++	gap_start += gap_start_offset(info, gap_start);
+ 	gap_end = ULONG_MAX;  /* Only for VM_BUG_ON below */
+ 	if (gap_start > high_limit)
+ 		return -ENOMEM;
+ 
+ found:
+ 	/* We found a suitable gap. Clip it with the original low_limit. */
+-	if (gap_start < info->low_limit)
++	if (gap_start < info->low_limit) {
+ 		gap_start = info->low_limit;
+-
+-	/* Adjust gap address to the desired alignment */
+-	gap_start += (info->align_offset - gap_start) & info->align_mask;
++		gap_start += gap_start_offset(info, gap_start);
++	}
+ 
+ 	VM_BUG_ON(gap_start + info->length > info->high_limit);
+ 	VM_BUG_ON(gap_start + info->length > gap_end);
+@@ -1974,16 +1989,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ 	struct vm_area_struct *vma;
+ 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
+ 
+-	/* Adjust search length to account for worst case alignment overhead */
+-	length = info->length + info->align_mask;
+-	if (length < info->length)
+-		return -ENOMEM;
++	length = info->length;
+ 
+ 	/*
+ 	 * Adjust search limits by the desired length.
+ 	 * See implementation comment at top of unmapped_area().
+ 	 */
+ 	gap_end = info->high_limit;
++	gap_end -= gap_end_offset(info, gap_end);
+ 	if (gap_end < length)
+ 		return -ENOMEM;
+ 	high_limit = gap_end - length;
+@@ -2020,6 +2033,7 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ check_current:
+ 		/* Check if current node has a suitable gap */
+ 		gap_end = vm_start_gap(vma);
++		gap_end -= gap_end_offset(info, gap_end);
+ 		if (gap_end < low_limit)
+ 			return -ENOMEM;
+ 		if (gap_start <= high_limit &&
+@@ -2054,13 +2068,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ 
+ found:
+ 	/* We found a suitable gap. Clip it with the original high_limit. */
+-	if (gap_end > info->high_limit)
++	if (gap_end > info->high_limit) {
+ 		gap_end = info->high_limit;
++		gap_end -= gap_end_offset(info, gap_end);
++	}
+ 
+ found_highest:
+ 	/* Compute highest gap address at the desired alignment */
+ 	gap_end -= info->length;
+-	gap_end -= (gap_end - info->align_offset) & info->align_mask;
+ 
+ 	VM_BUG_ON(gap_end < info->low_limit);
+ 	VM_BUG_ON(gap_end < gap_start);
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+1.8.5.6
+
