@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B63C821518
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 10:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CDE82152B
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 10:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbfEQIJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 04:09:18 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59531 "EHLO
+        id S1728775AbfEQIQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 04:16:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59751 "EHLO
         atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727624AbfEQIJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 04:09:18 -0400
+        with ESMTP id S1727386AbfEQIQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 04:16:45 -0400
 Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id CDDC5803A1; Fri, 17 May 2019 10:09:06 +0200 (CEST)
-Date:   Fri, 17 May 2019 10:09:16 +0200
+        id 4A918803AC; Fri, 17 May 2019 10:16:33 +0200 (CEST)
+Date:   Fri, 17 May 2019 10:16:42 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 012/113] acpi/nfit: Always dump _DSM output payload
-Message-ID: <20190517080916.GB17012@amd>
+Subject: Re: [PATCH 4.19 042/113] ocelot: Dont sleep in atomic context
+ (irqs_disabled())
+Message-ID: <20190517081642.GC17012@amd>
 References: <20190515090652.640988966@linuxfoundation.org>
- <20190515090654.483522396@linuxfoundation.org>
+ <20190515090656.813206864@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
+        protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
 Content-Disposition: inline
-In-Reply-To: <20190515090654.483522396@linuxfoundation.org>
+In-Reply-To: <20190515090656.813206864@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -36,36 +37,48 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed 2019-05-15 12:55:03, Greg Kroah-Hartman wrote:
-> [ Upstream commit 351f339faa308c1c1461314a18c832239a841ca0 ]
+On Wed 2019-05-15 12:55:33, Greg Kroah-Hartman wrote:
+> [ Upstream commit a8fd48b50deaa20808bbf0f6685f6f1acba6a64c ]
 >=20
-> The dynamic-debug statements for command payload output only get emitted
-> when the command is not ND_CMD_CALL. Move the output payload dumping
-> ahead of the early return path for ND_CMD_CALL.
+> Preemption disabled at:
+>  [<ffff000008cabd54>] dev_set_rx_mode+0x1c/0x38
+>  Call trace:
+>  [<ffff00000808a5c0>] dump_backtrace+0x0/0x3d0
+>  [<ffff00000808a9a4>] show_stack+0x14/0x20
+>  [<ffff000008e6c0c0>] dump_stack+0xac/0xe4
+>  [<ffff0000080fe76c>] ___might_sleep+0x164/0x238
+>  [<ffff0000080fe890>] __might_sleep+0x50/0x88
+>  [<ffff0000082261e4>] kmem_cache_alloc+0x17c/0x1d0
+>  [<ffff000000ea0ae8>] ocelot_set_rx_mode+0x108/0x188 [mscc_ocelot_common]
+>  [<ffff000008cabcf0>] __dev_set_rx_mode+0x58/0xa0
+>  [<ffff000008cabd5c>] dev_set_rx_mode+0x24/0x38
+>=20
+> Fixes: a556c76adc05 ("net: mscc: Add initial Ocelot switch support")
 
-I don't think this fixes problem serious enough for stable.
+Is it right fix? Warning is gone, but now allocation is more likely to
+fail, causing mc_add() to fail under memory pressure.
 
-									Pavel
+								Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAlzebCwACgkQMOfwapXb+vKetACdHYU6ygVeYJDuMH+PPbGmzFX2
-pKEAniiPAPrIX1SRPXPDnXnCw8Q8i+SG
-=DqD6
+iEYEARECAAYFAlzebeoACgkQMOfwapXb+vJ/CwCfa6vQLNtyTZ0M7WK1NylWwZSv
+AwoAniRk1HNlXKY50kn9UDlJv9mqDPtX
+=KwS2
 -----END PGP SIGNATURE-----
 
---DKU6Jbt7q3WqK7+M--
+--bKyqfOwhbdpXa4YI--
