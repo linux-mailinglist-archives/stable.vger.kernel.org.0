@@ -2,125 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4193321928
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 15:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2C72180E
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:16:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728575AbfEQN1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 09:27:20 -0400
-Received: from 4.mo7.mail-out.ovh.net ([178.32.122.254]:42687 "EHLO
-        4.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728333AbfEQN1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 09:27:20 -0400
-X-Greylist: delayed 7797 seconds by postgrey-1.27 at vger.kernel.org; Fri, 17 May 2019 09:27:18 EDT
-Received: from player763.ha.ovh.net (unknown [10.109.159.248])
-        by mo7.mail-out.ovh.net (Postfix) with ESMTP id 15164119DE5
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 12:58:00 +0200 (CEST)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player763.ha.ovh.net (Postfix) with ESMTPSA id 00FA25E06E1D;
-        Fri, 17 May 2019 10:57:54 +0000 (UTC)
-Date:   Fri, 17 May 2019 12:57:54 +0200
-From:   Greg Kurz <groug@kaod.org>
+        id S1728205AbfEQMQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 08:16:22 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:57143 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728201AbfEQMQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:16:22 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id B3B7128B;
+        Fri, 17 May 2019 08:16:20 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 08:16:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=9oJNhvpJNtK/zPdFs1MGDrcFXho
+        q2Jw2CGG2XnlvZCQ=; b=d6fIzTfQuXkAbwgrvGqEXd0ggLtS7dqT1kqKXZQ5Z0l
+        dlnCQvWgvt/0S1VBHiRt9CHzPO6e3sCMIIzln5Az8my+6D0QhVsCigd51evDO54v
+        y1amzGGtxiihbbe/f/a8fcKWS3MTUnbrexuuDtUGap1EMdeViEZre3+DcI9IswDD
+        bNCD1+Lt62YIKgcQobZHfhqxhdBS/DnVhCslcjheKInbX+oX721SFpyTJ6wwqBNG
+        Qk6SA54H3nedznorhDKLyUZwncwdKcSKXx2Mx0so9ROTA6eWqP+wukDfiyGaORoS
+        4NbTFLWOLhRt/0pUlsINWM68nxYG6FCJF+/7qtTJCPQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9oJNhv
+        pJNtK/zPdFs1MGDrcFXhoq2Jw2CGG2XnlvZCQ=; b=nqkMPj6duuQ4HvE8ETRIFh
+        V+bZDUxG655XiNKYSn6m8DDJwKG+48KFLUczbDo/lthwJPQ92tMeh/RZKUx/op23
+        fgEIV/kJmW3c1WyCo28tqIERJfw0uqnNNX4Wf/jLrIbvXHaWoygKNOUoBvjfv7VJ
+        IbwlyNhgJVccRRNWRqvsHLT5KtgbeMJVgDIHQC2+z/7UGqbVaZGLhWcqU4u8mi/c
+        /Kl/sI0qxI5iai8gHXw9fyu9gPsm+kMaC8EOr4qrEl2J3GP2RXVfxKFfbNlqm8Pj
+        HUOel2v8ra0ORvm3lt6rVdFGFu3x40KTb3c7Nj2yGGaCU/UigHxWjT0Ui1Zl1H2A
+        ==
+X-ME-Sender: <xms:EqbeXNSjxd9mTaUGjjK8XzmflFrGZROGDCu2faPrQI80R1zOGXSW3w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgheduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:EqbeXFTOJ_bVBCbPXoq2o1Jmw9XbhtBWK8s3MEjMzjNd4f-vrjbTkA>
+    <xmx:EqbeXJCKszvlzxivNwEbKK2cHjSCrJTiL9p3pfYgcmpq30BI-yl8FA>
+    <xmx:EqbeXJwL9FMMMxIogtHkRXejvfYGJU4b2ERnYTkXACPCkR0l5u8jMw>
+    <xmx:FKbeXCStukeYdyvvHgm6ONOejCypfCqTLJogfkk1Tm5ecFCRh2mfzg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7843180059;
+        Fri, 17 May 2019 08:16:18 -0400 (EDT)
+Date:   Fri, 17 May 2019 14:16:16 +0200
+From:   Greg KH <greg@kroah.com>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org,
-        =?UTF-8?B?Q8OpZHJp?= =?UTF-8?B?Yw==?= Le Goater 
-        <clg@kaod.org>
-Subject: Re: [PATCH] powerpc/pseries: Fix xive=off command line
-Message-ID: <20190517125754.2f0a572e@bahia.lan>
-In-Reply-To: <20190515105443.835E72084E@mail.kernel.org>
-References: <155791470178.432724.8008395673479905061.stgit@bahia.lan>
- <20190515105443.835E72084E@mail.kernel.org>
-X-Mailer: Claws Mail 3.16.0 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [GIT PULL] locking fix
+Message-ID: <20190517121616.GA3705@kroah.com>
+References: <20190516160135.GA45760@gmail.com>
+ <CAHk-=wgtHi5mT7y=0ij-AksQQOBQJqV1apk2bRaH2tfRTxyFcg@mail.gmail.com>
+ <20190516183945.GA6659@kroah.com>
+ <CAHk-=wgNFabppzpSQQgt7ajrYqmFjtkn2D3n=RvSEDryCLO+=g@mail.gmail.com>
+ <20190516235553.GU11972@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Ovh-Tracer-Id: 10644257719299512787
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgfeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190516235553.GU11972@sasha-vm>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 May 2019 10:54:42 +0000
-Sasha Levin <sashal@kernel.org> wrote:
-
-> Hi,
+On Thu, May 16, 2019 at 07:55:53PM -0400, Sasha Levin wrote:
+> On Thu, May 16, 2019 at 11:42:58AM -0700, Linus Torvalds wrote:
+> > On Thu, May 16, 2019 at 11:39 AM Greg KH <greg@kroah.com> wrote:
+> > > 
+> > > Thanks, I'll work on that later tonight...
+> > 
+> > Note that it probably is almost entirely impossible to trigger the
+> > problem in practice, so it's not like this is a particularly important
+> > stable back-port.
+> > 
+> > I just happened to look at it and go "hmm, it's not _marked_ for stable".
 > 
+> I've addressed a missing a8654596f03 ("locking/rwsem: Enable lock event
+> counting") and queued up a backport for 5.1-4.9.
 
-Hi,
+Thanks for doing this.
 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: eac1e731b59e powerpc/xive: guest exploitation of the XIVE interrupt controller.
-> 
-> The bot has tested the following trees: v5.1.1, v5.0.15, v4.19.42, v4.14.118.
-> 
-> v5.1.1: Build OK!
-> v5.0.15: Build OK!
-> v4.19.42: Failed to apply! Possible dependencies:
->     8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
->     c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
-> 
-
-Dependencies are:
-
-3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
-e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
-11fdb309341c ("powerpc/prom_init: Remove support for OPAL v2")
-c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
-8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
-f1f208e54d08 ("powerpc/prom_init: Generate "phandle" instead of "linux, phandle"")
-cbe46bd4f510 ("powerpc: remove CONFIG_CMDLINE #ifdef mess")
-450e7dd4001f ("powerpc/prom_init: don't use string functions from lib/")
-
-The patches apply flawlessly and allow the build to succeed.
-
-> v4.14.118: Failed to apply! Possible dependencies:
->     028555a590d6 ("powerpc/xive: fix hcall H_INT_RESET to support long busy delays")
->     7a22d6321c3d ("powerpc/mm/radix: Update command line parsing for disable_radix")
->     8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
->     c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
-> 
-
-Dependencies are:
-
-7a22d6321c3d ("powerpc/mm/radix: Update command line parsing for disable_radix")
-028555a590d6 ("powerpc/xive: fix hcall H_INT_RESET to support long busy delays")
-3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
-e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
-11fdb309341c ("powerpc/prom_init: Remove support for OPAL v2")
-c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
-8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
-f1f208e54d08 ("powerpc/prom_init: Generate "phandle" instead of "linux, phandle"")
-cbe46bd4f510 ("powerpc: remove CONFIG_CMDLINE #ifdef mess")
-450e7dd4001f ("powerpc/prom_init: don't use string functions from lib/")
-
-The patches apply flawlessly and allow the build to succeed.
-
-> 
-> How should we proceed with this patch?
-> 
-
-xive=off allows the kernel to use the legacy XICS interrupt controller
-interface on POWER9, definitely not a recommended setting. A typical
-usage for this would be to workaround some issue that would only pop
-up when using XIVE. Note also that this only affects the pseries platform,
-ie. running under an hypervisor (KVM or pHyp).
-
-I cannot state right now whether it is worth the pain to cherry-pick all
-the dependencies to fix this or not in older kernels...
-
-Cheers,
-
---
-Greg
-
-> --
-> Thanks,
-> Sasha
-
+greg k-h
