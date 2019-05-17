@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9FC21A62
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1363521A66
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbfEQPPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:15:47 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:34203 "EHLO
+        id S1729247AbfEQPQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:16:58 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:42509 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729164AbfEQPPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:15:47 -0400
+        by vger.kernel.org with ESMTP id S1729164AbfEQPQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:16:58 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 4DD304B0;
-        Fri, 17 May 2019 11:15:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 11:15:46 -0400
+        by mailout.west.internal (Postfix) with ESMTP id D78F54C3;
+        Fri, 17 May 2019 11:16:56 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 11:16:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=aY+f7p
-        8l5LAf7f9OAThV4uT6ijRI559n8cUsx3tTPvI=; b=GaBr8IyY7gFd4imoVChTji
-        6g+n2eh4cljbq18v9h1R/sWV2lcgiwJrowpSKZ133hJol5GX9DR1apZrYMb8bqQr
-        Sp1LIAJwSkNzdt//ns225gPsPBmtWpmo7k74lQdoCtD7s/eACupzZ9GQZjmGE4NB
-        tVMmRheAFPt5DNsL6Y04sLEZ36OjHzf5mP8yZbaVBrLh0mK7zllhcBj1l5nm4e4a
-        +eN2LVp2DEZL/PztzYF9aK2UF8E13f4G4jH3Lhdt/4PsgouLnLxX5C6YI5+95k2C
-        cAm3TcJmTUbMIxEJIIX3nHFHpdODYyDEO0hbFzc/AimfvFFuhThzD1/dYa9xMWtw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=guhEel
+        h85yQ9OEVNH4S/1VS77i67g8Q9ibLSXc53ILU=; b=BYRImRqpVLOxrsgR+TNJkS
+        YFdedyLIM9ADiyRnBq+SBp76Q5riizAqWTUkGWtGWqNYrQINtJfX7EYMKLcJFg3H
+        VZmKG8V/mukpjQFGTshLYUlttMDtHVBGfF5uINueTM32yQxhlDNUSOgGGfPKklxT
+        9LdC11OIGZsFVPUAe9U/byD/dTc0NycTuuVGPhU2lKrUXOZsfDjrkcDxf1StpRMT
+        av7/MtNHMTi2jogBQmz4hluYCeEdRWVhRXOD/sLQePvSirtPlbaFzCg98GrO/hq/
+        nFfvrCDoBQ64jXowamN4Js4RZsyI/ndxapPj7rKiC93Rdbkj7ZlBuRYuMZQLvyiw
         ==
-X-ME-Sender: <xms:IdDeXOi6l4OgnfFlm3SLJqu6iMGZ7X6t_ftGa6s70vdzsrZDBH-YVg>
+X-ME-Sender: <xms:aNDeXPF-aXWmDEEC7qOKW4BM22VQwkKgSXrSEfeebfAJGI7eFZBZdw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:IdDeXKcWsNYHZBMH0sjbC3UHeULOaMDoWvJbjpaQ8HlgwaF27jUABQ>
-    <xmx:IdDeXEzVOKFMWkcENJUg0WSk9jjURRsQVISaXObvZ5GKkUUyHvwyKg>
-    <xmx:IdDeXEZIh5dtig4OXaWUo15XAROLOiHnDPcbq59p0NuLYvM2GVrZ6g>
-    <xmx:IdDeXHJm8ASvoTUcyueHqTvKTWBFbcDuGQ9fdh-3V3WwSej9Uya4OQ>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:aNDeXJANFzeHejobCN6DozSfCvmQHi3iHWpuHnsZ1VALvXL2U_gDpw>
+    <xmx:aNDeXBmZGouSPCsPrRsURBZqOT_-SL2wm6-9k1pPOsVjQcy6MJQpcQ>
+    <xmx:aNDeXDrBJ1XHQwwFdwGbZMRV5ts0n9nR_5ujvvQYmGbEzrM0_gfzYw>
+    <xmx:aNDeXLGR1N3lAatnJoDT26sWarknNc6-dGXBeeB7Z5xO5Bn77_ejag>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4ACDB103D1;
-        Fri, 17 May 2019 11:15:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: Honour FITRIM range constraints during free space trim" failed to apply to 4.4-stable tree
-To:     nborisov@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9DF6F80059;
+        Fri, 17 May 2019 11:16:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: do not start a transaction during fiemap" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, calestyo@scientia.net, dsterba@suse.com,
+        wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 17:15:42 +0200
-Message-ID: <15581061426575@kroah.com>
+Date:   Fri, 17 May 2019 17:16:53 +0200
+Message-ID: <155810621312649@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,87 +69,118 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c2d1b3aae33605a61cbab445d8ae1c708ccd2698 Mon Sep 17 00:00:00 2001
-From: Nikolay Borisov <nborisov@suse.com>
-Date: Mon, 25 Mar 2019 14:31:21 +0200
-Subject: [PATCH] btrfs: Honour FITRIM range constraints during free space trim
+From 03628cdbc64db6262e50d0357960a4e9562676a1 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 15 Apr 2019 14:50:51 +0100
+Subject: [PATCH] Btrfs: do not start a transaction during fiemap
 
-Up until now trimming the freespace was done irrespective of what the
-arguments of the FITRIM ioctl were. For example fstrim's -o/-l arguments
-will be entirely ignored. Fix it by correctly handling those paramter.
-This requires breaking if the found freespace extent is after the end of
-the passed range as well as completing trim after trimming
-fstrim_range::len bytes.
+During fiemap, for regular extents (non inline) we need to check if they
+are shared and if they are, set the shared bit. Checking if an extent is
+shared requires checking the delayed references of the currently running
+transaction, since some reference might have not yet hit the extent tree
+and be only in the in-memory delayed references.
 
-Fixes: 499f377f49f0 ("btrfs: iterate over unused chunk space in FITRIM")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+However we were using a transaction join for this, which creates a new
+transaction when there is no transaction currently running. That means
+that two more potential failures can happen: creating the transaction and
+committing it. Further, if no write activity is currently happening in the
+system, and fiemap calls keep being done, we end up creating and
+committing transactions that do nothing.
+
+In some extreme cases this can result in the commit of the transaction
+created by fiemap to fail with ENOSPC when updating the root item of a
+subvolume tree because a join does not reserve any space, leading to a
+trace like the following:
+
+ heisenberg kernel: ------------[ cut here ]------------
+ heisenberg kernel: BTRFS: Transaction aborted (error -28)
+ heisenberg kernel: WARNING: CPU: 0 PID: 7137 at fs/btrfs/root-tree.c:136 btrfs_update_root+0x22b/0x320 [btrfs]
+(...)
+ heisenberg kernel: CPU: 0 PID: 7137 Comm: btrfs-transacti Not tainted 4.19.0-4-amd64 #1 Debian 4.19.28-2
+ heisenberg kernel: Hardware name: FUJITSU LIFEBOOK U757/FJNB2A5, BIOS Version 1.21 03/19/2018
+ heisenberg kernel: RIP: 0010:btrfs_update_root+0x22b/0x320 [btrfs]
+(...)
+ heisenberg kernel: RSP: 0018:ffffb5448828bd40 EFLAGS: 00010286
+ heisenberg kernel: RAX: 0000000000000000 RBX: ffff8ed56bccef50 RCX: 0000000000000006
+ heisenberg kernel: RDX: 0000000000000007 RSI: 0000000000000092 RDI: ffff8ed6bda166a0
+ heisenberg kernel: RBP: 00000000ffffffe4 R08: 00000000000003df R09: 0000000000000007
+ heisenberg kernel: R10: 0000000000000000 R11: 0000000000000001 R12: ffff8ed63396a078
+ heisenberg kernel: R13: ffff8ed092d7c800 R14: ffff8ed64f5db028 R15: ffff8ed6bd03d068
+ heisenberg kernel: FS:  0000000000000000(0000) GS:ffff8ed6bda00000(0000) knlGS:0000000000000000
+ heisenberg kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ heisenberg kernel: CR2: 00007f46f75f8000 CR3: 0000000310a0a002 CR4: 00000000003606f0
+ heisenberg kernel: DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ heisenberg kernel: DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ heisenberg kernel: Call Trace:
+ heisenberg kernel:  commit_fs_roots+0x166/0x1d0 [btrfs]
+ heisenberg kernel:  ? _cond_resched+0x15/0x30
+ heisenberg kernel:  ? btrfs_run_delayed_refs+0xac/0x180 [btrfs]
+ heisenberg kernel:  btrfs_commit_transaction+0x2bd/0x870 [btrfs]
+ heisenberg kernel:  ? start_transaction+0x9d/0x3f0 [btrfs]
+ heisenberg kernel:  transaction_kthread+0x147/0x180 [btrfs]
+ heisenberg kernel:  ? btrfs_cleanup_transaction+0x530/0x530 [btrfs]
+ heisenberg kernel:  kthread+0x112/0x130
+ heisenberg kernel:  ? kthread_bind+0x30/0x30
+ heisenberg kernel:  ret_from_fork+0x35/0x40
+ heisenberg kernel: ---[ end trace 05de912e30e012d9 ]---
+
+Since fiemap (and btrfs_check_shared()) is a read-only operation, do not do
+a transaction join to avoid the overhead of creating a new transaction (if
+there is currently no running transaction) and introducing a potential
+point of failure when the new transaction gets committed, instead use a
+transaction attach to grab a handle for the currently running transaction
+if any.
+
+Reported-by: Christoph Anton Mitterer <calestyo@scientia.net>
+Link: https://lore.kernel.org/linux-btrfs/b2a668d7124f1d3e410367f587926f622b3f03a4.camel@scientia.net/
+Fixes: afce772e87c36c ("btrfs: fix check_shared for fiemap ioctl")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index aa52b0995fba..c5f9e8359c6f 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -11309,9 +11309,9 @@ int btrfs_error_unpin_extent_range(struct btrfs_fs_info *fs_info,
-  * held back allocations.
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 849b8c767efb..982152d3f920 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -1460,8 +1460,8 @@ int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
+  * callers (such as fiemap) which want to know whether the extent is
+  * shared but do not need a ref count.
+  *
+- * This attempts to allocate a transaction in order to account for
+- * delayed refs, but continues on even when the alloc fails.
++ * This attempts to attach to the running transaction in order to account for
++ * delayed refs, but continues on even when no running transaction exists.
+  *
+  * Return: 0 if extent is not shared, 1 if it is shared, < 0 on error.
   */
- static int btrfs_trim_free_extents(struct btrfs_device *device,
--				   u64 minlen, u64 *trimmed)
-+				   struct fstrim_range *range, u64 *trimmed)
- {
--	u64 start = 0, len = 0;
-+	u64 start = range->start, len = 0;
- 	int ret;
+@@ -1484,13 +1484,16 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
+ 	tmp = ulist_alloc(GFP_NOFS);
+ 	roots = ulist_alloc(GFP_NOFS);
+ 	if (!tmp || !roots) {
+-		ulist_free(tmp);
+-		ulist_free(roots);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out;
+ 	}
  
- 	*trimmed = 0;
-@@ -11354,8 +11354,8 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 		if (!trans)
- 			up_read(&fs_info->commit_root_sem);
- 
--		ret = find_free_dev_extent_start(trans, device, minlen, start,
--						 &start, &len);
-+		ret = find_free_dev_extent_start(trans, device, range->minlen,
-+						 start, &start, &len);
- 		if (trans) {
- 			up_read(&fs_info->commit_root_sem);
- 			btrfs_put_transaction(trans);
-@@ -11368,6 +11368,16 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 			break;
- 		}
- 
-+		/* If we are out of the passed range break */
-+		if (start > range->start + range->len - 1) {
-+			mutex_unlock(&fs_info->chunk_mutex);
-+			ret = 0;
-+			break;
+-	trans = btrfs_join_transaction(root);
++	trans = btrfs_attach_transaction(root);
+ 	if (IS_ERR(trans)) {
++		if (PTR_ERR(trans) != -ENOENT && PTR_ERR(trans) != -EROFS) {
++			ret = PTR_ERR(trans);
++			goto out;
 +		}
-+
-+		start = max(range->start, start);
-+		len = min(range->len, len);
-+
- 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
- 		mutex_unlock(&fs_info->chunk_mutex);
- 
-@@ -11377,6 +11387,10 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 		start += len;
- 		*trimmed += bytes;
- 
-+		/* We've trimmed enough */
-+		if (*trimmed >= range->len)
-+			break;
-+
- 		if (fatal_signal_pending(current)) {
- 			ret = -ERESTARTSYS;
- 			break;
-@@ -11460,8 +11474,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *fs_info, struct fstrim_range *range)
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
--		ret = btrfs_trim_free_extents(device, range->minlen,
--					      &group_trimmed);
-+		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
- 			dev_ret = ret;
+ 		trans = NULL;
+ 		down_read(&fs_info->commit_root_sem);
+ 	} else {
+@@ -1523,6 +1526,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
+ 	} else {
+ 		up_read(&fs_info->commit_root_sem);
+ 	}
++out:
+ 	ulist_free(tmp);
+ 	ulist_free(roots);
+ 	return ret;
 
