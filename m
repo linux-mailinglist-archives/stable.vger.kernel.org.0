@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB2221829
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 987472182A
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728409AbfEQMap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 08:30:45 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:44349 "EHLO
+        id S1728474AbfEQMar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 08:30:47 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:38433 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728365AbfEQMap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:30:45 -0400
+        by vger.kernel.org with ESMTP id S1728365AbfEQMar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:30:47 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2320B472;
-        Fri, 17 May 2019 08:30:44 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 04F07477;
+        Fri, 17 May 2019 08:30:45 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 08:30:44 -0400
+  by compute6.internal (MEProxy); Fri, 17 May 2019 08:30:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5C909F
-        Ys7W+VJqAKG1+mrOa73YaBemLtFnrKMbxgcoE=; b=Q7hWD9X4zyQaIa8ChKY/o5
-        jrPStqybRN1YwN2mF6yan/mvvftaFYe/bbrCdI9wm0z6OzLcv7bMSi4P8dAq/nCd
-        lSSNQhKUdgHl260y0fcl+cmGR2HBJvEcL74CYBOxp2GSdQP11jKOn/Avj1vdP3xz
-        dNTPXay1tJSZ8hbeWXZh4LrxqXbK6T20Vl/dEAshXkQI/cWTk4HFQJZN1QRjyAcT
-        4SRHIg70LJNmz6q+SQGUG8WpIIKKW9OPjGrw0Tik+lPTXh8Qg5rohLZUJKRN+2ZA
-        YkVwkfXFVwKNh7ra/HPSEG/nLBsdHSobOn7R0Vq4LNOIWcXQB6EWpphlNron0Shg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=72Wjvv
+        Cq0FQeOYJ8t3sJqUbKHwwrTlPiEzweXvL7AOQ=; b=pFrKtfiRYB0x750uDihaVF
+        j9EfE3A8+OqHVCkAi7uLumQD/4aRTA/QIk/eaX221/jE/D5h4BIKE0iWxIJyLJrS
+        A2N4XnwUvJWzUVWSm8vUWN2NyyDHzZz5E5HBTioUeSXQj87Vx+uJZM7pfkTjplDJ
+        i4UQ3qDoplnYDhJlm6/snx6SNTqGR6b3ko7pcLr5P2wozfylkLd8bN+eQF/iUWpN
+        6iHMoLYdqcq61w9fv9vRwyTBPcHvzw2nbUVJ5NmtqYOdbZ49jdiB70lYzNujzuMx
+        i69UHdbBzKstRhaq85hOWEUngyKV0eccFVvaj8PIXCzC+MQa5u8UccpK4imSY4/A
         ==
-X-ME-Sender: <xms:c6neXIbeVvfzZ3Rm0DActqvCA3-mDXv2Ony6iZF5Cy3Mv0aPGHAhWA>
+X-ME-Sender: <xms:daneXAz2HoxxL_KY3OzSwW9XuZlA86bVOGxxWsEMrqp-XOjHEj0OzQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:c6neXAyMMUdt-sPbnRBVoHJrsyXxC4yuomwoLfGOULSZoJwD6Y_U2g>
-    <xmx:c6neXMd5bRlkoAjp1ZHUBjKpytfvXPfYnqoA8rmiF2N-pPb648pGFw>
-    <xmx:c6neXN5l9I2FTCqpwfiFGPKJ5XcLB3Yqsg1CrXfGo4N7aJVKgzAf2A>
-    <xmx:c6neXDxAix2V8zzozu12knHBh_t4w4H_bCtMGX1hrfZrlqgamS8q_Q>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:daneXIiAclYpPTdUxqO4Yk1Y2ztHDB_sXd-FWv5baX_D4knQOXwB2w>
+    <xmx:daneXNXWRd0dfJGeP9inlx284hmxEHGEptoNHqwd-A-QXc4Jatx7pw>
+    <xmx:daneXC3gGsdaNrHYOaLScbjRIuQf7kW4t49Z65bQklcFtMbhT10wXw>
+    <xmx:daneXDVKo8dOChF3vme8w6w3OM6BLLCR1_hXHjqNTvOPyU3mAARHDw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2BBA480068;
-        Fri, 17 May 2019 08:30:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: salsa20 - don't access already-freed walk.iv" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 01E5880068;
+        Fri, 17 May 2019 08:30:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: salsa20 - don't access already-freed walk.iv" failed to apply to 4.4-stable tree
 To:     ebiggers@google.com, herbert@gondor.apana.org.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 14:30:33 +0200
-Message-ID: <1558096233227191@kroah.com>
+Date:   Fri, 17 May 2019 14:30:34 +0200
+Message-ID: <1558096234113132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
