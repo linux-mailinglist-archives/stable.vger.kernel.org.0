@@ -2,120 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C17C2127E
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 05:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E6F21284
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 05:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726903AbfEQD13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 23:27:29 -0400
-Received: from mail-wm1-f52.google.com ([209.85.128.52]:34302 "EHLO
-        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725929AbfEQD13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 23:27:29 -0400
-Received: by mail-wm1-f52.google.com with SMTP id j187so8325082wma.1
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 20:27:27 -0700 (PDT)
+        id S1727189AbfEQDd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 23:33:57 -0400
+Received: from mail-it1-f194.google.com ([209.85.166.194]:55963 "EHLO
+        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725929AbfEQDd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 23:33:57 -0400
+Received: by mail-it1-f194.google.com with SMTP id q132so9691840itc.5;
+        Thu, 16 May 2019 20:33:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JzTa8ReDtcxs4Zb5dSIjUik8M2C1zmrnU6PTKaCeeo8=;
-        b=dvHIgX8xXWAVb85XAYs5hXMDCfEaqxRB0c5GzPZKDWWYSFa4Bh8ZmCSDgH/aqT6XHz
-         7saPRSmg7Gs00sUQfmyLBXgETfClUbadM2tMbORyPgiMYf4lgVVal7mAtjgZ9FLQeUow
-         gna0clFSTmbC+d+qv2JP9EFnoj3WKA3LKALS/fVM6GZMTkzgR3P83Xwm8uQ2ltFKRVec
-         1+YzHECKfvCEBsGivAJDMIV3veP4M9J4hiQ9AKPJU8MkTLsC5oYDndpU80tOqgdqGr75
-         XNDgAgB9rE5Oql9A7RyqU2iYUfZEtRGDDEA1UKDwKzj94jeLWJEgRVmt/QZMkwBvLQOq
-         GZpA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Zlc1Z5RAkaS+PLi8IjlRp7vUkQUrPkJAKFClneQV0+4=;
+        b=RL0qFDEMyN6iaevXm0sqvWWVZ7MEgondFX77P7G9i30niJ4a6ygBthzOQVm2COtdbm
+         /lQ5bVfNdwMnO1oQHUR+msGw93+09086TMi9uvLI+WHB+njNlStrOh+N3bWjMoL/GKR+
+         z2P+JD4HUeLrSBc3J5uYKc1bRqpW2lpa3iuYv7K6FKSMinPkVUCJqoGfKS5JvNB0aLKQ
+         BoL/MlLGB9+2uC703qsVLYOgNDJMA5eopf2nTc3/ZPQlBQgA0pqsm6kejSYJ7Gast4f8
+         FXk/k+1BaiXSmLGRjKdGGPARlBUwVJcCo+I9MDyaFXIzCC7jZMWlGMmwBA/caWju5lVh
+         yRLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JzTa8ReDtcxs4Zb5dSIjUik8M2C1zmrnU6PTKaCeeo8=;
-        b=HI8Bv8Flle5xTRf9CrbewtQ8lJx/p0EqQ8Q6uTuTEORrkViOQHxCy9U450DeJHkmQh
-         lcbNrjnHtdC5kEq12rU8jkAmBoFHAy10O97a7xWCN+LKNJyYS5zPsI5ZNq4/i+1xGbAh
-         Qke66rVeLyExl5MQpBosQZjjMlHHnLOzCcFoKxjZdUBmM9rggoGlXK2sFTYuEH6sbNZz
-         8D7VVqTKYRsoDdcjs1/bHd89IyMHy9Tb0NTmlHdHVSH1Dlll4IzohSS5NafCev02WakA
-         vQTRcONFWSUZeaapZvdBekshY6bvr6gwS57WIIwbb6O4aAuezkhWC4eStet92dbnjGcy
-         QCgg==
-X-Gm-Message-State: APjAAAVkm5u7tjCrepWjlwEJjnOKNmzHSCGxikIjPNU+N3B0T4TCZ6y5
-        RovE3HSH+wH5cwDZBSuRItzPFOtemdVKbg==
-X-Google-Smtp-Source: APXvYqyaiTa1/L6ZcGeGCtt0H1PB1ykxXMJec8nUHO5RpOXwxJyLXbnse+snnUoNH6woYWB2sFSqxA==
-X-Received: by 2002:a1c:b4d4:: with SMTP id d203mr28623345wmf.34.1558063647034;
-        Thu, 16 May 2019 20:27:27 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n2sm10675362wra.89.2019.05.16.20.27.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 May 2019 20:27:25 -0700 (PDT)
-Message-ID: <5cde2a1d.1c69fb81.6d399.e310@mx.google.com>
-Date:   Thu, 16 May 2019 20:27:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Zlc1Z5RAkaS+PLi8IjlRp7vUkQUrPkJAKFClneQV0+4=;
+        b=jCaQHh7NTjNMDF7f1DVCbypY4SiSM53I6dAe/I9iHncWz2LIP+lAUkcm0v3ijkMYVL
+         7jx/aFLcmBFPzpfOuVlIGkaDyHKEvTOn/vlZnIRfiJgQ6CxL951V6hBs9Jn0/LsBxb1J
+         RR5AX1nub+wvjBJKvNc2SFKp9vNQS1Q/hq0HGDx7PRntNHtZj2VQxMUlbp8ub1ugv61T
+         3tBEvml/XQb43v58LTRuC+aseMg6+ghvmqgaGeXcz3lfaWJz78RwRCvqM6XZIMbl1CCq
+         DNlmD2ZtPIdhHtG97VPg77GUyEpm1OSJQzDS9ydULf9wcwaUvInEtZg0L6dQiI5i6XiD
+         JlFg==
+X-Gm-Message-State: APjAAAV7h/gSeDCZmdXPLuJT0KiFobalKff0QQNWiTZdCj4qqh1BYRDe
+        5drJXOw2uU2E5lcmboyDaOY1+17Ly+W0gMFdGA4=
+X-Google-Smtp-Source: APXvYqzs0Bz8wmwYtNqOt4wvUGYHLM1ecN3L9b4rqTzExniCfH4inr5Kc4YZRlmrKsHhoVkGKXa5dQ82PQcOjVYPBfw=
+X-Received: by 2002:a24:f983:: with SMTP id l125mr16700177ith.62.1558064036522;
+ Thu, 16 May 2019 20:33:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.120
-Subject: stable-rc/linux-4.14.y boot: 122 boots: 1 failed,
- 116 passed with 3 offline, 1 untried/unknown, 1 conflict (v4.14.120)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20190430223722.20845-1-gpiccoli@canonical.com>
+In-Reply-To: <20190430223722.20845-1-gpiccoli@canonical.com>
+From:   Eric Ren <renzhengeek@gmail.com>
+Date:   Fri, 17 May 2019 11:33:45 +0800
+Message-ID: <CAKM4Aez=eC96uyqJa+=Aom2M2eQnknQW_uY4v9NMVpROSiuKSg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] block: Fix a NULL pointer dereference in generic_make_request()
+To:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>
+Cc:     linux-block@vger.kernel.org, linux-raid@vger.kernel.org,
+        dm-devel@redhat.com, axboe@kernel.dk, gavin.guo@canonical.com,
+        jay.vosburgh@canonical.com, kernel@gpiccoli.net,
+        Bart Van Assche <bvanassche@acm.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 122 boots: 1 failed, 116 passed with 3 offline=
-, 1 untried/unknown, 1 conflict (v4.14.120)
+Hello,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.120/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.120/
+On Wed, 1 May 2019 at 06:38, Guilherme G. Piccoli
+<gpiccoli@canonical.com> wrote:
+>
+> Commit 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently
+> with device removal triggers a crash") introduced a NULL pointer
+> dereference in generic_make_request(). The patch sets q to NULL and
+> enter_succeeded to false; right after, there's an 'if (enter_succeeded)'
+> which is not taken, and then the 'else' will dereference q in
+> blk_queue_dying(q).
+>
+> This patch just moves the 'q = NULL' to a point in which it won't trigger
+> the oops, although the semantics of this NULLification remains untouched.
+>
+> A simple test case/reproducer is as follows:
+> a) Build kernel v5.1-rc7 with CONFIG_BLK_CGROUP=n.
+>
+> b) Create a raid0 md array with 2 NVMe devices as members, and mount it
+> with an ext4 filesystem.
+>
+> c) Run the following oneliner (supposing the raid0 is mounted in /mnt):
+> (dd of=/mnt/tmp if=/dev/zero bs=1M count=999 &); sleep 0.3;
+> echo 1 > /sys/block/nvme0n1/device/device/remove
+> (whereas nvme0n1 is the 2nd array member)
+>
+> This will trigger the following oops:
+>
+> BUG: unable to handle kernel NULL pointer dereference at 0000000000000078
+> PGD 0 P4D 0
+> Oops: 0000 [#1] SMP PTI
+> RIP: 0010:generic_make_request+0x32b/0x400
+> Call Trace:
+>  submit_bio+0x73/0x140
+>  ext4_io_submit+0x4d/0x60
+>  ext4_writepages+0x626/0xe90
+>  do_writepages+0x4b/0xe0
+> [...]
+>
+> This patch has no functional changes and preserves the md/raid0 behavior
+> when a member is removed before kernel v4.17.
+>
+> Cc: Bart Van Assche <bvanassche@acm.org>
+> Cc: stable@vger.kernel.org # v4.17
+> Fixes: 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently with device removal triggers a crash")
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.120
-Git Commit: e6fedb8802c7543852cc6b06d8c009f89b3af3d8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 61 unique boards, 22 SoC families, 14 builds out of 201
+Thanks for the bugfix. I also had a panic having very similar
+calltrace below as this one,
+when using devicemapper in container scenario and deleting many thin
+snapshots by dmsetup
+remove_all -f, meanwhile executing lvm command like vgs.
 
-Boot Regressions Detected:
+After applied this one, my testing doesn't crash kernel any more for
+one week.  Could the block
+developers please give more feedback/priority on this one?
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v4.14.119)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+My panic trace:
+```
+50515.136279] BUG: unable to handle kernel NULL pointer dereference at
+00000000000003b8
+[50515.144704] PGD 0 P4D 0
+[50515.147576] Oops: 0000 [#1] SMP PTI
+[50515.151403] CPU: 24 PID: 45287 Comm: vgs Kdump: loaded Not tainted
+4.19.24-9.x86_64#1
+[50515.169295] RIP: 0010:generic_make_request+0x24/0x350
+[50515.174684] Code: e9 e1 45 42 00 90 0f 1f 44 00 00 55 48 89 e5 41
+55 41 54 53 48 89 fb 48 83 e4 f0 48 83 ec 20 48 8b 47 08 f6 47 15 08
+8b 77 10 <4c> 8b a0 b8 03 00 00 0f 84 82 00 00 00 49 8b 84 24 50 07 00
+00 a8
+[50515.194303] RSP: 0018:ffffa90862373a10 EFLAGS: 00010246
+[50515.199869] RAX: 0000000000000000 RBX: ffff99d7338b7800 RCX: 0000000000000000
+[50515.207347] RDX: ffff99d51d89c380 RSI: 0000000000000000 RDI: ffff99d7338b7800
+[50515.214828] RBP: ffffa90862373a48 R08: 0000000000000000 R09: ffff99a840007300
+[50515.222305] R10: ffffa90862373b88 R11: 0000000000000000 R12: ffff99d833592200
+[50515.229782] R13: ffffa90862373b58 R14: 0000000000000001 R15: 0000000000000000
+[50515.237264] FS:  00007fc36b322880(0000) GS:ffff99d83f000000(0000)
+knlGS:0000000000000000
+[50515.245944] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[50515.252036] CR2: 00000000000003b8 CR3: 0000005c53ed0001 CR4: 00000000003626a0
+[50515.259519] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[50515.266996] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[50515.274473] Call Trace:
+[50515.277264]  ? bio_add_page+0x42/0x50
+[50515.281267]  submit_bio+0x6e/0x130
+[50515.285013]  new_read+0xa2/0xf0 [dm_bufio]
+[50515.289454]  dm_bm_read_lock+0x21/0x70 [dm_persistent_data]
+[50515.295369]  ro_step+0x31/0x60 [dm_persistent_data]
+[50515.300589]  dm_btree_find_key+0xb0/0x180 [dm_persistent_data]
+[50515.306765]  dm_thin_get_highest_mapped_block+0x75/0x90 [dm_thin_pool]
+[50515.313639]  thin_status+0x145/0x290 [dm_thin_pool]
+...
+```
+Regards,
+Eric
