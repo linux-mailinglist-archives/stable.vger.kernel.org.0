@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2266B2184B
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 713BC2184C
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbfEQMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 08:39:35 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60313 "EHLO
+        id S1728958AbfEQMjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 08:39:42 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:38291 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728169AbfEQMje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:39:34 -0400
+        by vger.kernel.org with ESMTP id S1728957AbfEQMjl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:39:41 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 7228D31F;
-        Fri, 17 May 2019 08:39:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 08:39:33 -0400
+        by mailout.west.internal (Postfix) with ESMTP id C3F27319;
+        Fri, 17 May 2019 08:39:40 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 08:39:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=bkgbiG
-        YpNGLbd0a0OIsZ7YLrYHD+ClO+4o0APQf1CPM=; b=ITHt78KlBV1q4Awnj6yzpI
-        qGtVZteQ3KYhLeOZpN6Gpv/9ObemlAa6Ux5JSSY27f/9XcAME7r6xzEPmydwjJHo
-        U8TwzvU4NeGmwm6QRWX3S4A5Nsyrt/3TxrBfuQ2UYYZIDYlOPpCKbquOHqOobcFh
-        qITvlkBxzS6NomK9pyYC0nm1Wm92vSYPFs3udM0ueVTvgd4A8QZ5GkJ033jJEpQ0
-        dNJjr4GXn0MLXDgg81EL+uGzaH1IQCmG/yYzHawsz/YSoL8ER2o7xf+mBkJqufXL
-        Xi0himiEMbvUV/LcMi+S+uF3gZ65IyoTBsJ+M7hHr/aY1C4WY7roOIm2U2J74KAg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=bLKhmD
+        0tegxFqbCnevJeTl8p/003o/8yrZR8Q6vR1XM=; b=YT2HxZQ8t7RLGhH60JYXeP
+        EbK/Lp7O/dAOrdownvSK4R4x2JOL8O8XxkpvYB5J0utDaVawBdHSXpMBQvTEP8Wl
+        eqJd41kgo+DEwKX7/+45JK57Di6+inhnhPK/iaklZCrwEni8uDQ0E9Zc4vXOYSky
+        yCusdqNyP8VbN81ocdZvjqQJH2LD0BKhK2GldNZXRVVLMi4Ok4kEFNw5qeE9YBTy
+        HAheaoknFkkVoYBnNnJDXEu82YT3g5bw2Umqm+k0l+AB2Injcy1I/REeUpX2HH8z
+        kr/PuPDGKquYOB85VyXhUAcwouPVmiIzHMHuh/hrz1KPwx/cdY/axzRP0hYfm5Yw
         ==
-X-ME-Sender: <xms:hKveXBOMJQuFzD-SCqhHOX7z0Yd0H4CWTqAAeS7vOc8WF9tFqyrtbQ>
+X-ME-Sender: <xms:jKveXLqY3aoxblMylo0zR25OfabPieRZ4RLYytvn26QArUz_fjckqQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:hKveXNTntwdlRo5-1jF00g3119aQ6jwcNJsFJB21q9Xc9wkATHkj8A>
-    <xmx:hKveXISW11z5dLOEm-hs64e0yZ4p2V0EozSV-QHDw0IXrhnyvWLJyQ>
-    <xmx:hKveXHYNxbZpt2poCKLx-PKBYFviIgYpqS5Gk8XelPd-_i3jHyBmUg>
-    <xmx:haveXIQBVEPRUJmmBHBMTyToOTeVT3DjCLeabWyyyEUXluPeFGbOEA>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
+X-ME-Proxy: <xmx:jKveXPoRqQQ8w3hM5fV2ZDYzxUIvkbQcqHH2EK9OCsh0lFJZ-RM-7Q>
+    <xmx:jKveXCRCbeM45K2sswu11uoZULPs85hjLI-12ubKl9RdgT9MaY7yDQ>
+    <xmx:jKveXApXY0puPcbOP4LpUOA83uzbBh8c_6ZNG-QD1KzvS941E7MeXw>
+    <xmx:jKveXMO7CmMRLjj1_Ujaog6MIAxF2-BHU--2lvA3XmV9_KhuKV5aDg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D4E8280061;
-        Fri, 17 May 2019 08:39:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: arm/aes-neonbs - don't access already-freed walk.iv" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id CAD7D10379;
+        Fri, 17 May 2019 08:39:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: arm/aes-neonbs - don't access already-freed walk.iv" failed to apply to 4.4-stable tree
 To:     ebiggers@google.com, herbert@gondor.apana.org.au,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 14:39:29 +0200
-Message-ID: <155809676936131@kroah.com>
+Date:   Fri, 17 May 2019 14:39:30 +0200
+Message-ID: <15580967703179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
