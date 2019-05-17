@@ -2,78 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D6C721C7E
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 19:30:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E1521CAA
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 19:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728351AbfEQRaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 13:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726078AbfEQRaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 13:30:04 -0400
-Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A347F216C4;
-        Fri, 17 May 2019 17:30:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558114203;
-        bh=Nt2Knl7gnzVXrvFhFCn/ByrnRw+DIxvw9ac34fmgmjk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=R6qxW9p33gQrIQ5QRSaFqxG/tvZJ1vqjdH0NjlB9Ftr7s7iz2FWZd8FvxRtSBoYz4
-         2x3OLgHiC6QhJb93mtxjeq4RvRtpeFShSJvjGfc5ljhSp9ZbVXd/S3Qpj+Clf7l2tj
-         9ZIb11x70DPwiSLjb+1dbopw96xyXcnEwUEjgkFU=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-crypto@vger.kernel.org
-Subject: [PATCH 4.14] crypto: arm64/aes-neonbs - don't access already-freed walk.iv
-Date:   Fri, 17 May 2019 10:29:51 -0700
-Message-Id: <20190517172951.58312-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
+        id S1728263AbfEQRke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 13:40:34 -0400
+Received: from mail-pf1-f179.google.com ([209.85.210.179]:41324 "EHLO
+        mail-pf1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727769AbfEQRkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 13:40:31 -0400
+Received: by mail-pf1-f179.google.com with SMTP id q17so4006010pfq.8
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 10:40:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=4kGDpYaETtMhU+KqOik42hpQYHaNeLj4GdpBSNRl9ZU=;
+        b=EKmlHuwtl/fTIYZr8QWGhaYtZgTB8XztojHfVAlXjpaIUbc6i5U5YrIC2QudpdVEWN
+         vRinwemMGxIurKwFnG5ljkLJzgqTciB3wTKPz3SPWYbqxa7OvGTcyY4m71G4tK4k6pyL
+         I8JNvmAFgUYojIXXehz9sO1Z+UUec+pJuzeHa/x5jWhKGzpLuzXJo7AOV6lOxV4iJBFm
+         Y/9V7UEtxIRiXeKnOjBo3jvnKa068afX5srMBeFBA2nxzn9/Vbur1s713PDmzEqn1eDI
+         FuhAv5tgWN3SHDFeh6S4dGpKjtET5avV2K9L6EPVvMHfUmls2kItK2pzvoYSt2BzLrAI
+         dcBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=4kGDpYaETtMhU+KqOik42hpQYHaNeLj4GdpBSNRl9ZU=;
+        b=dftBXuJBHVkc9TcvkqXUKJrl+f71JdmRRjsUpSqRYOW0c6DZF6bHONcRWUwAVsWyeO
+         G353d6Uwg5V2b6P3AJQRTkYSwy6mtIIjAz/U5uSyC650x1eknIUos8xjiOYTywwO6QiJ
+         ScIlW61nup3azJol4MxQnJCkQhMSWN0Niby/8dMk8K5QdtAdYvhgD21axvsH+Gt1HY9G
+         QX0+KJYsata80BBGZI3i1acouw528vVCqr4DLrwll7PVM4rVtNj3xK8DQXbEch4j/5+o
+         ZDcrPmNeKHLOCzHpxym6ivPQi4a47dhmlT3uKL6XOLF0dkXzHRc3HPU0M+HkqNkggJ/S
+         2iXg==
+X-Gm-Message-State: APjAAAWmUJKp1QJI7s8L1PZ+JzuX0VS0piTQpf7RgMKEXdbwAVJgMaTg
+        Eim6mZJmc94EUHi8soGSxuW6PLNtZYg=
+X-Google-Smtp-Source: APXvYqzzdtaQW+FQhhkKmJ1QuJifAGlUMhY/eiGE2NmOc+QyQBjz+O32Fgl9riwjJDfjglUVJaJRtQ==
+X-Received: by 2002:a62:128a:: with SMTP id 10mr61180831pfs.225.1558114830884;
+        Fri, 17 May 2019 10:40:30 -0700 (PDT)
+Received: from google.com ([2620:15c:201:2:765b:31cb:30c4:166])
+        by smtp.gmail.com with ESMTPSA id v64sm12002211pfv.106.2019.05.17.10.40.29
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 17 May 2019 10:40:30 -0700 (PDT)
+Date:   Fri, 17 May 2019 10:40:25 -0700
+From:   Eric Biggers <ebiggers@google.com>
+To:     gregkh@linuxfoundation.org
+Cc:     herbert@gondor.apana.org.au, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] crypto: gcm - fix incompatibility between
+ "gcm" and" failed to apply to 4.9-stable tree
+Message-ID: <20190517174025.GB223128@google.com>
+References: <15580966386436@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15580966386436@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Fri, May 17, 2019 at 02:37:18PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From f699594d436960160f6d5ba84ed4a222f20d11cd Mon Sep 17 00:00:00 2001
+> From: Eric Biggers <ebiggers@google.com>
+> Date: Thu, 18 Apr 2019 14:43:02 -0700
+> Subject: [PATCH] crypto: gcm - fix incompatibility between "gcm" and
+>  "gcm_base"
+> 
 
-commit 4a8108b70508df0b6c4ffa4a3974dab93dcbe851 upstream.
-[Please apply to 4.14-stable.]
+Can you apply the following commit first?  Then this one applies cleanly:
 
-If the user-provided IV needs to be aligned to the algorithm's
-alignmask, then skcipher_walk_virt() copies the IV into a new aligned
-buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
-if the caller unconditionally accesses walk.iv, it's a use-after-free.
+	commit 9b40f79c08e81234d759f188b233980d7e81df6c
+	Author: Wei Yongjun <weiyongjun1@huawei.com>
+	Date:   Mon Oct 17 15:10:06 2016 +0000
 
-xts-aes-neonbs doesn't set an alignmask, so currently it isn't affected
-by this despite unconditionally accessing walk.iv.  However this is more
-subtle than desired, and unconditionally accessing walk.iv has caused a
-real problem in other algorithms.  Thus, update xts-aes-neonbs to start
-checking the return value of skcipher_walk_virt().
+	    crypto: gcm - Fix error return code in crypto_gcm_create_common()
 
-Fixes: 1abee99eafab ("crypto: arm64/aes - reimplement bit-sliced ARM/NEON implementation for arm64")
-Cc: <stable@vger.kernel.org> # v4.11+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
----
- arch/arm64/crypto/aes-neonbs-glue.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/arm64/crypto/aes-neonbs-glue.c b/arch/arm64/crypto/aes-neonbs-glue.c
-index c55d68ccb89f8..52975817fdb66 100644
---- a/arch/arm64/crypto/aes-neonbs-glue.c
-+++ b/arch/arm64/crypto/aes-neonbs-glue.c
-@@ -307,6 +307,8 @@ static int __xts_crypt(struct skcipher_request *req,
- 	int err;
- 
- 	err = skcipher_walk_virt(&walk, req, true);
-+	if (err)
-+		return err;
- 
- 	kernel_neon_begin();
- 
--- 
-2.21.0.1020.gf2820cf01a-goog
-
+- Eric
