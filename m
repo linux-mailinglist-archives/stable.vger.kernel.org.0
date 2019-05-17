@@ -2,176 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9395721D1D
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 20:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510CB21D28
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 20:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728007AbfEQSIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 14:08:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60896 "EHLO mail.kernel.org"
+        id S1728088AbfEQSMD convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 14:12:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34892 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727818AbfEQSIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 14:08:24 -0400
-Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726422AbfEQSMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 14:12:03 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 141DE21734;
-        Fri, 17 May 2019 18:08:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558116503;
-        bh=5Ew+E+QsKnGbZmIQ7J2JyXTF+hrb3561edsMdbhZlGo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4zCSXPDgrzcXEopM6HNmJpMPRe26lLLbj6ZiVLRuWoMR/3atLJ1Wz1kuYf1BJXJF
-         tbvHqOjI3cMcMvnuAIu2rVotQCj0v8Tv1bLvLoZgbXHkT0D6DxIm5mxpp5E9UX1tKe
-         GG+u78vPYtCjDt/eTdlYO47rdf3zVTlmGHDEStMU=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-crypto@vger.kernel.org
-Subject: [PATCH 4.4 2/2] crypto: gcm - fix incompatibility between "gcm" and "gcm_base"
-Date:   Fri, 17 May 2019 11:06:10 -0700
-Message-Id: <20190517180610.150453-2-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
-In-Reply-To: <20190517180610.150453-1-ebiggers@kernel.org>
-References: <20190517180610.150453-1-ebiggers@kernel.org>
+        by mx1.redhat.com (Postfix) with ESMTPS id 9F0AA30ADC86
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 18:12:02 +0000 (UTC)
+Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 186CF5DD73;
+        Fri, 17 May 2019 18:12:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.958C031BDC.EJZQH9W40J@redhat.com>
+X-Gitlab-Pipeline-ID: 10320
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10320?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 17 May 2019 18:12:02 +0000 (UTC)
+Date:   Fri, 17 May 2019 14:12:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+Hello,
 
-commit f699594d436960160f6d5ba84ed4a222f20d11cd upstream.
-[Please apply to 4.4-stable.]
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-GCM instances can be created by either the "gcm" template, which only
-allows choosing the block cipher, e.g. "gcm(aes)"; or by "gcm_base",
-which allows choosing the ctr and ghash implementations, e.g.
-"gcm_base(ctr(aes-generic),ghash-generic)".
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 7cb9c5d341b9 - Linux 5.1.3
 
-However, a "gcm_base" instance prevents a "gcm" instance from being
-registered using the same implementations.  Nor will the instance be
-found by lookups of "gcm".  This can be used as a denial of service.
-Moreover, "gcm_base" instances are never tested by the crypto
-self-tests, even if there are compatible "gcm" tests.
+The results of these automated tests are provided below.
 
-The root cause of these problems is that instances of the two templates
-use different cra_names.  Therefore, fix these problems by making
-"gcm_base" instances set the same cra_name as "gcm" instances, e.g.
-"gcm(aes)" instead of "gcm_base(ctr(aes-generic),ghash-generic)".
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-This requires extracting the block cipher name from the name of the ctr
-algorithm.  It also requires starting to verify that the algorithms are
-really ctr and ghash, not something else entirely.  But it would be
-bizarre if anyone were actually using non-gcm-compatible algorithms with
-gcm_base, so this shouldn't break anyone in practice.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Fixes: d00aa19b507b ("[CRYPTO] gcm: Allow block cipher parameter")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
----
- crypto/gcm.c | 34 +++++++++++-----------------------
- 1 file changed, 11 insertions(+), 23 deletions(-)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-diff --git a/crypto/gcm.c b/crypto/gcm.c
-index f1c16589af8bb..9d3bffc0238f0 100644
---- a/crypto/gcm.c
-+++ b/crypto/gcm.c
-@@ -616,7 +616,6 @@ static void crypto_gcm_free(struct aead_instance *inst)
- 
- static int crypto_gcm_create_common(struct crypto_template *tmpl,
- 				    struct rtattr **tb,
--				    const char *full_name,
- 				    const char *ctr_name,
- 				    const char *ghash_name)
- {
-@@ -657,7 +656,8 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
- 		goto err_free_inst;
- 
- 	err = -EINVAL;
--	if (ghash->digestsize != 16)
-+	if (strcmp(ghash->base.cra_name, "ghash") != 0 ||
-+	    ghash->digestsize != 16)
- 		goto err_drop_ghash;
- 
- 	crypto_set_skcipher_spawn(&ctx->ctr, aead_crypto_instance(inst));
-@@ -669,24 +669,24 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
- 
- 	ctr = crypto_skcipher_spawn_alg(&ctx->ctr);
- 
--	/* We only support 16-byte blocks. */
-+	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
- 	err = -EINVAL;
--	if (ctr->cra_ablkcipher.ivsize != 16)
-+	if (strncmp(ctr->cra_name, "ctr(", 4) != 0 ||
-+	    ctr->cra_ablkcipher.ivsize != 16 ||
-+	    ctr->cra_blocksize != 1)
- 		goto out_put_ctr;
- 
--	/* Not a stream cipher? */
--	if (ctr->cra_blocksize != 1)
-+	err = -ENAMETOOLONG;
-+	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
-+		     "gcm(%s", ctr->cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
- 		goto out_put_ctr;
- 
--	err = -ENAMETOOLONG;
- 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
- 		     "gcm_base(%s,%s)", ctr->cra_driver_name,
- 		     ghash_alg->cra_driver_name) >=
- 	    CRYPTO_MAX_ALG_NAME)
- 		goto out_put_ctr;
- 
--	memcpy(inst->alg.base.cra_name, full_name, CRYPTO_MAX_ALG_NAME);
--
- 	inst->alg.base.cra_flags = (ghash->base.cra_flags | ctr->cra_flags) &
- 				   CRYPTO_ALG_ASYNC;
- 	inst->alg.base.cra_priority = (ghash->base.cra_priority +
-@@ -727,7 +727,6 @@ static int crypto_gcm_create(struct crypto_template *tmpl, struct rtattr **tb)
- {
- 	const char *cipher_name;
- 	char ctr_name[CRYPTO_MAX_ALG_NAME];
--	char full_name[CRYPTO_MAX_ALG_NAME];
- 
- 	cipher_name = crypto_attr_alg_name(tb[1]);
- 	if (IS_ERR(cipher_name))
-@@ -737,12 +736,7 @@ static int crypto_gcm_create(struct crypto_template *tmpl, struct rtattr **tb)
- 	    CRYPTO_MAX_ALG_NAME)
- 		return -ENAMETOOLONG;
- 
--	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm(%s)", cipher_name) >=
--	    CRYPTO_MAX_ALG_NAME)
--		return -ENAMETOOLONG;
--
--	return crypto_gcm_create_common(tmpl, tb, full_name,
--					ctr_name, "ghash");
-+	return crypto_gcm_create_common(tmpl, tb, ctr_name, "ghash");
- }
- 
- static struct crypto_template crypto_gcm_tmpl = {
-@@ -756,7 +750,6 @@ static int crypto_gcm_base_create(struct crypto_template *tmpl,
- {
- 	const char *ctr_name;
- 	const char *ghash_name;
--	char full_name[CRYPTO_MAX_ALG_NAME];
- 
- 	ctr_name = crypto_attr_alg_name(tb[1]);
- 	if (IS_ERR(ctr_name))
-@@ -766,12 +759,7 @@ static int crypto_gcm_base_create(struct crypto_template *tmpl,
- 	if (IS_ERR(ghash_name))
- 		return PTR_ERR(ghash_name);
- 
--	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm_base(%s,%s)",
--		     ctr_name, ghash_name) >= CRYPTO_MAX_ALG_NAME)
--		return -ENAMETOOLONG;
--
--	return crypto_gcm_create_common(tmpl, tb, full_name,
--					ctr_name, ghash_name);
-+	return crypto_gcm_create_common(tmpl, tb, ctr_name, ghash_name);
- }
- 
- static struct crypto_template crypto_gcm_base_tmpl = {
--- 
-2.21.0.1020.gf2820cf01a-goog
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 7cb9c5d341b9 - Linux 5.1.3
+
+We then merged the patchset with `git am`:
+
+  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
+  x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
+  x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
+  objtool-fix-function-fallthrough-detection.patch
+  arm64-dts-rockchip-fix-io-domain-voltage-setting-of-apio5-on-rockpro64.patch
+  arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
+  arm-dts-qcom-ipq4019-enlarge-pcie-bar-range.patch
+  arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
+  arm-dts-exynos-fix-audio-routing-on-odroid-xu3.patch
+  arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
+  mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
+  arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
+  power-supply-axp288_charger-fix-unchecked-return-value.patch
+  power-supply-axp288_fuel_gauge-add-acepc-t8-and-t11-mini-pcs-to-the-blacklist.patch
+  arm64-mmap-ensure-file-offset-is-treated-as-unsigned.patch
+  arm64-arch_timer-ensure-counter-register-reads-occur-with-seqlock-held.patch
+  arm64-compat-reduce-address-limit.patch
+  arm64-clear-osdlr_el1-on-cpu-boot.patch
+  arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
+  sched-x86-save-flags-on-context-switch.patch
+  x86-mce-add-an-mce-record-filtering-function.patch
+  x86-mce-amd-don-t-report-l1-btb-mca-errors-on-some-family-17h-models.patch
+  crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
+  crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
+  crypto-salsa20-don-t-access-already-freed-walk.iv.patch
+  crypto-lrw-don-t-access-already-freed-walk.iv.patch
+  crypto-chacha-generic-fix-use-as-arm64-no-neon-fallback.patch
+  crypto-chacha20poly1305-set-cra_name-correctly.patch
+  crypto-ccm-fix-incompatibility-between-ccm-and-ccm_base.patch
+  crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
+  crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
+  crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
+  crypto-crct10dif-generic-fix-use-via-crypto_shash_digest.patch
+  crypto-x86-crct10dif-pcl-fix-use-via-crypto_shash_digest.patch
+  crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
+  crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
+  crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
+  crypto-caam-qi2-fix-zero-length-buffer-dma-mapping.patch
+  crypto-caam-qi2-fix-dma-mapping-of-stack-memory.patch
+  crypto-caam-qi2-generate-hash-keys-in-place.patch
+  crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  drivers-dax-allow-to-include-dev_dax_pmem-as-builtin.patch
+  dt-bindings-mmc-add-disable-cqe-dcmd-property.patch
+  mmc-tegra-fix-ddr-signaling-for-non-ddr-modes.patch
+  mmc-core-fix-tag-set-memory-leak.patch
+  mmc-sdhci-pci-fix-byt-ocp-setting.patch
+  alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
+  alsa-usb-audio-fix-a-memory-leak-bug.patch
+  alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
+  alsa-hda-hdmi-consider-eld_valid-when-reporting-jack-event.patch
+  alsa-hda-realtek-eapd-turn-on-later.patch
+  alsa-hdea-realtek-headset-fixup-for-system76-gazelle-gaze14.patch
+  asoc-max98090-fix-restore-of-dapm-muxes.patch
+  asoc-rt5677-spi-disable-16bit-spi-transfers.patch
+  asoc-fsl_esai-fix-missing-break-in-switch-statement.patch
+  asoc-codec-hdac_hdmi-add-device_link-to-card-device.patch
+  bpf-arm64-remove-prefetch-insn-in-xadd-mapping.patch
+  bpf-fix-out-of-bounds-backwards-jmps-due-to-dead-code-removal.patch
+  crypto-ccree-remove-special-handling-of-chained-sg.patch
+  crypto-ccree-fix-mem-leak-on-error-path.patch
+  crypto-ccree-don-t-map-mac-key-on-stack.patch
+  crypto-ccree-use-correct-internal-state-sizes-for-export.patch
+  crypto-ccree-don-t-map-aead-key-and-iv-on-stack.patch
+  crypto-ccree-pm-resume-first-enable-the-source-clk.patch
+  crypto-ccree-host_power_down_en-should-be-the-last-cc-access-during-suspend.patch
+  crypto-ccree-add-function-to-handle-cryptocell-tee-fips-error.patch
+  crypto-ccree-handle-tee-fips-error-during-power-management-resume.patch
+  mm-mincore.c-make-mincore-more-conservative.patch
+  mm-huge_memory-fix-vmf_insert_pfn_-pmd-pud-crash-handle-unaligned-addresses.patch
+  mm-hugetlb.c-don-t-put_page-in-lock-of-hugetlb_lock.patch
+  hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings.patch
+  ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget.patch
+  userfaultfd-use-rcu-to-free-the-task-struct-when-fork-fails.patch
+  acpi-pm-set-enable_for_wake-for-wakeup-gpes-during-suspend-to-idle.patch
+  acpica-linux-move-acpi_debug_default-flag-out-of-ifndef.patch
+  mfd-da9063-fix-otp-control-register-names-to-match-datasheets-for-da9063-63l.patch
+  mfd-max77620-fix-swapped-fps_period_max_us-values.patch
+  mtd-spi-nor-intel-spi-avoid-crossing-4k-address-boundary-on-read-write.patch
+  mtd-maps-physmap-store-gpio_values-correctly.patch
+  mtd-maps-allow-mtd_physmap-with-mtd_ram.patch
+  tty-vt.c-fix-tiocl_blankscreen-console-blanking-if-blankinterval-0.patch
+  tty-vt-fix-write-write-race-in-ioctl-kdskbsent-handler.patch
+  jbd2-check-superblock-mapped-prior-to-committing.patch
+  ext4-make-sanity-check-in-mballoc-more-strict.patch
+  ext4-protect-journal-inode-s-blocks-using-block_validity.patch
+  ext4-ignore-e_value_offs-for-xattrs-with-value-in-ea-inode.patch
+  ext4-avoid-drop-reference-to-iloc.bh-twice.patch
+  ext4-fix-use-after-free-race-with-debug_want_extra_isize.patch
+  ext4-actually-request-zeroing-of-inode-table-after-grow.patch
+  ext4-fix-ext4_show_options-for-file-systems-w-o-journal.patch
+  btrfs-check-the-first-key-and-level-for-cached-extent-buffer.patch
+  btrfs-correctly-free-extent-buffer-in-case-btree_read_extent_buffer_pages-fails.patch
+  btrfs-honour-fitrim-range-constraints-during-free-space-trim.patch
+  btrfs-send-flush-dellaloc-in-order-to-avoid-data-loss.patch
+  btrfs-do-not-start-a-transaction-during-fiemap.patch
+  btrfs-do-not-start-a-transaction-at-iterate_extent_inodes.patch
+  btrfs-fix-race-between-send-and-deduplication-that-lead-to-failures-and-crashes.patch
+  bcache-fix-a-race-between-cache-register-and-cacheset-unregister.patch
+  bcache-never-set-key_ptrs-of-journal-key-to-0-in-journal_reclaim.patch
+  ipmi-add-the-i2c-addr-property-for-ssif-interfaces.patch
+  ipmi-ssif-compare-block-number-correctly-for-multi-part-return-messages.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c33f7043432b80b59700e88797dc7dd18c1a9638.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c33f7043432b80b59700e88797dc7dd18c1a9638.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c33f7043432b80b59700e88797dc7dd18c1a9638.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c33f7043432b80b59700e88797dc7dd18c1a9638.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c33f7043432b80b59700e88797dc7dd18c1a9638.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c33f7043432b80b59700e88797dc7dd18c1a9638.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c33f7043432b80b59700e88797dc7dd18c1a9638.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c33f7043432b80b59700e88797dc7dd18c1a9638.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [11]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
 
