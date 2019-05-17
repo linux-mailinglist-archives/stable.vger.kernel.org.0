@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3299421815
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA4FB21817
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728628AbfEQMUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 08:20:48 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:58025 "EHLO
+        id S1728520AbfEQMXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 08:23:00 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:46329 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728073AbfEQMUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:20:48 -0400
+        by vger.kernel.org with ESMTP id S1728193AbfEQMXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:23:00 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 1807744E;
-        Fri, 17 May 2019 08:20:47 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 08:20:47 -0400
+        by mailout.west.internal (Postfix) with ESMTP id D17C446A;
+        Fri, 17 May 2019 08:22:58 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 08:22:59 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=p6tl6A
-        +AfAoWnh3G2NoEFkCrmsforGByqvt3zg/vfnE=; b=are/zj+kBt04FekXLhhb05
-        rjqfaJXkHxgVr5wA67Wu6iVHix7Fbp7eqfBvVLQjLkXgoomcqIzswYzz4l6wJy9N
-        KGCCqqRM9NvdMqeSC04CmOQUVGw69hXClafx7Zdi0wW9qaAykJ3iG6RmL9HYaOwR
-        2CVMkLxGNuATOhrlPKBy1ccK1NT9p1YSocgoee8SotG/DIob+t99m7h7SN78G0PY
-        wV3Px+OfpOD8Kvu8lu9+sYElxtW+NOUQ/PSEW0gy6gxsgroblrQ3DD+CA6/zZj45
-        Kq3xb3dbTqirYhcSAtoSfFElmeGOa/Qp61MTV4clEN7G+rxi1sERESM3ANghllVg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=z+wB8B
+        o2eWDfx31fxNFlyYOC8Lx7NuTIzNpQvy3rcHw=; b=qOVYWccRIm0iQXuB68p9ml
+        qoS8BqmnFLYKHddZDZRkzPUlK30XQaj5+d95qCIrhIslRjcUoEYecFb7S2O0n9cN
+        /ieejgl7voI0JEle/o2dmZtvSCgEjwbisB1IjOS2Jq9U7f+ZtIPJx9Ifx4BCRSDY
+        /Toyv7sEnVvuAs2WO4HV2Qp+tM5Vyrcf+rC2kLb2bVNieJTGll7qwcEXQ8onLMXi
+        1HPP6+8mkIqGjdpNrYGrTzxWK9mBRhT/BGolV0hXE1/PwZXjgPTUqM2a4FFcZqYW
+        RdN2YKh9OrREConYSX4G3iV3MVNB69lyFok2IljQL/Y1PPS9lOwNkOdgdBSwaMSQ
         ==
-X-ME-Sender: <xms:HqfeXGW5amh1AfzU7Mc5fXfSfardZ9dq3ITpURRiKceKoCjPQ95VCw>
+X-ME-Sender: <xms:oafeXHvxQD8j1IPSp7oY4AZhC9sY3cg2piyZ7K6r08NL5t0bDLiqug>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddghedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:HqfeXI7x26vC5VtrNV-R-RyOkLVQnuhwiXGxAVSrjJv3Af2w019vYg>
-    <xmx:HqfeXHHEy7CeQh51yA_1kYjEs3g8zsYRFm-2d5g2R3Ym-J7ENpwyjQ>
-    <xmx:HqfeXL-iI2ejMeG7qBV7KFk6elx5b_9Yj76pgO5dvyYowdXm9bsmdQ>
-    <xmx:HqfeXFRa67VUQUBrzoqytNgYmBxldRnff3WYHNmnJfAbtvnRyMuUqw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:oafeXMn19EjiinQ8WLa--ox1BMnEBrnGfyjtyNIX-QNNaKZbYyPCGw>
+    <xmx:oafeXHz7r1EenxRWKfyRfv0IdrNGCKBIF3jz8s5mQS8rXOJ1MLjexA>
+    <xmx:oafeXAwYEQUrUyKMFVuGzulNMTX6qf2BvKXYID_JsHUGHhfVPFPOvQ>
+    <xmx:oqfeXHf9oV4uofo7G9mAUxg7EvpZHG7XpAEAKiH7NcGoHF1r5Pqyww>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EA0FF103D7;
-        Fri, 17 May 2019 08:20:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ARM: dts: exynos: Fix interrupt for shared EINTs on" failed to apply to 4.9-stable tree
-To:     stuart.menefy@mathembedded.com, krzk@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7ABF58005B;
+        Fri, 17 May 2019 08:22:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] power: supply: axp288_charger: Fix unchecked return value" failed to apply to 4.4-stable tree
+To:     gustavo@embeddedor.com, hdegoede@redhat.com,
+        sebastian.reichel@collabora.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 14:20:44 +0200
-Message-ID: <155809564479208@kroah.com>
+Date:   Fri, 17 May 2019 14:22:55 +0200
+Message-ID: <1558095775165218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,31 +68,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b7ed69d67ff0788d8463e599dd5dd1b45c701a7e Mon Sep 17 00:00:00 2001
-From: Stuart Menefy <stuart.menefy@mathembedded.com>
-Date: Tue, 19 Feb 2019 13:03:37 +0000
-Subject: [PATCH] ARM: dts: exynos: Fix interrupt for shared EINTs on
- Exynos5260
+From c3422ad5f84a66739ec6a37251ca27638c85b6be Mon Sep 17 00:00:00 2001
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Date: Mon, 18 Mar 2019 11:14:39 -0500
+Subject: [PATCH] power: supply: axp288_charger: Fix unchecked return value
 
-Fix the interrupt information for the GPIO lines with a shared EINT
-interrupt.
+Currently there is no check on platform_get_irq() return value
+in case it fails, hence never actually reporting any errors and
+causing unexpected behavior when using such value as argument
+for function regmap_irq_get_virq().
 
-Fixes: 16d7ff2642e7 ("ARM: dts: add dts files for exynos5260 SoC")
+Fix this by adding a proper check, a message reporting any errors
+and returning *pirq*
+
+Addresses-Coverity-ID: 1443940 ("Improper use of negative value")
+Fixes: 843735b788a4 ("power: axp288_charger: axp288 charger driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-diff --git a/arch/arm/boot/dts/exynos5260.dtsi b/arch/arm/boot/dts/exynos5260.dtsi
-index a8c7c6e589a0..3581b57fbbf7 100644
---- a/arch/arm/boot/dts/exynos5260.dtsi
-+++ b/arch/arm/boot/dts/exynos5260.dtsi
-@@ -227,7 +227,7 @@
- 			wakeup-interrupt-controller {
- 				compatible = "samsung,exynos4210-wakeup-eint";
- 				interrupt-parent = <&gic>;
--				interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-+				interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
- 			};
- 		};
- 
+diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
+index f8c6da9277b3..00b961890a38 100644
+--- a/drivers/power/supply/axp288_charger.c
++++ b/drivers/power/supply/axp288_charger.c
+@@ -833,6 +833,10 @@ static int axp288_charger_probe(struct platform_device *pdev)
+ 	/* Register charger interrupts */
+ 	for (i = 0; i < CHRG_INTR_END; i++) {
+ 		pirq = platform_get_irq(info->pdev, i);
++		if (pirq < 0) {
++			dev_err(&pdev->dev, "Failed to get IRQ: %d\n", pirq);
++			return pirq;
++		}
+ 		info->irq[i] = regmap_irq_get_virq(info->regmap_irqc, pirq);
+ 		if (info->irq[i] < 0) {
+ 			dev_warn(&info->pdev->dev,
 
