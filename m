@@ -2,169 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2BE921360
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 07:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28361213CB
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 08:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727218AbfEQF1w convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 01:27:52 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50508 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfEQF1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 01:27:51 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 285028667A
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 05:27:51 +0000 (UTC)
-Received: from [172.54.196.3] (cpt-0033.paas.prod.upshift.rdu2.redhat.com [10.0.18.109])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9E5C85D9C4;
-        Fri, 17 May 2019 05:27:48 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727644AbfEQGiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 02:38:01 -0400
+Received: from [128.1.224.119] ([128.1.224.119]:55012 "EHLO deadmen.hmeau.com"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727145AbfEQGiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 02:38:01 -0400
+X-Greylist: delayed 2250 seconds by postgrey-1.27 at vger.kernel.org; Fri, 17 May 2019 02:38:00 EDT
+Received: from gondobar.mordor.me.apana.org.au ([192.168.128.4] helo=gondobar)
+        by deadmen.hmeau.com with esmtps (Exim 4.89 #2 (Debian))
+        id 1hRVuv-0007s9-76; Fri, 17 May 2019 14:00:29 +0800
+Received: from herbert by gondobar with local (Exim 4.89)
+        (envelope-from <herbert@gondor.apana.org.au>)
+        id 1hRVut-0000YN-9B; Fri, 17 May 2019 14:00:27 +0800
+Date:   Fri, 17 May 2019 14:00:27 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-crypto@vger.kernel.org,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] crypto: hash - fix incorrect HASH_MAX_DESCSIZE
+Message-ID: <20190517060027.wqowv4aazpcrr6pv@gondor.apana.org.au>
+References: <20190514231315.7729-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.3690C34D9E.4HQFQXPT9N@redhat.com>
-X-Gitlab-Pipeline-ID: 10275
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10275?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Fri, 17 May 2019 05:27:51 +0000 (UTC)
-Date:   Fri, 17 May 2019 01:27:51 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190514231315.7729-1-ebiggers@kernel.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Tue, May 14, 2019 at 04:13:15PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> The "hmac(sha3-224-generic)" algorithm has a descsize of 368 bytes,
+> which is greater than HASH_MAX_DESCSIZE (360) which is only enough for
+> sha3-224-generic.  The check in shash_prepare_alg() doesn't catch this
+> because the HMAC template doesn't set descsize on the algorithms, but
+> rather sets it on each individual HMAC transform.
+> 
+> This causes a stack buffer overflow when SHASH_DESC_ON_STACK() is used
+> with hmac(sha3-224-generic).
+> 
+> Fix it by increasing HASH_MAX_DESCSIZE to the real maximum.  Also add a
+> sanity check to hmac_init().
+> 
+> This was detected by the improved crypto self-tests in v5.2, by loading
+> the tcrypt module with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y enabled.  I
+> didn't notice this bug when I ran the self-tests by requesting the
+> algorithms via AF_ALG (i.e., not using tcrypt), probably because the
+> stack layout differs in the two cases and that made a difference here.
+> 
+> KASAN report:
+> 
+>     BUG: KASAN: stack-out-of-bounds in memcpy include/linux/string.h:359 [inline]
+>     BUG: KASAN: stack-out-of-bounds in shash_default_import+0x52/0x80 crypto/shash.c:223
+>     Write of size 360 at addr ffff8880651defc8 by task insmod/3689
+> 
+>     CPU: 2 PID: 3689 Comm: insmod Tainted: G            E     5.1.0-10741-g35c99ffa20edd #11
+>     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+>     Call Trace:
+>      __dump_stack lib/dump_stack.c:77 [inline]
+>      dump_stack+0x86/0xc5 lib/dump_stack.c:113
+>      print_address_description+0x7f/0x260 mm/kasan/report.c:188
+>      __kasan_report+0x144/0x187 mm/kasan/report.c:317
+>      kasan_report+0x12/0x20 mm/kasan/common.c:614
+>      check_memory_region_inline mm/kasan/generic.c:185 [inline]
+>      check_memory_region+0x137/0x190 mm/kasan/generic.c:191
+>      memcpy+0x37/0x50 mm/kasan/common.c:125
+>      memcpy include/linux/string.h:359 [inline]
+>      shash_default_import+0x52/0x80 crypto/shash.c:223
+>      crypto_shash_import include/crypto/hash.h:880 [inline]
+>      hmac_import+0x184/0x240 crypto/hmac.c:102
+>      hmac_init+0x96/0xc0 crypto/hmac.c:107
+>      crypto_shash_init include/crypto/hash.h:902 [inline]
+>      shash_digest_unaligned+0x9f/0xf0 crypto/shash.c:194
+>      crypto_shash_digest+0xe9/0x1b0 crypto/shash.c:211
+>      generate_random_hash_testvec.constprop.11+0x1ec/0x5b0 crypto/testmgr.c:1331
+>      test_hash_vs_generic_impl+0x3f7/0x5c0 crypto/testmgr.c:1420
+>      __alg_test_hash+0x26d/0x340 crypto/testmgr.c:1502
+>      alg_test_hash+0x22e/0x330 crypto/testmgr.c:1552
+>      alg_test.part.7+0x132/0x610 crypto/testmgr.c:4931
+>      alg_test+0x1f/0x40 crypto/testmgr.c:4952
+> 
+> Fixes: b68a7ec1e9a3 ("crypto: hash - Remove VLA usage")
+> Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+> Cc: <stable@vger.kernel.org> # v4.20+
+> Cc: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  crypto/hmac.c         | 2 ++
+>  include/crypto/hash.h | 8 +++++++-
+>  2 files changed, 9 insertions(+), 1 deletion(-)
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 7cb9c5d341b9 - Linux 5.1.3
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 7cb9c5d341b9 - Linux 5.1.3
-
-We then merged the patchset with `git am`:
-
-  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-a72158636d149a739614e7d96266e52405d81dd4.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-a72158636d149a739614e7d96266e52405d81dd4.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-a72158636d149a739614e7d96266e52405d81dd4.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-a72158636d149a739614e7d96266e52405d81dd4.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-a72158636d149a739614e7d96266e52405d81dd4.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-a72158636d149a739614e7d96266e52405d81dd4.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-a72158636d149a739614e7d96266e52405d81dd4.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-a72158636d149a739614e7d96266e52405d81dd4.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
