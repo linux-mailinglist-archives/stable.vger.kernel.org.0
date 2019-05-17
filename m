@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDF7218A7
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2E9218A8
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 14:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728559AbfEQM5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 08:57:07 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:36655 "EHLO
+        id S1728564AbfEQM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 08:57:09 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:48959 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728548AbfEQM5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:57:07 -0400
+        by vger.kernel.org with ESMTP id S1728548AbfEQM5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 08:57:09 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 79C6647A;
-        Fri, 17 May 2019 08:57:06 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id E9FE937B;
+        Fri, 17 May 2019 08:57:07 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 08:57:06 -0400
+  by compute6.internal (MEProxy); Fri, 17 May 2019 08:57:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hjbI8/
-        YLzt3kdaW+ufotF09lI3CALgt+i5KT5nzEjY0=; b=R3KB4w2Eh7kpqvZ/hsBSR8
-        zBtTZjl2P7ciP2CWqgKLV8nEAWBEHASNxHqcXhOTvfPEv7+RFlqLFiZf9FV6QeOv
-        xDSEzbc6zngArHsegQ8KPpmZuAjGwkLKlweYGD/n76d04CkvAwzsqg+nE8rPmjpY
-        RiZa9qc/VkdK1YEvFsqWhjJ2fxCuuCeQeMdY7lChRZBzBn/dPTlbyn/4K41hFZqN
-        6kTLiGLgmwnOkdunwRifyZotYvzv9At3AHpm2kiTXpLpaVQvnegT/8xa6Pp7TqTt
-        JxSNZXUgK49gmG2BWfrscvkPJStjIc+RfouPgHt4dD/9M96M5xRuX1limyEAD8VA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mHoxYx
+        gClwb6jnipWoR+ZNCX4CjMJeyR/ZA6qtsrfWM=; b=bUc7WD72FIWm+yDXivctZ4
+        9R8gEKsgjdk6WGZJ06qd23wAftafr27AlhVqa0LrDa0E4LX4KijxblqwvM2rghz1
+        zYVUxkGNp7CpEd4CJ2mqJ+EJR6axTjwD4lMjfkUsgASrNv0Av21WxnCsJJwcgdsx
+        oEZZbCw6bQy9OakQeFF5YJiUv5WQtWSqq+xVOjzlabiDSfJhPTsHDuMGoUX/AMyO
+        4b4B2WqwAPUBOvPoebERjsRmazGDJLbtA+9XfQ0fBw2ZHaVf6Hdy45fOxZh/YQX9
+        q8FpGNc9Rs8X3VC3H5jCApWmXs7vzr6vui2MGh8+naW/H4L+YAHuCGXLWDti+ndA
         ==
-X-ME-Sender: <xms:oa_eXJ5EarK6kO8xOvt-_OdXZBIqxF8ndV2SVrGDW_uVSqGdDfnX1Q>
+X-ME-Sender: <xms:o6_eXAZjE0BGum-ZVabBEdu3og6NuoE1oqqP0mjqlcp-9vLuUYAOjw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgheelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:oa_eXLIgslePC-8XfqwW9sHBC_qkf87LXXa_cg5nov-vdGFr69oNDQ>
-    <xmx:oa_eXLfE-qG3PF5svZyviDKBTqSmkNeddPjdQ8ZqZEQzn_n2b0SKpw>
-    <xmx:oa_eXGc1NV5l6yAS5hQPyOGHq9umB41o47sjTcbtNt7zA2dLSSCFfA>
-    <xmx:oq_eXFI2nECXDDm3824vkWcEraJ7MyaHNClJ8-PE9XReQ_E-KT3xZQ>
+X-ME-Proxy: <xmx:o6_eXFZ8YEblzyUqkK8pSV-NsPoLlABYIzUOTNRmOd5y69jIIFV6gg>
+    <xmx:o6_eXFAz5HydRhzcUCo6x2-WSRQhBqz0Bi7HyOlM0OB9FAWBiQksLQ>
+    <xmx:o6_eXMaORftPw1-vB9GbeoC2xVMK32XUjSov-nWvAoX0ZzMX6qPJiA>
+    <xmx:o6_eXLEOFzRVoyN8SeOL6bSwpryUm5-Tx7KaRwR-NBOBB9oF81dtaQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3ACA2103CF;
-        Fri, 17 May 2019 08:57:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dt-bindings: mmc: Add disable-cqe-dcmd property." failed to apply to 5.0-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0DB1E103CF;
+        Fri, 17 May 2019 08:57:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dt-bindings: mmc: Add disable-cqe-dcmd property." failed to apply to 4.19-stable tree
 To:     christoph.muellner@theobroma-systems.com,
         philipp.tomsich@theobroma-systems.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 14:55:17 +0200
-Message-ID: <155809771718747@kroah.com>
+Date:   Fri, 17 May 2019 14:55:19 +0200
+Message-ID: <15580977195528@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.0-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
