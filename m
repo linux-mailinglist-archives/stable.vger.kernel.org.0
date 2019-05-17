@@ -2,82 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3EF21149
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE86A2116A
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726937AbfEQAal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 20:30:41 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40468 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726651AbfEQAal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 20:30:41 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x4H0RI8w020735
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 20:30:39 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2shhkhhd3a-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 20:30:39 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Fri, 17 May 2019 01:30:37 +0100
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
-        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Fri, 17 May 2019 01:30:33 +0100
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x4H0UWJM43974822
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 May 2019 00:30:32 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB9AEA4062;
-        Fri, 17 May 2019 00:30:32 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADCA5A4065;
-        Fri, 17 May 2019 00:30:31 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.80.98])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 17 May 2019 00:30:31 +0000 (GMT)
-Subject: Re: [PATCH 3/4] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        dmitry.kasatkin@huawei.com
-Cc:     linux-integrity@vger.kernel.org, linux-doc@vger.kernel.org,
-        stable@vger.kernel.org
-Date:   Thu, 16 May 2019 20:30:20 -0400
-In-Reply-To: <20190517001001.9BEF620848@mail.kernel.org>
-References: <20190516161257.6640-3-roberto.sassu@huawei.com>
-         <20190517001001.9BEF620848@mail.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19051700-0008-0000-0000-000002E786DE
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19051700-0009-0000-0000-000022542EB9
-Message-Id: <1558053020.4507.32.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-16_19:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=875 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1905170002
+        id S1727710AbfEQAr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 20:47:26 -0400
+Received: from mga09.intel.com ([134.134.136.24]:56689 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727709AbfEQArZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 20:47:25 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 May 2019 17:47:25 -0700
+X-ExtLoop1: 1
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga008.jf.intel.com with ESMTP; 16 May 2019 17:47:25 -0700
+Subject: [PATCH] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        Jeff Moyer <jmoyer@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jeff Smits <jeff.smits@intel.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Thu, 16 May 2019 17:33:38 -0700
+Message-ID: <155805321833.867447.3864104616303535270.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-05-17 at 00:10 +0000, Sasha Levin wrote:
-> 
-> How should we proceed with this patch?
+Jeff discovered that performance improves from ~375K iops to ~519K iops
+on a simple psync-write fio workload when moving the location of 'struct
+page' from the default PMEM location to DRAM. This result is surprising
+because the expectation is that 'struct page' for dax is only needed for
+third party references to dax mappings. For example, a dax-mapped buffer
+passed to another system call for direct-I/O requires 'struct page' for
+sending the request down the driver stack and pinning the page. There is
+no usage of 'struct page' for first party access to a file via
+read(2)/write(2) and friends.
 
-Yikes!  This was posted earlier today.  I haven't even had a chance to
-look at it yet.  Similarly for "[PATCH 4/4] ima: only audit failed
-appraisal verifications".
+However, this "no page needed" expectation is violated by
+CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
+copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
+check_heap_object() helper routine assumes the buffer is backed by a
+page-allocator DRAM page and applies some checks.  Those checks are
+invalid, dax pages are not from the heap, and redundant,
+dax_iomap_actor() has already validated that the I/O is within bounds.
 
-Mimi
+Bypass this overhead and call the 'no check' versions of the
+copy_{to,from}_iter operations directly.
+
+Fixes: 0aed55af8834 ("x86, uaccess: introduce copy_from_iter_flushcache...")
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Matthew Wilcox <willy@infradead.org>
+Reported-and-tested-by: Jeff Smits <jeff.smits@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/nvdimm/pmem.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index 845c5b430cdd..c894f45e5077 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -281,16 +281,21 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
+ 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
+ }
+ 
++/*
++ * Use the 'no check' versions of copy_from_iter_flushcache() and
++ * copy_to_iter_mcsafe() to bypass HARDENED_USERCOPY overhead. Bounds
++ * checking is handled by dax_iomap_actor()
++ */
+ static size_t pmem_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_from_iter_flushcache(addr, bytes, i);
++	return _copy_from_iter_flushcache(addr, bytes, i);
+ }
+ 
+ static size_t pmem_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_to_iter_mcsafe(addr, bytes, i);
++	return _copy_to_iter_mcsafe(addr, bytes, i);
+ }
+ 
+ static const struct dax_operations pmem_dax_ops = {
 
