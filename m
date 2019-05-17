@@ -2,168 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9179F21A4E
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81DE721A4F
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729154AbfEQPI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:08:29 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58595 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728935AbfEQPI3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:08:29 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1457323AD6;
-        Fri, 17 May 2019 11:08:28 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 11:08:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=pskXYa
-        mvhwaCLOU+0u/pYJfpxh2I8LGGGtPTzJ1gkIE=; b=u4bHa/cwpo+GzMu10df1gE
-        sVzsauomwsHN29Yrp2VOf7YKY8Xg5FO30ZgljWX5tqELFgny8etNlKiZQe+gB29k
-        H3ZfnjExSkoJr9S7CLPeJ0uvIfKDVb+SB1ZtC2IxafVjma3pfxtmr9xkug1GloDZ
-        uNycXYLiNSIn56g0IRUN05Cljis1N8lgZ1Oui+VhzswG2A9uMk+C8Hs7mo7tvEx5
-        IJtAtPyjVa1sZ86lfXebHQibskMmf6VjLrNn59G7SJzPb3DdSy3KIAC5nJ+l9E/f
-        taDqPgyIVjjKT9vPy4oKPaLbZTFVHKtw3qQdJZ1Y6BwZNGuCR4liw6BZyNAT2wag
-        ==
-X-ME-Sender: <xms:a87eXBw3vZCKX4hKJHP_GIgSOy8O0rs6lI5pj4D0xrf9-n_MjHe3yw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:a87eXFiUCFdP5mC-VO3W3G0C6ljyFsMuz5XnT6utHNviUBIMKEvVGA>
-    <xmx:a87eXGUmuZbVa74kazZc4KcUd3KhhPc5mrItomkVONdLZJNAoO61tg>
-    <xmx:a87eXH0gb4_R4edriWNroDaMBBZd7o6PHe6jDXVlTVYWl7S7I_jm3Q>
-    <xmx:bM7eXMDf9zvCaNn_H46J_oYD4r7yfN-Rl6bdpNx5UQyzhGHUcTVwmw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 537EF103DB;
-        Fri, 17 May 2019 11:08:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ext4: fix use-after-free race with debug_want_extra_isize" failed to apply to 4.4-stable tree
-To:     brho@google.com, jack@suse.cz, tytso@mit.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 17:08:17 +0200
-Message-ID: <1558105697218149@kroah.com>
+        id S1729184AbfEQPIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:08:39 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:35501 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728935AbfEQPIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:08:39 -0400
+Received: by mail-oi1-f194.google.com with SMTP id a132so5421286oib.2
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 08:08:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=OGIfXnKXpW5eMKxUMdzRkt44XId1MoiNVnAxGfKvpiQ=;
+        b=NxNZPHkQ9m7afnPn+MzAQqWjc4b6NDowhfobUzGnErro91DDQhcbPCtV4yyPmQs5K/
+         qHoNY3q3kg21Z1aKKfhVtA51efXEJSWMC+nqJfOqd/6Cxza+N0PESVDd5pxT7+8WWxJ8
+         dZbrryqg4W1sKStoCFp33Wpzb60H7wUxxexYHFYmftwZiHvQx7ag+Qv71q7GSKVtf3Yv
+         0YURKil61RhPfxk/xokqMuqcpKadv25cmmeCfUPGZVYy8ZS45CyPZ/lVBP6QJrWv4/nC
+         v1/j1QVq4xm8msZpqCNnpxMl6+GJA9oIEyJXlJST7m7WnJ1/eAUMStAIB5yhR6N2QBgq
+         J6JQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OGIfXnKXpW5eMKxUMdzRkt44XId1MoiNVnAxGfKvpiQ=;
+        b=bGFZJFk8l8TB95PzPL+MnzyA6kWKhKE6T/+ikDs5lPZ0JJxFKYuO5z3t6WQWAi92cY
+         C6I6aqkhpw4BDL3qlPTUcznO0b6Qy+ofXttDJTkpQ5g9E4rwtUsfBmUMqNbWdUibH1Lh
+         bBvhM7nsltlxtZhJtQ5poFtHqFlGQfmL4oVG6Qk36vaHuMOh00mdz/S1gYglqyKpJsIN
+         27iGFFyE28QVhn3FW7n6qcu/+MUgUYcsZCQ6mBEja9esN/qpw8XbHMOj517d9Zv6+w3B
+         ABYZh0icbFypbnieBnBCaAshHQ0FWaDyGGzUl1bfJqTZ3lGJSPclsH0JyjBu3yJQMqY9
+         kDeQ==
+X-Gm-Message-State: APjAAAVHKOHxTOFRVsmel5go06eTG56PKyo8rany/1cta5E0QxXUwHHD
+        VgxkaBtRmix3h2HAi8zhPOwe55HplMKf8E2gRjdU67OusGQ=
+X-Google-Smtp-Source: APXvYqyTjO/s0rMdx1VgVCXo7bqh4zMktZXJwLahomPBvDpO+I4RjmmwQ75n8Xpfpye+mAWhmlTX6Dis4MloPOV9WcA=
+X-Received: by 2002:aca:b641:: with SMTP id g62mr12196057oif.149.1558105718742;
+ Fri, 17 May 2019 08:08:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <155805321833.867447.3864104616303535270.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20190517084739.GB20550@quack2.suse.cz>
+In-Reply-To: <20190517084739.GB20550@quack2.suse.cz>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Fri, 17 May 2019 08:08:27 -0700
+Message-ID: <CAPcyv4iZZCgcC657ZOysBP9=1ejp3jfFj=VETVBPrgmfg7xUEw@mail.gmail.com>
+Subject: Re: [PATCH] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>,
+        stable <stable@vger.kernel.org>, Jeff Moyer <jmoyer@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jeff Smits <jeff.smits@intel.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, May 17, 2019 at 1:47 AM Jan Kara <jack@suse.cz> wrote:
+>
+> Let's add Kees to CC for usercopy expertise...
+>
+> On Thu 16-05-19 17:33:38, Dan Williams wrote:
+> > Jeff discovered that performance improves from ~375K iops to ~519K iops
+> > on a simple psync-write fio workload when moving the location of 'struct
+> > page' from the default PMEM location to DRAM. This result is surprising
+> > because the expectation is that 'struct page' for dax is only needed for
+> > third party references to dax mappings. For example, a dax-mapped buffer
+> > passed to another system call for direct-I/O requires 'struct page' for
+> > sending the request down the driver stack and pinning the page. There is
+> > no usage of 'struct page' for first party access to a file via
+> > read(2)/write(2) and friends.
+> >
+> > However, this "no page needed" expectation is violated by
+> > CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
+> > copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
+> > check_heap_object() helper routine assumes the buffer is backed by a
+> > page-allocator DRAM page and applies some checks.  Those checks are
+> > invalid, dax pages are not from the heap, and redundant,
+> > dax_iomap_actor() has already validated that the I/O is within bounds.
+>
+> So this last paragraph is not obvious to me as check_copy_size() does a lot
+> of various checks in CONFIG_HARDENED_USERCOPY case. I agree that some of
+> those checks don't make sense for PMEM pages but I'd rather handle that by
+> refining check_copy_size() and check_object_size() functions to detect and
+> appropriately handle pmem pages rather that generally skip all the checks
+> in pmem_copy_from/to_iter(). And yes, every check in such hot path is going
+> to cost performance but that's what user asked for with
+> CONFIG_HARDENED_USERCOPY... Kees?
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 7bc04c5c2cc467c5b40f2b03ba08da174a0d5fa7 Mon Sep 17 00:00:00 2001
-From: Barret Rhoden <brho@google.com>
-Date: Thu, 25 Apr 2019 11:55:50 -0400
-Subject: [PATCH] ext4: fix use-after-free race with debug_want_extra_isize
-
-When remounting with debug_want_extra_isize, we were not performing the
-same checks that we do during a normal mount.  That allowed us to set a
-value for s_want_extra_isize that reached outside the s_inode_size.
-
-Fixes: e2b911c53584 ("ext4: clean up feature test macros with predicate functions")
-Reported-by: syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Barret Rhoden <brho@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@vger.kernel.org
-
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 6ed4eb81e674..184944d4d8d1 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3513,6 +3513,37 @@ int ext4_calculate_overhead(struct super_block *sb)
- 	return 0;
- }
- 
-+static void ext4_clamp_want_extra_isize(struct super_block *sb)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_super_block *es = sbi->s_es;
-+
-+	/* determine the minimum size of new large inodes, if present */
-+	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
-+	    sbi->s_want_extra_isize == 0) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						     EXT4_GOOD_OLD_INODE_SIZE;
-+		if (ext4_has_feature_extra_isize(sb)) {
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_want_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_want_extra_isize);
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_min_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_min_extra_isize);
-+		}
-+	}
-+	/* Check if enough inode space is available */
-+	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
-+							sbi->s_inode_size) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						       EXT4_GOOD_OLD_INODE_SIZE;
-+		ext4_msg(sb, KERN_INFO,
-+			 "required extra inode space not available");
-+	}
-+}
-+
- static void ext4_set_resv_clusters(struct super_block *sb)
- {
- 	ext4_fsblk_t resv_clusters;
-@@ -4387,30 +4418,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	} else if (ret)
- 		goto failed_mount4a;
- 
--	/* determine the minimum size of new large inodes, if present */
--	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
--	    sbi->s_want_extra_isize == 0) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						     EXT4_GOOD_OLD_INODE_SIZE;
--		if (ext4_has_feature_extra_isize(sb)) {
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_want_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_want_extra_isize);
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_min_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_min_extra_isize);
--		}
--	}
--	/* Check if enough inode space is available */
--	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						       EXT4_GOOD_OLD_INODE_SIZE;
--		ext4_msg(sb, KERN_INFO, "required extra inode space not"
--			 "available");
--	}
-+	ext4_clamp_want_extra_isize(sb);
- 
- 	ext4_set_resv_clusters(sb);
- 
-@@ -5194,6 +5202,8 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 		goto restore_opts;
- 	}
- 
-+	ext4_clamp_want_extra_isize(sb);
-+
- 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
- 	    test_opt(sb, JOURNAL_CHECKSUM)) {
- 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
-
+As far as I can see it's mostly check_heap_object() that is the
+problem, so I'm open to finding a way to just bypass that sub-routine.
+However, as far as I can see none of the other block / filesystem user
+copy implementations submit to the hardened checks, like
+bio_copy_from_iter(), and iov_iter_copy_from_user_atomic() . So,
+either those need to grow additional checks, or the hardened copy
+implementation is targeting single object copy use cases, not
+necessarily block-I/O. Yes, Kees, please advise.
