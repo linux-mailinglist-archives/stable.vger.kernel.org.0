@@ -2,87 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BB8219C2
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:26:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A63219C6
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbfEQO06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 10:26:58 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:43566 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728791AbfEQO06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 10:26:58 -0400
-Received: by mail-qt1-f194.google.com with SMTP id i26so8131794qtr.10
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 07:26:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pwbw/p1FQ9WZpF9OwRbP/MyJ0X5N5nXOMniefooZyZE=;
-        b=vg4DAV/rf5w+2cPP1BbVKnJQaxOCod/wgOb9yGnmQbj7H3AahQ6RnuA/Aqmwszzc9V
-         nbaG6onbkkiUO8FkWqTfOcN8Q+5ADab3cUWTbNZ9PgT5pt53+9wLxxpvL33Xfz7PHzuL
-         NYH6GKnq16e3HBr/0E9TAafuq62rvMtvuUbYMcPQh+nGlkRyLKbkd05Y+eywSe0301m7
-         5uu982AkrXn6xD7bTrtGQhCYNuLV9k4DuvZwf+UwSq/Qmkvqc6LQipk8SDgYrxSlQhC7
-         nCjTmHlxpTx5x0mplhpsAq/GwNWmw3QoVnnFPUAqsv/LkJpgJkDNYoVth4VbgRFo8ZGF
-         zmBg==
+        id S1728791AbfEQO1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 10:27:30 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:41718 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729094AbfEQO1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 10:27:30 -0400
+Received: by mail-qk1-f195.google.com with SMTP id g190so4538197qkf.8
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 07:27:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pwbw/p1FQ9WZpF9OwRbP/MyJ0X5N5nXOMniefooZyZE=;
-        b=U6McysgphifRiIEyFGKfQrfM/PKQzreNi9mhZfdpdGJP+us0RKhvjqzS0oEkcn3/yZ
-         q37Yrr2LHdMwhqiiR13Auv3O9NC4kP8w16QstwSy+m4TU9ua+8AmdLjanSzTE6+Hm4z2
-         4iLwdRzXvHlFMr10/V3cymj7KQ1fRhjxkmphxZ2v3a2zu8HY75jRgxm358rSGiiwH2Q5
-         1cqbUljVynliWDzd7i+FSy9Jueup7GrZ32s+JyBWFHemituVzZzvoJ2HruhBj58mpTUA
-         JdlNopr9I5jySEX88PeCNsKuXMAyEYJhbThE3pieUbWN75xjyRWi45oR473n21WRYKYA
-         Iyhg==
-X-Gm-Message-State: APjAAAWc3tgVP53yF96M6PhoqHZp76jDWvLWMx3MptGZt0Vz9BMdFqXM
-        xe2FDGVP0e7WNrO5dhjj+0g=
-X-Google-Smtp-Source: APXvYqyuhgEwWqKhPi4N7jgCM9xkrA/eTLlvLZatnGZxdBPCLjKtwPixaDihNPmAHsyAoMsUhm8P2w==
-X-Received: by 2002:ac8:30f3:: with SMTP id w48mr47053075qta.90.1558103217571;
-        Fri, 17 May 2019 07:26:57 -0700 (PDT)
-Received: from localhost.localdomain ([71.219.84.143])
-        by smtp.gmail.com with ESMTPSA id r129sm4129209qkb.9.2019.05.17.07.26.56
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 17 May 2019 07:26:56 -0700 (PDT)
-From:   Alex Deucher <alexdeucher@gmail.com>
-X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
-To:     amd-gfx@lists.freedesktop.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/amdgpu/soc15: skip reset on init
-Date:   Fri, 17 May 2019 09:26:47 -0500
-Message-Id: <20190517142647.26034-1-alexander.deucher@amd.com>
-X-Mailer: git-send-email 2.20.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=muqFwpDFSwzMFLDwS9ez5JT3+HE/sz1pnq9lfS7Gu4A=;
+        b=uQAuToWmiM6Lwra+KFS3Z9Poa7lvBWtig4sXyykKCvzs1kYTcPJ4epZc4SrHH01Vri
+         loZqziwmXPeaO4V0Z7EQFNA9kuAYPkMSIJreexNkD5K5lW+XwZ/j0IJq3E1YCTDR19dY
+         HqU97W5IIqLA/xu9qP2okMy+vTrgDwxVjXXlxEbDrHpx5D8AHRasxQ1S1HTr67+6uiEh
+         JGhh3J8lxaYzvKhBQ+zNEbKqwgC5FyVbc0+63Dm6IKMmC1ydfzlvVWtX9ny0Hm990Te9
+         nKHb5+kEDPmGrN+5LnDrCWAeah7oyfIcsIlgckFVRfhDbkw6VWRZdUSzICNcyC80AUg6
+         2IVA==
+X-Gm-Message-State: APjAAAWl3jLivXk2GK6jxfpQ6Ds0RSXw4M+/uLuOXdKXV1N/Go0PtTt8
+        R51/pGUBH9Hc2z2FhgKqySfPI6/FHn6w4r02+kHAuA==
+X-Google-Smtp-Source: APXvYqydFBoByxrOTLh/8yVHQY1KP7vSYHmSUuC4hzNYd2TmmtB93ivOvlF/hpt+09K/Y9U7cdIzp5hEJfF50huCpm0=
+X-Received: by 2002:a37:9fcf:: with SMTP id i198mr45022704qke.49.1558103249134;
+ Fri, 17 May 2019 07:27:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190424221258.19992-1-jason.gerecke@wacom.com>
+In-Reply-To: <20190424221258.19992-1-jason.gerecke@wacom.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Fri, 17 May 2019 16:27:17 +0200
+Message-ID: <CAO-hwJJY=uzATrHic2F+LHOB7TMvzLJyCw2jxYcEVK1_m74B_A@mail.gmail.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Don't set tool type until we're in range
+To:     "Gerecke, Jason" <killertofu@gmail.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        "3.8+" <stable@vger.kernel.org>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Not necessary on soc15 and breaks driver reload on server cards.
+On Thu, Apr 25, 2019 at 12:13 AM Gerecke, Jason <killertofu@gmail.com> wrote:
+>
+> From: Jason Gerecke <jason.gerecke@wacom.com>
+>
+> The serial number and tool type information that is reported by the tablet
+> while a pen is merely "in prox" instead of fully "in range" can be stale
+> and cause us to report incorrect tool information. Serial number, tool
+> type, and other information is only valid once the pen comes fully in range
+> so we should be careful to not use this information until that point.
+>
+> In particular, this issue may cause the driver to incorectly report
+> BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
+>
+> Fixes: a48324de6d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+> Cc: <stable@vger.kernel.org> # 4.11+
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> ---
 
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/amd/amdgpu/soc15.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Series applied to for-5.2/fixes
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index 32dc5a128249..78bd4fc07bab 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -761,6 +761,11 @@ static bool soc15_need_reset_on_init(struct amdgpu_device *adev)
- {
- 	u32 sol_reg;
- 
-+	/* Just return false for soc15 GPUs.  Reset does not seem to
-+	 * be necessary.
-+	 */
-+	return false;
-+
- 	if (adev->flags & AMD_IS_APU)
- 		return false;
- 
--- 
-2.20.1
+Sorry for the delay
 
+Cheers,
+Benjamin
+
+>  drivers/hid/wacom_wac.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 747730d32ab6..4c1bc239207e 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1236,13 +1236,13 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+>                 /* Add back in missing bits of ID for non-USI pens */
+>                 wacom->id[0] |= (wacom->serial[0] >> 32) & 0xFFFFF;
+>         }
+> -       wacom->tool[0]   = wacom_intuos_get_tool_type(wacom_intuos_id_mangle(wacom->id[0]));
+>
+>         for (i = 0; i < pen_frames; i++) {
+>                 unsigned char *frame = &data[i*pen_frame_len + 1];
+>                 bool valid = frame[0] & 0x80;
+>                 bool prox = frame[0] & 0x40;
+>                 bool range = frame[0] & 0x20;
+> +               bool invert = frame[0] & 0x10;
+>
+>                 if (!valid)
+>                         continue;
+> @@ -1251,9 +1251,24 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+>                         wacom->shared->stylus_in_proximity = false;
+>                         wacom_exit_report(wacom);
+>                         input_sync(pen_input);
+> +
+> +                       wacom->tool[0] = 0;
+> +                       wacom->id[0] = 0;
+> +                       wacom->serial[0] = 0;
+>                         return;
+>                 }
+> +
+>                 if (range) {
+> +                       if (!wacom->tool[0]) { /* first in range */
+> +                               /* Going into range select tool */
+> +                               if (invert)
+> +                                       wacom->tool[0] = BTN_TOOL_RUBBER;
+> +                               else if (wacom->id[0])
+> +                                       wacom->tool[0] = wacom_intuos_get_tool_type(wacom->id[0]);
+> +                               else
+> +                                       wacom->tool[0] = BTN_TOOL_PEN;
+> +                       }
+> +
+>                         input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+>                         input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+>
+> --
+> 2.21.0
+>
