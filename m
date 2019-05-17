@@ -2,83 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC81219F0
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A50921A09
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728790AbfEQOp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 10:45:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:57634 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728383AbfEQOp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 10:45:58 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8587030832E6;
-        Fri, 17 May 2019 14:45:50 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-116-83.ams2.redhat.com [10.36.116.83])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EF84519C4F;
-        Fri, 17 May 2019 14:45:44 +0000 (UTC)
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     netdev@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Stefan Hajnoczi <stefanha@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v3] vsock/virtio: free packets during the socket release
-Date:   Fri, 17 May 2019 16:45:43 +0200
-Message-Id: <20190517144543.362935-1-sgarzare@redhat.com>
+        id S1728790AbfEQOwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 10:52:06 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:53323 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728396AbfEQOwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 10:52:06 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 96C43471;
+        Fri, 17 May 2019 10:52:05 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 10:52:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ADNlGK
+        gQOBx47JJyTx8cbUceeqhp14Ewz77I6DsWPTw=; b=u2KnNH6QqXe6uASeYo6G1e
+        D8gN0WMxHaLIL+1A5BgI6HbqE6P9Ylhk1Hr1HRVdL7akGJh/D4H08Nw0fnGwxSUl
+        E2XFflgB/NvgD+LWT4GtqC9h+oWr41C7g9Y1B1mR/6KW1532PTNWc8p6rcFhWCgb
+        /9CLyjdaK8fRw/TaUOCYc9E1HRDPoWYqbcX7mNNEWpET94wi0Ud+mAFEpgbz40+I
+        yCuwPGzR99TOOYDdByZ594Zxq88/Mnd+XNSVyRrYLIr8GCdsxdbKTiMV3vrRCTL/
+        GHP3Po2AS9dO7z3m3YIFCxhHbs1SQywzauxtlHlE5oo8WxDQJljKC8730VLyYIwg
+        ==
+X-ME-Sender: <xms:lMreXIJGtnzSOenbKUDS5sZrX7Kc5FVRgNohJRzGrk1qOJRTQHYHnA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:lMreXF_9ascZyNgmBaWFS8icss0xg3bAZinlS4xukZheKoSGEHiSGA>
+    <xmx:lMreXLC5uyTx_PhTvsF8oAk9-P7Dz-cHKZ4V9HNQWL_Q9oO4N1VYpQ>
+    <xmx:lMreXIlPtbKqAz-uK86cMMdlMe6Lne-XDYTDb54mt6XnEXxngablVQ>
+    <xmx:lcreXIgllqVqTpY0Q5hqc5KubIlmUQZfmHd1vGUZZ3lRE8S6iQytvg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E759180066;
+        Fri, 17 May 2019 10:52:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: ccree - zap entire sg on aead request unmap" failed to apply to 5.1-stable tree
+To:     gilad@benyossef.com, herbert@gondor.apana.org.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 17 May 2019 16:52:01 +0200
+Message-ID: <15581047210193@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Fri, 17 May 2019 14:45:58 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the socket is released, we should free all packets
-queued in the per-socket list in order to avoid a memory
-leak.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-This patch was in the series "[PATCH v2 0/8] vsock/virtio: optimizations
-to increase the throughput" [1]. As Stefan suggested, I'm sending it as
-a separated patch.
+The patch below does not apply to the 5.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-v3:
-  - use list_for_each_entry_safe() [David]
+thanks,
 
-[1] https://patchwork.kernel.org/cover/10938743/
----
- net/vmw_vsock/virtio_transport_common.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+greg k-h
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 602715fc9a75..f3f3d06cb6d8 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -786,12 +786,19 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
- 
- void virtio_transport_release(struct vsock_sock *vsk)
+------------------ original commit in Linus's tree ------------------
+
+From 05c292afb0c0545c0cf084172db13e544eeb8f56 Mon Sep 17 00:00:00 2001
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+Date: Thu, 18 Apr 2019 16:39:01 +0300
+Subject: [PATCH] crypto: ccree - zap entire sg on aead request unmap
+
+We were trying to be clever zapping out of the cache only the required
+length out of scatter list on AEAD request completion and getting it
+wrong.
+
+As Knuth said: "when in douby, use brute force". Zap the whole length of
+the scatter list.
+
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
+index fa625bdde3f9..09dceec7d828 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -517,9 +517,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
  {
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	struct virtio_vsock_pkt *pkt, *tmp;
- 	struct sock *sk = &vsk->sk;
- 	bool remove_sock = true;
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+-	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
+ 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
+-	u32 size_to_unmap = 0;
  
- 	lock_sock(sk);
- 	if (sk->sk_type == SOCK_STREAM)
- 		remove_sock = virtio_transport_close(vsk);
-+
-+	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
-+		list_del(&pkt->list);
-+		virtio_transport_free_pkt(pkt);
-+	}
- 	release_sock(sk);
+ 	if (areq_ctx->mac_buf_dma_addr) {
+ 		dma_unmap_single(dev, areq_ctx->mac_buf_dma_addr,
+@@ -576,19 +574,12 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
+ 	dev_dbg(dev, "Unmapping src sgl: req->src=%pK areq_ctx->src.nents=%u areq_ctx->assoc.nents=%u assoclen:%u cryptlen=%u\n",
+ 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
+ 		areq_ctx->assoclen, req->cryptlen);
+-	size_to_unmap = areq_ctx->assoclen + req->cryptlen;
+-	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
+-		size_to_unmap += areq_ctx->req_authsize;
+-	if (areq_ctx->is_gcm4543)
+-		size_to_unmap += crypto_aead_ivsize(tfm);
  
- 	if (remove_sock)
--- 
-2.20.1
+-	dma_unmap_sg(dev, req->src, sg_nents_for_len(req->src, size_to_unmap),
+-		     DMA_BIDIRECTIONAL);
++	dma_unmap_sg(dev, req->src, sg_nents(req->src), DMA_BIDIRECTIONAL);
+ 	if (req->src != req->dst) {
+ 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
+ 			sg_virt(req->dst));
+-		dma_unmap_sg(dev, req->dst,
+-			     sg_nents_for_len(req->dst, size_to_unmap),
++		dma_unmap_sg(dev, req->dst, sg_nents(req->dst),
+ 			     DMA_BIDIRECTIONAL);
+ 	}
+ 	if (drvdata->coherent &&
 
