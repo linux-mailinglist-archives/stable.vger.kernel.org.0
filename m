@@ -2,80 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7336721167
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9E621168
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbfEQAmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 20:42:53 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:42186 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726510AbfEQAmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 20:42:53 -0400
-Received: by mail-wr1-f54.google.com with SMTP id l2so5213927wrb.9
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 17:42:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X1aY5rKVVdbScqVOQmS6JOYugPAKTgxglF8IlZ11Hs8=;
-        b=emNBtInwAJCxPO/SHAW171F470sGZP8kLE1yUoOnfgY+Dl9pRxZGTFve3wSTTSS4P+
-         ycPec1gWaK4OzrLa/SjJy5/7KGg43osW3sg1tqTcUm1glaALP3Rvmi+qXIz5aOBuHz3e
-         CnYqhcj507ejROjmRLFShs64SbFflAj5JFR357ddH0Hta+v8M3JmiGN7VVAmiYHijnn5
-         Mk0MRuNe49LmQfFA+8CIksdcqhHAYpuF/2V+pT7SCL/mdrswJUk1rsI7R9IpP1OXkXDE
-         CBX5rF22/gVu6KRWoLway3eOOOk6DWSy8muKasC6XNVqrdwn0xca20DkLIezbKZpw99g
-         Ot4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X1aY5rKVVdbScqVOQmS6JOYugPAKTgxglF8IlZ11Hs8=;
-        b=LF3Etz2/n7E9D5JuglLTK94NTM356PUfHgQMqT0sWxCQx8P3SSymQZmL1P/qLwQHrn
-         I/SqoK8//JELI4Rtqf+t6Dr0W1nq5upQ5ENlSNeSafBSkP0yUC7kr1eTDBIEEYwKRer5
-         EDRZbTqQ7oHTg4eb2i3JJ97Gu/FsOH6W2p75JCG7rzi3Hv0GM1PPhHbW+J80WUopqxaR
-         oxVAKI0qEIr6BS9B1pZAD3nc3imhqY3K5X5aPrFazEzVjwk7yFfH8mg7MpzEWFiZL/JM
-         I5jVetJeALKqQdRpkbELhQP22UV5Vd3hYaUQ0x7NL0OBlYdiNf7c7a7XU77sXObtzsqY
-         k7qg==
-X-Gm-Message-State: APjAAAUma6QBletKMRy+sJHNVgEXjTlvaYfwGK1YYsWWFD+Y8BXIt+Qt
-        zC2vEQIuymyhaOUnD409WFWTQzCTPgG+Cg==
-X-Google-Smtp-Source: APXvYqyROOqtops1AmIjBEVyXhOZRqfONKZHPYIcDoDl/+jMQh0u4cQC24bqI5BK8EoBiwnPVQReng==
-X-Received: by 2002:a5d:63c7:: with SMTP id c7mr2488772wrw.68.1558053771943;
-        Thu, 16 May 2019 17:42:51 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a10sm7745297wrm.94.2019.05.16.17.42.51
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 May 2019 17:42:51 -0700 (PDT)
-Message-ID: <5cde038b.1c69fb81.c2410.d41f@mx.google.com>
-Date:   Thu, 16 May 2019 17:42:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727241AbfEQAnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 20:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50130 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726510AbfEQAnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 May 2019 20:43:04 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6623206BF;
+        Fri, 17 May 2019 00:43:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558053783;
+        bh=j33c7ruDGDvYz2vBIkcANRAnfk59kDFq1q4RLQJjbV4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qA25r+f0B9FKBpEc/YeJyA6kZn3PIo53cM46cqRgZLco+sqSmnPo6sp0aIdqM5Lj4
+         n4gjUtMspbrVa1jjhJORYB/ieH4YCBCCOygknYQzCmtc6j3nLFvdBFzePR9nEV1AbQ
+         J2dJbu8wvqzUegbgYqToXzwm+LOJwzUc4pVxr5L4=
+Date:   Thu, 16 May 2019 20:43:01 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Dexuan Cui <decui@microsoft.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        "stephen@networkplumber.org" <stephen@networkplumber.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in
+ hv_eject_device_work()" failed to apply to 4.9-stable tree
+Message-ID: <20190517004301.GW11972@sasha-vm>
+References: <1557909271235151@kroah.com>
+ <PU1P153MB0169E1485667016EAE6EDB84BF090@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.17
-Subject: stable/linux-5.0.y boot: 61 boots: 0 failed, 61 passed (v5.0.17)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <PU1P153MB0169E1485667016EAE6EDB84BF090@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.0.y boot: 61 boots: 0 failed, 61 passed (v5.0.17)
+On Wed, May 15, 2019 at 11:14:31PM +0000, Dexuan Cui wrote:
+>> From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
+>> Sent: Wednesday, May 15, 2019 1:35 AM
+>> To: Dexuan Cui <decui@microsoft.com>; lorenzo.pieralisi@arm.com; Michael
+>> Kelley <mikelley@microsoft.com>; stephen@networkplumber.org
+>> Cc: stable@vger.kernel.org
+>> Subject: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in
+>> hv_eject_device_work()" failed to apply to 4.9-stable tree
+>>
+>>
+>> The patch below does not apply to the 4.9-stable tree.
+>> If someone wants it applied there, or to any other stable or longterm
+>> tree, then please email the backport, including the original git commit
+>> id to <stable@vger.kernel.org>.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>> ------------------ original commit in Linus's tree ------------------
+>>
+>> From 05f151a73ec2b23ffbff706e5203e729a995cdc2 Mon Sep 17 00:00:00
+>> 2001
+>> From: Dexuan Cui <decui@microsoft.com>
+>> Date: Mon, 4 Mar 2019 21:34:48 +0000
+>> Subject: [PATCH] PCI: hv: Fix a memory leak in hv_eject_device_work()
+>>
+>> When a device is created in new_pcichild_device(), hpdev->refs is set
+>> to 2 (i.e. the initial value of 1 plus the get_pcichild()).
+>>
+>> When we hot remove the device from the host, in a Linux VM we first call
+>> hv_pci_eject_device(), which increases hpdev->refs by get_pcichild() and
+>> then schedules a work of hv_eject_device_work(), so hpdev->refs becomes
+>> 3 (let's ignore the paired get/put_pcichild() in other places). But in
+>> hv_eject_device_work(), currently we only call put_pcichild() twice,
+>> meaning the 'hpdev' struct can't be freed in put_pcichild().
+>>
+>> Add one put_pcichild() to fix the memory leak.
+>>
+>> The device can also be removed when we run "rmmod pci-hyperv". On this
+>> path (hv_pci_remove() -> hv_pci_bus_exit() -> hv_pci_devices_present()),
+>> hpdev->refs is 2, and we do correctly call put_pcichild() twice in
+>> pci_devices_present_work().
+>>
+>> Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft
+>> Hyper-V VMs")
+>> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+>> [lorenzo.pieralisi@arm.com: commit log rework]
+>> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+>> Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+>> Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+>> Cc: stable@vger.kernel.org
+>>
+>> diff --git a/drivers/pci/controller/pci-hyperv.c
+>> b/drivers/pci/controller/pci-hyperv.c
+>> index 95441a35eceb..30f16b882746 100644
+>> --- a/drivers/pci/controller/pci-hyperv.c
+>> +++ b/drivers/pci/controller/pci-hyperv.c
+>> @@ -1900,6 +1900,9 @@ static void hv_eject_device_work(struct work_struct
+>> *work)
+>>  			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
+>>  			 VM_PKT_DATA_INBAND, 0);
+>>
+>> +	/* For the get_pcichild() in hv_pci_eject_device() */
+>> +	put_pcichild(hpdev);
+>> +	/* For the two refs got in new_pcichild_device() */
+>>  	put_pcichild(hpdev);
+>>  	put_pcichild(hpdev);
+>>  	put_hvpcibus(hpdev->hbus);
+>
+>Hi,
+>I backported the patch for linux-4.9.y. Please use the attached patch.
+>
+>Thanks,
+>-- Dexuan
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-0.y/kernel/v5.0.17/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
-rnel/v5.0.17/
+Queued for 4.9, thanks.
 
-Tree: stable
-Branch: linux-5.0.y
-Git Describe: v5.0.17
-Git Commit: d59f5a01fa438635ae098b2e170a18644df73c06
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 30 unique boards, 14 SoC families, 11 builds out of 208
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
