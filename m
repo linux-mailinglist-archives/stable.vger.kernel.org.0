@@ -2,79 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0F521733
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 12:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4193321928
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 15:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbfEQKrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 06:47:20 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:42941 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728165AbfEQKrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 06:47:19 -0400
-Received: by mail-lf1-f66.google.com with SMTP id y13so4972444lfh.9;
-        Fri, 17 May 2019 03:47:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ku+cJ0KGPggfXsWsOEHqzdK2uKS13WYhdMXnkwa2J94=;
-        b=YGWxc2NYkRjVCyVbQ1/3Kdezha005MkUtmDXwU3Dnn66C729JPxJ5OvZuYRVpCUFLQ
-         KI/g4RjNq9uklOniZJlfGCrkHS6f7BQowB7XoHbyskPrUjX0322lL4+aTWQYJ58goKjC
-         Nr8MEiMJgf1uRPnhX2KIVgij8d4p4vWRG2K9znhvAsxnCpJRLpKrFqTRMRtJPKPose6i
-         8e6Ebfc7YHlS+BhHuTdAlgIhCSANHprdYIW29we064YDbWX5agWqW7MV99e5EwGERmeE
-         kwdvEmsqol/i7mS05ECUsNyxXxOFpD2NR/JDj3vMIQodyzu1KyCNMyn2Ufc0ZcKM/WRd
-         nDHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ku+cJ0KGPggfXsWsOEHqzdK2uKS13WYhdMXnkwa2J94=;
-        b=qM1WowCnZ7dMh/eaMrnYH4kZEYjLCZkGVUiYgHkpDEsqgG4ypokeS4LtcmP1Oo88eQ
-         HGOzffGUa/vux1e+f/MpuIfWkyVlJa9DduooxxmaptstfVZKFqFDang5aGS0p7thE6MY
-         QEVz4F+4FkyuZckhWjpfLsbL/wISNKIGQ5sdOEc/dFm5ZMtjz5/zXY7i4qYpsDGIEN38
-         2vavsoe4UrHKBOH5tPKLwlPr0OVCR106thj92BeC4mFvJ5VcDiwv/3texIPgs3fkkwc/
-         GeGroI8pgkFi2m6mjo6QUmvKwWvFzjxUdz818QgtBdaXL5Wv2ZlDFbBSmhee0FLAg3U6
-         nryQ==
-X-Gm-Message-State: APjAAAVsbps/B9X4VQOqZ7sr8MQmLRh46ckjs+mutsasOvSEhGiUoYSM
-        5nIk947xnUIbSFJmZNRVNvhqxChA8/8DGDXJR1o=
-X-Google-Smtp-Source: APXvYqxZ2MG2AQvc33D8SCatH+kfTvr7StGGJTsiwIzC3IiePbUuBCM66Lyp5YEs5ptkeASOwJL4u708VtTLT1yA9fA=
-X-Received: by 2002:a19:c60f:: with SMTP id w15mr27524114lff.61.1558090037048;
- Fri, 17 May 2019 03:47:17 -0700 (PDT)
+        id S1728575AbfEQN1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 09:27:20 -0400
+Received: from 4.mo7.mail-out.ovh.net ([178.32.122.254]:42687 "EHLO
+        4.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728333AbfEQN1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 09:27:20 -0400
+X-Greylist: delayed 7797 seconds by postgrey-1.27 at vger.kernel.org; Fri, 17 May 2019 09:27:18 EDT
+Received: from player763.ha.ovh.net (unknown [10.109.159.248])
+        by mo7.mail-out.ovh.net (Postfix) with ESMTP id 15164119DE5
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 12:58:00 +0200 (CEST)
+Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
+        (Authenticated sender: groug@kaod.org)
+        by player763.ha.ovh.net (Postfix) with ESMTPSA id 00FA25E06E1D;
+        Fri, 17 May 2019 10:57:54 +0000 (UTC)
+Date:   Fri, 17 May 2019 12:57:54 +0200
+From:   Greg Kurz <groug@kaod.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        stable@vger.kernel.org,
+        =?UTF-8?B?Q8OpZHJp?= =?UTF-8?B?Yw==?= Le Goater 
+        <clg@kaod.org>
+Subject: Re: [PATCH] powerpc/pseries: Fix xive=off command line
+Message-ID: <20190517125754.2f0a572e@bahia.lan>
+In-Reply-To: <20190515105443.835E72084E@mail.kernel.org>
+References: <155791470178.432724.8008395673479905061.stgit@bahia.lan>
+ <20190515105443.835E72084E@mail.kernel.org>
+X-Mailer: Claws Mail 3.16.0 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20190517074039.22614-1-peng.fan@nxp.com>
-In-Reply-To: <20190517074039.22614-1-peng.fan@nxp.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Fri, 17 May 2019 07:47:08 -0300
-Message-ID: <CAOMZO5CobB6oSKc9SY3LLdLc9+ZkfiZyYXyCQa5yR-Wwnv0OCQ@mail.gmail.com>
-Subject: Re: [PATCH V2] clk: imx: imx8mm: fix int pll clk gate
-To:     Peng Fan <peng.fan@nxp.com>
-Cc:     "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 10644257719299512787
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgfeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddm
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 17, 2019 at 4:27 AM Peng Fan <peng.fan@nxp.com> wrote:
->
-> Fixes: ba5625c3e27 ("clk: imx: Add clock driver support for imx8mm")
-> To Frac pll, the gate shift is 13, however to Int PLL the gate shift
-> is 11.
->
-> Cc: <stable@vger.kernel.org>
+On Wed, 15 May 2019 10:54:42 +0000
+Sasha Levin <sashal@kernel.org> wrote:
 
-The Fixes tag should go here instead.
+> Hi,
+> 
 
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> Reviewed-by: Fabio Estevam <festevam@gmail.com>
-> Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+Hi,
+
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: eac1e731b59e powerpc/xive: guest exploitation of the XIVE interrupt controller.
+> 
+> The bot has tested the following trees: v5.1.1, v5.0.15, v4.19.42, v4.14.118.
+> 
+> v5.1.1: Build OK!
+> v5.0.15: Build OK!
+> v4.19.42: Failed to apply! Possible dependencies:
+>     8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
+>     c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
+> 
+
+Dependencies are:
+
+3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
+e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
+11fdb309341c ("powerpc/prom_init: Remove support for OPAL v2")
+c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
+8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
+f1f208e54d08 ("powerpc/prom_init: Generate "phandle" instead of "linux, phandle"")
+cbe46bd4f510 ("powerpc: remove CONFIG_CMDLINE #ifdef mess")
+450e7dd4001f ("powerpc/prom_init: don't use string functions from lib/")
+
+The patches apply flawlessly and allow the build to succeed.
+
+> v4.14.118: Failed to apply! Possible dependencies:
+>     028555a590d6 ("powerpc/xive: fix hcall H_INT_RESET to support long busy delays")
+>     7a22d6321c3d ("powerpc/mm/radix: Update command line parsing for disable_radix")
+>     8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
+>     c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
+> 
+
+Dependencies are:
+
+7a22d6321c3d ("powerpc/mm/radix: Update command line parsing for disable_radix")
+028555a590d6 ("powerpc/xive: fix hcall H_INT_RESET to support long busy delays")
+3bad719b4954 ("powerpc/prom_init: Make of_workarounds static")
+e63334e556d9 ("powerpc/prom_init: Replace __initdata with __prombss when applicable")
+11fdb309341c ("powerpc/prom_init: Remove support for OPAL v2")
+c886087caee7 ("powerpc/prom_init: Move prom_radix_disable to __prombss")
+8ca2d5151e7f ("powerpc/prom_init: Move a few remaining statics to appropriate sections")
+f1f208e54d08 ("powerpc/prom_init: Generate "phandle" instead of "linux, phandle"")
+cbe46bd4f510 ("powerpc: remove CONFIG_CMDLINE #ifdef mess")
+450e7dd4001f ("powerpc/prom_init: don't use string functions from lib/")
+
+The patches apply flawlessly and allow the build to succeed.
+
+> 
+> How should we proceed with this patch?
+> 
+
+xive=off allows the kernel to use the legacy XICS interrupt controller
+interface on POWER9, definitely not a recommended setting. A typical
+usage for this would be to workaround some issue that would only pop
+up when using XIVE. Note also that this only affects the pseries platform,
+ie. running under an hypervisor (KVM or pHyp).
+
+I cannot state right now whether it is worth the pain to cherry-pick all
+the dependencies to fix this or not in older kernels...
+
+Cheers,
+
+--
+Greg
+
+> --
+> Thanks,
+> Sasha
+
