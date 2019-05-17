@@ -2,106 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81DE721A4F
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B31AE21A5B
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbfEQPIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:08:39 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:35501 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728935AbfEQPIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:08:39 -0400
-Received: by mail-oi1-f194.google.com with SMTP id a132so5421286oib.2
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 08:08:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OGIfXnKXpW5eMKxUMdzRkt44XId1MoiNVnAxGfKvpiQ=;
-        b=NxNZPHkQ9m7afnPn+MzAQqWjc4b6NDowhfobUzGnErro91DDQhcbPCtV4yyPmQs5K/
-         qHoNY3q3kg21Z1aKKfhVtA51efXEJSWMC+nqJfOqd/6Cxza+N0PESVDd5pxT7+8WWxJ8
-         dZbrryqg4W1sKStoCFp33Wpzb60H7wUxxexYHFYmftwZiHvQx7ag+Qv71q7GSKVtf3Yv
-         0YURKil61RhPfxk/xokqMuqcpKadv25cmmeCfUPGZVYy8ZS45CyPZ/lVBP6QJrWv4/nC
-         v1/j1QVq4xm8msZpqCNnpxMl6+GJA9oIEyJXlJST7m7WnJ1/eAUMStAIB5yhR6N2QBgq
-         J6JQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OGIfXnKXpW5eMKxUMdzRkt44XId1MoiNVnAxGfKvpiQ=;
-        b=bGFZJFk8l8TB95PzPL+MnzyA6kWKhKE6T/+ikDs5lPZ0JJxFKYuO5z3t6WQWAi92cY
-         C6I6aqkhpw4BDL3qlPTUcznO0b6Qy+ofXttDJTkpQ5g9E4rwtUsfBmUMqNbWdUibH1Lh
-         bBvhM7nsltlxtZhJtQ5poFtHqFlGQfmL4oVG6Qk36vaHuMOh00mdz/S1gYglqyKpJsIN
-         27iGFFyE28QVhn3FW7n6qcu/+MUgUYcsZCQ6mBEja9esN/qpw8XbHMOj517d9Zv6+w3B
-         ABYZh0icbFypbnieBnBCaAshHQ0FWaDyGGzUl1bfJqTZ3lGJSPclsH0JyjBu3yJQMqY9
-         kDeQ==
-X-Gm-Message-State: APjAAAVHKOHxTOFRVsmel5go06eTG56PKyo8rany/1cta5E0QxXUwHHD
-        VgxkaBtRmix3h2HAi8zhPOwe55HplMKf8E2gRjdU67OusGQ=
-X-Google-Smtp-Source: APXvYqyTjO/s0rMdx1VgVCXo7bqh4zMktZXJwLahomPBvDpO+I4RjmmwQ75n8Xpfpye+mAWhmlTX6Dis4MloPOV9WcA=
-X-Received: by 2002:aca:b641:: with SMTP id g62mr12196057oif.149.1558105718742;
- Fri, 17 May 2019 08:08:38 -0700 (PDT)
+        id S1729202AbfEQPOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:14:30 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:52937 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729164AbfEQPOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:14:30 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 49D8D2B9;
+        Fri, 17 May 2019 11:14:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 11:14:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5It/V0
+        3B7pz4VnpH+xoupD0qi3jUdR5A+9PMAdBs0pQ=; b=FLoJFylNoGa3+tnSz8Hs39
+        mEpBo/HkGJxQcAQbUYwAvVSwwtKDpGyv8qdJEWoIMhv9sSeRFnHCXrYKDMYIxtbo
+        yYti9ENWhy+sPSWdTbmetx7mL9c+w3IOnUSW+pHfZUxfWXXyChz9+q42Pm1FG4Av
+        +Yf28wirWsHlqWDllkDy+hLlJivibefugjVy564aGhU+MQu6Mp3dPkEdDZDZxHU1
+        hMI4n2fHE3COJX07cENIKXmBtc/HMDCXXgrgJs3ItMmnXaFP+23zaxN9vpZzkmT3
+        VwSActTV6PNOy9AuvM6HrgS/8fbGIqJ9pEuSnxQ4HSjM+xMXnktZSY/Lzi8kRWnA
+        ==
+X-ME-Sender: <xms:1M_eXIdfH2imxSgbsFF33Nm-DBdHpB6YAVVgotUjoOZJEH6BrEsHJA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:1M_eXC068Z5qm_YKcTcI5L9CNpHUm-Uj8od53Kv1amXKyjNPZWo1ZA>
+    <xmx:1M_eXA8GWwUAHWs3_RPBXvPy5aq0E5Cm3hUyH9_nKV1gBOci0Hth_A>
+    <xmx:1M_eXH4p0nbCpusxEXYX2vrof1GGvt8CV34BYHLuLPkwgzUSuS_9TA>
+    <xmx:1M_eXKX5gFCNarDC87P1L7LNBfPKEbdyoRltB-ZtzixTyOiegitPuw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 019FA8005C;
+        Fri, 17 May 2019 11:14:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: Correctly free extent buffer in case" failed to apply to 4.14-stable tree
+To:     nborisov@suse.com, dsterba@suse.com, jungyeon@gatech.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 17 May 2019 17:14:25 +0200
+Message-ID: <1558106065141202@kroah.com>
 MIME-Version: 1.0
-References: <155805321833.867447.3864104616303535270.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190517084739.GB20550@quack2.suse.cz>
-In-Reply-To: <20190517084739.GB20550@quack2.suse.cz>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Fri, 17 May 2019 08:08:27 -0700
-Message-ID: <CAPcyv4iZZCgcC657ZOysBP9=1ejp3jfFj=VETVBPrgmfg7xUEw@mail.gmail.com>
-Subject: Re: [PATCH] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>,
-        stable <stable@vger.kernel.org>, Jeff Moyer <jmoyer@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        Jeff Smits <jeff.smits@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 17, 2019 at 1:47 AM Jan Kara <jack@suse.cz> wrote:
->
-> Let's add Kees to CC for usercopy expertise...
->
-> On Thu 16-05-19 17:33:38, Dan Williams wrote:
-> > Jeff discovered that performance improves from ~375K iops to ~519K iops
-> > on a simple psync-write fio workload when moving the location of 'struct
-> > page' from the default PMEM location to DRAM. This result is surprising
-> > because the expectation is that 'struct page' for dax is only needed for
-> > third party references to dax mappings. For example, a dax-mapped buffer
-> > passed to another system call for direct-I/O requires 'struct page' for
-> > sending the request down the driver stack and pinning the page. There is
-> > no usage of 'struct page' for first party access to a file via
-> > read(2)/write(2) and friends.
-> >
-> > However, this "no page needed" expectation is violated by
-> > CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
-> > copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
-> > check_heap_object() helper routine assumes the buffer is backed by a
-> > page-allocator DRAM page and applies some checks.  Those checks are
-> > invalid, dax pages are not from the heap, and redundant,
-> > dax_iomap_actor() has already validated that the I/O is within bounds.
->
-> So this last paragraph is not obvious to me as check_copy_size() does a lot
-> of various checks in CONFIG_HARDENED_USERCOPY case. I agree that some of
-> those checks don't make sense for PMEM pages but I'd rather handle that by
-> refining check_copy_size() and check_object_size() functions to detect and
-> appropriately handle pmem pages rather that generally skip all the checks
-> in pmem_copy_from/to_iter(). And yes, every check in such hot path is going
-> to cost performance but that's what user asked for with
-> CONFIG_HARDENED_USERCOPY... Kees?
 
-As far as I can see it's mostly check_heap_object() that is the
-problem, so I'm open to finding a way to just bypass that sub-routine.
-However, as far as I can see none of the other block / filesystem user
-copy implementations submit to the hardened checks, like
-bio_copy_from_iter(), and iov_iter_copy_from_user_atomic() . So,
-either those need to grow additional checks, or the hardened copy
-implementation is targeting single object copy use cases, not
-necessarily block-I/O. Yes, Kees, please advise.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 537f38f019fa0b762dbb4c0fc95d7fcce9db8e2d Mon Sep 17 00:00:00 2001
+From: Nikolay Borisov <nborisov@suse.com>
+Date: Thu, 14 Mar 2019 09:52:35 +0200
+Subject: [PATCH] btrfs: Correctly free extent buffer in case
+ btree_read_extent_buffer_pages fails
+
+If a an eb fails to be read for whatever reason - it's corrupted on disk
+and parent transid/key validations fail or IO for eb pages fail then
+this buffer must be removed from the buffer cache. Currently the code
+calls free_extent_buffer if an error occurs. Unfortunately this doesn't
+achieve the desired behavior since btrfs_find_create_tree_block returns
+with eb->refs == 2.
+
+On the other hand free_extent_buffer will only decrement the refs once
+leaving it added to the buffer cache radix tree.  This enables later
+code to look up the buffer from the cache and utilize it potentially
+leading to a crash.
+
+The correct way to free the buffer is call free_extent_buffer_stale.
+This function will correctly call atomic_dec explicitly for the buffer
+and subsequently call release_extent_buffer which will decrement the
+final reference thus correctly remove the invalid buffer from buffer
+cache. This change affects only newly allocated buffers since they have
+eb->refs == 2.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
+Reported-by: Jungyeon <jungyeon@gatech.edu>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 46b368d84aa3..ea44cf136131 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1021,13 +1021,18 @@ void readahead_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr)
+ {
+ 	struct extent_buffer *buf = NULL;
+ 	struct inode *btree_inode = fs_info->btree_inode;
++	int ret;
+ 
+ 	buf = btrfs_find_create_tree_block(fs_info, bytenr);
+ 	if (IS_ERR(buf))
+ 		return;
+-	read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree,
+-				 buf, WAIT_NONE, 0);
+-	free_extent_buffer(buf);
++
++	ret = read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree, buf,
++			WAIT_NONE, 0);
++	if (ret < 0)
++		free_extent_buffer_stale(buf);
++	else
++		free_extent_buffer(buf);
+ }
+ 
+ int reada_tree_block_flagged(struct btrfs_fs_info *fs_info, u64 bytenr,
+@@ -1047,12 +1052,12 @@ int reada_tree_block_flagged(struct btrfs_fs_info *fs_info, u64 bytenr,
+ 	ret = read_extent_buffer_pages(io_tree, buf, WAIT_PAGE_LOCK,
+ 				       mirror_num);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ret;
+ 	}
+ 
+ 	if (test_bit(EXTENT_BUFFER_CORRUPT, &buf->bflags)) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return -EIO;
+ 	} else if (extent_buffer_uptodate(buf)) {
+ 		*eb = buf;
+@@ -1106,7 +1111,7 @@ struct extent_buffer *read_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr,
+ 	ret = btree_read_extent_buffer_pages(fs_info, buf, parent_transid,
+ 					     level, first_key);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ERR_PTR(ret);
+ 	}
+ 	return buf;
+
