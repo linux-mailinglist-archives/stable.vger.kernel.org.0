@@ -2,79 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E8B21B78
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 18:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA2121B8E
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 18:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729110AbfEQQT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 12:19:56 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:35586 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728834AbfEQQTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 12:19:55 -0400
-Received: by mail-qt1-f193.google.com with SMTP id a39so8668889qtk.2
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 09:19:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gpiccoli-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JQo9aBA95rp8OAvg+gFs24bz5ulMaCtimiFeAwP39GY=;
-        b=EHpxwm3dHMfgR9agTnYXj6RWczAL0Tpdb+aDv35ZkbwI+JsZU8qVdWqK/TyHPVIbXA
-         HYx5hUSSE3lhycSfKYN4fykntbOk+gCRvDtmboYN9bGghhCWMKW+BkPYJ4bv2FV8HrMU
-         htxE4WfbdSwsT9WZQsjGcGSVr61CyxTRzQmTULtg8QkerJpzR8DsNe3Rm4DnvnZR5heC
-         pvPsPiB6mwMOhbvQleHPXpbtLoe7jfr/9+FYFQewlY+bIuJqRbWq7/wPmhkEeHxurppM
-         Q5n1gMcXf4WRsN3pyuPCgoWYJZ6o+EfDyh1jKfzFf4N3H1ntfv1S7WIKhYkl0eiwsVzY
-         ENIw==
+        id S1726078AbfEQQYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 12:24:52 -0400
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:46927 "EHLO
+        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725989AbfEQQYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 12:24:52 -0400
+Received: by mail-qt1-f196.google.com with SMTP id z19so8584202qtz.13
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 09:24:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JQo9aBA95rp8OAvg+gFs24bz5ulMaCtimiFeAwP39GY=;
-        b=dzVx+WrKouihKgxTMPAL/C9tHAc5uAZHWZtmrXkZOE9l8vykqflVvRXrgduwWZ0q/j
-         vphpg2WM6wLpjbNBgOqk2SkbsTEAyk3c14whOtznNVP8jPzbeQFx22l9wD0FECH2vEcA
-         ciAc4Ei6UPn8HI4No/IY9xiei2CX13dcziWU5R//aH/zCXjQ0pnSFLGL5KmjISArn6dB
-         hPWJrKPAhJIzWHtUFvtTPM6ND3lEpQ6Xlav0JPTFRnvqEnjg7DUJzip5IlRJ9U7GlEtu
-         syEpAdmJwYXzIUzjUjkRX4gYg/O7gkMoymUuqEv8JOhCt52uLOxU2yRHzQrq3smNb4Vk
-         2W1w==
-X-Gm-Message-State: APjAAAXZS9LDKPWIS1c4wD/pDr2bAMBlG7dD9oL4kreDJ+xfuHJx2A6T
-        7krDS/S9GftjVx7gcR2gyPMEHtATz/Wi3dQHrm+NUA==
-X-Google-Smtp-Source: APXvYqzuMhcd/NW5WXkxDeszD4UNp2tVLZCrFZ1IXTfTd9VNsVKaISjWgeA88f5yiB7P8wqxG6PKWsPDuCucTzpWuzg=
-X-Received: by 2002:ac8:1b0a:: with SMTP id y10mr46256762qtj.91.1558109995068;
- Fri, 17 May 2019 09:19:55 -0700 (PDT)
+        bh=nLuc7mQGuXrZ93LGpIUnVmMLZfQJE+kJAvXw64IpPHQ=;
+        b=lid4LUjdWdzUqvpZ1NPoOQvIy0CehKrE8fAgzwWkaz+G9lJCCBIa85e/cfhLTWR8nt
+         lG+VOo1X+xt9ONwtPtOlWFDiA93HgfNmTd7u7hi+/c+onyQfwqvOrcJToOkCheRSHC2n
+         PlXxZc2mb5rZDUGykCkT2j4ISePiXRCDtRO2dpk/F3Nh7NHS5/GQ8V3oVBBWLTOXvdWX
+         K1L+bxu4+R94F/OjgA+fnVyBp3gWZJYFzjG9CQDBo4bfbAV7Hu+YaieyaXNQ93ooLOK5
+         ztOTuKelJeV3tYenObkFJ1aP0g/l+RMcD/JGRzUiabGO1pflzBIoDWY1HTcwXG4nRbIP
+         UtxQ==
+X-Gm-Message-State: APjAAAU7OSNDmim1gvDkBmedw5NHyQ73uKuwpB8IFnIieq2skUH0QbfD
+        qhxTjpTSH8p7KFzMI8QPY+a1BmmFIJd5Ovk8a6tUgA==
+X-Google-Smtp-Source: APXvYqzPoKC1qs9E1DM3+eBqj4N6qE0Eg8hJ1VhdQNYm21O/Q8NY2dDFVJ8O8yz+Cumhk42wvfkY3Mu1J7wU2ua2sdg=
+X-Received: by 2002:a0c:87da:: with SMTP id 26mr26823801qvk.192.1558110291827;
+ Fri, 17 May 2019 09:24:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190430223722.20845-1-gpiccoli@canonical.com>
- <20190430223722.20845-2-gpiccoli@canonical.com> <CAPhsuW4SeUhNOJJkEf9wcLjbbc9qX0=C8zqbyCtC7Q8fdL91hw@mail.gmail.com>
- <c8721ba3-5d38-7906-5049-e2b16e967ecf@canonical.com> <CAPhsuW6ahmkUhCgns=9WHPXSvYefB0Gmr1oB7gdZiD86sKyHFg@mail.gmail.com>
- <5CD2A172.4010302@youngman.org.uk> <0ad36b2f-ec36-6930-b587-da0526613567@gpiccoli.net>
- <5CD3096B.4030302@youngman.org.uk>
-In-Reply-To: <5CD3096B.4030302@youngman.org.uk>
-From:   "Guilherme G. Piccoli" <kernel@gpiccoli.net>
-Date:   Fri, 17 May 2019 13:19:18 -0300
-Message-ID: <CALJn8nOTCcOtFJ1SzZAuJxNuxzf2Tq7Yw34h1E5XE-mbn5CUbg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
- raid0 bios
-To:     Wols Lists <antlists@youngman.org.uk>,
-        Song Liu <liu.song.a23@gmail.com>, axboe@kernel.dk
-Cc:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
-        linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
-        Gavin Guo <gavin.guo@canonical.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        stable@vger.kernel.org
+References: <20190507185322.7168-1-jason.gerecke@wacom.com> <20190507185322.7168-3-jason.gerecke@wacom.com>
+In-Reply-To: <20190507185322.7168-3-jason.gerecke@wacom.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Fri, 17 May 2019 18:24:40 +0200
+Message-ID: <CAO-hwJJHFW3TJX-JU2OAHHa_FDTTZcwCduy2vQMU2F=i8ZSr7A@mail.gmail.com>
+Subject: Re: [PATCH 3/3] HID: wacom: Sync INTUOSP2_BT touch state after each
+ frame if necessary
+To:     "Gerecke, Jason" <killertofu@gmail.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        "3.8+" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jens / Song, any news in this one?
+On Tue, May 7, 2019 at 8:53 PM Gerecke, Jason <killertofu@gmail.com> wrote:
+>
+> From: Jason Gerecke <jason.gerecke@wacom.com>
+>
+> The Bluetooth interface of the 2nd-gen Intuos Pro batches together four
+> independent "frames" of finger data into a single report. Each frame
+> is essentially equivalent to a single USB report, with the up-to-10
+> fingers worth of information being spread across two frames. At the
+> moment the driver only calls `input_sync` after processing all four
+> frames have been processed, which can result in the driver sending
+> multiple updates for a single slot within the same SYN_REPORT. This
+> can confuse userspace, so modify the driver to sync more often if
+> necessary (i.e., after reporting the state of all fingers).
+>
+> Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+> Cc: <stable@vger.kernel.org> # 4.11+
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
 
-I think would be good to have this raid0 fix rather sooner than later
-if possible - it's easy
-to reproduce the crash.
+series applied to for-5.2/upstream-fixes
 
-Thanks,
+Cheers,
+Benjamin
 
-
-Guilherme
+>  drivers/hid/wacom_wac.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index e848445236d8..09b8e4aac82f 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1371,11 +1371,17 @@ static void wacom_intuos_pro2_bt_touch(struct wacom_wac *wacom)
+>                 if (wacom->num_contacts_left <= 0) {
+>                         wacom->num_contacts_left = 0;
+>                         wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
+> +                       input_sync(touch_input);
+>                 }
+>         }
+>
+> -       input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
+> -       input_sync(touch_input);
+> +       if (wacom->num_contacts_left == 0) {
+> +               // Be careful that we don't accidentally call input_sync with
+> +               // only a partial set of fingers of processed
+> +               input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
+> +               input_sync(touch_input);
+> +       }
+> +
+>  }
+>
+>  static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
+> --
+> 2.21.0
+>
