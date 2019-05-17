@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADDE21A6F
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:18:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B338C21A76
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbfEQPSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:18:21 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:39889 "EHLO
+        id S1729182AbfEQPWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:22:52 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:58537 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729202AbfEQPSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:18:21 -0400
+        by vger.kernel.org with ESMTP id S1728749AbfEQPWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:22:52 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id ED4424C9;
-        Fri, 17 May 2019 11:18:19 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 11:18:20 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 7926747F;
+        Fri, 17 May 2019 11:22:51 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 11:22:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vkZpUf
-        W228CuMEADo9ESNbQJffmy7to38JjaQfNvmiQ=; b=vihSc2q01U0TCpg4At8/Fu
-        v7OKjVGepTALWlv+ppmsOa9B73dqp9vhg0yZm31+LqlVIVvzpROhBWYXkadZdwuU
-        CKCfCwU8f55cF9mlMwFy7zAnJnzso0seQ+1LL7Fp9Dol5Xt04D26QPhfKLHSwWnV
-        Jf3/zLrLIbiU34B5Mpdin6qB4QB3/ygJILBZdnuBIMG2COAmUKXDcL+Rc+dw+ZSL
-        stKO+Wbbd1MaOF5wb5NP84AkBh3FQA+kKUqLbdaMVUtw0YcV46inSxNcfCRxLD9l
-        i0cN6WkyxQRST1IjXH5oA0UeUAnApUH/hj2rr2phSPIIU+vhjQUCcyHttkvrEAOA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iWr+2i
+        rY6+31bNMrWD/nfvZACt28dVNdx8AEWpIS/Ls=; b=2CZ7eTOIIRy5ZM72T9ckPg
+        2VvNhnMbLQHTx9DtEcEPl7Y4NDucWNb/gPFXA+y+/AY6w36FytESdX4MVVGEKpab
+        YN0sBvyDk5R3QvaTX7ZYQS7buY0K5w7nnUqUXHlvLEsru+J5RVjACLcXw9T+omG2
+        WxM/yBno4dNyH/L4V50AKP2/2cXxIs7ImGIXseljrxVfo4tWEYgGc7BRMdgCcyIo
+        QI8w3zdOadIjXDhbcTvg5As9l/YIaNqBi8cG/5/dbi3wkvmGnh+jB9ZxawYxISSq
+        UicY4QszHDsdbyt1iE5zVnlU8AWRNcveMJZtQA0G9dwnc1WMvCDWM7YEQiz0SQow
         ==
-X-ME-Sender: <xms:u9DeXGPKQ6zyQ8I8Xzt5efete1rKCUwjRzE77b-0aDBn5tGOYbIihQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:ytHeXFtpDXIG7OwKBabtU3JuxFGdJ9jpP4zwI-cqYPM7YRqnyo9dQQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpqhgvmhhuqdhprhhojhgvtghtrd
-    horhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
-    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:u9DeXGl9BfLvr0BxkgNQdhKmhmI1nzhhWyLDqakgBcJkFZebbFVCQQ>
-    <xmx:u9DeXL9lwEmT5z-ej3G5jx89IuIXrPtxR1YbPjbbcS_e9cY_Z9iNqw>
-    <xmx:u9DeXPNDYGjlKCqgAaAYeaDKtAJUoTyMWyXQXpkpajyTzWwGwAl-2Q>
-    <xmx:u9DeXEb8n02gY6bHptw2IZLXmvy4F0St1H1G67vFUkafVGYvJVnqeQ>
+    gheqnecuffhomhgrihhnpehsvghnugdrshhtrhgvrghmnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:ytHeXBvF7NK1mUgIeFcKpEmFGoNctfqXqd3Hi1QuLz7_lTjmLnNllQ>
+    <xmx:ytHeXM2aWbC9Nj4Vf9r8qz3hm506h1pn4_2ocvO7sANyz0o3yzuSzg>
+    <xmx:ytHeXGNSwtqnLbM7Z_3aLq8uamPpRCrY9iLmWKU7Gx1cszecLV8cKw>
+    <xmx:ytHeXOO2-KmRGZB8rLFRxH4Bgtl0Ql8RND_R1eSIk4q_iuCY951Phg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ED2AB80062;
-        Fri, 17 May 2019 11:18:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix race between send and deduplication that lead to" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0D9B7103DC;
+        Fri, 17 May 2019 11:22:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: send, flush dellaloc in order to avoid data loss" failed to apply to 4.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 17:18:17 +0200
-Message-ID: <1558106297252114@kroah.com>
+Date:   Fri, 17 May 2019 17:22:48 +0200
+Message-ID: <1558106568193225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,241 +68,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 62d54f3a7fa27ef6a74d6cdf643ce04beba3afa7 Mon Sep 17 00:00:00 2001
+From 9f89d5de8631c7930898a601b6612e271aa2261c Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 22 Apr 2019 16:43:42 +0100
-Subject: [PATCH] Btrfs: fix race between send and deduplication that lead to
- failures and crashes
+Date: Mon, 15 Apr 2019 09:29:36 +0100
+Subject: [PATCH] Btrfs: send, flush dellaloc in order to avoid data loss
 
-Send operates on read only trees and expects them to never change while it
-is using them. This is part of its initial design, and this expection is
-due to two different reasons:
+When we set a subvolume to read-only mode we do not flush dellaloc for any
+of its inodes (except if the filesystem is mounted with -o flushoncommit),
+since it does not affect correctness for any subsequent operations - except
+for a future send operation. The send operation will not be able to see the
+delalloc data since the respective file extent items, inode item updates,
+backreferences, etc, have not hit yet the subvolume and extent trees.
 
-1) When it was introduced, no operations were allowed to modifiy read-only
-   subvolumes/snapshots (including defrag for example).
+Effectively this means data loss, since the send stream will not contain
+any data from existing delalloc. Another problem from this is that if the
+writeback starts and finishes while the send operation is in progress, we
+have the subvolume tree being being modified concurrently which can result
+in send failing unexpectedly with EIO or hitting runtime errors, assertion
+failures or hitting BUG_ONs, etc.
 
-2) It keeps send from having an impact on other filesystem operations.
-   Namely send does not need to keep locks on the trees nor needs to hold on
-   to transaction handles and delay transaction commits. This ends up being
-   a consequence of the former reason.
+Simple reproducer:
 
-However the deduplication feature was introduced later (on September 2013,
-while send was introduced in July 2012) and it allowed for deduplication
-with destination files that belong to read-only trees (subvolumes and
-snapshots).
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-That means that having a send operation (either full or incremental) running
-in parallel with a deduplication that has the destination inode in one of
-the trees used by the send operation, can result in tree nodes and leaves
-getting freed and reused while send is using them. This problem is similar
-to the problem solved for the root nodes getting freed and reused when a
-snapshot is made against one tree that is currenly being used by a send
-operation, fixed in commits [1] and [2]. These commits explain in detail
-how the problem happens and the explanation is valid for any node or leaf
-that is not the root of a tree as well. This problem was also discussed
-and explained recently in a thread [3].
+  $ btrfs subvolume create /mnt/sv
+  $ xfs_io -f -c "pwrite -S 0xea 0 108K" /mnt/sv/foo
 
-The problem is very easy to reproduce when using send with large trees
-(snapshots) and just a few concurrent deduplication operations that target
-files in the trees used by send. A stress test case is being sent for
-fstests that triggers the issue easily. The most common error to hit is
-the send ioctl return -EIO with the following messages in dmesg/syslog:
+  $ btrfs property set /mnt/sv ro true
+  $ btrfs send -f /tmp/send.stream /mnt/sv
 
- [1631617.204075] BTRFS error (device sdc): did not find backref in send_root. inode=63292, offset=0, disk_byte=5228134400 found extent=5228134400
- [1631633.251754] BTRFS error (device sdc): parent transid verify failed on 32243712 wanted 24 found 27
+  $ od -t x1 -A d /mnt/sv/foo
+  0000000 ea ea ea ea ea ea ea ea ea ea ea ea ea ea ea ea
+  *
+  0110592
 
-The first one is very easy to hit while the second one happens much less
-frequently, except for very large trees (in that test case, snapshots
-with 100000 files having large xattrs to get deep and wide trees).
-Less frequently, at least one BUG_ON can be hit:
+  $ umount /mnt
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
 
- [1631742.130080] ------------[ cut here ]------------
- [1631742.130625] kernel BUG at fs/btrfs/ctree.c:1806!
- [1631742.131188] invalid opcode: 0000 [#6] SMP DEBUG_PAGEALLOC PTI
- [1631742.131726] CPU: 1 PID: 13394 Comm: btrfs Tainted: G    B D W         5.0.0-rc8-btrfs-next-45 #1
- [1631742.132265] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
- [1631742.133399] RIP: 0010:read_node_slot+0x122/0x130 [btrfs]
- (...)
- [1631742.135061] RSP: 0018:ffffb530021ebaa0 EFLAGS: 00010246
- [1631742.135615] RAX: ffff93ac8912e000 RBX: 000000000000009d RCX: 0000000000000002
- [1631742.136173] RDX: 000000000000009d RSI: ffff93ac564b0d08 RDI: ffff93ad5b48c000
- [1631742.136759] RBP: ffffb530021ebb7d R08: 0000000000000001 R09: ffffb530021ebb7d
- [1631742.137324] R10: ffffb530021eba70 R11: 0000000000000000 R12: ffff93ac87d0a708
- [1631742.137900] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
- [1631742.138455] FS:  00007f4cdb1528c0(0000) GS:ffff93ad76a80000(0000) knlGS:0000000000000000
- [1631742.139010] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [1631742.139568] CR2: 00007f5acb3d0420 CR3: 000000012be3e006 CR4: 00000000003606e0
- [1631742.140131] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [1631742.140719] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [1631742.141272] Call Trace:
- [1631742.141826]  ? do_raw_spin_unlock+0x49/0xc0
- [1631742.142390]  tree_advance+0x173/0x1d0 [btrfs]
- [1631742.142948]  btrfs_compare_trees+0x268/0x690 [btrfs]
- [1631742.143533]  ? process_extent+0x1070/0x1070 [btrfs]
- [1631742.144088]  btrfs_ioctl_send+0x1037/0x1270 [btrfs]
- [1631742.144645]  _btrfs_ioctl_send+0x80/0x110 [btrfs]
- [1631742.145161]  ? trace_sched_stick_numa+0xe0/0xe0
- [1631742.145685]  btrfs_ioctl+0x13fe/0x3120 [btrfs]
- [1631742.146179]  ? account_entity_enqueue+0xd3/0x100
- [1631742.146662]  ? reweight_entity+0x154/0x1a0
- [1631742.147135]  ? update_curr+0x20/0x2a0
- [1631742.147593]  ? check_preempt_wakeup+0x103/0x250
- [1631742.148053]  ? do_vfs_ioctl+0xa2/0x6f0
- [1631742.148510]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
- [1631742.148942]  do_vfs_ioctl+0xa2/0x6f0
- [1631742.149361]  ? __fget+0x113/0x200
- [1631742.149767]  ksys_ioctl+0x70/0x80
- [1631742.150159]  __x64_sys_ioctl+0x16/0x20
- [1631742.150543]  do_syscall_64+0x60/0x1b0
- [1631742.150931]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
- [1631742.151326] RIP: 0033:0x7f4cd9f5add7
- (...)
- [1631742.152509] RSP: 002b:00007ffe91017708 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
- [1631742.152892] RAX: ffffffffffffffda RBX: 0000000000000105 RCX: 00007f4cd9f5add7
- [1631742.153268] RDX: 00007ffe91017790 RSI: 0000000040489426 RDI: 0000000000000007
- [1631742.153633] RBP: 0000000000000007 R08: 00007f4cd9e79700 R09: 00007f4cd9e79700
- [1631742.153999] R10: 00007f4cd9e799d0 R11: 0000000000000202 R12: 0000000000000003
- [1631742.154365] R13: 0000555dfae53020 R14: 0000000000000000 R15: 0000000000000001
- (...)
- [1631742.156696] ---[ end trace 5dac9f96dcc3fd6b ]---
+  $ btrfs receive -f /tmp/send.stream /mnt
+  $ echo $?
+  0
+  $ od -t x1 -A d /mnt/sv/foo
+  0000000
+  # ---> empty file
 
-That BUG_ON happens because while send is using a node, that node is COWed
-by a concurrent deduplication, gets freed and gets reused as a leaf (because
-a transaction commit happened in between), so when it attempts to read a
-slot from the extent buffer, at ctree.c:read_node_slot(), the extent buffer
-contents were wiped out and it now matches a leaf (which can even belong to
-some other tree now), hitting the BUG_ON(level == 0).
+Since this a problem that affects send only, fix it in send by flushing
+dellaloc for all the roots used by the send operation before send starts
+to process the commit roots.
 
-Fix this concurrency issue by not allowing send and deduplication to run
-in parallel if both operate on the same readonly trees, returning EAGAIN
-to user space and logging an exlicit warning in dmesg/syslog.
+This is a problem that affects send since it was introduced (commit
+31db9f7c23fbf7 ("Btrfs: introduce BTRFS_IOC_SEND for btrfs send/receive"))
+but backporting it to older kernels has some dependencies:
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=be6821f82c3cc36e026f5afd10249988852b35ea
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6f2f0b394b54e2b159ef969a0b5274e9bbf82ff2
-[3] https://lore.kernel.org/linux-btrfs/CAL3q7H7iqSEEyFaEtpRZw3cp613y+4k2Q8b4W7mweR3tZA05bQ@mail.gmail.com/
+- For kernels between 3.19 and 4.20, it depends on commit 3cd24c698004d2
+  ("btrfs: use tagged writepage to mitigate livelock of snapshot") because
+  the function btrfs_start_delalloc_snapshot() does not exist before that
+  commit. So one has to either pick that commit or replace the calls to
+  btrfs_start_delalloc_snapshot() in this patch with calls to
+  btrfs_start_delalloc_inodes().
 
-CC: stable@vger.kernel.org # 4.4+
+- For kernels older than 3.19 it also requires commit e5fa8f865b3324
+  ("Btrfs: ensure send always works on roots without orphans") because
+  it depends on the function ensure_commit_roots_uptodate() which that
+  commits introduced.
+
+- No dependencies for 5.0+ kernels.
+
+A test case for fstests follows soon.
+
+CC: stable@vger.kernel.org # 3.19+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index b19c7d65fe7d..aeaadeebc1fd 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -1340,6 +1340,12 @@ struct btrfs_root {
- 	 * manipulation with the read-only status via SUBVOL_SETFLAGS
- 	 */
- 	int send_in_progress;
-+	/*
-+	 * Number of currently running deduplication operations that have a
-+	 * destination inode belonging to this root. Protected by the lock
-+	 * root_item_lock.
-+	 */
-+	int dedupe_in_progress;
- 	struct btrfs_subvolume_writers *subv_writers;
- 	atomic_t will_be_snapshotted;
- 	atomic_t snapshot_force_cow;
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 19b0ee4e2c70..7755b503b348 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3262,6 +3262,19 @@ static int btrfs_extent_same(struct inode *src, u64 loff, u64 olen,
- {
- 	int ret;
- 	u64 i, tail_len, chunk_count;
-+	struct btrfs_root *root_dst = BTRFS_I(dst)->root;
-+
-+	spin_lock(&root_dst->root_item_lock);
-+	if (root_dst->send_in_progress) {
-+		btrfs_warn_rl(root_dst->fs_info,
-+"cannot deduplicate to root %llu while send operations are using it (%d in progress)",
-+			      root_dst->root_key.objectid,
-+			      root_dst->send_in_progress);
-+		spin_unlock(&root_dst->root_item_lock);
-+		return -EAGAIN;
-+	}
-+	root_dst->dedupe_in_progress++;
-+	spin_unlock(&root_dst->root_item_lock);
- 
- 	tail_len = olen % BTRFS_MAX_DEDUPE_LEN;
- 	chunk_count = div_u64(olen, BTRFS_MAX_DEDUPE_LEN);
-@@ -3270,7 +3283,7 @@ static int btrfs_extent_same(struct inode *src, u64 loff, u64 olen,
- 		ret = btrfs_extent_same_range(src, loff, BTRFS_MAX_DEDUPE_LEN,
- 					      dst, dst_loff);
- 		if (ret)
--			return ret;
-+			goto out;
- 
- 		loff += BTRFS_MAX_DEDUPE_LEN;
- 		dst_loff += BTRFS_MAX_DEDUPE_LEN;
-@@ -3279,6 +3292,10 @@ static int btrfs_extent_same(struct inode *src, u64 loff, u64 olen,
- 	if (tail_len > 0)
- 		ret = btrfs_extent_same_range(src, loff, tail_len, dst,
- 					      dst_loff);
-+out:
-+	spin_lock(&root_dst->root_item_lock);
-+	root_dst->dedupe_in_progress--;
-+	spin_unlock(&root_dst->root_item_lock);
- 
- 	return ret;
- }
 diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index 12363081f53b..dd38dfe174df 100644
+index 1e9caa552235..12363081f53b 100644
 --- a/fs/btrfs/send.c
 +++ b/fs/btrfs/send.c
-@@ -6640,6 +6640,13 @@ static void btrfs_root_dec_send_in_progress(struct btrfs_root* root)
- 	spin_unlock(&root->root_item_lock);
+@@ -6593,6 +6593,38 @@ static int ensure_commit_roots_uptodate(struct send_ctx *sctx)
+ 	return btrfs_commit_transaction(trans);
  }
  
-+static void dedupe_in_progress_warn(const struct btrfs_root *root)
++/*
++ * Make sure any existing dellaloc is flushed for any root used by a send
++ * operation so that we do not miss any data and we do not race with writeback
++ * finishing and changing a tree while send is using the tree. This could
++ * happen if a subvolume is in RW mode, has delalloc, is turned to RO mode and
++ * a send operation then uses the subvolume.
++ * After flushing delalloc ensure_commit_roots_uptodate() must be called.
++ */
++static int flush_delalloc_roots(struct send_ctx *sctx)
 +{
-+	btrfs_warn_rl(root->fs_info,
-+"cannot use root %llu for send while deduplications on it are in progress (%d in progress)",
-+		      root->root_key.objectid, root->dedupe_in_progress);
++	struct btrfs_root *root = sctx->parent_root;
++	int ret;
++	int i;
++
++	if (root) {
++		ret = btrfs_start_delalloc_snapshot(root);
++		if (ret)
++			return ret;
++		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
++	}
++
++	for (i = 0; i < sctx->clone_roots_cnt; i++) {
++		root = sctx->clone_roots[i].root;
++		ret = btrfs_start_delalloc_snapshot(root);
++		if (ret)
++			return ret;
++		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
++	}
++
++	return 0;
 +}
 +
- long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
+ static void btrfs_root_dec_send_in_progress(struct btrfs_root* root)
  {
- 	int ret = 0;
-@@ -6663,6 +6670,11 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
- 	 * making it RW. This also protects against deletion.
- 	 */
- 	spin_lock(&send_root->root_item_lock);
-+	if (btrfs_root_readonly(send_root) && send_root->dedupe_in_progress) {
-+		dedupe_in_progress_warn(send_root);
-+		spin_unlock(&send_root->root_item_lock);
-+		return -EAGAIN;
-+	}
- 	send_root->send_in_progress++;
- 	spin_unlock(&send_root->root_item_lock);
+ 	spin_lock(&root->root_item_lock);
+@@ -6817,6 +6849,10 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
+ 			NULL);
+ 	sort_clone_roots = 1;
  
-@@ -6797,6 +6809,13 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
- 				ret = -EPERM;
- 				goto out;
- 			}
-+			if (clone_root->dedupe_in_progress) {
-+				dedupe_in_progress_warn(clone_root);
-+				spin_unlock(&clone_root->root_item_lock);
-+				srcu_read_unlock(&fs_info->subvol_srcu, index);
-+				ret = -EAGAIN;
-+				goto out;
-+			}
- 			clone_root->send_in_progress++;
- 			spin_unlock(&clone_root->root_item_lock);
- 			srcu_read_unlock(&fs_info->subvol_srcu, index);
-@@ -6831,6 +6850,13 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
- 			ret = -EPERM;
- 			goto out;
- 		}
-+		if (sctx->parent_root->dedupe_in_progress) {
-+			dedupe_in_progress_warn(sctx->parent_root);
-+			spin_unlock(&sctx->parent_root->root_item_lock);
-+			srcu_read_unlock(&fs_info->subvol_srcu, index);
-+			ret = -EAGAIN;
-+			goto out;
-+		}
- 		spin_unlock(&sctx->parent_root->root_item_lock);
- 
- 		srcu_read_unlock(&fs_info->subvol_srcu, index);
++	ret = flush_delalloc_roots(sctx);
++	if (ret)
++		goto out;
++
+ 	ret = ensure_commit_roots_uptodate(sctx);
+ 	if (ret)
+ 		goto out;
 
