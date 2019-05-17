@@ -2,102 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7E921126
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3EF21149
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727542AbfEQAFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 20:05:47 -0400
-Received: from mail-wm1-f47.google.com ([209.85.128.47]:39465 "EHLO
-        mail-wm1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726523AbfEQAFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 20:05:46 -0400
-Received: by mail-wm1-f47.google.com with SMTP id n25so4671020wmk.4
-        for <stable@vger.kernel.org>; Thu, 16 May 2019 17:05:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Az+HoKZjIZtoG3gPZk2tsk0/BAnhZzzE/D5YEN4xBIw=;
-        b=fyJGS2nCpSzTFJzB2rvWwUTdjAdJL4aAwkfD3ZU7eOhYC2903G9JD8gH0AXjKZQskt
-         gbNOntgrAUtfhHNRhTPs+XRPdHVpuW9B0TBx0Sh0bR5GdBpihXAPu+TSDb1jlvIHcUaG
-         r+bN7Zx3LQwlymk/uNWj5I7LfCkxOgpxsyxXlYi5Mg03kdgMOnA05cyTDnah7/H81AmU
-         NKvoVqnLP1AuJAXFp+/quI8nIUslhDV6IPo3W9s2QjCtqgYxvqqL6FWJ7K4i4qfISDWM
-         UVGYBuaJQ6WHZKl9B8SzecLe5+hFbX9GNyWHkEEf9ZptkvLGfwpZdAIkw9u2pV/bGYfO
-         Aesw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Az+HoKZjIZtoG3gPZk2tsk0/BAnhZzzE/D5YEN4xBIw=;
-        b=H2I4qL+k2nH++/EwMLfwNC5uvQ34kqeVQ8XTrGp8yRM7DcK/t/rmRLxnyvg02rJtG1
-         tVD2ishSIQz5QC+zzHH+NodEFgrxTarKS9CgXU6dlifUsaXGQHPaUA05IqotSgzvkqGG
-         X2/QIWvWfi/BISq+44sWoz2xETljpLXHK720Dsxl6S9A7W/Ab/rbb+WtkGMq/4pOACfD
-         /OAcFN5JQDuAjKH8FhnbyfbCGH91m+gk1lffqqSqBksQM7emheUwwrgBVwT2yO+9X/CL
-         51deISYeO5haLHTyWzNFhWSjGR0erPSbmV6HSjXUTxA+n2i6S3ARbt+cpnUsXMMKnIXk
-         ldZQ==
-X-Gm-Message-State: APjAAAVUqIDxKCNvyFwXZ8E/83LxUu9TuANyn+XXcdhhlAQk0/tNJk8R
-        KNhkb65JoGDF28dihPeYtA+O7I62aCi2Hw==
-X-Google-Smtp-Source: APXvYqxv07Gg0JjbrRzHFvQQjV5AXcz+tSb+wuviB0MCcG9gicc7/sWVM8iJEC4aMgfM3ahTca8Prw==
-X-Received: by 2002:a1c:3dd6:: with SMTP id k205mr25009994wma.109.1558051545144;
-        Thu, 16 May 2019 17:05:45 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q16sm7358247wmj.17.2019.05.16.17.05.44
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 May 2019 17:05:44 -0700 (PDT)
-Message-ID: <5cddfad8.1c69fb81.8b846.b6c1@mx.google.com>
-Date:   Thu, 16 May 2019 17:05:44 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.119
-Subject: stable-rc/linux-4.14.y boot: 122 boots: 1 failed,
- 118 passed with 3 offline (v4.14.119)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726937AbfEQAal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 20:30:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40468 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726651AbfEQAal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 20:30:41 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x4H0RI8w020735
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 20:30:39 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2shhkhhd3a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 20:30:39 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Fri, 17 May 2019 01:30:37 +0100
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 17 May 2019 01:30:33 +0100
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x4H0UWJM43974822
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 May 2019 00:30:32 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB9AEA4062;
+        Fri, 17 May 2019 00:30:32 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ADCA5A4065;
+        Fri, 17 May 2019 00:30:31 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.80.80.98])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 17 May 2019 00:30:31 +0000 (GMT)
+Subject: Re: [PATCH 3/4] ima: don't ignore INTEGRITY_UNKNOWN EVM status
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        dmitry.kasatkin@huawei.com
+Cc:     linux-integrity@vger.kernel.org, linux-doc@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Thu, 16 May 2019 20:30:20 -0400
+In-Reply-To: <20190517001001.9BEF620848@mail.kernel.org>
+References: <20190516161257.6640-3-roberto.sassu@huawei.com>
+         <20190517001001.9BEF620848@mail.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19051700-0008-0000-0000-000002E786DE
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19051700-0009-0000-0000-000022542EB9
+Message-Id: <1558053020.4507.32.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-16_19:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=875 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1905170002
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 122 boots: 1 failed, 118 passed with 3 offline=
- (v4.14.119)
+On Fri, 2019-05-17 at 00:10 +0000, Sasha Levin wrote:
+> 
+> How should we proceed with this patch?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.119/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.119/
+Yikes!  This was posted earlier today.  I haven't even had a chance to
+look at it yet.  Similarly for "[PATCH 4/4] ima: only audit failed
+appraisal verifications".
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.119
-Git Commit: 2af67d29b6fec54b86bcdb3e0a616640eeea5302
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 61 unique boards, 22 SoC families, 14 builds out of 201
+Mimi
 
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
