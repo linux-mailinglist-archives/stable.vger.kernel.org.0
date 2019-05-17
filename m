@@ -2,223 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88B0F21A0E
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5155021A0F
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 16:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728963AbfEQOwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 10:52:24 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:40119 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728396AbfEQOwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 10:52:24 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id E4AA236A;
-        Fri, 17 May 2019 10:52:22 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 10:52:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=bPu2Dw
-        XJS2pk6PwlXaoO/oWY4OYQrUCmyonvd59DOCk=; b=FCSwTFObDclvI4NLjrrX2c
-        talQB4IltYCGoBtDflC5gjiVXuxjWoCGp/WrvN0jkw+bIkgVz7SQ0kt9MHXnGv8v
-        zUXZJvhi1ceAjlpnKWUsfVsLNd5io4NgkMXwrmZQHo1UbXaVCHXYfdcHXTwWzTAj
-        LYrdd/+eAgvVnpPSi7sAgDOsbx/VTMq2bd7sCwiWcMIXH1yd2In/ZKgkgLMiekZj
-        trSYMrX/aDnycoiPVFG5tIs8Ov4N90U0BaMEjy7WtryrVDKkcrGeWOqtyMtjIkGf
-        wCboWXhU95r2p6S8+o/ZXes7dKJRqZS8S0iRA3OQLlbyd6W7Kh2byswl7HOuWaoQ
-        ==
-X-ME-Sender: <xms:psreXNfjbAsOj2xFl0unkyN21fP3RH4vzBofXJo0PslxhqUB7JGIuw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
-X-ME-Proxy: <xmx:psreXIk9vpMDlC3EEk1xR3lWah85nLOkTBmVlWxY3WWhJbtKyX9cgQ>
-    <xmx:psreXFaV1-BxVJCG-cTU1jl8mf4z8D2xmYxczjJmCAo4EfRWRnUTCw>
-    <xmx:psreXALr0kLbncIT8oa9ht35Kn_93VN9DXe_289qi4f8KlEqW8Axog>
-    <xmx:psreXEaDiMLglBEKj9ai__AuCoBkw9UDfzyfeOutjst3aAX0zpEPZg>
+        id S1728985AbfEQOwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 10:52:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728968AbfEQOwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 10:52:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EEBB58005A;
-        Fri, 17 May 2019 10:52:21 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: ccree - fix backlog notifications" failed to apply to 4.19-stable tree
-To:     gilad@benyossef.com, herbert@gondor.apana.org.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 16:52:12 +0200
-Message-ID: <1558104732214199@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B7762168B;
+        Fri, 17 May 2019 14:52:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558104757;
+        bh=GWPQahVBLc9oCB8wTxBcTd3TyO8Alw8wwia+iCLmYwM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XzPSRxhuJeAU0NHHV0zUbVzWRB26FRuJ/3AltD4zUgMHCwRuVLwCoWXsvnh/f1M/o
+         zor7FnbIyNhmgAh76jLylIBoBb9qObAWRu4IZRSyEVun2kZ4aIagQw1TQQ6FAUkjC5
+         deQwi1Z9KDUB+G5K/cvajvAYivqjJKJjCFCC0Jv4=
+Date:   Fri, 17 May 2019 16:52:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Gilad Ben-Yossef <gilad@benyossef.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
+        Ofir Drang <ofir.drang@arm.com>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 00/35] crypto: ccree: features and bug fixes for 5.2
+Message-ID: <20190517145235.GB10613@kroah.com>
+References: <20190418133913.9122-1-gilad@benyossef.com>
+ <CAOtvUMd9WUZAFgTqVH0U2ZZp8bbHXNg9Ae_ZFvGKJTSKNct8JA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOtvUMd9WUZAFgTqVH0U2ZZp8bbHXNg9Ae_ZFvGKJTSKNct8JA@mail.gmail.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Apr 21, 2019 at 11:52:55AM +0300, Gilad Ben-Yossef wrote:
+> On Thu, Apr 18, 2019 at 4:39 PM Gilad Ben-Yossef <gilad@benyossef.com> wrote:
+> >
+> > A set of new features, mostly support for CryptoCell 713
+> > features including protected keys, security disable mode and
+> > new HW revision indetification interface alongside many bug fixes.
+> 
+> FYI,
+> 
+> A port of those patches from this patch series which have been marked
+> for stable is available at
+> https://github.com/gby/linux/tree/4.19-ccree
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hm, all I seem to need are 2 patches that failed to apply.  Can you just
+provide backports for them?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From a108f9311c01271bccad45d321cf9ddfac852c4b Mon Sep 17 00:00:00 2001
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-Date: Thu, 18 Apr 2019 16:38:46 +0300
-Subject: [PATCH] crypto: ccree - fix backlog notifications
-
-We were doing backlog notification callbacks via a cipher/hash/aead
-request structure cast to the base structure, which may or may not
-work based on how the structure is laid in memory and is not safe.
-
-Fix it by delegating the backlog notification to the appropriate
-internal callbacks which are type aware.
-
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/drivers/crypto/ccree/cc_aead.c b/drivers/crypto/ccree/cc_aead.c
-index c5cde327cf1f..1fa3c7fef851 100644
---- a/drivers/crypto/ccree/cc_aead.c
-+++ b/drivers/crypto/ccree/cc_aead.c
-@@ -220,6 +220,10 @@ static void cc_aead_complete(struct device *dev, void *cc_req, int err)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(cc_req);
- 	struct cc_aead_ctx *ctx = crypto_aead_ctx(tfm);
- 
-+	/* BACKLOG notification */
-+	if (err == -EINPROGRESS)
-+		goto done;
-+
- 	cc_unmap_aead_request(dev, areq);
- 
- 	/* Restore ordinary iv pointer */
-diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_cipher.c
-index 15da3a35a6a1..1ba7c8a7bd52 100644
---- a/drivers/crypto/ccree/cc_cipher.c
-+++ b/drivers/crypto/ccree/cc_cipher.c
-@@ -818,9 +818,13 @@ static void cc_cipher_complete(struct device *dev, void *cc_req, int err)
- 	struct crypto_skcipher *sk_tfm = crypto_skcipher_reqtfm(req);
- 	unsigned int ivsize = crypto_skcipher_ivsize(sk_tfm);
- 
--	cc_unmap_cipher_request(dev, req_ctx, ivsize, src, dst);
--	memcpy(req->iv, req_ctx->iv, ivsize);
--	kzfree(req_ctx->iv);
-+	if (err != -EINPROGRESS) {
-+		/* Not a BACKLOG notification */
-+		cc_unmap_cipher_request(dev, req_ctx, ivsize, src, dst);
-+		memcpy(req->iv, req_ctx->iv, ivsize);
-+		kzfree(req_ctx->iv);
-+	}
-+
- 	skcipher_request_complete(req, err);
- }
- 
-diff --git a/drivers/crypto/ccree/cc_hash.c b/drivers/crypto/ccree/cc_hash.c
-index 2c4ddc8fb76b..e824ab60b59c 100644
---- a/drivers/crypto/ccree/cc_hash.c
-+++ b/drivers/crypto/ccree/cc_hash.c
-@@ -280,8 +280,12 @@ static void cc_update_complete(struct device *dev, void *cc_req, int err)
- 
- 	dev_dbg(dev, "req=%pK\n", req);
- 
--	cc_unmap_hash_request(dev, state, req->src, false);
--	cc_unmap_req(dev, state, ctx);
-+	if (err != -EINPROGRESS) {
-+		/* Not a BACKLOG notification */
-+		cc_unmap_hash_request(dev, state, req->src, false);
-+		cc_unmap_req(dev, state, ctx);
-+	}
-+
- 	req->base.complete(&req->base, err);
- }
- 
-@@ -295,9 +299,13 @@ static void cc_digest_complete(struct device *dev, void *cc_req, int err)
- 
- 	dev_dbg(dev, "req=%pK\n", req);
- 
--	cc_unmap_hash_request(dev, state, req->src, false);
--	cc_unmap_result(dev, state, digestsize, req->result);
--	cc_unmap_req(dev, state, ctx);
-+	if (err != -EINPROGRESS) {
-+		/* Not a BACKLOG notification */
-+		cc_unmap_hash_request(dev, state, req->src, false);
-+		cc_unmap_result(dev, state, digestsize, req->result);
-+		cc_unmap_req(dev, state, ctx);
-+	}
-+
- 	req->base.complete(&req->base, err);
- }
- 
-@@ -311,9 +319,13 @@ static void cc_hash_complete(struct device *dev, void *cc_req, int err)
- 
- 	dev_dbg(dev, "req=%pK\n", req);
- 
--	cc_unmap_hash_request(dev, state, req->src, false);
--	cc_unmap_result(dev, state, digestsize, req->result);
--	cc_unmap_req(dev, state, ctx);
-+	if (err != -EINPROGRESS) {
-+		/* Not a BACKLOG notification */
-+		cc_unmap_hash_request(dev, state, req->src, false);
-+		cc_unmap_result(dev, state, digestsize, req->result);
-+		cc_unmap_req(dev, state, ctx);
-+	}
-+
- 	req->base.complete(&req->base, err);
- }
- 
-diff --git a/drivers/crypto/ccree/cc_request_mgr.c b/drivers/crypto/ccree/cc_request_mgr.c
-index 88c97a580dd8..c2e8190bb067 100644
---- a/drivers/crypto/ccree/cc_request_mgr.c
-+++ b/drivers/crypto/ccree/cc_request_mgr.c
-@@ -364,10 +364,12 @@ static void cc_enqueue_backlog(struct cc_drvdata *drvdata,
- 			       struct cc_bl_item *bli)
- {
- 	struct cc_req_mgr_handle *mgr = drvdata->request_mgr_handle;
-+	struct device *dev = drvdata_to_dev(drvdata);
- 
- 	spin_lock_bh(&mgr->bl_lock);
- 	list_add_tail(&bli->list, &mgr->backlog);
- 	++mgr->bl_len;
-+	dev_dbg(dev, "+++bl len: %d\n", mgr->bl_len);
- 	spin_unlock_bh(&mgr->bl_lock);
- 	tasklet_schedule(&mgr->comptask);
- }
-@@ -377,7 +379,7 @@ static void cc_proc_backlog(struct cc_drvdata *drvdata)
- 	struct cc_req_mgr_handle *mgr = drvdata->request_mgr_handle;
- 	struct cc_bl_item *bli;
- 	struct cc_crypto_req *creq;
--	struct crypto_async_request *req;
-+	void *req;
- 	bool ivgen;
- 	unsigned int total_len;
- 	struct device *dev = drvdata_to_dev(drvdata);
-@@ -387,17 +389,20 @@ static void cc_proc_backlog(struct cc_drvdata *drvdata)
- 
- 	while (mgr->bl_len) {
- 		bli = list_first_entry(&mgr->backlog, struct cc_bl_item, list);
-+		dev_dbg(dev, "---bl len: %d\n", mgr->bl_len);
-+
- 		spin_unlock(&mgr->bl_lock);
- 
-+
- 		creq = &bli->creq;
--		req = (struct crypto_async_request *)creq->user_arg;
-+		req = creq->user_arg;
- 
- 		/*
- 		 * Notify the request we're moving out of the backlog
- 		 * but only if we haven't done so already.
- 		 */
- 		if (!bli->notif) {
--			req->complete(req, -EINPROGRESS);
-+			creq->user_cb(dev, req, -EINPROGRESS);
- 			bli->notif = true;
- 		}
- 
-
