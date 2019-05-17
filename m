@@ -2,65 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8608521166
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7336721167
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727705AbfEQAlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 20:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726510AbfEQAlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 20:41:50 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0011B2082E;
-        Fri, 17 May 2019 00:41:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558053710;
-        bh=i2+9utRlxCHn9C2roOMcf3frhGqK+t57o1CPp16OXYc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FDE+FWBNLVDtKOwNC/rFUHf+hnpSeMHmMCt72Hr68ESZ0dJfRpyOm38mybQ1XF1BX
-         RsGvDy0g1h+7iYFwZEhs8kX1WOn8/EOquXyIvZg+s524E3iP2b3ABol2J8A5vNt8yj
-         +KuFnZ9Nudg6k9N9pZNbn9nbSXX0bGh8MNDRa+Uw=
-Date:   Thu, 16 May 2019 20:41:48 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        "stephen@networkplumber.org" <stephen@networkplumber.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in
- hv_eject_device_work()" failed to apply to 4.14-stable tree
-Message-ID: <20190517004148.GV11972@sasha-vm>
-References: <1557909270643@kroah.com>
- <PU1P153MB0169D8FF719D8718F6B3157ABF090@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+        id S1727706AbfEQAmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 20:42:53 -0400
+Received: from mail-wr1-f54.google.com ([209.85.221.54]:42186 "EHLO
+        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726510AbfEQAmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 20:42:53 -0400
+Received: by mail-wr1-f54.google.com with SMTP id l2so5213927wrb.9
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 17:42:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=X1aY5rKVVdbScqVOQmS6JOYugPAKTgxglF8IlZ11Hs8=;
+        b=emNBtInwAJCxPO/SHAW171F470sGZP8kLE1yUoOnfgY+Dl9pRxZGTFve3wSTTSS4P+
+         ycPec1gWaK4OzrLa/SjJy5/7KGg43osW3sg1tqTcUm1glaALP3Rvmi+qXIz5aOBuHz3e
+         CnYqhcj507ejROjmRLFShs64SbFflAj5JFR357ddH0Hta+v8M3JmiGN7VVAmiYHijnn5
+         Mk0MRuNe49LmQfFA+8CIksdcqhHAYpuF/2V+pT7SCL/mdrswJUk1rsI7R9IpP1OXkXDE
+         CBX5rF22/gVu6KRWoLway3eOOOk6DWSy8muKasC6XNVqrdwn0xca20DkLIezbKZpw99g
+         Ot4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=X1aY5rKVVdbScqVOQmS6JOYugPAKTgxglF8IlZ11Hs8=;
+        b=LF3Etz2/n7E9D5JuglLTK94NTM356PUfHgQMqT0sWxCQx8P3SSymQZmL1P/qLwQHrn
+         I/SqoK8//JELI4Rtqf+t6Dr0W1nq5upQ5ENlSNeSafBSkP0yUC7kr1eTDBIEEYwKRer5
+         EDRZbTqQ7oHTg4eb2i3JJ97Gu/FsOH6W2p75JCG7rzi3Hv0GM1PPhHbW+J80WUopqxaR
+         oxVAKI0qEIr6BS9B1pZAD3nc3imhqY3K5X5aPrFazEzVjwk7yFfH8mg7MpzEWFiZL/JM
+         I5jVetJeALKqQdRpkbELhQP22UV5Vd3hYaUQ0x7NL0OBlYdiNf7c7a7XU77sXObtzsqY
+         k7qg==
+X-Gm-Message-State: APjAAAUma6QBletKMRy+sJHNVgEXjTlvaYfwGK1YYsWWFD+Y8BXIt+Qt
+        zC2vEQIuymyhaOUnD409WFWTQzCTPgG+Cg==
+X-Google-Smtp-Source: APXvYqyROOqtops1AmIjBEVyXhOZRqfONKZHPYIcDoDl/+jMQh0u4cQC24bqI5BK8EoBiwnPVQReng==
+X-Received: by 2002:a5d:63c7:: with SMTP id c7mr2488772wrw.68.1558053771943;
+        Thu, 16 May 2019 17:42:51 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a10sm7745297wrm.94.2019.05.16.17.42.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 May 2019 17:42:51 -0700 (PDT)
+Message-ID: <5cde038b.1c69fb81.c2410.d41f@mx.google.com>
+Date:   Thu, 16 May 2019 17:42:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <PU1P153MB0169D8FF719D8718F6B3157ABF090@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.17
+Subject: stable/linux-5.0.y boot: 61 boots: 0 failed, 61 passed (v5.0.17)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 15, 2019 at 11:18:56PM +0000, Dexuan Cui wrote:
->Hi,
->I backported the patch for linux-4.14.y.
->
->Please use the attached patch, which is [PATCH 1/3]
+stable/linux-5.0.y boot: 61 boots: 0 failed, 61 passed (v5.0.17)
 
-Hi Dexuan,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+0.y/kernel/v5.0.17/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
+rnel/v5.0.17/
 
-For future reference, please keep the commit message in the backported
-patch same as the upstream one, unless you want to add additional
-information about the backport, in which case just add it to the commit
-message rather than replacing it.
+Tree: stable
+Branch: linux-5.0.y
+Git Describe: v5.0.17
+Git Commit: d59f5a01fa438635ae098b2e170a18644df73c06
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 14 SoC families, 11 builds out of 208
 
-I've cleaned up the commit message and queued it up for 4.14, thank you.
-
---
-Thanks,
-Sasha
+---
+For more info write to <info@kernelci.org>
