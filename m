@@ -2,198 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4F321A78
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025E821A91
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbfEQPW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:22:57 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:36729 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728749AbfEQPW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:22:56 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 6A5123AA;
-        Fri, 17 May 2019 11:22:55 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 11:22:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=L015NT
-        ijmWnZP+RWxMk0HacvsQ9qRydKiJsnfXttO/Q=; b=RzJ/+WOCZix0KAnAUk9nN6
-        rpsgNCu2OkA/BoKqXKLb/RiuN+AF58aUGCibZzWty0mmzXQB4pgpkdNy7MFa9w7K
-        +A26ac50d1FDQ4hGznl4IqJFF3wJm6YYqIQogpGPa3FZCwNnuUxbpRprid+LO30p
-        6l4Xw4uH0H7h1LNpUMHq2TLwT0ma3Rwdjj0hDLd+5pxGR2kbYJ0+WyCX2wxbhx4r
-        4HIBQ2TKAzG6vPPA4ewv2t+++ngEYGQ1DpKpoSCxDc3+2179e3BBn6ETcyigA7aZ
-        lprizq6L463uaXUgvaWvblUSj8d6mY6Rd5WcR0+zNv67OwHLcUMAcrfXTSAMlIcQ
-        ==
-X-ME-Sender: <xms:ztHeXIJltcy5EBb0hdGCzXrDGzlnA1cNz88pdgv0wTlY9fexhLWSvw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehsvghnugdrshhtrhgvrghmnecukfhppeekfedrkeeirdekle
-    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:z9HeXD-MmIbiLIzQuI_8Mc0TAVFUX3oaWD7hFzjKsjBJ3YloDrNJ0A>
-    <xmx:z9HeXOOOjihZT1lg_0bAYertIL1s8jgDrYA_4Jsl-BHZd4hjR0LsCA>
-    <xmx:z9HeXH3kUmLRftRcIGKppRSJIONeJKI2eMY_EmoXM1zZ-_IGM7LU7A>
-    <xmx:z9HeXCc6BeP0dxRCrVb-Ovd7Z3Gm7kfFlwTdVDVAzAtN4tb4K6tBSQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7F23F103E3;
-        Fri, 17 May 2019 11:22:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: send, flush dellaloc in order to avoid data loss" failed to apply to 4.14-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 17:22:51 +0200
-Message-ID: <155810657119202@kroah.com>
+        id S1729145AbfEQPb2 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 11:31:28 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:33480 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729084AbfEQPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 11:31:28 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CC95B81134
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 15:31:27 +0000 (UTC)
+Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 538725C21A;
+        Fri, 17 May 2019 15:31:25 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.ABA7C03998.7QVQ1N69MZ@redhat.com>
+X-Gitlab-Pipeline-ID: 10299
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10299?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 17 May 2019 15:31:27 +0000 (UTC)
+Date:   Fri, 17 May 2019 11:31:28 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-thanks,
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 7cb9c5d341b9 - Linux 5.1.3
 
-greg k-h
+The results of these automated tests are provided below.
 
------------------- original commit in Linus's tree ------------------
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-From 9f89d5de8631c7930898a601b6612e271aa2261c Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 15 Apr 2019 09:29:36 +0100
-Subject: [PATCH] Btrfs: send, flush dellaloc in order to avoid data loss
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-When we set a subvolume to read-only mode we do not flush dellaloc for any
-of its inodes (except if the filesystem is mounted with -o flushoncommit),
-since it does not affect correctness for any subsequent operations - except
-for a future send operation. The send operation will not be able to see the
-delalloc data since the respective file extent items, inode item updates,
-backreferences, etc, have not hit yet the subvolume and extent trees.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-Effectively this means data loss, since the send stream will not contain
-any data from existing delalloc. Another problem from this is that if the
-writeback starts and finishes while the send operation is in progress, we
-have the subvolume tree being being modified concurrently which can result
-in send failing unexpectedly with EIO or hitting runtime errors, assertion
-failures or hitting BUG_ONs, etc.
+Merge testing
+-------------
 
-Simple reproducer:
+We cloned this repository and checked out the following commit:
 
-  $ mkfs.btrfs -f /dev/sdb
-  $ mount /dev/sdb /mnt
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 7cb9c5d341b9 - Linux 5.1.3
 
-  $ btrfs subvolume create /mnt/sv
-  $ xfs_io -f -c "pwrite -S 0xea 0 108K" /mnt/sv/foo
+We then merged the patchset with `git am`:
 
-  $ btrfs property set /mnt/sv ro true
-  $ btrfs send -f /tmp/send.stream /mnt/sv
+  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
+  x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
+  x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
+  objtool-fix-function-fallthrough-detection.patch
+  arm64-dts-rockchip-fix-io-domain-voltage-setting-of-apio5-on-rockpro64.patch
+  arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
+  arm-dts-qcom-ipq4019-enlarge-pcie-bar-range.patch
+  arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
+  arm-dts-exynos-fix-audio-routing-on-odroid-xu3.patch
+  arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
+  mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
+  arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
+  power-supply-axp288_charger-fix-unchecked-return-value.patch
+  power-supply-axp288_fuel_gauge-add-acepc-t8-and-t11-mini-pcs-to-the-blacklist.patch
+  arm64-mmap-ensure-file-offset-is-treated-as-unsigned.patch
+  arm64-arch_timer-ensure-counter-register-reads-occur-with-seqlock-held.patch
+  arm64-compat-reduce-address-limit.patch
+  arm64-clear-osdlr_el1-on-cpu-boot.patch
+  arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
+  sched-x86-save-flags-on-context-switch.patch
+  x86-mce-add-an-mce-record-filtering-function.patch
+  x86-mce-amd-don-t-report-l1-btb-mca-errors-on-some-family-17h-models.patch
+  crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
+  crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
+  crypto-salsa20-don-t-access-already-freed-walk.iv.patch
+  crypto-lrw-don-t-access-already-freed-walk.iv.patch
+  crypto-chacha-generic-fix-use-as-arm64-no-neon-fallback.patch
+  crypto-chacha20poly1305-set-cra_name-correctly.patch
+  crypto-ccm-fix-incompatibility-between-ccm-and-ccm_base.patch
+  crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
+  crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
+  crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
+  crypto-crct10dif-generic-fix-use-via-crypto_shash_digest.patch
+  crypto-x86-crct10dif-pcl-fix-use-via-crypto_shash_digest.patch
+  crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
+  crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
+  crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
+  crypto-caam-qi2-fix-zero-length-buffer-dma-mapping.patch
+  crypto-caam-qi2-fix-dma-mapping-of-stack-memory.patch
+  crypto-caam-qi2-generate-hash-keys-in-place.patch
+  crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  drivers-dax-allow-to-include-dev_dax_pmem-as-builtin.patch
+  dt-bindings-mmc-add-disable-cqe-dcmd-property.patch
+  mmc-tegra-fix-ddr-signaling-for-non-ddr-modes.patch
+  mmc-core-fix-tag-set-memory-leak.patch
+  mmc-sdhci-pci-fix-byt-ocp-setting.patch
+  alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
+  alsa-usb-audio-fix-a-memory-leak-bug.patch
+  alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
+  alsa-hda-hdmi-consider-eld_valid-when-reporting-jack-event.patch
+  alsa-hda-realtek-eapd-turn-on-later.patch
+  alsa-hdea-realtek-headset-fixup-for-system76-gazelle-gaze14.patch
+  asoc-max98090-fix-restore-of-dapm-muxes.patch
+  asoc-rt5677-spi-disable-16bit-spi-transfers.patch
+  asoc-fsl_esai-fix-missing-break-in-switch-statement.patch
+  asoc-codec-hdac_hdmi-add-device_link-to-card-device.patch
 
-  $ od -t x1 -A d /mnt/sv/foo
-  0000000 ea ea ea ea ea ea ea ea ea ea ea ea ea ea ea ea
-  *
-  0110592
+Compile testing
+---------------
 
-  $ umount /mnt
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
+We compiled the kernel for 4 architectures:
 
-  $ btrfs receive -f /tmp/send.stream /mnt
-  $ echo $?
-  0
-  $ od -t x1 -A d /mnt/sv/foo
-  0000000
-  # ---> empty file
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
 
-Since this a problem that affects send only, fix it in send by flushing
-dellaloc for all the roots used by the send operation before send starts
-to process the commit roots.
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
 
-This is a problem that affects send since it was introduced (commit
-31db9f7c23fbf7 ("Btrfs: introduce BTRFS_IOC_SEND for btrfs send/receive"))
-but backporting it to older kernels has some dependencies:
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
 
-- For kernels between 3.19 and 4.20, it depends on commit 3cd24c698004d2
-  ("btrfs: use tagged writepage to mitigate livelock of snapshot") because
-  the function btrfs_start_delalloc_snapshot() does not exist before that
-  commit. So one has to either pick that commit or replace the calls to
-  btrfs_start_delalloc_snapshot() in this patch with calls to
-  btrfs_start_delalloc_inodes().
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
 
-- For kernels older than 3.19 it also requires commit e5fa8f865b3324
-  ("Btrfs: ensure send always works on roots without orphans") because
-  it depends on the function ensure_commit_roots_uptodate() which that
-  commits introduced.
 
-- No dependencies for 5.0+ kernels.
+Hardware testing
+----------------
 
-A test case for fstests follows soon.
+We booted each kernel and ran the following tests:
 
-CC: stable@vger.kernel.org # 3.19+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ audit: audit testsuite test [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ stress: stress-ng [8]
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [9]
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index 1e9caa552235..12363081f53b 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -6593,6 +6593,38 @@ static int ensure_commit_roots_uptodate(struct send_ctx *sctx)
- 	return btrfs_commit_transaction(trans);
- }
- 
-+/*
-+ * Make sure any existing dellaloc is flushed for any root used by a send
-+ * operation so that we do not miss any data and we do not race with writeback
-+ * finishing and changing a tree while send is using the tree. This could
-+ * happen if a subvolume is in RW mode, has delalloc, is turned to RO mode and
-+ * a send operation then uses the subvolume.
-+ * After flushing delalloc ensure_commit_roots_uptodate() must be called.
-+ */
-+static int flush_delalloc_roots(struct send_ctx *sctx)
-+{
-+	struct btrfs_root *root = sctx->parent_root;
-+	int ret;
-+	int i;
-+
-+	if (root) {
-+		ret = btrfs_start_delalloc_snapshot(root);
-+		if (ret)
-+			return ret;
-+		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
-+	}
-+
-+	for (i = 0; i < sctx->clone_roots_cnt; i++) {
-+		root = sctx->clone_roots[i].root;
-+		ret = btrfs_start_delalloc_snapshot(root);
-+		if (ret)
-+			return ret;
-+		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
-+	}
-+
-+	return 0;
-+}
-+
- static void btrfs_root_dec_send_in_progress(struct btrfs_root* root)
- {
- 	spin_lock(&root->root_item_lock);
-@@ -6817,6 +6849,10 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
- 			NULL);
- 	sort_clone_roots = 1;
- 
-+	ret = flush_delalloc_roots(sctx);
-+	if (ret)
-+		goto out;
-+
- 	ret = ensure_commit_roots_uptodate(sctx);
- 	if (ret)
- 		goto out;
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ audit: audit testsuite test [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ stress: stress-ng [8]
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [9]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ audit: audit testsuite test [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ stress: stress-ng [8]
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [9]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ AMTU (Abstract Machine Test Utility) [2]
+     ✅ audit: audit testsuite test [3]
+     ✅ httpd: mod_ssl smoke sanity [4]
+     ✅ iotop: sanity [5]
+     ✅ tuned: tune-processes-through-perf [6]
+     ✅ Usex - version 1.9-29 [7]
+     ✅ stress: stress-ng [8]
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [9]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
 
