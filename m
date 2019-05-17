@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D55218C1
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 15:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A48C21901
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 15:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728553AbfEQNBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 09:01:36 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:59093 "EHLO
+        id S1728351AbfEQNSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 09:18:37 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:34885 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728407AbfEQNBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 09:01:36 -0400
+        by vger.kernel.org with ESMTP id S1726628AbfEQNSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 09:18:37 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 709BD45C;
-        Fri, 17 May 2019 09:01:35 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 09:01:35 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 4A577203;
+        Fri, 17 May 2019 09:18:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 17 May 2019 09:18:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Eht6l/
-        isQhd4zZdODzlKFHG06cgHQUazL7+GK3YEDlY=; b=cYuvME90wft5hdAQxSE/2n
-        0UNM2PVymG/tfe67KfgXX0XgVoKsU10DoOyR0hr+kQf0MzLuBt/eZRwLnYPepNdA
-        SjQRLaOhvkf/Ho4OtL4/hweSzzM1Qu6QiEaP6cqPo8IXc9y5o8GjxXvWPsGi27Jt
-        L7v7c2VIbbY5MA39eGNfttU08MAaJMOxhoj/xpH4p53FeMiZmACbKqXRdIqkepmo
-        4FKOQELy7bIrZKC7xGqiBoppHDF5j7YcOaReZS46HWLjiWbEgbRvsqnaVbc/jR+J
-        a9WOBakX/jkhNfLnxLtQMrPmL4o4b0TJarq4Zbm2Aa9sdfrxzlOkB2ACOpCFT0zQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/t0NvL
+        dEfklBAvbetI4go2DKj4hSShLIaVgxFk/vikE=; b=GfcT6Fn96JQ0SYcxaVrWMx
+        8buXBuiMLF71cHc72Od4UTt5TU23JGPFfjG0D/TsyRzn+NH7k8yNJ4WgzR0Mxgwc
+        Tl5AvQbXI4omEkVfGPfLZh216iCiDMIZe49ZiAXCu/dT4McdiOZw97lWwWXiiX+e
+        dg49XBCcHAl/KzJCgujFVQVcT68lWtagh43D/GEc6miGKBlzXl9Jz7kHYmrsUOGt
+        8yJvlnAeRIWlXj1CO3D44Tl5fnhz11yA3oMkUCUoLvOtHzX2+ht11vTBUPsh3dso
+        dxc2SdYKMpxjvd/qzijzSzYozFZCrnnSQjQE0c+k6zrVwwerGKeOXXihZN1OakFQ
         ==
-X-ME-Sender: <xms:rrDeXKSmai8d0sVgpsQ--SHfVYl26oqpw_udcPzjKHO4_DQsKn79RQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgiedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:qrTeXDYe4WGh1joU6mv7ks2oRMomH0jzYE6sWoONMt1YyuVczrGB5A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:rrDeXA-fcxZOAxtfy6KNhrzfMtDPJmMtETvkNEM4RyYF5JdxcLgneA>
-    <xmx:rrDeXIQdsfjOqiY-yKa3tkFH6e2wii0aSzJJQRlA1zZ5JpB6FcQfQQ>
-    <xmx:rrDeXPas6S0fqshu1B6jw9Sp0EqOCzZZrqTeWX92iMyDQrw77C6NGg>
-    <xmx:r7DeXFP1ZmYAf1t1MlyxDNp7IPswFNWnZq8cT6BBHf_Vvgb3zvjKOw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:qrTeXGpW6zw00KofcrIEpR4Akh0jij0LiEXyztRPar9N-GO5gSpbNQ>
+    <xmx:qrTeXA_0Obf2pvgWKHl2AInZfHE9y_bMzrX563CTdaoidybAv21ZGg>
+    <xmx:qrTeXN9txSP0UUqCg37m-q8hml-uxZUo77cI_BT9noE5rp2rhxchCA>
+    <xmx:q7TeXKr44LuX5k2OXDZ4fjlsQqR0yJ8L_2cLi0lQDzz29bDB3VNgYA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6FF5480061;
-        Fri, 17 May 2019 09:01:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ASoC: wm_adsp: Avoid calling snd_compr_stop_error from WDT" failed to apply to 5.1-stable tree
-To:     ckeepax@opensource.cirrus.com, broonie@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4349B103D0;
+        Fri, 17 May 2019 09:18:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: chacha20poly1305 - set cra_name correctly" failed to apply to 4.4-stable tree
+To:     ebiggers@google.com, herbert@gondor.apana.org.au,
+        martin@strongswan.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 15:01:00 +0200
-Message-ID: <1558098060357@kroah.com>
+Date:   Fri, 17 May 2019 15:18:32 +0200
+Message-ID: <1558099112162172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.1-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,65 +68,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aa612f2b006aa3552871dabcd6a8e90e33f65e09 Mon Sep 17 00:00:00 2001
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Date: Thu, 4 Apr 2019 13:56:01 +0100
-Subject: [PATCH] ASoC: wm_adsp: Avoid calling snd_compr_stop_error from WDT
- expiry
+From 5e27f38f1f3f45a0c938299c3a34a2d2db77165a Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Sun, 31 Mar 2019 13:04:16 -0700
+Subject: [PATCH] crypto: chacha20poly1305 - set cra_name correctly
 
-It is unsafe to call snd_compr_stop_error from outside of the
-compressed ops. Firstly the compressed device lock needs to be held
-and secondly it queues error work to issue a trigger stop which
-should not happen after the stream has been freed. To avoid these
-issues use the same trick used for the IRQ handling, simply send a
-snd_compr_fragment_elapsed to cause user-space to wake on the poll,
-then report the error when user-space issues the pointer request
-after it wakes.
+If the rfc7539 template is instantiated with specific implementations,
+e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
+"rfc7539(chacha20,poly1305)", then the implementation names end up
+included in the instance's cra_name.  This is incorrect because it then
+prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
+highest priority implementations of chacha20 and poly1305 were selected.
+Also, the self-tests aren't run on an instance allocated in this way.
 
-Fixes: a2bcbc1b9ac2f ("ASoC: wm_adsp: Shutdown any compressed streams on DSP watchdog timeout")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@kernel.org
+Fix it by setting the instance's cra_name from the underlying
+algorithms' actual cra_names, rather than from the requested names.
+This matches what other templates do.
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index c8c49d5b8ac9..a9298bfddd9c 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -4092,7 +4092,7 @@ int wm_adsp_compr_pointer(struct snd_compr_stream *stream,
+Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
+Cc: <stable@vger.kernel.org> # v4.2+
+Cc: Martin Willi <martin@strongswan.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Martin Willi <martin@strongswan.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+diff --git a/crypto/chacha20poly1305.c b/crypto/chacha20poly1305.c
+index ed2e12e26dd8..279d816ab51d 100644
+--- a/crypto/chacha20poly1305.c
++++ b/crypto/chacha20poly1305.c
+@@ -645,8 +645,8 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
  
- 	buf = compr->buf;
- 
--	if (!buf || buf->error) {
-+	if (dsp->fatal_error || !buf || buf->error) {
- 		snd_compr_stop_error(stream, SNDRV_PCM_STATE_XRUN);
- 		ret = -EIO;
- 		goto out;
-@@ -4196,12 +4196,13 @@ static int wm_adsp_buffer_capture_block(struct wm_adsp_compr *compr, int target)
- static int wm_adsp_compr_read(struct wm_adsp_compr *compr,
- 			      char __user *buf, size_t count)
- {
-+	struct wm_adsp *dsp = compr->dsp;
- 	int ntotal = 0;
- 	int nwords, nbytes;
- 
- 	compr_dbg(compr, "Requested read of %zu bytes\n", count);
- 
--	if (!compr->buf || compr->buf->error) {
-+	if (dsp->fatal_error || !compr->buf || compr->buf->error) {
- 		snd_compr_stop_error(compr->stream, SNDRV_PCM_STATE_XRUN);
- 		return -EIO;
- 	}
-@@ -4262,11 +4263,8 @@ static void wm_adsp_fatal_error(struct wm_adsp *dsp)
- 	dsp->fatal_error = true;
- 
- 	list_for_each_entry(compr, &dsp->compr_list, list) {
--		if (compr->stream) {
--			snd_compr_stop_error(compr->stream,
--					     SNDRV_PCM_STATE_XRUN);
-+		if (compr->stream)
- 			snd_compr_fragment_elapsed(compr->stream);
--		}
- 	}
- }
- 
+ 	err = -ENAMETOOLONG;
+ 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
+-		     "%s(%s,%s)", name, chacha_name,
+-		     poly_name) >= CRYPTO_MAX_ALG_NAME)
++		     "%s(%s,%s)", name, chacha->base.cra_name,
++		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
+ 		goto out_drop_chacha;
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "%s(%s,%s)", name, chacha->base.cra_driver_name,
 
