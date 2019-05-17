@@ -2,1783 +2,527 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED3421480
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 09:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F86D21482
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 09:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728001AbfEQHft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 03:35:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S1727844AbfEQHgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 03:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727500AbfEQHft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 03:35:49 -0400
+        id S1727500AbfEQHgI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 03:36:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1A68206A3;
-        Fri, 17 May 2019 07:35:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D290A206A3;
+        Fri, 17 May 2019 07:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558078545;
-        bh=rrxjAq7Hg00ihM1dRBFdiWQT9txkNrOheOXRmd8fpEg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zF7xQ9k6K6KXaC9Pgq2K1rq5ETKkhHYJOkTCSfJCJapp+r5cyQmrJeNdcfsVEKsLG
-         P9YYxSdJruBGP15Wp5M5mgeXpoxaacqgFfNktOe4xsm/NYgCqVrYAfPOl9HDpf+eFC
-         Hsm8TGJn5xs5uQVzVO0cB3ltUsg1eZDRScfMyJ60=
-Date:   Fri, 17 May 2019 09:35:43 +0200
+        s=default; t=1558078566;
+        bh=fe4yKD5TuAVtJNFdG4BGFSilr+Iq2y+qiJiUBay+hkA=;
+        h=Date:From:To:Cc:Subject:From;
+        b=gzfjkUNsWYoEmyzN5zkPX+5D/NLskBHjRW+QFI/ggzn5t7jACtLbKP+WyO8MYpV/3
+         mlPvI4GT5MV6S32VrzidWm17mXEGpjY2oVUyO6msK+FgkqNzmnrhK5ejECdchtO/BO
+         WDJHZfSGCeG/NUDNH4T0B8DiB5IR8uioBVvRGCyA=
+Date:   Fri, 17 May 2019 09:36:03 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 4.9.177
-Message-ID: <20190517073543.GB27149@kroah.com>
-References: <20190517073537.GA27149@kroah.com>
+Subject: Linux 4.14.120
+Message-ID: <20190517073603.GA1114@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Content-Disposition: inline
-In-Reply-To: <20190517073537.GA27149@kroah.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 92fe701e5582..ceb8f4bf6245 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 176
-+SUBLEVEL = 177
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/mips/ath79/setup.c b/arch/mips/ath79/setup.c
-index 26a058d58d37..c7c31e214813 100644
---- a/arch/mips/ath79/setup.c
-+++ b/arch/mips/ath79/setup.c
-@@ -183,12 +183,6 @@ const char *get_system_type(void)
- 	return ath79_sys_type;
- }
- 
--int get_c0_perfcount_int(void)
--{
--	return ATH79_MISC_IRQ(5);
--}
--EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
--
- unsigned int get_c0_compare_int(void)
- {
- 	return CP0_LEGACY_COMPARE_IRQ;
-diff --git a/arch/powerpc/include/asm/reg_booke.h b/arch/powerpc/include/asm/reg_booke.h
-index 737e012ef56e..319ed53e503f 100644
---- a/arch/powerpc/include/asm/reg_booke.h
-+++ b/arch/powerpc/include/asm/reg_booke.h
-@@ -41,7 +41,7 @@
- #if defined(CONFIG_PPC_BOOK3E_64)
- #define MSR_64BIT	MSR_CM
- 
--#define MSR_		(MSR_ME | MSR_CE)
-+#define MSR_		(MSR_ME | MSR_RI | MSR_CE)
- #define MSR_KERNEL	(MSR_ | MSR_64BIT)
- #define MSR_USER32	(MSR_ | MSR_PR | MSR_EE)
- #define MSR_USER64	(MSR_USER32 | MSR_64BIT)
-diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
-index 30542e833ebe..f4a98d9c5913 100644
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -4,6 +4,7 @@
- //
- // Copyright 2018, Michael Ellerman, IBM Corporation.
- 
-+#include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/debugfs.h>
- #include <linux/device.h>
-diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
-index 14535ad4cdd1..c312955977ce 100644
---- a/arch/powerpc/lib/code-patching.c
-+++ b/arch/powerpc/lib/code-patching.c
-@@ -23,7 +23,7 @@ int patch_instruction(unsigned int *addr, unsigned int instr)
- 	int err;
- 
- 	/* Make sure we aren't patching a freed init section */
--	if (init_mem_is_free && init_section_contains(addr, 4)) {
-+	if (*PTRRELOC(&init_mem_is_free) && init_section_contains(addr, 4)) {
- 		pr_debug("Skipping init section patching addr: 0x%px\n", addr);
- 		return 0;
- 	}
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index 756dc9432d15..0d3ebdfa0739 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -167,7 +167,8 @@ quiet_cmd_vdso = VDSO    $@
- 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
- 
- VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
--	$(call ld-option, --build-id) -Bsymbolic
-+	$(call ld-option, --build-id) $(call ld-option, --eh-frame-hdr) \
-+	-Bsymbolic
- GCOV_PROFILE := n
- 
- #
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 4a12362a194a..c55b11fe8e9f 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -82,6 +82,19 @@ static int __init set_bios_reboot(const struct dmi_system_id *d)
- 	return 0;
- }
- 
-+/*
-+ * Some machines don't handle the default ACPI reboot method and
-+ * require the EFI reboot method:
-+ */
-+static int __init set_efi_reboot(const struct dmi_system_id *d)
-+{
-+	if (reboot_type != BOOT_EFI && !efi_runtime_disabled()) {
-+		reboot_type = BOOT_EFI;
-+		pr_info("%s series board detected. Selecting EFI-method for reboot.\n", d->ident);
-+	}
-+	return 0;
-+}
-+
- void __noreturn machine_real_restart(unsigned int type)
- {
- 	local_irq_disable();
-@@ -167,6 +180,14 @@ static struct dmi_system_id __initdata reboot_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA110"),
- 		},
- 	},
-+	{	/* Handle reboot issue on Acer TravelMate X514-51T */
-+		.callback = set_efi_reboot,
-+		.ident = "Acer TravelMate X514-51T",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate X514-51T"),
-+		},
-+	},
- 
- 	/* Apple */
- 	{	/* Handle problems with rebooting on Apple MacBook5 */
-diff --git a/arch/x86/kvm/trace.h b/arch/x86/kvm/trace.h
-index 0a6cc6754ec5..ea618b713b6f 100644
---- a/arch/x86/kvm/trace.h
-+++ b/arch/x86/kvm/trace.h
-@@ -434,13 +434,13 @@ TRACE_EVENT(kvm_apic_ipi,
- );
- 
- TRACE_EVENT(kvm_apic_accept_irq,
--	    TP_PROTO(__u32 apicid, __u16 dm, __u8 tm, __u8 vec),
-+	    TP_PROTO(__u32 apicid, __u16 dm, __u16 tm, __u8 vec),
- 	    TP_ARGS(apicid, dm, tm, vec),
- 
- 	TP_STRUCT__entry(
- 		__field(	__u32,		apicid		)
- 		__field(	__u16,		dm		)
--		__field(	__u8,		tm		)
-+		__field(	__u16,		tm		)
- 		__field(	__u8,		vec		)
- 	),
- 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index 97828faf2a1f..d58991b06a47 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -137,6 +137,8 @@ static int sun4i_drv_bind(struct device *dev)
- 		ret = -ENOMEM;
- 		goto free_drm;
- 	}
-+
-+	dev_set_drvdata(dev, drm);
- 	drm->dev_private = drv;
- 
- 	drm_vblank_init(drm, 1);
-diff --git a/drivers/gpu/ipu-v3/ipu-dp.c b/drivers/gpu/ipu-v3/ipu-dp.c
-index 98686edbcdbb..33de3a1bac49 100644
---- a/drivers/gpu/ipu-v3/ipu-dp.c
-+++ b/drivers/gpu/ipu-v3/ipu-dp.c
-@@ -195,7 +195,8 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
- 		ipu_dp_csc_init(flow, flow->foreground.in_cs, flow->out_cs,
- 				DP_COM_CONF_CSC_DEF_BOTH);
- 	} else {
--		if (flow->foreground.in_cs == flow->out_cs)
-+		if (flow->foreground.in_cs == IPUV3_COLORSPACE_UNKNOWN ||
-+		    flow->foreground.in_cs == flow->out_cs)
- 			/*
- 			 * foreground identical to output, apply color
- 			 * conversion on background
-@@ -261,6 +262,8 @@ void ipu_dp_disable_channel(struct ipu_dp *dp)
- 	struct ipu_dp_priv *priv = flow->priv;
- 	u32 reg, csc;
- 
-+	dp->in_cs = IPUV3_COLORSPACE_UNKNOWN;
-+
- 	if (!dp->foreground)
- 		return;
- 
-@@ -268,8 +271,9 @@ void ipu_dp_disable_channel(struct ipu_dp *dp)
- 
- 	reg = readl(flow->base + DP_COM_CONF);
- 	csc = reg & DP_COM_CONF_CSC_DEF_MASK;
--	if (csc == DP_COM_CONF_CSC_DEF_FG)
--		reg &= ~DP_COM_CONF_CSC_DEF_MASK;
-+	reg &= ~DP_COM_CONF_CSC_DEF_MASK;
-+	if (csc == DP_COM_CONF_CSC_DEF_BOTH || csc == DP_COM_CONF_CSC_DEF_BG)
-+		reg |= DP_COM_CONF_CSC_DEF_BG;
- 
- 	reg &= ~DP_COM_CONF_FG_EN;
- 	writel(reg, flow->base + DP_COM_CONF);
-@@ -350,6 +354,8 @@ int ipu_dp_init(struct ipu_soc *ipu, struct device *dev, unsigned long base)
- 	mutex_init(&priv->mutex);
- 
- 	for (i = 0; i < IPUV3_NUM_FLOWS; i++) {
-+		priv->flow[i].background.in_cs = IPUV3_COLORSPACE_UNKNOWN;
-+		priv->flow[i].foreground.in_cs = IPUV3_COLORSPACE_UNKNOWN;
- 		priv->flow[i].foreground.foreground = true;
- 		priv->flow[i].base = priv->base + ipu_dp_flow_base[i];
- 		priv->flow[i].priv = priv;
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index fc7ada26457e..9f7b1cf726a8 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -607,6 +607,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
- 
-+		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
-+			switch (usage->hid & 0xf) {
-+			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
-+			default: goto ignore;
-+			}
-+			break;
-+		}
-+
- 		/*
- 		 * Some lazy vendors declare 255 usages for System Control,
- 		 * leading to the creation of ABS_X|Y axis and too many others.
-@@ -802,6 +810,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
- 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
- 
-+		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
-+		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
-+		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
-+
- 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
- 		case 0x083: map_key_clear(KEY_LAST);		break;
- 		case 0x084: map_key_clear(KEY_ENTER);		break;
-@@ -932,6 +944,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
- 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
- 
-+		case 0x29f: map_key_clear(KEY_SCALE);		break;
-+
- 		default: map_key_clear(KEY_UNKNOWN);
- 		}
- 		break;
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 56cf5907a5f0..143894a315d9 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -1299,7 +1299,7 @@ static int xadc_remove(struct platform_device *pdev)
- 	}
- 	free_irq(irq, indio_dev);
- 	clk_disable_unprepare(xadc->clk);
--	cancel_delayed_work(&xadc->zynq_unmask_work);
-+	cancel_delayed_work_sync(&xadc->zynq_unmask_work);
- 	kfree(xadc->data);
- 	kfree(indio_dev->channels);
- 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 4a88312fbd25..65038dcc7613 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -772,7 +772,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 
- 	error = rmi_register_function(fn);
- 	if (error)
--		goto err_put_fn;
-+		return error;
- 
- 	if (pdt->function_number == 0x01)
- 		data->f01_container = fn;
-@@ -780,10 +780,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return RMI_SCAN_CONTINUE;
--
--err_put_fn:
--	put_device(&fn->dev);
--	return error;
- }
- 
- int rmi_driver_suspend(struct rmi_device *rmi_dev)
-diff --git a/drivers/irqchip/irq-ath79-misc.c b/drivers/irqchip/irq-ath79-misc.c
-index aa7290784636..0390603170b4 100644
---- a/drivers/irqchip/irq-ath79-misc.c
-+++ b/drivers/irqchip/irq-ath79-misc.c
-@@ -22,6 +22,15 @@
- #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
- 
- #define ATH79_MISC_IRQ_COUNT			32
-+#define ATH79_MISC_PERF_IRQ			5
-+
-+static int ath79_perfcount_irq;
-+
-+int get_c0_perfcount_int(void)
-+{
-+	return ath79_perfcount_irq;
-+}
-+EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
- 
- static void ath79_misc_irq_handler(struct irq_desc *desc)
- {
-@@ -113,6 +122,8 @@ static void __init ath79_misc_intc_domain_init(
- {
- 	void __iomem *base = domain->host_data;
- 
-+	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
-+
- 	/* Disable and clear all interrupts */
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
- 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
-diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
-index 99e5f9751e8b..f96b8f2bdf74 100644
---- a/drivers/isdn/mISDN/socket.c
-+++ b/drivers/isdn/mISDN/socket.c
-@@ -712,10 +712,10 @@ base_sock_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
- 	struct sock *sk = sock->sk;
- 	int err = 0;
- 
--	if (!maddr || maddr->family != AF_ISDN)
-+	if (addr_len < sizeof(struct sockaddr_mISDN))
- 		return -EINVAL;
- 
--	if (addr_len < sizeof(struct sockaddr_mISDN))
-+	if (!maddr || maddr->family != AF_ISDN)
- 		return -EINVAL;
- 
- 	lock_sock(sk);
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 9ec74dfe94f4..2a403e5c31aa 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -3914,26 +3914,15 @@ static void handle_parity_checks6(struct r5conf *conf, struct stripe_head *sh,
- 	case check_state_check_result:
- 		sh->check_state = check_state_idle;
- 
-+		if (s->failed > 1)
-+			break;
- 		/* handle a successful check operation, if parity is correct
- 		 * we are done.  Otherwise update the mismatch count and repair
- 		 * parity if !MD_RECOVERY_CHECK
- 		 */
- 		if (sh->ops.zero_sum_result == 0) {
--			/* both parities are correct */
--			if (!s->failed)
--				set_bit(STRIPE_INSYNC, &sh->state);
--			else {
--				/* in contrast to the raid5 case we can validate
--				 * parity, but still have a failure to write
--				 * back
--				 */
--				sh->check_state = check_state_compute_result;
--				/* Returning at this point means that we may go
--				 * off and bring p and/or q uptodate again so
--				 * we make sure to check zero_sum_result again
--				 * to verify if p or q need writeback
--				 */
--			}
-+			/* Any parity checked was correct */
-+			set_bit(STRIPE_INSYNC, &sh->state);
- 		} else {
- 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
- 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery))
-diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
-index 473da3bf10c6..258cb3999b0e 100644
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1065,13 +1065,6 @@ static int bond_option_arp_validate_set(struct bonding *bond,
- {
- 	netdev_info(bond->dev, "Setting arp_validate to %s (%llu)\n",
- 		    newval->string, newval->value);
--
--	if (bond->dev->flags & IFF_UP) {
--		if (!newval->value)
--			bond->recv_probe = NULL;
--		else if (bond->params.arp_interval)
--			bond->recv_probe = bond_arp_rcv;
--	}
- 	bond->params.arp_validate = newval->value;
- 
- 	return 0;
-diff --git a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-index 812a968a78e9..6aa4b50435da 100644
---- a/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-+++ b/drivers/net/ethernet/freescale/ucc_geth_ethtool.c
-@@ -250,14 +250,12 @@ uec_set_ringparam(struct net_device *netdev,
- 		return -EINVAL;
- 	}
- 
-+	if (netif_running(netdev))
-+		return -EBUSY;
-+
- 	ug_info->bdRingLenRx[queue] = ring->rx_pending;
- 	ug_info->bdRingLenTx[queue] = ring->tx_pending;
- 
--	if (netif_running(netdev)) {
--		/* FIXME: restart automatically */
--		netdev_info(netdev, "Please re-open the interface\n");
--	}
--
- 	return ret;
- }
- 
-diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
-index 1e2d4f1179da..45df03673e01 100644
---- a/drivers/net/phy/spi_ks8995.c
-+++ b/drivers/net/phy/spi_ks8995.c
-@@ -162,6 +162,14 @@ static const struct spi_device_id ks8995_id[] = {
- };
- MODULE_DEVICE_TABLE(spi, ks8995_id);
- 
-+static const struct of_device_id ks8895_spi_of_match[] = {
-+        { .compatible = "micrel,ks8995" },
-+        { .compatible = "micrel,ksz8864" },
-+        { .compatible = "micrel,ksz8795" },
-+        { },
-+ };
-+MODULE_DEVICE_TABLE(of, ks8895_spi_of_match);
-+
- static inline u8 get_chip_id(u8 val)
- {
- 	return (val >> ID1_CHIPID_S) & ID1_CHIPID_M;
-@@ -529,6 +537,7 @@ static int ks8995_remove(struct spi_device *spi)
- static struct spi_driver ks8995_driver = {
- 	.driver = {
- 		.name	    = "spi-ks8995",
-+		.of_match_table = of_match_ptr(ks8895_spi_of_match),
- 	},
- 	.probe	  = ks8995_probe,
- 	.remove	  = ks8995_remove,
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-index f8be0bd7e326..0741280b65a4 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c
-@@ -1703,6 +1703,7 @@ static void _rtl8723e_read_adapter_info(struct ieee80211_hw *hw,
- 					rtlhal->oem_id = RT_CID_819X_LENOVO;
- 					break;
- 				}
-+				break;
- 			case 0x1025:
- 				rtlhal->oem_id = RT_CID_819X_ACER;
- 				break;
-diff --git a/drivers/net/wireless/st/cw1200/scan.c b/drivers/net/wireless/st/cw1200/scan.c
-index c5492d792f43..b35f470b40ff 100644
---- a/drivers/net/wireless/st/cw1200/scan.c
-+++ b/drivers/net/wireless/st/cw1200/scan.c
-@@ -84,8 +84,11 @@ int cw1200_hw_scan(struct ieee80211_hw *hw,
- 
- 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
- 		req->ie_len);
--	if (!frame.skb)
-+	if (!frame.skb) {
-+		mutex_unlock(&priv->conf_mutex);
-+		up(&priv->scan.lock);
- 		return -ENOMEM;
-+	}
- 
- 	if (req->ie_len)
- 		memcpy(skb_put(frame.skb, req->ie_len), req->ie, req->ie_len);
-diff --git a/drivers/nfc/st95hf/core.c b/drivers/nfc/st95hf/core.c
-index c2840e412962..850e75571c8e 100644
---- a/drivers/nfc/st95hf/core.c
-+++ b/drivers/nfc/st95hf/core.c
-@@ -1074,6 +1074,12 @@ static const struct spi_device_id st95hf_id[] = {
- };
- MODULE_DEVICE_TABLE(spi, st95hf_id);
- 
-+static const struct of_device_id st95hf_spi_of_match[] = {
-+        { .compatible = "st,st95hf" },
-+        { },
-+};
-+MODULE_DEVICE_TABLE(of, st95hf_spi_of_match);
-+
- static int st95hf_probe(struct spi_device *nfc_spi_dev)
- {
- 	int ret;
-@@ -1260,6 +1266,7 @@ static struct spi_driver st95hf_driver = {
- 	.driver = {
- 		.name = "st95hf",
- 		.owner = THIS_MODULE,
-+		.of_match_table = of_match_ptr(st95hf_spi_of_match),
- 	},
- 	.id_table = st95hf_id,
- 	.probe = st95hf_probe,
-diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
-index 97dd2925ed6e..5d2c76682848 100644
---- a/drivers/nvdimm/btt_devs.c
-+++ b/drivers/nvdimm/btt_devs.c
-@@ -190,14 +190,15 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 
- 	nd_btt->id = ida_simple_get(&nd_region->btt_ida, 0, 0, GFP_KERNEL);
--	if (nd_btt->id < 0) {
--		kfree(nd_btt);
--		return NULL;
--	}
-+	if (nd_btt->id < 0)
-+		goto out_nd_btt;
- 
- 	nd_btt->lbasize = lbasize;
--	if (uuid)
-+	if (uuid) {
- 		uuid = kmemdup(uuid, 16, GFP_KERNEL);
-+		if (!uuid)
-+			goto out_put_id;
-+	}
- 	nd_btt->uuid = uuid;
- 	dev = &nd_btt->dev;
- 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
-@@ -212,6 +213,13 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
- 		return NULL;
- 	}
- 	return dev;
-+
-+out_put_id:
-+	ida_simple_remove(&nd_region->btt_ida, nd_btt->id);
-+
-+out_nd_btt:
-+	kfree(nd_btt);
-+	return NULL;
- }
- 
- struct device *nd_btt_create(struct nd_region *nd_region)
-diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
-index 9bc5f555ee68..cf4a90b50f8b 100644
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -2028,9 +2028,12 @@ struct device *create_namespace_blk(struct nd_region *nd_region,
- 	if (!nsblk->uuid)
- 		goto blk_err;
- 	memcpy(name, nd_label->name, NSLABEL_NAME_LEN);
--	if (name[0])
-+	if (name[0]) {
- 		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN,
- 				GFP_KERNEL);
-+		if (!nsblk->alt_name)
-+			goto blk_err;
-+	}
- 	res = nsblk_add_resource(nd_region, ndd, nsblk,
- 			__le64_to_cpu(nd_label->dpa));
- 	if (!res)
-diff --git a/drivers/platform/x86/sony-laptop.c b/drivers/platform/x86/sony-laptop.c
-index c890a49587e4..f65558638bc8 100644
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -4422,14 +4422,16 @@ sony_pic_read_possible_resource(struct acpi_resource *resource, void *context)
- 			}
- 			return AE_OK;
- 		}
-+
-+	case ACPI_RESOURCE_TYPE_END_TAG:
-+		return AE_OK;
-+
- 	default:
- 		dprintk("Resource %d isn't an IRQ nor an IO port\n",
- 			resource->type);
-+		return AE_CTRL_TERMINATE;
- 
--	case ACPI_RESOURCE_TYPE_END_TAG:
--		return AE_OK;
- 	}
--	return AE_CTRL_TERMINATE;
- }
- 
- static int sony_pic_possible_resources(struct acpi_device *device)
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 11c6335b1951..9d772201e334 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -2054,14 +2054,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
- 
- raw:
--	block->blocks = (private->real_cyl *
-+	block->blocks = ((unsigned long) private->real_cyl *
- 			  private->rdc_data.trk_per_cyl *
- 			  blk_per_trk);
- 
- 	dev_info(&device->cdev->dev,
--		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
-+		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
- 		 "%s\n", (block->bp_block >> 10),
--		 ((private->real_cyl *
-+		 (((unsigned long) private->real_cyl *
- 		   private->rdc_data.trk_per_cyl *
- 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
- 		 ((blk_per_trk * block->bp_block) >> 10),
-diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index 285b4006f44b..5d5e78afde88 100644
---- a/drivers/s390/char/con3270.c
-+++ b/drivers/s390/char/con3270.c
-@@ -628,7 +628,7 @@ con3270_init(void)
- 		     (void (*)(unsigned long)) con3270_read_tasklet,
- 		     (unsigned long) condev->read);
- 
--	raw3270_add_view(&condev->view, &con3270_fn, 1);
-+	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
- 
- 	INIT_LIST_HEAD(&condev->freemem);
- 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
-diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
-index 85eca1cef063..04a6810a4298 100644
---- a/drivers/s390/char/fs3270.c
-+++ b/drivers/s390/char/fs3270.c
-@@ -462,7 +462,8 @@ fs3270_open(struct inode *inode, struct file *filp)
- 
- 	init_waitqueue_head(&fp->wait);
- 	fp->fs_pid = get_pid(task_pid(current));
--	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
-+	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		fs3270_free_view(&fp->view);
- 		goto out;
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index a2da898ce90f..1ebf632e327b 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -919,7 +919,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
-  * Add view to device with minor "minor".
-  */
- int
--raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
-+raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
- {
- 	unsigned long flags;
- 	struct raw3270 *rp;
-@@ -941,6 +941,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
- 		view->cols = rp->cols;
- 		view->ascebc = rp->ascebc;
- 		spin_lock_init(&view->lock);
-+		lockdep_set_subclass(&view->lock, subclass);
- 		list_add(&view->list, &rp->view_list);
- 		rc = 0;
- 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
-diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
-index 56519cbb165c..7577d7d0ad48 100644
---- a/drivers/s390/char/raw3270.h
-+++ b/drivers/s390/char/raw3270.h
-@@ -149,6 +149,8 @@ struct raw3270_fn {
- struct raw3270_view {
- 	struct list_head list;
- 	spinlock_t lock;
-+#define RAW3270_VIEW_LOCK_IRQ	0
-+#define RAW3270_VIEW_LOCK_BH	1
- 	atomic_t ref_count;
- 	struct raw3270 *dev;
- 	struct raw3270_fn *fn;
-@@ -157,7 +159,7 @@ struct raw3270_view {
- 	unsigned char *ascebc;		/* ascii -> ebcdic table */
- };
- 
--int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
-+int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
- int raw3270_activate_view(struct raw3270_view *);
- void raw3270_del_view(struct raw3270_view *);
- void raw3270_deactivate_view(struct raw3270_view *);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 272cb6cd1b2a..6dd6f9ff7de5 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -978,7 +978,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return PTR_ERR(tp);
- 
- 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
--			      tty->index + RAW3270_FIRSTMINOR);
-+			      tty->index + RAW3270_FIRSTMINOR,
-+			      RAW3270_VIEW_LOCK_BH);
- 	if (rc) {
- 		tty3270_free_view(tp);
- 		return rc;
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index ad17fc5883f6..e22b9ac3e564 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
- 		if (priv->channel[direction] == NULL) {
- 			if (direction == CTCM_WRITE)
- 				channel_free(priv->channel[CTCM_READ]);
-+			result = -ENODEV;
- 			goto out_dev;
- 		}
- 		priv->channel[direction]->netdev = dev;
-diff --git a/drivers/usb/serial/generic.c b/drivers/usb/serial/generic.c
-index 944de657a07a..f1e74f50642f 100644
---- a/drivers/usb/serial/generic.c
-+++ b/drivers/usb/serial/generic.c
-@@ -350,6 +350,7 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
- 	struct usb_serial_port *port = urb->context;
- 	unsigned char *data = urb->transfer_buffer;
- 	unsigned long flags;
-+	bool stopped = false;
- 	int status = urb->status;
- 	int i;
- 
-@@ -357,33 +358,51 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
- 		if (urb == port->read_urbs[i])
- 			break;
- 	}
--	set_bit(i, &port->read_urbs_free);
- 
- 	dev_dbg(&port->dev, "%s - urb %d, len %d\n", __func__, i,
- 							urb->actual_length);
- 	switch (status) {
- 	case 0:
-+		usb_serial_debug_data(&port->dev, __func__, urb->actual_length,
-+							data);
-+		port->serial->type->process_read_urb(urb);
- 		break;
- 	case -ENOENT:
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
- 		dev_dbg(&port->dev, "%s - urb stopped: %d\n",
- 							__func__, status);
--		return;
-+		stopped = true;
-+		break;
- 	case -EPIPE:
- 		dev_err(&port->dev, "%s - urb stopped: %d\n",
- 							__func__, status);
--		return;
-+		stopped = true;
-+		break;
- 	default:
- 		dev_dbg(&port->dev, "%s - nonzero urb status: %d\n",
- 							__func__, status);
--		goto resubmit;
-+		break;
- 	}
- 
--	usb_serial_debug_data(&port->dev, __func__, urb->actual_length, data);
--	port->serial->type->process_read_urb(urb);
-+	/*
-+	 * Make sure URB processing is done before marking as free to avoid
-+	 * racing with unthrottle() on another CPU. Matches the barriers
-+	 * implied by the test_and_clear_bit() in
-+	 * usb_serial_generic_submit_read_urb().
-+	 */
-+	smp_mb__before_atomic();
-+	set_bit(i, &port->read_urbs_free);
-+	/*
-+	 * Make sure URB is marked as free before checking the throttled flag
-+	 * to avoid racing with unthrottle() on another CPU. Matches the
-+	 * smp_mb() in unthrottle().
-+	 */
-+	smp_mb__after_atomic();
-+
-+	if (stopped)
-+		return;
- 
--resubmit:
- 	/* Throttle the device if requested by tty */
- 	spin_lock_irqsave(&port->lock, flags);
- 	port->throttled = port->throttle_req;
-@@ -458,6 +477,12 @@ void usb_serial_generic_unthrottle(struct tty_struct *tty)
- 	port->throttled = port->throttle_req = 0;
- 	spin_unlock_irq(&port->lock);
- 
-+	/*
-+	 * Matches the smp_mb__after_atomic() in
-+	 * usb_serial_generic_read_bulk_callback().
-+	 */
-+	smp_mb();
-+
- 	if (was_throttled)
- 		usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
- }
-diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
-index 150ce2abf6c8..732e9abdcf96 100644
---- a/drivers/virt/fsl_hypervisor.c
-+++ b/drivers/virt/fsl_hypervisor.c
-@@ -215,6 +215,9 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
- 	 * hypervisor.
- 	 */
- 	lb_offset = param.local_vaddr & (PAGE_SIZE - 1);
-+	if (param.count == 0 ||
-+	    param.count > U64_MAX - lb_offset - PAGE_SIZE + 1)
-+		return -EINVAL;
- 	num_pages = (param.count + lb_offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 
- 	/* Allocate the buffers we need */
-@@ -334,8 +337,8 @@ static long ioctl_dtprop(struct fsl_hv_ioctl_prop __user *p, int set)
- 	struct fsl_hv_ioctl_prop param;
- 	char __user *upath, *upropname;
- 	void __user *upropval;
--	char *path = NULL, *propname = NULL;
--	void *propval = NULL;
-+	char *path, *propname;
-+	void *propval;
- 	int ret = 0;
- 
- 	/* Get the parameters from the user. */
-@@ -347,32 +350,30 @@ static long ioctl_dtprop(struct fsl_hv_ioctl_prop __user *p, int set)
- 	upropval = (void __user *)(uintptr_t)param.propval;
- 
- 	path = strndup_user(upath, FH_DTPROP_MAX_PATHLEN);
--	if (IS_ERR(path)) {
--		ret = PTR_ERR(path);
--		goto out;
--	}
-+	if (IS_ERR(path))
-+		return PTR_ERR(path);
- 
- 	propname = strndup_user(upropname, FH_DTPROP_MAX_PATHLEN);
- 	if (IS_ERR(propname)) {
- 		ret = PTR_ERR(propname);
--		goto out;
-+		goto err_free_path;
- 	}
- 
- 	if (param.proplen > FH_DTPROP_MAX_PROPLEN) {
- 		ret = -EINVAL;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	propval = kmalloc(param.proplen, GFP_KERNEL);
- 	if (!propval) {
- 		ret = -ENOMEM;
--		goto out;
-+		goto err_free_propname;
- 	}
- 
- 	if (set) {
- 		if (copy_from_user(propval, upropval, param.proplen)) {
- 			ret = -EFAULT;
--			goto out;
-+			goto err_free_propval;
- 		}
- 
- 		param.ret = fh_partition_set_dtprop(param.handle,
-@@ -391,7 +392,7 @@ static long ioctl_dtprop(struct fsl_hv_ioctl_prop __user *p, int set)
- 			if (copy_to_user(upropval, propval, param.proplen) ||
- 			    put_user(param.proplen, &p->proplen)) {
- 				ret = -EFAULT;
--				goto out;
-+				goto err_free_propval;
- 			}
- 		}
- 	}
-@@ -399,10 +400,12 @@ static long ioctl_dtprop(struct fsl_hv_ioctl_prop __user *p, int set)
- 	if (put_user(param.ret, &p->ret))
- 		ret = -EFAULT;
- 
--out:
--	kfree(path);
-+err_free_propval:
- 	kfree(propval);
-+err_free_propname:
- 	kfree(propname);
-+err_free_path:
-+	kfree(path);
- 
- 	return ret;
- }
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 80b1b8faf503..e6711bf9f0d1 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1433,7 +1433,12 @@ efi_status_t efi_setup_gop(efi_system_table_t *sys_table_arg,
- 			   struct screen_info *si, efi_guid_t *proto,
- 			   unsigned long size);
- 
--bool efi_runtime_disabled(void);
-+#ifdef CONFIG_EFI
-+extern bool efi_runtime_disabled(void);
-+#else
-+static inline bool efi_runtime_disabled(void) { return true; }
-+#endif
-+
- extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
- 
- /*
-diff --git a/include/linux/list_nulls.h b/include/linux/list_nulls.h
-index b01fe1009084..87ff4f58a2f0 100644
---- a/include/linux/list_nulls.h
-+++ b/include/linux/list_nulls.h
-@@ -29,6 +29,11 @@ struct hlist_nulls_node {
- 	((ptr)->first = (struct hlist_nulls_node *) NULLS_MARKER(nulls))
- 
- #define hlist_nulls_entry(ptr, type, member) container_of(ptr,type,member)
-+
-+#define hlist_nulls_entry_safe(ptr, type, member) \
-+	({ typeof(ptr) ____ptr = (ptr); \
-+	   !is_a_nulls(____ptr) ? hlist_nulls_entry(____ptr, type, member) : NULL; \
-+	})
- /**
-  * ptr_is_a_nulls - Test if a ptr is a nulls
-  * @ptr: ptr to be tested
-diff --git a/include/linux/rculist_nulls.h b/include/linux/rculist_nulls.h
-index 6224a0ab0b1e..2720b2fbfb86 100644
---- a/include/linux/rculist_nulls.h
-+++ b/include/linux/rculist_nulls.h
-@@ -118,5 +118,19 @@ static inline void hlist_nulls_add_head_rcu(struct hlist_nulls_node *n,
- 		({ tpos = hlist_nulls_entry(pos, typeof(*tpos), member); 1; }); \
- 		pos = rcu_dereference_raw(hlist_nulls_next_rcu(pos)))
- 
-+/**
-+ * hlist_nulls_for_each_entry_safe -
-+ *   iterate over list of given type safe against removal of list entry
-+ * @tpos:	the type * to use as a loop cursor.
-+ * @pos:	the &struct hlist_nulls_node to use as a loop cursor.
-+ * @head:	the head for your list.
-+ * @member:	the name of the hlist_nulls_node within the struct.
-+ */
-+#define hlist_nulls_for_each_entry_safe(tpos, pos, head, member)		\
-+	for (({barrier();}),							\
-+	     pos = rcu_dereference_raw(hlist_nulls_first_rcu(head));		\
-+		(!is_a_nulls(pos)) &&						\
-+		({ tpos = hlist_nulls_entry(pos, typeof(*tpos), member);	\
-+		   pos = rcu_dereference_raw(hlist_nulls_next_rcu(pos)); 1; });)
- #endif
- #endif
-diff --git a/include/sound/pcm.h b/include/sound/pcm.h
-index af1fb37c6b26..b1d3cce26ce2 100644
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -100,7 +100,7 @@ struct snd_pcm_ops {
- #endif
- 
- #define SNDRV_PCM_IOCTL1_RESET		0
--#define SNDRV_PCM_IOCTL1_INFO		1
-+/* 1 is absent slot. */
- #define SNDRV_PCM_IOCTL1_CHANNEL_INFO	2
- #define SNDRV_PCM_IOCTL1_GSTATE		3
- #define SNDRV_PCM_IOCTL1_FIFO_SIZE	4
-diff --git a/init/main.c b/init/main.c
-index 3c7f71d8e704..148843e627a0 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -516,6 +516,8 @@ asmlinkage __visible void __init start_kernel(void)
- 	page_alloc_init();
- 
- 	pr_notice("Kernel command line: %s\n", boot_command_line);
-+	/* parameters may set static keys */
-+	jump_label_init();
- 	parse_early_param();
- 	after_dashes = parse_args("Booting kernel",
- 				  static_command_line, __start___param,
-@@ -525,8 +527,6 @@ asmlinkage __visible void __init start_kernel(void)
- 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
- 			   NULL, set_init_arg);
- 
--	jump_label_init();
--
- 	/*
- 	 * These use large bootmem allocations and must precede
- 	 * kmem_cache_init()
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index a36a532c056d..8648d7d29708 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -13,10 +13,11 @@
- #include <linux/bpf.h>
- #include <linux/jhash.h>
- #include <linux/filter.h>
-+#include <linux/rculist_nulls.h>
- #include "percpu_freelist.h"
- 
- struct bucket {
--	struct hlist_head head;
-+	struct hlist_nulls_head head;
- 	raw_spinlock_t lock;
- };
- 
-@@ -40,9 +41,14 @@ enum extra_elem_state {
- /* each htab element is struct htab_elem + key + value */
- struct htab_elem {
- 	union {
--		struct hlist_node hash_node;
--		struct bpf_htab *htab;
--		struct pcpu_freelist_node fnode;
-+		struct hlist_nulls_node hash_node;
-+		struct {
-+			void *padding;
-+			union {
-+				struct bpf_htab *htab;
-+				struct pcpu_freelist_node fnode;
-+			};
-+		};
- 	};
- 	union {
- 		struct rcu_head rcu;
-@@ -114,8 +120,10 @@ static int prealloc_elems_and_freelist(struct bpf_htab *htab)
- 	if (err)
- 		goto free_elems;
- 
--	pcpu_freelist_populate(&htab->freelist, htab->elems, htab->elem_size,
--			       htab->map.max_entries);
-+	pcpu_freelist_populate(&htab->freelist,
-+			       htab->elems + offsetof(struct htab_elem, fnode),
-+			       htab->elem_size, htab->map.max_entries);
-+
- 	return 0;
- 
- free_elems:
-@@ -148,6 +156,11 @@ static struct bpf_map *htab_map_alloc(union bpf_attr *attr)
- 	int err, i;
- 	u64 cost;
- 
-+	BUILD_BUG_ON(offsetof(struct htab_elem, htab) !=
-+		     offsetof(struct htab_elem, hash_node.pprev));
-+	BUILD_BUG_ON(offsetof(struct htab_elem, fnode.next) !=
-+		     offsetof(struct htab_elem, hash_node.pprev));
-+
- 	if (attr->map_flags & ~BPF_F_NO_PREALLOC)
- 		/* reserved bits should not be used */
- 		return ERR_PTR(-EINVAL);
-@@ -233,7 +246,7 @@ static struct bpf_map *htab_map_alloc(union bpf_attr *attr)
- 		goto free_htab;
- 
- 	for (i = 0; i < htab->n_buckets; i++) {
--		INIT_HLIST_HEAD(&htab->buckets[i].head);
-+		INIT_HLIST_NULLS_HEAD(&htab->buckets[i].head, i);
- 		raw_spin_lock_init(&htab->buckets[i].lock);
- 	}
- 
-@@ -270,20 +283,44 @@ static inline struct bucket *__select_bucket(struct bpf_htab *htab, u32 hash)
- 	return &htab->buckets[hash & (htab->n_buckets - 1)];
- }
- 
--static inline struct hlist_head *select_bucket(struct bpf_htab *htab, u32 hash)
-+static inline struct hlist_nulls_head *select_bucket(struct bpf_htab *htab, u32 hash)
- {
- 	return &__select_bucket(htab, hash)->head;
- }
- 
--static struct htab_elem *lookup_elem_raw(struct hlist_head *head, u32 hash,
-+/* this lookup function can only be called with bucket lock taken */
-+static struct htab_elem *lookup_elem_raw(struct hlist_nulls_head *head, u32 hash,
- 					 void *key, u32 key_size)
- {
-+	struct hlist_nulls_node *n;
-+	struct htab_elem *l;
-+
-+	hlist_nulls_for_each_entry_rcu(l, n, head, hash_node)
-+		if (l->hash == hash && !memcmp(&l->key, key, key_size))
-+			return l;
-+
-+	return NULL;
-+}
-+
-+/* can be called without bucket lock. it will repeat the loop in
-+ * the unlikely event when elements moved from one bucket into another
-+ * while link list is being walked
-+ */
-+static struct htab_elem *lookup_nulls_elem_raw(struct hlist_nulls_head *head,
-+					       u32 hash, void *key,
-+					       u32 key_size, u32 n_buckets)
-+{
-+	struct hlist_nulls_node *n;
- 	struct htab_elem *l;
- 
--	hlist_for_each_entry_rcu(l, head, hash_node)
-+again:
-+	hlist_nulls_for_each_entry_rcu(l, n, head, hash_node)
- 		if (l->hash == hash && !memcmp(&l->key, key, key_size))
- 			return l;
- 
-+	if (unlikely(get_nulls_value(n) != (hash & (n_buckets - 1))))
-+		goto again;
-+
- 	return NULL;
- }
- 
-@@ -291,7 +328,7 @@ static struct htab_elem *lookup_elem_raw(struct hlist_head *head, u32 hash,
- static void *__htab_map_lookup_elem(struct bpf_map *map, void *key)
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
--	struct hlist_head *head;
-+	struct hlist_nulls_head *head;
- 	struct htab_elem *l;
- 	u32 hash, key_size;
- 
-@@ -304,7 +341,7 @@ static void *__htab_map_lookup_elem(struct bpf_map *map, void *key)
- 
- 	head = select_bucket(htab, hash);
- 
--	l = lookup_elem_raw(head, hash, key, key_size);
-+	l = lookup_nulls_elem_raw(head, hash, key, key_size, htab->n_buckets);
- 
- 	return l;
- }
-@@ -323,7 +360,7 @@ static void *htab_map_lookup_elem(struct bpf_map *map, void *key)
- static int htab_map_get_next_key(struct bpf_map *map, void *key, void *next_key)
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
--	struct hlist_head *head;
-+	struct hlist_nulls_head *head;
- 	struct htab_elem *l, *next_l;
- 	u32 hash, key_size;
- 	int i = 0;
-@@ -340,13 +377,13 @@ static int htab_map_get_next_key(struct bpf_map *map, void *key, void *next_key)
- 	head = select_bucket(htab, hash);
- 
- 	/* lookup the key */
--	l = lookup_elem_raw(head, hash, key, key_size);
-+	l = lookup_nulls_elem_raw(head, hash, key, key_size, htab->n_buckets);
- 
- 	if (!l)
- 		goto find_first_elem;
- 
- 	/* key was found, get next key in the same bucket */
--	next_l = hlist_entry_safe(rcu_dereference_raw(hlist_next_rcu(&l->hash_node)),
-+	next_l = hlist_nulls_entry_safe(rcu_dereference_raw(hlist_nulls_next_rcu(&l->hash_node)),
- 				  struct htab_elem, hash_node);
- 
- 	if (next_l) {
-@@ -365,7 +402,7 @@ static int htab_map_get_next_key(struct bpf_map *map, void *key, void *next_key)
- 		head = select_bucket(htab, i);
- 
- 		/* pick first element in the bucket */
--		next_l = hlist_entry_safe(rcu_dereference_raw(hlist_first_rcu(head)),
-+		next_l = hlist_nulls_entry_safe(rcu_dereference_raw(hlist_nulls_first_rcu(head)),
- 					  struct htab_elem, hash_node);
- 		if (next_l) {
- 			/* if it's not empty, just return it */
-@@ -429,9 +466,13 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
- 	int err = 0;
- 
- 	if (prealloc) {
--		l_new = (struct htab_elem *)pcpu_freelist_pop(&htab->freelist);
--		if (!l_new)
-+		struct pcpu_freelist_node *l;
-+
-+		l = pcpu_freelist_pop(&htab->freelist);
-+		if (!l)
- 			err = -E2BIG;
-+		else
-+			l_new = container_of(l, struct htab_elem, fnode);
- 	} else {
- 		if (atomic_inc_return(&htab->count) > htab->map.max_entries) {
- 			atomic_dec(&htab->count);
-@@ -518,7 +559,7 @@ static int htab_map_update_elem(struct bpf_map *map, void *key, void *value,
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 	struct htab_elem *l_new = NULL, *l_old;
--	struct hlist_head *head;
-+	struct hlist_nulls_head *head;
- 	unsigned long flags;
- 	struct bucket *b;
- 	u32 key_size, hash;
-@@ -557,9 +598,9 @@ static int htab_map_update_elem(struct bpf_map *map, void *key, void *value,
- 	/* add new element to the head of the list, so that
- 	 * concurrent search will find it before old elem
- 	 */
--	hlist_add_head_rcu(&l_new->hash_node, head);
-+	hlist_nulls_add_head_rcu(&l_new->hash_node, head);
- 	if (l_old) {
--		hlist_del_rcu(&l_old->hash_node);
-+		hlist_nulls_del_rcu(&l_old->hash_node);
- 		free_htab_elem(htab, l_old);
- 	}
- 	ret = 0;
-@@ -574,7 +615,7 @@ static int __htab_percpu_map_update_elem(struct bpf_map *map, void *key,
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 	struct htab_elem *l_new = NULL, *l_old;
--	struct hlist_head *head;
-+	struct hlist_nulls_head *head;
- 	unsigned long flags;
- 	struct bucket *b;
- 	u32 key_size, hash;
-@@ -626,7 +667,7 @@ static int __htab_percpu_map_update_elem(struct bpf_map *map, void *key,
- 			ret = PTR_ERR(l_new);
- 			goto err;
- 		}
--		hlist_add_head_rcu(&l_new->hash_node, head);
-+		hlist_nulls_add_head_rcu(&l_new->hash_node, head);
- 	}
- 	ret = 0;
- err:
-@@ -644,7 +685,7 @@ static int htab_percpu_map_update_elem(struct bpf_map *map, void *key,
- static int htab_map_delete_elem(struct bpf_map *map, void *key)
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
--	struct hlist_head *head;
-+	struct hlist_nulls_head *head;
- 	struct bucket *b;
- 	struct htab_elem *l;
- 	unsigned long flags;
-@@ -664,7 +705,7 @@ static int htab_map_delete_elem(struct bpf_map *map, void *key)
- 	l = lookup_elem_raw(head, hash, key, key_size);
- 
- 	if (l) {
--		hlist_del_rcu(&l->hash_node);
-+		hlist_nulls_del_rcu(&l->hash_node);
- 		free_htab_elem(htab, l);
- 		ret = 0;
- 	}
-@@ -678,12 +719,12 @@ static void delete_all_elements(struct bpf_htab *htab)
- 	int i;
- 
- 	for (i = 0; i < htab->n_buckets; i++) {
--		struct hlist_head *head = select_bucket(htab, i);
--		struct hlist_node *n;
-+		struct hlist_nulls_head *head = select_bucket(htab, i);
-+		struct hlist_nulls_node *n;
- 		struct htab_elem *l;
- 
--		hlist_for_each_entry_safe(l, n, head, hash_node) {
--			hlist_del_rcu(&l->hash_node);
-+		hlist_nulls_for_each_entry_safe(l, n, head, hash_node) {
-+			hlist_nulls_del_rcu(&l->hash_node);
- 			if (l->state != HTAB_EXTRA_ELEM_USED)
- 				htab_elem_free(htab, l);
- 		}
-diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
-index fb3e2a50d76e..d06d15db3232 100644
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -366,10 +366,12 @@ static int vlan_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	ifrr.ifr_ifru = ifr->ifr_ifru;
- 
- 	switch (cmd) {
-+	case SIOCSHWTSTAMP:
-+		if (!net_eq(dev_net(dev), &init_net))
-+			break;
- 	case SIOCGMIIPHY:
- 	case SIOCGMIIREG:
- 	case SIOCSMIIREG:
--	case SIOCSHWTSTAMP:
- 	case SIOCGHWTSTAMP:
- 		if (netif_device_present(real_dev) && ops->ndo_do_ioctl)
- 			err = ops->ndo_do_ioctl(real_dev, &ifrr, cmd);
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 8e173324693d..925818a05398 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -519,13 +519,15 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
- 	call_netdevice_notifiers(NETDEV_JOIN, dev);
- 
- 	err = dev_set_allmulti(dev, 1);
--	if (err)
--		goto put_back;
-+	if (err) {
-+		kfree(p);	/* kobject not yet init'd, manually free */
-+		goto err1;
-+	}
- 
- 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
- 				   SYSFS_BRIDGE_PORT_ATTR);
- 	if (err)
--		goto err1;
-+		goto err2;
- 
- 	err = br_sysfs_addif(p);
- 	if (err)
-@@ -608,12 +610,9 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
- 	sysfs_remove_link(br->ifobj, p->dev->name);
- err2:
- 	kobject_put(&p->kobj);
--	p = NULL; /* kobject_put frees */
--err1:
- 	dev_set_allmulti(dev, -1);
--put_back:
-+err1:
- 	dev_put(dev);
--	kfree(p);
- 	return err;
- }
- 
-diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
-index be4629c344a6..bb26457e8c21 100644
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -429,9 +429,9 @@ int fib_nl_newrule(struct sk_buff *skb, struct nlmsghdr *nlh)
- 	if (rule->l3mdev && rule->table)
- 		goto errout_free;
- 
--	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
--	    rule_exists(ops, frh, tb, rule)) {
--		err = -EEXIST;
-+	if (rule_exists(ops, frh, tb, rule)) {
-+		if (nlh->nlmsg_flags & NLM_F_EXCL)
-+			err = -EEXIST;
- 		goto errout_free;
- 	}
- 
-diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
-index 59d8770055ed..1d0e2284d8ad 100644
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -169,6 +169,7 @@ static int icmp_filter(const struct sock *sk, const struct sk_buff *skb)
-  */
- static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
- {
-+	int dif = inet_iif(skb);
- 	struct sock *sk;
- 	struct hlist_head *head;
- 	int delivered = 0;
-@@ -181,8 +182,7 @@ static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
- 
- 	net = dev_net(skb->dev);
- 	sk = __raw_v4_lookup(net, __sk_head(head), iph->protocol,
--			     iph->saddr, iph->daddr,
--			     skb->dev->ifindex);
-+			     iph->saddr, iph->daddr, dif);
- 
- 	while (sk) {
- 		delivered = 1;
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index be74eee0e8ff..47ca2a2f1cf8 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1069,7 +1069,7 @@ static void ipip6_tunnel_bind_dev(struct net_device *dev)
- 	if (!tdev && tunnel->parms.link)
- 		tdev = __dev_get_by_index(tunnel->net, tunnel->parms.link);
- 
--	if (tdev) {
-+	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
- 
- 		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 197753ad50b4..8c17d498df30 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -23,7 +23,7 @@ static void mesh_path_free_rcu(struct mesh_table *tbl, struct mesh_path *mpath);
- static u32 mesh_table_hash(const void *addr, u32 len, u32 seed)
- {
- 	/* Use last four bytes of hw addr as hash index */
--	return jhash_1word(*(u32 *)(addr+2), seed);
-+	return jhash_1word(__get_unaligned_cpu32((u8 *)addr + 2), seed);
- }
- 
- static const struct rhashtable_params mesh_rht_params = {
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index fd186b011a99..8475e8692ff0 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -1643,7 +1643,7 @@ ip_vs_in_icmp(struct netns_ipvs *ipvs, struct sk_buff *skb, int *related,
- 	if (!cp) {
- 		int v;
- 
--		if (!sysctl_schedule_icmp(ipvs))
-+		if (ipip || !sysctl_schedule_icmp(ipvs))
- 			return NF_ACCEPT;
- 
- 		if (!ip_vs_try_to_schedule(ipvs, AF_INET, skb, pd, &v, &cp, &ciph))
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 751fec729ffb..e065140d0c93 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1728,7 +1728,7 @@ static int __init xt_init(void)
- 		seqcount_init(&per_cpu(xt_recseq, i));
- 	}
- 
--	xt = kmalloc(sizeof(struct xt_af) * NFPROTO_NUMPROTO, GFP_KERNEL);
-+	xt = kcalloc(NFPROTO_NUMPROTO, sizeof(struct xt_af), GFP_KERNEL);
- 	if (!xt)
- 		return -ENOMEM;
- 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index ea37160d5ae2..dcf033fea2d2 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -4624,14 +4624,29 @@ static void __exit packet_exit(void)
- 
- static int __init packet_init(void)
- {
--	int rc = proto_register(&packet_proto, 0);
-+	int rc;
- 
--	if (rc != 0)
-+	rc = proto_register(&packet_proto, 0);
-+	if (rc)
- 		goto out;
-+	rc = sock_register(&packet_family_ops);
-+	if (rc)
-+		goto out_proto;
-+	rc = register_pernet_subsys(&packet_net_ops);
-+	if (rc)
-+		goto out_sock;
-+	rc = register_netdevice_notifier(&packet_netdev_notifier);
-+	if (rc)
-+		goto out_pernet;
- 
--	sock_register(&packet_family_ops);
--	register_pernet_subsys(&packet_net_ops);
--	register_netdevice_notifier(&packet_netdev_notifier);
-+	return 0;
-+
-+out_pernet:
-+	unregister_pernet_subsys(&packet_net_ops);
-+out_sock:
-+	sock_unregister(PF_PACKET);
-+out_proto:
-+	proto_unregister(&packet_proto);
- out:
- 	return rc;
- }
-diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
-index f57a58ac7ae0..3acb373674c3 100644
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1849,8 +1849,6 @@ int snd_pcm_lib_ioctl(struct snd_pcm_substream *substream,
- 		      unsigned int cmd, void *arg)
- {
- 	switch (cmd) {
--	case SNDRV_PCM_IOCTL1_INFO:
--		return 0;
- 	case SNDRV_PCM_IOCTL1_RESET:
- 		return snd_pcm_lib_ioctl_reset(substream, arg);
- 	case SNDRV_PCM_IOCTL1_CHANNEL_INFO:
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index f5eb10f8021c..b4809844bb1c 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -214,11 +214,7 @@ int snd_pcm_info(struct snd_pcm_substream *substream, struct snd_pcm_info *info)
- 	info->subdevices_avail = pstr->substream_count - pstr->substream_opened;
- 	strlcpy(info->subname, substream->name, sizeof(info->subname));
- 	runtime = substream->runtime;
--	/* AB: FIXME!!! This is definitely nonsense */
--	if (runtime) {
--		info->sync = runtime->sync;
--		substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_INFO, info);
--	}
-+
- 	return 0;
- }
- 
-diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
-index 700c74b0aed0..def61125ac36 100644
---- a/tools/lib/traceevent/event-parse.c
-+++ b/tools/lib/traceevent/event-parse.c
-@@ -2204,7 +2204,7 @@ eval_type_str(unsigned long long val, const char *type, int pointer)
- 		return val & 0xffffffff;
- 
- 	if (strcmp(type, "u64") == 0 ||
--	    strcmp(type, "s64"))
-+	    strcmp(type, "s64") == 0)
- 		return val;
- 
- 	if (strcmp(type, "s8") == 0)
-diff --git a/tools/testing/selftests/net/run_netsocktests b/tools/testing/selftests/net/run_netsocktests
-index 16058bbea7a8..c195b4478662 100755
---- a/tools/testing/selftests/net/run_netsocktests
-+++ b/tools/testing/selftests/net/run_netsocktests
-@@ -6,7 +6,7 @@ echo "--------------------"
- ./socket
- if [ $? -ne 0 ]; then
- 	echo "[FAIL]"
-+	exit 1
- else
- 	echo "[PASS]"
- fi
--
-diff --git a/tools/testing/selftests/netfilter/Makefile b/tools/testing/selftests/netfilter/Makefile
-index c9ff2b47bd1c..a37cb1192c6a 100644
---- a/tools/testing/selftests/netfilter/Makefile
-+++ b/tools/testing/selftests/netfilter/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for netfilter selftests
- 
--TEST_PROGS := nft_trans_stress.sh nft_nat.sh
-+TEST_PROGS := nft_trans_stress.sh nft_nat.sh conntrack_icmp_related.sh
- 
- include ../lib.mk
-diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-new file mode 100755
-index 000000000000..b48e1833bc89
---- /dev/null
-+++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-@@ -0,0 +1,283 @@
-+#!/bin/bash
-+#
-+# check that ICMP df-needed/pkttoobig icmp are set are set as related
-+# state
-+#
-+# Setup is:
-+#
-+# nsclient1 -> nsrouter1 -> nsrouter2 -> nsclient2
-+# MTU 1500, except for nsrouter2 <-> nsclient2 link (1280).
-+# ping nsclient2 from nsclient1, checking that conntrack did set RELATED
-+# 'fragmentation needed' icmp packet.
-+#
-+# In addition, nsrouter1 will perform IP masquerading, i.e. also
-+# check the icmp errors are propagated to the correct host as per
-+# nat of "established" icmp-echo "connection".
-+
-+# Kselftest framework requirement - SKIP code is 4.
-+ksft_skip=4
-+ret=0
-+
-+nft --version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without nft tool"
-+	exit $ksft_skip
-+fi
-+
-+ip -Version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without ip tool"
-+	exit $ksft_skip
-+fi
-+
-+cleanup() {
-+	for i in 1 2;do ip netns del nsclient$i;done
-+	for i in 1 2;do ip netns del nsrouter$i;done
-+}
-+
-+ipv4() {
-+    echo -n 192.168.$1.2
-+}
-+
-+ipv6 () {
-+    echo -n dead:$1::2
-+}
-+
-+check_counter()
-+{
-+	ns=$1
-+	name=$2
-+	expect=$3
-+	local lret=0
-+
-+	cnt=$(ip netns exec $ns nft list counter inet filter "$name" | grep -q "$expect")
-+	if [ $? -ne 0 ]; then
-+		echo "ERROR: counter $name in $ns has unexpected value (expected $expect)" 1>&2
-+		ip netns exec $ns nft list counter inet filter "$name" 1>&2
-+		lret=1
-+	fi
-+
-+	return $lret
-+}
-+
-+check_unknown()
-+{
-+	expect="packets 0 bytes 0"
-+	for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
-+		check_counter $n "unknown" "$expect"
-+		if [ $? -ne 0 ] ;then
-+			return 1
-+		fi
-+	done
-+
-+	return 0
-+}
-+
-+for n in nsclient1 nsclient2 nsrouter1 nsrouter2; do
-+  ip netns add $n
-+  ip -net $n link set lo up
-+done
-+
-+DEV=veth0
-+ip link add $DEV netns nsclient1 type veth peer name eth1 netns nsrouter1
-+DEV=veth0
-+ip link add $DEV netns nsclient2 type veth peer name eth1 netns nsrouter2
-+
-+DEV=veth0
-+ip link add $DEV netns nsrouter1 type veth peer name eth2 netns nsrouter2
-+
-+DEV=veth0
-+for i in 1 2; do
-+    ip -net nsclient$i link set $DEV up
-+    ip -net nsclient$i addr add $(ipv4 $i)/24 dev $DEV
-+    ip -net nsclient$i addr add $(ipv6 $i)/64 dev $DEV
-+done
-+
-+ip -net nsrouter1 link set eth1 up
-+ip -net nsrouter1 link set veth0 up
-+
-+ip -net nsrouter2 link set eth1 up
-+ip -net nsrouter2 link set eth2 up
-+
-+ip -net nsclient1 route add default via 192.168.1.1
-+ip -net nsclient1 -6 route add default via dead:1::1
-+
-+ip -net nsclient2 route add default via 192.168.2.1
-+ip -net nsclient2 route add default via dead:2::1
-+
-+i=3
-+ip -net nsrouter1 addr add 192.168.1.1/24 dev eth1
-+ip -net nsrouter1 addr add 192.168.3.1/24 dev veth0
-+ip -net nsrouter1 addr add dead:1::1/64 dev eth1
-+ip -net nsrouter1 addr add dead:3::1/64 dev veth0
-+ip -net nsrouter1 route add default via 192.168.3.10
-+ip -net nsrouter1 -6 route add default via dead:3::10
-+
-+ip -net nsrouter2 addr add 192.168.2.1/24 dev eth1
-+ip -net nsrouter2 addr add 192.168.3.10/24 dev eth2
-+ip -net nsrouter2 addr add dead:2::1/64 dev eth1
-+ip -net nsrouter2 addr add dead:3::10/64 dev eth2
-+ip -net nsrouter2 route add default via 192.168.3.1
-+ip -net nsrouter2 route add default via dead:3::1
-+
-+sleep 2
-+for i in 4 6; do
-+	ip netns exec nsrouter1 sysctl -q net.ipv$i.conf.all.forwarding=1
-+	ip netns exec nsrouter2 sysctl -q net.ipv$i.conf.all.forwarding=1
-+done
-+
-+for netns in nsrouter1 nsrouter2; do
-+ip netns exec $netns nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter related { }
-+	chain forward {
-+		type filter hook forward priority 0; policy accept;
-+		meta l4proto icmpv6 icmpv6 type "packet-too-big" ct state "related" counter name "related" accept
-+		meta l4proto icmp icmp type "destination-unreachable" ct state "related" counter name "related" accept
-+		meta l4proto { icmp, icmpv6 } ct state new,established accept
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+done
-+
-+ip netns exec nsclient1 nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter related { }
-+	chain input {
-+		type filter hook input priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+
-+ip netns exec nsclient2 nft -f - <<EOF
-+table inet filter {
-+	counter unknown { }
-+	counter new { }
-+	counter established { }
-+
-+	chain input {
-+		type filter hook input priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new" accept
-+		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established" accept
-+		counter name "unknown" drop
-+	}
-+	chain output {
-+		type filter hook output priority 0; policy accept;
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state "new" counter name "new"
-+		meta l4proto { icmp, icmpv6 } ct state "established" counter name "established"
-+		counter name "unknown" drop
-+	}
-+}
-+EOF
-+
-+
-+# make sure NAT core rewrites adress of icmp error if nat is used according to
-+# conntrack nat information (icmp error will be directed at nsrouter1 address,
-+# but it needs to be routed to nsclient1 address).
-+ip netns exec nsrouter1 nft -f - <<EOF
-+table ip nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0; policy accept;
-+		ip protocol icmp oifname "veth0" counter masquerade
-+	}
-+}
-+table ip6 nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0; policy accept;
-+		ip6 nexthdr icmpv6 oifname "veth0" counter masquerade
-+	}
-+}
-+EOF
-+
-+ip netns exec nsrouter2 ip link set eth1  mtu 1280
-+ip netns exec nsclient2 ip link set veth0 mtu 1280
-+sleep 1
-+
-+ip netns exec nsclient1 ping -c 1 -s 1000 -q -M do 192.168.2.2 >/dev/null
-+if [ $? -ne 0 ]; then
-+	echo "ERROR: netns ip routing/connectivity broken" 1>&2
-+	cleanup
-+	exit 1
-+fi
-+ip netns exec nsclient1 ping6 -q -c 1 -s 1000 dead:2::2 >/dev/null
-+if [ $? -ne 0 ]; then
-+	echo "ERROR: netns ipv6 routing/connectivity broken" 1>&2
-+	cleanup
-+	exit 1
-+fi
-+
-+check_unknown
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+expect="packets 0 bytes 0"
-+for netns in nsrouter1 nsrouter2 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+expect="packets 2 bytes 2076"
-+check_counter nsclient2 "new" "$expect"
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+ip netns exec nsclient1 ping -q -c 1 -s 1300 -M do 192.168.2.2 > /dev/null
-+if [ $? -eq 0 ]; then
-+	echo "ERROR: ping should have failed with PMTU too big error" 1>&2
-+	ret=1
-+fi
-+
-+# nsrouter2 should have generated the icmp error, so
-+# related counter should be 0 (its in forward).
-+expect="packets 0 bytes 0"
-+check_counter "nsrouter2" "related" "$expect"
-+if [ $? -ne 0 ]; then
-+	ret=1
-+fi
-+
-+# but nsrouter1 should have seen it, same for nsclient1.
-+expect="packets 1 bytes 576"
-+for netns in nsrouter1 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+ip netns exec nsclient1 ping6 -c 1 -s 1300 dead:2::2 > /dev/null
-+if [ $? -eq 0 ]; then
-+	echo "ERROR: ping6 should have failed with PMTU too big error" 1>&2
-+	ret=1
-+fi
-+
-+expect="packets 2 bytes 1856"
-+for netns in nsrouter1 nsclient1;do
-+	check_counter "$netns" "related" "$expect"
-+	if [ $? -ne 0 ]; then
-+		ret=1
-+	fi
-+done
-+
-+if [ $ret -eq 0 ];then
-+	echo "PASS: icmp mtu error had RELATED state"
-+else
-+	echo "ERROR: icmp error RELATED state test has failed"
-+fi
-+
-+cleanup
-+exit $ret
+
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 4.14.120 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                    |    2=20
+ arch/arm64/boot/dts/marvell/armada-ap806.dtsi               |   17=20
+ arch/arm64/kvm/hyp/tlb.c                                    |   35 +
+ arch/mips/ath79/setup.c                                     |    6=20
+ arch/mips/include/asm/processor.h                           |    2=20
+ arch/powerpc/Makefile                                       |   31 -
+ arch/powerpc/include/asm/reg_booke.h                        |    2=20
+ arch/powerpc/kernel/idle_book3s.S                           |   20=20
+ arch/powerpc/kernel/security.c                              |    1=20
+ arch/s390/kernel/nospec-branch.c                            |    1=20
+ arch/sparc/include/asm/switch_to_64.h                       |    3=20
+ arch/sparc/kernel/process_64.c                              |   25 -
+ arch/sparc/kernel/rtrap_64.S                                |    1=20
+ arch/sparc/kernel/signal32.c                                |   12=20
+ arch/sparc/kernel/signal_64.c                               |    6=20
+ arch/sparc/mm/init_64.c                                     |    1=20
+ arch/x86/entry/vdso/Makefile                                |    3=20
+ arch/x86/include/asm/efi.h                                  |    6=20
+ arch/x86/include/asm/fpu/api.h                              |   15=20
+ arch/x86/kernel/fpu/core.c                                  |    6=20
+ arch/x86/kernel/kprobes/core.c                              |   22=20
+ arch/x86/kernel/reboot.c                                    |   21=20
+ arch/x86/kvm/lapic.c                                        |    4=20
+ arch/x86/kvm/trace.h                                        |    4=20
+ arch/xtensa/boot/dts/xtfpga.dtsi                            |    2=20
+ drivers/acpi/acpica/dsopcode.c                              |    4=20
+ drivers/acpi/acpica/nsobject.c                              |    4=20
+ drivers/base/devres.c                                       |   10=20
+ drivers/clocksource/timer-oxnas-rps.c                       |    2=20
+ drivers/gpu/drm/i915/intel_pm.c                             |   45 +
+ drivers/gpu/drm/imx/ipuv3-crtc.c                            |    2=20
+ drivers/gpu/drm/rockchip/cdn-dp-reg.c                       |    2=20
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c                 |    4=20
+ drivers/gpu/drm/sun4i/sun4i_drv.c                           |    2=20
+ drivers/gpu/ipu-v3/ipu-dp.c                                 |   12=20
+ drivers/hid/hid-input.c                                     |   14=20
+ drivers/hwmon/pwm-fan.c                                     |    2=20
+ drivers/iio/adc/xilinx-xadc-core.c                          |    2=20
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma.h                   |   35 +
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_qp.c                |    6=20
+ drivers/input/mouse/elan_i2c_core.c                         |   25 +
+ drivers/input/rmi4/rmi_driver.c                             |    6=20
+ drivers/irqchip/irq-ath79-misc.c                            |   11=20
+ drivers/isdn/mISDN/socket.c                                 |    4=20
+ drivers/leds/leds-pwm.c                                     |    5=20
+ drivers/md/bcache/super.c                                   |    3=20
+ drivers/md/raid5.c                                          |   19=20
+ drivers/media/cec/cec-api.c                                 |   19=20
+ drivers/media/cec/cec-edid.c                                |   60 --
+ drivers/media/i2c/adv7604.c                                 |    4=20
+ drivers/media/i2c/adv7842.c                                 |    4=20
+ drivers/media/i2c/ov5640.c                                  |   12=20
+ drivers/net/Kconfig                                         |    4=20
+ drivers/net/bonding/bond_options.c                          |    7=20
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c              |    2=20
+ drivers/net/ethernet/freescale/fec_main.c                   |   30 -
+ drivers/net/ethernet/freescale/ucc_geth_ethtool.c           |    8=20
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c               |   15=20
+ drivers/net/ethernet/mellanox/mlxsw/core.c                  |    6=20
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c    |    2=20
+ drivers/net/ethernet/seeq/sgiseeq.c                         |    1=20
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c           |    2=20
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c           |   23=20
+ drivers/net/phy/spi_ks8995.c                                |    9=20
+ drivers/net/wireless/marvell/mwl8k.c                        |   13=20
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/hw.c         |    1=20
+ drivers/net/wireless/st/cw1200/scan.c                       |    5=20
+ drivers/nfc/st95hf/core.c                                   |    7=20
+ drivers/nvdimm/btt_devs.c                                   |   18=20
+ drivers/nvdimm/namespace_devs.c                             |    5=20
+ drivers/platform/x86/sony-laptop.c                          |    8=20
+ drivers/platform/x86/thinkpad_acpi.c                        |   72 ++-
+ drivers/s390/block/dasd_eckd.c                              |    6=20
+ drivers/s390/char/con3270.c                                 |    2=20
+ drivers/s390/char/fs3270.c                                  |    3=20
+ drivers/s390/char/raw3270.c                                 |    3=20
+ drivers/s390/char/raw3270.h                                 |    4=20
+ drivers/s390/char/tty3270.c                                 |    3=20
+ drivers/s390/crypto/pkey_api.c                              |    3=20
+ drivers/s390/net/ctcm_main.c                                |    1=20
+ drivers/scsi/raid_class.c                                   |    4=20
+ drivers/staging/olpc_dcon/Kconfig                           |    1=20
+ drivers/tty/vt/vt.c                                         |    2=20
+ drivers/usb/serial/generic.c                                |   39 +
+ drivers/virt/fsl_hypervisor.c                               |   29 -
+ fs/btrfs/disk-io.c                                          |   51 --
+ fs/cifs/smb2pdu.c                                           |    1=20
+ fs/fuse/dev.c                                               |   12=20
+ fs/kernfs/dir.c                                             |    5=20
+ include/asm-generic/pgtable.h                               |   16=20
+ include/linux/efi.h                                         |    7=20
+ include/linux/kvm_host.h                                    |   10=20
+ include/media/cec.h                                         |   70 ++
+ include/net/netfilter/nf_conntrack.h                        |    2=20
+ include/net/nfc/nci_core.h                                  |    2=20
+ include/rdma/ib_verbs.h                                     |   34 -
+ include/uapi/rdma/ib_user_verbs.h                           |   20=20
+ include/uapi/rdma/vmw_pvrdma-abi.h                          |    1=20
+ init/main.c                                                 |    4=20
+ kernel/trace/trace.h                                        |   57 ++
+ kernel/trace/trace_functions_graph.c                        |    4=20
+ kernel/trace/trace_irqsoff.c                                |    2=20
+ kernel/trace/trace_sched_wakeup.c                           |    2=20
+ mm/memory.c                                                 |   11=20
+ mm/vmscan.c                                                 |   29 -
+ net/8021q/vlan_dev.c                                        |    4=20
+ net/bridge/br_if.c                                          |   13=20
+ net/core/dev.c                                              |    7=20
+ net/core/fib_rules.c                                        |    6=20
+ net/dsa/dsa.c                                               |   11=20
+ net/ipv4/raw.c                                              |    4=20
+ net/ipv6/sit.c                                              |    2=20
+ net/mac80211/mesh_pathtbl.c                                 |    2=20
+ net/mac80211/trace_msg.h                                    |    7=20
+ net/mac80211/tx.c                                           |    3=20
+ net/netfilter/ipvs/ip_vs_core.c                             |    2=20
+ net/netfilter/nf_conntrack_core.c                           |   35 +
+ net/netfilter/nf_conntrack_netlink.c                        |   34 +
+ net/netfilter/nf_tables_api.c                               |   19=20
+ net/netfilter/x_tables.c                                    |    2=20
+ net/nfc/nci/hci.c                                           |    8=20
+ net/packet/af_packet.c                                      |   25 -
+ net/sched/cls_tcindex.c                                     |   16=20
+ net/tipc/socket.c                                           |    4=20
+ net/wireless/nl80211.c                                      |   18=20
+ security/integrity/ima/ima_crypto.c                         |   54 +-
+ tools/lib/traceevent/event-parse.c                          |    2=20
+ tools/testing/selftests/net/run_netsocktests                |    2=20
+ tools/testing/selftests/netfilter/Makefile                  |    2=20
+ tools/testing/selftests/netfilter/conntrack_icmp_related.sh |  283 +++++++=
++++++
+ virt/kvm/arm/mmu.c                                          |    8=20
+ virt/kvm/irqchip.c                                          |    5=20
+ virt/kvm/kvm_main.c                                         |    6=20
+ 133 files changed, 1368 insertions(+), 460 deletions(-)
+
+Adit Ranadive (1):
+      RDMA/vmw_pvrdma: Return the correct opcode when creating WR
+
+Aditya Pakki (1):
+      libnvdimm/btt: Fix a kmemdup failure check
+
+Alexey Brodkin (1):
+      devres: Align data[] to ARCH_KMALLOC_MINALIGN
+
+Alistair Strachan (1):
+      x86/vdso: Pass --eh-frame-hdr to the linker
+
+Andrea Parri (1):
+      kernfs: fix barrier usage in __kernfs_new_node()
+
+Andrei Otcheretianski (1):
+      mac80211: Increase MAX_MSG_LEN
+
+Andy Duan (1):
+      net: fec: manage ahb clock in runtime pm
+
+Arnd Bergmann (2):
+      s390: ctcm: fix ctcm_new_device error return code
+      scsi: raid_attrs: fix unused variable warning
+
+Breno Leitao (1):
+      powerpc/64s: Include cpu header
+
+Chris Wilson (1):
+      drm/i915: Downgrade Gen9 Plane WM latency error
+
+Christophe Leroy (1):
+      net: ucc_geth - fix Oops when changing number of buffers in the ring
+
+Cong Wang (1):
+      net_sched: fix two more memory leaks in cls_tcindex
+
+Corentin Labbe (1):
+      net: ethernet: stmmac: dwmac-sun8i: enable support of unicast filteri=
+ng
+
+Damian Kos (1):
+      drm/rockchip: fix for mailbox read validation.
+
+Dan Carpenter (4):
+      NFC: nci: Add some bounds checking in nci_hci_cmd_received()
+      nfc: nci: Potential off by one in ->pipes[] array
+      drivers/virt/fsl_hypervisor.c: dereferencing error pointers in ioctl
+      drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
+
+Dan Williams (1):
+      init: initialize jump labels before command line option parsing
+
+Daniel Gomez (2):
+      spi: Micrel eth switch: declare missing of table
+      spi: ST ST95HF NFC: declare missing of table
+
+David Ahern (1):
+      ipv4: Fix raw socket lookup for local traffic
+
+David Miller (1):
+      sparc64: Make corrupted user stacks more debuggable.
+
+David S. Miller (1):
+      sparc64: Export __node_distance.
+
+Dmitry Torokhov (3):
+      HID: input: add mapping for Expose/Overview key
+      HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
+      HID: input: add mapping for "Toggle Display" key
+
+Enric Balletbo i Serra (1):
+      drm/rockchip: psr: do not dereference encoder before it is null check=
+ed.
+
+Erik Schmauss (2):
+      ACPICA: AML interpreter: add region addresses in global list during i=
+nitialization
+      ACPICA: Namespace: remove address node from global list after method =
+termination
+
+Felix Fietkau (2):
+      mac80211: fix unaligned access in mesh table hash function
+      mac80211: fix memory accounting with A-MSDU aggregation
+
+Florian Westphal (3):
+      selftests: netfilter: check icmp pkttoobig errors are set as related
+      netfilter: ctnetlink: don't use conntrack/expect object addresses as =
+id
+      netfilter: nf_tables: warn when expr implements only one of activate/=
+deactivate
+
+Francesco Ruggeri (1):
+      netfilter: compat: initialize all fields in xt_init
+
+Goldwyn Rodrigues (1):
+      ima: open a new file instance if no read permissions
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.120
+
+Guenter Roeck (1):
+      s390/speculation: Fix build error caused by bad backport
+
+Gustavo A. R. Silva (2):
+      platform/x86: sony-laptop: Fix unintentional fall-through
+      rtlwifi: rtl8723ae: Fix missing break in switch statement
+
+Hangbin Liu (2):
+      fib_rules: return 0 directly if an exactly same rule exists when NLM_=
+F_EXCL not supplied
+      vlan: disable SIOCSHWTSTAMP in container
+
+Hans Verkuil (4):
+      media: cec: make cec_get_edid_spa_location() an inline function
+      media: cec: integrate cec_validate_phys_addr() in cec-api.c
+      media: adv7604: when the EDID is cleared, unconfigure CEC as well
+      media: adv7842: when the EDID is cleared, unconfigure CEC as well
+
+Harald Freudenberger (1):
+      s390/pkey: add one more argument space for debug feature entry
+
+Heinrich Schuchardt (1):
+      arm64: dts: marvell: armada-ap806: reserve PSCI area
+
+Huacai Chen (1):
+      MIPS: VDSO: Reduce VDSO_RANDOMIZE_SIZE to 64MB for 64bit
+
+Hugues Fruchet (2):
+      media: ov5640: fix wrong binning value in exposure calculation
+      media: ov5640: fix auto controls values when switching to manual mode
+
+Ido Schimmel (4):
+      mlxsw: spectrum_switchdev: Add MDB entries in prepare phase
+      mlxsw: core: Do not use WQ_MEM_RECLAIM for EMAD workqueue
+      mlxsw: core: Do not use WQ_MEM_RECLAIM for mlxsw ordered workqueue
+      mlxsw: core: Do not use WQ_MEM_RECLAIM for mlxsw workqueue
+
+Jan Kara (1):
+      mm/memory.c: fix modifying of page protection by insert_pfn()
+
+Jarod Wilson (1):
+      bonding: fix arp_validate toggling in active-backup mode
+
+Jason Gunthorpe (1):
+      IB/rxe: Revise the ib_wr_opcode enum
+
+Jerome Brunet (1):
+      leds: pwm: silently error out on EPROBE_DEFER
+
+Jian-Hong Pan (1):
+      x86/reboot, efi: Use EFI reboot for Acer TravelMate X514-51T
+
+Jiaxun Yang (1):
+      platform/x86: thinkpad_acpi: Disable Bluetooth for some machines
+
+Johan Hovold (1):
+      USB: serial: fix unthrottle races
+
+Johannes Weiner (1):
+      mm: fix inactive list balancing between NUMA nodes and cgroups
+
+Julian Anastasov (1):
+      ipvs: do not schedule icmp errors from tunnels
+
+Jun Xiao (1):
+      net: hns: Fix WARNING when hns modules installed
+
+KT Liao (1):
+      Input: elan_i2c - add hardware ID for multiple Lenovo laptops
+
+Kangjie Lu (1):
+      libnvdimm/namespace: Fix a potential NULL pointer dereference
+
+Laurentiu Tudor (2):
+      dpaa_eth: fix SG frame cleanup
+      powerpc/booke64: set RI in default MSR
+
+Lubomir Rintel (1):
+      staging: olpc_dcon: add a missing dependency
+
+Lucas Stach (2):
+      gpu: ipu-v3: dp: fix CSC handling
+      drm/imx: don't skip DP channel disable for background plane
+
+Marc Zyngier (1):
+      arm64: KVM: Make VHE Stage-2 TLB invalidation operations non-interrup=
+tible
+
+Martin Schwidefsky (2):
+      s390/3270: fix lockdep false positive on view->lock
+      mm: introduce mm_[p4d|pud|pmd]_folded
+
+Masami Hiramatsu (1):
+      x86/kprobes: Avoid kretprobe recursion bug
+
+Matteo Croce (1):
+      gtp: change NET_UDP_TUNNEL dependency to select
+
+Max Filippov (1):
+      xtensa: xtfpga.dtsi: fix dtc warnings about SPI
+
+Miklos Szeredi (1):
+      fuse: fix possibly missed wake-up after abort
+
+Neil Armstrong (1):
+      clocksource/drivers/oxnas: Fix OX820 compatible
+
+Nicholas Piggin (1):
+      powerpc: remove old GCC version checks
+
+Nicolas Pitre (1):
+      vt: always call notifier with the console lock held
+
+Nigel Croxon (1):
+      Don't jump to compute_result state from check_result state
+
+Omar Sandoval (1):
+      Btrfs: fix missing delayed iputs on unmount
+
+Pan Bian (1):
+      Input: synaptics-rmi4 - fix possible double free
+
+Paolo Abeni (1):
+      net: don't keep lonely packets forever in the gro hash
+
+Paolo Bonzini (1):
+      KVM: fix spectrev1 gadgets
+
+Parthasarathy Bhuvaragan (1):
+      tipc: fix hanging clients using poll with EPOLLOUT flag
+
+Paul Kocialkowski (1):
+      drm/sun4i: Set device driver data at bind time for use in unbind
+
+Peter Oberparleiter (1):
+      s390/dasd: Fix capacity calculation for large volumes
+
+Petr =C5=A0tetiar (2):
+      MIPS: perf: ath79: Fix perfcount IRQ assignment
+      mwl8k: Fix rate_idx underflow
+
+Po-Hsu Lin (1):
+      selftests/net: correct the return value for run_netsocktests
+
+Punit Agrawal (1):
+      KVM: arm/arm64: Ensure only THP is candidate for adjustment
+
+Rikard Falkeborn (1):
+      tools lib traceevent: Fix missing equality check for strcmp
+
+Ronnie Sahlberg (1):
+      cifs: fix memory leak in SMB2_read
+
+Russell Currey (1):
+      powerpc/powernv/idle: Restore IAMR after idle
+
+Sebastian Andrzej Siewior (1):
+      x86/fpu: Don't export __kernel_fpu_{begin,end}()
+
+Stefan Wahren (1):
+      hwmon: (pwm-fan) Disable PWM if fetching cooling data fails
+
+Stephen Suryaputra (1):
+      vrf: sit mtu should not be updated when vrf netdev is the link
+
+Steven Rostedt (VMware) (1):
+      tracing/fgraph: Fix set_graph_function from showing interrupts
+
+Sunil Dutt (1):
+      nl80211: Add NL80211_FLAG_CLEAR_SKB flag for other NL commands
+
+Sven Van Asbroeck (1):
+      iio: adc: xilinx: fix potential use-after-free on remove
+
+Tang Junhui (1):
+      bcache: correct dirty data statistics
+
+Tetsuo Handa (1):
+      mISDN: Check address length before reading address family
+
+Thierry Reding (1):
+      net: stmmac: Move debugfs init/exit to ->probe()/->remove()
+
+Thomas Bogendoerfer (1):
+      net: seeq: fix crash caused by not set dev.parent
+
+Tobin C. Harding (1):
+      bridge: Fix error path for kobject_init_and_add()
+
+Ville Syrj=C3=A4l=C3=A4 (1):
+      drm/i915: Disable LP3 watermarks on all SNB machines
+
+Vitaly Kuznetsov (1):
+      KVM: x86: avoid misreporting level-triggered irqs as edge-triggered i=
+n tracing
+
+Wei Yongjun (1):
+      cw1200: fix missing unlock on error in cw1200_hw_scan()
+
+YueHaibing (2):
+      net: dsa: Fix error cleanup path in dsa_init_module
+      packet: Fix error path in packet_init
+
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAlzeZGMACgkQONu9yGCS
+aT7ocBAAj9zCZqjAYZYemXyc9QKd28PunnEMTzbxGy+FUvqh4moaLNFLSwUxbyVo
+2yIacbL8XCI9oum3LgOF11/sJe/hNJ/m8zYvp9CXWO4W3XhFjhVIIlMOLtYjhyho
+dVpYlSMv/Re++O2Phq9mh+SBDikosyyCJZOGLRXo0yfZyzLsUqDCgON38LQN/sc/
+0MErlYugHAMs4Unv0Laml3IhoCMGqxKxZgXBystX8Pb0X500C23PPUnLVzOrZ1rE
+B/8K5LOczSctTVfgZI4pv6g/fdwLJxMxb8he6Y4UjGr7qnyqYfFkHU6JdI/B8a8p
+n1SA7kr1uFw01xWerugwW4NljeeYp4cSCEGV9EXOUZpAYEJUzrh8hTBnU3206CMU
++ujyT75fZSC8oWRO7yGGq4J062lEezutASJkKXeih4vhEdsMgN3LiLOlQ71HXbNF
+F3OPdS2zXYTbXk0JwTz+DRLxuSLOJ1f6RIpMSUtvxFV9hLaekzDjTaSV7GqnA/EX
+tMbKy2xQA5x3W+akarJZKbmuQ4h8GPaL2A6j7kGGEARaAA5s892EaOidGH5wEDBF
+Gar4HU5Qf0n9JZABOHgZv/NAOzHMBtDIVTcotRaSPkZk6IgLQmmEyRNlu5RfNZwP
+Plrg8DBY2+i8PnLgQSvPmkPRa31P7CcU4jZmdPqxS+ED2URh4vk=
+=GnmF
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--
