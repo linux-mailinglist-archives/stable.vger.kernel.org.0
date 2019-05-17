@@ -2,125 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A252117D
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 02:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 811B921183
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 03:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726953AbfEQA6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 20:58:06 -0400
-Received: from mail-eopbgr1320135.outbound.protection.outlook.com ([40.107.132.135]:32016
-        "EHLO APC01-PU1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726901AbfEQA6F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 20:58:05 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=testarcselector01; d=microsoft.com; cv=none;
- b=hpNRBdU8DnQjLHuciZS/9q28RcKl7j9CoYQek28xs8Q2XElnnwHGAkS/+gWlldmRYv1gZeoVjrLeVN8OmOCT350BPyc/7yrKFyLdQlVCxhm4aQOr1vs2u5U0cHQWamaiOMYqXQ4BYx/WGKtSbHmaMQIyS/MzL1RzczUpOyDh9bI=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=testarcselector01;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ik7Pw2aeRQa57X1bRWTXCSmWPEW8w1/M+tSdySighhY=;
- b=PzixlQWjV8CDJt1xlEaRq9WSkNKynNucMHdTif8A0+PymTIP66up9siur3Yu5P1fn0F5PcSQar+XfRWwuruZQNA8S4m74bbSjP78Bd9DNazIIhozs0O0iEjhHH1MBwZIU6n9zAfNzXzI+fHOBlh8M72P+bbSXAMhLdCiPCqb0rU=
-ARC-Authentication-Results: i=1; test.office365.com
- 1;spf=none;dmarc=none;dkim=none;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ik7Pw2aeRQa57X1bRWTXCSmWPEW8w1/M+tSdySighhY=;
- b=NHYcCmbU8NxaKsc2nj65AFrsnQQMETmGsM/pndN/1VoHDIaHFG+w9NU9AuuWr46eVWKygJtBJ8gpQbh1au77qJ8Seu/Ub9YupvF1WfM0UJ/F6nPPUasNWDjx/pp0CZTpProgX0+p8r6cC4IqvAD1myZR+NAHxoGx9DYlC7dowlU=
-Received: from PU1P153MB0169.APCP153.PROD.OUTLOOK.COM (10.170.189.13) by
- PU1P153MB0201.APCP153.PROD.OUTLOOK.COM (10.170.190.151) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1922.3; Fri, 17 May 2019 00:58:00 +0000
-Received: from PU1P153MB0169.APCP153.PROD.OUTLOOK.COM
- ([fe80::dc7e:e62f:efc9:8564]) by PU1P153MB0169.APCP153.PROD.OUTLOOK.COM
- ([fe80::dc7e:e62f:efc9:8564%4]) with mapi id 15.20.1922.002; Fri, 17 May 2019
- 00:58:00 +0000
-From:   Dexuan Cui <decui@microsoft.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        "stephen@networkplumber.org" <stephen@networkplumber.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in
- hv_eject_device_work()" failed to apply to 4.14-stable tree
-Thread-Topic: FAILED: patch "[PATCH] PCI: hv: Fix a memory leak in
- hv_eject_device_work()" failed to apply to 4.14-stable tree
-Thread-Index: AQHVCvkJaDgNxZ8BEkOcR/891njmX6Zs0sswgAGp4QCAAAMEkA==
-Date:   Fri, 17 May 2019 00:58:00 +0000
-Message-ID: <PU1P153MB016990F46FF3D679D4944D5ABF0B0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
-References: <1557909270643@kroah.com>
- <PU1P153MB0169D8FF719D8718F6B3157ABF090@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
- <20190517004148.GV11972@sasha-vm>
-In-Reply-To: <20190517004148.GV11972@sasha-vm>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=decui@microsoft.com;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2019-05-17T00:57:58.3077694Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
- Information Protection;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=56cba5c4-8e7d-4458-9674-2dc5e1a416a4;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=decui@microsoft.com; 
-x-originating-ip: [2601:600:a280:1760:e49c:a88d:95f1:67ea]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3f3ef192-ab7f-45b2-6dc1-08d6da62b57a
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:PU1P153MB0201;
-x-ms-traffictypediagnostic: PU1P153MB0201:
-x-microsoft-antispam-prvs: <PU1P153MB0201D8611CFC3A278EF49812BF0B0@PU1P153MB0201.APCP153.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0040126723
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(376002)(136003)(366004)(346002)(39860400002)(199004)(189003)(229853002)(5024004)(55016002)(256004)(10290500003)(7696005)(74316002)(5660300002)(6436002)(11346002)(305945005)(9686003)(8676002)(476003)(71190400001)(71200400001)(33656002)(7736002)(6916009)(8990500004)(4744005)(10090500001)(52536014)(25786009)(2906002)(46003)(6246003)(186003)(6116002)(316002)(102836004)(68736007)(4326008)(76176011)(64756008)(66476007)(66556008)(66446008)(86612001)(86362001)(53936002)(446003)(6506007)(81156014)(81166006)(54906003)(8936002)(66946007)(73956011)(486006)(76116006)(22452003)(478600001)(14454004)(99286004);DIR:OUT;SFP:1102;SCL:1;SRVR:PU1P153MB0201;H:PU1P153MB0169.APCP153.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: microsoft.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 7Ov92KjSyxmkVEsM2yUpe4W/iOEFAr7OHx94vjGRTywmzYu6er1pwA4gNfxhhxm6IB5YCORzqA9kquygj/4f3xelIWU9JYMkSr6ij+3W+t83T9bjQQwF7+TjqmSXKl1E7oPYoisCY/4ZeZomT9NWKUcpGnL2cv1ioYVFl9TrfWMTm4uNCaf5nAQuqc8SSNxQzhr7SoEV8NMR9rYjSQXgHE9+1SAAj6YAF2RNi7pDXJw1qdKnCwGV8OjwnysvXYiN87/0uEFH5ljTxQ2UzaSA0rtwwv1lFCLBkmeCmV4odZ4WxaStHlDjo46R30XgGtZXcVeiO3aMizIxqZm7gwZ5f1FPQIHdWZMk/TrhO+MGKY6csM8US76ism+iwXcgLMUaROdT/1D907z3SF3hOpYA0fABKeYcO2mCVyvW8im61yQ=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1727818AbfEQBAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 21:00:31 -0400
+Received: from mail-wr1-f53.google.com ([209.85.221.53]:46973 "EHLO
+        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726575AbfEQBAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 21:00:30 -0400
+Received: by mail-wr1-f53.google.com with SMTP id r7so5210070wrr.13
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 18:00:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=w3Z7PmHa29xhrJVUi/VyH0iprxtJVk6BLzcvQcsIlS4=;
+        b=EA9+kAXC6f4mrqaSondQK0sRRM6VkkTuFHukQ7hZkdGMKi4WUaddrqlkwir263dXq0
+         jLmZh+kefNlm8zq6ox3QWgJYOpo+tpA1cT2kNdjV/HnbpodGc+N3drz1x0m/2ddXMiux
+         n+SJzhlVu5P92V17xnDllMfXQ3V4d1e0nHiWjqChPHlYUODFwIk/L0toFD9GlMWFIyt6
+         6qABuUGaX0nCtczKRf+c/BETjx5pJq7LfsJ1mSU9nrq6SQI51qKvq0HptG6laPNQYxD9
+         +bNzp0nq/EH4Nso0QX3ejE+Gg6sOIgISxVhfn+Fc5xNhzg8ap4IvSE2EufjoasgVbsdc
+         3QKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=w3Z7PmHa29xhrJVUi/VyH0iprxtJVk6BLzcvQcsIlS4=;
+        b=eGnA54FussW2/ftzUkSA83JGbWWAK+x6dQr52hhyRjfHe3W5KNJg8wafK4jM04gwW6
+         cuhiIeqy61kzpHOx61Le5ahyqqIoT3Pe7J8VOilp8POZN80nMNuwkyij96Jmm7T7NebF
+         Ppzam4QERRJF0soKg6woPI5tXicU1Pr0kOVxi+PuJT31jQUI+fhl37Sq8n3WLzEkml81
+         9lcUAbxLjgWPWojFhacsqcP/dvr1kpG7e+m3i5BDrvhigAve7Ct56PCToGRcC8mpQU73
+         sQSmcFnt5CblRwSrUNgjRvSxTAkYsU8HJsIY3ZvhqoWpYoqtLDDgKwdo2o1GKBQM7QXI
+         4+Uw==
+X-Gm-Message-State: APjAAAV5KefHV7yWkOBScXPU9gxv2vfyDAKkDOuoi0IVN4RQ5Yg0OZzW
+        vjXnsAWQ/PL8dvOWdB35/H2QNtaWmq1p8g==
+X-Google-Smtp-Source: APXvYqzUCXyrAivsQdWUGiJdTjXHcrnyI+j3fDm5zx6E90RFrr8foTa/i/w+rIfwP8ix4MTKck9+cQ==
+X-Received: by 2002:adf:e584:: with SMTP id l4mr10652828wrm.54.1558054828637;
+        Thu, 16 May 2019 18:00:28 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u129sm636857wmb.22.2019.05.16.18.00.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 May 2019 18:00:28 -0700 (PDT)
+Message-ID: <5cde07ac.1c69fb81.d1d5e.39c8@mx.google.com>
+Date:   Thu, 16 May 2019 18:00:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f3ef192-ab7f-45b2-6dc1-08d6da62b57a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 May 2019 00:58:00.1276
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: decui@microsoft.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PU1P153MB0201
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.177
+Subject: stable-rc/linux-4.9.y boot: 109 boots: 0 failed,
+ 104 passed with 3 offline, 1 untried/unknown, 1 conflict (v4.9.177)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Sasha Levin <sashal@kernel.org>
-> Sent: Thursday, May 16, 2019 5:42 PM
-> On Wed, May 15, 2019 at 11:18:56PM +0000, Dexuan Cui wrote:
-> >Hi,
-> >I backported the patch for linux-4.14.y.
-> >
-> >Please use the attached patch, which is [PATCH 1/3]
->=20
-> Hi Dexuan,
->=20
-> For future reference, please keep the commit message in the backported
-> patch same as the upstream one, unless you want to add additional
-> information about the backport, in which case just add it to the commit
-> message rather than replacing it.
->=20
-> I've cleaned up the commit message and queued it up for 4.14, thank you.
->=20
-> Sasha
+stable-rc/linux-4.9.y boot: 109 boots: 0 failed, 104 passed with 3 offline,=
+ 1 untried/unknown, 1 conflict (v4.9.177)
 
-Thanks, Sasha!=20
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.177/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.177/
 
-I thought only using the concise one-line commit info would be better . :-)
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.177
+Git Commit: 8baec4ebdf084961516f17cadbad14cac082ee4e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 51 unique boards, 22 SoC families, 15 builds out of 197
 
-I'll follow the rule in the future.
+Boot Regressions Detected:
 
--- Dexuan
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.9.176-52-g2647f24152=
+a7)
+
+Offline Platforms:
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
