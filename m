@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 025E821A91
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:31:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D69521ADC
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729145AbfEQPb2 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 11:31:28 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33480 "EHLO mx1.redhat.com"
+        id S1728861AbfEQPnT convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 11:43:19 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34148 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729084AbfEQPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 11:31:28 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1729078AbfEQPnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 11:43:19 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CC95B81134
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 15:31:27 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 2262D309B6D5
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 15:43:19 +0000 (UTC)
 Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 538725C21A;
-        Fri, 17 May 2019 15:31:25 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BDCC81001DE1;
+        Fri, 17 May 2019 15:43:16 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.ABA7C03998.7QVQ1N69MZ@redhat.com>
-X-Gitlab-Pipeline-ID: 10299
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.FFFAAAD10D.NIY96ZF32M@redhat.com>
+X-Gitlab-Pipeline-ID: 10298
 X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10299?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 17 May 2019 15:31:27 +0000 (UTC)
-Date:   Fri, 17 May 2019 11:31:28 -0400
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10298?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 17 May 2019 15:43:19 +0000 (UTC)
+Date:   Fri, 17 May 2019 11:43:19 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,7 +43,7 @@ We ran automated tests on a patchset that was proposed for merging into this
 kernel tree. The patches were applied to:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 7cb9c5d341b9 - Linux 5.1.3
+            Commit: dafc674bbcb1 - Linux 4.19.44
 
 The results of these automated tests are provided below.
 
@@ -68,7 +68,7 @@ Merge testing
 We cloned this repository and checked out the following commit:
 
   Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 7cb9c5d341b9 - Linux 5.1.3
+  Commit: dafc674bbcb1 - Linux 4.19.44
 
 We then merged the patchset with `git am`:
 
@@ -76,11 +76,8 @@ We then merged the patchset with `git am`:
   x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
   x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
   objtool-fix-function-fallthrough-detection.patch
-  arm64-dts-rockchip-fix-io-domain-voltage-setting-of-apio5-on-rockpro64.patch
   arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
-  arm-dts-qcom-ipq4019-enlarge-pcie-bar-range.patch
   arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
-  arm-dts-exynos-fix-audio-routing-on-odroid-xu3.patch
   arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
   mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
   arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
@@ -92,15 +89,10 @@ We then merged the patchset with `git am`:
   arm64-clear-osdlr_el1-on-cpu-boot.patch
   arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
   sched-x86-save-flags-on-context-switch.patch
-  x86-mce-add-an-mce-record-filtering-function.patch
-  x86-mce-amd-don-t-report-l1-btb-mca-errors-on-some-family-17h-models.patch
   crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
   crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
   crypto-salsa20-don-t-access-already-freed-walk.iv.patch
-  crypto-lrw-don-t-access-already-freed-walk.iv.patch
-  crypto-chacha-generic-fix-use-as-arm64-no-neon-fallback.patch
   crypto-chacha20poly1305-set-cra_name-correctly.patch
-  crypto-ccm-fix-incompatibility-between-ccm-and-ccm_base.patch
   crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
   crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
   crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
@@ -109,16 +101,9 @@ We then merged the patchset with `git am`:
   crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
   crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
   crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
-  crypto-caam-qi2-fix-zero-length-buffer-dma-mapping.patch
-  crypto-caam-qi2-fix-dma-mapping-of-stack-memory.patch
-  crypto-caam-qi2-generate-hash-keys-in-place.patch
   crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
   crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
-  drivers-dax-allow-to-include-dev_dax_pmem-as-builtin.patch
-  dt-bindings-mmc-add-disable-cqe-dcmd-property.patch
-  mmc-tegra-fix-ddr-signaling-for-non-ddr-modes.patch
   mmc-core-fix-tag-set-memory-leak.patch
-  mmc-sdhci-pci-fix-byt-ocp-setting.patch
   alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
   alsa-usb-audio-fix-a-memory-leak-bug.patch
   alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
@@ -137,23 +122,23 @@ We compiled the kernel for 4 architectures:
 
   aarch64:
     build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-90ed999da8429bf4d68624122488c33560f4ed07.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
 
   ppc64le:
     build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-90ed999da8429bf4d68624122488c33560f4ed07.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
 
   s390x:
     build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-90ed999da8429bf4d68624122488c33560f4ed07.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
 
   x86_64:
     build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45aa4c31fe7e9bf71de925e0234406a6654f837c.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45aa4c31fe7e9bf71de925e0234406a6654f837c.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-90ed999da8429bf4d68624122488c33560f4ed07.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
 
 
 Hardware testing
@@ -163,64 +148,64 @@ We booted each kernel and ran the following tests:
 
   aarch64:
      ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
+     ✅ selinux-policy: serge-testsuite [1]
      ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
 
   ppc64le:
      ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
      ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
+     ✅ selinux-policy: serge-testsuite [1]
 
   s390x:
      ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
+     ✅ selinux-policy: serge-testsuite [1]
      ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
+     ✅ LTP lite [2]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
 
   x86_64:
      ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ AMTU (Abstract Machine Test Utility) [2]
-     ✅ audit: audit testsuite test [3]
-     ✅ httpd: mod_ssl smoke sanity [4]
-     ✅ iotop: sanity [5]
-     ✅ tuned: tune-processes-through-perf [6]
-     ✅ Usex - version 1.9-29 [7]
-     ✅ stress: stress-ng [8]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
      ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [9]
+     ✅ selinux-policy: serge-testsuite [1]
 
   Test source:
     [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
 
