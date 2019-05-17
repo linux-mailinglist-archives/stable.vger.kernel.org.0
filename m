@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B89321A60
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7DE21A61
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfEQPPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 11:15:43 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:42721 "EHLO
+        id S1729222AbfEQPPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:15:46 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:41525 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729164AbfEQPPn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:15:43 -0400
+        by vger.kernel.org with ESMTP id S1729164AbfEQPPq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:15:46 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 53C964B0;
-        Fri, 17 May 2019 11:15:42 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 986D64B7;
+        Fri, 17 May 2019 11:15:44 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 17 May 2019 11:15:42 -0400
+  by compute6.internal (MEProxy); Fri, 17 May 2019 11:15:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SN8tU/
-        oAV9Xv1TInhkt66K6NkfdLFzVqbn09h5AfqH4=; b=0ZAZ/FspPxMG3g/1RrE6Xu
-        Fk0izUQGiRl4vODihGctblp2qj8X591YUH8y8TwvtoVbu1ojS8qEYtLwbYe1s6g6
-        nNSOLT+pi6sPtJwr34YI5zlsKx8oujaZBezlAFwAsUiSKh8Kll4bgAKPO9Hz7YtH
-        vEn1ySt+tCWPU42Og1Xo5ONovA7Nlr81T1Vdie2dHrdgnbMkFB52BEZbpR8QAZne
-        /hHDBxpM2vWZUjfSZ3noQN2fycLhE8RAUYeqJovpRhMoF5XDXvDO6peA8fWetloR
-        hXA0BWir/haxLhlrXEOmCnl+7JMfGxS4ntL+lgo/xzcFY1eNXRq3EnLqYaBWnsAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6/sC8n
+        WDPeD5S+FQEOW2m6jxV6AGO8/FjejnFStjils=; b=cijfaJjKfzBcpyZOwiqKZp
+        KGhjDAC7VRfTnN5jcgxb0yglPZsD5Ye64s1lW8f7/4T3VeuL2UO46JgSNR8eQTSr
+        dlPow1K+ZYA3qsYzIKhgv42d6xH/I7ab0E32oJV3rsoA5fnwlv/dRN8qGxOmPkEb
+        53oel4GRedvHJXWX1HN2pQ3DLZdRemDwylntYjBxzbfXNRJG0I5vU57iaIEa269V
+        PnEi/4TcAgCrZ0rIonIOsFgy/A/stPHPPkqh25ZzcnzfhnukXHAjkvzZxpOEiWic
+        z8vVFtuLtYOK84CEcY5txFcrNg0lOD5ZOdFFbK/8LVTpURCA+12O3L9tNRZ51q1g
         ==
-X-ME-Sender: <xms:HdDeXLz3vhl-I1fEPPRzPc1tA7in-96wkMoMfol5ObtVT8qP3eg4tQ>
+X-ME-Sender: <xms:INDeXGM665PPqQZFIDgo39tw76h0MAQxR36kFFBwZtCJsG-5a_MOqQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtvddgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:HdDeXA9Djpu-CZP1xp1pK2_guNqbhNu2mOaM3aM9oTu4Em-2s9MNlA>
-    <xmx:HdDeXNbuNE47XQcHo-ZCNjpptskptudzYQjEmX4stAZMNoWLL1VzWQ>
-    <xmx:HdDeXN7X1tfO4Lmf78F_W_mARgQebi96GjT7exaXnoSIkZPmYSGBXA>
-    <xmx:HdDeXIn3Ms4pu-aaKPetQVErQUg2q_0ySK7_q1FDNyGrlwrbu2o7Zg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:INDeXHPSrv2W_0ZUG8uwcqdsa-kG-dG25Jv-O4Cu_SzPuFUQy3ctfA>
+    <xmx:INDeXPjIyrumL1viSqUWviORixjyO9URSTaBararU0C0SRzCXGBTIA>
+    <xmx:INDeXMvPNQl5-irus6ZkfA3Pb61eyptyvR6pkQoAxRb8p1NK8hM5Yg>
+    <xmx:INDeXJuL9Ep1Q4Snq3lRQvuVwXGgyZZ5he8WRfRvjDYJkMxTZIN6Ww>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 17FF28005B;
-        Fri, 17 May 2019 11:15:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: Honour FITRIM range constraints during free space trim" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9B63C80059;
+        Fri, 17 May 2019 11:15:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: Honour FITRIM range constraints during free space trim" failed to apply to 4.9-stable tree
 To:     nborisov@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 May 2019 17:15:39 +0200
-Message-ID: <1558106139255170@kroah.com>
+Date:   Fri, 17 May 2019 17:15:40 +0200
+Message-ID: <1558106140212229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
