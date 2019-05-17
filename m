@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5BD821CDF
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 19:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A776D21D1B
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 20:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbfEQRvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 May 2019 13:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49518 "EHLO mail.kernel.org"
+        id S1729113AbfEQSIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 14:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725932AbfEQRvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 13:51:45 -0400
+        id S1727909AbfEQSIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 May 2019 14:08:22 -0400
 Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D1CC20815;
-        Fri, 17 May 2019 17:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9964321726;
+        Fri, 17 May 2019 18:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558115505;
-        bh=ysAIbo/22ozqU8DB1szPTRAK2KFlDqa+HCqb4lufk5A=;
+        s=default; t=1558116501;
+        bh=Q7nmDqeGIKrH5HcUpuIBQ7lO+ia/Yyl+Bhc6o6nht2E=;
         h=From:To:Cc:Subject:Date:From;
-        b=r/XUfiWlIhqNrq6uyoowbF0shQOsxUh0DR3VRokSFz/k+2ZVjrIs/+6yAr/mYJ5W3
-         ZNR+kYD45gBoyTOkBbP4vnknYcRIxmVBOObZOAg8++06fg/qM27Gql7Q0exEw5snP3
-         Yf2Umahud9bF9++A0gZUE+5uzk6fp/yVofXlOXO0=
+        b=ARwTpVl1bCkFHUb65Jt+KrjxS2nFFgaSy/eYSf0oRV5Bp/6namP0Rph2+C/Ttc8pB
+         0zI+b40HmL37QikiJhfZQMB9LvrOkx9vQEaH4/e6bburrm/8zRS0oF4N83E5R7i2XG
+         9hWtKo8U7YtiO9qE3xRnS1Dn/McKmZCWur5z7B4Q=
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linux-crypto@vger.kernel.org
-Subject: [PATCH 4.4] crypto: chacha20poly1305 - set cra_name correctly
-Date:   Fri, 17 May 2019 10:50:03 -0700
-Message-Id: <20190517175003.118301-1-ebiggers@kernel.org>
+Subject: [PATCH 4.4 1/2] crypto: gcm - Fix error return code in crypto_gcm_create_common()
+Date:   Fri, 17 May 2019 11:06:09 -0700
+Message-Id: <20190517180610.150453-1-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -37,48 +37,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 5e27f38f1f3f45a0c938299c3a34a2d2db77165a upstream.
+commit 9b40f79c08e81234d759f188b233980d7e81df6c upstream.
 [Please apply to 4.4-stable.]
 
-If the rfc7539 template is instantiated with specific implementations,
-e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
-"rfc7539(chacha20,poly1305)", then the implementation names end up
-included in the instance's cra_name.  This is incorrect because it then
-prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
-highest priority implementations of chacha20 and poly1305 were selected.
-Also, the self-tests aren't run on an instance allocated in this way.
+Fix to return error code -EINVAL from the invalid alg ivsize error
+handling case instead of 0, as done elsewhere in this function.
 
-Fix it by setting the instance's cra_name from the underlying
-algorithms' actual cra_names, rather than from the requested names.
-This matches what other templates do.
-
-Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
-Cc: <stable@vger.kernel.org> # v4.2+
-Cc: Martin Willi <martin@strongswan.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Martin Willi <martin@strongswan.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- crypto/chacha20poly1305.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/gcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/chacha20poly1305.c b/crypto/chacha20poly1305.c
-index 0214600ba071e..6c4724222e3a0 100644
---- a/crypto/chacha20poly1305.c
-+++ b/crypto/chacha20poly1305.c
-@@ -637,8 +637,8 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
+diff --git a/crypto/gcm.c b/crypto/gcm.c
+index 0a12c09d7cb2b..f1c16589af8bb 100644
+--- a/crypto/gcm.c
++++ b/crypto/gcm.c
+@@ -670,11 +670,11 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
+ 	ctr = crypto_skcipher_spawn_alg(&ctx->ctr);
  
- 	err = -ENAMETOOLONG;
- 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
--		     "%s(%s,%s)", name, chacha_name,
--		     poly_name) >= CRYPTO_MAX_ALG_NAME)
-+		     "%s(%s,%s)", name, chacha->cra_name,
-+		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
- 		goto out_drop_chacha;
- 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
- 		     "%s(%s,%s)", name, chacha->cra_driver_name,
+ 	/* We only support 16-byte blocks. */
++	err = -EINVAL;
+ 	if (ctr->cra_ablkcipher.ivsize != 16)
+ 		goto out_put_ctr;
+ 
+ 	/* Not a stream cipher? */
+-	err = -EINVAL;
+ 	if (ctr->cra_blocksize != 1)
+ 		goto out_put_ctr;
+ 
 -- 
 2.21.0.1020.gf2820cf01a-goog
 
