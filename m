@@ -2,68 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC68D21198
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 03:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB17B211E7
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 04:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727320AbfEQBHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 May 2019 21:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54282 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726575AbfEQBHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 May 2019 21:07:08 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD29E206BF;
-        Fri, 17 May 2019 01:07:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558055228;
-        bh=4DUCsxJB0P9y4uOwgcf8Xi5dNUQ3fc1vHdZYEzrIwbU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=f8J2bsdIyo8UyT4mccVemyc8q2rMD9rOK6lk7aXTlqC22ULFCP6xkwmty+tMJEBEt
-         gMY5Wiww5H5fVUVM32vBZfEtPQXFgB0rvqjS6viwrfYv01Ux0x+5zWKs1Mljt4VWcy
-         PqhYzAj2Odp9tn+sScnBqd0LxKscWe+LbjI3hLN4=
-Date:   Thu, 16 May 2019 21:07:06 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
-        dmitry.kasatkin@huawei.com, linux-integrity@vger.kernel.org,
-        linux-doc@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 3/4] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-Message-ID: <20190517010706.GA11972@sasha-vm>
-References: <20190516161257.6640-3-roberto.sassu@huawei.com>
- <20190517001001.9BEF620848@mail.kernel.org>
- <1558053020.4507.32.camel@linux.ibm.com>
+        id S1726339AbfEQCDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 May 2019 22:03:09 -0400
+Received: from mail-wr1-f54.google.com ([209.85.221.54]:41042 "EHLO
+        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbfEQCDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 May 2019 22:03:09 -0400
+Received: by mail-wr1-f54.google.com with SMTP id g12so5061459wro.8
+        for <stable@vger.kernel.org>; Thu, 16 May 2019 19:03:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XjonWgcDMdTJGU2Vyt8RXvVKrcMJegoJWm1N7RPNf3Y=;
+        b=OjEy7pdXZLapHlQw66ubfagstmE+o2UTz8ApeoEFlhFrFNMJjlNBsNfBFeRF6wfUW3
+         /Wso7AdMkgVyh9TOoG96QqTWuO47PphKwshEGTc+1mF7rrgihxW5a6TA7aZqMIWpGsEg
+         wpqE0X21kXFZOplbFaG6RmsaNs1/MFMtFxnldM3jXURx70g9yhS0a1M6F1RcvHdq+FUx
+         I2tbTZnUxf3Ig4tFH+8POGjuJ7OmUo0lR+a6NofWEeNMv+QT8LKSVQK+6mtm/jkZwGvB
+         42F9a+nyvHtxvT0wHx8XOpNh0kMpVQgGoWfY/uXuLMYWIqjQ8QBXCEkntJfwnQRwf6UY
+         ZEMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XjonWgcDMdTJGU2Vyt8RXvVKrcMJegoJWm1N7RPNf3Y=;
+        b=o/xwwH7XZ2835On5IN86o8Q52B46PxCJa/Y8uEnmZ05VJPv1RzUQQrnpymS+3JRw1M
+         PRRg+HbjH12BOafOLzdK8O7DjPA1OdmqAyCi7aIFyl/LNEZftsZIu5MjRxcnQa5t3tcY
+         g24mkJR+OQiXA8DzO4UGOlBV8QVD45y4DgogbTFaB6ONNbTW4jRK0qfXG2rDo1sBoxZO
+         +2/G9BJRjrC6R6TwiuWbvhizChv0zgFqXE1m9DHrQBNcSUcOIbYJj0sRblKc9GfCujKP
+         bV7eujSw8KJdzvHREE+f5D43gaPaMgg5t3NyqtlHtF2sfMb8BIghWCOtQFzv6iD1npgl
+         EnxA==
+X-Gm-Message-State: APjAAAVpr4oNs7PAfuv5Kt+CZ9iDOk/SCZFya9KTiqWwkX52ouMu8Mkc
+        RQauIOMEiI9qhdcq/pc5xBQmB5P187MyBg==
+X-Google-Smtp-Source: APXvYqySrE0aME9eeb/f6wmTPwIQA/ZHOSexTOFtYfgHseqGIeQ+655dx22mgNT86syNrf9+hjfvKA==
+X-Received: by 2002:adf:ec42:: with SMTP id w2mr31286661wrn.77.1558058587527;
+        Thu, 16 May 2019 19:03:07 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x187sm8756749wmb.33.2019.05.16.19.03.06
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 May 2019 19:03:06 -0700 (PDT)
+Message-ID: <5cde165a.1c69fb81.fe1a9.3f9b@mx.google.com>
+Date:   Thu, 16 May 2019 19:03:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1558053020.4507.32.camel@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.44
+Subject: stable-rc/linux-4.19.y boot: 125 boots: 0 failed,
+ 123 passed with 1 offline, 1 conflict (v4.19.44)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 16, 2019 at 08:30:20PM -0400, Mimi Zohar wrote:
->On Fri, 2019-05-17 at 00:10 +0000, Sasha Levin wrote:
->>
->> How should we proceed with this patch?
->
->Yikes!  This was posted earlier today.  I haven't even had a chance to
->look at it yet.  Similarly for "[PATCH 4/4] ima: only audit failed
->appraisal verifications".
+stable-rc/linux-4.19.y boot: 125 boots: 0 failed, 123 passed with 1 offline=
+, 1 conflict (v4.19.44)
 
-Hi Mimi,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.44/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.44/
 
-This is just a very early warning, it doesn't mean it's going in -stable
-any time soon :)
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.44
+Git Commit: dafc674bbcb11c6a5c63b75be5873b118e2add17
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 65 unique boards, 22 SoC families, 14 builds out of 206
 
-I find that giving this alert now results in more responses as people
-still have this patch + context in their mind. If we sent alerts such as
-these before we actually add patches to -stable people tend to respond
-less as usually they have moved to work on something else.
+Boot Regressions Detected:
 
---
-Thanks,
-Sasha
+arm:
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.19.43-114-gb5001f5ea=
+b58)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
