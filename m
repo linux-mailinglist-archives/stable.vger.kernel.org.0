@@ -2,210 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D69521ADC
-	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 018E021AFF
+	for <lists+stable@lfdr.de>; Fri, 17 May 2019 17:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbfEQPnT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 17 May 2019 11:43:19 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:34148 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729078AbfEQPnT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 May 2019 11:43:19 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 2262D309B6D5
-        for <stable@vger.kernel.org>; Fri, 17 May 2019 15:43:19 +0000 (UTC)
-Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BDCC81001DE1;
-        Fri, 17 May 2019 15:43:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1729164AbfEQPx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 May 2019 11:53:57 -0400
+Received: from mail-pf1-f175.google.com ([209.85.210.175]:45936 "EHLO
+        mail-pf1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728628AbfEQPx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 May 2019 11:53:57 -0400
+Received: by mail-pf1-f175.google.com with SMTP id s11so3865571pfm.12
+        for <stable@vger.kernel.org>; Fri, 17 May 2019 08:53:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=DeWYh2wXHt0SGoJqX0T0F4RONBrBgIxGbZCJ2kdSH6I=;
+        b=kP5ojcPfRjRGKbxsO4pF79WW/kSRZaLu97/2LsHLFWXmA56eKS99Mt+3JVChAIHpWm
+         /edz0dqcheadE+lCi2SLduXDhlV/p2PinTyIt4lzceJGxetX1fUXdKy/JmwgB4UYvVNK
+         Brmr62mRz4mVtq7sVy58XKgfbiMqAH/4IEa8o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=DeWYh2wXHt0SGoJqX0T0F4RONBrBgIxGbZCJ2kdSH6I=;
+        b=MjZHPJc8NkSWT+3cAS+50Jpj4UyPweHZOgx5R8KAiZ8C2aiJSFRwEshsg0cYjEKRUr
+         fslKMdVtm9XlG+U/l9snVACCx3Y3voOSugCRqB7kS8bigwXDOpHusaBrxLzXeh+Hm07w
+         brgOtus6VgF1Osa5v0nG8S4RU8CzFl7GMmdiEl4QLIQPkjHcsLZjWi+EZnvQ7emuNrbg
+         pJFVsErUGBNPZ4fbFsyQbMeHc30vnoSVo9UspjnuMDfK7iW39VralQ2EIDDzTq4QQBSL
+         B7JiwCgBoNgW99Wb8QiUcIDcZPl4w9SCCePM12XnZ0rdI12t2NSJRHw5Vdv0hS60gjh3
+         aeaA==
+X-Gm-Message-State: APjAAAXvTJx+U4X/uPGzZJ5b6PHNggudQQgwwiCosYFgvzot0igayXy4
+        jdR4os/Mx5bIDB5CPVIckYwbSff/Fyk=
+X-Google-Smtp-Source: APXvYqyvXdwCR61IEEY49hfPBp0/QulW7H4+PkBv7xWEeGfEdGz2OO8yjJsd70M5DeFCJZN6lhnfqQ==
+X-Received: by 2002:a62:8893:: with SMTP id l141mr4899472pfd.261.1558108436771;
+        Fri, 17 May 2019 08:53:56 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id m12sm5169259pgi.56.2019.05.17.08.53.55
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 17 May 2019 08:53:55 -0700 (PDT)
+Date:   Fri, 17 May 2019 08:53:54 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Jan Kara' <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jeff Moyer <jmoyer@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jeff Smits <jeff.smits@intel.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
+Message-ID: <201905170845.1B4E2A03@keescook>
+References: <155805321833.867447.3864104616303535270.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20190517084739.GB20550@quack2.suse.cz>
+ <2d8b1ba7890940bf8a512d4eef0d99b3@AcuMS.aculab.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.FFFAAAD10D.NIY96ZF32M@redhat.com>
-X-Gitlab-Pipeline-ID: 10298
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10298?=
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 17 May 2019 15:43:19 +0000 (UTC)
-Date:   Fri, 17 May 2019 11:43:19 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2d8b1ba7890940bf8a512d4eef0d99b3@AcuMS.aculab.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Fri, May 17, 2019 at 09:06:26AM +0000, David Laight wrote:
+> From: Jan Kara
+> > Sent: 17 May 2019 09:48
+> ...
+> > So this last paragraph is not obvious to me as check_copy_size() does a lot
+> > of various checks in CONFIG_HARDENED_USERCOPY case. I agree that some of
+> > those checks don't make sense for PMEM pages but I'd rather handle that by
+> > refining check_copy_size() and check_object_size() functions to detect and
+> > appropriately handle pmem pages rather that generally skip all the checks
+> > in pmem_copy_from/to_iter(). And yes, every check in such hot path is going
+> > to cost performance but that's what user asked for with
+> > CONFIG_HARDENED_USERCOPY... Kees?
+> 
+> Except that all the distros enable it by default.
+> So you get the performance cost whether you (as a user) want it or not.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Note that it can be disabled on the kernel command line, but that seems
+like a last resort. :)
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: dafc674bbcb1 - Linux 4.19.44
+> 
+> I've changed some of our code to use __get_user() to avoid
+> these stupid overheads.
 
-The results of these automated tests are provided below.
+__get_user() skips even access_ok() checking too, so that doesn't seem
+like a good idea. Did you run access_ok() checks separately? (This
+generally isn't recommended.)
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+The usercopy hardening is intended to only kick in when the copy size
+isn't a builtin constant -- it's attempting to do a bounds check on
+the size, with the pointer used to figure out what bounds checking is
+possible (basically "is this stack? check stack location/frame size"
+or "is this kmem cache? check the allocation size") and then do bounds
+checks from there. It tries to bail out early to avoid needless checking,
+so if there is some additional logic to be added to check_object_size()
+that is globally applicable, sure, let's do it.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+I'm still not clear from this thread about the case that is getting
+tripped/slowed? If you're already doing bounds checks somewhere else
+and there isn't a chance for the pointer or size to change, then yeah,
+it seems safe to skip the usercopy size checks. But what's the actual
+code that is having a problem?
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: dafc674bbcb1 - Linux 4.19.44
-
-We then merged the patchset with `git am`:
-
-  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
-  x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
-  x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
-  objtool-fix-function-fallthrough-detection.patch
-  arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
-  arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
-  arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
-  mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
-  arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
-  power-supply-axp288_charger-fix-unchecked-return-value.patch
-  power-supply-axp288_fuel_gauge-add-acepc-t8-and-t11-mini-pcs-to-the-blacklist.patch
-  arm64-mmap-ensure-file-offset-is-treated-as-unsigned.patch
-  arm64-arch_timer-ensure-counter-register-reads-occur-with-seqlock-held.patch
-  arm64-compat-reduce-address-limit.patch
-  arm64-clear-osdlr_el1-on-cpu-boot.patch
-  arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
-  sched-x86-save-flags-on-context-switch.patch
-  crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
-  crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
-  crypto-salsa20-don-t-access-already-freed-walk.iv.patch
-  crypto-chacha20poly1305-set-cra_name-correctly.patch
-  crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
-  crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
-  crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
-  crypto-crct10dif-generic-fix-use-via-crypto_shash_digest.patch
-  crypto-x86-crct10dif-pcl-fix-use-via-crypto_shash_digest.patch
-  crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
-  crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
-  crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
-  crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
-  crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
-  mmc-core-fix-tag-set-memory-leak.patch
-  alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
-  alsa-usb-audio-fix-a-memory-leak-bug.patch
-  alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
-  alsa-hda-hdmi-consider-eld_valid-when-reporting-jack-event.patch
-  alsa-hda-realtek-eapd-turn-on-later.patch
-  alsa-hdea-realtek-headset-fixup-for-system76-gazelle-gaze14.patch
-  asoc-max98090-fix-restore-of-dapm-muxes.patch
-  asoc-rt5677-spi-disable-16bit-spi-transfers.patch
-  asoc-fsl_esai-fix-missing-break-in-switch-statement.patch
-  asoc-codec-hdac_hdmi-add-device_link-to-card-device.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-90ed999da8429bf4d68624122488c33560f4ed07.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-90ed999da8429bf4d68624122488c33560f4ed07.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-90ed999da8429bf4d68624122488c33560f4ed07.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-90ed999da8429bf4d68624122488c33560f4ed07.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-90ed999da8429bf4d68624122488c33560f4ed07.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [1]
-     ✅ Boot test [0]
-     ✅ LTP lite [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [1]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [1]
-     ✅ Boot test [0]
-     ✅ LTP lite [2]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ LTP lite [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [1]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
+-- 
+Kees Cook
