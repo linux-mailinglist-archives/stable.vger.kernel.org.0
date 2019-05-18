@@ -2,228 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9502224E
-	for <lists+stable@lfdr.de>; Sat, 18 May 2019 10:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25882226D
+	for <lists+stable@lfdr.de>; Sat, 18 May 2019 10:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728859AbfERIqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 May 2019 04:46:17 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8205 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725446AbfERIqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 May 2019 04:46:17 -0400
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 636DA98F3BD9CDE92B79;
-        Sat, 18 May 2019 16:46:14 +0800 (CST)
-Received: from use12-sp2.huawei.com (10.67.188.162) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.439.0; Sat, 18 May 2019 16:46:04 +0800
-From:   jianhong chen <chenjianhong2@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <akpm@linux-foundation.org>,
-        <mhocko@suse.com>, <vbabka@suse.cz>,
-        <kirill.shutemov@linux.intel.com>, <yang.shi@linux.alibaba.com>,
-        <jannh@google.com>, <steve.capper@arm.com>,
-        <tiny.windzz@gmail.com>, <walken@google.com>, <willy@infradead.org>
-CC:     <chenjianhong2@huawei.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <stable@vger.kernel.org>, <hughd@google.com>,
-        <linux@arm.linux.org.uk>, <ralf@linux-mips.org>,
-        <lethal@linux-sh.org>, <davem@davemloft.net>,
-        <cmetcalf@tilera.com>, <mingo@elte.hu>, <tglx@linutronix.de>,
-        <hpa@zytor.com>
-Subject: [PATCH] mm/mmap: fix the adjusted length error
-Date:   Sat, 18 May 2019 16:50:33 +0800
-Message-ID: <1558169433-121358-1-git-send-email-chenjianhong2@huawei.com>
-X-Mailer: git-send-email 1.8.5.6
+        id S1727183AbfERI64 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 18 May 2019 04:58:56 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41944 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726263AbfERI64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 May 2019 04:58:56 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 57D6C3082B68
+        for <stable@vger.kernel.org>; Sat, 18 May 2019 08:58:56 +0000 (UTC)
+Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E503060C47;
+        Sat, 18 May 2019 08:58:53 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.188.162]
-X-CFilter-Loop: Reflected
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.5CD0AFC886.APT8QAEODH@redhat.com>
+X-Gitlab-Pipeline-ID: 10348
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10348?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Sat, 18 May 2019 08:58:56 +0000 (UTC)
+Date:   Sat, 18 May 2019 04:58:56 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In linux version 4.4, a 32-bit process may fail to allocate 64M hugepage
-memory by function shmat even though there is a 64M memory gap in
-the process.
+Hello,
 
-It is the adjusted length that causes the problem, introduced from
-commit db4fbfb9523c935 ("mm: vm_unmapped_area() lookup function").
-Accounting for the worst case alignment overhead, function unmapped_area
-and unmapped_area_topdown adjust the search length before searching
-for available vma gap. This is an estimated length, sum of the desired
-length and the longest alignment offset, which can cause misjudgement
-if the system has very few virtual memory left. For example, if the
-longest memory gap available is 64M, we can’t get it from the system
-by allocating 64M hugepage memory via shmat function. The reason is
-that it requires a longger length, the sum of the desired length(64M)
-and the longest alignment offset.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-To fix this error ,we can calculate the alignment offset of
-gap_start or gap_end to get a desired gap_start or gap_end value,
-before searching for the available gap. In this way, we don't
-need to adjust the search length.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 7cb9c5d341b9 - Linux 5.1.3
 
-Problem reproduces procedure:
-1. allocate a lot of virtual memory segments via shmat and malloc
-2. release one of the biggest memory segment via shmdt
-3. attach the biggest memory segment via shmat
+The results of these automated tests are provided below.
 
-e.g.
-process maps:
-00008000-00009000 r-xp 00000000 00:12 3385    /tmp/memory_mmap
-00011000-00012000 rw-p 00001000 00:12 3385    /tmp/memory_mmap
-27536000-f756a000 rw-p 00000000 00:00 0
-f756a000-f7691000 r-xp 00000000 01:00 560     /lib/libc-2.11.1.so
-f7691000-f7699000 ---p 00127000 01:00 560     /lib/libc-2.11.1.so
-f7699000-f769b000 r--p 00127000 01:00 560     /lib/libc-2.11.1.so
-f769b000-f769c000 rw-p 00129000 01:00 560     /lib/libc-2.11.1.so
-f769c000-f769f000 rw-p 00000000 00:00 0
-f769f000-f76c0000 r-xp 00000000 01:00 583     /lib/libgcc_s.so.1
-f76c0000-f76c7000 ---p 00021000 01:00 583     /lib/libgcc_s.so.1
-f76c7000-f76c8000 rw-p 00020000 01:00 583     /lib/libgcc_s.so.1
-f76c8000-f76e5000 r-xp 00000000 01:00 543     /lib/ld-2.11.1.so
-f76e9000-f76ea000 rw-p 00000000 00:00 0
-f76ea000-f76ec000 rw-p 00000000 00:00 0
-f76ec000-f76ed000 r--p 0001c000 01:00 543     /lib/ld-2.11.1.so
-f76ed000-f76ee000 rw-p 0001d000 01:00 543     /lib/ld-2.11.1.so
-f7800000-f7a00000 rw-s 00000000 00:0e 0       /SYSV000000ea (deleted)
-fba00000-fca00000 rw-s 00000000 00:0e 65538   /SYSV000000ec (deleted)
-fca00000-fce00000 rw-s 00000000 00:0e 98307   /SYSV000000ed (deleted)
-fce00000-fd800000 rw-s 00000000 00:0e 131076  /SYSV000000ee (deleted)
-ff913000-ff934000 rw-p 00000000 00:00 0       [stack]
-ffff0000-ffff1000 r-xp 00000000 00:00 0       [vectors]
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-from 0xf7a00000 to fba00000, it has 64M memory gap, but we can't get
-it from kernel.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Signed-off-by: jianhong chen <chenjianhong2@huawei.com>
-Cc: stable@vger.kernel.org
----
- mm/mmap.c | 43 +++++++++++++++++++++++++++++--------------
- 1 file changed, 29 insertions(+), 14 deletions(-)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index bd7b9f2..c5a5782 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1865,6 +1865,22 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
- 	return error;
- }
- 
-+static inline unsigned long gap_start_offset(struct vm_unmapped_area_info *info,
-+					unsigned long addr)
-+{
-+	/* get gap_start offset to adjust gap address to the
-+	 * desired alignment
-+	 */
-+	return (info->align_offset - addr) & info->align_mask;
-+}
-+
-+static inline unsigned long gap_end_offset(struct vm_unmapped_area_info *info,
-+					unsigned long addr)
-+{
-+	/* get gap_end offset to adjust gap address to the desired alignment */
-+	return (addr - info->align_offset) & info->align_mask;
-+}
-+
- unsigned long unmapped_area(struct vm_unmapped_area_info *info)
- {
- 	/*
-@@ -1879,10 +1895,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
- 	struct vm_area_struct *vma;
- 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
- 
--	/* Adjust search length to account for worst case alignment overhead */
--	length = info->length + info->align_mask;
--	if (length < info->length)
--		return -ENOMEM;
-+	length = info->length;
- 
- 	/* Adjust search limits by the desired length */
- 	if (info->high_limit < length)
-@@ -1914,6 +1927,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
- 		}
- 
- 		gap_start = vma->vm_prev ? vm_end_gap(vma->vm_prev) : 0;
-+		gap_start += gap_start_offset(info, gap_start);
- check_current:
- 		/* Check if current node has a suitable gap */
- 		if (gap_start > high_limit)
-@@ -1942,6 +1956,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
- 				       struct vm_area_struct, vm_rb);
- 			if (prev == vma->vm_rb.rb_left) {
- 				gap_start = vm_end_gap(vma->vm_prev);
-+				gap_start += gap_start_offset(info, gap_start);
- 				gap_end = vm_start_gap(vma);
- 				goto check_current;
- 			}
-@@ -1951,17 +1966,17 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
- check_highest:
- 	/* Check highest gap, which does not precede any rbtree node */
- 	gap_start = mm->highest_vm_end;
-+	gap_start += gap_start_offset(info, gap_start);
- 	gap_end = ULONG_MAX;  /* Only for VM_BUG_ON below */
- 	if (gap_start > high_limit)
- 		return -ENOMEM;
- 
- found:
- 	/* We found a suitable gap. Clip it with the original low_limit. */
--	if (gap_start < info->low_limit)
-+	if (gap_start < info->low_limit) {
- 		gap_start = info->low_limit;
--
--	/* Adjust gap address to the desired alignment */
--	gap_start += (info->align_offset - gap_start) & info->align_mask;
-+		gap_start += gap_start_offset(info, gap_start);
-+	}
- 
- 	VM_BUG_ON(gap_start + info->length > info->high_limit);
- 	VM_BUG_ON(gap_start + info->length > gap_end);
-@@ -1974,16 +1989,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
- 	struct vm_area_struct *vma;
- 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
- 
--	/* Adjust search length to account for worst case alignment overhead */
--	length = info->length + info->align_mask;
--	if (length < info->length)
--		return -ENOMEM;
-+	length = info->length;
- 
- 	/*
- 	 * Adjust search limits by the desired length.
- 	 * See implementation comment at top of unmapped_area().
- 	 */
- 	gap_end = info->high_limit;
-+	gap_end -= gap_end_offset(info, gap_end);
- 	if (gap_end < length)
- 		return -ENOMEM;
- 	high_limit = gap_end - length;
-@@ -2020,6 +2033,7 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
- check_current:
- 		/* Check if current node has a suitable gap */
- 		gap_end = vm_start_gap(vma);
-+		gap_end -= gap_end_offset(info, gap_end);
- 		if (gap_end < low_limit)
- 			return -ENOMEM;
- 		if (gap_start <= high_limit &&
-@@ -2054,13 +2068,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
- 
- found:
- 	/* We found a suitable gap. Clip it with the original high_limit. */
--	if (gap_end > info->high_limit)
-+	if (gap_end > info->high_limit) {
- 		gap_end = info->high_limit;
-+		gap_end -= gap_end_offset(info, gap_end);
-+	}
- 
- found_highest:
- 	/* Compute highest gap address at the desired alignment */
- 	gap_end -= info->length;
--	gap_end -= (gap_end - info->align_offset) & info->align_mask;
- 
- 	VM_BUG_ON(gap_end < info->low_limit);
- 	VM_BUG_ON(gap_end < gap_start);
--- 
-1.8.5.6
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 7cb9c5d341b9 - Linux 5.1.3
+
+We then merged the patchset with `git am`:
+
+  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
+  x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
+  x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
+  objtool-fix-function-fallthrough-detection.patch
+  arm64-dts-rockchip-fix-io-domain-voltage-setting-of-apio5-on-rockpro64.patch
+  arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
+  arm-dts-qcom-ipq4019-enlarge-pcie-bar-range.patch
+  arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
+  arm-dts-exynos-fix-audio-routing-on-odroid-xu3.patch
+  arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
+  mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
+  arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
+  power-supply-axp288_charger-fix-unchecked-return-value.patch
+  power-supply-axp288_fuel_gauge-add-acepc-t8-and-t11-mini-pcs-to-the-blacklist.patch
+  arm64-mmap-ensure-file-offset-is-treated-as-unsigned.patch
+  arm64-arch_timer-ensure-counter-register-reads-occur-with-seqlock-held.patch
+  arm64-compat-reduce-address-limit.patch
+  arm64-clear-osdlr_el1-on-cpu-boot.patch
+  arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
+  sched-x86-save-flags-on-context-switch.patch
+  x86-mce-add-an-mce-record-filtering-function.patch
+  x86-mce-amd-don-t-report-l1-btb-mca-errors-on-some-family-17h-models.patch
+  crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
+  crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
+  crypto-salsa20-don-t-access-already-freed-walk.iv.patch
+  crypto-lrw-don-t-access-already-freed-walk.iv.patch
+  crypto-chacha-generic-fix-use-as-arm64-no-neon-fallback.patch
+  crypto-chacha20poly1305-set-cra_name-correctly.patch
+  crypto-ccm-fix-incompatibility-between-ccm-and-ccm_base.patch
+  crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
+  crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
+  crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
+  crypto-crct10dif-generic-fix-use-via-crypto_shash_digest.patch
+  crypto-x86-crct10dif-pcl-fix-use-via-crypto_shash_digest.patch
+  crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
+  crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
+  crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
+  crypto-caam-qi2-fix-zero-length-buffer-dma-mapping.patch
+  crypto-caam-qi2-fix-dma-mapping-of-stack-memory.patch
+  crypto-caam-qi2-generate-hash-keys-in-place.patch
+  crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
+  drivers-dax-allow-to-include-dev_dax_pmem-as-builtin.patch
+  dt-bindings-mmc-add-disable-cqe-dcmd-property.patch
+  mmc-tegra-fix-ddr-signaling-for-non-ddr-modes.patch
+  mmc-core-fix-tag-set-memory-leak.patch
+  mmc-sdhci-pci-fix-byt-ocp-setting.patch
+  alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
+  alsa-usb-audio-fix-a-memory-leak-bug.patch
+  alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
+  alsa-hda-hdmi-consider-eld_valid-when-reporting-jack-event.patch
+  alsa-hda-realtek-eapd-turn-on-later.patch
+  alsa-hdea-realtek-headset-fixup-for-system76-gazelle-gaze14.patch
+  asoc-max98090-fix-restore-of-dapm-muxes.patch
+  asoc-rt5677-spi-disable-16bit-spi-transfers.patch
+  asoc-fsl_esai-fix-missing-break-in-switch-statement.patch
+  asoc-codec-hdac_hdmi-add-device_link-to-card-device.patch
+  bpf-arm64-remove-prefetch-insn-in-xadd-mapping.patch
+  bpf-fix-out-of-bounds-backwards-jmps-due-to-dead-code-removal.patch
+  crypto-ccree-remove-special-handling-of-chained-sg.patch
+  crypto-ccree-fix-mem-leak-on-error-path.patch
+  crypto-ccree-don-t-map-mac-key-on-stack.patch
+  crypto-ccree-use-correct-internal-state-sizes-for-export.patch
+  crypto-ccree-don-t-map-aead-key-and-iv-on-stack.patch
+  crypto-ccree-pm-resume-first-enable-the-source-clk.patch
+  crypto-ccree-host_power_down_en-should-be-the-last-cc-access-during-suspend.patch
+  crypto-ccree-add-function-to-handle-cryptocell-tee-fips-error.patch
+  crypto-ccree-handle-tee-fips-error-during-power-management-resume.patch
+  mm-mincore.c-make-mincore-more-conservative.patch
+  mm-huge_memory-fix-vmf_insert_pfn_-pmd-pud-crash-handle-unaligned-addresses.patch
+  mm-hugetlb.c-don-t-put_page-in-lock-of-hugetlb_lock.patch
+  hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings.patch
+  ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget.patch
+  userfaultfd-use-rcu-to-free-the-task-struct-when-fork-fails.patch
+  acpi-pm-set-enable_for_wake-for-wakeup-gpes-during-suspend-to-idle.patch
+  acpica-linux-move-acpi_debug_default-flag-out-of-ifndef.patch
+  mfd-da9063-fix-otp-control-register-names-to-match-datasheets-for-da9063-63l.patch
+  mfd-max77620-fix-swapped-fps_period_max_us-values.patch
+  mtd-spi-nor-intel-spi-avoid-crossing-4k-address-boundary-on-read-write.patch
+  mtd-maps-physmap-store-gpio_values-correctly.patch
+  mtd-maps-allow-mtd_physmap-with-mtd_ram.patch
+  tty-vt.c-fix-tiocl_blankscreen-console-blanking-if-blankinterval-0.patch
+  tty-vt-fix-write-write-race-in-ioctl-kdskbsent-handler.patch
+  jbd2-check-superblock-mapped-prior-to-committing.patch
+  ext4-make-sanity-check-in-mballoc-more-strict.patch
+  ext4-protect-journal-inode-s-blocks-using-block_validity.patch
+  ext4-ignore-e_value_offs-for-xattrs-with-value-in-ea-inode.patch
+  ext4-avoid-drop-reference-to-iloc.bh-twice.patch
+  ext4-fix-use-after-free-race-with-debug_want_extra_isize.patch
+  ext4-actually-request-zeroing-of-inode-table-after-grow.patch
+  ext4-fix-ext4_show_options-for-file-systems-w-o-journal.patch
+  btrfs-check-the-first-key-and-level-for-cached-extent-buffer.patch
+  btrfs-correctly-free-extent-buffer-in-case-btree_read_extent_buffer_pages-fails.patch
+  btrfs-honour-fitrim-range-constraints-during-free-space-trim.patch
+  btrfs-send-flush-dellaloc-in-order-to-avoid-data-loss.patch
+  btrfs-do-not-start-a-transaction-during-fiemap.patch
+  btrfs-do-not-start-a-transaction-at-iterate_extent_inodes.patch
+  btrfs-fix-race-between-send-and-deduplication-that-lead-to-failures-and-crashes.patch
+  bcache-fix-a-race-between-cache-register-and-cacheset-unregister.patch
+  bcache-never-set-key_ptrs-of-journal-key-to-0-in-journal_reclaim.patch
+  ipmi-add-the-i2c-addr-property-for-ssif-interfaces.patch
+  ipmi-ssif-compare-block-number-correctly-for-multi-part-return-messages.patch
+  arm-dts-imx-fix-the-ar803x-phy-mode.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c0eb9adfae860e84d7be069b4f09199703a4eef7.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c0eb9adfae860e84d7be069b4f09199703a4eef7.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c0eb9adfae860e84d7be069b4f09199703a4eef7.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c0eb9adfae860e84d7be069b4f09199703a4eef7.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c0eb9adfae860e84d7be069b4f09199703a4eef7.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c0eb9adfae860e84d7be069b4f09199703a4eef7.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c0eb9adfae860e84d7be069b4f09199703a4eef7.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c0eb9adfae860e84d7be069b4f09199703a4eef7.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [11]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ audit: audit testsuite test [4]
+     ✅ httpd: mod_ssl smoke sanity [5]
+     ✅ iotop: sanity [6]
+     ✅ tuned: tune-processes-through-perf [7]
+     ✅ Usex - version 1.9-29 [8]
+     ✅ stress: stress-ng [9]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [10]
+     ✅ xfstests: xfs [10]
+     ✅ selinux-policy: serge-testsuite [11]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
 
