@@ -2,262 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2B82237E
-	for <lists+stable@lfdr.de>; Sat, 18 May 2019 14:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 156E922386
+	for <lists+stable@lfdr.de>; Sat, 18 May 2019 14:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729805AbfERM0i convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 18 May 2019 08:26:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43252 "EHLO mx1.redhat.com"
+        id S1729791AbfERM7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 May 2019 08:59:19 -0400
+Received: from smtp3.ono.com ([62.42.230.163]:55440 "EHLO smtp3.ono.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729787AbfERM0i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 May 2019 08:26:38 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 59279308339F
-        for <stable@vger.kernel.org>; Sat, 18 May 2019 12:26:37 +0000 (UTC)
-Received: from [172.54.252.111] (cpt-0020.paas.prod.upshift.rdu2.redhat.com [10.0.18.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0685817CE4;
-        Sat, 18 May 2019 12:26:34 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1729634AbfERM7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 May 2019 08:59:19 -0400
+X-Junkmail-Premium-Raw: score=19/50,refid=2.7.2:2019.5.18.113616:17:19.782,ip=62.42.230.134,rules=__HAS_MSGID,
+ __SANE_MSGID, MSGID_JMAIL_DEFAULT, INVALID_MSGID_NO_FQDN, __HAS_FROM,
+ __FROM_NAME_ADDRESS, __HAS_REPLYTO, SUBJ_STARTS_IN_SPACE, __SUBJ_ALPHA_END,
+ __MIME_VERSION, __CT, __CT_TEXT_PLAIN, __CTE, MISSING_HEADERS,
+ __REPLYTO_SAMEAS_FROM_ADDY, __REPLYTO_SAMEAS_FROM_ACC,
+ __REPLYTO_SAMEAS_FROM_DOMAIN, __ANY_URI, __URI_NO_MAILTO, __URI_NO_WWW,
+ __FRAUD_INYOURCOUNTRY, __STOCK_PHRASE_7, __STOCK_PHRASE_8,
+ __FRAUD_MONEY_GENERIC, __FRAUD_MONEY_BIG_COIN_DIG, __OEM_PRICE,
+ __FRAUD_MONEY_CURRENCY_DOLLAR, __FRAUD_REPLY, __NO_HTML_TAG_RAW,
+ BODYTEXTP_SIZE_3000_LESS, BODY_SIZE_500_599, __MIME_TEXT_P1,
+ __MIME_TEXT_ONLY, __URI_NS, HTML_00_01, HTML_00_10, __FRAUD_MONEY_CURRENCY,
+ __FRAUD_MONEY_BIG_COIN, __FRAUD_MONEY_VALUE, __FRAUD_MONEY, FRAUD_X4,
+ FRAUD_X3, FRAUD_HIGH_X3, BODY_SIZE_5000_LESS, __FRAUD_COMMON, __MIME_TEXT_P,
+ __PHISH_SPEAR_STRUCTURE_1, BODY_SIZE_1000_LESS, BODY_SIZE_2000_LESS,
+ __PHISH_SPEAR_STRUCTURE_2, REPLYTO_SAMEAS_FROM, NO_URI_HTTPS,
+ BODY_SIZE_7000_LESS, TO_MALFORMED
+Received: from resprs04 (62.42.230.134) by smtp3.ono.com (9.0.019.09-1)
+        id 5CC0A28F0107DFD6; Sat, 18 May 2019 14:59:11 +0200
+Received: from (149.126.75.9) by webmailcpr04n.ono.com;  Sat, 18 May 2019 14:59:10 +0200
+Message-ID: <487289.2112391558184350685.JavaMail.defaultUser@defaultHost>
+Date:   Sat, 18 May 2019 14:59:10 +0200 (CEST)
+From:   "anicetovalle@ono.com" <anicetovalle@ono.com>
+Reply-To: anicetovalle@ono.com
+Subject:  Hello My Beloved One
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.6F6ADAD8FA.4SPD3JNOYH@redhat.com>
-X-Gitlab-Pipeline-ID: 10349
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10349?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Sat, 18 May 2019 12:26:37 +0000 (UTC)
-Date:   Sat, 18 May 2019 08:26:38 -0400
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: dafc674bbcb1 - Linux 4.19.44
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: dafc674bbcb1 - Linux 4.19.44
-
-We then merged the patchset with `git am`:
-
-  locking-rwsem-prevent-decrement-of-reader-count-befo.patch
-  x86-speculation-mds-revert-cpu-buffer-clear-on-double-fault-exit.patch
-  x86-speculation-mds-improve-cpu-buffer-clear-documentation.patch
-  objtool-fix-function-fallthrough-detection.patch
-  arm64-dts-rockchip-disable-dcmds-on-rk3399-s-emmc-controller.patch
-  arm-dts-exynos-fix-interrupt-for-shared-eints-on-exynos5260.patch
-  arm-dts-exynos-fix-audio-microphone-routing-on-odroid-xu3.patch
-  mmc-sdhci-of-arasan-add-dts-property-to-disable-dcmds.patch
-  arm-exynos-fix-a-leaked-reference-by-adding-missing-of_node_put.patch
-  power-supply-axp288_charger-fix-unchecked-return-value.patch
-  power-supply-axp288_fuel_gauge-add-acepc-t8-and-t11-mini-pcs-to-the-blacklist.patch
-  arm64-mmap-ensure-file-offset-is-treated-as-unsigned.patch
-  arm64-arch_timer-ensure-counter-register-reads-occur-with-seqlock-held.patch
-  arm64-compat-reduce-address-limit.patch
-  arm64-clear-osdlr_el1-on-cpu-boot.patch
-  arm64-save-and-restore-osdlr_el1-across-suspend-resume.patch
-  sched-x86-save-flags-on-context-switch.patch
-  crypto-crypto4xx-fix-ctr-aes-missing-output-iv.patch
-  crypto-crypto4xx-fix-cfb-and-ofb-overran-dst-buffer-issues.patch
-  crypto-salsa20-don-t-access-already-freed-walk.iv.patch
-  crypto-chacha20poly1305-set-cra_name-correctly.patch
-  crypto-ccp-do-not-free-psp_master-when-platform_init-fails.patch
-  crypto-vmx-fix-copy-paste-error-in-ctr-mode.patch
-  crypto-skcipher-don-t-warn-on-unprocessed-data-after-slow-walk-step.patch
-  crypto-crct10dif-generic-fix-use-via-crypto_shash_digest.patch
-  crypto-x86-crct10dif-pcl-fix-use-via-crypto_shash_digest.patch
-  crypto-arm64-gcm-aes-ce-fix-no-neon-fallback-code.patch
-  crypto-gcm-fix-incompatibility-between-gcm-and-gcm_base.patch
-  crypto-rockchip-update-iv-buffer-to-contain-the-next-iv.patch
-  crypto-arm-aes-neonbs-don-t-access-already-freed-walk.iv.patch
-  crypto-arm64-aes-neonbs-don-t-access-already-freed-walk.iv.patch
-  mmc-core-fix-tag-set-memory-leak.patch
-  alsa-line6-toneport-fix-broken-usage-of-timer-for-delayed-execution.patch
-  alsa-usb-audio-fix-a-memory-leak-bug.patch
-  alsa-hda-hdmi-read-the-pin-sense-from-register-when-repolling.patch
-  alsa-hda-hdmi-consider-eld_valid-when-reporting-jack-event.patch
-  alsa-hda-realtek-eapd-turn-on-later.patch
-  alsa-hdea-realtek-headset-fixup-for-system76-gazelle-gaze14.patch
-  asoc-max98090-fix-restore-of-dapm-muxes.patch
-  asoc-rt5677-spi-disable-16bit-spi-transfers.patch
-  asoc-fsl_esai-fix-missing-break-in-switch-statement.patch
-  asoc-codec-hdac_hdmi-add-device_link-to-card-device.patch
-  bpf-arm64-remove-prefetch-insn-in-xadd-mapping.patch
-  crypto-ccree-remove-special-handling-of-chained-sg.patch
-  crypto-ccree-fix-mem-leak-on-error-path.patch
-  crypto-ccree-don-t-map-mac-key-on-stack.patch
-  crypto-ccree-use-correct-internal-state-sizes-for-export.patch
-  crypto-ccree-don-t-map-aead-key-and-iv-on-stack.patch
-  crypto-ccree-pm-resume-first-enable-the-source-clk.patch
-  crypto-ccree-host_power_down_en-should-be-the-last-cc-access-during-suspend.patch
-  crypto-ccree-add-function-to-handle-cryptocell-tee-fips-error.patch
-  crypto-ccree-handle-tee-fips-error-during-power-management-resume.patch
-  mm-mincore.c-make-mincore-more-conservative.patch
-  mm-huge_memory-fix-vmf_insert_pfn_-pmd-pud-crash-handle-unaligned-addresses.patch
-  mm-hugetlb.c-don-t-put_page-in-lock-of-hugetlb_lock.patch
-  hugetlb-use-same-fault-hash-key-for-shared-and-private-mappings.patch
-  ocfs2-fix-ocfs2-read-inode-data-panic-in-ocfs2_iget.patch
-  userfaultfd-use-rcu-to-free-the-task-struct-when-fork-fails.patch
-  acpi-pm-set-enable_for_wake-for-wakeup-gpes-during-suspend-to-idle.patch
-  mfd-da9063-fix-otp-control-register-names-to-match-datasheets-for-da9063-63l.patch
-  mfd-max77620-fix-swapped-fps_period_max_us-values.patch
-  mtd-spi-nor-intel-spi-avoid-crossing-4k-address-boundary-on-read-write.patch
-  tty-vt.c-fix-tiocl_blankscreen-console-blanking-if-blankinterval-0.patch
-  tty-vt-fix-write-write-race-in-ioctl-kdskbsent-handler.patch
-  jbd2-check-superblock-mapped-prior-to-committing.patch
-  ext4-make-sanity-check-in-mballoc-more-strict.patch
-  ext4-protect-journal-inode-s-blocks-using-block_validity.patch
-  ext4-ignore-e_value_offs-for-xattrs-with-value-in-ea-inode.patch
-  ext4-avoid-drop-reference-to-iloc.bh-twice.patch
-  ext4-fix-use-after-free-race-with-debug_want_extra_isize.patch
-  ext4-actually-request-zeroing-of-inode-table-after-grow.patch
-  ext4-fix-ext4_show_options-for-file-systems-w-o-journal.patch
-  btrfs-check-the-first-key-and-level-for-cached-extent-buffer.patch
-  btrfs-correctly-free-extent-buffer-in-case-btree_read_extent_buffer_pages-fails.patch
-  btrfs-honour-fitrim-range-constraints-during-free-space-trim.patch
-  btrfs-send-flush-dellaloc-in-order-to-avoid-data-loss.patch
-  btrfs-do-not-start-a-transaction-during-fiemap.patch
-  btrfs-do-not-start-a-transaction-at-iterate_extent_inodes.patch
-  bcache-fix-a-race-between-cache-register-and-cacheset-unregister.patch
-  bcache-never-set-key_ptrs-of-journal-key-to-0-in-journal_reclaim.patch
-  ipmi-ssif-compare-block-number-correctly-for-multi-part-return-messages.patch
-  crypto-ccm-fix-incompatibility-between-ccm-and-ccm_base.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-92a846e3d7c206f7d0a1912c4f247e12f545cc00.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-92a846e3d7c206f7d0a1912c4f247e12f545cc00.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-92a846e3d7c206f7d0a1912c4f247e12f545cc00.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-92a846e3d7c206f7d0a1912c4f247e12f545cc00.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-92a846e3d7c206f7d0a1912c4f247e12f545cc00.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-92a846e3d7c206f7d0a1912c4f247e12f545cc00.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-92a846e3d7c206f7d0a1912c4f247e12f545cc00.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-92a846e3d7c206f7d0a1912c4f247e12f545cc00.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [10]
-     ✅ xfstests: xfs [10]
-     ✅ selinux-policy: serge-testsuite [11]
-
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [10]
-     ✅ xfstests: xfs [10]
-     ✅ selinux-policy: serge-testsuite [11]
-
-  s390x:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [11]
-
-  x86_64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ AMTU (Abstract Machine Test Utility) [3]
-     ✅ audit: audit testsuite test [4]
-     ✅ httpd: mod_ssl smoke sanity [5]
-     ✅ iotop: sanity [6]
-     ✅ tuned: tune-processes-through-perf [7]
-     ✅ Usex - version 1.9-29 [8]
-     ✅ stress: stress-ng [9]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [10]
-     ✅ xfstests: xfs [10]
-     ✅ selinux-policy: serge-testsuite [11]
-
-  Test source:
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
+Dear Assalamu Alaikum,
+I came across your contact during my private search
+Mrs Aisha Al-Qaddafi is my name, the only daughter of late Libyan
+president, I have funds the sum
+of $27.5 million USD for investment, I am interested in you for
+investment project assistance in your country,
+i shall compensate you 30% of the total sum after the funds are
+transfer into your account,
+kindly reply for more information via my mailbox:gaisha983(at)
+gmail.com
+Greetings from Mrs Aisha Al-Qaddafi
+Mrs Aisha Al-Qaddafi
