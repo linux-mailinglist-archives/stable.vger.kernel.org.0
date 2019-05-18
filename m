@@ -2,93 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5BB22218
-	for <lists+stable@lfdr.de>; Sat, 18 May 2019 09:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9502224E
+	for <lists+stable@lfdr.de>; Sat, 18 May 2019 10:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727544AbfERHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 May 2019 03:36:25 -0400
-Received: from mail-ua1-f67.google.com ([209.85.222.67]:33863 "EHLO
-        mail-ua1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726451AbfERHgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 May 2019 03:36:25 -0400
-Received: by mail-ua1-f67.google.com with SMTP id 7so3604972uah.1
-        for <stable@vger.kernel.org>; Sat, 18 May 2019 00:36:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=benyossef-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=A5RwhDAP7/J1pDvTAiUDBR+MHgpw4LlKX0b6CEjmItY=;
-        b=vIa7qd4so/Vd21TmmtOdwuMHc3kXNhGCSCPFnGLt8oHHd6zkIXgQGmuQRaLELWbU3q
-         Wg702o/CWej3i12w0EGiMyO6YyJEt2qbM4pyTV0Q5FOG5WlKLlbybEd0DMnrOVcWS8fp
-         DuzJECGhlpP5RykRyvIx/LwIPn3buQd8dt1QTeUIZQ9KRHdMrztYgAePkFE1bhKTieCw
-         wUgeCC/BOoSImurLRiQ8ST0/pmSL8zlgoZ+q9LqqPH0Cj7/KIXixUrLtz9XRl4e+69xr
-         9OdRSxVxrJBxaW5PMZ0appMng0Hkv5m4evgETN+YLvibsg0mcQRAFmHhSH5zrK3Al1N2
-         dmzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=A5RwhDAP7/J1pDvTAiUDBR+MHgpw4LlKX0b6CEjmItY=;
-        b=nS2P3y6TkOoDVF/Oaa5n69QgsJRXJlMgGthYeUJRAuW3GCxra0swm3jgmSKDRPYJrW
-         jQszeI9QCK1SxTDWaB+o0B8aQOohw/LQyYz/9jZEgyO4P0MKFPpe0V5K42WbvNK3rMl9
-         us0ktqzhlXgLdvlLnfOoMdTThVjOof3itEHaTi723Chb+zsAq0yn49xOBGN8mN002PDz
-         bKRQFx929lJ7kc4kd5HY+V1ytEYUWGZhyPwVGedVDLz18vBk+dxHgGCvhHlsDHMpl4Tn
-         AwN5wAzQlKPvJgw10mBgFdbXE/f6tNwGkSeiGr5h5hQJvg2OtWQC8YV/1LOP0XM1Q8n4
-         BM+w==
-X-Gm-Message-State: APjAAAUDND1kielo30bNWdillsB7sfGdkeJ7Ip5V+ZZZEFsIukqVhfcU
-        V4Lrf0hkjTkbetpfyuBKdi9nMqIx0r49UEvaWOR4jw==
-X-Google-Smtp-Source: APXvYqyQ3Z9FjlYf6e3EPpIIi/tS6QFWFUTVOX/BEDU6KhGJZajaaWWHlUvyLoVOQlW3V24I5M8CcgwGTrjbgRPwPfg=
-X-Received: by 2002:ab0:5930:: with SMTP id n45mr17287080uad.87.1558164983986;
- Sat, 18 May 2019 00:36:23 -0700 (PDT)
+        id S1728859AbfERIqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 May 2019 04:46:17 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:8205 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725446AbfERIqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 May 2019 04:46:17 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 636DA98F3BD9CDE92B79;
+        Sat, 18 May 2019 16:46:14 +0800 (CST)
+Received: from use12-sp2.huawei.com (10.67.188.162) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.439.0; Sat, 18 May 2019 16:46:04 +0800
+From:   jianhong chen <chenjianhong2@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <akpm@linux-foundation.org>,
+        <mhocko@suse.com>, <vbabka@suse.cz>,
+        <kirill.shutemov@linux.intel.com>, <yang.shi@linux.alibaba.com>,
+        <jannh@google.com>, <steve.capper@arm.com>,
+        <tiny.windzz@gmail.com>, <walken@google.com>, <willy@infradead.org>
+CC:     <chenjianhong2@huawei.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <stable@vger.kernel.org>, <hughd@google.com>,
+        <linux@arm.linux.org.uk>, <ralf@linux-mips.org>,
+        <lethal@linux-sh.org>, <davem@davemloft.net>,
+        <cmetcalf@tilera.com>, <mingo@elte.hu>, <tglx@linutronix.de>,
+        <hpa@zytor.com>
+Subject: [PATCH] mm/mmap: fix the adjusted length error
+Date:   Sat, 18 May 2019 16:50:33 +0800
+Message-ID: <1558169433-121358-1-git-send-email-chenjianhong2@huawei.com>
+X-Mailer: git-send-email 1.8.5.6
 MIME-Version: 1.0
-References: <20190418133913.9122-1-gilad@benyossef.com> <CAOtvUMd9WUZAFgTqVH0U2ZZp8bbHXNg9Ae_ZFvGKJTSKNct8JA@mail.gmail.com>
- <20190517145235.GB10613@kroah.com>
-In-Reply-To: <20190517145235.GB10613@kroah.com>
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-Date:   Sat, 18 May 2019 10:36:11 +0300
-Message-ID: <CAOtvUMc++UtTP3fvXofuJA4JpdT86s5gbSx6WRtDK=sWnuUZrg@mail.gmail.com>
-Subject: Re: [PATCH 00/35] crypto: ccree: features and bug fixes for 5.2
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
-        Ofir Drang <ofir.drang@arm.com>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.188.162]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+In linux version 4.4, a 32-bit process may fail to allocate 64M hugepage
+memory by function shmat even though there is a 64M memory gap in
+the process.
 
-On Fri, May 17, 2019 at 5:52 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Sun, Apr 21, 2019 at 11:52:55AM +0300, Gilad Ben-Yossef wrote:
-> > On Thu, Apr 18, 2019 at 4:39 PM Gilad Ben-Yossef <gilad@benyossef.com> =
-wrote:
-> > >
-> > > A set of new features, mostly support for CryptoCell 713
-> > > features including protected keys, security disable mode and
-> > > new HW revision indetification interface alongside many bug fixes.
-> >
-> > FYI,
-> >
-> > A port of those patches from this patch series which have been marked
-> > for stable is available at
-> > https://github.com/gby/linux/tree/4.19-ccree
->
-> Hm, all I seem to need are 2 patches that failed to apply.  Can you just
-> provide backports for them?
+It is the adjusted length that causes the problem, introduced from
+commit db4fbfb9523c935 ("mm: vm_unmapped_area() lookup function").
+Accounting for the worst case alignment overhead, function unmapped_area
+and unmapped_area_topdown adjust the search length before searching
+for available vma gap. This is an estimated length, sum of the desired
+length and the longest alignment offset, which can cause misjudgement
+if the system has very few virtual memory left. For example, if the
+longest memory gap available is 64M, we can’t get it from the system
+by allocating 64M hugepage memory via shmat function. The reason is
+that it requires a longger length, the sum of the desired length(64M)
+and the longest alignment offset.
 
-Sure, I'll send them early next week.
+To fix this error ,we can calculate the alignment offset of
+gap_start or gap_end to get a desired gap_start or gap_end value,
+before searching for the available gap. In this way, we don't
+need to adjust the search length.
 
-Thanks,
-Gilad
+Problem reproduces procedure:
+1. allocate a lot of virtual memory segments via shmat and malloc
+2. release one of the biggest memory segment via shmdt
+3. attach the biggest memory segment via shmat
 
---=20
-Gilad Ben-Yossef
-Chief Coffee Drinker
+e.g.
+process maps:
+00008000-00009000 r-xp 00000000 00:12 3385    /tmp/memory_mmap
+00011000-00012000 rw-p 00001000 00:12 3385    /tmp/memory_mmap
+27536000-f756a000 rw-p 00000000 00:00 0
+f756a000-f7691000 r-xp 00000000 01:00 560     /lib/libc-2.11.1.so
+f7691000-f7699000 ---p 00127000 01:00 560     /lib/libc-2.11.1.so
+f7699000-f769b000 r--p 00127000 01:00 560     /lib/libc-2.11.1.so
+f769b000-f769c000 rw-p 00129000 01:00 560     /lib/libc-2.11.1.so
+f769c000-f769f000 rw-p 00000000 00:00 0
+f769f000-f76c0000 r-xp 00000000 01:00 583     /lib/libgcc_s.so.1
+f76c0000-f76c7000 ---p 00021000 01:00 583     /lib/libgcc_s.so.1
+f76c7000-f76c8000 rw-p 00020000 01:00 583     /lib/libgcc_s.so.1
+f76c8000-f76e5000 r-xp 00000000 01:00 543     /lib/ld-2.11.1.so
+f76e9000-f76ea000 rw-p 00000000 00:00 0
+f76ea000-f76ec000 rw-p 00000000 00:00 0
+f76ec000-f76ed000 r--p 0001c000 01:00 543     /lib/ld-2.11.1.so
+f76ed000-f76ee000 rw-p 0001d000 01:00 543     /lib/ld-2.11.1.so
+f7800000-f7a00000 rw-s 00000000 00:0e 0       /SYSV000000ea (deleted)
+fba00000-fca00000 rw-s 00000000 00:0e 65538   /SYSV000000ec (deleted)
+fca00000-fce00000 rw-s 00000000 00:0e 98307   /SYSV000000ed (deleted)
+fce00000-fd800000 rw-s 00000000 00:0e 131076  /SYSV000000ee (deleted)
+ff913000-ff934000 rw-p 00000000 00:00 0       [stack]
+ffff0000-ffff1000 r-xp 00000000 00:00 0       [vectors]
 
-values of =CE=B2 will give rise to dom!
+from 0xf7a00000 to fba00000, it has 64M memory gap, but we can't get
+it from kernel.
+
+Signed-off-by: jianhong chen <chenjianhong2@huawei.com>
+Cc: stable@vger.kernel.org
+---
+ mm/mmap.c | 43 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
+
+diff --git a/mm/mmap.c b/mm/mmap.c
+index bd7b9f2..c5a5782 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1865,6 +1865,22 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 	return error;
+ }
+ 
++static inline unsigned long gap_start_offset(struct vm_unmapped_area_info *info,
++					unsigned long addr)
++{
++	/* get gap_start offset to adjust gap address to the
++	 * desired alignment
++	 */
++	return (info->align_offset - addr) & info->align_mask;
++}
++
++static inline unsigned long gap_end_offset(struct vm_unmapped_area_info *info,
++					unsigned long addr)
++{
++	/* get gap_end offset to adjust gap address to the desired alignment */
++	return (addr - info->align_offset) & info->align_mask;
++}
++
+ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ {
+ 	/*
+@@ -1879,10 +1895,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 	struct vm_area_struct *vma;
+ 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
+ 
+-	/* Adjust search length to account for worst case alignment overhead */
+-	length = info->length + info->align_mask;
+-	if (length < info->length)
+-		return -ENOMEM;
++	length = info->length;
+ 
+ 	/* Adjust search limits by the desired length */
+ 	if (info->high_limit < length)
+@@ -1914,6 +1927,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 		}
+ 
+ 		gap_start = vma->vm_prev ? vm_end_gap(vma->vm_prev) : 0;
++		gap_start += gap_start_offset(info, gap_start);
+ check_current:
+ 		/* Check if current node has a suitable gap */
+ 		if (gap_start > high_limit)
+@@ -1942,6 +1956,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ 				       struct vm_area_struct, vm_rb);
+ 			if (prev == vma->vm_rb.rb_left) {
+ 				gap_start = vm_end_gap(vma->vm_prev);
++				gap_start += gap_start_offset(info, gap_start);
+ 				gap_end = vm_start_gap(vma);
+ 				goto check_current;
+ 			}
+@@ -1951,17 +1966,17 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+ check_highest:
+ 	/* Check highest gap, which does not precede any rbtree node */
+ 	gap_start = mm->highest_vm_end;
++	gap_start += gap_start_offset(info, gap_start);
+ 	gap_end = ULONG_MAX;  /* Only for VM_BUG_ON below */
+ 	if (gap_start > high_limit)
+ 		return -ENOMEM;
+ 
+ found:
+ 	/* We found a suitable gap. Clip it with the original low_limit. */
+-	if (gap_start < info->low_limit)
++	if (gap_start < info->low_limit) {
+ 		gap_start = info->low_limit;
+-
+-	/* Adjust gap address to the desired alignment */
+-	gap_start += (info->align_offset - gap_start) & info->align_mask;
++		gap_start += gap_start_offset(info, gap_start);
++	}
+ 
+ 	VM_BUG_ON(gap_start + info->length > info->high_limit);
+ 	VM_BUG_ON(gap_start + info->length > gap_end);
+@@ -1974,16 +1989,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ 	struct vm_area_struct *vma;
+ 	unsigned long length, low_limit, high_limit, gap_start, gap_end;
+ 
+-	/* Adjust search length to account for worst case alignment overhead */
+-	length = info->length + info->align_mask;
+-	if (length < info->length)
+-		return -ENOMEM;
++	length = info->length;
+ 
+ 	/*
+ 	 * Adjust search limits by the desired length.
+ 	 * See implementation comment at top of unmapped_area().
+ 	 */
+ 	gap_end = info->high_limit;
++	gap_end -= gap_end_offset(info, gap_end);
+ 	if (gap_end < length)
+ 		return -ENOMEM;
+ 	high_limit = gap_end - length;
+@@ -2020,6 +2033,7 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ check_current:
+ 		/* Check if current node has a suitable gap */
+ 		gap_end = vm_start_gap(vma);
++		gap_end -= gap_end_offset(info, gap_end);
+ 		if (gap_end < low_limit)
+ 			return -ENOMEM;
+ 		if (gap_start <= high_limit &&
+@@ -2054,13 +2068,14 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ 
+ found:
+ 	/* We found a suitable gap. Clip it with the original high_limit. */
+-	if (gap_end > info->high_limit)
++	if (gap_end > info->high_limit) {
+ 		gap_end = info->high_limit;
++		gap_end -= gap_end_offset(info, gap_end);
++	}
+ 
+ found_highest:
+ 	/* Compute highest gap address at the desired alignment */
+ 	gap_end -= info->length;
+-	gap_end -= (gap_end - info->align_offset) & info->align_mask;
+ 
+ 	VM_BUG_ON(gap_end < info->low_limit);
+ 	VM_BUG_ON(gap_end < gap_start);
+-- 
+1.8.5.6
+
