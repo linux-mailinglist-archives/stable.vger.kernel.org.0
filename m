@@ -2,74 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC74221FD
-	for <lists+stable@lfdr.de>; Sat, 18 May 2019 09:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5BB22218
+	for <lists+stable@lfdr.de>; Sat, 18 May 2019 09:36:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726761AbfERHJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 May 2019 03:09:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725268AbfERHJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 May 2019 03:09:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AD3520848;
-        Sat, 18 May 2019 07:09:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558163353;
-        bh=EkEp7Ipzb+p06gBSvXqNgO5oDUlhDA65A9epgLlaxOI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AFfX5nEO1b3eAyzDEMG5a+Up+vZK4f07T5vuGVj4skaBSZQuKIO1BeqxCQyNbRljA
-         qLC3fSGFQD198Uh7IEX4eAM42HMeQudC+vsSGLiZC3yODLWjR1bZgL8fY9kBeikttG
-         kuphfbtDsvmFZ4Ea/qFKek3BDK//L1j+Q+9qpqAk=
-Date:   Sat, 18 May 2019 09:09:11 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Eric Biggers <ebiggers@google.com>
-Cc:     herbert@gondor.apana.org.au, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] crypto: ccm - fix incompatibility between
- "ccm" and" failed to apply to 4.14-stable tree
-Message-ID: <20190518070911.GA19572@kroah.com>
-References: <1558096328102192@kroah.com>
- <20190517172012.GA223128@google.com>
+        id S1727544AbfERHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 May 2019 03:36:25 -0400
+Received: from mail-ua1-f67.google.com ([209.85.222.67]:33863 "EHLO
+        mail-ua1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726451AbfERHgZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 May 2019 03:36:25 -0400
+Received: by mail-ua1-f67.google.com with SMTP id 7so3604972uah.1
+        for <stable@vger.kernel.org>; Sat, 18 May 2019 00:36:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=benyossef-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=A5RwhDAP7/J1pDvTAiUDBR+MHgpw4LlKX0b6CEjmItY=;
+        b=vIa7qd4so/Vd21TmmtOdwuMHc3kXNhGCSCPFnGLt8oHHd6zkIXgQGmuQRaLELWbU3q
+         Wg702o/CWej3i12w0EGiMyO6YyJEt2qbM4pyTV0Q5FOG5WlKLlbybEd0DMnrOVcWS8fp
+         DuzJECGhlpP5RykRyvIx/LwIPn3buQd8dt1QTeUIZQ9KRHdMrztYgAePkFE1bhKTieCw
+         wUgeCC/BOoSImurLRiQ8ST0/pmSL8zlgoZ+q9LqqPH0Cj7/KIXixUrLtz9XRl4e+69xr
+         9OdRSxVxrJBxaW5PMZ0appMng0Hkv5m4evgETN+YLvibsg0mcQRAFmHhSH5zrK3Al1N2
+         dmzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=A5RwhDAP7/J1pDvTAiUDBR+MHgpw4LlKX0b6CEjmItY=;
+        b=nS2P3y6TkOoDVF/Oaa5n69QgsJRXJlMgGthYeUJRAuW3GCxra0swm3jgmSKDRPYJrW
+         jQszeI9QCK1SxTDWaB+o0B8aQOohw/LQyYz/9jZEgyO4P0MKFPpe0V5K42WbvNK3rMl9
+         us0ktqzhlXgLdvlLnfOoMdTThVjOof3itEHaTi723Chb+zsAq0yn49xOBGN8mN002PDz
+         bKRQFx929lJ7kc4kd5HY+V1ytEYUWGZhyPwVGedVDLz18vBk+dxHgGCvhHlsDHMpl4Tn
+         AwN5wAzQlKPvJgw10mBgFdbXE/f6tNwGkSeiGr5h5hQJvg2OtWQC8YV/1LOP0XM1Q8n4
+         BM+w==
+X-Gm-Message-State: APjAAAUDND1kielo30bNWdillsB7sfGdkeJ7Ip5V+ZZZEFsIukqVhfcU
+        V4Lrf0hkjTkbetpfyuBKdi9nMqIx0r49UEvaWOR4jw==
+X-Google-Smtp-Source: APXvYqyQ3Z9FjlYf6e3EPpIIi/tS6QFWFUTVOX/BEDU6KhGJZajaaWWHlUvyLoVOQlW3V24I5M8CcgwGTrjbgRPwPfg=
+X-Received: by 2002:ab0:5930:: with SMTP id n45mr17287080uad.87.1558164983986;
+ Sat, 18 May 2019 00:36:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190517172012.GA223128@google.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190418133913.9122-1-gilad@benyossef.com> <CAOtvUMd9WUZAFgTqVH0U2ZZp8bbHXNg9Ae_ZFvGKJTSKNct8JA@mail.gmail.com>
+ <20190517145235.GB10613@kroah.com>
+In-Reply-To: <20190517145235.GB10613@kroah.com>
+From:   Gilad Ben-Yossef <gilad@benyossef.com>
+Date:   Sat, 18 May 2019 10:36:11 +0300
+Message-ID: <CAOtvUMc++UtTP3fvXofuJA4JpdT86s5gbSx6WRtDK=sWnuUZrg@mail.gmail.com>
+Subject: Re: [PATCH 00/35] crypto: ccree: features and bug fixes for 5.2
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
+        Ofir Drang <ofir.drang@arm.com>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 17, 2019 at 10:20:12AM -0700, Eric Biggers wrote:
-> On Fri, May 17, 2019 at 02:32:08PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > From 6a1faa4a43f5fabf9cbeaa742d916e7b5e73120f Mon Sep 17 00:00:00 2001
-> > From: Eric Biggers <ebiggers@google.com>
-> > Date: Thu, 18 Apr 2019 14:44:27 -0700
-> > Subject: [PATCH] crypto: ccm - fix incompatibility between "ccm" and
-> >  "ccm_base"
-> > 
-> 
-> Why did this fail to apply?  For me it cleanly cherry picks to 4.14 and later.
+Hi
 
-git cherry-pick fixed up some issues that quilt had, so I've added it
-now to 4.14, 4.19, and 5.0.
+On Fri, May 17, 2019 at 5:52 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Sun, Apr 21, 2019 at 11:52:55AM +0300, Gilad Ben-Yossef wrote:
+> > On Thu, Apr 18, 2019 at 4:39 PM Gilad Ben-Yossef <gilad@benyossef.com> =
+wrote:
+> > >
+> > > A set of new features, mostly support for CryptoCell 713
+> > > features including protected keys, security disable mode and
+> > > new HW revision indetification interface alongside many bug fixes.
+> >
+> > FYI,
+> >
+> > A port of those patches from this patch series which have been marked
+> > for stable is available at
+> > https://github.com/gby/linux/tree/4.19-ccree
+>
+> Hm, all I seem to need are 2 patches that failed to apply.  Can you just
+> provide backports for them?
 
-But I now need a 4.4 and 4.9 backport of this, can you provide that?
+Sure, I'll send them early next week.
 
-thanks,
+Thanks,
+Gilad
 
-greg k-h
+--=20
+Gilad Ben-Yossef
+Chief Coffee Drinker
+
+values of =CE=B2 will give rise to dom!
