@@ -2,57 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 156E922386
-	for <lists+stable@lfdr.de>; Sat, 18 May 2019 14:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B70C2245A
+	for <lists+stable@lfdr.de>; Sat, 18 May 2019 19:51:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729791AbfERM7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 May 2019 08:59:19 -0400
-Received: from smtp3.ono.com ([62.42.230.163]:55440 "EHLO smtp3.ono.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729634AbfERM7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 May 2019 08:59:19 -0400
-X-Junkmail-Premium-Raw: score=19/50,refid=2.7.2:2019.5.18.113616:17:19.782,ip=62.42.230.134,rules=__HAS_MSGID,
- __SANE_MSGID, MSGID_JMAIL_DEFAULT, INVALID_MSGID_NO_FQDN, __HAS_FROM,
- __FROM_NAME_ADDRESS, __HAS_REPLYTO, SUBJ_STARTS_IN_SPACE, __SUBJ_ALPHA_END,
- __MIME_VERSION, __CT, __CT_TEXT_PLAIN, __CTE, MISSING_HEADERS,
- __REPLYTO_SAMEAS_FROM_ADDY, __REPLYTO_SAMEAS_FROM_ACC,
- __REPLYTO_SAMEAS_FROM_DOMAIN, __ANY_URI, __URI_NO_MAILTO, __URI_NO_WWW,
- __FRAUD_INYOURCOUNTRY, __STOCK_PHRASE_7, __STOCK_PHRASE_8,
- __FRAUD_MONEY_GENERIC, __FRAUD_MONEY_BIG_COIN_DIG, __OEM_PRICE,
- __FRAUD_MONEY_CURRENCY_DOLLAR, __FRAUD_REPLY, __NO_HTML_TAG_RAW,
- BODYTEXTP_SIZE_3000_LESS, BODY_SIZE_500_599, __MIME_TEXT_P1,
- __MIME_TEXT_ONLY, __URI_NS, HTML_00_01, HTML_00_10, __FRAUD_MONEY_CURRENCY,
- __FRAUD_MONEY_BIG_COIN, __FRAUD_MONEY_VALUE, __FRAUD_MONEY, FRAUD_X4,
- FRAUD_X3, FRAUD_HIGH_X3, BODY_SIZE_5000_LESS, __FRAUD_COMMON, __MIME_TEXT_P,
- __PHISH_SPEAR_STRUCTURE_1, BODY_SIZE_1000_LESS, BODY_SIZE_2000_LESS,
- __PHISH_SPEAR_STRUCTURE_2, REPLYTO_SAMEAS_FROM, NO_URI_HTTPS,
- BODY_SIZE_7000_LESS, TO_MALFORMED
-Received: from resprs04 (62.42.230.134) by smtp3.ono.com (9.0.019.09-1)
-        id 5CC0A28F0107DFD6; Sat, 18 May 2019 14:59:11 +0200
-Received: from (149.126.75.9) by webmailcpr04n.ono.com;  Sat, 18 May 2019 14:59:10 +0200
-Message-ID: <487289.2112391558184350685.JavaMail.defaultUser@defaultHost>
-Date:   Sat, 18 May 2019 14:59:10 +0200 (CEST)
-From:   "anicetovalle@ono.com" <anicetovalle@ono.com>
-Reply-To: anicetovalle@ono.com
-Subject:  Hello My Beloved One
-MIME-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
+        id S1728850AbfERRvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 May 2019 13:51:50 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:58516 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726050AbfERRvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 May 2019 13:51:50 -0400
+Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::3d8])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id C611214DD9232;
+        Sat, 18 May 2019 10:51:48 -0700 (PDT)
+Date:   Sat, 18 May 2019 10:51:48 -0700 (PDT)
+Message-Id: <20190518.105148.796052200759156053.davem@davemloft.net>
+To:     jemoreira@google.com
+Cc:     linux-kernel@vger.kernel.org, stefanha@redhat.com,
+        sgarzare@redhat.com, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH RESEND] vsock/virtio: Initialize core virtio vsock
+ before registering the driver
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20190516205107.222003-1-jemoreira@google.com>
+References: <20190516205107.222003-1-jemoreira@google.com>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Sat, 18 May 2019 10:51:49 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Assalamu Alaikum,
-I came across your contact during my private search
-Mrs Aisha Al-Qaddafi is my name, the only daughter of late Libyan
-president, I have funds the sum
-of $27.5 million USD for investment, I am interested in you for
-investment project assistance in your country,
-i shall compensate you 30% of the total sum after the funds are
-transfer into your account,
-kindly reply for more information via my mailbox:gaisha983(at)
-gmail.com
-Greetings from Mrs Aisha Al-Qaddafi
-Mrs Aisha Al-Qaddafi
+From: "Jorge E. Moreira" <jemoreira@google.com>
+Date: Thu, 16 May 2019 13:51:07 -0700
+
+> Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> accessed (while handling interrupts) before they are initialized.
+ ...
+> Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: kvm@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Cc: kernel-team@android.com
+> Cc: stable@vger.kernel.org [4.9+]
+> Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+Applied and queued up for -stable, thanks.
