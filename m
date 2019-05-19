@@ -2,87 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEC2228BD
-	for <lists+stable@lfdr.de>; Sun, 19 May 2019 22:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D11C62292D
+	for <lists+stable@lfdr.de>; Sun, 19 May 2019 23:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbfESU2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 May 2019 16:28:04 -0400
-Received: from Chamillionaire.breakpoint.cc ([146.0.238.67]:53956 "EHLO
-        Chamillionaire.breakpoint.cc" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730116AbfESU2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 16:28:03 -0400
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.89)
-        (envelope-from <fw@strlen.de>)
-        id 1hSSPS-0004g9-41; Sun, 19 May 2019 22:27:54 +0200
-Date:   Sun, 19 May 2019 22:27:53 +0200
-From:   Florian Westphal <fw@strlen.de>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Thomas Haller <thaller@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: Re: [PATCH 4.9 41/51] fib_rules: return 0 directly if an exactly
- same rule exists when NLM_F_EXCL not supplied
-Message-ID: <20190519202753.p5hsfe2uqmgsfbcq@breakpoint.cc>
-References: <20190515090616.669619870@linuxfoundation.org>
- <20190515090628.066392616@linuxfoundation.org>
- <20190519154348.GA113991@archlinux-epyc>
+        id S1729140AbfESVb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 May 2019 17:31:26 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59805 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729096AbfESVb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 17:31:26 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id A29C780378; Sun, 19 May 2019 23:31:14 +0200 (CEST)
+Date:   Sun, 19 May 2019 23:31:24 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        linux-pm@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.14 06/16] power: supply: cpcap-battery: Fix
+ division by zero
+Message-ID: <20190519213124.GE31403@amd>
+References: <20190516114107.8963-1-sashal@kernel.org>
+ <20190516114107.8963-6-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="orO6xySwJI16pVnm"
 Content-Disposition: inline
-In-Reply-To: <20190519154348.GA113991@archlinux-epyc>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20190516114107.8963-6-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Nathan Chancellor <natechancellor@gmail.com> wrote:
-> On Wed, May 15, 2019 at 12:56:16PM +0200, Greg Kroah-Hartman wrote:
-> > From: Hangbin Liu <liuhangbin@gmail.com>
-> > 
-> > [ Upstream commit e9919a24d3022f72bcadc407e73a6ef17093a849 ]
 
-[..]
+--orO6xySwJI16pVnm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Fixes: 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to fib_nl_newrule")
-> > Reported-by: Thomas Haller <thaller@redhat.com>
-> > Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  net/core/fib_rules.c |    6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > --- a/net/core/fib_rules.c
-> > +++ b/net/core/fib_rules.c
-> > @@ -429,9 +429,9 @@ int fib_nl_newrule(struct sk_buff *skb,
-> >  	if (rule->l3mdev && rule->table)
-> >  		goto errout_free;
-> >  
-> > -	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
-> > -	    rule_exists(ops, frh, tb, rule)) {
-> > -		err = -EEXIST;
-> > +	if (rule_exists(ops, frh, tb, rule)) {
-> > +		if (nlh->nlmsg_flags & NLM_F_EXCL)
-> > +			err = -EEXIST;
-> This commit is causing issues on Android devices when Wi-Fi and mobile
-> data are both enabled. The device will do a soft reboot consistently.
+On Thu 2019-05-16 07:40:57, Sasha Levin wrote:
+> From: Tony Lindgren <tony@atomide.com>
+>=20
+> [ Upstream commit dbe7208c6c4aec083571f2ec742870a0d0edbea3 ]
+>=20
+> If called fast enough so samples do not increment, we can get
+> division by zero in kernel:
+>=20
+> __div0
+> cpcap_battery_cc_raw_div
+> cpcap_battery_get_property
+> power_supply_get_property.part.1
+> power_supply_get_property
+> power_supply_show_property
+> power_supply_uevent
+>=20
+> Fixes: 874b2adbed12 ("power: supply: cpcap-battery: Add a battery driver")
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Not surprising, the patch can't be applied to 4.9 as-is.
+Yup, this one makes sense for stable
 
-In 4.9, code looks like this:
+ Acked-for-stable-by: Pavel Machek <pavel@ucw.cz>
 
- err = -EINVAL;
- /* irrelevant */
- if (rule_exists(ops, frh, tb, rule)) {
-  if (nlh->nlmsg_flags & NLM_F_EXCL)
-    err = -EEXIST;
-    goto errout_free;
- }
+Thanks,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-So, if rule_exists() is true, we return -EINVAL to caller
-instead of 0, unlike upstream.
+--orO6xySwJI16pVnm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-I don't think this commit is stable material.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlzhyywACgkQMOfwapXb+vI0cgCgqDdY05iCOme5tsF19qlUHEJ/
+kHAAnRDH7KmcqMhj3Z7HyS8NRGoTAv1L
+=NXfl
+-----END PGP SIGNATURE-----
+
+--orO6xySwJI16pVnm--
