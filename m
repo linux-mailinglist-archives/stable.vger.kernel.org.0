@@ -2,89 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D11C62292D
-	for <lists+stable@lfdr.de>; Sun, 19 May 2019 23:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4CD22957
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 00:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbfESVb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 May 2019 17:31:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59805 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729096AbfESVb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 17:31:26 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id A29C780378; Sun, 19 May 2019 23:31:14 +0200 (CEST)
-Date:   Sun, 19 May 2019 23:31:24 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        linux-pm@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 06/16] power: supply: cpcap-battery: Fix
- division by zero
-Message-ID: <20190519213124.GE31403@amd>
-References: <20190516114107.8963-1-sashal@kernel.org>
- <20190516114107.8963-6-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="orO6xySwJI16pVnm"
-Content-Disposition: inline
-In-Reply-To: <20190516114107.8963-6-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S1726384AbfESWas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 May 2019 18:30:48 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37244 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726062AbfESWar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 18:30:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=l3rRABaJE+hXc0kSwgpaBAIU9xkmeuYS6LaIOoNA094=; b=TUD/SZZmgnyAQbevERd5gSUA0
+        9nUV9ajr1GHTfsy3Bjj7Pvpmwm1G0ecShTqACLJCfd4azEDfqkvZyAhXqWfmBN9yjZpSINeNeSlM1
+        Sz2K0fW64vRhXscwrrHhE5zgPkgc0iy4mfon5uhep/p3JlGgVqUYWvlsg848JysG1JTC0=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hSUKL-0001Gf-7l; Sun, 19 May 2019 22:30:45 +0000
+Received: from broonie by optimist with local (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hSUKK-0001r5-18; Sun, 19 May 2019 23:30:44 +0100
+From:   Build bot for Mark Brown <broonie@kernel.org>
+To:     kernel-build-reports@lists.linaro.org,
+        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
+Subject: v5.1.3 build: 0 failures 10 warnings (v5.1.3)
+Message-Id: <E1hSUKK-0001r5-18@optimist>
+Date:   Sun, 19 May 2019 23:30:44 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Tree/Branch: v5.1.3
+Git describe: v5.1.3
+Commit: 7cb9c5d341 Linux 5.1.3
 
---orO6xySwJI16pVnm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Build Time: 139 min 4 sec
 
-On Thu 2019-05-16 07:40:57, Sasha Levin wrote:
-> From: Tony Lindgren <tony@atomide.com>
->=20
-> [ Upstream commit dbe7208c6c4aec083571f2ec742870a0d0edbea3 ]
->=20
-> If called fast enough so samples do not increment, we can get
-> division by zero in kernel:
->=20
-> __div0
-> cpcap_battery_cc_raw_div
-> cpcap_battery_get_property
-> power_supply_get_property.part.1
-> power_supply_get_property
-> power_supply_show_property
-> power_supply_uevent
->=20
-> Fixes: 874b2adbed12 ("power: supply: cpcap-battery: Add a battery driver")
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
-> Acked-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Passed:   11 / 11   (100.00 %)
+Failed:    0 / 11   (  0.00 %)
 
-Yup, this one makes sense for stable
+Errors: 0
+Warnings: 10
+Section Mismatches: 0
 
- Acked-for-stable-by: Pavel Machek <pavel@ucw.cz>
+-------------------------------------------------------------------------------
+defconfigs with issues (other than build errors):
+      1 warnings    0 mismatches  : arm64-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v5_defconfig
+      5 warnings    0 mismatches  : arm-multi_v7_defconfig
+      9 warnings    0 mismatches  : arm-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v4t_defconfig
+      3 warnings    0 mismatches  : x86_64-allmodconfig
+      1 warnings    0 mismatches  : arm64-defconfig
 
-Thanks,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+-------------------------------------------------------------------------------
 
---orO6xySwJI16pVnm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Warnings Summary: 10
+	  8 ../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  4 ../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
+	  3 ../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	  3 ../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	  2 ../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+	  1 ../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iEYEARECAAYFAlzhyywACgkQMOfwapXb+vI0cgCgqDdY05iCOme5tsF19qlUHEJ/
-kHAAnRDH7KmcqMhj3Z7HyS8NRGoTAv1L
-=NXfl
------END PGP SIGNATURE-----
 
---orO6xySwJI16pVnm--
+===============================================================================
+Detailed per-defconfig build reports below:
+
+
+-------------------------------------------------------------------------------
+arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v5_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+arm-multi_v7_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-allmodconfig : PASS, 0 errors, 9 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v4t_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+-------------------------------------------------------------------------------
+
+Passed with no errors, warnings or mismatches:
+
+x86_64-allnoconfig
+arm64-allnoconfig
+arm-allnoconfig
+x86_64-defconfig
