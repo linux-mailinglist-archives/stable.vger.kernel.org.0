@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA3C2357D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF8D2357F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391082AbfETMfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:35:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53826 "EHLO mail.kernel.org"
+        id S2390771AbfETMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403836AbfETMf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:35:29 -0400
+        id S2391085AbfETMfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8397A204FD;
-        Mon, 20 May 2019 12:35:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB10120815;
+        Mon, 20 May 2019 12:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355728;
-        bh=oWRqpruyTfVtDUHPIxkYLjTTV3J6ynx0f5y1Btlj9h0=;
+        s=default; t=1558355730;
+        bh=TyRe+nhpDCWpalDOwUOSPsTUF5/+mga5C0UipCilX2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m93fsQJAI/SXCqcS5v42A8M3F92ZRHo7oYA+hQTqAkS8y0pkx2cxTcKfjDlsgRKCd
-         NMYQhooO6PrGaTq6Fb+O2wUA1cShvS90n3pdAdJGznDa1oHu8nsSZ9YcirthEWE7HU
-         lUlKDdFzfdWyjnjXCXjLkm9YtDIi1Vsgrf9zpG8U=
+        b=hRqdmkOu7TG+sRaRSI47qxmUfcd7UEu7PjowZABJfGXKhO3YAAN+KFDiaxdFGrsUb
+         j6g5wA5Vo8hLYqTRJHDde6BvXQhxm8lyJJ30Vn8bJIVq9aE89HHCy3QdlZNqeXoOjM
+         P5QvmE251TQaIrZahnqDjpOvZyq9uFTv3KfgZQ1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Baruch Siach <baruch@tkos.co.il>, Soeren Moch <smoch@web.de>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Adam Thomson <Adam.Thomson@diasemi.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "George G. Davis" <george_davis@mentor.com>
-Subject: [PATCH 5.1 103/128] ARM: dts: imx: Fix the AR803X phy-mode
-Date:   Mon, 20 May 2019 14:14:50 +0200
-Message-Id: <20190520115256.092178525@linuxfoundation.org>
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        syzbot+d84c80f9fe26a0f7a734@syzkaller.appspotmail.com,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 104/128] mm/compaction.c: correct zone boundary handling when isolating pages from a pageblock
+Date:   Mon, 20 May 2019 14:14:51 +0200
+Message-Id: <20190520115256.150172611@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -48,206 +49,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 0672d22a19244cdb0e5c753125c1a55a120db5d0 upstream.
+commit 60fce36afa9c77c7ccbf980c4f670f3be3651fce upstream.
 
-Commit 6d4cd041f0af ("net: phy: at803x: disable delay only for RGMII mode")
-exposed an issue on imx DTS files using AR8031/AR8035 PHYs.
+syzbot reported the following error from a tree with a head commit of
+baf76f0c58ae ("slip: make slhc_free() silently accept an error pointer")
 
-The end result is that the boards can no longer obtain an IP address
-via UDHCP, for example.
+  BUG: unable to handle kernel paging request at ffffea0003348000
+  #PF error: [normal kernel read fault]
+  PGD 12c3f9067 P4D 12c3f9067 PUD 12c3f8067 PMD 0
+  Oops: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 28916 Comm: syz-executor.2 Not tainted 5.1.0-rc6+ #89
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:constant_test_bit arch/x86/include/asm/bitops.h:314 [inline]
+  RIP: 0010:PageCompound include/linux/page-flags.h:186 [inline]
+  RIP: 0010:isolate_freepages_block+0x1c0/0xd40 mm/compaction.c:579
+  Code: 01 d8 ff 4d 85 ed 0f 84 ef 07 00 00 e8 29 00 d8 ff 4c 89 e0 83 85 38 ff
+  ff ff 01 48 c1 e8 03 42 80 3c 38 00 0f 85 31 0a 00 00 <4d> 8b 2c 24 31 ff 49
+  c1 ed 10 41 83 e5 01 44 89 ee e8 3a 01 d8 ff
+  RSP: 0018:ffff88802b31eab8 EFLAGS: 00010246
+  RAX: 1ffffd4000669000 RBX: 00000000000cd200 RCX: ffffc9000a235000
+  RDX: 000000000001ca5e RSI: ffffffff81988cc7 RDI: 0000000000000001
+  RBP: ffff88802b31ebd8 R08: ffff88805af700c0 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: ffffea0003348000
+  R13: 0000000000000000 R14: ffff88802b31f030 R15: dffffc0000000000
+  FS:  00007f61648dc700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffea0003348000 CR3: 0000000037c64000 CR4: 00000000001426e0
+  Call Trace:
+   fast_isolate_around mm/compaction.c:1243 [inline]
+   fast_isolate_freepages mm/compaction.c:1418 [inline]
+   isolate_freepages mm/compaction.c:1438 [inline]
+   compaction_alloc+0x1aee/0x22e0 mm/compaction.c:1550
 
-Quoting Andrew Lunn:
+There is no reproducer and it is difficult to hit -- 1 crash every few
+days.  The issue is very similar to the fix in commit 6b0868c820ff
+("mm/compaction.c: correct zone boundary handling when resetting pageblock
+skip hints").  When isolating free pages around a target pageblock, the
+boundary handling is off by one and can stray into the next pageblock.
+Triggering the syzbot error requires that the end of pageblock is section
+or zone aligned, and that the next section is unpopulated.
 
-"The problem here is, all the DTs were broken since day 0. However,
-because the PHY driver was also broken, nobody noticed and it
-worked. Now that the PHY driver has been fixed, all the bugs in the
-DTs now become an issue"
+A more subtle consequence of the bug is that pageblocks were being
+improperly used as migration targets which potentially hurts fragmentation
+avoidance in the long-term one page at a time.
 
-To fix this problem, the phy-mode property needs to be "rgmii-id",  which
-has the following meaning as per
-Documentation/devicetree/bindings/net/ethernet.txt:
+A debugging patch revealed that it's definitely possible to stray outside
+of a pageblock which is not intended.  While syzbot cannot be used to
+verify this patch, it was confirmed that the debugging warning no longer
+triggers with this patch applied.  It has also been confirmed that the THP
+allocation stress tests are not degraded by this patch.
 
-"RGMII with internal RX and TX delays provided by the PHY, the MAC should
-not add the RX or TX delays in this case)"
-
-Tested on imx6-sabresd, imx6sx-sdb and imx7d-pico boards with
-successfully restored networking.
-
-Based on the initial submission from Steve Twiss for the
-imx6qdl-sabresd.
-
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Tested-by: Baruch Siach <baruch@tkos.co.il>
-Tested-by: Soeren Moch <smoch@web.de>
-Tested-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Tested-by: Adam Thomson <Adam.Thomson@diasemi.com>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Cc: "George G. Davis" <george_davis@mentor.com>
+Link: http://lkml.kernel.org/r/20190510182124.GI18914@techsingularity.net
+Fixes: e332f741a8dd ("mm, compaction: be selective about what pageblocks to clear skip hints")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Reported-by: syzbot+d84c80f9fe26a0f7a734@syzkaller.appspotmail.com
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi |    2 +-
- arch/arm/boot/dts/imx6dl-riotboard.dts        |    2 +-
- arch/arm/boot/dts/imx6q-ba16.dtsi             |    2 +-
- arch/arm/boot/dts/imx6q-marsboard.dts         |    2 +-
- arch/arm/boot/dts/imx6q-tbs2910.dts           |    2 +-
- arch/arm/boot/dts/imx6qdl-apf6.dtsi           |    2 +-
- arch/arm/boot/dts/imx6qdl-sabreauto.dtsi      |    2 +-
- arch/arm/boot/dts/imx6qdl-sabresd.dtsi        |    2 +-
- arch/arm/boot/dts/imx6qdl-sr-som.dtsi         |    2 +-
- arch/arm/boot/dts/imx6qdl-wandboard.dtsi      |    2 +-
- arch/arm/boot/dts/imx6sx-sabreauto.dts        |    2 +-
- arch/arm/boot/dts/imx6sx-sdb.dtsi             |    2 +-
- arch/arm/boot/dts/imx7d-pico.dtsi             |    2 +-
- 13 files changed, 13 insertions(+), 13 deletions(-)
+ mm/compaction.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-+++ b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-@@ -216,7 +216,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-duration = <10>;
- 	phy-reset-gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
- 	phy-supply = <&reg_enet>;
---- a/arch/arm/boot/dts/imx6dl-riotboard.dts
-+++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
-@@ -92,7 +92,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
---- a/arch/arm/boot/dts/imx6q-ba16.dtsi
-+++ b/arch/arm/boot/dts/imx6q-ba16.dtsi
-@@ -171,7 +171,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1228,7 +1228,7 @@ fast_isolate_around(struct compact_contr
  
---- a/arch/arm/boot/dts/imx6q-marsboard.dts
-+++ b/arch/arm/boot/dts/imx6q-marsboard.dts
-@@ -110,7 +110,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
---- a/arch/arm/boot/dts/imx6q-tbs2910.dts
-+++ b/arch/arm/boot/dts/imx6q-tbs2910.dts
-@@ -98,7 +98,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
---- a/arch/arm/boot/dts/imx6qdl-apf6.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-apf6.dtsi
-@@ -51,7 +51,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-duration = <10>;
- 	phy-reset-gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
- 	status = "okay";
---- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-@@ -292,7 +292,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
---- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
-@@ -202,7 +202,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
---- a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-@@ -53,7 +53,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_microsom_enet_ar8035>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-duration = <2>;
- 	phy-reset-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
- 	status = "okay";
---- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-@@ -224,7 +224,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-reset-gpios = <&gpio3 29 GPIO_ACTIVE_LOW>;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
---- a/arch/arm/boot/dts/imx6sx-sabreauto.dts
-+++ b/arch/arm/boot/dts/imx6sx-sabreauto.dts
-@@ -75,7 +75,7 @@
- &fec1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet1>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-handle = <&ethphy1>;
- 	fsl,magic-packet;
- 	status = "okay";
---- a/arch/arm/boot/dts/imx6sx-sdb.dtsi
-+++ b/arch/arm/boot/dts/imx6sx-sdb.dtsi
-@@ -191,7 +191,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet1>;
- 	phy-supply = <&reg_enet_3v3>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-handle = <&ethphy1>;
- 	phy-reset-gpios = <&gpio2 7 GPIO_ACTIVE_LOW>;
- 	status = "okay";
---- a/arch/arm/boot/dts/imx7d-pico.dtsi
-+++ b/arch/arm/boot/dts/imx7d-pico.dtsi
-@@ -92,7 +92,7 @@
- 			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
- 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
- 	assigned-clock-rates = <0>, <100000000>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-handle = <&ethphy0>;
- 	fsl,magic-packet;
- 	phy-reset-gpios = <&gpio6 11 GPIO_ACTIVE_LOW>;
+ 	/* Pageblock boundaries */
+ 	start_pfn = pageblock_start_pfn(pfn);
+-	end_pfn = min(start_pfn + pageblock_nr_pages, zone_end_pfn(cc->zone));
++	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
+ 
+ 	/* Scan before */
+ 	if (start_pfn != pfn) {
+@@ -1239,7 +1239,7 @@ fast_isolate_around(struct compact_contr
+ 
+ 	/* Scan after */
+ 	start_pfn = pfn + nr_isolated;
+-	if (start_pfn != end_pfn)
++	if (start_pfn < end_pfn)
+ 		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
+ 
+ 	/* Skip this pageblock in the future as it's full or nearly full */
 
 
