@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 387D2230BE
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526FB230CA
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731311AbfETJvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 05:51:54 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:57797 "EHLO
+        id S1730223AbfETJ4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 05:56:19 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42621 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729875AbfETJvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 05:51:54 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfETJ4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 05:56:19 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1F99524094;
-        Mon, 20 May 2019 05:51:53 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id ED20B231A4;
+        Mon, 20 May 2019 05:56:17 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 20 May 2019 05:51:53 -0400
+  by compute6.internal (MEProxy); Mon, 20 May 2019 05:56:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HFGycu
-        eIGSbsLTHUchGbsseOKRnl1PukTj9AR14pRSg=; b=54G47oqKsQU0DNungmg1zU
-        8jMakVSPs2RCgdfXqSBwbaDXGfd0lyTqbtGasq0PNegQuhXGcyk3e8GziXvAuE9E
-        l0vDx8xRyHUN3GVFAwanEPy3EczpS42RzcZ1QKd+Qk1ErsKLTa5ksrczMeyHb2WV
-        tjUyBUDMCV/1iSEQxgb2PL4jeW3a1l646DVVZgfsv3p5XiHh1SfWkx0OO6bU+DQP
-        NI1GK1OgAhUzgvgGe8Vu8L+BQommlpSeQrOryn0s/1RVubgVv61j4Zn3Z7y6nrh8
-        zcn5Y5Utb1iF5i2T6lrtImOnYO6zITncIdorSTUfF0DV60RDaPbIfFDPSAnXrcHw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7vXZJz
+        HkBiE0KWoSk3uQcpDYSWtcOLLd3wginpq9cSA=; b=tvPLlAwbY9c6DMEg8gIxF/
+        ggJazVzortC5SRyEPSqRsZh3v7wGNBDnKWmRp9YMreUZsliq9hSd3pZzgouffC69
+        Cx0n1GP3D29Vy4utmT+lWGGExBAcIhGwkPK1AB7H3S0NkaY/xWcjxRe5QhmI2/Y8
+        +iNuRFnFjr70IUMt1/NAGLdncFkpDIOtEg/mHKYAdmuIaHpuHPL3mmyOEOvnqO9J
+        LqDPGEiSSf6OBmLtCdZWRMh2BGudnQcNGgwa9+pN9miTMYnlLjEOoBub1kePU/5+
+        rTUlMYZxl9SC59k+hGbGi5OMrtFFGaQDSrbi5V91J7Zz7O6aI0CdZB5IVcUSTZnw
         ==
-X-ME-Sender: <xms:uHjiXD-4lf4iEajnqt5lGD3LPVqzfbFk8zaLqBAUZFNsRWRrB1II6g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtkedgvdduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:wXniXJiLuu6HWM6rRFrksq8iq3LSq9XCmBJiWAlpdJBsO1VttB-0Mw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtkedgvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:uHjiXMD5BicA3HlD8WslYHO3Hj_OGnlVjC2xWU0DaZlUnVv0d9K5Cg>
-    <xmx:uHjiXDzgWa6sXRjvZRsSpmmUWi1D6hsWTyaP0sGYG6z4VXdw0BVhkA>
-    <xmx:uHjiXBQBnpOc1woPpB7xVifARXrYtS5o1LUHmccH1FRHB7LrubD62A>
-    <xmx:uXjiXLslBFbnFthVzRC-HyZoFT3LMmjUC5nDZ5xSXpWTp0-FZe3mCg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:wXniXCnL-daSpluNUZTjY_8ZJbyZ3e-nl6pdx8h0sbq2IfF-vmy44g>
+    <xmx:wXniXOjZXuyyiQei3d0W9MQusYBel-64YPyRpagMwoOZTDInkxtOtw>
+    <xmx:wXniXA6g91DoVSTZXNUlpSjAo5WZWl970_5D3tsWwVssYrW2Svsq9A>
+    <xmx:wXniXATH4igYooONzyom798vbRQ_xw25Ml0Ae5XJei21PuH-YVobww>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7870F10379;
-        Mon, 20 May 2019 05:51:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ext4: fix use-after-free in dx_release()" failed to apply to 4.9-stable tree
-To:     stummala@codeaurora.org, adilger@dilger.ca, tytso@mit.edu
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1A36A103D0;
+        Mon, 20 May 2019 05:56:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] jbd2: fix potential double free" failed to apply to 4.14-stable tree
+To:     cgxu519@gmail.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 May 2019 11:51:43 +0200
-Message-ID: <1558345903156139@kroah.com>
+Date:   Mon, 20 May 2019 11:56:15 +0200
+Message-ID: <15583461756520@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,50 +67,230 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 08fc98a4d6424af66eb3ac4e2cedd2fc927ed436 Mon Sep 17 00:00:00 2001
-From: Sahitya Tummala <stummala@codeaurora.org>
-Date: Fri, 10 May 2019 22:00:33 -0400
-Subject: [PATCH] ext4: fix use-after-free in dx_release()
+From 0d52154bb0a700abb459a2cbce0a30fc2549b67e Mon Sep 17 00:00:00 2001
+From: Chengguang Xu <cgxu519@gmail.com>
+Date: Fri, 10 May 2019 21:15:47 -0400
+Subject: [PATCH] jbd2: fix potential double free
 
-The buffer_head (frames[0].bh) and it's corresping page can be
-potentially free'd once brelse() is done inside the for loop
-but before the for loop exits in dx_release(). It can be free'd
-in another context, when the page cache is flushed via
-drop_caches_sysctl_handler(). This results into below data abort
-when accessing info->indirect_levels in dx_release().
+When failing from creating cache jbd2_inode_cache, we will destroy the
+previously created cache jbd2_handle_cache twice.  This patch fixes
+this by moving each cache initialization/destruction to its own
+separate, individual function.
 
-Unable to handle kernel paging request at virtual address ffffffc17ac3e01e
-Call trace:
- dx_release+0x70/0x90
- ext4_htree_fill_tree+0x2d4/0x300
- ext4_readdir+0x244/0x6f8
- iterate_dir+0xbc/0x160
- SyS_getdents64+0x94/0x174
-
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Chengguang Xu <cgxu519@gmail.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
 Cc: stable@kernel.org
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index e917830eae84..ac7457fef9e6 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -872,12 +872,15 @@ static void dx_release(struct dx_frame *frames)
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 37e16d969925..43df0c943229 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2375,22 +2375,19 @@ static struct kmem_cache *jbd2_journal_head_cache;
+ static atomic_t nr_journal_heads = ATOMIC_INIT(0);
+ #endif
+ 
+-static int jbd2_journal_init_journal_head_cache(void)
++static int __init jbd2_journal_init_journal_head_cache(void)
  {
- 	struct dx_root_info *info;
- 	int i;
-+	unsigned int indirect_levels;
+-	int retval;
+-
+-	J_ASSERT(jbd2_journal_head_cache == NULL);
++	J_ASSERT(!jbd2_journal_head_cache);
+ 	jbd2_journal_head_cache = kmem_cache_create("jbd2_journal_head",
+ 				sizeof(struct journal_head),
+ 				0,		/* offset */
+ 				SLAB_TEMPORARY | SLAB_TYPESAFE_BY_RCU,
+ 				NULL);		/* ctor */
+-	retval = 0;
+ 	if (!jbd2_journal_head_cache) {
+-		retval = -ENOMEM;
+ 		printk(KERN_EMERG "JBD2: no memory for journal_head cache\n");
++		return -ENOMEM;
+ 	}
+-	return retval;
++	return 0;
+ }
  
- 	if (frames[0].bh == NULL)
- 		return;
+ static void jbd2_journal_destroy_journal_head_cache(void)
+@@ -2636,28 +2633,38 @@ static void __exit jbd2_remove_jbd_stats_proc_entry(void)
  
- 	info = &((struct dx_root *)frames[0].bh->b_data)->info;
--	for (i = 0; i <= info->indirect_levels; i++) {
-+	/* save local copy, "info" may be freed after brelse() */
-+	indirect_levels = info->indirect_levels;
-+	for (i = 0; i <= indirect_levels; i++) {
- 		if (frames[i].bh == NULL)
- 			break;
- 		brelse(frames[i].bh);
+ struct kmem_cache *jbd2_handle_cache, *jbd2_inode_cache;
+ 
++static int __init jbd2_journal_init_inode_cache(void)
++{
++	J_ASSERT(!jbd2_inode_cache);
++	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
++	if (!jbd2_inode_cache) {
++		pr_emerg("JBD2: failed to create inode cache\n");
++		return -ENOMEM;
++	}
++	return 0;
++}
++
+ static int __init jbd2_journal_init_handle_cache(void)
+ {
++	J_ASSERT(!jbd2_handle_cache);
+ 	jbd2_handle_cache = KMEM_CACHE(jbd2_journal_handle, SLAB_TEMPORARY);
+-	if (jbd2_handle_cache == NULL) {
++	if (!jbd2_handle_cache) {
+ 		printk(KERN_EMERG "JBD2: failed to create handle cache\n");
+ 		return -ENOMEM;
+ 	}
+-	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
+-	if (jbd2_inode_cache == NULL) {
+-		printk(KERN_EMERG "JBD2: failed to create inode cache\n");
+-		kmem_cache_destroy(jbd2_handle_cache);
+-		return -ENOMEM;
+-	}
+ 	return 0;
+ }
+ 
++static void jbd2_journal_destroy_inode_cache(void)
++{
++	kmem_cache_destroy(jbd2_inode_cache);
++	jbd2_inode_cache = NULL;
++}
++
+ static void jbd2_journal_destroy_handle_cache(void)
+ {
+ 	kmem_cache_destroy(jbd2_handle_cache);
+ 	jbd2_handle_cache = NULL;
+-	kmem_cache_destroy(jbd2_inode_cache);
+-	jbd2_inode_cache = NULL;
+ }
+ 
+ /*
+@@ -2668,11 +2675,15 @@ static int __init journal_init_caches(void)
+ {
+ 	int ret;
+ 
+-	ret = jbd2_journal_init_revoke_caches();
++	ret = jbd2_journal_init_revoke_record_cache();
++	if (ret == 0)
++		ret = jbd2_journal_init_revoke_table_cache();
+ 	if (ret == 0)
+ 		ret = jbd2_journal_init_journal_head_cache();
+ 	if (ret == 0)
+ 		ret = jbd2_journal_init_handle_cache();
++	if (ret == 0)
++		ret = jbd2_journal_init_inode_cache();
+ 	if (ret == 0)
+ 		ret = jbd2_journal_init_transaction_cache();
+ 	return ret;
+@@ -2680,9 +2691,11 @@ static int __init journal_init_caches(void)
+ 
+ static void jbd2_journal_destroy_caches(void)
+ {
+-	jbd2_journal_destroy_revoke_caches();
++	jbd2_journal_destroy_revoke_record_cache();
++	jbd2_journal_destroy_revoke_table_cache();
+ 	jbd2_journal_destroy_journal_head_cache();
+ 	jbd2_journal_destroy_handle_cache();
++	jbd2_journal_destroy_inode_cache();
+ 	jbd2_journal_destroy_transaction_cache();
+ 	jbd2_journal_destroy_slabs();
+ }
+diff --git a/fs/jbd2/revoke.c b/fs/jbd2/revoke.c
+index a1143e57a718..69b9bc329964 100644
+--- a/fs/jbd2/revoke.c
++++ b/fs/jbd2/revoke.c
+@@ -178,33 +178,41 @@ static struct jbd2_revoke_record_s *find_revoke_record(journal_t *journal,
+ 	return NULL;
+ }
+ 
+-void jbd2_journal_destroy_revoke_caches(void)
++void jbd2_journal_destroy_revoke_record_cache(void)
+ {
+ 	kmem_cache_destroy(jbd2_revoke_record_cache);
+ 	jbd2_revoke_record_cache = NULL;
++}
++
++void jbd2_journal_destroy_revoke_table_cache(void)
++{
+ 	kmem_cache_destroy(jbd2_revoke_table_cache);
+ 	jbd2_revoke_table_cache = NULL;
+ }
+ 
+-int __init jbd2_journal_init_revoke_caches(void)
++int __init jbd2_journal_init_revoke_record_cache(void)
+ {
+ 	J_ASSERT(!jbd2_revoke_record_cache);
+-	J_ASSERT(!jbd2_revoke_table_cache);
+-
+ 	jbd2_revoke_record_cache = KMEM_CACHE(jbd2_revoke_record_s,
+ 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY);
+-	if (!jbd2_revoke_record_cache)
+-		goto record_cache_failure;
+ 
++	if (!jbd2_revoke_record_cache) {
++		pr_emerg("JBD2: failed to create revoke_record cache\n");
++		return -ENOMEM;
++	}
++	return 0;
++}
++
++int __init jbd2_journal_init_revoke_table_cache(void)
++{
++	J_ASSERT(!jbd2_revoke_table_cache);
+ 	jbd2_revoke_table_cache = KMEM_CACHE(jbd2_revoke_table_s,
+ 					     SLAB_TEMPORARY);
+-	if (!jbd2_revoke_table_cache)
+-		goto table_cache_failure;
+-	return 0;
+-table_cache_failure:
+-	jbd2_journal_destroy_revoke_caches();
+-record_cache_failure:
++	if (!jbd2_revoke_table_cache) {
++		pr_emerg("JBD2: failed to create revoke_table cache\n");
+ 		return -ENOMEM;
++	}
++	return 0;
+ }
+ 
+ static struct jbd2_revoke_table_s *jbd2_journal_init_revoke_table(int hash_size)
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index f940d31c2adc..8ca4fddc705f 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -42,9 +42,11 @@ int __init jbd2_journal_init_transaction_cache(void)
+ 					0,
+ 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY,
+ 					NULL);
+-	if (transaction_cache)
+-		return 0;
+-	return -ENOMEM;
++	if (!transaction_cache) {
++		pr_emerg("JBD2: failed to create transaction cache\n");
++		return -ENOMEM;
++	}
++	return 0;
+ }
+ 
+ void jbd2_journal_destroy_transaction_cache(void)
+diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
+index 0f919d5fe84f..2cf6e04b08fc 100644
+--- a/include/linux/jbd2.h
++++ b/include/linux/jbd2.h
+@@ -1318,7 +1318,7 @@ extern void		__wait_on_journal (journal_t *);
+ 
+ /* Transaction cache support */
+ extern void jbd2_journal_destroy_transaction_cache(void);
+-extern int  jbd2_journal_init_transaction_cache(void);
++extern int __init jbd2_journal_init_transaction_cache(void);
+ extern void jbd2_journal_free_transaction(transaction_t *);
+ 
+ /*
+@@ -1446,8 +1446,10 @@ static inline void jbd2_free_inode(struct jbd2_inode *jinode)
+ /* Primary revoke support */
+ #define JOURNAL_REVOKE_DEFAULT_HASH 256
+ extern int	   jbd2_journal_init_revoke(journal_t *, int);
+-extern void	   jbd2_journal_destroy_revoke_caches(void);
+-extern int	   jbd2_journal_init_revoke_caches(void);
++extern void	   jbd2_journal_destroy_revoke_record_cache(void);
++extern void	   jbd2_journal_destroy_revoke_table_cache(void);
++extern int __init jbd2_journal_init_revoke_record_cache(void);
++extern int __init jbd2_journal_init_revoke_table_cache(void);
+ 
+ extern void	   jbd2_journal_destroy_revoke(journal_t *);
+ extern int	   jbd2_journal_revoke (handle_t *, unsigned long long, struct buffer_head *);
 
