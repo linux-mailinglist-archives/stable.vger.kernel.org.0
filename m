@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AAB23700
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCEF236EA
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731745AbfETMTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:19:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60860 "EHLO mail.kernel.org"
+        id S1726146AbfETMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731671AbfETMT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:19:29 -0400
+        id S1733054AbfETMR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6B1E20656;
-        Mon, 20 May 2019 12:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1084F213F2;
+        Mon, 20 May 2019 12:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354769;
-        bh=47h56TplLtOuTZk9bZBytonkt83xqba2oE7Wh9cojE4=;
+        s=default; t=1558354676;
+        bh=7msc1tKFakpzZ9gI2yrE7V/oN5Mph5vD65JhgljuaQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVaRXVROLHHEWh9VwhBlQFmASw+nRLABTIyKdEYTQSaGysX2v1wD1I3ijQk0Ur4JY
-         wTjmLkT3FJeklSK64cf7qCWZ3TYaAzYFvZ5Cm7a723VbFnGJ23KugS1inrFvGwv06W
-         I9KS0PIUI5R8A8QK9fH2ECYZybpQSMwoVk6uo1uM=
+        b=YhiqY14E5PWWmahvTPBZBEWNROCXpPdPk7uJCJXs+fVxRM6ZApucjmyeJdfBuwdXJ
+         eKES4pxBIJkPJepbm4cYqYGdm/PJQ4AJhSHgRc4/5+O5NGoFJm5Q1wMyqeMrF7t3Qx
+         O0PAmbXtDDjkC3K8V5Lk9BJpNP+6MGUmw1E8N5fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 35/63] mfd: da9063: Fix OTP control register names to match datasheets for DA9063/63L
+Subject: [PATCH 4.9 25/44] mfd: max77620: Fix swapped FPS_PERIOD_MAX_US values
 Date:   Mon, 20 May 2019 14:14:14 +0200
-Message-Id: <20190520115235.157532022@linuxfoundation.org>
+Message-Id: <20190520115233.833825107@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 6b4814a9451add06d457e198be418bf6a3e6a990 upstream.
+commit ea611d1cc180fbb56982c83cd5142a2b34881f5c upstream.
 
-Mismatch between what is found in the Datasheets for DA9063 and DA9063L
-provided by Dialog Semiconductor, and the register names provided in the
-MFD registers file. The changes are for the OTP (one-time-programming)
-control registers. The two naming errors are OPT instead of OTP, and
-COUNT instead of CONT (i.e. control).
+The FPS_PERIOD_MAX_US definitions are swapped for MAX20024 and MAX77620,
+fix it.
 
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/mfd/da9063/registers.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/mfd/max77620.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/mfd/da9063/registers.h
-+++ b/include/linux/mfd/da9063/registers.h
-@@ -215,9 +215,9 @@
+--- a/include/linux/mfd/max77620.h
++++ b/include/linux/mfd/max77620.h
+@@ -136,8 +136,8 @@
+ #define MAX77620_FPS_PERIOD_MIN_US		40
+ #define MAX20024_FPS_PERIOD_MIN_US		20
  
- /* DA9063 Configuration registers */
- /* OTP */
--#define	DA9063_REG_OPT_COUNT		0x101
--#define	DA9063_REG_OPT_ADDR		0x102
--#define	DA9063_REG_OPT_DATA		0x103
-+#define	DA9063_REG_OTP_CONT		0x101
-+#define	DA9063_REG_OTP_ADDR		0x102
-+#define	DA9063_REG_OTP_DATA		0x103
+-#define MAX77620_FPS_PERIOD_MAX_US		2560
+-#define MAX20024_FPS_PERIOD_MAX_US		5120
++#define MAX20024_FPS_PERIOD_MAX_US		2560
++#define MAX77620_FPS_PERIOD_MAX_US		5120
  
- /* Customer Trim and Configuration */
- #define	DA9063_REG_T_OFFSET		0x104
+ #define MAX77620_REG_FPS_GPIO1			0x54
+ #define MAX77620_REG_FPS_GPIO2			0x55
 
 
