@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F86C236E1
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034FF23756
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387591AbfETMRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58590 "EHLO mail.kernel.org"
+        id S2388825AbfETMYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387577AbfETMRe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:34 -0400
+        id S2388821AbfETMYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB6B220863;
-        Mon, 20 May 2019 12:17:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D51720675;
+        Mon, 20 May 2019 12:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354653;
-        bh=EaavyxDy9vM0Q1shUzVTtEAxefTsnF432A5L7gXWZFE=;
+        s=default; t=1558355063;
+        bh=Cw6AfNVwd6J7h6gKJMpXsWrvyEHcG2I1ykekQ3qiNXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=feJ1XEhtz+vEL50rpB3NJ7SzzYuN3SwwrHLR0Dmy/NqgVpp1yawM2s9pbxDgBHHHd
-         Y/pgGcUl7zPT7/HLXciNjwSTV3+t66wkpTmABWo6WGS4s0p8yZGlIBHMeSRc7oSsEZ
-         s+Zxcu7GrqOLAVpio8z3HfPnqzHSF7KRf65gl600=
+        b=Z1r79jQ3DJl+k3KxOyJaPd5e4zFZre0SyxtplqCudzo3+VnXEGRZcmU4l/U7aF7FC
+         7lp3wbN5a8mqKC7J1C3EdQD63yaM8FFcT/DGDhGkhyqjarc1xdIiRDZp0VDANqXUTj
+         d9jEKODGu3BQuMq+OD3ZTYutkagalAgi0phyiq7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jiufei Xue <xuejiufei@gmail.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 39/44] writeback: synchronize sync(2) against cgroup writeback membership switches
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 082/105] crypto: ccm - fix incompatibility between "ccm" and "ccm_base"
 Date:   Mon, 20 May 2019 14:14:28 +0200
-Message-Id: <20190520115235.564183757@linuxfoundation.org>
+Message-Id: <20190520115252.923979601@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,161 +43,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 7fc5854f8c6efae9e7624970ab49a1eac2faefb1 upstream.
+commit 6a1faa4a43f5fabf9cbeaa742d916e7b5e73120f upstream.
 
-sync_inodes_sb() can race against cgwb (cgroup writeback) membership
-switches and fail to writeback some inodes.  For example, if an inode
-switches to another wb while sync_inodes_sb() is in progress, the new
-wb might not be visible to bdi_split_work_to_wbs() at all or the inode
-might jump from a wb which hasn't issued writebacks yet to one which
-already has.
+CCM instances can be created by either the "ccm" template, which only
+allows choosing the block cipher, e.g. "ccm(aes)"; or by "ccm_base",
+which allows choosing the ctr and cbcmac implementations, e.g.
+"ccm_base(ctr(aes-generic),cbcmac(aes-generic))".
 
-This patch adds backing_dev_info->wb_switch_rwsem to synchronize cgwb
-switch path against sync_inodes_sb() so that sync_inodes_sb() is
-guaranteed to see all the target wbs and inodes can't jump wbs to
-escape syncing.
+However, a "ccm_base" instance prevents a "ccm" instance from being
+registered using the same implementations.  Nor will the instance be
+found by lookups of "ccm".  This can be used as a denial of service.
+Moreover, "ccm_base" instances are never tested by the crypto
+self-tests, even if there are compatible "ccm" tests.
 
-v2: Fixed misplaced rwsem init.  Spotted by Jiufei.
+The root cause of these problems is that instances of the two templates
+use different cra_names.  Therefore, fix these problems by making
+"ccm_base" instances set the same cra_name as "ccm" instances, e.g.
+"ccm(aes)" instead of "ccm_base(ctr(aes-generic),cbcmac(aes-generic))".
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jiufei Xue <xuejiufei@gmail.com>
-Link: http://lkml.kernel.org/r/dc694ae2-f07f-61e1-7097-7c8411cee12d@gmail.com
-Acked-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This requires extracting the block cipher name from the name of the ctr
+and cbcmac algorithms.  It also requires starting to verify that the
+algorithms are really ctr and cbcmac using the same block cipher, not
+something else entirely.  But it would be bizarre if anyone were
+actually using non-ccm-compatible algorithms with ccm_base, so this
+shouldn't break anyone in practice.
+
+Fixes: 4a49b499dfa0 ("[CRYPTO] ccm: Added CCM mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/fs-writeback.c                |   40 +++++++++++++++++++++++++++++++++++++--
- include/linux/backing-dev-defs.h |    1 
- mm/backing-dev.c                 |    1 
- 3 files changed, 40 insertions(+), 2 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -331,11 +331,22 @@ struct inode_switch_wbs_context {
- 	struct work_struct	work;
- };
+---
+ crypto/ccm.c |   44 ++++++++++++++++++--------------------------
+ 1 file changed, 18 insertions(+), 26 deletions(-)
+
+--- a/crypto/ccm.c
++++ b/crypto/ccm.c
+@@ -455,7 +455,6 @@ static void crypto_ccm_free(struct aead_
  
-+static void bdi_down_write_wb_switch_rwsem(struct backing_dev_info *bdi)
-+{
-+	down_write(&bdi->wb_switch_rwsem);
-+}
-+
-+static void bdi_up_write_wb_switch_rwsem(struct backing_dev_info *bdi)
-+{
-+	up_write(&bdi->wb_switch_rwsem);
-+}
-+
- static void inode_switch_wbs_work_fn(struct work_struct *work)
+ static int crypto_ccm_create_common(struct crypto_template *tmpl,
+ 				    struct rtattr **tb,
+-				    const char *full_name,
+ 				    const char *ctr_name,
+ 				    const char *mac_name)
  {
- 	struct inode_switch_wbs_context *isw =
- 		container_of(work, struct inode_switch_wbs_context, work);
- 	struct inode *inode = isw->inode;
-+	struct backing_dev_info *bdi = inode_to_bdi(inode);
- 	struct address_space *mapping = inode->i_mapping;
- 	struct bdi_writeback *old_wb = inode->i_wb;
- 	struct bdi_writeback *new_wb = isw->new_wb;
-@@ -344,6 +355,12 @@ static void inode_switch_wbs_work_fn(str
- 	void **slot;
+@@ -483,7 +482,8 @@ static int crypto_ccm_create_common(stru
  
- 	/*
-+	 * If @inode switches cgwb membership while sync_inodes_sb() is
-+	 * being issued, sync_inodes_sb() might miss it.  Synchronize.
-+	 */
-+	down_read(&bdi->wb_switch_rwsem);
+ 	mac = __crypto_hash_alg_common(mac_alg);
+ 	err = -EINVAL;
+-	if (mac->digestsize != 16)
++	if (strncmp(mac->base.cra_name, "cbcmac(", 7) != 0 ||
++	    mac->digestsize != 16)
+ 		goto out_put_mac;
+ 
+ 	inst = kzalloc(sizeof(*inst) + sizeof(*ictx), GFP_KERNEL);
+@@ -506,23 +506,27 @@ static int crypto_ccm_create_common(stru
+ 
+ 	ctr = crypto_spawn_skcipher_alg(&ictx->ctr);
+ 
+-	/* Not a stream cipher? */
++	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
+ 	err = -EINVAL;
+-	if (ctr->base.cra_blocksize != 1)
++	if (strncmp(ctr->base.cra_name, "ctr(", 4) != 0 ||
++	    crypto_skcipher_alg_ivsize(ctr) != 16 ||
++	    ctr->base.cra_blocksize != 1)
+ 		goto err_drop_ctr;
+ 
+-	/* We want the real thing! */
+-	if (crypto_skcipher_alg_ivsize(ctr) != 16)
++	/* ctr and cbcmac must use the same underlying block cipher. */
++	if (strcmp(ctr->base.cra_name + 4, mac->base.cra_name + 7) != 0)
+ 		goto err_drop_ctr;
+ 
+ 	err = -ENAMETOOLONG;
++	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
++		     "ccm(%s", ctr->base.cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
++		goto err_drop_ctr;
 +
-+	/*
- 	 * By the time control reaches here, RCU grace period has passed
- 	 * since I_WB_SWITCH assertion and all wb stat update transactions
- 	 * between unlocked_inode_to_wb_begin/end() are guaranteed to be
-@@ -435,6 +452,8 @@ skip_switch:
- 	spin_unlock(&new_wb->list_lock);
- 	spin_unlock(&old_wb->list_lock);
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "ccm_base(%s,%s)", ctr->base.cra_driver_name,
+ 		     mac->base.cra_driver_name) >= CRYPTO_MAX_ALG_NAME)
+ 		goto err_drop_ctr;
  
-+	up_read(&bdi->wb_switch_rwsem);
-+
- 	if (switched) {
- 		wb_wakeup(new_wb);
- 		wb_put(old_wb);
-@@ -475,9 +494,18 @@ static void inode_switch_wbs(struct inod
- 	if (inode->i_state & I_WB_SWITCH)
- 		return;
+-	memcpy(inst->alg.base.cra_name, full_name, CRYPTO_MAX_ALG_NAME);
+-
+ 	inst->alg.base.cra_flags = ctr->base.cra_flags & CRYPTO_ALG_ASYNC;
+ 	inst->alg.base.cra_priority = (mac->base.cra_priority +
+ 				       ctr->base.cra_priority) / 2;
+@@ -564,7 +568,6 @@ static int crypto_ccm_create(struct cryp
+ 	const char *cipher_name;
+ 	char ctr_name[CRYPTO_MAX_ALG_NAME];
+ 	char mac_name[CRYPTO_MAX_ALG_NAME];
+-	char full_name[CRYPTO_MAX_ALG_NAME];
  
-+	/*
-+	 * Avoid starting new switches while sync_inodes_sb() is in
-+	 * progress.  Otherwise, if the down_write protected issue path
-+	 * blocks heavily, we might end up starting a large number of
-+	 * switches which will block on the rwsem.
-+	 */
-+	if (!down_read_trylock(&bdi->wb_switch_rwsem))
-+		return;
-+
- 	isw = kzalloc(sizeof(*isw), GFP_ATOMIC);
- 	if (!isw)
--		return;
-+		goto out_unlock;
+ 	cipher_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(cipher_name))
+@@ -578,12 +581,7 @@ static int crypto_ccm_create(struct cryp
+ 		     cipher_name) >= CRYPTO_MAX_ALG_NAME)
+ 		return -ENAMETOOLONG;
  
- 	/* find and pin the new wb */
- 	rcu_read_lock();
-@@ -511,12 +539,14 @@ static void inode_switch_wbs(struct inod
- 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
- 	 */
- 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
--	return;
-+	goto out_unlock;
- 
- out_free:
- 	if (isw->new_wb)
- 		wb_put(isw->new_wb);
- 	kfree(isw);
-+out_unlock:
-+	up_read(&bdi->wb_switch_rwsem);
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "ccm(%s)", cipher_name) >=
+-	    CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
+-
+-	return crypto_ccm_create_common(tmpl, tb, full_name, ctr_name,
+-					mac_name);
++	return crypto_ccm_create_common(tmpl, tb, ctr_name, mac_name);
  }
  
- /**
-@@ -894,6 +924,9 @@ fs_initcall(cgroup_writeback_init);
+ static struct crypto_template crypto_ccm_tmpl = {
+@@ -596,23 +594,17 @@ static int crypto_ccm_base_create(struct
+ 				  struct rtattr **tb)
+ {
+ 	const char *ctr_name;
+-	const char *cipher_name;
+-	char full_name[CRYPTO_MAX_ALG_NAME];
++	const char *mac_name;
  
- #else	/* CONFIG_CGROUP_WRITEBACK */
+ 	ctr_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(ctr_name))
+ 		return PTR_ERR(ctr_name);
  
-+static void bdi_down_write_wb_switch_rwsem(struct backing_dev_info *bdi) { }
-+static void bdi_up_write_wb_switch_rwsem(struct backing_dev_info *bdi) { }
-+
- static struct bdi_writeback *
- locked_inode_to_wb_and_lock_list(struct inode *inode)
- 	__releases(&inode->i_lock)
-@@ -2408,8 +2441,11 @@ void sync_inodes_sb(struct super_block *
- 		return;
- 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
+-	cipher_name = crypto_attr_alg_name(tb[2]);
+-	if (IS_ERR(cipher_name))
+-		return PTR_ERR(cipher_name);
+-
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "ccm_base(%s,%s)",
+-		     ctr_name, cipher_name) >= CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
++	mac_name = crypto_attr_alg_name(tb[2]);
++	if (IS_ERR(mac_name))
++		return PTR_ERR(mac_name);
  
-+	/* protect against inode wb switch, see inode_switch_wbs_work_fn() */
-+	bdi_down_write_wb_switch_rwsem(bdi);
- 	bdi_split_work_to_wbs(bdi, &work, false);
- 	wb_wait_for_completion(bdi, &done);
-+	bdi_up_write_wb_switch_rwsem(bdi);
- 
- 	wait_sb_inodes(sb);
+-	return crypto_ccm_create_common(tmpl, tb, full_name, ctr_name,
+-					cipher_name);
++	return crypto_ccm_create_common(tmpl, tb, ctr_name, mac_name);
  }
---- a/include/linux/backing-dev-defs.h
-+++ b/include/linux/backing-dev-defs.h
-@@ -157,6 +157,7 @@ struct backing_dev_info {
- 	struct radix_tree_root cgwb_tree; /* radix tree of active cgroup wbs */
- 	struct rb_root cgwb_congested_tree; /* their congested states */
- 	atomic_t usage_cnt; /* counts both cgwbs and cgwb_contested's */
-+	struct rw_semaphore wb_switch_rwsem; /* no cgwb switch while syncing */
- #else
- 	struct bdi_writeback_congested *wb_congested;
- #endif
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -669,6 +669,7 @@ static int cgwb_bdi_init(struct backing_
- 	INIT_RADIX_TREE(&bdi->cgwb_tree, GFP_ATOMIC);
- 	bdi->cgwb_congested_tree = RB_ROOT;
- 	atomic_set(&bdi->usage_cnt, 1);
-+	init_rwsem(&bdi->wb_switch_rwsem);
  
- 	ret = wb_init(&bdi->wb, bdi, 1, GFP_KERNEL);
- 	if (!ret) {
+ static struct crypto_template crypto_ccm_base_tmpl = {
 
 
