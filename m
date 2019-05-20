@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6CB234D8
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF75123781
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390295AbfETMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:31:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
+        id S2389499AbfETMuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:50:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390284AbfETMbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:15 -0400
+        id S1730404AbfETMVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:21:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C842D20645;
-        Mon, 20 May 2019 12:31:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A46213F2;
+        Mon, 20 May 2019 12:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355474;
-        bh=GmTb07UMxQ8LwlQL7RhlNeNdc5N0RHqvgDWXvshl5g8=;
+        s=default; t=1558354871;
+        bh=hcCWdm8G1C81OZqG9T6IE40vqZ2g7WBEfGBUW8Mt+Bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB5o+VZhcrESfxfHZTQ2Yf3/u4+PAjMpZwPu0sfPY/nybTZRKQdukQBbSSuWhdJw0
-         8UDQ9rfmIxREwxt1tp7XcjzJag+PJ9b6oY82+dzwZjGDMqPnAnq0TcsBjVAEGpP+ww
-         cWq5JQ8c2VMg9d9WwhsUYTLQt9wI+2kE0O+x8b3M=
+        b=IZIhyJYneebqqkkR5EjA4s3UqF59ZcVwKRRqmRsqMMvDeYZ+QBlIwDfvZm9uCjxpL
+         N9YWS45fsqcKCCyqwKQBC1tEA3zHzRRgQExUSDyp5UJCjbiZfV6EUF3rnuYUnDRPUS
+         6lw+xd+DddGKmlA+IWXwS1rQXUrlRi8eaSNOehhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Jon Masters <jcm@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Will Deacon <will.deacon@arm.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 001/128] locking/rwsem: Prevent decrement of reader count before increment
-Date:   Mon, 20 May 2019 14:13:08 +0200
-Message-Id: <20190520115249.551262196@linuxfoundation.org>
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 003/105] x86/speculation/mds: Improve CPU buffer clear documentation
+Date:   Mon, 20 May 2019 14:13:09 +0200
+Message-Id: <20190520115247.289761419@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,129 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9e9bcb45b1525ba7aea26ed9441e8632aeeda58 ]
+From: Andy Lutomirski <luto@kernel.org>
 
-During my rwsem testing, it was found that after a down_read(), the
-reader count may occasionally become 0 or even negative. Consequently,
-a writer may steal the lock at that time and execute with the reader
-in parallel thus breaking the mutual exclusion guarantee of the write
-lock. In other words, both readers and writer can become rwsem owners
-simultaneously.
+commit 9d8d0294e78a164d407133dea05caf4b84247d6a upstream.
 
-The current reader wakeup code does it in one pass to clear waiter->task
-and put them into wake_q before fully incrementing the reader count.
-Once waiter->task is cleared, the corresponding reader may see it,
-finish the critical section and do unlock to decrement the count before
-the count is incremented. This is not a problem if there is only one
-reader to wake up as the count has been pre-incremented by 1.  It is
-a problem if there are more than one readers to be woken up and writer
-can steal the lock.
+On x86_64, all returns to usermode go through
+prepare_exit_to_usermode(), with the sole exception of do_nmi().
+This even includes machine checks -- this was added several years
+ago to support MCE recovery.  Update the documentation.
 
-The wakeup was actually done in 2 passes before the following v4.9 commit:
-
-  70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
-
-To fix this problem, the wakeup is now done in two passes
-again. In the first pass, we collect the readers and count them.
-The reader count is then fully incremented. In the second pass, the
-waiter->task is then cleared and they are put into wake_q to be woken
-up later.
-
-Signed-off-by: Waiman Long <longman@redhat.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Fixes: 70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
-Link: http://lkml.kernel.org/r/20190428212557.13482-2-longman@redhat.com
+Cc: stable@vger.kernel.org
+Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
+Link: http://lkml.kernel.org/r/999fa9e126ba6a48e9d214d2f18dbde5c62ac55c.1557865329.git.luto@kernel.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/locking/rwsem-xadd.c | 44 +++++++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ Documentation/x86/mds.rst |   39 +++++++--------------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index fbe96341beeed..59b801de8dd5c 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -130,6 +130,7 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- {
- 	struct rwsem_waiter *waiter, *tmp;
- 	long oldcount, woken = 0, adjustment = 0;
-+	struct list_head wlist;
+--- a/Documentation/x86/mds.rst
++++ b/Documentation/x86/mds.rst
+@@ -142,38 +142,13 @@ Mitigation points
+    mds_user_clear.
  
- 	/*
- 	 * Take a peek at the queue head waiter such that we can determine
-@@ -188,18 +189,42 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- 	 * of the queue. We know that woken will be at least 1 as we accounted
- 	 * for above. Note we increment the 'active part' of the count by the
- 	 * number of readers before waking any processes up.
-+	 *
-+	 * We have to do wakeup in 2 passes to prevent the possibility that
-+	 * the reader count may be decremented before it is incremented. It
-+	 * is because the to-be-woken waiter may not have slept yet. So it
-+	 * may see waiter->task got cleared, finish its critical section and
-+	 * do an unlock before the reader count increment.
-+	 *
-+	 * 1) Collect the read-waiters in a separate list, count them and
-+	 *    fully increment the reader count in rwsem.
-+	 * 2) For each waiters in the new list, clear waiter->task and
-+	 *    put them into wake_q to be woken up later.
- 	 */
--	list_for_each_entry_safe(waiter, tmp, &sem->wait_list, list) {
--		struct task_struct *tsk;
+    The mitigation is invoked in prepare_exit_to_usermode() which covers
+-   most of the kernel to user space transitions. There are a few exceptions
+-   which are not invoking prepare_exit_to_usermode() on return to user
+-   space. These exceptions use the paranoid exit code.
 -
-+	list_for_each_entry(waiter, &sem->wait_list, list) {
- 		if (waiter->type == RWSEM_WAITING_FOR_WRITE)
- 			break;
- 
- 		woken++;
--		tsk = waiter->task;
-+	}
-+	list_cut_before(&wlist, &sem->wait_list, &waiter->list);
-+
-+	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
-+	if (list_empty(&sem->wait_list)) {
-+		/* hit end of list above */
-+		adjustment -= RWSEM_WAITING_BIAS;
-+	}
-+
-+	if (adjustment)
-+		atomic_long_add(adjustment, &sem->count);
-+
-+	/* 2nd pass */
-+	list_for_each_entry_safe(waiter, tmp, &wlist, list) {
-+		struct task_struct *tsk;
- 
-+		tsk = waiter->task;
- 		get_task_struct(tsk);
--		list_del(&waiter->list);
-+
- 		/*
- 		 * Ensure calling get_task_struct() before setting the reader
- 		 * waiter to nil such that rwsem_down_read_failed() cannot
-@@ -213,15 +238,6 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- 		 */
- 		wake_q_add_safe(wake_q, tsk);
- 	}
+-   - Non Maskable Interrupt (NMI):
 -
--	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
--	if (list_empty(&sem->wait_list)) {
--		/* hit end of list above */
--		adjustment -= RWSEM_WAITING_BIAS;
--	}
+-     Access to sensible data like keys, credentials in the NMI context is
+-     mostly theoretical: The CPU can do prefetching or execute a
+-     misspeculated code path and thereby fetching data which might end up
+-     leaking through a buffer.
 -
--	if (adjustment)
--		atomic_long_add(adjustment, &sem->count);
- }
+-     But for mounting other attacks the kernel stack address of the task is
+-     already valuable information. So in full mitigation mode, the NMI is
+-     mitigated on the return from do_nmi() to provide almost complete
+-     coverage.
+-
+-   - Machine Check Exception (#MC):
+-
+-     Another corner case is a #MC which hits between the CPU buffer clear
+-     invocation and the actual return to user. As this still is in kernel
+-     space it takes the paranoid exit path which does not clear the CPU
+-     buffers. So the #MC handler repopulates the buffers to some
+-     extent. Machine checks are not reliably controllable and the window is
+-     extremly small so mitigation would just tick a checkbox that this
+-     theoretical corner case is covered. To keep the amount of special
+-     cases small, ignore #MC.
+-
+-   - Debug Exception (#DB):
+-
+-     This takes the paranoid exit path only when the INT1 breakpoint is in
+-     kernel space. #DB on a user space address takes the regular exit path,
+-     so no extra mitigation required.
++   all but one of the kernel to user space transitions.  The exception
++   is when we return from a Non Maskable Interrupt (NMI), which is
++   handled directly in do_nmi().
++
++   (The reason that NMI is special is that prepare_exit_to_usermode() can
++    enable IRQs.  In NMI context, NMIs are blocked, and we don't want to
++    enable IRQs with NMIs blocked.)
  
- /*
--- 
-2.20.1
-
+ 
+ 2. C-State transition
 
 
