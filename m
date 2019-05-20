@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FE423417
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB9B23366
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388545AbfETMXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37594 "EHLO mail.kernel.org"
+        id S1732923AbfETMQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388555AbfETMXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:16 -0400
+        id S1732845AbfETMQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 969E420815;
-        Mon, 20 May 2019 12:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4AC820815;
+        Mon, 20 May 2019 12:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354996;
-        bh=2VA0O26o4dHCNp+2dfI3MdeQeRxsI67oDktz1/c5iYc=;
+        s=default; t=1558354583;
+        bh=uhh8Vg9x5wvRtl1mwTABIvrWtt1cWlVM/KKhsPkU4vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGWZUXTsAnYjTULViWaOWNqRDvnXRHeoePAbeOdPb6wq96Ouel1JRywU8WpDWtLZG
-         7WNksXqsKVy7RupJuYiBKzsIxifjv9aPMHvtaESHaO1jMaUA8iYu8haShSeXHPx5e6
-         F58MzkI+9LZE6fMxBdToYfmKzhZp35nllEr3seWE=
+        b=WrmPtC0UwNn8L2hSvMQPEPDhb4FF36r1pD1cXenx5CaOBr0u6KDHUyKw8XvFUo8f3
+         0fAGkur5FoEZo8U3Aht7QyO5Zm2ugm7dGN5gFKFOFkFro5W0AugOq6hmdDsCOb09Vt
+         To29bDzK9eWTReTri+SIfWsK4ozKP34kMl1h23LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        zhong jiang <zhongjiang@huawei.com>,
-        syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com,
-        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 058/105] userfaultfd: use RCU to free the task struct when fork fails
+        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 15/44] crypto: x86/crct10dif-pcl - fix use via crypto_shash_digest()
 Date:   Mon, 20 May 2019 14:14:04 +0200
-Message-Id: <20190520115251.126549391@linuxfoundation.org>
+Message-Id: <20190520115232.749904531@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit c3f3ce049f7d97cc7ec9c01cb51d9ec74e0f37c2 upstream.
+commit dec3d0b1071a0f3194e66a83d26ecf4aa8c5910e upstream.
 
-The task structure is freed while get_mem_cgroup_from_mm() holds
-rcu_read_lock() and dereferences mm->owner.
+The ->digest() method of crct10dif-pclmul reads the current CRC value
+from the shash_desc context.  But this value is uninitialized, causing
+crypto_shash_digest() to compute the wrong result.  Fix it.
 
-  get_mem_cgroup_from_mm()                failing fork()
-  ----                                    ---
-  task = mm->owner
-                                          mm->owner = NULL;
-                                          free(task)
-  if (task) *task; /* use after free */
+Probably this wasn't noticed before because lib/crc-t10dif.c only uses
+crypto_shash_update(), not crypto_shash_digest().  Likewise,
+crypto_shash_digest() is not yet tested by the crypto self-tests because
+those only test the ahash API which only uses shash init/update/final.
 
-The fix consists in freeing the task with RCU also in the fork failure
-case, exactly like it always happens for the regular exit(2) path.  That
-is enough to make the rcu_read_lock hold in get_mem_cgroup_from_mm()
-(left side above) effective to avoid a use after free when dereferencing
-the task structure.
-
-An alternate possible fix would be to defer the delivery of the
-userfaultfd contexts to the monitor until after fork() is guaranteed to
-succeed.  Such a change would require more changes because it would
-create a strict ordering dependency where the uffd methods would need to
-be called beyond the last potentially failing branch in order to be
-safe.  This solution as opposed only adds the dependency to common code
-to set mm->owner to NULL and to free the task struct that was pointed by
-mm->owner with RCU, if fork ends up failing.  The userfaultfd methods
-can still be called anywhere during the fork runtime and the monitor
-will keep discarding orphaned "mm" coming from failed forks in userland.
-
-This race condition couldn't trigger if CONFIG_MEMCG was set =n at build
-time.
-
-[aarcange@redhat.com: improve changelog, reduce #ifdefs per Michal]
-  Link: http://lkml.kernel.org/r/20190429035752.4508-1-aarcange@redhat.com
-Link: http://lkml.kernel.org/r/20190325225636.11635-2-aarcange@redhat.com
-Fixes: 893e26e61d04 ("userfaultfd: non-cooperative: Add fork() event")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Tested-by: zhong jiang <zhongjiang@huawei.com>
-Reported-by: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: zhong jiang <zhongjiang@huawei.com>
-Cc: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0b95a7f85718 ("crypto: crct10dif - Glue code to cast accelerated CRCT10DIF assembly as a crypto transform")
+Cc: <stable@vger.kernel.org> # v3.11+
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |   31 +++++++++++++++++++++++++++++--
- 1 file changed, 29 insertions(+), 2 deletions(-)
+ arch/x86/crypto/crct10dif-pclmul_glue.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -907,6 +907,15 @@ static void mm_init_aio(struct mm_struct
- #endif
+--- a/arch/x86/crypto/crct10dif-pclmul_glue.c
++++ b/arch/x86/crypto/crct10dif-pclmul_glue.c
+@@ -76,15 +76,14 @@ static int chksum_final(struct shash_des
+ 	return 0;
  }
  
-+static __always_inline void mm_clear_owner(struct mm_struct *mm,
-+					   struct task_struct *p)
-+{
-+#ifdef CONFIG_MEMCG
-+	if (mm->owner == p)
-+		WRITE_ONCE(mm->owner, NULL);
-+#endif
-+}
-+
- static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
+-static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
+-			u8 *out)
++static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
  {
- #ifdef CONFIG_MEMCG
-@@ -1286,6 +1295,7 @@ static struct mm_struct *dup_mm(struct t
- free_pt:
- 	/* don't put binfmt in mmput, we haven't got module yet */
- 	mm->binfmt = NULL;
-+	mm_init_owner(mm, NULL);
- 	mmput(mm);
- 
- fail_nomem:
-@@ -1617,6 +1627,21 @@ static inline void rcu_copy_process(stru
- #endif /* #ifdef CONFIG_TASKS_RCU */
+ 	if (irq_fpu_usable()) {
+ 		kernel_fpu_begin();
+-		*(__u16 *)out = crc_t10dif_pcl(*crcp, data, len);
++		*(__u16 *)out = crc_t10dif_pcl(crc, data, len);
+ 		kernel_fpu_end();
+ 	} else
+-		*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
++		*(__u16 *)out = crc_t10dif_generic(crc, data, len);
+ 	return 0;
  }
  
-+static void __delayed_free_task(struct rcu_head *rhp)
-+{
-+	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
-+
-+	free_task(tsk);
-+}
-+
-+static __always_inline void delayed_free_task(struct task_struct *tsk)
-+{
-+	if (IS_ENABLED(CONFIG_MEMCG))
-+		call_rcu(&tsk->rcu, __delayed_free_task);
-+	else
-+		free_task(tsk);
-+}
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-@@ -2072,8 +2097,10 @@ bad_fork_cleanup_io:
- bad_fork_cleanup_namespaces:
- 	exit_task_namespaces(p);
- bad_fork_cleanup_mm:
--	if (p->mm)
-+	if (p->mm) {
-+		mm_clear_owner(p->mm, p);
- 		mmput(p->mm);
-+	}
- bad_fork_cleanup_signal:
- 	if (!(clone_flags & CLONE_THREAD))
- 		free_signal_struct(p->signal);
-@@ -2104,7 +2131,7 @@ bad_fork_cleanup_count:
- bad_fork_free:
- 	p->state = TASK_DEAD;
- 	put_task_stack(p);
--	free_task(p);
-+	delayed_free_task(p);
- fork_out:
- 	spin_lock_irq(&current->sighand->siglock);
- 	hlist_del_init(&delayed.node);
+@@ -93,15 +92,13 @@ static int chksum_finup(struct shash_des
+ {
+ 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+ 
+-	return __chksum_finup(&ctx->crc, data, len, out);
++	return __chksum_finup(ctx->crc, data, len, out);
+ }
+ 
+ static int chksum_digest(struct shash_desc *desc, const u8 *data,
+ 			 unsigned int length, u8 *out)
+ {
+-	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+-
+-	return __chksum_finup(&ctx->crc, data, length, out);
++	return __chksum_finup(0, data, length, out);
+ }
+ 
+ static struct shash_alg alg = {
 
 
