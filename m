@@ -2,62 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F9723FD1
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 20:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9BA23577
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727173AbfETSA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 14:00:56 -0400
-Received: from westpalmbeachmassagegroup.com ([45.35.221.60]:59597 "EHLO
-        wolfgangdigital.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726964AbfETSA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 14:00:56 -0400
-X-Greylist: delayed 9796 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 May 2019 14:00:56 EDT
-To:     stable@vger.kernel.org
-Subject: Printing for your logo
-Message-ID: <706f3443be6c1d3e5f290e928864bc53@esquire.com>
-Date:   Mon, 20 May 2019 14:34:57 +0200
-From:   "Heather" <heather@usblogo.space>
-Reply-To: flashdrive@aliyun.com
+        id S2391057AbfETMfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:22 -0400
+Received: from mail-it1-f170.google.com ([209.85.166.170]:40232 "EHLO
+        mail-it1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391068AbfETMfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 08:35:22 -0400
+Received: by mail-it1-f170.google.com with SMTP id h11so1170024itf.5
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 05:35:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=0wg7YYMkKqWvuguISa6ARNQuB0gtDasZcN2lWRgOgp4=;
+        b=G324Aw1z3iUXZH1BA39jZL84+8gjCBOhm0smG3lsHV4KIcx/EX3KcKf77ddjm+Ef+U
+         8SbMh8bEImoFMcDRWOvdzhcl6r7vXGmbBZB6/OpwSuPXlBfJBPeW5ZHwwVhtViiwHAvQ
+         sadB3IqA8siB1LdyC2Vu28ngxW9d+Ov4Sd5igPjccxy5gQ9o/n02MIO9O5W/klPrBeuK
+         XriDdJsgDozkKLaj11XfVv5Wq2YLx5HGBD3s5V+DbBmwOOF/Z2bYNRAgudzpSyCKNzau
+         cuK+J6Tc2Q7TbH+u9elVNqNjAas1W4eXH2Vg/iT6wW7noQKkOXlFo4gvYshDz+CiaziX
+         GbVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=0wg7YYMkKqWvuguISa6ARNQuB0gtDasZcN2lWRgOgp4=;
+        b=legiuLVZC3qriTryrzf286P2Kn69BgrH5Tp4lMIYJ4NPGY7nLYabfmBNDkAsaYZyFL
+         KwME30UZyE/uITLcW1D1EKxtxrTCvJq3KPUIEcRLX3UOjoxODK7bB1J+IdAreCwHAgST
+         LivuYirBGx6AmiZdetige11B3/2LCof6lVj+GEiJkNyspgyPLJ2cohhtGK9y5OtbItuI
+         3EnyCpsJFFuFT6+8R5cboC4et40e9WqKhXx/iXY92DT4fbCmKeNOExgSAu1b3qPdukbD
+         hslBFfdKYs/a9C7GYEgBfjMLoeLcSO3+7gzF9cM3wNAI1nXZ6G0j7fRACxhmzGrKsC6c
+         41Aw==
+X-Gm-Message-State: APjAAAWPGRZLCVNJzY9OZ8V3cgmtCcm8tqCAIqSFaoNUoRR+OSl/GYwp
+        9iMzPd/9bC0F+F1GjKav7GHD9VVA2WtXXWDLSkZu04lk
+X-Google-Smtp-Source: APXvYqwJ0hlgOpPw/VB9mlrP7u71y3KriuSniuhlSSauv3sg8BX4ViYqbgoIMlLREkk5BR3P2ocmGecXQLw/fDhqBcA=
+X-Received: by 2002:a24:70ca:: with SMTP id f193mr12807302itc.103.1558355720822;
+ Mon, 20 May 2019 05:35:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+From:   Adam Ford <aford173@gmail.com>
+Date:   Mon, 20 May 2019 07:35:09 -0500
+Message-ID: <CAHCN7xJPG_LE8JwA44WjmQi697XiMir6b5-d-du5wc-YAD-U5g@mail.gmail.com>
+Subject: ARM: dts: imx6q-logicpd: Reduce inrush current on start
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-I didn’t know if you had received my email from last week?
-
-We manufacture ALL custom LOGO and branded products – over 300,000 to
-choose from.
-
-The most asked about product that we make, is the custom printed USB flash
-drives!
-We can print your logo on them and load your digital images, videos and
-files!
-
-Here is what we include:
--Any size memory you need: 64MB up to 128GB
--We will print your logo on both sides, just ask!
--Very Low Order Minimums
--Need them quickly?  Not a problem, we offer Rush Service
-
-Email over a copy of your logo and we will create a design mock up for you
-at no cost!
-
-Our higher memory sizes are a really good option right now!
-
-Pricing is low right now, so let us know what you need and we will get you
-a quick quote.
-
-We always offer great rates for schools and nonprofits as well.
-
-Let us know what you would like quoted?
-
-Regards,
-
-Heather Millons
-Custom USB Account Manager
-
+Please apply  dbb58e291cd4 ("ARM: dts: imx6q-logicpd: Reduce inrush
+current on start") to the 5.1 stable branch.
