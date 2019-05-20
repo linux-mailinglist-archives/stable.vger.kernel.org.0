@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DCAA236DD
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F902378B
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387550AbfETMR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58414 "EHLO mail.kernel.org"
+        id S2387960AbfETMvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387523AbfETMR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:26 -0400
+        id S2387909AbfETMUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:20:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2E1920815;
-        Mon, 20 May 2019 12:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC593216E3;
+        Mon, 20 May 2019 12:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354645;
-        bh=SJ3bvGNHGX5MTf8QAP45iUrPWgiuSOwtd791qLhdx14=;
+        s=default; t=1558354800;
+        bh=FShAbIvuo5Dxjc1FjFgVxxINTXvXvWkM+qxwB8esTp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gy6HOmiLUgPH3WsM/dnjDNx2RpSLXAs/NRq183hLfNH4pTyhI4OLntcGLHsBiWG/B
-         zPeGyB0jhGnp8RhH7mxYQFgyKI2cY7LwKmaZXkjS8bkd/Wxrj+DvpZDgkvtSOon5k3
-         LwvRlf3ogMI8D+GSZh9QQ/pEn3qZVfihM7kevmOY=
+        b=dauN3iQgqUk+7N/BxZRcHyQyh+1wM8ZSA2uJ6qxfT65oPb6XV9GMtO4r4BSrfz6/q
+         mTe/kf5EB499NJzGjCpaP8wQSyTlI6/fCvZ9m9GWekC2yZdXmSHdwQYtPgiwK84I8E
+         MGuZhMFpYOQ/mDxhkor6304BD9jFpLMp94jrBnns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 36/44] crypto: salsa20 - dont access already-freed walk.iv
+        stable@vger.kernel.org, Liang Chen <liangchen.linux@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 46/63] bcache: fix a race between cache register and cacheset unregister
 Date:   Mon, 20 May 2019 14:14:25 +0200
-Message-Id: <20190520115235.316656833@linuxfoundation.org>
+Message-Id: <20190520115236.148797379@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-commit edaf28e996af69222b2cb40455dbb5459c2b875a upstream.
+commit a4b732a248d12cbdb46999daf0bf288c011335eb upstream.
 
-If the user-provided IV needs to be aligned to the algorithm's
-alignmask, then skcipher_walk_virt() copies the IV into a new aligned
-buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
-if the caller unconditionally accesses walk.iv, it's a use-after-free.
+There is a race between cache device register and cache set unregister.
+For an already registered cache device, register_bcache will call
+bch_is_open to iterate through all cachesets and check every cache
+there. The race occurs if cache_set_free executes at the same time and
+clears the caches right before ca is dereferenced in bch_is_open_cache.
+To close the race, let's make sure the clean up work is protected by
+the bch_register_lock as well.
 
-salsa20-generic doesn't set an alignmask, so currently it isn't affected
-by this despite unconditionally accessing walk.iv.  However this is more
-subtle than desired, and it was actually broken prior to the alignmask
-being removed by commit b62b3db76f73 ("crypto: salsa20-generic - cleanup
-and convert to skcipher API").
+This issue can be reproduced as follows,
+while true; do echo /dev/XXX> /sys/fs/bcache/register ; done&
+while true; do echo 1> /sys/block/XXX/bcache/set/unregister ; done &
 
-Since salsa20-generic does not update the IV and does not need any IV
-alignment, update it to use req->iv instead of walk.iv.
+and results in the following oops,
 
-Fixes: 2407d60872dd ("[CRYPTO] salsa20: Salsa20 stream cipher")
+[  +0.000053] BUG: unable to handle kernel NULL pointer dereference at 0000000000000998
+[  +0.000457] #PF error: [normal kernel read fault]
+[  +0.000464] PGD 800000003ca9d067 P4D 800000003ca9d067 PUD 3ca9c067 PMD 0
+[  +0.000388] Oops: 0000 [#1] SMP PTI
+[  +0.000269] CPU: 1 PID: 3266 Comm: bash Not tainted 5.0.0+ #6
+[  +0.000346] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.fc28 04/01/2014
+[  +0.000472] RIP: 0010:register_bcache+0x1829/0x1990 [bcache]
+[  +0.000344] Code: b0 48 83 e8 50 48 81 fa e0 e1 10 c0 0f 84 a9 00 00 00 48 89 c6 48 89 ca 0f b7 ba 54 04 00 00 4c 8b 82 60 0c 00 00 85 ff 74 2f <49> 3b a8 98 09 00 00 74 4e 44 8d 47 ff 31 ff 49 c1 e0 03 eb 0d
+[  +0.000839] RSP: 0018:ffff92ee804cbd88 EFLAGS: 00010202
+[  +0.000328] RAX: ffffffffc010e190 RBX: ffff918b5c6b5000 RCX: ffff918b7d8e0000
+[  +0.000399] RDX: ffff918b7d8e0000 RSI: ffffffffc010e190 RDI: 0000000000000001
+[  +0.000398] RBP: ffff918b7d318340 R08: 0000000000000000 R09: ffffffffb9bd2d7a
+[  +0.000385] R10: ffff918b7eb253c0 R11: ffffb95980f51200 R12: ffffffffc010e1a0
+[  +0.000411] R13: fffffffffffffff2 R14: 000000000000000b R15: ffff918b7e232620
+[  +0.000384] FS:  00007f955bec2740(0000) GS:ffff918b7eb00000(0000) knlGS:0000000000000000
+[  +0.000420] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0.000801] CR2: 0000000000000998 CR3: 000000003cad6000 CR4: 00000000001406e0
+[  +0.000837] Call Trace:
+[  +0.000682]  ? _cond_resched+0x10/0x20
+[  +0.000691]  ? __kmalloc+0x131/0x1b0
+[  +0.000710]  kernfs_fop_write+0xfa/0x170
+[  +0.000733]  __vfs_write+0x2e/0x190
+[  +0.000688]  ? inode_security+0x10/0x30
+[  +0.000698]  ? selinux_file_permission+0xd2/0x120
+[  +0.000752]  ? security_file_permission+0x2b/0x100
+[  +0.000753]  vfs_write+0xa8/0x1a0
+[  +0.000676]  ksys_write+0x4d/0xb0
+[  +0.000699]  do_syscall_64+0x3a/0xf0
+[  +0.000692]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- crypto/salsa20_generic.c |    2 +-
+ drivers/md/bcache/super.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/crypto/salsa20_generic.c
-+++ b/crypto/salsa20_generic.c
-@@ -186,7 +186,7 @@ static int encrypt(struct blkcipher_desc
- 	blkcipher_walk_init(&walk, dst, src, nbytes);
- 	err = blkcipher_walk_virt_block(desc, &walk, 64);
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1357,6 +1357,7 @@ static void cache_set_free(struct closur
+ 	bch_btree_cache_free(c);
+ 	bch_journal_free(c);
  
--	salsa20_ivsetup(ctx, walk.iv);
-+	salsa20_ivsetup(ctx, desc->info);
++	mutex_lock(&bch_register_lock);
+ 	for_each_cache(ca, c, i)
+ 		if (ca) {
+ 			ca->set = NULL;
+@@ -1379,7 +1380,6 @@ static void cache_set_free(struct closur
+ 		mempool_destroy(c->search);
+ 	kfree(c->devices);
  
- 	while (walk.nbytes >= 64) {
- 		salsa20_encrypt_bytes(ctx, walk.dst.virt.addr,
+-	mutex_lock(&bch_register_lock);
+ 	list_del(&c->list);
+ 	mutex_unlock(&bch_register_lock);
+ 
 
 
