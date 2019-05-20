@@ -2,50 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA335236E2
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D9F235D5
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733031AbfETMRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58624 "EHLO mail.kernel.org"
+        id S2390464AbfETMjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:39:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387577AbfETMRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:36 -0400
+        id S2390783AbfETMdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:33:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F12D20815;
-        Mon, 20 May 2019 12:17:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1DCA21479;
+        Mon, 20 May 2019 12:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354655;
-        bh=Cfel5yTjnUCEhkPuqCBK4F11a57QG6MSXbyUCOUUVt4=;
+        s=default; t=1558355626;
+        bh=ThuQJlJWUbJBxZLkx4DtB+RwKwOeEAz2/qoq9LVWops=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7mw9fNdiIZ8w9uV24ggIL69Rxhhd/Rzey71apcgQpB6DE9OLAUmV0nQxnSesp/rK
-         oV7Af13BZTxM277ML2+vbftqJqRC+FYK7gAj5rsr2QfhTdYAWoo94WCgdIzKvfOzR3
-         yaR3EunmRjLkmT2HjuauF9eiUNPh39LBOUzlM634=
+        b=1YOeaN/ySDbdfbMbNsJicDMIq+flf5LiUOznorgb1ouXvoW12usOQnRJRh1k35eDQ
+         jZGn6MTd0L3M3G9WMsz5yUk4MZlUSQ7b9QasZ2u4laKhTkAT4kIM9h3EDSFu70NoB2
+         lZFh6qdjryV82u9dIVYWRoQb8pD9nBkfQHkl3gDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Josh Snyder <joshs@netflix.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Dave Chinner <david@fromorbit.com>,
-        Kevin Easton <kevin@guarana.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Cyril Hrubis <chrubis@suse.cz>, Tejun Heo <tj@kernel.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Daniel Gruss <daniel@gruss.cc>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.9 22/44] mm/mincore.c: make mincore() more conservative
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 064/128] crypto: ccree - dont map AEAD key and IV on stack
 Date:   Mon, 20 May 2019 14:14:11 +0200
-Message-Id: <20190520115233.417554251@linuxfoundation.org>
+Message-Id: <20190520115254.120694661@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 134fca9063ad4851de767d1768180e5dede9a881 upstream.
+commit e8662a6a5f8f7f2cadc0edb934aef622d96ac3ee upstream.
 
-The semantics of what mincore() considers to be resident is not
-completely clear, but Linux has always (since 2.3.52, which is when
-mincore() was initially done) treated it as "page is available in page
-cache".
+The AEAD authenc key and IVs might be passed to us on stack. Copy it to
+a slab buffer before mapping to gurantee proper DMA mapping.
 
-That's potentially a problem, as that [in]directly exposes
-meta-information about pagecache / memory mapping state even about
-memory not strictly belonging to the process executing the syscall,
-opening possibilities for sidechannel attacks.
-
-Change the semantics of mincore() so that it only reveals pagecache
-information for non-anonymous mappings that belog to files that the
-calling process could (if it tried to) successfully open for writing;
-otherwise we'd be including shared non-exclusive mappings, which
-
- - is the sidechannel
-
- - is not the usecase for mincore(), as that's primarily used for data,
-   not (shared) text
-
-[jkosina@suse.cz: v2]
-  Link: http://lkml.kernel.org/r/20190312141708.6652-2-vbabka@suse.cz
-[mhocko@suse.com: restructure can_do_mincore() conditions]
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1903062342020.19912@cbobk.fhfr.pm
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Josh Snyder <joshs@netflix.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Originally-by: Linus Torvalds <torvalds@linux-foundation.org>
-Originally-by: Dominique Martinet <asmadeus@codewreck.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: Kevin Easton <kevin@guarana.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Cyril Hrubis <chrubis@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Daniel Gruss <daniel@gruss.cc>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mincore.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_aead.c       |   11 ++++++++++-
+ drivers/crypto/ccree/cc_buffer_mgr.c |   15 ++++++++++++---
+ drivers/crypto/ccree/cc_driver.h     |    1 +
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -167,6 +167,22 @@ out:
- 	return 0;
+--- a/drivers/crypto/ccree/cc_aead.c
++++ b/drivers/crypto/ccree/cc_aead.c
+@@ -424,7 +424,7 @@ static int validate_keys_sizes(struct cc
+ /* This function prepers the user key so it can pass to the hmac processing
+  * (copy to intenral buffer or hash in case of key longer than block
+  */
+-static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *key,
++static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *authkey,
+ 				 unsigned int keylen)
+ {
+ 	dma_addr_t key_dma_addr = 0;
+@@ -437,6 +437,7 @@ static int cc_get_plain_hmac_key(struct
+ 	unsigned int hashmode;
+ 	unsigned int idx = 0;
+ 	int rc = 0;
++	u8 *key = NULL;
+ 	struct cc_hw_desc desc[MAX_AEAD_SETKEY_SEQ];
+ 	dma_addr_t padded_authkey_dma_addr =
+ 		ctx->auth_state.hmac.padded_authkey_dma_addr;
+@@ -455,11 +456,17 @@ static int cc_get_plain_hmac_key(struct
+ 	}
+ 
+ 	if (keylen != 0) {
++
++		key = kmemdup(authkey, keylen, GFP_KERNEL);
++		if (!key)
++			return -ENOMEM;
++
+ 		key_dma_addr = dma_map_single(dev, (void *)key, keylen,
+ 					      DMA_TO_DEVICE);
+ 		if (dma_mapping_error(dev, key_dma_addr)) {
+ 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
+ 				key, keylen);
++			kzfree(key);
+ 			return -ENOMEM;
+ 		}
+ 		if (keylen > blocksize) {
+@@ -542,6 +549,8 @@ static int cc_get_plain_hmac_key(struct
+ 	if (key_dma_addr)
+ 		dma_unmap_single(dev, key_dma_addr, keylen, DMA_TO_DEVICE);
+ 
++	kzfree(key);
++
+ 	return rc;
  }
  
-+static inline bool can_do_mincore(struct vm_area_struct *vma)
-+{
-+	if (vma_is_anonymous(vma))
-+		return true;
-+	if (!vma->vm_file)
-+		return false;
-+	/*
-+	 * Reveal pagecache information only for non-anonymous mappings that
-+	 * correspond to the files the calling process could (if tried) open
-+	 * for writing; otherwise we'd be including shared non-exclusive
-+	 * mappings, which opens a side channel.
-+	 */
-+	return inode_owner_or_capable(file_inode(vma->vm_file)) ||
-+		inode_permission(file_inode(vma->vm_file), MAY_WRITE) == 0;
-+}
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -560,6 +560,7 @@ void cc_unmap_aead_request(struct device
+ 	if (areq_ctx->gen_ctx.iv_dma_addr) {
+ 		dma_unmap_single(dev, areq_ctx->gen_ctx.iv_dma_addr,
+ 				 hw_iv_size, DMA_BIDIRECTIONAL);
++		kzfree(areq_ctx->gen_ctx.iv);
+ 	}
+ 
+ 	/* Release pool */
+@@ -664,19 +665,27 @@ static int cc_aead_chain_iv(struct cc_dr
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+ 	struct device *dev = drvdata_to_dev(drvdata);
++	gfp_t flags = cc_gfp_flags(&req->base);
+ 	int rc = 0;
+ 
+ 	if (!req->iv) {
+ 		areq_ctx->gen_ctx.iv_dma_addr = 0;
++		areq_ctx->gen_ctx.iv = NULL;
+ 		goto chain_iv_exit;
+ 	}
+ 
+-	areq_ctx->gen_ctx.iv_dma_addr = dma_map_single(dev, req->iv,
+-						       hw_iv_size,
+-						       DMA_BIDIRECTIONAL);
++	areq_ctx->gen_ctx.iv = kmemdup(req->iv, hw_iv_size, flags);
++	if (!areq_ctx->gen_ctx.iv)
++		return -ENOMEM;
 +
- /*
-  * Do a chunk of "sys_mincore()". We've already checked
-  * all the arguments, we hold the mmap semaphore: we should
-@@ -187,8 +203,13 @@ static long do_mincore(unsigned long add
- 	vma = find_vma(current->mm, addr);
- 	if (!vma || addr < vma->vm_start)
- 		return -ENOMEM;
--	mincore_walk.mm = vma->vm_mm;
- 	end = min(vma->vm_end, addr + (pages << PAGE_SHIFT));
-+	if (!can_do_mincore(vma)) {
-+		unsigned long pages = DIV_ROUND_UP(end - addr, PAGE_SIZE);
-+		memset(vec, 1, pages);
-+		return pages;
-+	}
-+	mincore_walk.mm = vma->vm_mm;
- 	err = walk_page_range(addr, end, &mincore_walk);
- 	if (err < 0)
- 		return err;
++	areq_ctx->gen_ctx.iv_dma_addr =
++		dma_map_single(dev, areq_ctx->gen_ctx.iv, hw_iv_size,
++			       DMA_BIDIRECTIONAL);
+ 	if (dma_mapping_error(dev, areq_ctx->gen_ctx.iv_dma_addr)) {
+ 		dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
+ 			hw_iv_size, req->iv);
++		kzfree(areq_ctx->gen_ctx.iv);
++		areq_ctx->gen_ctx.iv = NULL;
+ 		rc = -ENOMEM;
+ 		goto chain_iv_exit;
+ 	}
+--- a/drivers/crypto/ccree/cc_driver.h
++++ b/drivers/crypto/ccree/cc_driver.h
+@@ -168,6 +168,7 @@ struct cc_alg_template {
+ 
+ struct async_gen_req_ctx {
+ 	dma_addr_t iv_dma_addr;
++	u8 *iv;
+ 	enum drv_crypto_direction op_type;
+ };
+ 
 
 
