@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A19923685
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA526235F3
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389004AbfETMZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40176 "EHLO mail.kernel.org"
+        id S2390222AbfETMbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:31:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389000AbfETMZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:10 -0400
+        id S2390218AbfETMbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:31:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E97E020645;
-        Mon, 20 May 2019 12:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95ADE20645;
+        Mon, 20 May 2019 12:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355109;
-        bh=g+LiIFWUKzTKBJwpmGwYkeqEN7TNVfGGtCtw2bIfbs0=;
+        s=default; t=1558355461;
+        bh=9Lc2Xqg651QpBxUDV8+3G3GlLbdEU1hToyKIoZ7fvQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEoqgwRshE/Sw0Gtmv78FevFi5TvUO9DCkX5S0El1H+DnJQVauZm4/owBfYofQmQ1
-         2nDDlgF8pt4FMpqe/lBJVfjeCKSFGN01ezBHkw8ma2PNoG6nwlHu8rzQA+3EUBDQUO
-         XXgwp2m7vVeBbNgUKuK51wlSdNumXFAcou1z5DXw=
+        b=eiIJI3eJZ4ZzkkyNg69BqS0NCF3yhdPDqXWYVYzNwu5NtkTaDDERFukQp/u1bX3HC
+         AKDDDQIgK6WKYqNwI9ifJSq1mWSJrhCjc9dZsZ6CQAF/UoxnyNY3KqHAvdZyqaZz2z
+         KcKC1OdrKYy39GTudg27+qp9uiaXyyaJrOQ1UCp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>
-Subject: [PATCH 4.19 101/105] pstore: Refactor compression initialization
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.0 107/123] ALSA: hda/realtek - Fixup headphone noise via runtime suspend
 Date:   Mon, 20 May 2019 14:14:47 +0200
-Message-Id: <20190520115254.199143364@linuxfoundation.org>
+Message-Id: <20190520115252.183128858@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 95047b0519c17a28e09df5f38750f5354e3db4c4 upstream.
+commit dad3197da7a3817f27bb24f7fd3c135ffa707202 upstream.
 
-This refactors compression initialization slightly to better handle
-getting potentially called twice (via early pstore_register() calls
-and later pstore_init()) and improves the comments and reporting to be
-more verbose.
+Dell platform with ALC298.
+system enter to runtime suspend. Headphone had noise.
+Let Headset Mic not shutup will solve this issue.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Guenter Roeck <groeck@chromium.org>
+[ Fixed minor coding style issues by tiwai ]
+
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/pstore/platform.c |   48 +++++++++++++++++++++++++++++++++---------------
- 1 file changed, 33 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_realtek.c |   59 ++++++++++++++++++++++++------------------
+ 1 file changed, 35 insertions(+), 24 deletions(-)
 
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -274,36 +274,56 @@ static int pstore_decompress(void *in, v
- 
- static void allocate_buf_for_compression(void)
- {
-+	struct crypto_comp *ctx;
-+	int size;
-+	char *buf;
-+
-+	/* Skip if not built-in or compression backend not selected yet. */
- 	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS) || !zbackend)
- 		return;
- 
-+	/* Skip if no pstore backend yet or compression init already done. */
-+	if (!psinfo || tfm)
-+		return;
-+
- 	if (!crypto_has_comp(zbackend->name, 0, 0)) {
--		pr_err("No %s compression\n", zbackend->name);
-+		pr_err("Unknown compression: %s\n", zbackend->name);
- 		return;
- 	}
- 
--	big_oops_buf_sz = zbackend->zbufsize(psinfo->bufsize);
--	if (big_oops_buf_sz <= 0)
-+	size = zbackend->zbufsize(psinfo->bufsize);
-+	if (size <= 0) {
-+		pr_err("Invalid compression size for %s: %d\n",
-+		       zbackend->name, size);
- 		return;
-+	}
- 
--	big_oops_buf = kmalloc(big_oops_buf_sz, GFP_KERNEL);
--	if (!big_oops_buf) {
--		pr_err("allocate compression buffer error!\n");
-+	buf = kmalloc(size, GFP_KERNEL);
-+	if (!buf) {
-+		pr_err("Failed %d byte compression buffer allocation for: %s\n",
-+		       size, zbackend->name);
- 		return;
- 	}
- 
--	tfm = crypto_alloc_comp(zbackend->name, 0, 0);
--	if (IS_ERR_OR_NULL(tfm)) {
--		kfree(big_oops_buf);
--		big_oops_buf = NULL;
--		pr_err("crypto_alloc_comp() failed!\n");
-+	ctx = crypto_alloc_comp(zbackend->name, 0, 0);
-+	if (IS_ERR_OR_NULL(ctx)) {
-+		kfree(buf);
-+		pr_err("crypto_alloc_comp('%s') failed: %ld\n", zbackend->name,
-+		       PTR_ERR(ctx));
- 		return;
- 	}
-+
-+	/* A non-NULL big_oops_buf indicates compression is available. */
-+	tfm = ctx;
-+	big_oops_buf_sz = size;
-+	big_oops_buf = buf;
-+
-+	pr_info("Using compression: %s\n", zbackend->name);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -477,12 +477,45 @@ static void alc_auto_setup_eapd(struct h
+ 		set_eapd(codec, *p, on);
  }
  
- static void free_buf_for_compression(void)
++static int find_ext_mic_pin(struct hda_codec *codec);
++
++static void alc_headset_mic_no_shutup(struct hda_codec *codec)
++{
++	const struct hda_pincfg *pin;
++	int mic_pin = find_ext_mic_pin(codec);
++	int i;
++
++	/* don't shut up pins when unloading the driver; otherwise it breaks
++	 * the default pin setup at the next load of the driver
++	 */
++	if (codec->bus->shutdown)
++		return;
++
++	snd_array_for_each(&codec->init_pins, i, pin) {
++		/* use read here for syncing after issuing each verb */
++		if (pin->nid != mic_pin)
++			snd_hda_codec_read(codec, pin->nid, 0,
++					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
++	}
++
++	codec->pins_shutup = 1;
++}
++
+ static void alc_shutup_pins(struct hda_codec *codec)
  {
--	if (IS_ENABLED(CONFIG_PSTORE_COMPRESS) && !IS_ERR_OR_NULL(tfm))
-+	if (IS_ENABLED(CONFIG_PSTORE_COMPRESS) && tfm)
- 		crypto_free_comp(tfm);
- 	kfree(big_oops_buf);
- 	big_oops_buf = NULL;
-@@ -774,7 +794,6 @@ void __init pstore_choose_compression(vo
- 	for (step = zbackends; step->name; step++) {
- 		if (!strcmp(compress, step->name)) {
- 			zbackend = step;
--			pr_info("using %s compression\n", zbackend->name);
- 			return;
- 		}
- 	}
-@@ -791,8 +810,7 @@ static int __init pstore_init(void)
- 	 * initialize compression because crypto was not ready. If so,
- 	 * initialize compression now.
- 	 */
--	if (psinfo && !tfm)
--		allocate_buf_for_compression();
-+	allocate_buf_for_compression();
+ 	struct alc_spec *spec = codec->spec;
  
- 	ret = pstore_init_fs();
- 	if (ret)
+-	if (!spec->no_shutup_pins)
+-		snd_hda_shutup_pins(codec);
++	switch (codec->core.vendor_id) {
++	case 0x10ec0286:
++	case 0x10ec0288:
++	case 0x10ec0298:
++		alc_headset_mic_no_shutup(codec);
++		break;
++	default:
++		if (!spec->no_shutup_pins)
++			snd_hda_shutup_pins(codec);
++		break;
++	}
+ }
+ 
+ /* generic shutup callback;
+@@ -2923,27 +2956,6 @@ static int alc269_parse_auto_config(stru
+ 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
+ }
+ 
+-static int find_ext_mic_pin(struct hda_codec *codec);
+-
+-static void alc286_shutup(struct hda_codec *codec)
+-{
+-	const struct hda_pincfg *pin;
+-	int i;
+-	int mic_pin = find_ext_mic_pin(codec);
+-	/* don't shut up pins when unloading the driver; otherwise it breaks
+-	 * the default pin setup at the next load of the driver
+-	 */
+-	if (codec->bus->shutdown)
+-		return;
+-	snd_array_for_each(&codec->init_pins, i, pin) {
+-		/* use read here for syncing after issuing each verb */
+-		if (pin->nid != mic_pin)
+-			snd_hda_codec_read(codec, pin->nid, 0,
+-					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
+-	}
+-	codec->pins_shutup = 1;
+-}
+-
+ static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
+ {
+ 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
+@@ -7705,7 +7717,6 @@ static int patch_alc269(struct hda_codec
+ 	case 0x10ec0286:
+ 	case 0x10ec0288:
+ 		spec->codec_variant = ALC269_TYPE_ALC286;
+-		spec->shutup = alc286_shutup;
+ 		break;
+ 	case 0x10ec0298:
+ 		spec->codec_variant = ALC269_TYPE_ALC298;
 
 
