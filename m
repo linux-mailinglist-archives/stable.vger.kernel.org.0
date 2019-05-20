@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B8323384
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D912723758
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733030AbfETMRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58694 "EHLO mail.kernel.org"
+        id S2388128AbfETMYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733157AbfETMRj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:39 -0400
+        id S2388821AbfETMY3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01D3220656;
-        Mon, 20 May 2019 12:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FBA821479;
+        Mon, 20 May 2019 12:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354658;
-        bh=QzXMABAp5useRBARdCL6vnv7ldSqL36jJR/3j27x2Ok=;
+        s=default; t=1558355068;
+        bh=ycNscqJZV8YNkDTJQJ3tWYn2NGAC0HG7tA/dy/+VuWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C16rJGHBeDCzCIuoFSSxkMmV8Z4POrB7gt3pGgrCI5rqjhz5+1zGG2jhkBX47x4lH
-         ItzHlClDO4nfeE2AmvAAoE6GbaTTro5st3XbNQGfGd9ygUKFt2eFYsX5v+6Dc59Xo4
-         +QfnALuWnAigjv/c1HeJhCYExCP/dSrkWpsuDJxo=
+        b=oQdIe/s3pSg4LiqXcxuyZjLxeAivn5pnqoMxHNNcj+lSw2ou74FaTzuOBTSreEDp5
+         Sc9kg5lHpVykUviL+1WsdVNFqXPtdR3Oxvk92LP5WE836VJb/NpzVQQJZPee9DdvWk
+         fmLJc0YK2d3YtelOlK4SXIIL53WaAolNpxAj34I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tejun Heo <tj@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 40/44] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+Subject: [PATCH 4.19 083/105] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 Date:   Mon, 20 May 2019 14:14:29 +0200
-Message-Id: <20190520115235.677932792@linuxfoundation.org>
+Message-Id: <20190520115252.996154732@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -91,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -
  	/*
  	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
- 	 * the RCU protected stat update paths to grab the mapping's
+ 	 * the RCU protected stat update paths to grab the i_page
 @@ -539,6 +537,9 @@ static void inode_switch_wbs(struct inod
  	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
  	 */
