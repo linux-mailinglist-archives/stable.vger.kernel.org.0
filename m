@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB5F23673
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875332371A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389267AbfETM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:26:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41534 "EHLO mail.kernel.org"
+        id S1732572AbfETMVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:21:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389262AbfETM0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:26:11 -0400
+        id S2388113AbfETMVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:21:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C56321479;
-        Mon, 20 May 2019 12:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2F4721019;
+        Mon, 20 May 2019 12:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355170;
-        bh=2j4wA9QcwcPQOSKy4nWCDZfQMwJfMuCwE2+iBO7jLlM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQDeGK8KOeTj2PUYvRCFg0ulqA/srm7KJkmDMNFIg+lhhpKjZ1iW9iBHDfwVNSBUo
-         OMZcTaU62ZUq8uGvlLMmLNoUGveHe/fqcGbw1YHf0pbydd5oUey3SgL+XwFDNmwylK
-         ewuxOm/WYgY9kZH75BkZrgcKI54u6/Nfl3TPyeGQ=
+        s=default; t=1558354868;
+        bh=O7h0uEfCN10zohJYI3kwR3Swzdz9y3NRzYjfRmyp1Ro=;
+        h=From:To:Cc:Subject:Date:From;
+        b=U+mH2/3s+Mwj35mfg2CmTCsH3lyz15gmNSEkIzBWy2HJqBbp8SepjZ1ouzibXK3hQ
+         Ohn3gRHFdQrvyiLZQB1pECvh5BFY0MGvGRHCiWlanGeKwVol+ONRxh0XrUMsji7+CK
+         5j9NRbnCS4wGbwWmA6v3xrW/e0S+FtovebNG5Cso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Muellner <christoph.muellner@theobroma-systems.com>,
-        Philipp Tomsich <philipp.tomsich@theobroma-systems.com>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.0 006/123] arm64: dts: rockchip: Disable DCMDs on RK3399s eMMC controller.
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 000/105] 4.19.45-stable review
 Date:   Mon, 20 May 2019 14:13:06 +0200
-Message-Id: <20190520115245.714531968@linuxfoundation.org>
+Message-Id: <20190520115247.060821231@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.45-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.45-rc1
+X-KernelTest-Deadline: 2019-05-22T11:52+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -45,83 +51,462 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Muellner <christoph.muellner@theobroma-systems.com>
+This is the start of the stable review cycle for the 4.19.45 release.
+There are 105 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit a3eec13b8fd2b9791a21fa16e38dfea8111579bf upstream.
+Responses should be made by Wed 22 May 2019 11:50:49 AM UTC.
+Anything received after that time might be too late.
 
-When using direct commands (DCMDs) on an RK3399, we get spurious
-CQE completion interrupts for the DCMD transaction slot (#31):
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.45-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-[  931.196520] ------------[ cut here ]------------
-[  931.201702] mmc1: cqhci: spurious TCN for tag 31
-[  931.206906] WARNING: CPU: 0 PID: 1433 at /usr/src/kernel/drivers/mmc/host/cqhci.c:725 cqhci_irq+0x2e4/0x490
-[  931.206909] Modules linked in:
-[  931.206918] CPU: 0 PID: 1433 Comm: irq/29-mmc1 Not tainted 4.19.8-rt6-funkadelic #1
-[  931.206920] Hardware name: Theobroma Systems RK3399-Q7 SoM (DT)
-[  931.206924] pstate: 40000005 (nZcv daif -PAN -UAO)
-[  931.206927] pc : cqhci_irq+0x2e4/0x490
-[  931.206931] lr : cqhci_irq+0x2e4/0x490
-[  931.206933] sp : ffff00000e54bc80
-[  931.206934] x29: ffff00000e54bc80 x28: 0000000000000000
-[  931.206939] x27: 0000000000000001 x26: ffff000008f217e8
-[  931.206944] x25: ffff8000f02ef030 x24: ffff0000091417b0
-[  931.206948] x23: ffff0000090aa000 x22: ffff8000f008b000
-[  931.206953] x21: 0000000000000002 x20: 000000000000001f
-[  931.206957] x19: ffff8000f02ef018 x18: ffffffffffffffff
-[  931.206961] x17: 0000000000000000 x16: 0000000000000000
-[  931.206966] x15: ffff0000090aa6c8 x14: 0720072007200720
-[  931.206970] x13: 0720072007200720 x12: 0720072007200720
-[  931.206975] x11: 0720072007200720 x10: 0720072007200720
-[  931.206980] x9 : 0720072007200720 x8 : 0720072007200720
-[  931.206984] x7 : 0720073107330720 x6 : 00000000000005a0
-[  931.206988] x5 : ffff00000860d4b0 x4 : 0000000000000000
-[  931.206993] x3 : 0000000000000001 x2 : 0000000000000001
-[  931.206997] x1 : 1bde3a91b0d4d900 x0 : 0000000000000000
-[  931.207001] Call trace:
-[  931.207005]  cqhci_irq+0x2e4/0x490
-[  931.207009]  sdhci_arasan_cqhci_irq+0x5c/0x90
-[  931.207013]  sdhci_irq+0x98/0x930
-[  931.207019]  irq_forced_thread_fn+0x2c/0xa0
-[  931.207023]  irq_thread+0x114/0x1c0
-[  931.207027]  kthread+0x128/0x130
-[  931.207032]  ret_from_fork+0x10/0x20
-[  931.207035] ---[ end trace 0000000000000002 ]---
+thanks,
 
-The driver shows this message only for the first spurious interrupt
-by using WARN_ONCE(). Changing this to WARN() shows, that this is
-happening quite frequently (up to once a second).
+greg k-h
 
-Since the eMMC 5.1 specification, where CQE and CQHCI are specified,
-does not mention that spurious TCN interrupts for DCMDs can be simply
-ignored, we must assume that using this feature is not working reliably.
+-------------
+Pseudo-Shortlog of commits:
 
-The current implementation uses DCMD for REQ_OP_FLUSH only, and
-I could not see any performance/power impact when disabling
-this optional feature for RK3399.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.45-rc1
 
-Therefore this patch disables DCMDs for RK3399.
+Andreas Dilger <adilger@dilger.ca>
+    ext4: don't update s_rev_level if not required
 
-Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
-Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
-Fixes: 84362d79f436 ("mmc: sdhci-of-arasan: Add CQHCI support for arasan,sdhci-5.1")
-Cc: stable@vger.kernel.org
-[the corresponding code changes are queued for 5.2 so doing that as well]
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+zhangyi (F) <yi.zhang@huawei.com>
+    ext4: fix compile error when using BUFFER_TRACE
 
----
- arch/arm64/boot/dts/rockchip/rk3399.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix block validity checks for journal inodes using indirect blocks
 
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -333,6 +333,7 @@
- 		phys = <&emmc_phy>;
- 		phy-names = "phy_arasan";
- 		power-domains = <&power RK3399_PD_EMMC>;
-+		disable-cqe-dcmd;
- 		status = "disabled";
- 	};
- 
+Colin Ian King <colin.king@canonical.com>
+    ext4: unsigned int compared against zero
+
+Kees Cook <keescook@chromium.org>
+    pstore: Refactor compression initialization
+
+Joel Fernandes (Google) <joel@joelfernandes.org>
+    pstore: Allocate compression during late_initcall()
+
+Kees Cook <keescook@chromium.org>
+    pstore: Centralize init/exit routines
+
+Eric Dumazet <edumazet@google.com>
+    iov_iter: optimize page_copy_sane()
+
+Dan Williams <dan.j.williams@intel.com>
+    libnvdimm/namespace: Fix label tracking error
+
+Roger Pau Monne <roger.pau@citrix.com>
+    xen/pvh: set xen_domain_type to HVM in xen_pvh_init
+
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kbuild: turn auto.conf.cmd into a mandatory include file
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: lapic: Busy wait for timer to expire when using hv_timer
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: x86: Skip EFER vs. guest CPUID checks for host-initiated writes
+
+Chengguang Xu <cgxu519@gmail.com>
+    jbd2: fix potential double free
+
+Michał Wadowski <wadosm@gmail.com>
+    ALSA: hda/realtek - Fix for Lenovo B50-70 inverted internal microphone bug
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Fixup headphone noise via runtime suspend
+
+Jeremy Soller <jeremy@system76.com>
+    ALSA: hda/realtek - Corrected fixup for System76 Gazelle (gaze14)
+
+Jan Kara <jack@suse.cz>
+    ext4: avoid panic during forced reboot due to aborted journal
+
+Sahitya Tummala <stummala@codeaurora.org>
+    ext4: fix use-after-free in dx_release()
+
+Lukas Czerner <lczerner@redhat.com>
+    ext4: fix data corruption caused by overlapping unaligned and aligned IO
+
+Sriram Rajagopalan <sriramr@arista.com>
+    ext4: zero out the unused memory region in the extent tree block
+
+Anup Patel <Anup.Patel@wdc.com>
+    tty: Don't force RISCV SBI console as preferred console
+
+Jiufei Xue <jiufei.xue@linux.alibaba.com>
+    fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+
+Eric Biggers <ebiggers@google.com>
+    crypto: ccm - fix incompatibility between "ccm" and "ccm_base"
+
+Kamlakant Patel <kamlakantp@marvell.com>
+    ipmi:ssif: compare block number correctly for multi-part return messages
+
+Coly Li <colyli@suse.de>
+    bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
+
+Liang Chen <liangchen.linux@gmail.com>
+    bcache: fix a race between cache register and cacheset unregister
+
+Filipe Manana <fdmanana@suse.com>
+    Btrfs: do not start a transaction at iterate_extent_inodes()
+
+Filipe Manana <fdmanana@suse.com>
+    Btrfs: do not start a transaction during fiemap
+
+Filipe Manana <fdmanana@suse.com>
+    Btrfs: send, flush dellaloc in order to avoid data loss
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: Honour FITRIM range constraints during free space trim
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: Correctly free extent buffer in case btree_read_extent_buffer_pages fails
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: Check the first key and level for cached extent buffer
+
+Debabrata Banerjee <dbanerje@akamai.com>
+    ext4: fix ext4_show_options for file systems w/o journal
+
+Kirill Tkhai <ktkhai@virtuozzo.com>
+    ext4: actually request zeroing of inode table after grow
+
+Barret Rhoden <brho@google.com>
+    ext4: fix use-after-free race with debug_want_extra_isize
+
+Pan Bian <bianpan2016@163.com>
+    ext4: avoid drop reference to iloc.bh twice
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: ignore e_value_offs for xattrs with value-in-ea-inode
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: protect journal inode's blocks using block_validity
+
+Jan Kara <jack@suse.cz>
+    ext4: make sanity check in mballoc more strict
+
+Jiufei Xue <jiufei.xue@linux.alibaba.com>
+    jbd2: check superblock mapped prior to committing
+
+Sergei Trofimovich <slyfox@gentoo.org>
+    tty/vt: fix write/write race in ioctl(KDSKBSENT) handler
+
+Yifeng Li <tomli@tomli.me>
+    tty: vt.c: Fix TIOCL_BLANKSCREEN console blanking if blankinterval == 0
+
+Alexander Sverdlin <alexander.sverdlin@nokia.com>
+    mtd: spi-nor: intel-spi: Avoid crossing 4K address boundary on read/write
+
+Dmitry Osipenko <digetx@gmail.com>
+    mfd: max77620: Fix swapped FPS_PERIOD_MAX_US values
+
+Steve Twiss <stwiss.opensource@diasemi.com>
+    mfd: da9063: Fix OTP control register names to match datasheets for DA9063/63L
+
+Rajat Jain <rajatja@google.com>
+    ACPI: PM: Set enable_for_wake for wakeup GPEs during suspend-to-idle
+
+Andrea Arcangeli <aarcange@redhat.com>
+    userfaultfd: use RCU to free the task struct when fork fails
+
+Shuning Zhang <sunny.s.zhang@oracle.com>
+    ocfs2: fix ocfs2 read inode data panic in ocfs2_iget
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlb: use same fault hash key for shared and private mappings
+
+Kai Shen <shenkai8@huawei.com>
+    mm/hugetlb.c: don't put_page in lock of hugetlb_lock
+
+Dan Williams <dan.j.williams@intel.com>
+    mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
+
+Jiri Kosina <jkosina@suse.cz>
+    mm/mincore.c: make mincore() more conservative
+
+Ofir Drang <ofir.drang@arm.com>
+    crypto: ccree - handle tee fips error during power management resume
+
+Ofir Drang <ofir.drang@arm.com>
+    crypto: ccree - add function to handle cryptocell tee fips error
+
+Ofir Drang <ofir.drang@arm.com>
+    crypto: ccree - HOST_POWER_DOWN_EN should be the last CC access during suspend
+
+Ofir Drang <ofir.drang@arm.com>
+    crypto: ccree - pm resume first enable the source clk
+
+Gilad Ben-Yossef <gilad@benyossef.com>
+    crypto: ccree - don't map AEAD key and IV on stack
+
+Gilad Ben-Yossef <gilad@benyossef.com>
+    crypto: ccree - use correct internal state sizes for export
+
+Gilad Ben-Yossef <gilad@benyossef.com>
+    crypto: ccree - don't map MAC key on stack
+
+Gilad Ben-Yossef <gilad@benyossef.com>
+    crypto: ccree - fix mem leak on error path
+
+Gilad Ben-Yossef <gilad@benyossef.com>
+    crypto: ccree - remove special handling of chained sg
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf, arm64: remove prefetch insn in xadd mapping
+
+Libin Yang <libin.yang@intel.com>
+    ASoC: codec: hdac_hdmi add device_link to card device
+
+S.j. Wang <shengjiu.wang@nxp.com>
+    ASoC: fsl_esai: Fix missing break in switch statement
+
+Curtis Malainey <cujomalainey@chromium.org>
+    ASoC: RT5677-SPI: Disable 16Bit SPI Transfers
+
+Jon Hunter <jonathanh@nvidia.com>
+    ASoC: max98090: Fix restore of DAPM Muxes
+
+Jeremy Soller <jeremy@system76.com>
+    ALSA: hdea/realtek - Headset fixup for System76 Gazelle (gaze14)
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - EAPD turn on later
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda/hdmi - Consider eld_valid when reporting jack event
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda/hdmi - Read the pin sense from register when repolling
+
+Wenwen Wang <wang6495@umn.edu>
+    ALSA: usb-audio: Fix a memory leak bug
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: line6: toneport: Fix broken usage of timer for delayed execution
+
+Raul E Rangel <rrangel@chromium.org>
+    mmc: core: Fix tag set memory leak
+
+Eric Biggers <ebiggers@google.com>
+    crypto: arm64/aes-neonbs - don't access already-freed walk.iv
+
+Eric Biggers <ebiggers@google.com>
+    crypto: arm/aes-neonbs - don't access already-freed walk.iv
+
+Zhang Zhijie <zhangzj@rock-chips.com>
+    crypto: rockchip - update IV buffer to contain the next IV
+
+Eric Biggers <ebiggers@google.com>
+    crypto: gcm - fix incompatibility between "gcm" and "gcm_base"
+
+Eric Biggers <ebiggers@google.com>
+    crypto: arm64/gcm-aes-ce - fix no-NEON fallback code
+
+Eric Biggers <ebiggers@google.com>
+    crypto: x86/crct10dif-pcl - fix use via crypto_shash_digest()
+
+Eric Biggers <ebiggers@google.com>
+    crypto: crct10dif-generic - fix use via crypto_shash_digest()
+
+Eric Biggers <ebiggers@google.com>
+    crypto: skcipher - don't WARN on unprocessed data after slow walk step
+
+Daniel Axtens <dja@axtens.net>
+    crypto: vmx - fix copy-paste error in CTR mode
+
+Singh, Brijesh <brijesh.singh@amd.com>
+    crypto: ccp - Do not free psp_master when PLATFORM_INIT fails
+
+Eric Biggers <ebiggers@google.com>
+    crypto: chacha20poly1305 - set cra_name correctly
+
+Eric Biggers <ebiggers@google.com>
+    crypto: salsa20 - don't access already-freed walk.iv
+
+Christian Lamparter <chunkeey@gmail.com>
+    crypto: crypto4xx - fix cfb and ofb "overran dst buffer" issues
+
+Christian Lamparter <chunkeey@gmail.com>
+    crypto: crypto4xx - fix ctr-aes missing output IV
+
+Peter Zijlstra <peterz@infradead.org>
+    sched/x86: Save [ER]FLAGS on context switch
+
+Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+    arm64: Save and restore OSDLR_EL1 across suspend/resume
+
+Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+    arm64: Clear OSDLR_EL1 on CPU boot
+
+Vincenzo Frascino <vincenzo.frascino@arm.com>
+    arm64: compat: Reduce address limit
+
+Will Deacon <will.deacon@arm.com>
+    arm64: arch_timer: Ensure counter register reads occur with seqlock held
+
+Boyang Zhou <zhouby_cn@126.com>
+    arm64: mmap: Ensure file offset is treated as unsigned
+
+Hans de Goede <hdegoede@redhat.com>
+    power: supply: axp288_fuel_gauge: Add ACEPC T8 and T11 mini PCs to the blacklist
+
+Gustavo A. R. Silva <gustavo@embeddedor.com>
+    power: supply: axp288_charger: Fix unchecked return value
+
+Wen Yang <wen.yang99@zte.com.cn>
+    ARM: exynos: Fix a leaked reference by adding missing of_node_put
+
+Christoph Muellner <christoph.muellner@theobroma-systems.com>
+    mmc: sdhci-of-arasan: Add DTS property to disable DCMDs.
+
+Sylwester Nawrocki <s.nawrocki@samsung.com>
+    ARM: dts: exynos: Fix audio (microphone) routing on Odroid XU3
+
+Stuart Menefy <stuart.menefy@mathembedded.com>
+    ARM: dts: exynos: Fix interrupt for shared EINTs on Exynos5260
+
+Christoph Muellner <christoph.muellner@theobroma-systems.com>
+    arm64: dts: rockchip: Disable DCMDs on RK3399's eMMC controller.
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Fix function fallthrough detection
+
+Andy Lutomirski <luto@kernel.org>
+    x86/speculation/mds: Improve CPU buffer clear documentation
+
+Andy Lutomirski <luto@kernel.org>
+    x86/speculation/mds: Revert CPU buffer clear on double fault exit
+
+Waiman Long <longman@redhat.com>
+    locking/rwsem: Prevent decrement of reader count before increment
+
+
+-------------
+
+Diffstat:
+
+ Documentation/x86/mds.rst                          |  44 ++------
+ Makefile                                           |   6 +-
+ arch/arm/boot/dts/exynos5260.dtsi                  |   2 +-
+ arch/arm/boot/dts/exynos5422-odroidxu3-audio.dtsi  |   2 +-
+ arch/arm/crypto/aes-neonbs-glue.c                  |   2 +
+ arch/arm/mach-exynos/firmware.c                    |   1 +
+ arch/arm/mach-exynos/suspend.c                     |   2 +
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi           |   1 +
+ arch/arm64/crypto/aes-neonbs-glue.c                |   2 +
+ arch/arm64/crypto/ghash-ce-glue.c                  |  10 +-
+ arch/arm64/include/asm/arch_timer.h                |  33 +++++-
+ arch/arm64/include/asm/processor.h                 |   8 ++
+ arch/arm64/kernel/debug-monitors.c                 |   1 +
+ arch/arm64/kernel/sys.c                            |   2 +-
+ arch/arm64/kernel/vdso/gettimeofday.S              |  15 ++-
+ arch/arm64/mm/proc.S                               |  34 ++++---
+ arch/arm64/net/bpf_jit.h                           |   6 --
+ arch/arm64/net/bpf_jit_comp.c                      |   1 -
+ arch/x86/crypto/crct10dif-pclmul_glue.c            |  13 +--
+ arch/x86/entry/entry_32.S                          |   2 +
+ arch/x86/entry/entry_64.S                          |   2 +
+ arch/x86/include/asm/switch_to.h                   |   1 +
+ arch/x86/kernel/process_32.c                       |   7 ++
+ arch/x86/kernel/process_64.c                       |   8 ++
+ arch/x86/kernel/traps.c                            |   8 --
+ arch/x86/kvm/lapic.c                               |   2 +-
+ arch/x86/kvm/x86.c                                 |  37 ++++---
+ arch/x86/xen/enlighten_pvh.c                       |   1 +
+ crypto/ccm.c                                       |  44 ++++----
+ crypto/chacha20poly1305.c                          |   4 +-
+ crypto/crct10dif_generic.c                         |  11 +-
+ crypto/gcm.c                                       |  34 ++-----
+ crypto/salsa20_generic.c                           |   2 +-
+ crypto/skcipher.c                                  |   9 +-
+ drivers/acpi/sleep.c                               |   4 +
+ drivers/char/ipmi/ipmi_ssif.c                      |   6 +-
+ drivers/crypto/amcc/crypto4xx_alg.c                |  12 ++-
+ drivers/crypto/amcc/crypto4xx_core.c               |  31 ++++--
+ drivers/crypto/ccp/psp-dev.c                       |   2 +-
+ drivers/crypto/ccree/cc_aead.c                     |  11 +-
+ drivers/crypto/ccree/cc_buffer_mgr.c               | 113 +++++++--------------
+ drivers/crypto/ccree/cc_driver.h                   |   1 +
+ drivers/crypto/ccree/cc_fips.c                     |  23 +++--
+ drivers/crypto/ccree/cc_fips.h                     |   2 +
+ drivers/crypto/ccree/cc_hash.c                     |  28 ++++-
+ drivers/crypto/ccree/cc_ivgen.c                    |   9 +-
+ drivers/crypto/ccree/cc_pm.c                       |   9 +-
+ drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c |  25 +++--
+ drivers/crypto/vmx/aesp8-ppc.pl                    |   4 +-
+ drivers/dax/device.c                               |   6 +-
+ drivers/md/bcache/journal.c                        |  11 +-
+ drivers/md/bcache/super.c                          |   2 +-
+ drivers/mmc/core/queue.c                           |   1 +
+ drivers/mmc/host/sdhci-of-arasan.c                 |   5 +-
+ drivers/mtd/spi-nor/intel-spi.c                    |   8 ++
+ drivers/nvdimm/label.c                             |  29 +++---
+ drivers/nvdimm/namespace_devs.c                    |  15 +++
+ drivers/nvdimm/nd.h                                |   4 +
+ drivers/power/supply/axp288_charger.c              |   4 +
+ drivers/power/supply/axp288_fuel_gauge.c           |  20 ++++
+ drivers/tty/hvc/hvc_riscv_sbi.c                    |   1 -
+ drivers/tty/vt/keyboard.c                          |  33 ++++--
+ drivers/tty/vt/vt.c                                |   2 -
+ fs/btrfs/backref.c                                 |  34 ++++---
+ fs/btrfs/ctree.c                                   |  10 ++
+ fs/btrfs/disk-io.c                                 |  27 +++--
+ fs/btrfs/disk-io.h                                 |   3 +
+ fs/btrfs/extent-tree.c                             |  25 +++--
+ fs/btrfs/send.c                                    |  36 +++++++
+ fs/dax.c                                           |   6 +-
+ fs/ext4/block_validity.c                           |  54 ++++++++++
+ fs/ext4/ext4.h                                     |   6 +-
+ fs/ext4/extents.c                                  |  17 +++-
+ fs/ext4/file.c                                     |   7 ++
+ fs/ext4/inode.c                                    |   7 +-
+ fs/ext4/ioctl.c                                    |   2 +-
+ fs/ext4/mballoc.c                                  |   2 +-
+ fs/ext4/namei.c                                    |   5 +-
+ fs/ext4/resize.c                                   |   1 +
+ fs/ext4/super.c                                    |  63 +++++++-----
+ fs/ext4/xattr.c                                    |   2 +-
+ fs/fs-writeback.c                                  |  11 +-
+ fs/hugetlbfs/inode.c                               |   7 +-
+ fs/jbd2/journal.c                                  |  53 ++++++----
+ fs/jbd2/revoke.c                                   |  32 +++---
+ fs/jbd2/transaction.c                              |   8 +-
+ fs/ocfs2/export.c                                  |  30 +++++-
+ fs/pstore/inode.c                                  |  11 +-
+ fs/pstore/internal.h                               |   5 +-
+ fs/pstore/platform.c                               |  75 +++++++++++---
+ fs/pstore/ram.c                                    |   2 +-
+ include/linux/huge_mm.h                            |   6 +-
+ include/linux/hugetlb.h                            |   4 +-
+ include/linux/jbd2.h                               |   8 +-
+ include/linux/mfd/da9063/registers.h               |   6 +-
+ include/linux/mfd/max77620.h                       |   4 +-
+ kernel/fork.c                                      |  31 +++++-
+ kernel/locking/rwsem-xadd.c                        |  44 +++++---
+ lib/iov_iter.c                                     |  17 +++-
+ mm/huge_memory.c                                   |  16 +--
+ mm/hugetlb.c                                       |  25 ++---
+ mm/mincore.c                                       |  23 ++++-
+ mm/userfaultfd.c                                   |   3 +-
+ sound/pci/hda/patch_hdmi.c                         |  11 +-
+ sound/pci/hda/patch_realtek.c                      |  68 ++++++++-----
+ sound/soc/codecs/hdac_hdmi.c                       |  11 ++
+ sound/soc/codecs/max98090.c                        |  12 +--
+ sound/soc/codecs/rt5677-spi.c                      |  35 +++----
+ sound/soc/fsl/fsl_esai.c                           |   2 +-
+ sound/usb/line6/toneport.c                         |  16 +--
+ sound/usb/mixer.c                                  |   2 +
+ tools/objtool/check.c                              |   3 +-
+ 112 files changed, 1082 insertions(+), 584 deletions(-)
 
 
