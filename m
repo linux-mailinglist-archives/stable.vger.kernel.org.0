@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDD5234C5
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E393823591
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389765AbfETMaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46948 "EHLO mail.kernel.org"
+        id S1730952AbfETMf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390136AbfETMai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:30:38 -0400
+        id S2391174AbfETMfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FE2F20675;
-        Mon, 20 May 2019 12:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBAA2204FD;
+        Mon, 20 May 2019 12:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355437;
-        bh=bhG4jBqpwwP7rkhnihORgIuKI5Yvn9djauuia0ivzOg=;
+        s=default; t=1558355754;
+        bh=MiMH7hyH2/SXYcicKGO2Aejx+dXIjKB+7Fpdd7mTGKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syaXawe0DTvUFa2BFfoqwVySDI9UInuH57vhO8R8de5tK7X52ou7EDkpeLJtCwPZM
-         3hpLXCwRxUDu8ioSu+LldybZBMVyvC0S6w+XfgD0zVCwdzkD3Y/6c1bxsltsWcKx9w
-         XpEZPyLU9P6jqm5FLOiebvnXIQtd/v2PeHgqPsfk=
+        b=FyIlT6W+YkCdBp7BGNTnZY+J/MPa9u1j7nelrdt83g8xwUCtfkGJ9JHi/Ou/mBQMv
+         PcrzNPgC7fZHs7Isyi0G5vlOGDjbG+y2uCGs3SCtpPKUE+I+Pfn5ZwpSr2CFYu6HDo
+         cgCsJgDjNzdDIl0Pl2/sA1eIrbZf7Tlc4wvaji0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5.0 119/123] s390/mm: convert to the generic get_user_pages_fast code
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.1 112/128] ALSA: hda/realtek - Fixup headphone noise via runtime suspend
 Date:   Mon, 20 May 2019 14:14:59 +0200
-Message-Id: <20190520115253.074303494@linuxfoundation.org>
+Message-Id: <20190520115256.477763402@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,359 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 1a42010cdc26bb7e5912984f3c91b8c6d55f089a upstream.
+commit dad3197da7a3817f27bb24f7fd3c135ffa707202 upstream.
 
-Define the gup_fast_permitted to check against the asce_limit of the
-mm attached to the current task, then replace the s390 specific gup
-code with the generic implementation in mm/gup.c.
+Dell platform with ALC298.
+system enter to runtime suspend. Headphone had noise.
+Let Headset Mic not shutup will solve this issue.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+[ Fixed minor coding style issues by tiwai ]
+
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/Kconfig               |    1 
- arch/s390/include/asm/pgtable.h |   12 +
- arch/s390/mm/Makefile           |    2 
- arch/s390/mm/gup.c              |  291 ----------------------------------------
- 4 files changed, 14 insertions(+), 292 deletions(-)
+ sound/pci/hda/patch_realtek.c |   59 ++++++++++++++++++++++++------------------
+ 1 file changed, 35 insertions(+), 24 deletions(-)
 
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -148,6 +148,7 @@ config S390
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_GCC_PLUGINS
-+	select HAVE_GENERIC_GUP
- 	select HAVE_KERNEL_BZIP2
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZ4
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1264,6 +1264,18 @@ static inline pte_t *pte_offset(pmd_t *p
- #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_unmap(pte) do { } while (0)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -477,12 +477,45 @@ static void alc_auto_setup_eapd(struct h
+ 		set_eapd(codec, *p, on);
+ }
  
-+static inline bool gup_fast_permitted(unsigned long start, int nr_pages)
++static int find_ext_mic_pin(struct hda_codec *codec);
++
++static void alc_headset_mic_no_shutup(struct hda_codec *codec)
 +{
-+	unsigned long len, end;
++	const struct hda_pincfg *pin;
++	int mic_pin = find_ext_mic_pin(codec);
++	int i;
 +
-+	len = (unsigned long) nr_pages << PAGE_SHIFT;
-+	end = start + len;
-+	if (end < start)
-+		return false;
-+	return end <= current->mm->context.asce_limit;
++	/* don't shut up pins when unloading the driver; otherwise it breaks
++	 * the default pin setup at the next load of the driver
++	 */
++	if (codec->bus->shutdown)
++		return;
++
++	snd_array_for_each(&codec->init_pins, i, pin) {
++		/* use read here for syncing after issuing each verb */
++		if (pin->nid != mic_pin)
++			snd_hda_codec_read(codec, pin->nid, 0,
++					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
++	}
++
++	codec->pins_shutup = 1;
 +}
-+#define gup_fast_permitted gup_fast_permitted
 +
- #define pfn_pte(pfn,pgprot) mk_pte_phys(__pa((pfn) << PAGE_SHIFT),(pgprot))
- #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
- #define pte_page(x) pfn_to_page(pte_pfn(x))
---- a/arch/s390/mm/Makefile
-+++ b/arch/s390/mm/Makefile
-@@ -4,7 +4,7 @@
- #
+ static void alc_shutup_pins(struct hda_codec *codec)
+ {
+ 	struct alc_spec *spec = codec->spec;
  
- obj-y		:= init.o fault.o extmem.o mmap.o vmem.o maccess.o
--obj-y		+= page-states.o gup.o pageattr.o pgtable.o pgalloc.o
-+obj-y		+= page-states.o pageattr.o pgtable.o pgalloc.o
+-	if (!spec->no_shutup_pins)
+-		snd_hda_shutup_pins(codec);
++	switch (codec->core.vendor_id) {
++	case 0x10ec0286:
++	case 0x10ec0288:
++	case 0x10ec0298:
++		alc_headset_mic_no_shutup(codec);
++		break;
++	default:
++		if (!spec->no_shutup_pins)
++			snd_hda_shutup_pins(codec);
++		break;
++	}
+ }
  
- obj-$(CONFIG_CMM)		+= cmm.o
- obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
---- a/arch/s390/mm/gup.c
-+++ /dev/null
-@@ -1,291 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- *  Lockless get_user_pages_fast for s390
-- *
-- *  Copyright IBM Corp. 2010
-- *  Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
-- */
--#include <linux/sched.h>
--#include <linux/mm.h>
--#include <linux/hugetlb.h>
--#include <linux/vmstat.h>
--#include <linux/pagemap.h>
--#include <linux/rwsem.h>
--#include <asm/pgtable.h>
+ /* generic shutup callback;
+@@ -2923,27 +2956,6 @@ static int alc269_parse_auto_config(stru
+ 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
+ }
+ 
+-static int find_ext_mic_pin(struct hda_codec *codec);
 -
--/*
-- * The performance critical leaf functions are made noinline otherwise gcc
-- * inlines everything into a single function which results in too much
-- * register pressure.
-- */
--static inline int gup_pte_range(pmd_t pmd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
+-static void alc286_shutup(struct hda_codec *codec)
 -{
--	struct page *head, *page;
--	unsigned long mask;
--	pte_t *ptep, pte;
--
--	mask = (write ? _PAGE_PROTECT : 0) | _PAGE_INVALID | _PAGE_SPECIAL;
--
--	ptep = pte_offset_map(&pmd, addr);
--	do {
--		pte = *ptep;
--		barrier();
--		/* Similar to the PMD case, NUMA hinting must take slow path */
--		if (pte_protnone(pte))
--			return 0;
--		if ((pte_val(pte) & mask) != 0)
--			return 0;
--		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
--		page = pte_page(pte);
--		head = compound_head(page);
--		if (!page_cache_get_speculative(head))
--			return 0;
--		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
--			put_page(head);
--			return 0;
--		}
--		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--		pages[*nr] = page;
--		(*nr)++;
--
--	} while (ptep++, addr += PAGE_SIZE, addr != end);
--
--	return 1;
--}
--
--static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	struct page *head, *page;
--	unsigned long mask;
--	int refs;
--
--	mask = (write ? _SEGMENT_ENTRY_PROTECT : 0) | _SEGMENT_ENTRY_INVALID;
--	if ((pmd_val(pmd) & mask) != 0)
--		return 0;
--	VM_BUG_ON(!pfn_valid(pmd_val(pmd) >> PAGE_SHIFT));
--
--	refs = 0;
--	head = pmd_page(pmd);
--	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
--	do {
--		VM_BUG_ON(compound_head(page) != head);
--		pages[*nr] = page;
--		(*nr)++;
--		page++;
--		refs++;
--	} while (addr += PAGE_SIZE, addr != end);
--
--	if (!page_cache_add_speculative(head, refs)) {
--		*nr -= refs;
--		return 0;
--	}
--
--	if (unlikely(pmd_val(pmd) != pmd_val(*pmdp))) {
--		*nr -= refs;
--		while (refs--)
--			put_page(head);
--		return 0;
--	}
--
--	return 1;
--}
--
--
--static inline int gup_pmd_range(pud_t pud, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	pmd_t *pmdp, pmd;
--
--	pmdp = pmd_offset(&pud, addr);
--	do {
--		pmd = *pmdp;
--		barrier();
--		next = pmd_addr_end(addr, end);
--		if (pmd_none(pmd))
--			return 0;
--		if (unlikely(pmd_large(pmd))) {
--			/*
--			 * NUMA hinting faults need to be handled in the GUP
--			 * slowpath for accounting purposes and so that they
--			 * can be serialised against THP migration.
--			 */
--			if (pmd_protnone(pmd))
--				return 0;
--			if (!gup_huge_pmd(pmdp, pmd, addr, next,
--					  write, pages, nr))
--				return 0;
--		} else if (!gup_pte_range(pmd, addr, next,
--					  write, pages, nr))
--			return 0;
--	} while (pmdp++, addr = next, addr != end);
--
--	return 1;
--}
--
--static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	struct page *head, *page;
--	unsigned long mask;
--	int refs;
--
--	mask = (write ? _REGION_ENTRY_PROTECT : 0) | _REGION_ENTRY_INVALID;
--	if ((pud_val(pud) & mask) != 0)
--		return 0;
--	VM_BUG_ON(!pfn_valid(pud_pfn(pud)));
--
--	refs = 0;
--	head = pud_page(pud);
--	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
--	do {
--		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--		pages[*nr] = page;
--		(*nr)++;
--		page++;
--		refs++;
--	} while (addr += PAGE_SIZE, addr != end);
--
--	if (!page_cache_add_speculative(head, refs)) {
--		*nr -= refs;
--		return 0;
--	}
--
--	if (unlikely(pud_val(pud) != pud_val(*pudp))) {
--		*nr -= refs;
--		while (refs--)
--			put_page(head);
--		return 0;
--	}
--
--	return 1;
--}
--
--static inline int gup_pud_range(p4d_t p4d, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	pud_t *pudp, pud;
--
--	pudp = pud_offset(&p4d, addr);
--	do {
--		pud = *pudp;
--		barrier();
--		next = pud_addr_end(addr, end);
--		if (pud_none(pud))
--			return 0;
--		if (unlikely(pud_large(pud))) {
--			if (!gup_huge_pud(pudp, pud, addr, next, write, pages,
--					  nr))
--				return 0;
--		} else if (!gup_pmd_range(pud, addr, next, write, pages,
--					  nr))
--			return 0;
--	} while (pudp++, addr = next, addr != end);
--
--	return 1;
--}
--
--static inline int gup_p4d_range(pgd_t pgd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	p4d_t *p4dp, p4d;
--
--	p4dp = p4d_offset(&pgd, addr);
--	do {
--		p4d = *p4dp;
--		barrier();
--		next = p4d_addr_end(addr, end);
--		if (p4d_none(p4d))
--			return 0;
--		if (!gup_pud_range(p4d, addr, next, write, pages, nr))
--			return 0;
--	} while (p4dp++, addr = next, addr != end);
--
--	return 1;
--}
--
--/*
-- * Like get_user_pages_fast() except its IRQ-safe in that it won't fall
-- * back to the regular GUP.
-- * Note a difference with get_user_pages_fast: this always returns the
-- * number of pages pinned, 0 if no pages were pinned.
-- */
--int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
--			  struct page **pages)
--{
--	struct mm_struct *mm = current->mm;
--	unsigned long addr, len, end;
--	unsigned long next, flags;
--	pgd_t *pgdp, pgd;
--	int nr = 0;
--
--	start &= PAGE_MASK;
--	addr = start;
--	len = (unsigned long) nr_pages << PAGE_SHIFT;
--	end = start + len;
--	if ((end <= start) || (end > mm->context.asce_limit))
--		return 0;
--	/*
--	 * local_irq_save() doesn't prevent pagetable teardown, but does
--	 * prevent the pagetables from being freed on s390.
--	 *
--	 * So long as we atomically load page table pointers versus teardown,
--	 * we can follow the address down to the the page and take a ref on it.
+-	const struct hda_pincfg *pin;
+-	int i;
+-	int mic_pin = find_ext_mic_pin(codec);
+-	/* don't shut up pins when unloading the driver; otherwise it breaks
+-	 * the default pin setup at the next load of the driver
 -	 */
--	local_irq_save(flags);
--	pgdp = pgd_offset(mm, addr);
--	do {
--		pgd = *pgdp;
--		barrier();
--		next = pgd_addr_end(addr, end);
--		if (pgd_none(pgd))
--			break;
--		if (!gup_p4d_range(pgd, addr, next, write, pages, &nr))
--			break;
--	} while (pgdp++, addr = next, addr != end);
--	local_irq_restore(flags);
--
--	return nr;
+-	if (codec->bus->shutdown)
+-		return;
+-	snd_array_for_each(&codec->init_pins, i, pin) {
+-		/* use read here for syncing after issuing each verb */
+-		if (pin->nid != mic_pin)
+-			snd_hda_codec_read(codec, pin->nid, 0,
+-					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
+-	}
+-	codec->pins_shutup = 1;
 -}
 -
--/**
-- * get_user_pages_fast() - pin user pages in memory
-- * @start:	starting user address
-- * @nr_pages:	number of pages from start to pin
-- * @write:	whether pages will be written to
-- * @pages:	array that receives pointers to the pages pinned.
-- *		Should be at least nr_pages long.
-- *
-- * Attempt to pin user pages in memory without taking mm->mmap_sem.
-- * If not successful, it will fall back to taking the lock and
-- * calling get_user_pages().
-- *
-- * Returns number of pages pinned. This may be fewer than the number
-- * requested. If nr_pages is 0 or negative, returns 0. If no pages
-- * were pinned, returns -errno.
-- */
--int get_user_pages_fast(unsigned long start, int nr_pages, int write,
--			struct page **pages)
--{
--	int nr, ret;
--
--	might_sleep();
--	start &= PAGE_MASK;
--	nr = __get_user_pages_fast(start, nr_pages, write, pages);
--	if (nr == nr_pages)
--		return nr;
--
--	/* Try to get the remaining pages with get_user_pages */
--	start += nr << PAGE_SHIFT;
--	pages += nr;
--	ret = get_user_pages_unlocked(start, nr_pages - nr, pages,
--				      write ? FOLL_WRITE : 0);
--	/* Have to be a bit careful with return values */
--	if (nr > 0)
--		ret = (ret < 0) ? nr : ret + nr;
--	return ret;
--}
+ static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
+ {
+ 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
+@@ -7707,7 +7719,6 @@ static int patch_alc269(struct hda_codec
+ 	case 0x10ec0286:
+ 	case 0x10ec0288:
+ 		spec->codec_variant = ALC269_TYPE_ALC286;
+-		spec->shutup = alc286_shutup;
+ 		break;
+ 	case 0x10ec0298:
+ 		spec->codec_variant = ALC269_TYPE_ALC298;
 
 
