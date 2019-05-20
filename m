@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7ED237A1
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B2923745
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733198AbfETMwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59284 "EHLO mail.kernel.org"
+        id S2387919AbfETMXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:23:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733119AbfETMSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:10 -0400
+        id S2388036AbfETMXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:23:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C55220815;
-        Mon, 20 May 2019 12:18:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DDB920645;
+        Mon, 20 May 2019 12:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354690;
-        bh=SLAe6/IoBPDUbYUdq+rzQEmI9w4plC6PgcfwdwJjL3Y=;
+        s=default; t=1558355011;
+        bh=Mitkq/mNc3PsR+GS8+sgxQ9ccjBADF3myYWbMFia4IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGOF2DVjVmEG2F1ijVjS5RrQk7yF0w2E9OxcrQOig6S91cHN5gQIv796cHTy1HirJ
-         g3pv6DOKe5QTjseMGJP6lVFIJ94IRPMZxuH5sf552eHdGZE3MvCgXxnCC2bO6VpxmD
-         gWLcqt3Pthv19ZmJgweBWEwEDJGRWIC0mhB52CBY=
+        b=V3HOHvc6Tv3bDbT8ycKagZ3wZU4cQN5xZ2cH+d4PP7KCQx2YESxK5PCh8MNKzN3eG
+         DsyH8nm3fjjhXcykQUBJ0wBRTSo6+1C9j5lH5IOBYNDa2PORH7XKP7cCt333lfYPqC
+         sfQxzzvsQltocJ1LUYXfulfEeM35INvteTOu/vuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 20/44] ASoC: max98090: Fix restore of DAPM Muxes
+        stable@vger.kernel.org, Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Yifeng Li <tomli@tomli.me>
+Subject: [PATCH 4.19 063/105] tty: vt.c: Fix TIOCL_BLANKSCREEN console blanking if blankinterval == 0
 Date:   Mon, 20 May 2019 14:14:09 +0200
-Message-Id: <20190520115233.222877603@linuxfoundation.org>
+Message-Id: <20190520115251.512795386@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Yifeng Li <tomli@tomli.me>
 
-commit ecb2795c08bc825ebd604997e5be440b060c5b18 upstream.
+commit 75ddbc1fb11efac87b611d48e9802f6fe2bb2163 upstream.
 
-The max98090 driver defines 3 DAPM muxes; one for the right line output
-(LINMOD Mux), one for the left headphone mixer source (MIXHPLSEL Mux)
-and one for the right headphone mixer source (MIXHPRSEL Mux). The same
-bit is used for the mux as well as the DAPM enable, and although the mux
-can be correctly configured, after playback has completed, the mux will
-be reset during the disable phase. This is preventing the state of these
-muxes from being saved and restored correctly on system reboot. Fix this
-by marking these muxes as SND_SOC_NOPM.
+Previously, in the userspace, it was possible to use the "setterm" command
+from util-linux to blank the VT console by default, using the following
+command.
 
-Note this has been verified this on the Tegra124 Nyan Big which features
-the MAX98090 codec.
+According to the man page,
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+> The force option keeps the screen blank even if a key is pressed.
+
+It was implemented by calling TIOCL_BLANKSCREEN.
+
+	case BLANKSCREEN:
+		ioctlarg = TIOCL_BLANKSCREEN;
+		if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
+			warn(_("cannot force blank"));
+		break;
+
+However, after Linux 4.12, this command ceased to work anymore, which is
+unexpected. By inspecting the kernel source, it shows that the issue was
+triggered by the side-effect from commit a4199f5eb809 ("tty: Disable
+default console blanking interval").
+
+The console blanking is implemented by function do_blank_screen() in vt.c:
+"blank_state" will be initialized to "blank_normal_wait" in con_init() if
+AND ONLY IF ("blankinterval" > 0). If "blankinterval" is 0, "blank_state"
+will be "blank_off" (== 0), and a call to do_blank_screen() will always
+abort, even if a forced blanking is required from the user by calling
+TIOCL_BLANKSCREEN, the console won't be blanked.
+
+This behavior is unexpected from a user's point-of-view, since it's not
+mentioned in any documentation. The setterm man page suggests it will
+always work, and the kernel comments in uapi/linux/tiocl.h says
+
+> /* keep screen blank even if a key is pressed */
+> #define TIOCL_BLANKSCREEN 14
+
+To fix it, we simply remove the "blank_state != blank_off" check, as
+pointed out by Nicolas Pitre, this check doesn't logically make sense
+and it's safe to remove.
+
+Suggested-by: Nicolas Pitre <nicolas.pitre@linaro.org>
+Fixes: a4199f5eb809 ("tty: Disable default console blanking interval")
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/max98090.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/tty/vt/vt.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1209,14 +1209,14 @@ static const struct snd_soc_dapm_widget
- 		&max98090_right_rcv_mixer_controls[0],
- 		ARRAY_SIZE(max98090_right_rcv_mixer_controls)),
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4155,8 +4155,6 @@ void do_blank_screen(int entering_gfx)
+ 		return;
+ 	}
  
--	SND_SOC_DAPM_MUX("LINMOD Mux", M98090_REG_LOUTR_MIXER,
--		M98090_LINMOD_SHIFT, 0, &max98090_linmod_mux),
-+	SND_SOC_DAPM_MUX("LINMOD Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_linmod_mux),
+-	if (blank_state != blank_normal_wait)
+-		return;
+ 	blank_state = blank_off;
  
--	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPLSEL_SHIFT, 0, &max98090_mixhplsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhplsel_mux),
- 
--	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPRSEL_SHIFT, 0, &max98090_mixhprsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhprsel_mux),
- 
- 	SND_SOC_DAPM_PGA("HP Left Out", M98090_REG_OUTPUT_ENABLE,
- 		M98090_HPLEN_SHIFT, 0, NULL, 0),
+ 	/* don't blank graphics */
 
 
