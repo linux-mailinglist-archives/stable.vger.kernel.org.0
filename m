@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D92235A9
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B365C235B5
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403869AbfETMgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55614 "EHLO mail.kernel.org"
+        id S2391327AbfETMg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403861AbfETMgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:36:33 -0400
+        id S2387600AbfETMg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33AE22171F;
-        Mon, 20 May 2019 12:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CD8820815;
+        Mon, 20 May 2019 12:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355791;
-        bh=dd7COlwRRjNTKWrpWQIrlMEUqY3EVD7LsqY3XS2PoBU=;
+        s=default; t=1558355815;
+        bh=VtIHYF/FNtOHl1ZFGK4J9744SBtaj9ublO9MAc8qAWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6un6KwRv5jMzC6cl436P+LCVFrdh0oIpGQ43pYe4MK1Xkic7dwkxtsWhGzM4W5ZA
-         MI0S/5xO7k56/fJunBrHaBasO2WodTgF+ttyqRIi0FfJ7bAZEyDioHTPxa6UvB9Z69
-         PHVuAWdkEAKi9jLGR+7HdKFYn4PRlEuxSGP9kPHo=
+        b=oaUj3vpelC4MdW+G1R83Q/V1nnoorymszrWf9i8XRZBbDiplII9nnmuB+koaWvRI7
+         GmTUwn0MUrGORXx98sNLh7me6eHgGqFjgwJ3+ZfLyjbVNao8mLKj3E0UdsWG6Zn0e0
+         M98rxbchQPXNjoFUh4f8RRVzQe29YJQgV2qSuqEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5.1 125/128] s390/mm: make the pxd_offset functions more robust
-Date:   Mon, 20 May 2019 14:15:12 +0200
-Message-Id: <20190520115257.015210266@linuxfoundation.org>
+Subject: [PATCH 5.1 126/128] s390/mm: convert to the generic get_user_pages_fast code
+Date:   Mon, 20 May 2019 14:15:13 +0200
+Message-Id: <20190520115257.092704840@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -44,248 +44,357 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-commit d1874a0c2805fcfa9162c972d6b7541e57adb542 upstream.
+commit 1a42010cdc26bb7e5912984f3c91b8c6d55f089a upstream.
 
-Change the way how pgd_offset, p4d_offset, pud_offset and pmd_offset
-walk the page tables. pgd_offset now always calculates the index for
-the top-level page table and adds it to the pgd, this is either a
-segment table offset for a 2-level setup, a region-3 offset for 3-levels,
-region-2 offset for 4-levels, or a region-1 offset for a 5-level setup.
-The other three functions p4d_offset, pud_offset and pmd_offset will
-only add the respective offset if they dereference the passed pointer.
-
-With the new way of walking the page tables a sequence like this from
-mm/gup.c now works:
-
-     pgdp = pgd_offset(current->mm, addr);
-     pgd = READ_ONCE(*pgdp);
-     p4dp = p4d_offset(&pgd, addr);
-     p4d = READ_ONCE(*p4dp);
-     pudp = pud_offset(&p4d, addr);
-     pud = READ_ONCE(*pudp);
-     pmdp = pmd_offset(&pud, addr);
-     pmd = READ_ONCE(*pmdp);
+Define the gup_fast_permitted to check against the asce_limit of the
+mm attached to the current task, then replace the s390 specific gup
+code with the generic implementation in mm/gup.c.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/pgtable.h |   67 +++++++++++++++++++++++++---------------
- arch/s390/mm/gup.c              |   33 +++++++------------
- 2 files changed, 55 insertions(+), 45 deletions(-)
+ arch/s390/Kconfig               |    1 
+ arch/s390/include/asm/pgtable.h |   12 +
+ arch/s390/mm/Makefile           |    2 
+ arch/s390/mm/gup.c              |  291 ----------------------------------------
+ 4 files changed, 14 insertions(+), 292 deletions(-)
 
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -149,6 +149,7 @@ config S390
+ 	select HAVE_FUNCTION_TRACER
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
++	select HAVE_GENERIC_GUP
+ 	select HAVE_KERNEL_BZIP2
+ 	select HAVE_KERNEL_GZIP
+ 	select HAVE_KERNEL_LZ4
 --- a/arch/s390/include/asm/pgtable.h
 +++ b/arch/s390/include/asm/pgtable.h
-@@ -1204,42 +1204,67 @@ static inline pte_t mk_pte(struct page *
- #define pmd_index(address) (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
- #define pte_index(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE-1))
+@@ -1265,6 +1265,18 @@ static inline pte_t *pte_offset(pmd_t *p
+ #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
+ #define pte_unmap(pte) do { } while (0)
  
--#define pgd_offset(mm, address) ((mm)->pgd + pgd_index(address))
--#define pgd_offset_k(address) pgd_offset(&init_mm, address)
--#define pgd_offset_raw(pgd, addr) ((pgd) + pgd_index(addr))
--
- #define pmd_deref(pmd) (pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN)
- #define pud_deref(pud) (pud_val(pud) & _REGION_ENTRY_ORIGIN)
- #define p4d_deref(pud) (p4d_val(pud) & _REGION_ENTRY_ORIGIN)
- #define pgd_deref(pgd) (pgd_val(pgd) & _REGION_ENTRY_ORIGIN)
- 
--static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
-+/*
-+ * The pgd_offset function *always* adds the index for the top-level
-+ * region/segment table. This is done to get a sequence like the
-+ * following to work:
-+ *	pgdp = pgd_offset(current->mm, addr);
-+ *	pgd = READ_ONCE(*pgdp);
-+ *	p4dp = p4d_offset(&pgd, addr);
-+ *	...
-+ * The subsequent p4d_offset, pud_offset and pmd_offset functions
-+ * only add an index if they dereferenced the pointer.
-+ */
-+static inline pgd_t *pgd_offset_raw(pgd_t *pgd, unsigned long address)
- {
--	p4d_t *p4d = (p4d_t *) pgd;
-+	unsigned long rste;
-+	unsigned int shift;
- 
--	if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R1)
--		p4d = (p4d_t *) pgd_deref(*pgd);
--	return p4d + p4d_index(address);
-+	/* Get the first entry of the top level table */
-+	rste = pgd_val(*pgd);
-+	/* Pick up the shift from the table type of the first entry */
-+	shift = ((rste & _REGION_ENTRY_TYPE_MASK) >> 2) * 11 + 20;
-+	return pgd + ((address >> shift) & (PTRS_PER_PGD - 1));
- }
- 
--static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-+#define pgd_offset(mm, address) pgd_offset_raw(READ_ONCE((mm)->pgd), address)
-+#define pgd_offset_k(address) pgd_offset(&init_mm, address)
++static inline bool gup_fast_permitted(unsigned long start, int nr_pages)
++{
++	unsigned long len, end;
 +
-+static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
- {
--	pud_t *pud = (pud_t *) p4d;
-+	if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
-+		return (p4d_t *) pgd_deref(*pgd) + p4d_index(address);
-+	return (p4d_t *) pgd;
++	len = (unsigned long) nr_pages << PAGE_SHIFT;
++	end = start + len;
++	if (end < start)
++		return false;
++	return end <= current->mm->context.asce_limit;
 +}
- 
--	if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R2)
--		pud = (pud_t *) p4d_deref(*p4d);
--	return pud + pud_index(address);
-+static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-+{
-+	if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
-+		return (pud_t *) p4d_deref(*p4d) + pud_index(address);
-+	return (pud_t *) p4d;
- }
- 
- static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
- {
--	pmd_t *pmd = (pmd_t *) pud;
-+	if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
-+		return (pmd_t *) pud_deref(*pud) + pmd_index(address);
-+	return (pmd_t *) pud;
-+}
- 
--	if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3)
--		pmd = (pmd_t *) pud_deref(*pud);
--	return pmd + pmd_index(address);
-+static inline pte_t *pte_offset(pmd_t *pmd, unsigned long address)
-+{
-+	return (pte_t *) pmd_deref(*pmd) + pte_index(address);
- }
- 
-+#define pte_offset_kernel(pmd, address) pte_offset(pmd, address)
-+#define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
-+#define pte_unmap(pte) do { } while (0)
++#define gup_fast_permitted gup_fast_permitted
 +
  #define pfn_pte(pfn,pgprot) mk_pte_phys(__pa((pfn) << PAGE_SHIFT),(pgprot))
  #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
  #define pte_page(x) pfn_to_page(pte_pfn(x))
-@@ -1249,12 +1274,6 @@ static inline pmd_t *pmd_offset(pud_t *p
- #define p4d_page(p4d) pfn_to_page(p4d_pfn(p4d))
- #define pgd_page(pgd) pfn_to_page(pgd_pfn(pgd))
+--- a/arch/s390/mm/Makefile
++++ b/arch/s390/mm/Makefile
+@@ -4,7 +4,7 @@
+ #
  
--/* Find an entry in the lowest level page table.. */
--#define pte_offset(pmd, addr) ((pte_t *) pmd_deref(*(pmd)) + pte_index(addr))
--#define pte_offset_kernel(pmd, address) pte_offset(pmd,address)
--#define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
--#define pte_unmap(pte) do { } while (0)
--
- static inline pmd_t pmd_wrprotect(pmd_t pmd)
- {
- 	pmd_val(pmd) &= ~_SEGMENT_ENTRY_WRITE;
+ obj-y		:= init.o fault.o extmem.o mmap.o vmem.o maccess.o
+-obj-y		+= page-states.o gup.o pageattr.o pgtable.o pgalloc.o
++obj-y		+= page-states.o pageattr.o pgtable.o pgalloc.o
+ 
+ obj-$(CONFIG_CMM)		+= cmm.o
+ obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
 --- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -18,7 +18,7 @@
-  * inlines everything into a single function which results in too much
-  * register pressure.
-  */
--static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
-+static inline int gup_pte_range(pmd_t pmd, unsigned long addr,
- 		unsigned long end, int write, struct page **pages, int *nr)
- {
- 	struct page *head, *page;
-@@ -27,7 +27,7 @@ static inline int gup_pte_range(pmd_t *p
- 
- 	mask = (write ? _PAGE_PROTECT : 0) | _PAGE_INVALID | _PAGE_SPECIAL;
- 
--	ptep = ((pte_t *) pmd_deref(pmd)) + pte_index(addr);
-+	ptep = pte_offset_map(&pmd, addr);
- 	do {
- 		pte = *ptep;
- 		barrier();
-@@ -93,16 +93,13 @@ static inline int gup_huge_pmd(pmd_t *pm
- }
- 
- 
--static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
-+static inline int gup_pmd_range(pud_t pud, unsigned long addr,
- 		unsigned long end, int write, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pmd_t *pmdp, pmd;
- 
--	pmdp = (pmd_t *) pudp;
--	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3)
--		pmdp = (pmd_t *) pud_deref(pud);
--	pmdp += pmd_index(addr);
-+	pmdp = pmd_offset(&pud, addr);
- 	do {
- 		pmd = *pmdp;
- 		barrier();
-@@ -120,7 +117,7 @@ static inline int gup_pmd_range(pud_t *p
- 			if (!gup_huge_pmd(pmdp, pmd, addr, next,
- 					  write, pages, nr))
- 				return 0;
--		} else if (!gup_pte_range(pmdp, pmd, addr, next,
-+		} else if (!gup_pte_range(pmd, addr, next,
- 					  write, pages, nr))
- 			return 0;
- 	} while (pmdp++, addr = next, addr != end);
-@@ -166,16 +163,13 @@ static int gup_huge_pud(pud_t *pudp, pud
- 	return 1;
- }
- 
--static inline int gup_pud_range(p4d_t *p4dp, p4d_t p4d, unsigned long addr,
-+static inline int gup_pud_range(p4d_t p4d, unsigned long addr,
- 		unsigned long end, int write, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pud_t *pudp, pud;
- 
--	pudp = (pud_t *) p4dp;
--	if ((p4d_val(p4d) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R2)
--		pudp = (pud_t *) p4d_deref(p4d);
--	pudp += pud_index(addr);
-+	pudp = pud_offset(&p4d, addr);
- 	do {
- 		pud = *pudp;
- 		barrier();
-@@ -186,7 +180,7 @@ static inline int gup_pud_range(p4d_t *p
- 			if (!gup_huge_pud(pudp, pud, addr, next, write, pages,
- 					  nr))
- 				return 0;
--		} else if (!gup_pmd_range(pudp, pud, addr, next, write, pages,
-+		} else if (!gup_pmd_range(pud, addr, next, write, pages,
- 					  nr))
- 			return 0;
- 	} while (pudp++, addr = next, addr != end);
-@@ -194,23 +188,20 @@ static inline int gup_pud_range(p4d_t *p
- 	return 1;
- }
- 
--static inline int gup_p4d_range(pgd_t *pgdp, pgd_t pgd, unsigned long addr,
-+static inline int gup_p4d_range(pgd_t pgd, unsigned long addr,
- 		unsigned long end, int write, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	p4d_t *p4dp, p4d;
- 
--	p4dp = (p4d_t *) pgdp;
--	if ((pgd_val(pgd) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R1)
--		p4dp = (p4d_t *) pgd_deref(pgd);
--	p4dp += p4d_index(addr);
-+	p4dp = p4d_offset(&pgd, addr);
- 	do {
- 		p4d = *p4dp;
- 		barrier();
- 		next = p4d_addr_end(addr, end);
- 		if (p4d_none(p4d))
- 			return 0;
--		if (!gup_pud_range(p4dp, p4d, addr, next, write, pages, nr))
-+		if (!gup_pud_range(p4d, addr, next, write, pages, nr))
- 			return 0;
- 	} while (p4dp++, addr = next, addr != end);
- 
-@@ -253,7 +244,7 @@ int __get_user_pages_fast(unsigned long
- 		next = pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			break;
--		if (!gup_p4d_range(pgdp, pgd, addr, next, write, pages, &nr))
-+		if (!gup_p4d_range(pgd, addr, next, write, pages, &nr))
- 			break;
- 	} while (pgdp++, addr = next, addr != end);
- 	local_irq_restore(flags);
++++ /dev/null
+@@ -1,291 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *  Lockless get_user_pages_fast for s390
+- *
+- *  Copyright IBM Corp. 2010
+- *  Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
+- */
+-#include <linux/sched.h>
+-#include <linux/mm.h>
+-#include <linux/hugetlb.h>
+-#include <linux/vmstat.h>
+-#include <linux/pagemap.h>
+-#include <linux/rwsem.h>
+-#include <asm/pgtable.h>
+-
+-/*
+- * The performance critical leaf functions are made noinline otherwise gcc
+- * inlines everything into a single function which results in too much
+- * register pressure.
+- */
+-static inline int gup_pte_range(pmd_t pmd, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	struct page *head, *page;
+-	unsigned long mask;
+-	pte_t *ptep, pte;
+-
+-	mask = (write ? _PAGE_PROTECT : 0) | _PAGE_INVALID | _PAGE_SPECIAL;
+-
+-	ptep = pte_offset_map(&pmd, addr);
+-	do {
+-		pte = *ptep;
+-		barrier();
+-		/* Similar to the PMD case, NUMA hinting must take slow path */
+-		if (pte_protnone(pte))
+-			return 0;
+-		if ((pte_val(pte) & mask) != 0)
+-			return 0;
+-		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+-		page = pte_page(pte);
+-		head = compound_head(page);
+-		if (!page_cache_get_speculative(head))
+-			return 0;
+-		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+-			put_page(head);
+-			return 0;
+-		}
+-		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+-		pages[*nr] = page;
+-		(*nr)++;
+-
+-	} while (ptep++, addr += PAGE_SIZE, addr != end);
+-
+-	return 1;
+-}
+-
+-static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	struct page *head, *page;
+-	unsigned long mask;
+-	int refs;
+-
+-	mask = (write ? _SEGMENT_ENTRY_PROTECT : 0) | _SEGMENT_ENTRY_INVALID;
+-	if ((pmd_val(pmd) & mask) != 0)
+-		return 0;
+-	VM_BUG_ON(!pfn_valid(pmd_val(pmd) >> PAGE_SHIFT));
+-
+-	refs = 0;
+-	head = pmd_page(pmd);
+-	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+-	do {
+-		VM_BUG_ON(compound_head(page) != head);
+-		pages[*nr] = page;
+-		(*nr)++;
+-		page++;
+-		refs++;
+-	} while (addr += PAGE_SIZE, addr != end);
+-
+-	if (!page_cache_add_speculative(head, refs)) {
+-		*nr -= refs;
+-		return 0;
+-	}
+-
+-	if (unlikely(pmd_val(pmd) != pmd_val(*pmdp))) {
+-		*nr -= refs;
+-		while (refs--)
+-			put_page(head);
+-		return 0;
+-	}
+-
+-	return 1;
+-}
+-
+-
+-static inline int gup_pmd_range(pud_t pud, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	unsigned long next;
+-	pmd_t *pmdp, pmd;
+-
+-	pmdp = pmd_offset(&pud, addr);
+-	do {
+-		pmd = *pmdp;
+-		barrier();
+-		next = pmd_addr_end(addr, end);
+-		if (pmd_none(pmd))
+-			return 0;
+-		if (unlikely(pmd_large(pmd))) {
+-			/*
+-			 * NUMA hinting faults need to be handled in the GUP
+-			 * slowpath for accounting purposes and so that they
+-			 * can be serialised against THP migration.
+-			 */
+-			if (pmd_protnone(pmd))
+-				return 0;
+-			if (!gup_huge_pmd(pmdp, pmd, addr, next,
+-					  write, pages, nr))
+-				return 0;
+-		} else if (!gup_pte_range(pmd, addr, next,
+-					  write, pages, nr))
+-			return 0;
+-	} while (pmdp++, addr = next, addr != end);
+-
+-	return 1;
+-}
+-
+-static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	struct page *head, *page;
+-	unsigned long mask;
+-	int refs;
+-
+-	mask = (write ? _REGION_ENTRY_PROTECT : 0) | _REGION_ENTRY_INVALID;
+-	if ((pud_val(pud) & mask) != 0)
+-		return 0;
+-	VM_BUG_ON(!pfn_valid(pud_pfn(pud)));
+-
+-	refs = 0;
+-	head = pud_page(pud);
+-	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+-	do {
+-		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+-		pages[*nr] = page;
+-		(*nr)++;
+-		page++;
+-		refs++;
+-	} while (addr += PAGE_SIZE, addr != end);
+-
+-	if (!page_cache_add_speculative(head, refs)) {
+-		*nr -= refs;
+-		return 0;
+-	}
+-
+-	if (unlikely(pud_val(pud) != pud_val(*pudp))) {
+-		*nr -= refs;
+-		while (refs--)
+-			put_page(head);
+-		return 0;
+-	}
+-
+-	return 1;
+-}
+-
+-static inline int gup_pud_range(p4d_t p4d, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	unsigned long next;
+-	pud_t *pudp, pud;
+-
+-	pudp = pud_offset(&p4d, addr);
+-	do {
+-		pud = *pudp;
+-		barrier();
+-		next = pud_addr_end(addr, end);
+-		if (pud_none(pud))
+-			return 0;
+-		if (unlikely(pud_large(pud))) {
+-			if (!gup_huge_pud(pudp, pud, addr, next, write, pages,
+-					  nr))
+-				return 0;
+-		} else if (!gup_pmd_range(pud, addr, next, write, pages,
+-					  nr))
+-			return 0;
+-	} while (pudp++, addr = next, addr != end);
+-
+-	return 1;
+-}
+-
+-static inline int gup_p4d_range(pgd_t pgd, unsigned long addr,
+-		unsigned long end, int write, struct page **pages, int *nr)
+-{
+-	unsigned long next;
+-	p4d_t *p4dp, p4d;
+-
+-	p4dp = p4d_offset(&pgd, addr);
+-	do {
+-		p4d = *p4dp;
+-		barrier();
+-		next = p4d_addr_end(addr, end);
+-		if (p4d_none(p4d))
+-			return 0;
+-		if (!gup_pud_range(p4d, addr, next, write, pages, nr))
+-			return 0;
+-	} while (p4dp++, addr = next, addr != end);
+-
+-	return 1;
+-}
+-
+-/*
+- * Like get_user_pages_fast() except its IRQ-safe in that it won't fall
+- * back to the regular GUP.
+- * Note a difference with get_user_pages_fast: this always returns the
+- * number of pages pinned, 0 if no pages were pinned.
+- */
+-int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+-			  struct page **pages)
+-{
+-	struct mm_struct *mm = current->mm;
+-	unsigned long addr, len, end;
+-	unsigned long next, flags;
+-	pgd_t *pgdp, pgd;
+-	int nr = 0;
+-
+-	start &= PAGE_MASK;
+-	addr = start;
+-	len = (unsigned long) nr_pages << PAGE_SHIFT;
+-	end = start + len;
+-	if ((end <= start) || (end > mm->context.asce_limit))
+-		return 0;
+-	/*
+-	 * local_irq_save() doesn't prevent pagetable teardown, but does
+-	 * prevent the pagetables from being freed on s390.
+-	 *
+-	 * So long as we atomically load page table pointers versus teardown,
+-	 * we can follow the address down to the the page and take a ref on it.
+-	 */
+-	local_irq_save(flags);
+-	pgdp = pgd_offset(mm, addr);
+-	do {
+-		pgd = *pgdp;
+-		barrier();
+-		next = pgd_addr_end(addr, end);
+-		if (pgd_none(pgd))
+-			break;
+-		if (!gup_p4d_range(pgd, addr, next, write, pages, &nr))
+-			break;
+-	} while (pgdp++, addr = next, addr != end);
+-	local_irq_restore(flags);
+-
+-	return nr;
+-}
+-
+-/**
+- * get_user_pages_fast() - pin user pages in memory
+- * @start:	starting user address
+- * @nr_pages:	number of pages from start to pin
+- * @write:	whether pages will be written to
+- * @pages:	array that receives pointers to the pages pinned.
+- *		Should be at least nr_pages long.
+- *
+- * Attempt to pin user pages in memory without taking mm->mmap_sem.
+- * If not successful, it will fall back to taking the lock and
+- * calling get_user_pages().
+- *
+- * Returns number of pages pinned. This may be fewer than the number
+- * requested. If nr_pages is 0 or negative, returns 0. If no pages
+- * were pinned, returns -errno.
+- */
+-int get_user_pages_fast(unsigned long start, int nr_pages, int write,
+-			struct page **pages)
+-{
+-	int nr, ret;
+-
+-	might_sleep();
+-	start &= PAGE_MASK;
+-	nr = __get_user_pages_fast(start, nr_pages, write, pages);
+-	if (nr == nr_pages)
+-		return nr;
+-
+-	/* Try to get the remaining pages with get_user_pages */
+-	start += nr << PAGE_SHIFT;
+-	pages += nr;
+-	ret = get_user_pages_unlocked(start, nr_pages - nr, pages,
+-				      write ? FOLL_WRITE : 0);
+-	/* Have to be a bit careful with return values */
+-	if (nr > 0)
+-		ret = (ret < 0) ? nr : ret + nr;
+-	return ret;
+-}
 
 
