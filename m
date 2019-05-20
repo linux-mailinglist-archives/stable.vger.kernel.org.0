@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E70C82375F
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 756AB23580
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389049AbfETMZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S2391102AbfETMfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389035AbfETMZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:21 -0400
+        id S2387524AbfETMfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84DB420815;
-        Mon, 20 May 2019 12:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84B35204FD;
+        Mon, 20 May 2019 12:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355120;
-        bh=3HVJic2IsVhMwD2NLqQ17Pn8OtBdLg7jJNwliuijtwU=;
+        s=default; t=1558355733;
+        bh=onfGMYicXDP3MCBWfPIOJpbs01/cprEgL1AT+ll7nso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AR/MpG83qy0A1YYQQGoQxs8a/3g5rrTbVQZuPv4rEPzUrnA0EVCGVIAUFllqg8N6T
-         IZQeXrGyEe7GMXs8d4fYBuDAoQWi92L9au9dz9v8InjuyzCX26RfVRlzmWS4VW6tsd
-         NvgVPEu4JCAUjleIb237YKtSdFBHFJABEBf5uDio=
+        b=klIrhwYKtt8BKmLIZyGXjBo+5P83GQmKV/Jp6SMbuImMXysO5xzw4EJwPmAW4NRFM
+         mmUDav9m0zec5h3liwgCyrJHoBWOl71WQS56OrZlS6GF1U+hZfoYFbhCK3MwxV4/Tj
+         1aObwDoZS/xHtPu0YDwIFy9ja04DjFQQd0cwFG4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 105/105] ext4: dont update s_rev_level if not required
-Date:   Mon, 20 May 2019 14:14:51 +0200
-Message-Id: <20190520115254.476516117@linuxfoundation.org>
+        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 105/128] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+Date:   Mon, 20 May 2019 14:14:52 +0200
+Message-Id: <20190520115256.193163793@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Dilger <adilger@dilger.ca>
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-commit c9e716eb9b3455a83ed7c5f5a81256a3da779a95 upstream.
+commit ec084de929e419e51bcdafaafe567d9e7d0273b7 upstream.
 
-Don't update the superblock s_rev_level during mount if it isn't
-actually necessary, only if superblock features are being set by
-the kernel.  This was originally added for ext3 since it always
-set the INCOMPAT_RECOVER and HAS_JOURNAL features during mount,
-but this is not needed since no journal mode was added to ext4.
+synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb
+switch may not go to the workqueue after synchronize_rcu().  Thus
+previous scheduled switches was not finished even flushing the
+workqueue, which will cause a NULL pointer dereferenced followed below.
 
-That will allow Geert to mount his 20-year-old ext2 rev 0.0 m68k
-filesystem, as a testament of the backward compatibility of ext4.
+  VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
+    evict+0xb3/0x180
+    iput+0x1b0/0x230
+    inode_switch_wbs_work_fn+0x3c0/0x6a0
+    worker_thread+0x4e/0x490
+    ? process_one_work+0x410/0x410
+    kthread+0xe6/0x100
+    ret_from_fork+0x39/0x50
 
-Fixes: 0390131ba84f ("ext4: Allow ext4 to run without a journal")
-Signed-off-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
+pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu()
+in inode_switch_wbs() to make more sense.
+
+Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Suggested-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h  |    6 +++++-
- fs/ext4/inode.c |    1 -
- fs/ext4/super.c |    1 -
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ fs/fs-writeback.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1670,6 +1670,8 @@ static inline void ext4_clear_state_flag
- #define EXT4_FEATURE_INCOMPAT_INLINE_DATA	0x8000 /* data in inode */
- #define EXT4_FEATURE_INCOMPAT_ENCRYPT		0x10000
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -523,8 +523,6 @@ static void inode_switch_wbs(struct inod
  
-+extern void ext4_update_dynamic_rev(struct super_block *sb);
+ 	isw->inode = inode;
+ 
+-	atomic_inc(&isw_nr_in_flight);
+-
+ 	/*
+ 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+ 	 * the RCU protected stat update paths to grab the i_page
+@@ -532,6 +530,9 @@ static void inode_switch_wbs(struct inod
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
 +
- #define EXT4_FEATURE_COMPAT_FUNCS(name, flagname) \
- static inline bool ext4_has_feature_##name(struct super_block *sb) \
- { \
-@@ -1678,6 +1680,7 @@ static inline bool ext4_has_feature_##na
- } \
- static inline void ext4_set_feature_##name(struct super_block *sb) \
- { \
-+	ext4_update_dynamic_rev(sb); \
- 	EXT4_SB(sb)->s_es->s_feature_compat |= \
- 		cpu_to_le32(EXT4_FEATURE_COMPAT_##flagname); \
- } \
-@@ -1695,6 +1698,7 @@ static inline bool ext4_has_feature_##na
- } \
- static inline void ext4_set_feature_##name(struct super_block *sb) \
- { \
-+	ext4_update_dynamic_rev(sb); \
- 	EXT4_SB(sb)->s_es->s_feature_ro_compat |= \
- 		cpu_to_le32(EXT4_FEATURE_RO_COMPAT_##flagname); \
- } \
-@@ -1712,6 +1716,7 @@ static inline bool ext4_has_feature_##na
- } \
- static inline void ext4_set_feature_##name(struct super_block *sb) \
- { \
-+	ext4_update_dynamic_rev(sb); \
- 	EXT4_SB(sb)->s_es->s_feature_incompat |= \
- 		cpu_to_le32(EXT4_FEATURE_INCOMPAT_##flagname); \
- } \
-@@ -2679,7 +2684,6 @@ do {									\
++	atomic_inc(&isw_nr_in_flight);
++
+ 	goto out_unlock;
  
- #endif
- 
--extern void ext4_update_dynamic_rev(struct super_block *sb);
- extern int ext4_update_compat_feature(handle_t *handle, struct super_block *sb,
- 					__u32 compat);
- extern int ext4_update_rocompat_feature(handle_t *handle,
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5324,7 +5324,6 @@ static int ext4_do_update_inode(handle_t
- 		err = ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh);
- 		if (err)
- 			goto out_brelse;
--		ext4_update_dynamic_rev(sb);
- 		ext4_set_feature_large_file(sb);
- 		ext4_handle_sync(handle);
- 		err = ext4_handle_dirty_super(handle, sb);
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2259,7 +2259,6 @@ static int ext4_setup_super(struct super
- 		es->s_max_mnt_count = cpu_to_le16(EXT4_DFL_MAX_MNT_COUNT);
- 	le16_add_cpu(&es->s_mnt_count, 1);
- 	ext4_update_tstamp(es, s_mtime);
--	ext4_update_dynamic_rev(sb);
- 	if (sbi->s_journal)
- 		ext4_set_feature_journal_needs_recovery(sb);
- 
+ out_free:
+@@ -901,7 +902,11 @@ restart:
+ void cgroup_writeback_umount(void)
+ {
+ 	if (atomic_read(&isw_nr_in_flight)) {
+-		synchronize_rcu();
++		/*
++		 * Use rcu_barrier() to wait for all pending callbacks to
++		 * ensure that all in-flight wb switches are in the workqueue.
++		 */
++		rcu_barrier();
+ 		flush_workqueue(isw_wq);
+ 	}
+ }
 
 
