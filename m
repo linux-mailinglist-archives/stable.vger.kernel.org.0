@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0746234A8
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B8323384
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389274AbfETM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
+        id S1733030AbfETMRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389492AbfETM3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:22 -0400
+        id S1733157AbfETMRj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9489B20645;
-        Mon, 20 May 2019 12:29:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01D3220656;
+        Mon, 20 May 2019 12:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355362;
-        bh=Z+ZqiIan0bsdBaWHyN8acVIobuUpsPknlHPaYHOWz/c=;
+        s=default; t=1558354658;
+        bh=QzXMABAp5useRBARdCL6vnv7ldSqL36jJR/3j27x2Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N8FABVnXvme+e9VtYVhrpHHSMAyXCMolGIKbb6KoWCeW9DysMoYYPZ5AXaDBwAlrc
-         BHH3/sy+vBFDC0FAgQrjFLiNLds1Nq4/R6zcyKPhENusfIQf6UrizK60PgWlpLLlxg
-         MruyfKVV2c9yltRESDwRLMTSWlWqdz/gl95jpiMg=
+        b=C16rJGHBeDCzCIuoFSSxkMmV8Z4POrB7gt3pGgrCI5rqjhz5+1zGG2jhkBX47x4lH
+         ItzHlClDO4nfeE2AmvAAoE6GbaTTro5st3XbNQGfGd9ygUKFt2eFYsX5v+6Dc59Xo4
+         +QfnALuWnAigjv/c1HeJhCYExCP/dSrkWpsuDJxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 089/123] btrfs: Check the first key and level for cached extent buffer
+        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 40/44] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 Date:   Mon, 20 May 2019 14:14:29 +0200
-Message-Id: <20190520115250.810165497@linuxfoundation.org>
+Message-Id: <20190520115235.677932792@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,166 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-commit 448de471cd4cab0cedd15770082567a69a784a11 upstream.
+commit ec084de929e419e51bcdafaafe567d9e7d0273b7 upstream.
 
-[BUG]
-When reading a file from a fuzzed image, kernel can panic like:
+synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb
+switch may not go to the workqueue after synchronize_rcu().  Thus
+previous scheduled switches was not finished even flushing the
+workqueue, which will cause a NULL pointer dereferenced followed below.
 
-  BTRFS warning (device loop0): csum failed root 5 ino 270 off 0 csum 0x98f94189 expected csum 0x00000000 mirror 1
-  assertion failed: !memcmp_extent_buffer(b, &disk_key, offsetof(struct btrfs_leaf, items[0].key), sizeof(disk_key)), file: fs/btrfs/ctree.c, line: 2544
-  ------------[ cut here ]------------
-  kernel BUG at fs/btrfs/ctree.h:3500!
-  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  RIP: 0010:btrfs_search_slot.cold.24+0x61/0x63 [btrfs]
-  Call Trace:
-   btrfs_lookup_csum+0x52/0x150 [btrfs]
-   __btrfs_lookup_bio_sums+0x209/0x640 [btrfs]
-   btrfs_submit_bio_hook+0x103/0x170 [btrfs]
-   submit_one_bio+0x59/0x80 [btrfs]
-   extent_read_full_page+0x58/0x80 [btrfs]
-   generic_file_read_iter+0x2f6/0x9d0
-   __vfs_read+0x14d/0x1a0
-   vfs_read+0x8d/0x140
-   ksys_read+0x52/0xc0
-   do_syscall_64+0x60/0x210
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
+    evict+0xb3/0x180
+    iput+0x1b0/0x230
+    inode_switch_wbs_work_fn+0x3c0/0x6a0
+    worker_thread+0x4e/0x490
+    ? process_one_work+0x410/0x410
+    kthread+0xe6/0x100
+    ret_from_fork+0x39/0x50
 
-[CAUSE]
-The fuzzed image has a corrupted leaf whose first key doesn't match its
-parent:
+Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
+pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu()
+in inode_switch_wbs() to make more sense.
 
-  checksum tree key (CSUM_TREE ROOT_ITEM 0)
-  node 29741056 level 1 items 14 free 107 generation 19 owner CSUM_TREE
-  fs uuid 3381d111-94a3-4ac7-8f39-611bbbdab7e6
-  chunk uuid 9af1c3c7-2af5-488b-8553-530bd515f14c
-  	...
-          key (EXTENT_CSUM EXTENT_CSUM 79691776) block 29761536 gen 19
-
-  leaf 29761536 items 1 free space 1726 generation 19 owner CSUM_TREE
-  leaf 29761536 flags 0x1(WRITTEN) backref revision 1
-  fs uuid 3381d111-94a3-4ac7-8f39-611bbbdab7e6
-  chunk uuid 9af1c3c7-2af5-488b-8553-530bd515f14c
-          item 0 key (EXTENT_CSUM EXTENT_CSUM 8798638964736) itemoff 1751 itemsize 2244
-                  range start 8798638964736 end 8798641262592 length 2297856
-
-When reading the above tree block, we have extent_buffer->refs = 2 in
-the context:
-
-- initial one from __alloc_extent_buffer()
-  alloc_extent_buffer()
-  |- __alloc_extent_buffer()
-     |- atomic_set(&eb->refs, 1)
-
-- one being added to fs_info->buffer_radix
-  alloc_extent_buffer()
-  |- check_buffer_tree_ref()
-     |- atomic_inc(&eb->refs)
-
-So if even we call free_extent_buffer() in read_tree_block or other
-similar situation, we only decrease the refs by 1, it doesn't reach 0
-and won't be freed right now.
-
-The staled eb and its corrupted content will still be kept cached.
-
-Furthermore, we have several extra cases where we either don't do first
-key check or the check is not proper for all callers:
-
-- scrub
-  We just don't have first key in this context.
-
-- shared tree block
-  One tree block can be shared by several snapshot/subvolume trees.
-  In that case, the first key check for one subvolume doesn't apply to
-  another.
-
-So for the above reasons, a corrupted extent buffer can sneak into the
-buffer cache.
-
-[FIX]
-Call verify_level_key in read_block_for_search to do another
-verification. For that purpose the function is exported.
-
-Due to above reasons, although we can free corrupted extent buffer from
-cache, we still need the check in read_block_for_search(), for scrub and
-shared tree blocks.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202757
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202759
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202761
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202767
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202769
-Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Suggested-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c   |   10 ++++++++++
- fs/btrfs/disk-io.c |   10 +++++-----
- fs/btrfs/disk-io.h |    3 +++
- 3 files changed, 18 insertions(+), 5 deletions(-)
+ fs/fs-writeback.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -2401,6 +2401,16 @@ read_block_for_search(struct btrfs_root
- 	if (tmp) {
- 		/* first we do an atomic uptodate check */
- 		if (btrfs_buffer_uptodate(tmp, gen, 1) > 0) {
-+			/*
-+			 * Do extra check for first_key, eb can be stale due to
-+			 * being cached, read from scrub, or have multiple
-+			 * parents (shared tree blocks).
-+			 */
-+			if (btrfs_verify_level_key(fs_info, tmp,
-+					parent_level - 1, &first_key, gen)) {
-+				free_extent_buffer(tmp);
-+				return -EUCLEAN;
-+			}
- 			*eb_ret = tmp;
- 			return 0;
- 		}
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -414,9 +414,9 @@ static int btrfs_check_super_csum(struct
- 	return ret;
- }
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -530,8 +530,6 @@ static void inode_switch_wbs(struct inod
  
--static int verify_level_key(struct btrfs_fs_info *fs_info,
--			    struct extent_buffer *eb, int level,
--			    struct btrfs_key *first_key, u64 parent_transid)
-+int btrfs_verify_level_key(struct btrfs_fs_info *fs_info,
-+			   struct extent_buffer *eb, int level,
-+			   struct btrfs_key *first_key, u64 parent_transid)
+ 	isw->inode = inode;
+ 
+-	atomic_inc(&isw_nr_in_flight);
+-
+ 	/*
+ 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+ 	 * the RCU protected stat update paths to grab the mapping's
+@@ -539,6 +537,9 @@ static void inode_switch_wbs(struct inod
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
++
++	atomic_inc(&isw_nr_in_flight);
++
+ 	goto out_unlock;
+ 
+ out_free:
+@@ -908,7 +909,11 @@ restart:
+ void cgroup_writeback_umount(void)
  {
- 	int found_level;
- 	struct btrfs_key found_key;
-@@ -493,8 +493,8 @@ static int btree_read_extent_buffer_page
- 			if (verify_parent_transid(io_tree, eb,
- 						   parent_transid, 0))
- 				ret = -EIO;
--			else if (verify_level_key(fs_info, eb, level,
--						  first_key, parent_transid))
-+			else if (btrfs_verify_level_key(fs_info, eb, level,
-+						first_key, parent_transid))
- 				ret = -EUCLEAN;
- 			else
- 				break;
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -39,6 +39,9 @@ static inline u64 btrfs_sb_offset(int mi
- struct btrfs_device;
- struct btrfs_fs_devices;
- 
-+int btrfs_verify_level_key(struct btrfs_fs_info *fs_info,
-+			   struct extent_buffer *eb, int level,
-+			   struct btrfs_key *first_key, u64 parent_transid);
- struct extent_buffer *read_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr,
- 				      u64 parent_transid, int level,
- 				      struct btrfs_key *first_key);
+ 	if (atomic_read(&isw_nr_in_flight)) {
+-		synchronize_rcu();
++		/*
++		 * Use rcu_barrier() to wait for all pending callbacks to
++		 * ensure that all in-flight wb switches are in the workqueue.
++		 */
++		rcu_barrier();
+ 		flush_workqueue(isw_wq);
+ 	}
+ }
 
 
