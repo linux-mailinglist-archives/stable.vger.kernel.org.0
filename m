@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8035D23797
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C522360A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732270AbfETMwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60144 "EHLO mail.kernel.org"
+        id S2390032AbfETMmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:42:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387769AbfETMS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:56 -0400
+        id S2390010AbfETM37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBD1C21019;
-        Mon, 20 May 2019 12:18:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D9220675;
+        Mon, 20 May 2019 12:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354735;
-        bh=W6/X+FsS7lgY0ci9ipL3DN72hdu/rw1yHfoWA9Ns1Uk=;
+        s=default; t=1558355399;
+        bh=Uw0pF31YOHlAKBRVzNCneThPQgBmKK3R8VVsUrLP+AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hd9zbMUYtBD66HNLPonM5N85hDP7a8hQgD8Fq2uYgCEQDZVkJ/PeXpXYO0zY+q6GY
-         SmB9XdDZODG80e02iGCeNCg9WvEIFI4QvrbFqP+Abs7c2kApfdCIC7n2VrRPhSzutz
-         NuB+K4hW4ioi0AZZEWWdFXsNtFAf0AeULxhVf+/0=
+        b=HSizXNwLMrzv5tjiYYDJltPfFOAkrCLVw1zWp/Oq77qZ5wFjbZxTG2cO+7MqiCBBG
+         5ffHJHv0FxNf11C/oNNlPCqK+Fp1zQi1kS22gYAYcsCm60eBuYK35UwGYtg85d8iiW
+         BM5ug6FOvLyeK3DAnEBtOcAUmKQjgm3+eEdz1SrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Zhang Zhijie <zhangzj@rock-chips.com>,
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 23/63] crypto: rockchip - update IV buffer to contain the next IV
-Date:   Mon, 20 May 2019 14:14:02 +0200
-Message-Id: <20190520115233.577744541@linuxfoundation.org>
+Subject: [PATCH 5.0 063/123] crypto: ccree - pm resume first enable the source clk
+Date:   Mon, 20 May 2019 14:14:03 +0200
+Message-Id: <20190520115248.994423542@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zhijie <zhangzj@rock-chips.com>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit f0cfd57b43fec65761ca61d3892b983a71515f23 upstream.
+commit 7766dd774d80463cec7b81d90c8672af91de2da1 upstream.
 
-The Kernel Crypto API request output the next IV data to
-IV buffer for CBC implementation. So the last block data of
-ciphertext should be copid into assigned IV buffer.
+On power management resume function first enable the device clk source
+to allow access to the device registers.
 
-Reported-by: Eric Biggers <ebiggers@google.com>
-Fixes: 433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Zhang Zhijie <zhangzj@rock-chips.com>
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c |   25 +++++++++++++++------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/crypto/ccree/cc_pm.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-@@ -250,9 +250,14 @@ static int rk_set_data_start(struct rk_c
- 	u8 *src_last_blk = page_address(sg_page(dev->sg_src)) +
- 		dev->sg_src->offset + dev->sg_src->length - ivsize;
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -42,14 +42,15 @@ int cc_pm_resume(struct device *dev)
+ 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
  
--	/* store the iv that need to be updated in chain mode */
--	if (ctx->mode & RK_CRYPTO_DEC)
-+	/* Store the iv that need to be updated in chain mode.
-+	 * And update the IV buffer to contain the next IV for decryption mode.
-+	 */
-+	if (ctx->mode & RK_CRYPTO_DEC) {
- 		memcpy(ctx->iv, src_last_blk, ivsize);
-+		sg_pcopy_to_buffer(dev->first, dev->src_nents, req->info,
-+				   ivsize, dev->total - ivsize);
-+	}
+ 	dev_dbg(dev, "unset HOST_POWER_DOWN_EN\n");
+-	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
+-
++	/* Enables the device source clk */
+ 	rc = cc_clk_on(drvdata);
+ 	if (rc) {
+ 		dev_err(dev, "failed getting clock back on. We're toast.\n");
+ 		return rc;
+ 	}
  
- 	err = dev->load_data(dev, dev->sg_src, dev->sg_dst);
- 	if (!err)
-@@ -288,13 +293,19 @@ static void rk_iv_copyback(struct rk_cry
- 	struct ablkcipher_request *req =
- 		ablkcipher_request_cast(dev->async_req);
- 	struct crypto_ablkcipher *tfm = crypto_ablkcipher_reqtfm(req);
-+	struct rk_cipher_ctx *ctx = crypto_ablkcipher_ctx(tfm);
- 	u32 ivsize = crypto_ablkcipher_ivsize(tfm);
- 
--	if (ivsize == DES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_TDES_IV_0,
--			      ivsize);
--	else if (ivsize == AES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_AES_IV_0, ivsize);
-+	/* Update the IV buffer to contain the next IV for encryption mode. */
-+	if (!(ctx->mode & RK_CRYPTO_DEC)) {
-+		if (dev->aligned) {
-+			memcpy(req->info, sg_virt(dev->sg_dst) +
-+				dev->sg_dst->length - ivsize, ivsize);
-+		} else {
-+			memcpy(req->info, dev->addr_vir +
-+				dev->count - ivsize, ivsize);
-+		}
-+	}
- }
- 
- static void rk_update_iv(struct rk_crypto_info *dev)
++	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
++
+ 	rc = init_cc_regs(drvdata, false);
+ 	if (rc) {
+ 		dev_err(dev, "init_cc_regs (%x)\n", rc);
 
 
