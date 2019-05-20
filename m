@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 512C0233F2
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A38182366F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388192AbfETMVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35326 "EHLO mail.kernel.org"
+        id S2389317AbfETMpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388185AbfETMVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:21:33 -0400
+        id S2389314AbfETM03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:26:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00AAF2173C;
-        Mon, 20 May 2019 12:21:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05D32216E3;
+        Mon, 20 May 2019 12:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354892;
-        bh=6e8PlO5lwAHj8M3A4ZeTkocqPZqdI1Jv0XXMOD8pH0g=;
+        s=default; t=1558355188;
+        bh=34pvu7oNa5wqsc3tntV2i9diO3rjJi8DbuOwL65B550=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6CAKL4fa55G6dUau7VU0DPtAyOcwQtMCb5wBJA7WKPmjAV9X2RCtdtaXDhkinEav
-         ChbcOHDdehy+W+LZS1QNcbrydikxnIJTiKrKbDdLONkq1PX9r4/yNMH7VD/FlL1NE4
-         9AHljbgLUoWggXpYnOEpFvf/pWNXe9bfKYBWCHlE=
+        b=bGiv9rBhQiH1vVMptygXdJH6o+tf+3kpqxgjynFxCksdhanHL3yvPRQaiu89w8Vkq
+         fm7d5IZ9kTLsZ2pSDiais0TZy69IYsMG47YO9Z/Ek6UgzzhKfiV3kxyayWtTvbRDyt
+         4Jbv4Tus7X6V1L+O+w9+IzmfOa7bp4TBlr8zmuSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 019/105] crypto: crypto4xx - fix cfb and ofb "overran dst buffer" issues
+Subject: [PATCH 5.0 025/123] crypto: crypto4xx - fix ctr-aes missing output IV
 Date:   Mon, 20 May 2019 14:13:25 +0200
-Message-Id: <20190520115248.346000022@linuxfoundation.org>
+Message-Id: <20190520115246.489707940@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 7e92e1717e3eaf6b322c252947c696b3059f05be upstream.
+commit 25baaf8e2c93197d063b372ef7b62f2767c7ac0b upstream.
 
-Currently, crypto4xx CFB and OFB AES ciphers are
-failing testmgr's test vectors.
+Commit 8efd972ef96a ("crypto: testmgr - support checking skcipher output IV")
+caused the crypto4xx driver to produce the following error:
 
-|cfb-aes-ppc4xx encryption overran dst buffer on test vector 3, cfg="in-place"
-|ofb-aes-ppc4xx encryption overran dst buffer on test vector 1, cfg="in-place"
+| ctr-aes-ppc4xx encryption test failed (wrong output IV)
+| on test vector 0, cfg="in-place"
 
-This is because of a very subtile "bug" in the hardware that
-gets indirectly mentioned in 18.1.3.5 Encryption/Decryption
-of the hardware spec:
+This patch fixes this by reworking the crypto4xx_setkey_aes()
+function to:
 
-the OFB and CFB modes for AES are listed there as operation
-modes for >>> "Block ciphers" <<<. Which kind of makes sense,
-but we would like them to be considered as stream ciphers just
-like the CTR mode.
+ - not save the iv for ECB (as per 18.2.38 CRYP0_SA_CMD_0:
+   "This bit mut be cleared for DES ECB mode or AES ECB mode,
+   when no IV is used.")
 
-To workaround this issue and stop the hardware from causing
-"overran dst buffer" on crypttexts that are not a multiple
-of 16 (AES_BLOCK_SIZE), we force the driver to use the scatter
-buffers as the go-between.
+ - instruct the hardware to save the generated IV for all
+   other modes of operations that have IV and then supply
+   it back to the callee in pretty much the same way as we
+   do it for cbc-aes already.
 
-As a bonus this patch also kills redundant pd_uinfo->num_gd
-and pd_uinfo->num_sd setters since the value has already been
-set before.
+ - make it clear that the DIR_(IN|OUT)BOUND is the important
+   bit that tells the hardware to encrypt or decrypt the data.
+   (this is cosmetic - but it hopefully prevents me from
+    getting confused again).
+
+ - don't load any bogus hash when we don't use any hash
+   operation to begin with.
 
 Cc: stable@vger.kernel.org
 Fixes: f2a13e7cba9e ("crypto: crypto4xx - enable AES RFC3686, ECB, CFB and OFB offloads")
@@ -78,93 +80,36 @@ Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/amcc/crypto4xx_core.c |   31 +++++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 10 deletions(-)
+ drivers/crypto/amcc/crypto4xx_alg.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/amcc/crypto4xx_core.c
-+++ b/drivers/crypto/amcc/crypto4xx_core.c
-@@ -712,7 +712,23 @@ int crypto4xx_build_pd(struct crypto_asy
- 	size_t offset_to_sr_ptr;
- 	u32 gd_idx = 0;
- 	int tmp;
--	bool is_busy;
-+	bool is_busy, force_sd;
-+
+--- a/drivers/crypto/amcc/crypto4xx_alg.c
++++ b/drivers/crypto/amcc/crypto4xx_alg.c
+@@ -141,9 +141,10 @@ static int crypto4xx_setkey_aes(struct c
+ 	/* Setup SA */
+ 	sa = ctx->sa_in;
+ 
+-	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_CBC ?
+-				 SA_SAVE_IV : SA_NOT_SAVE_IV),
+-				 SA_LOAD_HASH_FROM_SA, SA_LOAD_IV_FROM_STATE,
++	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_ECB ?
++				 SA_NOT_SAVE_IV : SA_SAVE_IV),
++				 SA_NOT_LOAD_HASH, (cm == CRYPTO_MODE_ECB ?
++				 SA_LOAD_IV_FROM_SA : SA_LOAD_IV_FROM_STATE),
+ 				 SA_NO_HEADER_PROC, SA_HASH_ALG_NULL,
+ 				 SA_CIPHER_ALG_AES, SA_PAD_TYPE_ZERO,
+ 				 SA_OP_GROUP_BASIC, SA_OPCODE_DECRYPT,
+@@ -162,6 +163,11 @@ static int crypto4xx_setkey_aes(struct c
+ 	memcpy(ctx->sa_out, ctx->sa_in, ctx->sa_len * 4);
+ 	sa = ctx->sa_out;
+ 	sa->sa_command_0.bf.dir = DIR_OUTBOUND;
 +	/*
-+	 * There's a very subtile/disguised "bug" in the hardware that
-+	 * gets indirectly mentioned in 18.1.3.5 Encryption/Decryption
-+	 * of the hardware spec:
-+	 * *drum roll* the AES/(T)DES OFB and CFB modes are listed as
-+	 * operation modes for >>> "Block ciphers" <<<.
-+	 *
-+	 * To workaround this issue and stop the hardware from causing
-+	 * "overran dst buffer" on crypttexts that are not a multiple
-+	 * of 16 (AES_BLOCK_SIZE), we force the driver to use the
-+	 * scatter buffers.
++	 * SA_OPCODE_ENCRYPT is the same value as SA_OPCODE_DECRYPT.
++	 * it's the DIR_(IN|OUT)BOUND that matters
 +	 */
-+	force_sd = (req_sa->sa_command_1.bf.crypto_mode9_8 == CRYPTO_MODE_CFB
-+		|| req_sa->sa_command_1.bf.crypto_mode9_8 == CRYPTO_MODE_OFB)
-+		&& (datalen % AES_BLOCK_SIZE);
++	sa->sa_command_0.bf.opcode = SA_OPCODE_ENCRYPT;
  
- 	/* figure how many gd are needed */
- 	tmp = sg_nents_for_len(src, assoclen + datalen);
-@@ -730,7 +746,7 @@ int crypto4xx_build_pd(struct crypto_asy
- 	}
- 
- 	/* figure how many sd are needed */
--	if (sg_is_last(dst)) {
-+	if (sg_is_last(dst) && force_sd == false) {
- 		num_sd = 0;
- 	} else {
- 		if (datalen > PPC4XX_SD_BUFFER_SIZE) {
-@@ -805,9 +821,10 @@ int crypto4xx_build_pd(struct crypto_asy
- 	pd->sa_len = sa_len;
- 
- 	pd_uinfo = &dev->pdr_uinfo[pd_entry];
--	pd_uinfo->async_req = req;
- 	pd_uinfo->num_gd = num_gd;
- 	pd_uinfo->num_sd = num_sd;
-+	pd_uinfo->dest_va = dst;
-+	pd_uinfo->async_req = req;
- 
- 	if (iv_len)
- 		memcpy(pd_uinfo->sr_va->save_iv, iv, iv_len);
-@@ -826,7 +843,6 @@ int crypto4xx_build_pd(struct crypto_asy
- 		/* get first gd we are going to use */
- 		gd_idx = fst_gd;
- 		pd_uinfo->first_gd = fst_gd;
--		pd_uinfo->num_gd = num_gd;
- 		gd = crypto4xx_get_gdp(dev, &gd_dma, gd_idx);
- 		pd->src = gd_dma;
- 		/* enable gather */
-@@ -863,17 +879,14 @@ int crypto4xx_build_pd(struct crypto_asy
- 		 * Indicate gather array is not used
- 		 */
- 		pd_uinfo->first_gd = 0xffffffff;
--		pd_uinfo->num_gd = 0;
- 	}
--	if (sg_is_last(dst)) {
-+	if (!num_sd) {
- 		/*
- 		 * we know application give us dst a whole piece of memory
- 		 * no need to use scatter ring.
- 		 */
- 		pd_uinfo->using_sd = 0;
- 		pd_uinfo->first_sd = 0xffffffff;
--		pd_uinfo->num_sd = 0;
--		pd_uinfo->dest_va = dst;
- 		sa->sa_command_0.bf.scatter = 0;
- 		pd->dest = (u32)dma_map_page(dev->core_dev->device,
- 					     sg_page(dst), dst->offset,
-@@ -887,9 +900,7 @@ int crypto4xx_build_pd(struct crypto_asy
- 		nbytes = datalen;
- 		sa->sa_command_0.bf.scatter = 1;
- 		pd_uinfo->using_sd = 1;
--		pd_uinfo->dest_va = dst;
- 		pd_uinfo->first_sd = fst_sd;
--		pd_uinfo->num_sd = num_sd;
- 		sd = crypto4xx_get_sdp(dev, &sd_dma, sd_idx);
- 		pd->dest = sd_dma;
- 		/* setup scatter descriptor */
+ 	return 0;
+ }
 
 
