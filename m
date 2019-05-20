@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB0D236FB
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA335236E2
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387808AbfETMTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
+        id S1733031AbfETMRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387799AbfETMTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:19:20 -0400
+        id S2387577AbfETMRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95079208C3;
-        Mon, 20 May 2019 12:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F12D20815;
+        Mon, 20 May 2019 12:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354759;
-        bh=FnOiAWCxbxKZVe4E+ZcIN19Am0EYnQ0noptC7Y+yIqM=;
+        s=default; t=1558354655;
+        bh=Cfel5yTjnUCEhkPuqCBK4F11a57QG6MSXbyUCOUUVt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPbZY09TVnSmrhc6aH244GWjaUKQ2Myib2Yn3zRIs+OphyhpgcWon43tpK5DzSnw9
-         yrCXeJ2O/dQCG0AqSdBu5TIpbYm+MY14NsLpSyswdHcEozv7GY1AMVHrSalJ3zYvHr
-         6zwp8YriDCeRI1hZB0i5dK0usxg2Ao+Ll3e4h6gY=
+        b=I7mw9fNdiIZ8w9uV24ggIL69Rxhhd/Rzey71apcgQpB6DE9OLAUmV0nQxnSesp/rK
+         oV7Af13BZTxM277ML2+vbftqJqRC+FYK7gAj5rsr2QfhTdYAWoo94WCgdIzKvfOzR3
+         yaR3EunmRjLkmT2HjuauF9eiUNPh39LBOUzlM634=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -40,12 +40,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.14 32/63] mm/mincore.c: make mincore() more conservative
+Subject: [PATCH 4.9 22/44] mm/mincore.c: make mincore() more conservative
 Date:   Mon, 20 May 2019 14:14:11 +0200
-Message-Id: <20190520115234.872323738@linuxfoundation.org>
+Message-Id: <20190520115233.417554251@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -107,7 +107,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/mm/mincore.c
 +++ b/mm/mincore.c
-@@ -169,6 +169,22 @@ out:
+@@ -167,6 +167,22 @@ out:
  	return 0;
  }
  
@@ -130,7 +130,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
   * Do a chunk of "sys_mincore()". We've already checked
   * all the arguments, we hold the mmap semaphore: we should
-@@ -189,8 +205,13 @@ static long do_mincore(unsigned long add
+@@ -187,8 +203,13 @@ static long do_mincore(unsigned long add
  	vma = find_vma(current->mm, addr);
  	if (!vma || addr < vma->vm_start)
  		return -ENOMEM;
