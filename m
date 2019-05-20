@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C8823561
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B77236CE
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391010AbfETMet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52450 "EHLO mail.kernel.org"
+        id S1733294AbfETMQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391006AbfETMet (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:49 -0400
+        id S1733292AbfETMQu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48BC920815;
-        Mon, 20 May 2019 12:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8520C20863;
+        Mon, 20 May 2019 12:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355688;
-        bh=Nri/ZYOTzRHBW5klsAUuPVKJiAAFPn2VPOyCjTgE5Zw=;
+        s=default; t=1558354609;
+        bh=PTYGx9/Qs/Lx+KktI6LWC0BAUKBvbzdl9YW9wTgYltU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iraFnXePnP1/E62BYzglU+NjIampHJD3KgShRQ2owxJUn2FcxrscXgTTU2QgPEXxJ
-         TOOUqX5zzcyCU9iL/tZ7sIpzf42QSQj4fN18bX/JrgGvsLur2mp5ZwsQjiPob4cg+o
-         Fl04nUPNb1jgOwCnwM4vxcuPLb4BLRKrCtT1IyX4=
+        b=C8YpcTEN9/uH10ccTpUJp+7mtPJ812XRkrehqA31jvXYEsfTGD1Jp8M2lCaQTGmkd
+         f1Q8RZ2CahkZQVFbteCsQiuDH0C0ss+KmYuIuIE9l4Nq4NUMRU5P8HZKOXw42PdOQZ
+         w9fU/bUC5Dm7s61pXwiKXsv2ZTaQRKOYFQsdkD3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 046/128] mmc: core: Fix tag set memory leak
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Jon Masters <jcm@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 04/44] x86/speculation/mds: Revert CPU buffer clear on double fault exit
 Date:   Mon, 20 May 2019 14:13:53 +0200
-Message-Id: <20190520115252.863643149@linuxfoundation.org>
+Message-Id: <20190520115231.418026516@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 43d8dabb4074cf7f3b1404bfbaeba5aa6f3e5cfc upstream.
+commit 88640e1dcd089879530a49a8d212d1814678dfe7 upstream.
 
-The tag set is allocated in mmc_init_queue but never freed. This results
-in a memory leak. This change makes sure we free the tag set when the
-queue is also freed.
+The double fault ESPFIX path doesn't return to user mode at all --
+it returns back to the kernel by simulating a #GP fault.
+prepare_exit_to_usermode() will run on the way out of
+general_protection before running user code.
 
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 81196976ed94 ("mmc: block: Add blk-mq support")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
+Link: http://lkml.kernel.org/r/ac97612445c0a44ee10374f6ea79c222fe22a5c4.1557865329.git.luto@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/queue.c |    1 +
- 1 file changed, 1 insertion(+)
+ Documentation/x86/mds.rst |    7 -------
+ arch/x86/kernel/traps.c   |    8 --------
+ 2 files changed, 15 deletions(-)
 
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -472,6 +472,7 @@ void mmc_cleanup_queue(struct mmc_queue
- 		blk_mq_unquiesce_queue(q);
+--- a/Documentation/x86/mds.rst
++++ b/Documentation/x86/mds.rst
+@@ -158,13 +158,6 @@ Mitigation points
+      mitigated on the return from do_nmi() to provide almost complete
+      coverage.
  
- 	blk_cleanup_queue(q);
-+	blk_mq_free_tag_set(&mq->tag_set);
+-   - Double fault (#DF):
+-
+-     A double fault is usually fatal, but the ESPFIX workaround, which can
+-     be triggered from user space through modify_ldt(2) is a recoverable
+-     double fault. #DF uses the paranoid exit path, so explicit mitigation
+-     in the double fault handler is required.
+-
+    - Machine Check Exception (#MC):
  
- 	/*
- 	 * A request can be completed before the next request, potentially
+      Another corner case is a #MC which hits between the CPU buffer clear
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -62,7 +62,6 @@
+ #include <asm/alternative.h>
+ #include <asm/fpu/xstate.h>
+ #include <asm/trace/mpx.h>
+-#include <asm/nospec-branch.h>
+ #include <asm/mpx.h>
+ #include <asm/vm86.h>
+ 
+@@ -341,13 +340,6 @@ dotraplinkage void do_double_fault(struc
+ 		regs->ip = (unsigned long)general_protection;
+ 		regs->sp = (unsigned long)&normal_regs->orig_ax;
+ 
+-		/*
+-		 * This situation can be triggered by userspace via
+-		 * modify_ldt(2) and the return does not take the regular
+-		 * user space exit, so a CPU buffer clear is required when
+-		 * MDS mitigation is enabled.
+-		 */
+-		mds_user_clear_cpu_buffers();
+ 		return;
+ 	}
+ #endif
 
 
