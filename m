@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BB82374F
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA2D123763
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387451AbfETMYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:24:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
+        id S2388327AbfETMr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388772AbfETMYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:24:11 -0400
+        id S2388238AbfETMYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0665221019;
-        Mon, 20 May 2019 12:24:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9121E21479;
+        Mon, 20 May 2019 12:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355050;
-        bh=hCbM85MWMqCmaSRJyr67oC5qHrjixE99ieKLqpxW7n4=;
+        s=default; t=1558355053;
+        bh=15RPKwpw4JLzs1WOUCE36293hirvTF5FismRFcT6P5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/Bo6eP6XfLL0Q7ctRHsMX4Tzw88LXAknYEu5dVVDMskWj/j1z203A9NfzGSWYUVP
-         5jf+WRwB+3lCFnFCHetIJv2QmNNU/E8ljRe0OAAESC46ILl57EPT0kGuEq+0wVnK8K
-         w6WwiQZHrfT+itsCbexRpzHpIY0Ri99miHNvdTlo=
+        b=kzGzR4IpKFwBMby5cruhh6JcbnSfSWxj6iNq+W6ihwEvn5u+vk+0+M0EGptR1AEYb
+         ljkvVjmMN3fr44DjRdOjhpB5BhJ0jV62//bOrs+3eoJlA1M4+/AFibRnXd95auwUxJ
+         EIJvZdPxtNXabmLpcfYxkZQ2cyuhr7OS9NtpaSKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christoph Anton Mitterer <calestyo@scientia.net>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 077/105] Btrfs: do not start a transaction during fiemap
-Date:   Mon, 20 May 2019 14:14:23 +0200
-Message-Id: <20190520115252.573525409@linuxfoundation.org>
+Subject: [PATCH 4.19 078/105] Btrfs: do not start a transaction at iterate_extent_inodes()
+Date:   Mon, 20 May 2019 14:14:24 +0200
+Message-Id: <20190520115252.656532570@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
 References: <20190520115247.060821231@linuxfoundation.org>
@@ -47,25 +47,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit 03628cdbc64db6262e50d0357960a4e9562676a1 upstream.
+commit bfc61c36260ca990937539cd648ede3cd749bc10 upstream.
 
-During fiemap, for regular extents (non inline) we need to check if they
-are shared and if they are, set the shared bit. Checking if an extent is
-shared requires checking the delayed references of the currently running
-transaction, since some reference might have not yet hit the extent tree
-and be only in the in-memory delayed references.
+When finding out which inodes have references on a particular extent, done
+by backref.c:iterate_extent_inodes(), from the BTRFS_IOC_LOGICAL_INO (both
+v1 and v2) ioctl and from scrub we use the transaction join API to grab a
+reference on the currently running transaction, since in order to give
+accurate results we need to inspect the delayed references of the currently
+running transaction.
 
-However we were using a transaction join for this, which creates a new
-transaction when there is no transaction currently running. That means
-that two more potential failures can happen: creating the transaction and
-committing it. Further, if no write activity is currently happening in the
-system, and fiemap calls keep being done, we end up creating and
-committing transactions that do nothing.
+However, if there is currently no running transaction, the join operation
+will create a new transaction. This is inefficient as the transaction will
+eventually be committed, doing unnecessary IO and introducing a potential
+point of failure that will lead to a transaction abort due to -ENOSPC, as
+recently reported [1].
 
-In some extreme cases this can result in the commit of the transaction
-created by fiemap to fail with ENOSPC when updating the root item of a
-subvolume tree because a join does not reserve any space, leading to a
-trace like the following:
+That's because the join, creates the transaction but does not reserve any
+space, so when attempting to update the root item of the root passed to
+btrfs_join_transaction(), during the transaction commit, we can end up
+failling with -ENOSPC. Users of a join operation are supposed to actually
+do some filesystem changes and reserve space by some means, which is not
+the case of iterate_extent_inodes(), it is a read-only operation for all
+contextes from which it is called.
+
+The reported [1] -ENOSPC failure stack trace is the following:
 
  heisenberg kernel: ------------[ cut here ]------------
  heisenberg kernel: BTRFS: Transaction aborted (error -28)
@@ -99,67 +104,57 @@ trace like the following:
  heisenberg kernel:  ret_from_fork+0x35/0x40
  heisenberg kernel: ---[ end trace 05de912e30e012d9 ]---
 
-Since fiemap (and btrfs_check_shared()) is a read-only operation, do not do
-a transaction join to avoid the overhead of creating a new transaction (if
-there is currently no running transaction) and introducing a potential
-point of failure when the new transaction gets committed, instead use a
-transaction attach to grab a handle for the currently running transaction
-if any.
+So fix that by using the attach API, which does not create a transaction
+when there is currently no running transaction.
 
-Reported-by: Christoph Anton Mitterer <calestyo@scientia.net>
-Link: https://lore.kernel.org/linux-btrfs/b2a668d7124f1d3e410367f587926f622b3f03a4.camel@scientia.net/
-Fixes: afce772e87c36c ("btrfs: fix check_shared for fiemap ioctl")
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
+[1] https://lore.kernel.org/linux-btrfs/b2a668d7124f1d3e410367f587926f622b3f03a4.camel@scientia.net/
+
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/backref.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ fs/btrfs/backref.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
 --- a/fs/btrfs/backref.c
 +++ b/fs/btrfs/backref.c
-@@ -1452,8 +1452,8 @@ int btrfs_find_all_roots(struct btrfs_tr
-  * callers (such as fiemap) which want to know whether the extent is
-  * shared but do not need a ref count.
-  *
-- * This attempts to allocate a transaction in order to account for
-- * delayed refs, but continues on even when the alloc fails.
-+ * This attempts to attach to the running transaction in order to account for
-+ * delayed refs, but continues on even when no running transaction exists.
-  *
-  * Return: 0 if extent is not shared, 1 if it is shared, < 0 on error.
-  */
-@@ -1476,13 +1476,16 @@ int btrfs_check_shared(struct btrfs_root
- 	tmp = ulist_alloc(GFP_NOFS);
- 	roots = ulist_alloc(GFP_NOFS);
- 	if (!tmp || !roots) {
--		ulist_free(tmp);
--		ulist_free(roots);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out;
- 	}
+@@ -1908,13 +1908,19 @@ int iterate_extent_inodes(struct btrfs_f
+ 			extent_item_objectid);
  
--	trans = btrfs_join_transaction(root);
-+	trans = btrfs_attach_transaction(root);
- 	if (IS_ERR(trans)) {
-+		if (PTR_ERR(trans) != -ENOENT && PTR_ERR(trans) != -EROFS) {
-+			ret = PTR_ERR(trans);
-+			goto out;
+ 	if (!search_commit_root) {
+-		trans = btrfs_join_transaction(fs_info->extent_root);
+-		if (IS_ERR(trans))
+-			return PTR_ERR(trans);
++		trans = btrfs_attach_transaction(fs_info->extent_root);
++		if (IS_ERR(trans)) {
++			if (PTR_ERR(trans) != -ENOENT &&
++			    PTR_ERR(trans) != -EROFS)
++				return PTR_ERR(trans);
++			trans = NULL;
 +		}
- 		trans = NULL;
++	}
++
++	if (trans)
+ 		btrfs_get_tree_mod_seq(fs_info, &tree_mod_seq_elem);
+-	} else {
++	else
  		down_read(&fs_info->commit_root_sem);
+-	}
+ 
+ 	ret = btrfs_find_all_leafs(trans, fs_info, extent_item_objectid,
+ 				   tree_mod_seq_elem.seq, &refs,
+@@ -1947,7 +1953,7 @@ int iterate_extent_inodes(struct btrfs_f
+ 
+ 	free_leaf_list(refs);
+ out:
+-	if (!search_commit_root) {
++	if (trans) {
+ 		btrfs_put_tree_mod_seq(fs_info, &tree_mod_seq_elem);
+ 		btrfs_end_transaction(trans);
  	} else {
-@@ -1515,6 +1518,7 @@ int btrfs_check_shared(struct btrfs_root
- 	} else {
- 		up_read(&fs_info->commit_root_sem);
- 	}
-+out:
- 	ulist_free(tmp);
- 	ulist_free(roots);
- 	return ret;
 
 
