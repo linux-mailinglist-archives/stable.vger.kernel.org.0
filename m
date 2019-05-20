@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EB323480
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 776962353D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389496AbfETM1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
+        id S2390807AbfETMd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389502AbfETM1d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:33 -0400
+        id S2390821AbfETMdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:33:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1153720675;
-        Mon, 20 May 2019 12:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D91AB20645;
+        Mon, 20 May 2019 12:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355252;
-        bh=4mJ0ODamTguxNDF0yhcDtRfQZ1QX4p0KtjNL4DmrW2I=;
+        s=default; t=1558355634;
+        bh=JKuqmvvUtsBI5oCflPx+jie8Y+HL1Ah3hRbWlU+reOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2q9fYjelGdCtu8cfer1nTJ8klVmFqwt/euKrIgN2aL0ejbPRZadJ0Q8tuj0k9MU8
-         96OQIdatCKzwaW/GPwgiHwmcIs+GIwSVly6TtX3ZfGP9aQ74WB2stkfaj53v3Zs80U
-         xJIQIULG39IkB/j7dAWhvqm87m4Yp6ctBoIfPyFY=
+        b=AcsUFQD5v4PPqfbS4yEVA9HSGi+G0uPbj4wMyqG16mPt9drRJzKP2PNUZZZ226aNi
+         tR11xhJQWzV3iy98iIjxZKUSAz4eF7uIf8VnQYRThVn4rwsIZjeDDpLrelTuKBua8Z
+         uHh2a/MFu4s4pJc9bwjxP33OEE16R8AJDa9XdpjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a07d0142e74fdd595cfb@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 047/123] ALSA: line6: toneport: Fix broken usage of timer for delayed execution
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 040/128] crypto: caam/qi2 - generate hash keys in-place
 Date:   Mon, 20 May 2019 14:13:47 +0200
-Message-Id: <20190520115247.861946852@linuxfoundation.org>
+Message-Id: <20190520115252.428105270@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-commit 7f84ff68be05ec7a5d2acf8fdc734fe5897af48f upstream.
+commit 418cd20e4dcdca97e6f6d59e6336228dacf2e45d upstream.
 
-The line6 toneport driver has code for some delayed initialization,
-and this hits the kernel Oops because mutex and other sleepable
-functions are used in the timer callback.  Fix the abuse by a delayed
-work instead so that everything works gracefully.
+Commit 307244452d3d ("crypto: caam - generate hash keys in-place")
+fixed ahash implementation in caam/jr driver such that user-provided key
+buffer is not DMA mapped, since it's not guaranteed to be DMAable.
 
-Reported-by: syzbot+a07d0142e74fdd595cfb@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Apply a similar fix for caam/qi2 driver.
+
+Cc: <stable@vger.kernel.org> # v4.20+
+Fixes: 3f16f6c9d632 ("crypto: caam/qi2 - add support for ahash algorithms")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/toneport.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/crypto/caam/caamalg_qi2.c |   41 +++++++++++++-------------------------
+ 1 file changed, 15 insertions(+), 26 deletions(-)
 
---- a/sound/usb/line6/toneport.c
-+++ b/sound/usb/line6/toneport.c
-@@ -54,8 +54,8 @@ struct usb_line6_toneport {
- 	/* Firmware version (x 100) */
- 	u8 firmware_version;
- 
--	/* Timer for delayed PCM startup */
--	struct timer_list timer;
-+	/* Work for delayed PCM startup */
-+	struct delayed_work pcm_work;
- 
- 	/* Device type */
- 	enum line6_device_type type;
-@@ -241,9 +241,10 @@ static int snd_toneport_source_put(struc
- 	return 1;
+--- a/drivers/crypto/caam/caamalg_qi2.c
++++ b/drivers/crypto/caam/caamalg_qi2.c
+@@ -3020,13 +3020,13 @@ static void split_key_sh_done(void *cbk_
  }
  
--static void toneport_start_pcm(struct timer_list *t)
-+static void toneport_start_pcm(struct work_struct *work)
+ /* Digest hash size if it is too large */
+-static int hash_digest_key(struct caam_hash_ctx *ctx, const u8 *key_in,
+-			   u32 *keylen, u8 *key_out, u32 digestsize)
++static int hash_digest_key(struct caam_hash_ctx *ctx, u32 *keylen, u8 *key,
++			   u32 digestsize)
  {
--	struct usb_line6_toneport *toneport = from_timer(toneport, t, timer);
-+	struct usb_line6_toneport *toneport =
-+		container_of(work, struct usb_line6_toneport, pcm_work.work);
- 	struct usb_line6 *line6 = &toneport->line6;
+ 	struct caam_request *req_ctx;
+ 	u32 *desc;
+ 	struct split_key_sh_result result;
+-	dma_addr_t src_dma, dst_dma;
++	dma_addr_t key_dma;
+ 	struct caam_flc *flc;
+ 	dma_addr_t flc_dma;
+ 	int ret = -ENOMEM;
+@@ -3043,17 +3043,10 @@ static int hash_digest_key(struct caam_h
+ 	if (!flc)
+ 		goto err_flc;
  
- 	line6_pcm_acquire(line6->line6pcm, LINE6_STREAM_MONITOR, true);
-@@ -393,7 +394,8 @@ static int toneport_setup(struct usb_lin
- 	if (toneport_has_led(toneport))
- 		toneport_update_led(toneport);
+-	src_dma = dma_map_single(ctx->dev, (void *)key_in, *keylen,
+-				 DMA_TO_DEVICE);
+-	if (dma_mapping_error(ctx->dev, src_dma)) {
+-		dev_err(ctx->dev, "unable to map key input memory\n");
+-		goto err_src_dma;
+-	}
+-	dst_dma = dma_map_single(ctx->dev, (void *)key_out, digestsize,
+-				 DMA_FROM_DEVICE);
+-	if (dma_mapping_error(ctx->dev, dst_dma)) {
+-		dev_err(ctx->dev, "unable to map key output memory\n");
+-		goto err_dst_dma;
++	key_dma = dma_map_single(ctx->dev, key, *keylen, DMA_BIDIRECTIONAL);
++	if (dma_mapping_error(ctx->dev, key_dma)) {
++		dev_err(ctx->dev, "unable to map key memory\n");
++		goto err_key_dma;
+ 	}
  
--	mod_timer(&toneport->timer, jiffies + TONEPORT_PCM_DELAY * HZ);
-+	schedule_delayed_work(&toneport->pcm_work,
-+			      msecs_to_jiffies(TONEPORT_PCM_DELAY * 1000));
- 	return 0;
- }
+ 	desc = flc->sh_desc;
+@@ -3078,14 +3071,14 @@ static int hash_digest_key(struct caam_h
  
-@@ -405,7 +407,7 @@ static void line6_toneport_disconnect(st
- 	struct usb_line6_toneport *toneport =
- 		(struct usb_line6_toneport *)line6;
+ 	dpaa2_fl_set_final(in_fle, true);
+ 	dpaa2_fl_set_format(in_fle, dpaa2_fl_single);
+-	dpaa2_fl_set_addr(in_fle, src_dma);
++	dpaa2_fl_set_addr(in_fle, key_dma);
+ 	dpaa2_fl_set_len(in_fle, *keylen);
+ 	dpaa2_fl_set_format(out_fle, dpaa2_fl_single);
+-	dpaa2_fl_set_addr(out_fle, dst_dma);
++	dpaa2_fl_set_addr(out_fle, key_dma);
+ 	dpaa2_fl_set_len(out_fle, digestsize);
  
--	del_timer_sync(&toneport->timer);
-+	cancel_delayed_work_sync(&toneport->pcm_work);
+ 	print_hex_dump_debug("key_in@" __stringify(__LINE__)": ",
+-			     DUMP_PREFIX_ADDRESS, 16, 4, key_in, *keylen, 1);
++			     DUMP_PREFIX_ADDRESS, 16, 4, key, *keylen, 1);
+ 	print_hex_dump_debug("shdesc@" __stringify(__LINE__)": ",
+ 			     DUMP_PREFIX_ADDRESS, 16, 4, desc, desc_bytes(desc),
+ 			     1);
+@@ -3105,17 +3098,15 @@ static int hash_digest_key(struct caam_h
+ 		wait_for_completion(&result.completion);
+ 		ret = result.err;
+ 		print_hex_dump_debug("digested key@" __stringify(__LINE__)": ",
+-				     DUMP_PREFIX_ADDRESS, 16, 4, key_in,
++				     DUMP_PREFIX_ADDRESS, 16, 4, key,
+ 				     digestsize, 1);
+ 	}
  
- 	if (toneport_has_led(toneport))
- 		toneport_remove_leds(toneport);
-@@ -422,7 +424,7 @@ static int toneport_init(struct usb_line
- 	struct usb_line6_toneport *toneport =  (struct usb_line6_toneport *) line6;
+ 	dma_unmap_single(ctx->dev, flc_dma, sizeof(flc->flc) + desc_bytes(desc),
+ 			 DMA_TO_DEVICE);
+ err_flc_dma:
+-	dma_unmap_single(ctx->dev, dst_dma, digestsize, DMA_FROM_DEVICE);
+-err_dst_dma:
+-	dma_unmap_single(ctx->dev, src_dma, *keylen, DMA_TO_DEVICE);
+-err_src_dma:
++	dma_unmap_single(ctx->dev, key_dma, *keylen, DMA_BIDIRECTIONAL);
++err_key_dma:
+ 	kfree(flc);
+ err_flc:
+ 	kfree(req_ctx);
+@@ -3137,12 +3128,10 @@ static int ahash_setkey(struct crypto_ah
+ 	dev_dbg(ctx->dev, "keylen %d blocksize %d\n", keylen, blocksize);
  
- 	toneport->type = id->driver_info;
--	timer_setup(&toneport->timer, toneport_start_pcm, 0);
-+	INIT_DELAYED_WORK(&toneport->pcm_work, toneport_start_pcm);
- 
- 	line6->disconnect = line6_toneport_disconnect;
- 
+ 	if (keylen > blocksize) {
+-		hashed_key = kmalloc_array(digestsize, sizeof(*hashed_key),
+-					   GFP_KERNEL | GFP_DMA);
++		hashed_key = kmemdup(key, keylen, GFP_KERNEL | GFP_DMA);
+ 		if (!hashed_key)
+ 			return -ENOMEM;
+-		ret = hash_digest_key(ctx, key, &keylen, hashed_key,
+-				      digestsize);
++		ret = hash_digest_key(ctx, &keylen, hashed_key, digestsize);
+ 		if (ret)
+ 			goto bad_free_key;
+ 		key = hashed_key;
 
 
