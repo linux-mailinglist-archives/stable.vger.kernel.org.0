@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 416FD235BD
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFDDE2360E
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389313AbfETMhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55810 "EHLO mail.kernel.org"
+        id S2389964AbfETM3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403898AbfETMgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:36:42 -0400
+        id S2389959AbfETM3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD714204FD;
-        Mon, 20 May 2019 12:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8429A20675;
+        Mon, 20 May 2019 12:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355802;
-        bh=vIMZwcspRXs6UE0wqwuiB7o5LD4AFYlbuJzRP06lmfo=;
+        s=default; t=1558355386;
+        bh=gDXp1YTVd1ZDb9dpxjABJtOXO5WdHbIWePTo2Hqkyqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0RyGaW9iFVjNTynEbFsRWx9Z5Syqzsi1Z1J7DYD4KQbachxGnVKSz2OxFd+bw3KC
-         goB9UakYBvHcheswscMYP2MRH8K90R3U1+R6LkCfKusO3FCu6XS6A7rXVLrHJ/VfXS
-         ZnRzp02fNwHGsag/oXrPRhmx2Dj38yDgaaEhQE3w=
+        b=M2SxiAqJXyrYn+9h66uAtI/hcQ7davda2Akk1ajGbrxvrWLzUyehD6xB913AJYTZg
+         nx5GLGb1Yl55DC63oxeiqn0YQJrTauU0jrHkl2XhyxSf+cXXNd4x0YKvWcxGFGL7v4
+         ZGIUjBog2yADSZnYsALzlEJPYYxx7XztQkS0izdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 5.1 090/128] ext4: actually request zeroing of inode table after grow
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.0 097/123] bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
 Date:   Mon, 20 May 2019 14:14:37 +0200
-Message-Id: <20190520115255.464349699@linuxfoundation.org>
+Message-Id: <20190520115251.461190489@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Tkhai <ktkhai@virtuozzo.com>
+From: Coly Li <colyli@suse.de>
 
-commit 310a997fd74de778b9a4848a64be9cda9f18764a upstream.
+commit 1bee2addc0c8470c8aaa65ef0599eeae96dd88bc upstream.
 
-It is never possible, that number of block groups decreases,
-since only online grow is supported.
+In journal_reclaim() ja->cur_idx of each cache will be update to
+reclaim available journal buckets. Variable 'int n' is used to count how
+many cache is successfully reclaimed, then n is set to c->journal.key
+by SET_KEY_PTRS(). Later in journal_write_unlocked(), a for_each_cache()
+loop will write the jset data onto each cache.
 
-But after a growing occured, we have to zero inode tables
-for just created new block groups.
+The problem is, if all jouranl buckets on each cache is full, the
+following code in journal_reclaim(),
 
-Fixes: 19c5246d2516 ("ext4: add new online resize interface")
-Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+529 for_each_cache(ca, c, iter) {
+530       struct journal_device *ja = &ca->journal;
+531       unsigned int next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
+532
+533       /* No space available on this device */
+534       if (next == ja->discard_idx)
+535               continue;
+536
+537       ja->cur_idx = next;
+538       k->ptr[n++] = MAKE_PTR(0,
+539                         bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
+540                         ca->sb.nr_this_dev);
+541 }
+542
+543 bkey_init(k);
+544 SET_KEY_PTRS(k, n);
+
+If there is no available bucket to reclaim, the if() condition at line
+534 will always true, and n remains 0. Then at line 544, SET_KEY_PTRS()
+will set KEY_PTRS field of c->journal.key to 0.
+
+Setting KEY_PTRS field of c->journal.key to 0 is wrong. Because in
+journal_write_unlocked() the journal data is written in following loop,
+
+649	for (i = 0; i < KEY_PTRS(k); i++) {
+650-671		submit journal data to cache device
+672	}
+
+If KEY_PTRS field is set to 0 in jouranl_reclaim(), the journal data
+won't be written to cache device here. If system crahed or rebooted
+before bkeys of the lost journal entries written into btree nodes, data
+corruption will be reported during bcache reload after rebooting the
+system.
+
+Indeed there is only one cache in a cache set, there is no need to set
+KEY_PTRS field in journal_reclaim() at all. But in order to keep the
+for_each_cache() logic consistent for now, this patch fixes the above
+problem by not setting 0 KEY_PTRS of journal key, if there is no bucket
+available to reclaim.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/bcache/journal.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -978,7 +978,7 @@ mext_out:
- 		if (err == 0)
- 			err = err2;
- 		mnt_drop_write_file(filp);
--		if (!err && (o_group > EXT4_SB(sb)->s_groups_count) &&
-+		if (!err && (o_group < EXT4_SB(sb)->s_groups_count) &&
- 		    ext4_has_group_desc_csum(sb) &&
- 		    test_opt(sb, INIT_INODE_TABLE))
- 			err = ext4_register_li_request(sb, o_group);
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -540,11 +540,11 @@ static void journal_reclaim(struct cache
+ 				  ca->sb.nr_this_dev);
+ 	}
+ 
+-	bkey_init(k);
+-	SET_KEY_PTRS(k, n);
+-
+-	if (n)
++	if (n) {
++		bkey_init(k);
++		SET_KEY_PTRS(k, n);
+ 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
++	}
+ out:
+ 	if (!journal_full(&c->journal))
+ 		__closure_wake_up(&c->journal.wait);
+@@ -671,6 +671,9 @@ static void journal_write_unlocked(struc
+ 		ca->journal.seq[ca->journal.cur_idx] = w->data->seq;
+ 	}
+ 
++	/* If KEY_PTRS(k) == 0, this jset gets lost in air */
++	BUG_ON(i == 0);
++
+ 	atomic_dec_bug(&fifo_back(&c->journal.pin));
+ 	bch_journal_next(&c->journal);
+ 	journal_reclaim(c);
 
 
