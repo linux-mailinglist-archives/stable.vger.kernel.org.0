@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 637DC23660
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076BF234F7
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389360AbfETM04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
+        id S2390498AbfETMcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389361AbfETM04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:26:56 -0400
+        id S1732867AbfETMcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:32:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0AD520645;
-        Mon, 20 May 2019 12:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB33620675;
+        Mon, 20 May 2019 12:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355215;
-        bh=NELJ4Hu6YiJbJlmxwVlRRrxhcEXBUQ4E/XUnMCsrArw=;
+        s=default; t=1558355529;
+        bh=XvtAsDLEUGLG/5JAIEZjsWSHoExQuKV9bR/WUi5O0OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzQ/SYzMLVggi/V/87gY+LtrY9v1EdwD43Fwcvo8b+Ua0X3XD/uk7Khxh9BuEj0Kh
-         PYr3qFMHmYqVRV7V/FpNxX6XEA0WsumIDJVusy4xftSKs62wmw/QiBy6W3D9E42g4e
-         dYwgdoc8QQ7zN30WV5h7e0Rc6dYh5VNCWDHkS50g=
+        b=xivpAq9og8u48w6NSGY/5M92UWjrrTyYpcg1fTzXOs1hVEhv9Kl+kI0XCPFkEOFLz
+         sVvkyM2+p/OcHxme2bzOGdrvROGc59Asa85MyoOFkOehLHXyFSbSELbiCFCitVqAHP
+         d+r8VdH1CunnfAGHBY/Snc8A3wJAhi3UXXvhrZWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.0 034/123] crypto: crct10dif-generic - fix use via crypto_shash_digest()
+Subject: [PATCH 5.1 027/128] crypto: chacha-generic - fix use as arm64 no-NEON fallback
 Date:   Mon, 20 May 2019 14:13:34 +0200
-Message-Id: <20190520115247.019016163@linuxfoundation.org>
+Message-Id: <20190520115251.446287556@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +46,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 307508d1072979f4435416f87936f87eaeb82054 upstream.
+commit 7aceaaef04eaaf6019ca159bc354d800559bba1d upstream.
 
-The ->digest() method of crct10dif-generic reads the current CRC value
-from the shash_desc context.  But this value is uninitialized, causing
-crypto_shash_digest() to compute the wrong result.  Fix it.
+The arm64 implementations of ChaCha and XChaCha are failing the extra
+crypto self-tests following my patches to test the !may_use_simd() code
+paths, which previously were untested.  The problem is as follows:
 
-Probably this wasn't noticed before because lib/crc-t10dif.c only uses
-crypto_shash_update(), not crypto_shash_digest().  Likewise,
-crypto_shash_digest() is not yet tested by the crypto self-tests because
-those only test the ahash API which only uses shash init/update/final.
+When !may_use_simd(), the arm64 NEON implementations fall back to the
+generic implementation, which uses the skcipher_walk API to iterate
+through the src/dst scatterlists.  Due to how the skcipher_walk API
+works, walk.stride is set from the skcipher_alg actually being used,
+which in this case is the arm64 NEON algorithm.  Thus walk.stride is
+5*CHACHA_BLOCK_SIZE, not CHACHA_BLOCK_SIZE.
 
-This bug was detected by my patches that improve testmgr to fuzz
-algorithms against their generic implementation.
+This unnecessarily large stride shouldn't cause an actual problem.
+However, the generic implementation computes round_down(nbytes,
+walk.stride).  round_down() assumes the round amount is a power of 2,
+which 5*CHACHA_BLOCK_SIZE is not, so it gives the wrong result.
 
-Fixes: 2d31e518a428 ("crypto: crct10dif - Wrap crc_t10dif function all to use crypto transform framework")
-Cc: <stable@vger.kernel.org> # v3.11+
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
+This causes the following case in skcipher_walk_done() to be hit,
+causing a WARN() and failing the encryption operation:
+
+	if (WARN_ON(err)) {
+		/* unexpected case; didn't process all bytes */
+		err = -EINVAL;
+		goto finish;
+	}
+
+Fix it by rounding down to CHACHA_BLOCK_SIZE instead of walk.stride.
+
+(Or we could replace round_down() with rounddown(), but that would add a
+slow division operation every time, which I think we should avoid.)
+
+Fixes: 2fe55987b262 ("crypto: arm64/chacha - use combined SIMD/ALU routine for more speed")
+Cc: <stable@vger.kernel.org> # v5.0+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/crct10dif_generic.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ crypto/chacha_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/crypto/crct10dif_generic.c
-+++ b/crypto/crct10dif_generic.c
-@@ -65,10 +65,9 @@ static int chksum_final(struct shash_des
- 	return 0;
- }
+--- a/crypto/chacha_generic.c
++++ b/crypto/chacha_generic.c
+@@ -52,7 +52,7 @@ static int chacha_stream_xor(struct skci
+ 		unsigned int nbytes = walk.nbytes;
  
--static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
--			u8 *out)
-+static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
- {
--	*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
-+	*(__u16 *)out = crc_t10dif_generic(crc, data, len);
- 	return 0;
- }
+ 		if (nbytes < walk.total)
+-			nbytes = round_down(nbytes, walk.stride);
++			nbytes = round_down(nbytes, CHACHA_BLOCK_SIZE);
  
-@@ -77,15 +76,13 @@ static int chksum_finup(struct shash_des
- {
- 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
- 
--	return __chksum_finup(&ctx->crc, data, len, out);
-+	return __chksum_finup(ctx->crc, data, len, out);
- }
- 
- static int chksum_digest(struct shash_desc *desc, const u8 *data,
- 			 unsigned int length, u8 *out)
- {
--	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
--
--	return __chksum_finup(&ctx->crc, data, length, out);
-+	return __chksum_finup(0, data, length, out);
- }
- 
- static struct shash_alg alg = {
+ 		chacha_docrypt(state, walk.dst.virt.addr, walk.src.virt.addr,
+ 			       nbytes, ctx->nrounds);
 
 
