@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0C42360C
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8DF32344D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389609AbfETM3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46062 "EHLO mail.kernel.org"
+        id S2389098AbfETMZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:25:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389975AbfETM3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:55 -0400
+        id S2389115AbfETMZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:25:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9679920645;
-        Mon, 20 May 2019 12:29:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7841A20675;
+        Mon, 20 May 2019 12:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355394;
-        bh=onfGMYicXDP3MCBWfPIOJpbs01/cprEgL1AT+ll7nso=;
+        s=default; t=1558355136;
+        bh=AKbEKwcOJ3m1dz7P1Ldurh2Qf2+9jI6jVxDWugo79ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTI65A+CHpCnNq6O7dwPIFcsf0GrYQlyGCx62rIknslYdlSJBu2OhulVAZyOpJa+n
-         zh/71XCFRpTZhpPaFrbOATkwGLauu2c39/NlHy5iuSv0wRw+r68xL7TO9HMy0ualZ+
-         nR4jmQDiefD9eEx+7Z75Ho41GxyJbLSoco1cYClw=
+        b=Lk/D5ORTVajCEGWEtwxPGrq8UtqBs5ITseb/hcjIpGbVY9tWiae8ndwodBfpGoznR
+         /4fnpLyBYzT4/l6eJ5h1NLCF/KYZGAuirriI1TNujcuAQLUGBQVm4b2k5GGeE6WsBF
+         gdylh6PXv7m7Z3hrJxdtUt/V8+fPy4YHmqXzS8X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.0 100/123] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 094/105] KVM: lapic: Busy wait for timer to expire when using hv_timer
 Date:   Mon, 20 May 2019 14:14:40 +0200
-Message-Id: <20190520115251.686329530@linuxfoundation.org>
+Message-Id: <20190520115253.743557788@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit ec084de929e419e51bcdafaafe567d9e7d0273b7 upstream.
+commit ee66e453db13d4837a0dcf9d43efa7a88603161b upstream.
 
-synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb
-switch may not go to the workqueue after synchronize_rcu().  Thus
-previous scheduled switches was not finished even flushing the
-workqueue, which will cause a NULL pointer dereferenced followed below.
+...now that VMX's preemption timer, i.e. the hv_timer, also adjusts its
+programmed time based on lapic_timer_advance_ns.  Without the delay, a
+guest can see a timer interrupt arrive before the requested time when
+KVM is using the hv_timer to emulate the guest's interrupt.
 
-  VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
-    evict+0xb3/0x180
-    iput+0x1b0/0x230
-    inode_switch_wbs_work_fn+0x3c0/0x6a0
-    worker_thread+0x4e/0x490
-    ? process_one_work+0x410/0x410
-    kthread+0xe6/0x100
-    ret_from_fork+0x39/0x50
-
-Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
-pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu()
-in inode_switch_wbs() to make more sense.
-
-Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
-Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Suggested-by: Tejun Heo <tj@kernel.org>
+Fixes: c5ce8235cffa0 ("KVM: VMX: Optimize tscdeadline timer latency")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/lapic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -523,8 +523,6 @@ static void inode_switch_wbs(struct inod
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1449,7 +1449,7 @@ static void apic_timer_expired(struct kv
+ 	if (swait_active(q))
+ 		swake_up_one(q);
  
- 	isw->inode = inode;
- 
--	atomic_inc(&isw_nr_in_flight);
--
- 	/*
- 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
- 	 * the RCU protected stat update paths to grab the i_page
-@@ -532,6 +530,9 @@ static void inode_switch_wbs(struct inod
- 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
- 	 */
- 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
-+
-+	atomic_inc(&isw_nr_in_flight);
-+
- 	goto out_unlock;
- 
- out_free:
-@@ -901,7 +902,11 @@ restart:
- void cgroup_writeback_umount(void)
- {
- 	if (atomic_read(&isw_nr_in_flight)) {
--		synchronize_rcu();
-+		/*
-+		 * Use rcu_barrier() to wait for all pending callbacks to
-+		 * ensure that all in-flight wb switches are in the workqueue.
-+		 */
-+		rcu_barrier();
- 		flush_workqueue(isw_wq);
- 	}
+-	if (apic_lvtt_tscdeadline(apic))
++	if (apic_lvtt_tscdeadline(apic) || ktimer->hv_timer_in_use)
+ 		ktimer->expired_tscdeadline = ktimer->tscdeadline;
  }
+ 
 
 
