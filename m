@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C484923540
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2522378F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390842AbfETMeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51224 "EHLO mail.kernel.org"
+        id S1731810AbfETMvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:51:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390837AbfETMeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:03 -0400
+        id S1732578AbfETMTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD0C320645;
-        Mon, 20 May 2019 12:34:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A4A720656;
+        Mon, 20 May 2019 12:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355642;
-        bh=FnOiAWCxbxKZVe4E+ZcIN19Am0EYnQ0noptC7Y+yIqM=;
+        s=default; t=1558354774;
+        bh=5IrSincHl4+LX0zTVDXTeaHgyML3YruvmGZ1to6fjII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwuuWxv01rWcHOdkONlQZP4x2WHQolFIxgV2ZcOtHZD9jCRaJS7mtzaG06OIOD4EB
-         wz6MokLQGvitvOnpMHfszhDYNFiCflCG6U87/oJqd0P7a1147NzmON+DISpquZxVbe
-         DW9qvbSPDCoF6M23VVbeSpvryG+49Hz717NnknGI=
+        b=kxcUPCsXNVgywabkE4orNbw9OXZtVc2MO5D5cA6hErfyBrLBiebrZA+ytnqC2fza4
+         hG/YMyKcG3I+i1/fwmAbJUHiMatjYJdNDgnA6Lal5vhCHpOJNxrSHYFKnUcEKSy2t/
+         wF100DvZ9OypaLFZYOqzdjlI0a0b6IiLU34o78U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Josh Snyder <joshs@netflix.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Dave Chinner <david@fromorbit.com>,
-        Kevin Easton <kevin@guarana.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Cyril Hrubis <chrubis@suse.cz>, Tejun Heo <tj@kernel.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Daniel Gruss <daniel@gruss.cc>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.1 069/128] mm/mincore.c: make mincore() more conservative
+        stable@vger.kernel.org, Romain Porte <romain.porte@nokia.com>,
+        Pascal Fabreges <pascal.fabreges@nokia.com>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 37/63] mtd: spi-nor: intel-spi: Avoid crossing 4K address boundary on read/write
 Date:   Mon, 20 May 2019 14:14:16 +0200
-Message-Id: <20190520115254.464686198@linuxfoundation.org>
+Message-Id: <20190520115235.284587157@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 134fca9063ad4851de767d1768180e5dede9a881 upstream.
+commit 2b75ebeea6f4937d4d05ec4982c471cef9a29b7f upstream.
 
-The semantics of what mincore() considers to be resident is not
-completely clear, but Linux has always (since 2.3.52, which is when
-mincore() was initially done) treated it as "page is available in page
-cache".
+It was observed that reads crossing 4K address boundary are failing.
 
-That's potentially a problem, as that [in]directly exposes
-meta-information about pagecache / memory mapping state even about
-memory not strictly belonging to the process executing the syscall,
-opening possibilities for sidechannel attacks.
+This limitation is mentioned in Intel documents:
 
-Change the semantics of mincore() so that it only reveals pagecache
-information for non-anonymous mappings that belog to files that the
-calling process could (if it tried to) successfully open for writing;
-otherwise we'd be including shared non-exclusive mappings, which
+Intel(R) 9 Series Chipset Family Platform Controller Hub (PCH) Datasheet:
 
- - is the sidechannel
+"5.26.3 Flash Access
+Program Register Access:
+* Program Register Accesses are not allowed to cross a 4 KB boundary..."
 
- - is not the usecase for mincore(), as that's primarily used for data,
-   not (shared) text
+Enhanced Serial Peripheral Interface (eSPI)
+Interface Base Specification (for Client and Server Platforms):
 
-[jkosina@suse.cz: v2]
-  Link: http://lkml.kernel.org/r/20190312141708.6652-2-vbabka@suse.cz
-[mhocko@suse.com: restructure can_do_mincore() conditions]
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1903062342020.19912@cbobk.fhfr.pm
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Josh Snyder <joshs@netflix.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Originally-by: Linus Torvalds <torvalds@linux-foundation.org>
-Originally-by: Dominique Martinet <asmadeus@codewreck.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: Kevin Easton <kevin@guarana.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Cyril Hrubis <chrubis@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Daniel Gruss <daniel@gruss.cc>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+"5.1.4 Address
+For other memory transactions, the address may start or end at any byte
+boundary. However, the address and payload length combination must not
+cross the naturally aligned address boundary of the corresponding Maximum
+Payload Size. It must not cross a 4 KB address boundary."
+
+Avoid this by splitting an operation crossing the boundary into two
+operations.
+
+Fixes: 8afda8b26d01 ("spi-nor: Add support for Intel SPI serial flash controller")
+Cc: stable@vger.kernel.org
+Reported-by: Romain Porte <romain.porte@nokia.com>
+Tested-by: Pascal Fabreges <pascal.fabreges@nokia.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mincore.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/mtd/spi-nor/intel-spi.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -169,6 +169,22 @@ out:
- 	return 0;
- }
+--- a/drivers/mtd/spi-nor/intel-spi.c
++++ b/drivers/mtd/spi-nor/intel-spi.c
+@@ -503,6 +503,10 @@ static ssize_t intel_spi_read(struct spi
+ 	while (len > 0) {
+ 		block_size = min_t(size_t, len, INTEL_SPI_FIFO_SZ);
  
-+static inline bool can_do_mincore(struct vm_area_struct *vma)
-+{
-+	if (vma_is_anonymous(vma))
-+		return true;
-+	if (!vma->vm_file)
-+		return false;
-+	/*
-+	 * Reveal pagecache information only for non-anonymous mappings that
-+	 * correspond to the files the calling process could (if tried) open
-+	 * for writing; otherwise we'd be including shared non-exclusive
-+	 * mappings, which opens a side channel.
-+	 */
-+	return inode_owner_or_capable(file_inode(vma->vm_file)) ||
-+		inode_permission(file_inode(vma->vm_file), MAY_WRITE) == 0;
-+}
++		/* Read cannot cross 4K boundary */
++		block_size = min_t(loff_t, from + block_size,
++				   round_up(from + 1, SZ_4K)) - from;
 +
- /*
-  * Do a chunk of "sys_mincore()". We've already checked
-  * all the arguments, we hold the mmap semaphore: we should
-@@ -189,8 +205,13 @@ static long do_mincore(unsigned long add
- 	vma = find_vma(current->mm, addr);
- 	if (!vma || addr < vma->vm_start)
- 		return -ENOMEM;
--	mincore_walk.mm = vma->vm_mm;
- 	end = min(vma->vm_end, addr + (pages << PAGE_SHIFT));
-+	if (!can_do_mincore(vma)) {
-+		unsigned long pages = DIV_ROUND_UP(end - addr, PAGE_SIZE);
-+		memset(vec, 1, pages);
-+		return pages;
-+	}
-+	mincore_walk.mm = vma->vm_mm;
- 	err = walk_page_range(addr, end, &mincore_walk);
- 	if (err < 0)
- 		return err;
+ 		writel(from, ispi->base + FADDR);
+ 
+ 		val = readl(ispi->base + HSFSTS_CTL);
+@@ -553,6 +557,10 @@ static ssize_t intel_spi_write(struct sp
+ 	while (len > 0) {
+ 		block_size = min_t(size_t, len, INTEL_SPI_FIFO_SZ);
+ 
++		/* Write cannot cross 4K boundary */
++		block_size = min_t(loff_t, to + block_size,
++				   round_up(to + 1, SZ_4K)) - to;
++
+ 		writel(to, ispi->base + FADDR);
+ 
+ 		val = readl(ispi->base + HSFSTS_CTL);
 
 
