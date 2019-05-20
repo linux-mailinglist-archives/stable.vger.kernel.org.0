@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 100A02373D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF06E234A4
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388528AbfETMXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:23:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
+        id S2389264AbfETM3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388523AbfETMXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:07 -0400
+        id S2389843AbfETM3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39BFA21707;
-        Mon, 20 May 2019 12:23:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E98820645;
+        Mon, 20 May 2019 12:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354985;
-        bh=QpaUKX3LPyScbe8xYTkn2ByVodrxAj4NIAZUgOtlupc=;
+        s=default; t=1558355354;
+        bh=jS18uhjhZFB0J7GPa296xwoUoszjtacB5vvBJtErWs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8woCYSpUb7DQG+QmwWMNWRabyrDLYG82RkGBScgf94LViU9YcD0pn1oEttguI41D
-         UNwy0PGMPhzubop2m5N+hFOHiG+SmWYzZpMzKkzx8m76RoSJ9+r6B+WpyWsc/Tq+gO
-         I89FA6NSHQGjanHwlx16iYenCCaXSg4wy1PzkaOI=
+        b=yTWndb4kDopFDVLmcwB1PffqwKgstb5BW6Gt484s9Xp9p7OHdCGTCnZKPQhnR7dVT
+         4+MiNy0qYHq6biWFMtZo62hX9dHu6OPFj/WHsASWuMIf6CnzgKprqgI0M1jBXIYIaj
+         MJng72E+DGPzBrL8HmiL7ZXX3jvdc1wH8BuA15cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Piotr Balcer <piotr.balcer@intel.com>,
-        Yan Ma <yan.ma@intel.com>, Pankaj Gupta <pagupta@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Chandan Rajendra <chandan@linux.ibm.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 054/105] mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.0 060/123] crypto: ccree - dont map MAC key on stack
 Date:   Mon, 20 May 2019 14:14:00 +0200
-Message-Id: <20190520115250.801117859@linuxfoundation.org>
+Message-Id: <20190520115248.773914614@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,171 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit fce86ff5802bac3a7b19db171aa1949ef9caac31 upstream.
+commit 874e163759f27e0a9988c5d1f4605e3f25564fd2 upstream.
 
-Starting with c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page
-protection by insert_pfn_pmd()") vmf_insert_pfn_pmd() internally calls
-pmdp_set_access_flags().  That helper enforces a pmd aligned @address
-argument via VM_BUG_ON() assertion.
+The MAC hash key might be passed to us on stack. Copy it to
+a slab buffer before mapping to gurantee proper DMA mapping.
 
-Update the implementation to take a 'struct vm_fault' argument directly
-and apply the address alignment fixup internally to fix crash signatures
-like:
-
-    kernel BUG at arch/x86/mm/pgtable.c:515!
-    invalid opcode: 0000 [#1] SMP NOPTI
-    CPU: 51 PID: 43713 Comm: java Tainted: G           OE     4.19.35 #1
-    [..]
-    RIP: 0010:pmdp_set_access_flags+0x48/0x50
-    [..]
-    Call Trace:
-     vmf_insert_pfn_pmd+0x198/0x350
-     dax_iomap_fault+0xe82/0x1190
-     ext4_dax_huge_fault+0x103/0x1f0
-     ? __switch_to_asm+0x40/0x70
-     __handle_mm_fault+0x3f6/0x1370
-     ? __switch_to_asm+0x34/0x70
-     ? __switch_to_asm+0x40/0x70
-     handle_mm_fault+0xda/0x200
-     __do_page_fault+0x249/0x4f0
-     do_page_fault+0x32/0x110
-     ? page_fault+0x8/0x30
-     page_fault+0x1e/0x30
-
-Link: http://lkml.kernel.org/r/155741946350.372037.11148198430068238140.stgit@dwillia2-desk3.amr.corp.intel.com
-Fixes: c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page protection by insert_pfn_pmd()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Piotr Balcer <piotr.balcer@intel.com>
-Tested-by: Yan Ma <yan.ma@intel.com>
-Tested-by: Pankaj Gupta <pagupta@redhat.com>
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Chandan Rajendra <chandan@linux.ibm.com>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dax/device.c    |    6 ++----
- fs/dax.c                |    6 ++----
- include/linux/huge_mm.h |    6 ++----
- mm/huge_memory.c        |   16 ++++++++++------
- 4 files changed, 16 insertions(+), 18 deletions(-)
+ drivers/crypto/ccree/cc_hash.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
---- a/drivers/dax/device.c
-+++ b/drivers/dax/device.c
-@@ -325,8 +325,7 @@ static vm_fault_t __dev_dax_pmd_fault(st
+--- a/drivers/crypto/ccree/cc_hash.c
++++ b/drivers/crypto/ccree/cc_hash.c
+@@ -69,6 +69,7 @@ struct cc_hash_alg {
+ struct hash_key_req_ctx {
+ 	u32 keylen;
+ 	dma_addr_t key_dma_addr;
++	u8 *key;
+ };
  
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+ /* hash per-session context */
+@@ -730,13 +731,20 @@ static int cc_hash_setkey(struct crypto_
+ 	ctx->key_params.keylen = keylen;
+ 	ctx->key_params.key_dma_addr = 0;
+ 	ctx->is_hmac = true;
++	ctx->key_params.key = NULL;
  
--	return vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pmd(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- 
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
-@@ -376,8 +375,7 @@ static vm_fault_t __dev_dax_pud_fault(st
- 
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
- 
--	return vmf_insert_pfn_pud(vmf->vma, vmf->address, vmf->pud, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pud(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- #else
- static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1660,8 +1660,7 @@ static vm_fault_t dax_iomap_pmd_fault(st
+ 	if (keylen) {
++		ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
++		if (!ctx->key_params.key)
++			return -ENOMEM;
++
+ 		ctx->key_params.key_dma_addr =
+-			dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
++			dma_map_single(dev, (void *)ctx->key_params.key, keylen,
++				       DMA_TO_DEVICE);
+ 		if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
+ 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
+-				key, keylen);
++				ctx->key_params.key, keylen);
++			kzfree(ctx->key_params.key);
+ 			return -ENOMEM;
  		}
- 
- 		trace_dax_pmd_insert_mapping(inode, vmf, PMD_SIZE, pfn, entry);
--		result = vmf_insert_pfn_pmd(vma, vmf->address, vmf->pmd, pfn,
--					    write);
-+		result = vmf_insert_pfn_pmd(vmf, pfn, write);
- 		break;
- 	case IOMAP_UNWRITTEN:
- 	case IOMAP_HOLE:
-@@ -1775,8 +1774,7 @@ static vm_fault_t dax_insert_pfn_mkwrite
- 		break;
- #ifdef CONFIG_FS_DAX_PMD
- 	case PE_SIZE_PMD:
--		ret = vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd,
--			pfn, true);
-+		ret = vmf_insert_pfn_pmd(vmf, pfn, FAULT_FLAG_WRITE);
- 		break;
- #endif
- 	default:
---- a/include/linux/huge_mm.h
-+++ b/include/linux/huge_mm.h
-@@ -47,10 +47,8 @@ extern bool move_huge_pmd(struct vm_area
- extern int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
- 			unsigned long addr, pgprot_t newprot,
- 			int prot_numa);
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write);
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write);
- enum transparent_hugepage_flag {
- 	TRANSPARENT_HUGEPAGE_FLAG,
- 	TRANSPARENT_HUGEPAGE_REQ_MADV_FLAG,
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -772,11 +772,13 @@ out_unlock:
- 		pte_free(mm, pgtable);
- }
- 
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PMD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
- 	pgtable_t pgtable = NULL;
+ 		dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
+@@ -887,6 +895,9 @@ out:
+ 		dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
+ 			&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
+ 	}
 +
- 	/*
- 	 * If we had pmd_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -799,7 +801,7 @@ vm_fault_t vmf_insert_pfn_pmd(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pmd(vma, addr, pmd, pfn, pgprot, write, pgtable);
-+	insert_pfn_pmd(vma, addr, vmf->pmd, pfn, pgprot, write, pgtable);
- 	return VM_FAULT_NOPAGE;
- }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pmd);
-@@ -848,10 +850,12 @@ out_unlock:
- 	spin_unlock(ptl);
- }
- 
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PUD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
++	kzfree(ctx->key_params.key);
 +
- 	/*
- 	 * If we had pud_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -868,7 +872,7 @@ vm_fault_t vmf_insert_pfn_pud(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pud(vma, addr, pud, pfn, pgprot, write);
-+	insert_pfn_pud(vma, addr, vmf->pud, pfn, pgprot, write);
- 	return VM_FAULT_NOPAGE;
+ 	return rc;
  }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pud);
+ 
+@@ -913,11 +924,16 @@ static int cc_xcbc_setkey(struct crypto_
+ 
+ 	ctx->key_params.keylen = keylen;
+ 
++	ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
++	if (!ctx->key_params.key)
++		return -ENOMEM;
++
+ 	ctx->key_params.key_dma_addr =
+-		dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
++		dma_map_single(dev, ctx->key_params.key, keylen, DMA_TO_DEVICE);
+ 	if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
+ 		dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
+ 			key, keylen);
++		kzfree(ctx->key_params.key);
+ 		return -ENOMEM;
+ 	}
+ 	dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
+@@ -969,6 +985,8 @@ static int cc_xcbc_setkey(struct crypto_
+ 	dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
+ 		&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
+ 
++	kzfree(ctx->key_params.key);
++
+ 	return rc;
+ }
+ 
 
 
