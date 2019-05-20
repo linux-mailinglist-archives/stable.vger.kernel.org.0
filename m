@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30AB02359D
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6B22359E
 	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391242AbfETMgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
+        id S2391250AbfETMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391236AbfETMgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:36:13 -0400
+        id S2391078AbfETMgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E84C21726;
-        Mon, 20 May 2019 12:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 513C721479;
+        Mon, 20 May 2019 12:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355773;
-        bh=ekJd2Q1d/UpW8siTLHEETVBkSt/8+dxoZ1rgaPCogCM=;
+        s=default; t=1558355775;
+        bh=zPcvc2akhzzKrUb6urgykNTe+6gmgSw6iONcU2LWsAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BfZctMvXt6Lnb80j18TMRodFL7kohfqL//FvL8eReFO8x2vIK6uhykQsvdI4ecIB4
-         66M3G0NTlikoW4lSMz6HclKgj+t+MxAza02ff3n3NBeSjHdh5sAaXEZ76czzPYMJRd
-         03UkWF/1zCsAmXPFdlkxnGznwQT3ZUJqOSAyq75w=
+        b=uJhRrHBQyili9eWRFYyuh9S5tUnX1SWuJu///hB/1ZonBxBsv8ijx8J8ccJRFTyzv
+         iLGVhO0oURVOxLW18S9+p39CGpXOwIqIu7L31d/98TcfM+azBuZOVNBV/IAI+gVWVO
+         UcUArI1ZiSvpB0hx7WUow0j+99DVByZeKIb8QQ4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>
-Subject: [PATCH 5.1 119/128] smb3: display session id in debug data
-Date:   Mon, 20 May 2019 14:15:06 +0200
-Message-Id: <20190520115256.755226302@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 5.1 120/128] kbuild: turn auto.conf.cmd into a mandatory include file
+Date:   Mon, 20 May 2019 14:15:07 +0200
+Message-Id: <20190520115256.794907347@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -43,34 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit b63a9de02d64ecd5ff0749e90253f5b30ba5b9c0 upstream.
+commit d2f8ae0e4c5c754f1b2a7b8388d19a1a977e698a upstream.
 
-Displaying the session id in /proc/fs/cifs/DebugData
-is needed in order to correlate Linux client information
-with network and server traces for many common support
-scenarios.  Turned out to be very important for debugging.
+syncconfig is responsible for keeping auto.conf up-to-date, so if it
+fails for any reason, the build must be terminated immediately.
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+However, since commit 9390dff66a52 ("kbuild: invoke syncconfig if
+include/config/auto.conf.cmd is missing"), Kbuild continues running
+even after syncconfig fails.
+
+You can confirm this by intentionally making syncconfig error out:
+
+#  diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+#  index 08ba146..307b9de 100644
+#  --- a/scripts/kconfig/confdata.c
+#  +++ b/scripts/kconfig/confdata.c
+#  @@ -1023,6 +1023,9 @@ int conf_write_autoconf(int overwrite)
+#          FILE *out, *tristate, *out_h;
+#          int i;
+#
+#  +       if (overwrite)
+#  +               return 1;
+#  +
+#          if (!overwrite && is_present(autoconf_name))
+#                  return 0;
+
+Then, syncconfig fails, but Make would not stop:
+
+  $ make -s mrproper allyesconfig defconfig
+  $ make
+  scripts/kconfig/conf  --syncconfig Kconfig
+
+  *** Error during sync of the configuration.
+
+  make[2]: *** [scripts/kconfig/Makefile;69: syncconfig] Error 1
+  make[1]: *** [Makefile;557: syncconfig] Error 2
+  make: *** [include/config/auto.conf.cmd] Deleting file 'include/config/tristate.conf'
+  make: Failed to remake makefile 'include/config/auto.conf'.
+    SYSTBL  arch/x86/include/generated/asm/syscalls_32.h
+    SYSHDR  arch/x86/include/generated/asm/unistd_32_ia32.h
+    SYSHDR  arch/x86/include/generated/asm/unistd_64_x32.h
+    SYSTBL  arch/x86/include/generated/asm/syscalls_64.h
+  [ continue running ... ]
+
+The reason is in the behavior of a pattern rule with multi-targets.
+
+  %/auto.conf %/auto.conf.cmd %/tristate.conf: $(KCONFIG_CONFIG)
+          $(Q)$(MAKE) -f $(srctree)/Makefile syncconfig
+
+GNU Make knows this rule is responsible for making all the three files
+simultaneously. As far as examined, auto.conf.cmd is the target in
+question when this rule is invoked. It is probably because auto.conf.cmd
+is included below the inclusion of auto.conf.
+
+The inclusion of auto.conf is mandatory, while that of auto.conf.cmd
+is optional. GNU Make does not care about the failure in the process
+of updating optional include files.
+
+I filed this issue (https://savannah.gnu.org/bugs/?56301) in case this
+behavior could be improved somehow in future releases of GNU Make.
+Anyway, it is quite easy to fix our Makefile.
+
+Given that auto.conf is already a mandatory include file, there is no
+reason to stick auto.conf.cmd optional. Make it mandatory as well.
+
+Cc: linux-stable <stable@vger.kernel.org> # 5.0+
+Fixes: 9390dff66a52 ("kbuild: invoke syncconfig if include/config/auto.conf.cmd is missing")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+[commented out diff above to keep patch happy - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/cifs_debug.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/cifs_debug.c
-+++ b/fs/cifs/cifs_debug.c
-@@ -376,6 +376,8 @@ skip_rdma:
- 				atomic_read(&server->in_send),
- 				atomic_read(&server->num_waiters));
- #endif
-+			/* dump session id helpful for use with network trace */
-+			seq_printf(m, " SessionId: 0x%llx", ses->Suid);
- 			if (ses->session_flags & SMB2_SESSION_FLAG_ENCRYPT_DATA)
- 				seq_puts(m, " encrypted");
- 			if (ses->sign)
+--- a/Makefile
++++ b/Makefile
+@@ -636,7 +636,7 @@ ifeq ($(may-sync-config),1)
+ # Read in dependencies to all Kconfig* files, make sure to run syncconfig if
+ # changes are detected. This should be included after arch/$(SRCARCH)/Makefile
+ # because some architectures define CROSS_COMPILE there.
+--include include/config/auto.conf.cmd
++include include/config/auto.conf.cmd
+ 
+ $(KCONFIG_CONFIG):
+ 	@echo >&2 '***'
 
 
