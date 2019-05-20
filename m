@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 914CA2336D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88AE823529
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732985AbfETMQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57076 "EHLO mail.kernel.org"
+        id S2390729AbfETMd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732888AbfETMQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:21 -0400
+        id S2390722AbfETMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:33:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32A2520656;
-        Mon, 20 May 2019 12:16:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 395A320815;
+        Mon, 20 May 2019 12:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354580;
-        bh=NELJ4Hu6YiJbJlmxwVlRRrxhcEXBUQ4E/XUnMCsrArw=;
+        s=default; t=1558355607;
+        bh=wI8M121d5OZgG4ozQagejJWER3HiOPI7D/6+JpXvypQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xl7Oh9x1nP3mRtao8wF5SjrgD/aq/RLSjVqCxxfAJbpjQqG9E4g/bzdmo9NTZRCPD
-         W8lxfeeiJ1O9QKqKD3YGg2c2YjYW2nFnVsfA9In4Im+uu7li5mh2ZVA/MzPC806cQv
-         B9151E+1FqaglKkAfWmSTBYbh5e+09yWnN2yzl14=
+        b=T+0DRgBj+JzlYKjJETJBj7N1bMfyIDsdgCOptA9hHeP/ad5Zj63AWuS9am1670uCh
+         EN4+RAEWE+qgEEOlzdsiac1zflcbq+HOUbGwp82OiawcNx/f7c+8+FLyDXVrmhEV+G
+         WRSy3ucNNZaI7WCB2v1HZhmRI80jThtj+vv7rluU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 14/44] crypto: crct10dif-generic - fix use via crypto_shash_digest()
-Date:   Mon, 20 May 2019 14:14:03 +0200
-Message-Id: <20190520115232.689336976@linuxfoundation.org>
+        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.1 057/128] ASoC: codec: hdac_hdmi add device_link to card device
+Date:   Mon, 20 May 2019 14:14:04 +0200
+Message-Id: <20190520115253.638695239@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Libin Yang <libin.yang@intel.com>
 
-commit 307508d1072979f4435416f87936f87eaeb82054 upstream.
+commit 01c8327667c249818d3712c3e25c7ad2aca7f389 upstream.
 
-The ->digest() method of crct10dif-generic reads the current CRC value
-from the shash_desc context.  But this value is uninitialized, causing
-crypto_shash_digest() to compute the wrong result.  Fix it.
+In resume from S3, HDAC HDMI codec driver dapm event callback may be
+operated before HDMI codec driver turns on the display audio power
+domain because of the contest between display driver and hdmi codec driver.
 
-Probably this wasn't noticed before because lib/crc-t10dif.c only uses
-crypto_shash_update(), not crypto_shash_digest().  Likewise,
-crypto_shash_digest() is not yet tested by the crypto self-tests because
-those only test the ahash API which only uses shash init/update/final.
+This patch adds the device_link between soc card device (consumer) and
+hdmi codec device (supplier) to make sure the sequence is always correct.
 
-This bug was detected by my patches that improve testmgr to fuzz
-algorithms against their generic implementation.
-
-Fixes: 2d31e518a428 ("crypto: crct10dif - Wrap crc_t10dif function all to use crypto transform framework")
-Cc: <stable@vger.kernel.org> # v3.11+
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Libin Yang <libin.yang@intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/crct10dif_generic.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/crypto/crct10dif_generic.c
-+++ b/crypto/crct10dif_generic.c
-@@ -65,10 +65,9 @@ static int chksum_final(struct shash_des
- 	return 0;
- }
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -1855,6 +1855,17 @@ static int hdmi_codec_probe(struct snd_s
+ 	hdmi->card = dapm->card->snd_card;
  
--static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
--			u8 *out)
-+static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
- {
--	*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
-+	*(__u16 *)out = crc_t10dif_generic(crc, data, len);
- 	return 0;
- }
- 
-@@ -77,15 +76,13 @@ static int chksum_finup(struct shash_des
- {
- 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
- 
--	return __chksum_finup(&ctx->crc, data, len, out);
-+	return __chksum_finup(ctx->crc, data, len, out);
- }
- 
- static int chksum_digest(struct shash_desc *desc, const u8 *data,
- 			 unsigned int length, u8 *out)
- {
--	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
--
--	return __chksum_finup(&ctx->crc, data, length, out);
-+	return __chksum_finup(0, data, length, out);
- }
- 
- static struct shash_alg alg = {
+ 	/*
++	 * Setup a device_link between card device and HDMI codec device.
++	 * The card device is the consumer and the HDMI codec device is
++	 * the supplier. With this setting, we can make sure that the audio
++	 * domain in display power will be always turned on before operating
++	 * on the HDMI audio codec registers.
++	 * Let's use the flag DL_FLAG_AUTOREMOVE_CONSUMER. This can make
++	 * sure the device link is freed when the machine driver is removed.
++	 */
++	device_link_add(component->card->dev, &hdev->dev, DL_FLAG_RPM_ACTIVE |
++			DL_FLAG_AUTOREMOVE_CONSUMER);
++	/*
+ 	 * hdac_device core already sets the state to active and calls
+ 	 * get_noresume. So enable runtime and set the device to suspend.
+ 	 */
 
 
