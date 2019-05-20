@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F7823522
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6529023361
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390688AbfETMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50352 "EHLO mail.kernel.org"
+        id S1732826AbfETMQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390685AbfETMdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:17 -0400
+        id S1732823AbfETMQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86AC3204FD;
-        Mon, 20 May 2019 12:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C96C520656;
+        Mon, 20 May 2019 12:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355597;
-        bh=/mtt9tf5LsHEjSLv56CpO1i0sXmNW3qd+8lvZYSAgwU=;
+        s=default; t=1558354575;
+        bh=SouYgWQauP5ZFkhFFMqWevfg1i6+eLajnGKQ+6SjZq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lB5Z2Z0vc1crgrYv4Fwzyejwpl5WU5BMlxqcVkSvUG7P6VmB+fhAJNFao4zJStO0Z
-         RUYU4h2Aysy4MzQ2ogd+e3aJjzyb3B2fwYpXzBc9efedBI1QTyEq71bo8wj8wPMdLd
-         EfENQh4Dl14XmiJYIzvTIGCqwnqFg7lgcPRPgYeM=
+        b=JkJ2NRw+9jogRVgWV4078mTQeKKFUHDhvL3eG4MCfe6BJMIJcj1vNyKMvkkI2Ml/Z
+         Aya3rV4JXigV26dKd8UvYtU8W0ZA42tp7CyAB5RA3INnU1wqp/WOD/0dKI2nPIYgtL
+         4rLB4+NKRGHflzxeGmiPymd75Hc/Eu93A3hPdoGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.1 054/128] ASoC: max98090: Fix restore of DAPM Muxes
+        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 12/44] crypto: chacha20poly1305 - set cra_name correctly
 Date:   Mon, 20 May 2019 14:14:01 +0200
-Message-Id: <20190520115253.450167710@linuxfoundation.org>
+Message-Id: <20190520115232.445514916@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit ecb2795c08bc825ebd604997e5be440b060c5b18 upstream.
+commit 5e27f38f1f3f45a0c938299c3a34a2d2db77165a upstream.
 
-The max98090 driver defines 3 DAPM muxes; one for the right line output
-(LINMOD Mux), one for the left headphone mixer source (MIXHPLSEL Mux)
-and one for the right headphone mixer source (MIXHPRSEL Mux). The same
-bit is used for the mux as well as the DAPM enable, and although the mux
-can be correctly configured, after playback has completed, the mux will
-be reset during the disable phase. This is preventing the state of these
-muxes from being saved and restored correctly on system reboot. Fix this
-by marking these muxes as SND_SOC_NOPM.
+If the rfc7539 template is instantiated with specific implementations,
+e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
+"rfc7539(chacha20,poly1305)", then the implementation names end up
+included in the instance's cra_name.  This is incorrect because it then
+prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
+highest priority implementations of chacha20 and poly1305 were selected.
+Also, the self-tests aren't run on an instance allocated in this way.
 
-Note this has been verified this on the Tegra124 Nyan Big which features
-the MAX98090 codec.
+Fix it by setting the instance's cra_name from the underlying
+algorithms' actual cra_names, rather than from the requested names.
+This matches what other templates do.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
+Cc: <stable@vger.kernel.org> # v4.2+
+Cc: Martin Willi <martin@strongswan.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Martin Willi <martin@strongswan.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/max98090.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ crypto/chacha20poly1305.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1194,14 +1194,14 @@ static const struct snd_soc_dapm_widget
- 		&max98090_right_rcv_mixer_controls[0],
- 		ARRAY_SIZE(max98090_right_rcv_mixer_controls)),
+--- a/crypto/chacha20poly1305.c
++++ b/crypto/chacha20poly1305.c
+@@ -647,8 +647,8 @@ static int chachapoly_create(struct cryp
  
--	SND_SOC_DAPM_MUX("LINMOD Mux", M98090_REG_LOUTR_MIXER,
--		M98090_LINMOD_SHIFT, 0, &max98090_linmod_mux),
-+	SND_SOC_DAPM_MUX("LINMOD Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_linmod_mux),
- 
--	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPLSEL_SHIFT, 0, &max98090_mixhplsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhplsel_mux),
- 
--	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPRSEL_SHIFT, 0, &max98090_mixhprsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhprsel_mux),
- 
- 	SND_SOC_DAPM_PGA("HP Left Out", M98090_REG_OUTPUT_ENABLE,
- 		M98090_HPLEN_SHIFT, 0, NULL, 0),
+ 	err = -ENAMETOOLONG;
+ 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
+-		     "%s(%s,%s)", name, chacha_name,
+-		     poly_name) >= CRYPTO_MAX_ALG_NAME)
++		     "%s(%s,%s)", name, chacha->base.cra_name,
++		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
+ 		goto out_drop_chacha;
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "%s(%s,%s)", name, chacha->base.cra_driver_name,
 
 
