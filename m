@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD312358A
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B73234C3
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391141AbfETMfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54520 "EHLO mail.kernel.org"
+        id S2388648AbfETMad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391134AbfETMfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:35:46 -0400
+        id S2390118AbfETMac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:30:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB07216C4;
-        Mon, 20 May 2019 12:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4076220645;
+        Mon, 20 May 2019 12:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355746;
-        bh=K54YEflfXLM4VSAwoRJKIcxe1vnu5XR84RhZ3XiT9mE=;
+        s=default; t=1558355431;
+        bh=EV1/7IpflXgcuo3qsgApL2j+LJlceYK1/Hzf2uetAm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pd/ru7MOdaff/XZpHmvlYNr4zQ8NG5ySum6F9qkbC8R+zQYtm4//sfHYCQc5V4d00
-         tMlKYMacdxeeICW+uU3maOwDsyIeiu+cqTf8qCHQ1+M6dL8fnuNjCd+Cpb+qmvvcD7
-         JvTLriTdVEHjgF4KTNOY1b86Le2fi2NL6Q15O9q0=
+        b=BNInjKtP5BinHs0nVsjwGanOy+Lyj9hfVhN7RCfj3hK+Vb1Yh4D0TdvBpTMkk7Mpb
+         F5n77YsG8YrnyNgYxcNirPlFwZqpFeV7qKazUQxHXJ4ix8yDnFeIT/FPk9xt/4//j9
+         0R1G5UhbYKi5Nohkvy5cvcNUOpoJw3fRrZtiLp6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.1 110/128] ext4: avoid panic during forced reboot due to aborted journal
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH 5.0 117/123] iov_iter: optimize page_copy_sane()
 Date:   Mon, 20 May 2019 14:14:57 +0200
-Message-Id: <20190520115256.395873801@linuxfoundation.org>
+Message-Id: <20190520115252.935249966@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 2c1d0e3631e5732dba98ef49ac0bec1388776793 upstream.
+commit 6daef95b8c914866a46247232a048447fff97279 upstream.
 
-Handling of aborted journal is a special code path different from
-standard ext4_error() one and it can call panic() as well. Commit
-1dc1097ff60e ("ext4: avoid panic during forced reboot") forgot to update
-this path so fix that omission.
+Avoid cache line miss dereferencing struct page if we can.
 
-Fixes: 1dc1097ff60e ("ext4: avoid panic during forced reboot")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org # 5.1
+page_copy_sane() mostly deals with order-0 pages.
+
+Extra cache line miss is visible on TCP recvmsg() calls dealing
+with GRO packets (typically 45 page frags are attached to one skb).
+
+Bringing the 45 struct pages into cpu cache while copying the data
+is not free, since the freeing of the skb (and associated
+page frags put_page()) can happen after cache lines have been evicted.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/iov_iter.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -698,7 +698,7 @@ void __ext4_abort(struct super_block *sb
- 			jbd2_journal_abort(EXT4_SB(sb)->s_journal, -EIO);
- 		save_error_info(sb, function, line);
- 	}
--	if (test_opt(sb, ERRORS_PANIC)) {
-+	if (test_opt(sb, ERRORS_PANIC) && !system_going_down()) {
- 		if (EXT4_SB(sb)->s_journal &&
- 		  !(EXT4_SB(sb)->s_journal->j_flags & JBD2_REC_ERR))
- 			return;
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -861,8 +861,21 @@ EXPORT_SYMBOL(_copy_from_iter_full_nocac
+ 
+ static inline bool page_copy_sane(struct page *page, size_t offset, size_t n)
+ {
+-	struct page *head = compound_head(page);
+-	size_t v = n + offset + page_address(page) - page_address(head);
++	struct page *head;
++	size_t v = n + offset;
++
++	/*
++	 * The general case needs to access the page order in order
++	 * to compute the page size.
++	 * However, we mostly deal with order-0 pages and thus can
++	 * avoid a possible cache line miss for requests that fit all
++	 * page orders.
++	 */
++	if (n <= v && v <= PAGE_SIZE)
++		return true;
++
++	head = compound_head(page);
++	v += (page - head) << PAGE_SHIFT;
+ 
+ 	if (likely(n <= v && v <= (PAGE_SIZE << compound_order(head))))
+ 		return true;
 
 
