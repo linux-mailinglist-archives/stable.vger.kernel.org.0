@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 782DF233B3
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C107236DB
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387897AbfETMTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33138 "EHLO mail.kernel.org"
+        id S2387513AbfETMRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732272AbfETMTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:19:52 -0400
+        id S2387523AbfETMRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD64320815;
-        Mon, 20 May 2019 12:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE31920815;
+        Mon, 20 May 2019 12:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354792;
-        bh=Uvs3clkJNKhmVbhA9rwlfctk+Ze2Df4btxTxQ9DOH5M=;
+        s=default; t=1558354640;
+        bh=9WsSvO/ZYAemycEEPmwo5X7jWRagg1S1SsUuhQ1A66A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nk6ysGLH2bshkMEmoCl5qpA4TvBc47QES2UgEwwDxmasyLnu401W4OWCjmm4dKgMB
-         7SS7eoI3Z1hyINo7Tc/b9DWHKaeOfNwTQVeC/Wi44qKtT9hgjnZXVF/vFvMBf68+vy
-         BoSMyydWyJZv3gNZyvePWur/Bb5hbn/e35dxXRmw=
+        b=q2RDnUjnftXPkSUzqsIgwaZTTh36J1dKJqxtpTfe817u3mJKcMb8W5WSjiQYOguu2
+         8zI2lJRmwQ6Cyh9ng7uUKgqJjIW797SYp6Ei247Kj5Z6JJT8e+SWckitoYcOmaiW96
+         yi/v5lK3B4u+nupxmyvJMDtlXZY0fM8bRPwL9wYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.14 43/63] ext4: avoid drop reference to iloc.bh twice
-Date:   Mon, 20 May 2019 14:14:22 +0200
-Message-Id: <20190520115235.831144044@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 34/44] crypto: gcm - Fix error return code in crypto_gcm_create_common()
+Date:   Mon, 20 May 2019 14:14:23 +0200
+Message-Id: <20190520115235.180288663@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 8c380ab4b7b59c0c602743810be1b712514eaebc upstream.
+commit 9b40f79c08e81234d759f188b233980d7e81df6c upstream.
 
-The reference to iloc.bh has been dropped in ext4_mark_iloc_dirty.
-However, the reference is dropped again if error occurs during
-ext4_handle_dirty_metadata, which may result in use-after-free bugs.
+Fix to return error code -EINVAL from the invalid alg ivsize error
+handling case instead of 0, as done elsewhere in this function.
 
-Fixes: fb265c9cb49e("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/resize.c |    1 +
- 1 file changed, 1 insertion(+)
+ crypto/gcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -849,6 +849,7 @@ static int add_new_gdb(handle_t *handle,
- 	err = ext4_handle_dirty_metadata(handle, NULL, gdb_bh);
- 	if (unlikely(err)) {
- 		ext4_std_error(sb, err);
-+		iloc.bh = NULL;
- 		goto errout;
- 	}
- 	brelse(dind);
+--- a/crypto/gcm.c
++++ b/crypto/gcm.c
+@@ -670,11 +670,11 @@ static int crypto_gcm_create_common(stru
+ 	ctr = crypto_spawn_skcipher_alg(&ctx->ctr);
+ 
+ 	/* We only support 16-byte blocks. */
++	err = -EINVAL;
+ 	if (crypto_skcipher_alg_ivsize(ctr) != 16)
+ 		goto out_put_ctr;
+ 
+ 	/* Not a stream cipher? */
+-	err = -EINVAL;
+ 	if (ctr->base.cra_blocksize != 1)
+ 		goto out_put_ctr;
+ 
 
 
