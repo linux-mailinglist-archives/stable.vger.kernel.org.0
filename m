@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A165823723
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280CF2350E
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387766AbfETMVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35432 "EHLO mail.kernel.org"
+        id S2390610AbfETMcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:32:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388205AbfETMVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:21:38 -0400
+        id S2390427AbfETMbq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:31:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5092E214AE;
-        Mon, 20 May 2019 12:21:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE8DE20675;
+        Mon, 20 May 2019 12:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354897;
-        bh=SouYgWQauP5ZFkhFFMqWevfg1i6+eLajnGKQ+6SjZq4=;
+        s=default; t=1558355506;
+        bh=0KsKzMIexvgz/Ii/Ahfc7GkrA4itaRHT2VqE7RYhjWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/BppK2JRK043mTefbXqIBWGNH8xLMYujpLEl9q0gCxoMNKf14Pn6Db1ceaEoqhP8
-         9YHVEaZxUAGXQcXS1/F13Bcb6moDS1QRSrE8E1D08jDdQGCuJI8a6guuy5ZuP0IRTA
-         bFYgHKlLzT/2rzdTyK3/sTvhN9l3WSBWfsPegoMc=
+        b=QFWjfjH6o9f2/C/h4nMY6lsUEKFSmUyzK7CiJKfwimqEnK7pk+An5eT20CUS8UaMK
+         hlvrDlEMST7GjjSzC8zzBF/zHYa9MLh1xkbZEP1MnTH9+eRm98G+ASA3+VL7CEfaDi
+         j5MJIDqPoA6K1dMVQ4qU+Dm6OD3wx5KjPq2tvbCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 021/105] crypto: chacha20poly1305 - set cra_name correctly
+        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.1 020/128] sched/x86: Save [ER]FLAGS on context switch
 Date:   Mon, 20 May 2019 14:13:27 +0200
-Message-Id: <20190520115248.489932254@linuxfoundation.org>
+Message-Id: <20190520115250.873874392@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +49,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 5e27f38f1f3f45a0c938299c3a34a2d2db77165a upstream.
+commit 6690e86be83ac75832e461c141055b5d601c0a6d upstream.
 
-If the rfc7539 template is instantiated with specific implementations,
-e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
-"rfc7539(chacha20,poly1305)", then the implementation names end up
-included in the instance's cra_name.  This is incorrect because it then
-prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
-highest priority implementations of chacha20 and poly1305 were selected.
-Also, the self-tests aren't run on an instance allocated in this way.
+Effectively reverts commit:
 
-Fix it by setting the instance's cra_name from the underlying
-algorithms' actual cra_names, rather than from the requested names.
-This matches what other templates do.
+  2c7577a75837 ("sched/x86_64: Don't save flags on context switch")
 
-Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
-Cc: <stable@vger.kernel.org> # v4.2+
-Cc: Martin Willi <martin@strongswan.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Specifically because SMAP uses FLAGS.AC which invalidates the claim
+that the kernel has clean flags.
+
+In particular; while preemption from interrupt return is fine (the
+IRET frame on the exception stack contains FLAGS) it breaks any code
+that does synchonous scheduling, including preempt_enable().
+
+This has become a significant issue ever since commit:
+
+  5b24a7a2aa20 ("Add 'unsafe' user access functions for batched accesses")
+
+provided for means of having 'normal' C code between STAC / CLAC,
+exposing the FLAGS.AC state. So far this hasn't led to trouble,
+however fix it before it comes apart.
+
+Reported-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@kernel.org
+Fixes: 5b24a7a2aa20 ("Add 'unsafe' user access functions for batched accesses")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/chacha20poly1305.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/entry/entry_32.S        |    2 ++
+ arch/x86/entry/entry_64.S        |    2 ++
+ arch/x86/include/asm/switch_to.h |    1 +
+ arch/x86/kernel/process_32.c     |    7 +++++++
+ arch/x86/kernel/process_64.c     |    8 ++++++++
+ 5 files changed, 20 insertions(+)
 
---- a/crypto/chacha20poly1305.c
-+++ b/crypto/chacha20poly1305.c
-@@ -647,8 +647,8 @@ static int chachapoly_create(struct cryp
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -650,6 +650,7 @@ ENTRY(__switch_to_asm)
+ 	pushl	%ebx
+ 	pushl	%edi
+ 	pushl	%esi
++	pushfl
  
- 	err = -ENAMETOOLONG;
- 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
--		     "%s(%s,%s)", name, chacha_name,
--		     poly_name) >= CRYPTO_MAX_ALG_NAME)
-+		     "%s(%s,%s)", name, chacha->base.cra_name,
-+		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
- 		goto out_drop_chacha;
- 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
- 		     "%s(%s,%s)", name, chacha->base.cra_driver_name,
+ 	/* switch stack */
+ 	movl	%esp, TASK_threadsp(%eax)
+@@ -672,6 +673,7 @@ ENTRY(__switch_to_asm)
+ #endif
+ 
+ 	/* restore callee-saved registers */
++	popfl
+ 	popl	%esi
+ 	popl	%edi
+ 	popl	%ebx
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -291,6 +291,7 @@ ENTRY(__switch_to_asm)
+ 	pushq	%r13
+ 	pushq	%r14
+ 	pushq	%r15
++	pushfq
+ 
+ 	/* switch stack */
+ 	movq	%rsp, TASK_threadsp(%rdi)
+@@ -313,6 +314,7 @@ ENTRY(__switch_to_asm)
+ #endif
+ 
+ 	/* restore callee-saved registers */
++	popfq
+ 	popq	%r15
+ 	popq	%r14
+ 	popq	%r13
+--- a/arch/x86/include/asm/switch_to.h
++++ b/arch/x86/include/asm/switch_to.h
+@@ -40,6 +40,7 @@ asmlinkage void ret_from_fork(void);
+  * order of the fields must match the code in __switch_to_asm().
+  */
+ struct inactive_task_frame {
++	unsigned long flags;
+ #ifdef CONFIG_X86_64
+ 	unsigned long r15;
+ 	unsigned long r14;
+--- a/arch/x86/kernel/process_32.c
++++ b/arch/x86/kernel/process_32.c
+@@ -127,6 +127,13 @@ int copy_thread_tls(unsigned long clone_
+ 	struct task_struct *tsk;
+ 	int err;
+ 
++	/*
++	 * For a new task use the RESET flags value since there is no before.
++	 * All the status flags are zero; DF and all the system flags must also
++	 * be 0, specifically IF must be 0 because we context switch to the new
++	 * task with interrupts disabled.
++	 */
++	frame->flags = X86_EFLAGS_FIXED;
+ 	frame->bp = 0;
+ 	frame->ret_addr = (unsigned long) ret_from_fork;
+ 	p->thread.sp = (unsigned long) fork_frame;
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -392,6 +392,14 @@ int copy_thread_tls(unsigned long clone_
+ 	childregs = task_pt_regs(p);
+ 	fork_frame = container_of(childregs, struct fork_frame, regs);
+ 	frame = &fork_frame->frame;
++
++	/*
++	 * For a new task use the RESET flags value since there is no before.
++	 * All the status flags are zero; DF and all the system flags must also
++	 * be 0, specifically IF must be 0 because we context switch to the new
++	 * task with interrupts disabled.
++	 */
++	frame->flags = X86_EFLAGS_FIXED;
+ 	frame->bp = 0;
+ 	frame->ret_addr = (unsigned long) ret_from_fork;
+ 	p->thread.sp = (unsigned long) fork_frame;
 
 
