@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8705B234CD
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2894823573
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390208AbfETMa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47374 "EHLO mail.kernel.org"
+        id S2391058AbfETMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390203AbfETMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:30:59 -0400
+        id S2403815AbfETMfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03A8420675;
-        Mon, 20 May 2019 12:30:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73E44204FD;
+        Mon, 20 May 2019 12:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355458;
-        bh=p3V5fAHgOq3Ue735wlneHW0DYFFHfzc6aDjM9S8BQss=;
+        s=default; t=1558355714;
+        bh=DsNiHMusas3sE1yJQ4pCj2xQBDoxoi4RyV6Wd7ipSHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OH6TRxu8cY+sktVUbJR3sYMQiE1hFy43Vt1FFF39jbfNdNaEKR8owudxPWhcJQiLQ
-         5lEqmeUanTeagLL8gSfjBdgVTgSNaqo6GxKyhkgQ2VO08lU/bDDvFP7S+KplyYMFZk
-         +sm1CP5sBgeVPUq+HnFe9tskPKFpN8YuHFzwEpVM=
+        b=ERTth/mf716l83n+fh3BiyNQErdBzIW8NPgOXMKTSfyByenxBsq/vpRlk0b5oy17Z
+         lqEfDEa02BqN8bblnzZMijK8S9OhmrQI7fd+qkClrDf6vDE4HOR8LvAod10OluuCK4
+         61sN84cvqwdk5NV0kRsvB/Szn1mAP5DSQnJAu3tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Soller <jeremy@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 106/123] ALSA: hda/realtek - Corrected fixup for System76 Gazelle (gaze14)
+        stable@vger.kernel.org, Liang Chen <liangchen.linux@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.1 099/128] bcache: fix a race between cache register and cacheset unregister
 Date:   Mon, 20 May 2019 14:14:46 +0200
-Message-Id: <20190520115252.097108120@linuxfoundation.org>
+Message-Id: <20190520115255.902505806@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-commit 891afcf2462d2cc4ef7caf94215358ca61fa32cb upstream.
+commit a4b732a248d12cbdb46999daf0bf288c011335eb upstream.
 
-A mistake was made in the identification of the four variants of the
-System76 Gazelle (gaze14). This patch corrects the PCI ID of the
-17-inch, GTX 1660 Ti variant from 0x8560 to 0x8551. This patch also
-adds the correct fixups for the 15-inch and 17-inch GTX 1650 variants
-with PCI IDs 0x8560 and 0x8561.
+There is a race between cache device register and cache set unregister.
+For an already registered cache device, register_bcache will call
+bch_is_open to iterate through all cachesets and check every cache
+there. The race occurs if cache_set_free executes at the same time and
+clears the caches right before ca is dereferenced in bch_is_open_cache.
+To close the race, let's make sure the clean up work is protected by
+the bch_register_lock as well.
 
-Tests were done on all four variants ensuring full audio capability.
+This issue can be reproduced as follows,
+while true; do echo /dev/XXX> /sys/fs/bcache/register ; done&
+while true; do echo 1> /sys/block/XXX/bcache/set/unregister ; done &
 
-Fixes: 80a5052db751 ("ALSA: hdea/realtek - Headset fixup for System76 Gazelle (gaze14)")
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+and results in the following oops,
+
+[  +0.000053] BUG: unable to handle kernel NULL pointer dereference at 0000000000000998
+[  +0.000457] #PF error: [normal kernel read fault]
+[  +0.000464] PGD 800000003ca9d067 P4D 800000003ca9d067 PUD 3ca9c067 PMD 0
+[  +0.000388] Oops: 0000 [#1] SMP PTI
+[  +0.000269] CPU: 1 PID: 3266 Comm: bash Not tainted 5.0.0+ #6
+[  +0.000346] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.fc28 04/01/2014
+[  +0.000472] RIP: 0010:register_bcache+0x1829/0x1990 [bcache]
+[  +0.000344] Code: b0 48 83 e8 50 48 81 fa e0 e1 10 c0 0f 84 a9 00 00 00 48 89 c6 48 89 ca 0f b7 ba 54 04 00 00 4c 8b 82 60 0c 00 00 85 ff 74 2f <49> 3b a8 98 09 00 00 74 4e 44 8d 47 ff 31 ff 49 c1 e0 03 eb 0d
+[  +0.000839] RSP: 0018:ffff92ee804cbd88 EFLAGS: 00010202
+[  +0.000328] RAX: ffffffffc010e190 RBX: ffff918b5c6b5000 RCX: ffff918b7d8e0000
+[  +0.000399] RDX: ffff918b7d8e0000 RSI: ffffffffc010e190 RDI: 0000000000000001
+[  +0.000398] RBP: ffff918b7d318340 R08: 0000000000000000 R09: ffffffffb9bd2d7a
+[  +0.000385] R10: ffff918b7eb253c0 R11: ffffb95980f51200 R12: ffffffffc010e1a0
+[  +0.000411] R13: fffffffffffffff2 R14: 000000000000000b R15: ffff918b7e232620
+[  +0.000384] FS:  00007f955bec2740(0000) GS:ffff918b7eb00000(0000) knlGS:0000000000000000
+[  +0.000420] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0.000801] CR2: 0000000000000998 CR3: 000000003cad6000 CR4: 00000000001406e0
+[  +0.000837] Call Trace:
+[  +0.000682]  ? _cond_resched+0x10/0x20
+[  +0.000691]  ? __kmalloc+0x131/0x1b0
+[  +0.000710]  kernfs_fop_write+0xfa/0x170
+[  +0.000733]  __vfs_write+0x2e/0x190
+[  +0.000688]  ? inode_security+0x10/0x30
+[  +0.000698]  ? selinux_file_permission+0xd2/0x120
+[  +0.000752]  ? security_file_permission+0x2b/0x100
+[  +0.000753]  vfs_write+0xa8/0x1a0
+[  +0.000676]  ksys_write+0x4d/0xb0
+[  +0.000699]  do_syscall_64+0x3a/0xf0
+[  +0.000692]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/bcache/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6931,7 +6931,9 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1558, 0x1325, "System76 Darter Pro (darp5)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8550, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
--	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x8551, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
- 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
- 	SND_PCI_QUIRK(0x17aa, 0x215e, "Thinkpad L512", ALC269_FIXUP_SKU_IGNORE),
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1516,6 +1516,7 @@ static void cache_set_free(struct closur
+ 	bch_btree_cache_free(c);
+ 	bch_journal_free(c);
+ 
++	mutex_lock(&bch_register_lock);
+ 	for_each_cache(ca, c, i)
+ 		if (ca) {
+ 			ca->set = NULL;
+@@ -1534,7 +1535,6 @@ static void cache_set_free(struct closur
+ 	mempool_exit(&c->search);
+ 	kfree(c->devices);
+ 
+-	mutex_lock(&bch_register_lock);
+ 	list_del(&c->list);
+ 	mutex_unlock(&bch_register_lock);
+ 
 
 
