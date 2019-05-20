@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5AA82367B
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD8C235E1
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389198AbfETMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41206 "EHLO mail.kernel.org"
+        id S2390530AbfETMkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389192AbfETMZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:54 -0400
+        id S2388722AbfETMcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:32:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9467C20675;
-        Mon, 20 May 2019 12:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E535D204FD;
+        Mon, 20 May 2019 12:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355154;
-        bh=ZvBc6xseuzdpDAbWQrLLjEtwnUyRl3awfzeV6QFCcPc=;
+        s=default; t=1558355560;
+        bh=nWPuQFxqZUgeHjRnCjzBs8qkng3cSOzOIt2yESDSQ7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WecAPAYQLNtII/01lmGjB/Z5CFoyCTSPAlPB/14PLa+5Mrm01k/G5rfokQVu+ZJqg
-         h4smUImLRojl9prYKIPHNlJIqSoCMdWtG65A/2AGNS9h09WLPTjfeN3W6LrDq7b61b
-         ixjTNNT8RSpkI0PG3BuAZGHmVO5mJ20Q9V7iLFn8=
+        b=zdNBZClTABhYeW11SGulRCZg1AZhKN5c5Th3ZuOocmD3f+gEV4FuHJtrYsMQGJ5TR
+         cw4aGtQopYO3CRsRNQ6xzBY68ait7KpPF+M2UjW3+9eNmkoBMk6Vhf0DYn8DOuAH0o
+         DD/lnJZ/UetE8wMK4qSCDBovIENkRheF2wxB/Ld0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.0 012/123] power: supply: axp288_charger: Fix unchecked return value
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Katsuhiro Suzuki <katsuhiro@katsuster.net>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.1 005/128] arm64: dts: rockchip: fix IO domain voltage setting of APIO5 on rockpro64
 Date:   Mon, 20 May 2019 14:13:12 +0200
-Message-Id: <20190520115245.935063340@linuxfoundation.org>
+Message-Id: <20190520115249.812882782@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
 
-commit c3422ad5f84a66739ec6a37251ca27638c85b6be upstream.
+commit 798689e45190756c2eca6656ee4c624370a5012a upstream.
 
-Currently there is no check on platform_get_irq() return value
-in case it fails, hence never actually reporting any errors and
-causing unexpected behavior when using such value as argument
-for function regmap_irq_get_virq().
+This patch fixes IO domain voltage setting that is related to
+audio_gpio3d4a_ms (bit 1) of GRF_IO_VSEL.
 
-Fix this by adding a proper check, a message reporting any errors
-and returning *pirq*
+This is because RockPro64 schematics P.16 says that regulator
+supplies 3.0V power to APIO5_VDD. So audio_gpio3d4a_ms bit should
+be clear (means 3.0V). Power domain map is saying different thing
+(supplies 1.8V) but I believe P.16 is actual connectings.
 
-Addresses-Coverity-ID: 1443940 ("Improper use of negative value")
-Fixes: 843735b788a4 ("power: axp288_charger: axp288 charger driver")
+Fixes: e4f3fb490967 ("arm64: dts: rockchip: add initial dts support for Rockpro64")
 Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/axp288_charger.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -833,6 +833,10 @@ static int axp288_charger_probe(struct p
- 	/* Register charger interrupts */
- 	for (i = 0; i < CHRG_INTR_END; i++) {
- 		pirq = platform_get_irq(info->pdev, i);
-+		if (pirq < 0) {
-+			dev_err(&pdev->dev, "Failed to get IRQ: %d\n", pirq);
-+			return pirq;
-+		}
- 		info->irq[i] = regmap_irq_get_virq(info->regmap_irqc, pirq);
- 		if (info->irq[i] < 0) {
- 			dev_warn(&info->pdev->dev,
+--- a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
+@@ -504,7 +504,7 @@
+ 	status = "okay";
+ 
+ 	bt656-supply = <&vcc1v8_dvp>;
+-	audio-supply = <&vcca1v8_codec>;
++	audio-supply = <&vcc_3v0>;
+ 	sdmmc-supply = <&vcc_sdio>;
+ 	gpio1830-supply = <&vcc_3v0>;
+ };
 
 
