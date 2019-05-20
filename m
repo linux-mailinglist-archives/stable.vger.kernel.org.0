@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 645D9236FC
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03D4236CF
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731646AbfETMTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:19:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60682 "EHLO mail.kernel.org"
+        id S2387408AbfETMQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387812AbfETMTW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:19:22 -0400
+        id S2387403AbfETMQw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38EF4216C4;
-        Mon, 20 May 2019 12:19:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32CCF20656;
+        Mon, 20 May 2019 12:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354761;
-        bh=gD/85hYuO+3cOmr7qULttcM8q2skil2ruqvjSF0mOEI=;
+        s=default; t=1558354611;
+        bh=hcCWdm8G1C81OZqG9T6IE40vqZ2g7WBEfGBUW8Mt+Bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P54l9VgShR4gVllW1so4cOBNnMPPgEaU/7T0jrvQaiCRIGZbkJ4gRtpQ2RNArF0kx
-         VW58GPTvNNLNiLxbYxnYjS5EJyKNjiWCUjlEQ+UPJb+9kq20IZ/cseVaGhQngDR3iL
-         l9R5bvXZ8wx0JAYBRbSnF5k7lD7aRY0AsltERE90=
+        b=JOfEv6Wa1kpp2SMlrUuGJZm8LPC8k3BH9Fvviu+Id9RO7G0OxPhiyErgaoenHjN2E
+         E4E4fPx669yvhKGH0zdrUihDgl3uZVZr6EU4zr6Jwu+mda06dxnpiObgBMMI6hJ8Hn
+         6ktlpgwXQUr9OkNAP/53dqBDLAX2AwbaQWXDmIOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 4.14 15/63] arm64: Save and restore OSDLR_EL1 across suspend/resume
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Jon Masters <jcm@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 05/44] x86/speculation/mds: Improve CPU buffer clear documentation
 Date:   Mon, 20 May 2019 14:13:54 +0200
-Message-Id: <20190520115232.714183132@linuxfoundation.org>
+Message-Id: <20190520115231.555191031@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 827a108e354db633698f0b4a10c1ffd2b1f8d1d0 upstream.
+commit 9d8d0294e78a164d407133dea05caf4b84247d6a upstream.
 
-When the CPU comes out of suspend, the firmware may have modified the OS
-Double Lock Register. Save it in an unused slot of cpu_suspend_ctx, and
-restore it on resume.
+On x86_64, all returns to usermode go through
+prepare_exit_to_usermode(), with the sole exception of do_nmi().
+This even includes machine checks -- this was added several years
+ago to support MCE recovery.  Update the documentation.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
+Link: http://lkml.kernel.org/r/999fa9e126ba6a48e9d214d2f18dbde5c62ac55c.1557865329.git.luto@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/mm/proc.S |   34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ Documentation/x86/mds.rst |   39 +++++++--------------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
 
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -64,24 +64,25 @@ ENTRY(cpu_do_suspend)
- 	mrs	x2, tpidr_el0
- 	mrs	x3, tpidrro_el0
- 	mrs	x4, contextidr_el1
--	mrs	x5, cpacr_el1
--	mrs	x6, tcr_el1
--	mrs	x7, vbar_el1
--	mrs	x8, mdscr_el1
--	mrs	x9, oslsr_el1
--	mrs	x10, sctlr_el1
-+	mrs	x5, osdlr_el1
-+	mrs	x6, cpacr_el1
-+	mrs	x7, tcr_el1
-+	mrs	x8, vbar_el1
-+	mrs	x9, mdscr_el1
-+	mrs	x10, oslsr_el1
-+	mrs	x11, sctlr_el1
- alternative_if_not ARM64_HAS_VIRT_HOST_EXTN
--	mrs	x11, tpidr_el1
-+	mrs	x12, tpidr_el1
- alternative_else
--	mrs	x11, tpidr_el2
-+	mrs	x12, tpidr_el2
- alternative_endif
--	mrs	x12, sp_el0
-+	mrs	x13, sp_el0
- 	stp	x2, x3, [x0]
--	stp	x4, xzr, [x0, #16]
--	stp	x5, x6, [x0, #32]
--	stp	x7, x8, [x0, #48]
--	stp	x9, x10, [x0, #64]
--	stp	x11, x12, [x0, #80]
-+	stp	x4, x5, [x0, #16]
-+	stp	x6, x7, [x0, #32]
-+	stp	x8, x9, [x0, #48]
-+	stp	x10, x11, [x0, #64]
-+	stp	x12, x13, [x0, #80]
- 	ret
- ENDPROC(cpu_do_suspend)
+--- a/Documentation/x86/mds.rst
++++ b/Documentation/x86/mds.rst
+@@ -142,38 +142,13 @@ Mitigation points
+    mds_user_clear.
  
-@@ -104,8 +105,8 @@ ENTRY(cpu_do_resume)
- 	msr	cpacr_el1, x6
+    The mitigation is invoked in prepare_exit_to_usermode() which covers
+-   most of the kernel to user space transitions. There are a few exceptions
+-   which are not invoking prepare_exit_to_usermode() on return to user
+-   space. These exceptions use the paranoid exit code.
+-
+-   - Non Maskable Interrupt (NMI):
+-
+-     Access to sensible data like keys, credentials in the NMI context is
+-     mostly theoretical: The CPU can do prefetching or execute a
+-     misspeculated code path and thereby fetching data which might end up
+-     leaking through a buffer.
+-
+-     But for mounting other attacks the kernel stack address of the task is
+-     already valuable information. So in full mitigation mode, the NMI is
+-     mitigated on the return from do_nmi() to provide almost complete
+-     coverage.
+-
+-   - Machine Check Exception (#MC):
+-
+-     Another corner case is a #MC which hits between the CPU buffer clear
+-     invocation and the actual return to user. As this still is in kernel
+-     space it takes the paranoid exit path which does not clear the CPU
+-     buffers. So the #MC handler repopulates the buffers to some
+-     extent. Machine checks are not reliably controllable and the window is
+-     extremly small so mitigation would just tick a checkbox that this
+-     theoretical corner case is covered. To keep the amount of special
+-     cases small, ignore #MC.
+-
+-   - Debug Exception (#DB):
+-
+-     This takes the paranoid exit path only when the INT1 breakpoint is in
+-     kernel space. #DB on a user space address takes the regular exit path,
+-     so no extra mitigation required.
++   all but one of the kernel to user space transitions.  The exception
++   is when we return from a Non Maskable Interrupt (NMI), which is
++   handled directly in do_nmi().
++
++   (The reason that NMI is special is that prepare_exit_to_usermode() can
++    enable IRQs.  In NMI context, NMIs are blocked, and we don't want to
++    enable IRQs with NMIs blocked.)
  
- 	/* Don't change t0sz here, mask those bits when restoring */
--	mrs	x5, tcr_el1
--	bfi	x8, x5, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
-+	mrs	x7, tcr_el1
-+	bfi	x8, x7, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
  
- 	msr	tcr_el1, x8
- 	msr	vbar_el1, x9
-@@ -129,6 +130,7 @@ alternative_endif
- 	/*
- 	 * Restore oslsr_el1 by writing oslar_el1
- 	 */
-+	msr	osdlr_el1, x5
- 	ubfx	x11, x11, #1, #1
- 	msr	oslar_el1, x11
- 	reset_pmuserenr_el0 x0			// Disable PMU access from EL0
+ 2. C-State transition
 
 
