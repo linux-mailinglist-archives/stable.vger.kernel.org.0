@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFDDE2360E
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8860023681
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389964AbfETM3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
+        id S2388630AbfETMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389959AbfETM3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:47 -0400
+        id S2388518AbfETMZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:25:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8429A20675;
-        Mon, 20 May 2019 12:29:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 847A720815;
+        Mon, 20 May 2019 12:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355386;
-        bh=gDXp1YTVd1ZDb9dpxjABJtOXO5WdHbIWePTo2Hqkyqk=;
+        s=default; t=1558355128;
+        bh=+Ma5oZ5zYnu+nJqNe7Q9IlJZhaRa2nN1Ozk47otlomg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2SxiAqJXyrYn+9h66uAtI/hcQ7davda2Akk1ajGbrxvrWLzUyehD6xB913AJYTZg
-         nx5GLGb1Yl55DC63oxeiqn0YQJrTauU0jrHkl2XhyxSf+cXXNd4x0YKvWcxGFGL7v4
-         ZGIUjBog2yADSZnYsALzlEJPYYxx7XztQkS0izdM=
+        b=LI1tebXr4mHcXONJMEGG8xgHyJCzxGpK3nLt6bIqGPtSk+hf05VRBCAHsY301LJCu
+         5j8fCDalaHLYeO0f+JP0x07beMa1N3eCoUGT6hPzb2IJQbEOeQY2WzGtPqET1Z6heV
+         LYPeUpzJk026JKOxw7J9gaC4Cx7Ml6LfkUXPhqkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.0 097/123] bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Wadowski?= <wadosm@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 091/105] ALSA: hda/realtek - Fix for Lenovo B50-70 inverted internal microphone bug
 Date:   Mon, 20 May 2019 14:14:37 +0200
-Message-Id: <20190520115251.461190489@linuxfoundation.org>
+Message-Id: <20190520115253.550778617@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Michał Wadowski <wadosm@gmail.com>
 
-commit 1bee2addc0c8470c8aaa65ef0599eeae96dd88bc upstream.
+commit 56df90b631fc027fe28b70d41352d820797239bb upstream.
 
-In journal_reclaim() ja->cur_idx of each cache will be update to
-reclaim available journal buckets. Variable 'int n' is used to count how
-many cache is successfully reclaimed, then n is set to c->journal.key
-by SET_KEY_PTRS(). Later in journal_write_unlocked(), a for_each_cache()
-loop will write the jset data onto each cache.
+Add patch for realtek codec in Lenovo B50-70 that fixes inverted
+internal microphone channel.
+Device IdeaPad Y410P has the same PCI SSID as Lenovo B50-70,
+but first one is about fix the noise and it didn't seem help in a
+later kernel version.
+So I replaced IdeaPad Y410P device description with B50-70 and apply
+inverted microphone fix.
 
-The problem is, if all jouranl buckets on each cache is full, the
-following code in journal_reclaim(),
-
-529 for_each_cache(ca, c, iter) {
-530       struct journal_device *ja = &ca->journal;
-531       unsigned int next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
-532
-533       /* No space available on this device */
-534       if (next == ja->discard_idx)
-535               continue;
-536
-537       ja->cur_idx = next;
-538       k->ptr[n++] = MAKE_PTR(0,
-539                         bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
-540                         ca->sb.nr_this_dev);
-541 }
-542
-543 bkey_init(k);
-544 SET_KEY_PTRS(k, n);
-
-If there is no available bucket to reclaim, the if() condition at line
-534 will always true, and n remains 0. Then at line 544, SET_KEY_PTRS()
-will set KEY_PTRS field of c->journal.key to 0.
-
-Setting KEY_PTRS field of c->journal.key to 0 is wrong. Because in
-journal_write_unlocked() the journal data is written in following loop,
-
-649	for (i = 0; i < KEY_PTRS(k); i++) {
-650-671		submit journal data to cache device
-672	}
-
-If KEY_PTRS field is set to 0 in jouranl_reclaim(), the journal data
-won't be written to cache device here. If system crahed or rebooted
-before bkeys of the lost journal entries written into btree nodes, data
-corruption will be reported during bcache reload after rebooting the
-system.
-
-Indeed there is only one cache in a cache set, there is no need to set
-KEY_PTRS field in journal_reclaim() at all. But in order to keep the
-for_each_cache() logic consistent for now, this patch fixes the above
-problem by not setting 0 KEY_PTRS of journal key, if there is no bucket
-available to reclaim.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Bugzilla: https://bugs.launchpad.net/ubuntu/+source/alsa-driver/+bug/1524215
+Signed-off-by: Michał Wadowski <wadosm@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/journal.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -540,11 +540,11 @@ static void journal_reclaim(struct cache
- 				  ca->sb.nr_this_dev);
- 	}
- 
--	bkey_init(k);
--	SET_KEY_PTRS(k, n);
--
--	if (n)
-+	if (n) {
-+		bkey_init(k);
-+		SET_KEY_PTRS(k, n);
- 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
-+	}
- out:
- 	if (!journal_full(&c->journal))
- 		__closure_wake_up(&c->journal.wait);
-@@ -671,6 +671,9 @@ static void journal_write_unlocked(struc
- 		ca->journal.seq[ca->journal.cur_idx] = w->data->seq;
- 	}
- 
-+	/* If KEY_PTRS(k) == 0, this jset gets lost in air */
-+	BUG_ON(i == 0);
-+
- 	atomic_dec_bug(&fifo_back(&c->journal.pin));
- 	bch_journal_next(&c->journal);
- 	journal_reclaim(c);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6898,7 +6898,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+-	SND_PCI_QUIRK(0x17aa, 0x3978, "IdeaPad Y410P", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x5013, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x501a, "Thinkpad", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x501e, "Thinkpad L440", ALC292_FIXUP_TPT440_DOCK),
 
 
