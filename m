@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4E023747
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5999A236E8
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388666AbfETMXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38290 "EHLO mail.kernel.org"
+        id S2387663AbfETMRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388637AbfETMXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:42 -0400
+        id S1732968AbfETMRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C56420675;
-        Mon, 20 May 2019 12:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74817213F2;
+        Mon, 20 May 2019 12:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355022;
-        bh=iT4yjMJcKkltvxB7A3R4I/OGGLjYhEBIkJulcqRNo5E=;
+        s=default; t=1558354673;
+        bh=47h56TplLtOuTZk9bZBytonkt83xqba2oE7Wh9cojE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kc0qPmMYznXmitgw2wDP/t/K+1UMCGsFOFkzxvJldjAgBI/+Z5ok0yPAE4Jq1KVT
-         QOjrNNZKuGNFgYVzLPNBxWxQVuS6MPKtmbve2lZhRUxIWMVJW6NSxqUUUrLooRoXMQ
-         85Fb0KPWOOl1ZrOQOgiV/jm9f9MtUHgiU0AiVjL0=
+        b=Hb7ZWNmX07XhqzsomIsMWJ1JkPRa7L6hKbtr4/ThUAxCLNMGP9NA/5YlG5zwrbCee
+         UwNBIPxiKHDrE79U9ROQHNZEAHIS5QRojejIvT/7t1vTiu1JHlh1ztKZpg6qHD3r+g
+         bpainBQOFU1MPd7xhhzfK12/leAyxTsikaPg2Vtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 067/105] ext4: protect journal inodes blocks using block_validity
+        stable@vger.kernel.org,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 24/44] mfd: da9063: Fix OTP control register names to match datasheets for DA9063/63L
 Date:   Mon, 20 May 2019 14:14:13 +0200
-Message-Id: <20190520115251.802050920@linuxfoundation.org>
+Message-Id: <20190520115233.686875814@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,101 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
+commit 6b4814a9451add06d457e198be418bf6a3e6a990 upstream.
 
-Add the blocks which belong to the journal inode to block_validity's
-system zone so attempts to deallocate or overwrite the journal due a
-corrupted file system where the journal blocks are also claimed by
-another inode.
+Mismatch between what is found in the Datasheets for DA9063 and DA9063L
+provided by Dialog Semiconductor, and the register names provided in the
+MFD registers file. The changes are for the OTP (one-time-programming)
+control registers. The two naming errors are OPT instead of OTP, and
+COUNT instead of CONT (i.e. control).
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++
- fs/ext4/inode.c          |    4 +++
- 2 files changed, 52 insertions(+)
+ include/linux/mfd/da9063/registers.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4
- 	printk(KERN_CONT "\n");
- }
+--- a/include/linux/mfd/da9063/registers.h
++++ b/include/linux/mfd/da9063/registers.h
+@@ -215,9 +215,9 @@
  
-+static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
-+{
-+	struct inode *inode;
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_map_blocks map;
-+	u32 i = 0, err = 0, num, n;
-+
-+	if ((ino < EXT4_ROOT_INO) ||
-+	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
-+		return -EINVAL;
-+	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
-+	if (IS_ERR(inode))
-+		return PTR_ERR(inode);
-+	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
-+	while (i < num) {
-+		map.m_lblk = i;
-+		map.m_len = num - i;
-+		n = ext4_map_blocks(NULL, inode, &map, 0);
-+		if (n < 0) {
-+			err = n;
-+			break;
-+		}
-+		if (n == 0) {
-+			i++;
-+		} else {
-+			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
-+				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+					   "overlap system zone", map.m_pblk,
-+					   map.m_pblk + map.m_len - 1, ino);
-+				err = -EFSCORRUPTED;
-+				break;
-+			}
-+			err = add_system_zone(sbi, map.m_pblk, n);
-+			if (err < 0)
-+				break;
-+			i += n;
-+		}
-+	}
-+	iput(inode);
-+	return err;
-+}
-+
- int ext4_setup_system_zone(struct super_block *sb)
- {
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
-@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_
- 		if (ret)
- 			return ret;
- 	}
-+	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
-+		ret = ext4_protect_reserved_inode(sb,
-+				le32_to_cpu(sbi->s_es->s_journal_inum));
-+		if (ret)
-+			return ret;
-+	}
+ /* DA9063 Configuration registers */
+ /* OTP */
+-#define	DA9063_REG_OPT_COUNT		0x101
+-#define	DA9063_REG_OPT_ADDR		0x102
+-#define	DA9063_REG_OPT_DATA		0x103
++#define	DA9063_REG_OTP_CONT		0x101
++#define	DA9063_REG_OTP_ADDR		0x102
++#define	DA9063_REG_OTP_DATA		0x103
  
- 	if (test_opt(sb, DEBUG))
- 		debug_print_tree(sbi);
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -399,6 +399,10 @@ static int __check_block_validity(struct
- 				unsigned int line,
- 				struct ext4_map_blocks *map)
- {
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
- 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
- 				   map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
+ /* Customer Trim and Configuration */
+ #define	DA9063_REG_T_OFFSET		0x104
 
 
