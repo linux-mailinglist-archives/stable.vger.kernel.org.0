@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 784772354D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F0F2361E
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390901AbfETMeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51634 "EHLO mail.kernel.org"
+        id S2389794AbfETM3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390112AbfETMeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:20 -0400
+        id S2389790AbfETM3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6202F20815;
-        Mon, 20 May 2019 12:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FB0F20815;
+        Mon, 20 May 2019 12:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355659;
-        bh=KfIra1FsUZtFZlfjeFS4uKyu9mEjfoNOlzLNspPbGf4=;
+        s=default; t=1558355343;
+        bh=iT4yjMJcKkltvxB7A3R4I/OGGLjYhEBIkJulcqRNo5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmmIR3k3pUPbEG15QID2AcfBZ8a/LYEci4ze6aAJGC74jrMKPona0iaKE6BvZQJxv
-         GQcbHtSntwlzCYYBSr2eIaotPZRu7GHrILQBW6MArDspaNL0BpfEz/cH2AU6eDq3bW
-         LsEcamUyB50QrTKzLcmvTXWEeJ+VvHMmKcNY204k=
+        b=U2obDETVcTUBGN11Eao5tiGCq+pBZBKHUVE2aM2PEJgxJd2zlZCIngYqeE0MTEzdl
+         dcqaz/pg2iHxPq7ICRgzdg076ntL+gF/BdUBCoUjr8g/t0kEmKf9mu8toACdB70978
+         pGT/r8IDGzpf8BY+uKSeokzB8y1p3lT4eYLrU4fI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gabriel C <nix.or.die@gmail.com>,
-        Erik Schmauss <erik.schmauss@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.1 076/128] ACPICA: Linux: move ACPI_DEBUG_DEFAULT flag out of ifndef
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.0 083/123] ext4: protect journal inodes blocks using block_validity
 Date:   Mon, 20 May 2019 14:14:23 +0200
-Message-Id: <20190520115254.864496798@linuxfoundation.org>
+Message-Id: <20190520115250.362769006@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Schmauss <erik.schmauss@intel.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 11207b4dc2737f1f01695979ad5eac6c8ecc8031 upstream.
+commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
 
-ACPICA commit c14f17fa0acf8c93497ce04b9a7f4ada51b69383
+Add the blocks which belong to the journal inode to block_validity's
+system zone so attempts to deallocate or overwrite the journal due a
+corrupted file system where the journal blocks are also claimed by
+another inode.
 
-This flag should not be included in #ifndef CONFIG_ACPI. It should be
-used unconditionally.
-
-Link: https://github.com/acpica/acpica/commit/c14f17fa
-Fixes: aa9aaa4d61c0 ("ACPI: use different default debug value than ACPICA")
-Reported-by: Gabriel C <nix.or.die@gmail.com>
-Tested-by: Gabriel C <nix.or.die@gmail.com>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> 5.1+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/acpi/platform/aclinux.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/ext4/block_validity.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++
+ fs/ext4/inode.c          |    4 +++
+ 2 files changed, 52 insertions(+)
 
---- a/include/acpi/platform/aclinux.h
-+++ b/include/acpi/platform/aclinux.h
-@@ -66,6 +66,11 @@
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4
+ 	printk(KERN_CONT "\n");
+ }
  
- #define ACPI_INIT_FUNCTION __init
- 
-+/* Use a specific bugging default separate from ACPICA */
++static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
++{
++	struct inode *inode;
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	struct ext4_map_blocks map;
++	u32 i = 0, err = 0, num, n;
 +
-+#undef ACPI_DEBUG_DEFAULT
-+#define ACPI_DEBUG_DEFAULT          (ACPI_LV_INFO | ACPI_LV_REPAIR)
++	if ((ino < EXT4_ROOT_INO) ||
++	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
++		return -EINVAL;
++	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
++	if (IS_ERR(inode))
++		return PTR_ERR(inode);
++	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
++	while (i < num) {
++		map.m_lblk = i;
++		map.m_len = num - i;
++		n = ext4_map_blocks(NULL, inode, &map, 0);
++		if (n < 0) {
++			err = n;
++			break;
++		}
++		if (n == 0) {
++			i++;
++		} else {
++			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
++				ext4_error(sb, "blocks %llu-%llu from inode %u "
++					   "overlap system zone", map.m_pblk,
++					   map.m_pblk + map.m_len - 1, ino);
++				err = -EFSCORRUPTED;
++				break;
++			}
++			err = add_system_zone(sbi, map.m_pblk, n);
++			if (err < 0)
++				break;
++			i += n;
++		}
++	}
++	iput(inode);
++	return err;
++}
 +
- #ifndef CONFIG_ACPI
+ int ext4_setup_system_zone(struct super_block *sb)
+ {
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_
+ 		if (ret)
+ 			return ret;
+ 	}
++	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
++		ret = ext4_protect_reserved_inode(sb,
++				le32_to_cpu(sbi->s_es->s_journal_inum));
++		if (ret)
++			return ret;
++	}
  
- /* External globals for __KERNEL__, stubs is needed */
-@@ -82,11 +87,6 @@
- #define ACPI_NO_ERROR_MESSAGES
- #undef ACPI_DEBUG_OUTPUT
- 
--/* Use a specific bugging default separate from ACPICA */
--
--#undef ACPI_DEBUG_DEFAULT
--#define ACPI_DEBUG_DEFAULT          (ACPI_LV_INFO | ACPI_LV_REPAIR)
--
- /* External interface for __KERNEL__, stub is needed */
- 
- #define ACPI_EXTERNAL_RETURN_STATUS(prototype) \
+ 	if (test_opt(sb, DEBUG))
+ 		debug_print_tree(sbi);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -399,6 +399,10 @@ static int __check_block_validity(struct
+ 				unsigned int line,
+ 				struct ext4_map_blocks *map)
+ {
++	if (ext4_has_feature_journal(inode->i_sb) &&
++	    (inode->i_ino ==
++	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
++		return 0;
+ 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
+ 				   map->m_len)) {
+ 		ext4_error_inode(inode, func, line, map->m_pblk,
 
 
