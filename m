@@ -2,109 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 538A323E42
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2018E23E5D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390145AbfETRS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 13:18:56 -0400
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:46738 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390154AbfETRSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:18:55 -0400
-Received: by mail-wr1-f42.google.com with SMTP id r7so15454875wrr.13
-        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:18:55 -0700 (PDT)
+        id S2392856AbfETRXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 13:23:46 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:45628 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730508AbfETRXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:23:45 -0400
+Received: by mail-lj1-f194.google.com with SMTP id r76so13190015lja.12
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:23:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pxyI5TL8hvd5HHAD0U3xN7qE3cCe7FmMwI3QPHrSHyE=;
-        b=VQdhFgHuaWA/rmGm1ng0yiD9NR3LcKwgib05/ob2uOU5cpIAuadfMpGia2t1Dp+uqe
-         Dltkkdj5fYwxe+uvR34n7XIKcxME05Hq6EL+rgGrdrEk0w/zNBZxQ9JjVF/0i4oQXeHv
-         hBcRzoPcLQt9B0EnbVDP8tfGBr8mD8hrV6TV1Xwnir43vxnvEwdNKMMQJ/yLhljRZOox
-         YRYC2ozwmihc+IdeG8d87oyBLmNg+aXWF3w+fN7Gq4UN6YKFERxxV/LHqE4x+hk+wf4u
-         W+17VrPhV7P6jhJO9gE8fvZc48/rt3LWerQewaHK+v4J45q08groRqXOLIrj7OPof880
-         snAA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/XllLktKT+RmUaf9RIAEUli+Wt4Aghgk5ujtbcVtYIU=;
+        b=xS5vIR5Wqk8T0np8EZ1RMfB4FRajZp/gOzlrKdVIjK2BoJwYolJqeCIyT4g+aAQ2+t
+         Dy+Azz96b1Wf31SPKnneU5G/ssAnxOqtsEGj0xuuaelKKcaVmzFs5ATOYTtEdLPnx1sf
+         Sx84UgPIJm/cmFvCNCBF9KJQgI2blFs3pHJORu1xNkQP5ZO9+eodrra484x0yX/wHfFS
+         BKe71vG1csfo+dticSsHgZWJk+AAUo8pJJfjScor7KVZ37xEUJMIBqxca/xEjdH2PsBW
+         FpeA+Dg9LcpXKGZnB+/I6v+VkqNPCrA6EfSBVlIDSfcByV+VBr2ovI16J9n8XiK2dEAN
+         4/8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pxyI5TL8hvd5HHAD0U3xN7qE3cCe7FmMwI3QPHrSHyE=;
-        b=hxTdfPxSFD7auI3DzdZKuE6JzOjEqo6PpJFds+9I8LxlvKf1m7bj/s5qmPNpsd5you
-         VMgto2vYVnxV9lmtwy6gOvdF2eA/AgpcgjIg1UVpZRdLbfU+TrgaRGqTwohSVRTEGO22
-         6xVmEO7VqbkrLAKiBbfo9skqW5KU1XRIKWVPHb75TjusRMdJQvaCJ5JOE3VPzgTFhktF
-         JFEbf6HfLQUjtiQfpYYVXvV3VDM/wA4OCyd2obUT3nCZMyufCet9NqAiG5gPYvueDCx0
-         2Pc2Ed5UyeVt3Ir8cAmigr1vu5LOSSUyoCJQluzUIdxbH+TYx28jvA0CFDGlpxy8Wz7w
-         VaMQ==
-X-Gm-Message-State: APjAAAXg3f77f39UucIW0FRZ03Dvl5noqamhXefUw6pkuZmt7KH0ZI0h
-        eqY92Kg+xc0K9aNgJyB4qa9MmjVTAmSL8w==
-X-Google-Smtp-Source: APXvYqwTurtQLHrj3hLQcrkGJB7PIcFfNreonv+hj8DUOYpTds9Xqn2MHf3Yu2Wo5waP/rJ4p9bm/g==
-X-Received: by 2002:adf:e845:: with SMTP id d5mr683814wrn.154.1558372734315;
-        Mon, 20 May 2019 10:18:54 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z13sm14048653wrw.42.2019.05.20.10.18.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 May 2019 10:18:53 -0700 (PDT)
-Message-ID: <5ce2e17d.1c69fb81.939ee.87ae@mx.google.com>
-Date:   Mon, 20 May 2019 10:18:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/XllLktKT+RmUaf9RIAEUli+Wt4Aghgk5ujtbcVtYIU=;
+        b=fx4dZ9aD5Ufmblt7HtSjwZ9xQZbNATHx/Kwy5MmFE6hyL+LVsSrs/neyHjFObU8ZBh
+         8MKc9NoK+F08aC8jAFotuEQy01HSfI0DEf4uJkMu8CE7GnI8Hw8UAcj9TLDmgKLnl+MP
+         jy+GLvdgdQGWuV2QWDgjvQxRlpfWfukNrzSyhv5KKzZtt+40EZZ0RIgQE4pHrx5qtKW1
+         pBA2JLvjOD1Tb6iPtvC83Ac+wX/JtsdOZa3H+YIyXuZodViYdpxAh8hnkhsDV46WlAzu
+         W/vQu3S5hrtiRVNfgjfDEyIxhZ75rID9MXPDMmrWfgGoK8EcE+DS9qAA5Y4ge+W7TZx/
+         Xr8Q==
+X-Gm-Message-State: APjAAAVbI6FXx3dOzGwLtqqXY9zapi0GjRPpi2A1Rnvu9qrEu0ildXCg
+        GkQJuNSH8F8i+1G4ONZmi+KjSg==
+X-Google-Smtp-Source: APXvYqxqcBMQK1yvH44quISDx05o5DxfTIv+l6ZOUSVR5FOYWdiZmftU1NeDPag/TIRxCS4nPw1DtA==
+X-Received: by 2002:a2e:1f02:: with SMTP id f2mr37362997ljf.86.1558373023429;
+        Mon, 20 May 2019 10:23:43 -0700 (PDT)
+Received: from localhost.localdomain (c-d2cd225c.014-348-6c756e10.bbcust.telenor.se. [92.34.205.210])
+        by smtp.gmail.com with ESMTPSA id f189sm4117149lfe.66.2019.05.20.10.23.41
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 20 May 2019 10:23:42 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Mark Zhang <markz@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Jinyoung Park <jinyoungp@nvidia.com>,
+        Venkat Reddy Talla <vreddytalla@nvidia.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH] regmap-irq: do not write mask register if mask_base is zero
+Date:   Mon, 20 May 2019 19:21:39 +0200
+Message-Id: <20190520172139.16991-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.17-117-gc76436debfdf
-Subject: stable-rc/linux-5.0.y boot: 128 boots: 0 failed,
- 126 passed with 1 offline, 1 conflict (v5.0.17-117-gc76436debfdf)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 128 boots: 0 failed, 126 passed with 1 offline,=
- 1 conflict (v5.0.17-117-gc76436debfdf)
+From: Mark Zhang <markz@nvidia.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.17-117-gc76436debfdf/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.17-117-gc76436debfdf/
+commit 7151449fe7fa5962c6153355f9779d6be99e8e97 upstream.
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.17-117-gc76436debfdf
-Git Commit: c76436debfdf5cff1e99cf15f44e49fa7b02664f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 72 unique boards, 24 SoC families, 14 builds out of 208
+If client have not provided the mask base register then do not
+write into the mask register.
 
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: failing since 3 days (last pass: v5.0.16 - firs=
-t fail: v5.0.17)
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Signed-off-by: Jinyoung Park <jinyoungp@nvidia.com>
+Signed-off-by: Venkat Reddy Talla <vreddytalla@nvidia.com>
+Signed-off-by: Mark Zhang <markz@nvidia.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+This commit was found in an nVidia product tree based on
+v4.19, and looks like definitive stable material to me.
+It should go into v4.19 only as far as I can tell.
+---
+ drivers/base/regmap/regmap-irq.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 429ca8ed7e51..982c7ac311b8 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -91,6 +91,9 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
+ 	 * suppress pointless writes.
+ 	 */
+ 	for (i = 0; i < d->chip->num_regs; i++) {
++		if (!d->chip->mask_base)
++			continue;
++
+ 		reg = d->chip->mask_base +
+ 			(i * map->reg_stride * d->irq_reg_stride);
+ 		if (d->chip->mask_invert) {
+@@ -526,6 +529,9 @@ int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
+ 	/* Mask all the interrupts by default */
+ 	for (i = 0; i < chip->num_regs; i++) {
+ 		d->mask_buf[i] = d->mask_buf_def[i];
++		if (!chip->mask_base)
++			continue;
++
+ 		reg = chip->mask_base +
+ 			(i * map->reg_stride * d->irq_reg_stride);
+ 		if (chip->mask_invert)
+-- 
+2.20.1
+
