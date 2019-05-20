@@ -2,38 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 835BD23633
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5FC233AC
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389707AbfETM2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:28:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44448 "EHLO mail.kernel.org"
+        id S2387827AbfETMT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:19:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389099AbfETM2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:28:35 -0400
+        id S1732662AbfETMT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9481B216C4;
-        Mon, 20 May 2019 12:28:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4605421019;
+        Mon, 20 May 2019 12:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355315;
-        bh=iR/CRwxw8Y9GNxIe6y43msCHgJFVvMtFrS9EgdCBTTo=;
+        s=default; t=1558354766;
+        bh=JM49MF2Yjq15pv8+DfWBPLkGw1TAveI6cAnS+u3u0kY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrLoHtowAeggcW71vR5EvulvLIY/xQ02XIktRsA7ZsTYlNi/tn2J81Lyi3K8qyR6P
-         D1OOHDF6TBHPJCeAz/yy2GL1r/PaXBTNuh8nAcd5fAXXKpxOPyr6uqtnDnb8CIwp2C
-         aoz/RqKp6LTcV+yCP48vm40eAgpUIuxlO0TRylOE=
+        b=qEVdZyftmX6ssxriJ+gIzTAajJ2GaWRYZh4aQtmrgvH/DcEKz6TujXEh3MDmxM1Iw
+         41ncPUE099D9c0TTQWQ2f1duReJwZoSieqHZJLMVCjyAB3LQgIe3+wLzDRLU2rUgc6
+         LNWYKwyzIU/p5YAMy4ORG28hFp6JkYl/L9aCnyxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.0 073/123] ACPI: PM: Set enable_for_wake for wakeup GPEs during suspend-to-idle
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        zhong jiang <zhongjiang@huawei.com>,
+        syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com,
+        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 34/63] userfaultfd: use RCU to free the task struct when fork fails
 Date:   Mon, 20 May 2019 14:14:13 +0200
-Message-Id: <20190520115249.698856898@linuxfoundation.org>
+Message-Id: <20190520115235.088185357@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +54,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajat Jain <rajatja@google.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-commit 2f844b61db8297a1f7a06adf2eb5c43381f2c183 upstream.
+commit c3f3ce049f7d97cc7ec9c01cb51d9ec74e0f37c2 upstream.
 
-I noticed that recently multiple systems (chromebooks) couldn't wake
-from S0ix using LID or Keyboard after updating to a newer kernel. I
-bisected and it turned up commit f941d3e41da7 ("ACPI: EC / PM: Disable
-non-wakeup GPEs for suspend-to-idle"). I checked that the issue got
-fixed if that commit was reverted.
+The task structure is freed while get_mem_cgroup_from_mm() holds
+rcu_read_lock() and dereferences mm->owner.
 
-I debugged and found that although PNP0C0D:00 (representing the LID)
-is wake capable and should wakeup the system per the code in
-acpi_wakeup_gpe_init() and in drivers/acpi/button.c:
+  get_mem_cgroup_from_mm()                failing fork()
+  ----                                    ---
+  task = mm->owner
+                                          mm->owner = NULL;
+                                          free(task)
+  if (task) *task; /* use after free */
 
-localhost /sys # cat /proc/acpi/wakeup
-Device  S-state   Status   Sysfs node
-LID0      S4    *enabled   platform:PNP0C0D:00
-CREC      S5    *disabled  platform:GOOG0004:00
-                *disabled  platform:cros-ec-dev.1.auto
-                *disabled  platform:cros-ec-accel.0
-                *disabled  platform:cros-ec-accel.1
-                *disabled  platform:cros-ec-gyro.0
-                *disabled  platform:cros-ec-ring.0
-                *disabled  platform:cros-usbpd-charger.2.auto
-                *disabled  platform:cros-usbpd-logger.3.auto
-D015      S3    *enabled   i2c:i2c-ELAN0000:00
-PENH      S3    *enabled   platform:PRP0001:00
-XHCI      S3    *enabled   pci:0000:00:14.0
-GLAN      S4    *disabled
-WIFI      S3    *disabled  pci:0000:00:14.3
-localhost /sys #
+The fix consists in freeing the task with RCU also in the fork failure
+case, exactly like it always happens for the regular exit(2) path.  That
+is enough to make the rcu_read_lock hold in get_mem_cgroup_from_mm()
+(left side above) effective to avoid a use after free when dereferencing
+the task structure.
 
-On debugging, I found that its corresponding GPE is not being enabled.
-The particular GPE's "gpe_register_info->enable_for_wake" does not
-have any bits set when acpi_enable_all_wakeup_gpes() comes around to
-use it. I looked at code and could not find any other code path that
-should set the bits in "enable_for_wake" bitmask for the wake enabled
-devices for s2idle.  [I do see that it happens for S3 in
-acpi_sleep_prepare()].
+An alternate possible fix would be to defer the delivery of the
+userfaultfd contexts to the monitor until after fork() is guaranteed to
+succeed.  Such a change would require more changes because it would
+create a strict ordering dependency where the uffd methods would need to
+be called beyond the last potentially failing branch in order to be
+safe.  This solution as opposed only adds the dependency to common code
+to set mm->owner to NULL and to free the task struct that was pointed by
+mm->owner with RCU, if fork ends up failing.  The userfaultfd methods
+can still be called anywhere during the fork runtime and the monitor
+will keep discarding orphaned "mm" coming from failed forks in userland.
 
-Thus I used the same call to enable the GPEs for wake enabled devices,
-and verified that this fixes the regression I was seeing on multiple
-of my devices.
+This race condition couldn't trigger if CONFIG_MEMCG was set =n at build
+time.
 
-[ rjw: The problem is that commit f941d3e41da7 ("ACPI: EC / PM:
-  Disable non-wakeup GPEs for suspend-to-idle") forgot to add
-  the acpi_enable_wakeup_devices() call for s2idle along with
-  acpi_enable_all_wakeup_gpes(). ]
-
-Fixes: f941d3e41da7 ("ACPI: EC / PM: Disable non-wakeup GPEs for suspend-to-idle")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203579
-Signed-off-by: Rajat Jain <rajatja@google.com>
-[ rjw: Subject & changelog ]
-Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[aarcange@redhat.com: improve changelog, reduce #ifdefs per Michal]
+  Link: http://lkml.kernel.org/r/20190429035752.4508-1-aarcange@redhat.com
+Link: http://lkml.kernel.org/r/20190325225636.11635-2-aarcange@redhat.com
+Fixes: 893e26e61d04 ("userfaultfd: non-cooperative: Add fork() event")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: zhong jiang <zhongjiang@huawei.com>
+Reported-by: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: zhong jiang <zhongjiang@huawei.com>
+Cc: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/sleep.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/fork.c |   31 +++++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -977,6 +977,8 @@ static int acpi_s2idle_prepare(void)
- 	if (acpi_sci_irq_valid())
- 		enable_irq_wake(acpi_sci_irq);
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -790,6 +790,15 @@ static void mm_init_aio(struct mm_struct
+ #endif
+ }
  
-+	acpi_enable_wakeup_devices(ACPI_STATE_S0);
++static __always_inline void mm_clear_owner(struct mm_struct *mm,
++					   struct task_struct *p)
++{
++#ifdef CONFIG_MEMCG
++	if (mm->owner == p)
++		WRITE_ONCE(mm->owner, NULL);
++#endif
++}
 +
- 	/* Change the configuration of GPEs to avoid spurious wakeup. */
- 	acpi_enable_all_wakeup_gpes();
- 	acpi_os_wait_events_complete();
-@@ -1027,6 +1029,8 @@ static void acpi_s2idle_restore(void)
+ static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
  {
- 	acpi_enable_all_runtime_gpes();
+ #ifdef CONFIG_MEMCG
+@@ -1211,6 +1220,7 @@ static struct mm_struct *dup_mm(struct t
+ free_pt:
+ 	/* don't put binfmt in mmput, we haven't got module yet */
+ 	mm->binfmt = NULL;
++	mm_init_owner(mm, NULL);
+ 	mmput(mm);
  
-+	acpi_disable_wakeup_devices(ACPI_STATE_S0);
+ fail_nomem:
+@@ -1528,6 +1538,21 @@ static inline void rcu_copy_process(stru
+ #endif /* #ifdef CONFIG_TASKS_RCU */
+ }
+ 
++static void __delayed_free_task(struct rcu_head *rhp)
++{
++	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
 +
- 	if (acpi_sci_irq_valid())
- 		disable_irq_wake(acpi_sci_irq);
- 
++	free_task(tsk);
++}
++
++static __always_inline void delayed_free_task(struct task_struct *tsk)
++{
++	if (IS_ENABLED(CONFIG_MEMCG))
++		call_rcu(&tsk->rcu, __delayed_free_task);
++	else
++		free_task(tsk);
++}
++
+ /*
+  * This creates a new process as a copy of the old one,
+  * but does not actually start it yet.
+@@ -1960,8 +1985,10 @@ bad_fork_cleanup_io:
+ bad_fork_cleanup_namespaces:
+ 	exit_task_namespaces(p);
+ bad_fork_cleanup_mm:
+-	if (p->mm)
++	if (p->mm) {
++		mm_clear_owner(p->mm, p);
+ 		mmput(p->mm);
++	}
+ bad_fork_cleanup_signal:
+ 	if (!(clone_flags & CLONE_THREAD))
+ 		free_signal_struct(p->signal);
+@@ -1992,7 +2019,7 @@ bad_fork_cleanup_count:
+ bad_fork_free:
+ 	p->state = TASK_DEAD;
+ 	put_task_stack(p);
+-	free_task(p);
++	delayed_free_task(p);
+ fork_out:
+ 	return ERR_PTR(retval);
+ }
 
 
