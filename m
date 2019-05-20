@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B64C2375C
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE61E2351A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388347AbfETMYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
+        id S2390649AbfETMdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:33:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388502AbfETMYp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:24:45 -0400
+        id S2390453AbfETMdF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:33:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3568421479;
-        Mon, 20 May 2019 12:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8512204FD;
+        Mon, 20 May 2019 12:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355084;
-        bh=N9QFeO4yQVMQCWzkv0CVm3igV/vAF6zg1t8BEEZGIbY=;
+        s=default; t=1558355584;
+        bh=EU67Q5dW9HDV5St97CrceoJ8fxnFxFU67gPhW95rM6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahne2PDQSWZq8HCKGvhI9xFDo26wLPwCLzV+WBr0bt4q1qC263BVV18NUbP2uqZjU
-         qYzafox2TF8bwAMoSxp0nrVpUabnPxRR+OS0uQjresGdHxLkQiS9+fcjjhcpzW3opX
-         PI9D0xuJoKMaaqf5mVh3QLs4Kc8SchpI79wc/vzE=
+        b=IHmi5i3gkiPX9IwCHSyreaoZ0Pla6dPeP6C+Nq4wxa/GxBYq/DVXRoifv23vevNcY
+         hwn187KFLACkm6B8JK10/HCIX07997bW9HClQaN66AeQNE/2H5j/X58lnBlaEV7sjR
+         VRdp4gCNgPgG+pU1L7/O4CwV9M4N5tI1UogrIpjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 050/105] crypto: ccree - HOST_POWER_DOWN_EN should be the last CC access during suspend
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.1 049/128] ALSA: usb-audio: Fix a memory leak bug
 Date:   Mon, 20 May 2019 14:13:56 +0200
-Message-Id: <20190520115250.492893602@linuxfoundation.org>
+Message-Id: <20190520115253.082305457@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Drang <ofir.drang@arm.com>
+From: Wenwen Wang <wang6495@umn.edu>
 
-commit 3499efbeed39d114873267683b9e776bcb34b058 upstream.
+commit cb5173594d50c72b7bfa14113dfc5084b4d2f726 upstream.
 
-During power management suspend the driver need to prepare the device
-for the power down operation and as a last indication write to the
-HOST_POWER_DOWN_EN register which signals to the hardware that
-The ccree is ready for power down.
+In parse_audio_selector_unit(), the string array 'namelist' is allocated
+through kmalloc_array(), and each string pointer in this array, i.e.,
+'namelist[]', is allocated through kmalloc() in the following for loop.
+Then, a control instance 'kctl' is created by invoking snd_ctl_new1(). If
+an error occurs during the creation process, the string array 'namelist',
+including all string pointers in the array 'namelist[]', should be freed,
+before the error code ENOMEM is returned. However, the current code does
+not free 'namelist[]', resulting in memory leaks.
 
-Signed-off-by: Ofir Drang <ofir.drang@arm.com>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+To fix the above issue, free all string pointers 'namelist[]' in a loop.
+
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_pm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -25,13 +25,13 @@ int cc_pm_suspend(struct device *dev)
- 	int rc;
- 
- 	dev_dbg(dev, "set HOST_POWER_DOWN_EN\n");
--	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
- 	rc = cc_suspend_req_queue(drvdata);
- 	if (rc) {
- 		dev_err(dev, "cc_suspend_req_queue (%x)\n", rc);
- 		return rc;
- 	}
- 	fini_cc_regs(drvdata);
-+	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
- 	cc_clk_off(drvdata);
- 	return 0;
- }
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -2675,6 +2675,8 @@ static int parse_audio_selector_unit(str
+ 	kctl = snd_ctl_new1(&mixer_selectunit_ctl, cval);
+ 	if (! kctl) {
+ 		usb_audio_err(state->chip, "cannot malloc kcontrol\n");
++		for (i = 0; i < desc->bNrInPins; i++)
++			kfree(namelist[i]);
+ 		kfree(namelist);
+ 		kfree(cval);
+ 		return -ENOMEM;
 
 
