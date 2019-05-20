@@ -2,111 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2018E23E5D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA4B23E69
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392856AbfETRXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 13:23:46 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:45628 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730508AbfETRXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:23:45 -0400
-Received: by mail-lj1-f194.google.com with SMTP id r76so13190015lja.12
-        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:23:44 -0700 (PDT)
+        id S2390551AbfETRYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 13:24:37 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38732 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390374AbfETRYh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:24:37 -0400
+Received: by mail-wm1-f66.google.com with SMTP id t5so153450wmh.3
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:24:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/XllLktKT+RmUaf9RIAEUli+Wt4Aghgk5ujtbcVtYIU=;
-        b=xS5vIR5Wqk8T0np8EZ1RMfB4FRajZp/gOzlrKdVIjK2BoJwYolJqeCIyT4g+aAQ2+t
-         Dy+Azz96b1Wf31SPKnneU5G/ssAnxOqtsEGj0xuuaelKKcaVmzFs5ATOYTtEdLPnx1sf
-         Sx84UgPIJm/cmFvCNCBF9KJQgI2blFs3pHJORu1xNkQP5ZO9+eodrra484x0yX/wHfFS
-         BKe71vG1csfo+dticSsHgZWJk+AAUo8pJJfjScor7KVZ37xEUJMIBqxca/xEjdH2PsBW
-         FpeA+Dg9LcpXKGZnB+/I6v+VkqNPCrA6EfSBVlIDSfcByV+VBr2ovI16J9n8XiK2dEAN
-         4/8A==
+        d=amarulasolutions.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=37CxHYKlFVVAIEnj21tdjvUOrJCuiyhrkjA75AgmUDE=;
+        b=QXPL+94F09z4z+ao64JQeUt9XFjjtv8g/N09kNE3fTGLUbp/qYLl1g57/r3St9bLbM
+         8ytkzOh0Wuy8BN9SlXxU9XZyfWLOan/bGagJczwA0VwsDnRdfZC+BvBUhMUoa7OVVnGu
+         Xm4cRqIxYjsIiLDMFpj6u8/02xysp+dxL6e8g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/XllLktKT+RmUaf9RIAEUli+Wt4Aghgk5ujtbcVtYIU=;
-        b=fx4dZ9aD5Ufmblt7HtSjwZ9xQZbNATHx/Kwy5MmFE6hyL+LVsSrs/neyHjFObU8ZBh
-         8MKc9NoK+F08aC8jAFotuEQy01HSfI0DEf4uJkMu8CE7GnI8Hw8UAcj9TLDmgKLnl+MP
-         jy+GLvdgdQGWuV2QWDgjvQxRlpfWfukNrzSyhv5KKzZtt+40EZZ0RIgQE4pHrx5qtKW1
-         pBA2JLvjOD1Tb6iPtvC83Ac+wX/JtsdOZa3H+YIyXuZodViYdpxAh8hnkhsDV46WlAzu
-         W/vQu3S5hrtiRVNfgjfDEyIxhZ75rID9MXPDMmrWfgGoK8EcE+DS9qAA5Y4ge+W7TZx/
-         Xr8Q==
-X-Gm-Message-State: APjAAAVbI6FXx3dOzGwLtqqXY9zapi0GjRPpi2A1Rnvu9qrEu0ildXCg
-        GkQJuNSH8F8i+1G4ONZmi+KjSg==
-X-Google-Smtp-Source: APXvYqxqcBMQK1yvH44quISDx05o5DxfTIv+l6ZOUSVR5FOYWdiZmftU1NeDPag/TIRxCS4nPw1DtA==
-X-Received: by 2002:a2e:1f02:: with SMTP id f2mr37362997ljf.86.1558373023429;
-        Mon, 20 May 2019 10:23:43 -0700 (PDT)
-Received: from localhost.localdomain (c-d2cd225c.014-348-6c756e10.bbcust.telenor.se. [92.34.205.210])
-        by smtp.gmail.com with ESMTPSA id f189sm4117149lfe.66.2019.05.20.10.23.41
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 20 May 2019 10:23:42 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Mark Zhang <markz@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Jinyoung Park <jinyoungp@nvidia.com>,
-        Venkat Reddy Talla <vreddytalla@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH] regmap-irq: do not write mask register if mask_base is zero
-Date:   Mon, 20 May 2019 19:21:39 +0200
-Message-Id: <20190520172139.16991-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=37CxHYKlFVVAIEnj21tdjvUOrJCuiyhrkjA75AgmUDE=;
+        b=lvtaGnxiyiMZckM54Gr14aR44suePHvJbomozyJfMEZQLfguDqoOzC8oiAXQ77B0NE
+         zGZl1kAp4hmQYMjFSKcoBEioxP10DqNCAXb+viwHqa4Rz6Bl9yHNYtMWi43W5Uty1U7W
+         ic6KB5oaYQmsT/Ha6VoM0+3BUM9xvTLUZGhaPcSoYC11LZhYeMJun3q1R4WNPG+YIj9B
+         EDLQIDf0kh4d+JGrWAdhcOv/mMHrHExI4sMoka85XJiY5uadO7lZQbb/zODS6AwfRf4h
+         hO3XW/277Ujg/B+0n82gVkLGBOeb7NWNThRa1sLEVQYL4agRTFx1rG2ws2bWI/yyHBA5
+         Z2jw==
+X-Gm-Message-State: APjAAAWwNnETVKlN5xI/+18UaA3J5fpWSoF3EyoZt34nbMCi7cMlMJ4z
+        RovTc01Wsp59DfhlbkURUhQF5Q==
+X-Google-Smtp-Source: APXvYqxV/0ooJTzXznpbzssyf0Zwt44GQp/pzzVYbD8W+Rh1jTkMM3EzUOJLQxOAZDv/ikTEgktB8w==
+X-Received: by 2002:a1c:9dc7:: with SMTP id g190mr146017wme.121.1558373075294;
+        Mon, 20 May 2019 10:24:35 -0700 (PDT)
+Received: from localhost.localdomain ([91.253.179.221])
+        by smtp.gmail.com with ESMTPSA id b12sm180021wmg.27.2019.05.20.10.24.33
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 20 May 2019 10:24:34 -0700 (PDT)
+From:   Andrea Parri <andrea.parri@amarulasolutions.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrea Parri <andrea.parri@amarulasolutions.com>,
+        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 1/4] drm/msm: Fix improper uses of smp_mb__{before,after}_atomic()
+Date:   Mon, 20 May 2019 19:23:55 +0200
+Message-Id: <1558373038-5611-2-git-send-email-andrea.parri@amarulasolutions.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1558373038-5611-1-git-send-email-andrea.parri@amarulasolutions.com>
+References: <1558373038-5611-1-git-send-email-andrea.parri@amarulasolutions.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markz@nvidia.com>
+These barriers only apply to the read-modify-write operations; in
+particular, they do not apply to the atomic_set() primitive.
 
-commit 7151449fe7fa5962c6153355f9779d6be99e8e97 upstream.
+Replace the barriers with smp_mb()s.
 
-If client have not provided the mask base register then do not
-write into the mask register.
-
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Signed-off-by: Jinyoung Park <jinyoungp@nvidia.com>
-Signed-off-by: Venkat Reddy Talla <vreddytalla@nvidia.com>
-Signed-off-by: Mark Zhang <markz@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b1fc2839d2f92 ("drm/msm: Implement preemption for A5XX targets")
+Cc: stable@vger.kernel.org
+Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
+Cc: Rob Clark <robdclark@gmail.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Jordan Crouse <jcrouse@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: freedreno@lists.freedesktop.org
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 ---
-This commit was found in an nVidia product tree based on
-v4.19, and looks like definitive stable material to me.
-It should go into v4.19 only as far as I can tell.
----
- drivers/base/regmap/regmap-irq.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
-index 429ca8ed7e51..982c7ac311b8 100644
---- a/drivers/base/regmap/regmap-irq.c
-+++ b/drivers/base/regmap/regmap-irq.c
-@@ -91,6 +91,9 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
- 	 * suppress pointless writes.
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+index 3d62310a535fb..ee0820ee0c664 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+@@ -39,10 +39,10 @@ static inline void set_preempt_state(struct a5xx_gpu *gpu,
+ 	 * preemption or in the interrupt handler so barriers are needed
+ 	 * before...
  	 */
- 	for (i = 0; i < d->chip->num_regs; i++) {
-+		if (!d->chip->mask_base)
-+			continue;
-+
- 		reg = d->chip->mask_base +
- 			(i * map->reg_stride * d->irq_reg_stride);
- 		if (d->chip->mask_invert) {
-@@ -526,6 +529,9 @@ int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
- 	/* Mask all the interrupts by default */
- 	for (i = 0; i < chip->num_regs; i++) {
- 		d->mask_buf[i] = d->mask_buf_def[i];
-+		if (!chip->mask_base)
-+			continue;
-+
- 		reg = chip->mask_base +
- 			(i * map->reg_stride * d->irq_reg_stride);
- 		if (chip->mask_invert)
+-	smp_mb__before_atomic();
++	smp_mb();
+ 	atomic_set(&gpu->preempt_state, new);
+ 	/* ... and after*/
+-	smp_mb__after_atomic();
++	smp_mb();
+ }
+ 
+ /* Write the most recent wptr for the given ring into the hardware */
 -- 
-2.20.1
+2.7.4
 
