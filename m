@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1B623636
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2238A236D2
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389676AbfETM22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:28:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
+        id S2387459AbfETMRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389674AbfETM22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:28:28 -0400
+        id S1732747AbfETMRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F14D520675;
-        Mon, 20 May 2019 12:28:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C395720656;
+        Mon, 20 May 2019 12:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355307;
-        bh=L1rYs2lfQrWT2wVK+AlESVJJiDMYSo9Gf0EDmc2C7/4=;
+        s=default; t=1558354627;
+        bh=UiuYeVOdzbq/S50Dj8jcg/2b3A6n1zaxu9b9gA2SFEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQzVXXro1BlcXHHOvF5tgtvnYeQtd3c5AnpTfG26IcsyWHh1LlJmFM+3hOJ0sdSW4
-         H2aGVGRngzY8Eiy0JIZnypZIPigdmh3/Nm45SlcS62w0sXV3tJSg44K6HfbpDjHo8Y
-         B2Es5D3RHBxRZgh1ThtD9gRffUsQXwbFq2DQ84FE=
+        b=O+eH70zBUpsfcMymLED6bF4Agd+AwrqD14BGrFaeRRe0bV0dRwWxWQFPF1sFn9qhF
+         Ol0Ks8R7y9MU8uevhLZKwWSUkz0I5VRbnLQeit3VWWAoq09XDE9YlJl6lqWG1h3oAu
+         Ev2l34CqyLeoxTdQa+HE+NpAReo9g107PBYMRlkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.0 070/123] hugetlb: use same fault hash key for shared and private mappings
+        stable@vger.kernel.org,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Ben Zhang <benzh@chromium.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 21/44] ASoC: RT5677-SPI: Disable 16Bit SPI Transfers
 Date:   Mon, 20 May 2019 14:14:10 +0200
-Message-Id: <20190520115249.495415792@linuxfoundation.org>
+Message-Id: <20190520115233.268253010@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,177 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Curtis Malainey <cujomalainey@chromium.org>
 
-commit 1b426bac66e6cc83c9f2d92b96e4e72acf43419a upstream.
+commit a46eb523220e242affb9a6bc9bb8efc05f4f7459 upstream.
 
-hugetlb uses a fault mutex hash table to prevent page faults of the
-same pages concurrently.  The key for shared and private mappings is
-different.  Shared keys off address_space and file index.  Private keys
-off mm and virtual address.  Consider a private mappings of a populated
-hugetlbfs file.  A fault will map the page from the file and if needed
-do a COW to map a writable page.
+The current algorithm allows 3 types of transfers, 16bit, 32bit and
+burst. According to Realtek, 16bit transfers have a special restriction
+in that it is restricted to the memory region of
+0x18020000 ~ 0x18021000. This region is the memory location of the I2C
+registers. The current algorithm does not uphold this restriction and
+therefore fails to complete writes.
 
-Hugetlbfs hole punch uses the fault mutex to prevent mappings of file
-pages.  It uses the address_space file index key.  However, private
-mappings will use a different key and could race with this code to map
-the file page.  This causes problems (BUG) for the page cache remove
-code as it expects the page to be unmapped.  A sample stack is:
+Since this has been broken for some time it likely no one is using it.
+Better to simply disable the 16 bit writes. This will allow users to
+properly load firmware over SPI without data corruption.
 
-page dumped because: VM_BUG_ON_PAGE(page_mapped(page))
-kernel BUG at mm/filemap.c:169!
-...
-RIP: 0010:unaccount_page_cache_page+0x1b8/0x200
-...
-Call Trace:
-__delete_from_page_cache+0x39/0x220
-delete_from_page_cache+0x45/0x70
-remove_inode_hugepages+0x13c/0x380
-? __add_to_page_cache_locked+0x162/0x380
-hugetlbfs_fallocate+0x403/0x540
-? _cond_resched+0x15/0x30
-? __inode_security_revalidate+0x5d/0x70
-? selinux_file_permission+0x100/0x130
-vfs_fallocate+0x13f/0x270
-ksys_fallocate+0x3c/0x80
-__x64_sys_fallocate+0x1a/0x20
-do_syscall_64+0x5b/0x180
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-There seems to be another potential COW issue/race with this approach
-of different private and shared keys as noted in commit 8382d914ebf7
-("mm, hugetlb: improve page-fault scalability").
-
-Since every hugetlb mapping (even anon and private) is actually a file
-mapping, just use the address_space index key for all mappings.  This
-results in potentially more hash collisions.  However, this should not
-be the common case.
-
-Link: http://lkml.kernel.org/r/20190328234704.27083-3-mike.kravetz@oracle.com
-Link: http://lkml.kernel.org/r/20190412165235.t4sscoujczfhuiyt@linux-r8p5
-Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Reviewed-by: Ben Zhang <benzh@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/hugetlbfs/inode.c    |    7 ++-----
- include/linux/hugetlb.h |    4 +---
- mm/hugetlb.c            |   22 ++++++----------------
- mm/userfaultfd.c        |    3 +--
- 4 files changed, 10 insertions(+), 26 deletions(-)
+ sound/soc/codecs/rt5677-spi.c |   35 ++++++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -426,9 +426,7 @@ static void remove_inode_hugepages(struc
- 			u32 hash;
+--- a/sound/soc/codecs/rt5677-spi.c
++++ b/sound/soc/codecs/rt5677-spi.c
+@@ -60,13 +60,15 @@ static DEFINE_MUTEX(spi_mutex);
+  * RT5677_SPI_READ/WRITE_32:	Transfer 4 bytes
+  * RT5677_SPI_READ/WRITE_BURST:	Transfer any multiples of 8 bytes
+  *
+- * For example, reading 260 bytes at 0x60030002 uses the following commands:
+- * 0x60030002 RT5677_SPI_READ_16	2 bytes
++ * Note:
++ * 16 Bit writes and reads are restricted to the address range
++ * 0x18020000 ~ 0x18021000
++ *
++ * For example, reading 256 bytes at 0x60030004 uses the following commands:
+  * 0x60030004 RT5677_SPI_READ_32	4 bytes
+  * 0x60030008 RT5677_SPI_READ_BURST	240 bytes
+  * 0x600300F8 RT5677_SPI_READ_BURST	8 bytes
+  * 0x60030100 RT5677_SPI_READ_32	4 bytes
+- * 0x60030104 RT5677_SPI_READ_16	2 bytes
+  *
+  * Input:
+  * @read: true for read commands; false for write commands
+@@ -81,15 +83,13 @@ static u8 rt5677_spi_select_cmd(bool rea
+ {
+ 	u8 cmd;
  
- 			index = page->index;
--			hash = hugetlb_fault_mutex_hash(h, current->mm,
--							&pseudo_vma,
--							mapping, index, 0);
-+			hash = hugetlb_fault_mutex_hash(h, mapping, index, 0);
- 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
- 
- 			/*
-@@ -625,8 +623,7 @@ static long hugetlbfs_fallocate(struct f
- 		addr = index * hpage_size;
- 
- 		/* mutex taken here, fault path and hole punch */
--		hash = hugetlb_fault_mutex_hash(h, mm, &pseudo_vma, mapping,
--						index, addr);
-+		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
- 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
- 
- 		/* See if already present in mapping to avoid alloc/free */
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -123,9 +123,7 @@ void move_hugetlb_state(struct page *old
- void free_huge_page(struct page *page);
- void hugetlb_fix_reserve_counts(struct inode *inode);
- extern struct mutex *hugetlb_fault_mutex_table;
--u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
--				struct vm_area_struct *vma,
--				struct address_space *mapping,
-+u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
- 				pgoff_t idx, unsigned long address);
- 
- pte_t *huge_pmd_share(struct mm_struct *mm, unsigned long addr, pud_t *pud);
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3777,8 +3777,7 @@ retry:
- 			 * handling userfault.  Reacquire after handling
- 			 * fault to make calling code simpler.
- 			 */
--			hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping,
--							idx, haddr);
-+			hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
- 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
- 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
-@@ -3886,21 +3885,14 @@ backout_unlocked:
+-	if (align == 2 || align == 6 || remain == 2) {
+-		cmd = RT5677_SPI_READ_16;
+-		*len = 2;
+-	} else if (align == 4 || remain <= 6) {
++	if (align == 4 || remain <= 4) {
+ 		cmd = RT5677_SPI_READ_32;
+ 		*len = 4;
+ 	} else {
+ 		cmd = RT5677_SPI_READ_BURST;
+-		*len = min_t(u32, remain & ~7, RT5677_SPI_BURST_LEN);
++		*len = (((remain - 1) >> 3) + 1) << 3;
++		*len = min_t(u32, *len, RT5677_SPI_BURST_LEN);
+ 	}
+ 	return read ? cmd : cmd + 1;
+ }
+@@ -110,7 +110,7 @@ static void rt5677_spi_reverse(u8 *dst,
+ 	}
  }
  
- #ifdef CONFIG_SMP
--u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
--			    struct vm_area_struct *vma,
--			    struct address_space *mapping,
-+u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
- 			    pgoff_t idx, unsigned long address)
+-/* Read DSP address space using SPI. addr and len have to be 2-byte aligned. */
++/* Read DSP address space using SPI. addr and len have to be 4-byte aligned. */
+ int rt5677_spi_read(u32 addr, void *rxbuf, size_t len)
  {
- 	unsigned long key[2];
- 	u32 hash;
+ 	u32 offset;
+@@ -126,7 +126,7 @@ int rt5677_spi_read(u32 addr, void *rxbu
+ 	if (!g_spi)
+ 		return -ENODEV;
  
--	if (vma->vm_flags & VM_SHARED) {
--		key[0] = (unsigned long) mapping;
--		key[1] = idx;
--	} else {
--		key[0] = (unsigned long) mm;
--		key[1] = address >> huge_page_shift(h);
--	}
-+	key[0] = (unsigned long) mapping;
-+	key[1] = idx;
+-	if ((addr & 1) || (len & 1)) {
++	if ((addr & 3) || (len & 3)) {
+ 		dev_err(&g_spi->dev, "Bad read align 0x%x(%zu)\n", addr, len);
+ 		return -EACCES;
+ 	}
+@@ -161,13 +161,13 @@ int rt5677_spi_read(u32 addr, void *rxbu
+ }
+ EXPORT_SYMBOL_GPL(rt5677_spi_read);
  
- 	hash = jhash2((u32 *)&key, sizeof(key)/sizeof(u32), 0);
- 
-@@ -3911,9 +3903,7 @@ u32 hugetlb_fault_mutex_hash(struct hsta
-  * For uniprocesor systems we always use a single mutex, so just
-  * return 0 and avoid the hashing overhead.
+-/* Write DSP address space using SPI. addr has to be 2-byte aligned.
+- * If len is not 2-byte aligned, an extra byte of zero is written at the end
++/* Write DSP address space using SPI. addr has to be 4-byte aligned.
++ * If len is not 4-byte aligned, then extra zeros are written at the end
+  * as padding.
   */
--u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
--			    struct vm_area_struct *vma,
--			    struct address_space *mapping,
-+u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
- 			    pgoff_t idx, unsigned long address)
+ int rt5677_spi_write(u32 addr, const void *txbuf, size_t len)
  {
- 	return 0;
-@@ -3958,7 +3948,7 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 	 * get spurious allocation failures if two CPUs race to instantiate
- 	 * the same page in the page cache.
- 	 */
--	hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping, idx, haddr);
-+	hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
- 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-	u32 offset, len_with_pad = len;
++	u32 offset;
+ 	int status = 0;
+ 	struct spi_transfer t;
+ 	struct spi_message m;
+@@ -180,22 +180,19 @@ int rt5677_spi_write(u32 addr, const voi
+ 	if (!g_spi)
+ 		return -ENODEV;
  
- 	entry = huge_ptep_get(ptep);
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -271,8 +271,7 @@ retry:
- 		 */
- 		idx = linear_page_index(dst_vma, dst_addr);
- 		mapping = dst_vma->vm_file->f_mapping;
--		hash = hugetlb_fault_mutex_hash(h, dst_mm, dst_vma, mapping,
--								idx, dst_addr);
-+		hash = hugetlb_fault_mutex_hash(h, mapping, idx, dst_addr);
- 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-	if (addr & 1) {
++	if (addr & 3) {
+ 		dev_err(&g_spi->dev, "Bad write align 0x%x(%zu)\n", addr, len);
+ 		return -EACCES;
+ 	}
  
- 		err = -ENOMEM;
+-	if (len & 1)
+-		len_with_pad = len + 1;
+-
+ 	memset(&t, 0, sizeof(t));
+ 	t.tx_buf = buf;
+ 	t.speed_hz = RT5677_SPI_FREQ;
+ 	spi_message_init_with_transfers(&m, &t, 1);
+ 
+-	for (offset = 0; offset < len_with_pad;) {
++	for (offset = 0; offset < len;) {
+ 		spi_cmd = rt5677_spi_select_cmd(false, (addr + offset) & 7,
+-				len_with_pad - offset, &t.len);
++				len - offset, &t.len);
+ 
+ 		/* Construct SPI message header */
+ 		buf[0] = spi_cmd;
 
 
