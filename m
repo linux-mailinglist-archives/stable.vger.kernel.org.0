@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D9F235D5
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A64122341F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390464AbfETMjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50946 "EHLO mail.kernel.org"
+        id S2387947AbfETMXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:23:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390783AbfETMdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:47 -0400
+        id S2388637AbfETMXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1DCA21479;
-        Mon, 20 May 2019 12:33:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5162C20645;
+        Mon, 20 May 2019 12:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355626;
-        bh=ThuQJlJWUbJBxZLkx4DtB+RwKwOeEAz2/qoq9LVWops=;
+        s=default; t=1558355016;
+        bh=L/Cv3EAR9jLgZ9/NL7/jp4JloC3gs6Kc1Nk8kU4hPu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1YOeaN/ySDbdfbMbNsJicDMIq+flf5LiUOznorgb1ouXvoW12usOQnRJRh1k35eDQ
-         jZGn6MTd0L3M3G9WMsz5yUk4MZlUSQ7b9QasZ2u4laKhTkAT4kIM9h3EDSFu70NoB2
-         lZFh6qdjryV82u9dIVYWRoQb8pD9nBkfQHkl3gDw=
+        b=ZsbPERi01uLxASVFAAxMTj0jIdaSxxpKeRw0gs5oQnQR9tfiQTejzq+eHt0qwV12J
+         p1o1SPoBhQs6g5L9x/QkYdJR6qMVl8sP912ai4j7Go+tGnRNv8FZudeTvTfFmPq/HX
+         MX02rJUMzNJwu5tvLigxk00rPANaK1y+a3dvoi+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 064/128] crypto: ccree - dont map AEAD key and IV on stack
+        stable@vger.kernel.org, Eric Ren <renzhen@linux.alibaba.com>,
+        Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
+        stable@kernel.org
+Subject: [PATCH 4.19 065/105] jbd2: check superblock mapped prior to committing
 Date:   Mon, 20 May 2019 14:14:11 +0200
-Message-Id: <20190520115254.120694661@linuxfoundation.org>
+Message-Id: <20190520115251.665060078@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,120 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-commit e8662a6a5f8f7f2cadc0edb934aef622d96ac3ee upstream.
+commit 742b06b5628f2cd23cb51a034cb54dc33c6162c5 upstream.
 
-The AEAD authenc key and IVs might be passed to us on stack. Copy it to
-a slab buffer before mapping to gurantee proper DMA mapping.
+We hit a BUG at fs/buffer.c:3057 if we detached the nbd device
+before unmounting ext4 filesystem.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The typical chain of events leading to the BUG:
+jbd2_write_superblock
+  submit_bh
+    submit_bh_wbc
+      BUG_ON(!buffer_mapped(bh));
+
+The block device is removed and all the pages are invalidated. JBD2
+was trying to write journal superblock to the block device which is
+no longer present.
+
+Fix this by checking the journal superblock's buffer head prior to
+submitting.
+
+Reported-by: Eric Ren <renzhen@linux.alibaba.com>
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_aead.c       |   11 ++++++++++-
- drivers/crypto/ccree/cc_buffer_mgr.c |   15 ++++++++++++---
- drivers/crypto/ccree/cc_driver.h     |    1 +
- 3 files changed, 23 insertions(+), 4 deletions(-)
+ fs/jbd2/journal.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/crypto/ccree/cc_aead.c
-+++ b/drivers/crypto/ccree/cc_aead.c
-@@ -424,7 +424,7 @@ static int validate_keys_sizes(struct cc
- /* This function prepers the user key so it can pass to the hmac processing
-  * (copy to intenral buffer or hash in case of key longer than block
-  */
--static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *key,
-+static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *authkey,
- 				 unsigned int keylen)
- {
- 	dma_addr_t key_dma_addr = 0;
-@@ -437,6 +437,7 @@ static int cc_get_plain_hmac_key(struct
- 	unsigned int hashmode;
- 	unsigned int idx = 0;
- 	int rc = 0;
-+	u8 *key = NULL;
- 	struct cc_hw_desc desc[MAX_AEAD_SETKEY_SEQ];
- 	dma_addr_t padded_authkey_dma_addr =
- 		ctx->auth_state.hmac.padded_authkey_dma_addr;
-@@ -455,11 +456,17 @@ static int cc_get_plain_hmac_key(struct
- 	}
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -1366,6 +1366,10 @@ static int jbd2_write_superblock(journal
+ 	journal_superblock_t *sb = journal->j_superblock;
+ 	int ret;
  
- 	if (keylen != 0) {
++	/* Buffer got discarded which means block device got invalidated */
++	if (!buffer_mapped(bh))
++		return -EIO;
 +
-+		key = kmemdup(authkey, keylen, GFP_KERNEL);
-+		if (!key)
-+			return -ENOMEM;
-+
- 		key_dma_addr = dma_map_single(dev, (void *)key, keylen,
- 					      DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, key_dma_addr)) {
- 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
- 				key, keylen);
-+			kzfree(key);
- 			return -ENOMEM;
- 		}
- 		if (keylen > blocksize) {
-@@ -542,6 +549,8 @@ static int cc_get_plain_hmac_key(struct
- 	if (key_dma_addr)
- 		dma_unmap_single(dev, key_dma_addr, keylen, DMA_TO_DEVICE);
- 
-+	kzfree(key);
-+
- 	return rc;
- }
- 
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -560,6 +560,7 @@ void cc_unmap_aead_request(struct device
- 	if (areq_ctx->gen_ctx.iv_dma_addr) {
- 		dma_unmap_single(dev, areq_ctx->gen_ctx.iv_dma_addr,
- 				 hw_iv_size, DMA_BIDIRECTIONAL);
-+		kzfree(areq_ctx->gen_ctx.iv);
- 	}
- 
- 	/* Release pool */
-@@ -664,19 +665,27 @@ static int cc_aead_chain_iv(struct cc_dr
- 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
- 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
- 	struct device *dev = drvdata_to_dev(drvdata);
-+	gfp_t flags = cc_gfp_flags(&req->base);
- 	int rc = 0;
- 
- 	if (!req->iv) {
- 		areq_ctx->gen_ctx.iv_dma_addr = 0;
-+		areq_ctx->gen_ctx.iv = NULL;
- 		goto chain_iv_exit;
- 	}
- 
--	areq_ctx->gen_ctx.iv_dma_addr = dma_map_single(dev, req->iv,
--						       hw_iv_size,
--						       DMA_BIDIRECTIONAL);
-+	areq_ctx->gen_ctx.iv = kmemdup(req->iv, hw_iv_size, flags);
-+	if (!areq_ctx->gen_ctx.iv)
-+		return -ENOMEM;
-+
-+	areq_ctx->gen_ctx.iv_dma_addr =
-+		dma_map_single(dev, areq_ctx->gen_ctx.iv, hw_iv_size,
-+			       DMA_BIDIRECTIONAL);
- 	if (dma_mapping_error(dev, areq_ctx->gen_ctx.iv_dma_addr)) {
- 		dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
- 			hw_iv_size, req->iv);
-+		kzfree(areq_ctx->gen_ctx.iv);
-+		areq_ctx->gen_ctx.iv = NULL;
- 		rc = -ENOMEM;
- 		goto chain_iv_exit;
- 	}
---- a/drivers/crypto/ccree/cc_driver.h
-+++ b/drivers/crypto/ccree/cc_driver.h
-@@ -168,6 +168,7 @@ struct cc_alg_template {
- 
- struct async_gen_req_ctx {
- 	dma_addr_t iv_dma_addr;
-+	u8 *iv;
- 	enum drv_crypto_direction op_type;
- };
- 
+ 	trace_jbd2_write_superblock(journal, write_flags);
+ 	if (!(journal->j_flags & JBD2_BARRIER))
+ 		write_flags &= ~(REQ_FUA | REQ_PREFLUSH);
 
 
