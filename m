@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 438A2243B6
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 087FD243A8
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbfETWu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 18:50:59 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:44681 "EHLO
+        id S1727305AbfETWum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 18:50:42 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:36227 "EHLO
         mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727247AbfETWuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:39 -0400
-Received: by mail-lf1-f68.google.com with SMTP id n134so11493253lfn.11;
-        Mon, 20 May 2019 15:50:37 -0700 (PDT)
+        with ESMTP id S1727196AbfETWul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:41 -0400
+Received: by mail-lf1-f68.google.com with SMTP id y10so11554113lfl.3;
+        Mon, 20 May 2019 15:50:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=rs6UcDEPHghR8cLHYXDtwpVUwKvGeIGqNO+qV7fU/Y8=;
-        b=Jqqqv4aIPPFB3lnmqpiKFCGIvWuuiVwTcc37XWGSqmhI0OFXOUAnnjmVw3N/zaTUtz
-         G/crC8GJVCjuhf3ukOFRt3otZI9d30YuH7EBKJCwd3OTdupVz+fARRwbn5OOyrNLV+Hl
-         IMCqCfTiJ6RJvBuBM63CsA6Fg/HYcYz5XNf6bEvrKGJOq7+MN0WjW5NmyTtx287wnxPm
-         iZJaZXXs/GqDNE7RuTx42l1VxspOY7RKv8Y513QClrMSC0B6sS2EQ2wBbJJ5jTFg9R07
-         LMGF9SwBqMIWGxXAxswAi9ET/UMhuzUTFlj/12qdcU+tSNNB4zpsWKHaGnSm24QULiK1
-         pamQ==
+        bh=Ac7TQ4ujVvfet50jbWLw6JGAohNWebHPX6f3FbrcGJ4=;
+        b=rCzSQ67vnZGlOVXsugoFieUtvj6BnTCOzPtCHFUgnONFYK2ZLbURgrsHgDb0hTl5Ax
+         XObRKBZZPUov1LAGlHh5hXpNdIVZjMrFrq1arc42OfApH/iQ2SMGxSmmQYgG8QjomtKs
+         okL+AwOlLGCjTK7mI5Huivq/P9GVNNLPSoLIRsmoCFkGVWMClPMIH2QqhJPQzUlE51oC
+         vhJx36kwK5ULdpc28QTV3XhjxnynZCZVKPSFzq4AGvW/v0NmXwYUsNY5cWPr1mqFGLoa
+         vy4q3y/WQwWFkzEdodsfANW34e7ZjFYXNhCpZANvDV6g+UNsAoIRuJFlV5mSig/bbaIv
+         n4lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=rs6UcDEPHghR8cLHYXDtwpVUwKvGeIGqNO+qV7fU/Y8=;
-        b=h9ODroV/9CpLEuqBqWlHCx3VXvrkxcdsCy5qjFWB5WnMrSWh1J9at0p5ilJYsTr/D+
-         wRTxXJCr3n8woDfAQ/Jo+XR98pBqlr0CRe/CrnayDCthsKVSiRZdv5hWUeCkdNhVlPdN
-         TB9O35fM6V0a51RojVWGm1Mh8CcagMDzZ/9llLZhDQPN0Jr3e8NhJWPHbFuTqgwVr96+
-         JqctAwwOrMF8D4FpPCXL3zcVNAly/0ZvKYOjGu9bRfGTZfbGTsHFnHJyxgsMRHiJrjVI
-         nuTSigfe4Sgx7DLKU1K24xdgvz50vPl3Vbh5kXPu+tqvUTqB/3CB29ib99wygxMlANuw
-         SOIQ==
-X-Gm-Message-State: APjAAAXT/HnQEaoothdXRtZA6pyBwFovDS1Ejt7vnTwtI/JOXTMweP+E
-        XbtPrcRNZg5i6LVK9tRvZOUQ3Y7IUBA=
-X-Google-Smtp-Source: APXvYqz8K224U3tcSw51U0kihcPnj4Po/Sv2twtRlab76JyrMIb8ojrbaiLr9q6HXXiLZFQKQNz05g==
-X-Received: by 2002:ac2:5986:: with SMTP id w6mr39346785lfn.147.1558392637317;
-        Mon, 20 May 2019 15:50:37 -0700 (PDT)
+        bh=Ac7TQ4ujVvfet50jbWLw6JGAohNWebHPX6f3FbrcGJ4=;
+        b=G727zb27rxuK8iK4q5t7qKf5tyVEO3gg0oQAzoVJe/Pr4JP9YkiUWtBuePfXrD8KgI
+         1fB7o2hrUK4c8QmIeFfVH1ZYptHHYXaNTPqGgkEVb9OLwcIuDkE0j1D7J9Fs8N1j0yZu
+         bbXDNn46Sm1svDy7mgxyORIiFQ6KpxddPCqietUDFqldC2T5yzlIHATfbFmb+jHq3fAR
+         lM5opmAa4atZX5LOXdtfQ4Iey0pm0LKc4xRGYYZu+EMRMiSmVIxk7AOKWy811BG+xwRY
+         1uu184edp7UmR8hX1RPSOgWW88Bc73MqTO8/v+5DCGYcrv0CL47DwfVTEOCRvje4cYu/
+         hwOQ==
+X-Gm-Message-State: APjAAAXfl68guosXpDQ0aCipSZ4hfeJNn7IHi98zINN4vxrNYdJPdkAp
+        YK0dhZxN99paZFG3RHj/KytzKjpXA18=
+X-Google-Smtp-Source: APXvYqzHU+ovEVdBl7FXjv7pkKgem5lpEp9jZD3+A6zu+27COPsYF9G73Dtu787XGlGX571LfzIH6Q==
+X-Received: by 2002:a19:1dc3:: with SMTP id d186mr36984133lfd.101.1558392638542;
+        Mon, 20 May 2019 15:50:38 -0700 (PDT)
 Received: from z50.gdansk-morena.vectranet.pl (109241207190.gdansk.vectranet.pl. [109.241.207.190])
-        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.36
+        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.37
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 May 2019 15:50:36 -0700 (PDT)
+        Mon, 20 May 2019 15:50:37 -0700 (PDT)
 From:   Janusz Krzysztofik <jmkrzyszt@gmail.com>
 To:     Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -51,9 +51,9 @@ Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
         linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
         Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 6/9] media: ov6650: Fix .get_fmt() V4L2_SUBDEV_FORMAT_TRY support
-Date:   Tue, 21 May 2019 00:50:04 +0200
-Message-Id: <20190520225007.2308-7-jmkrzyszt@gmail.com>
+Subject: [PATCH v2 7/9] media: ov6650: Fix default format not applied on device probe
+Date:   Tue, 21 May 2019 00:50:05 +0200
+Message-Id: <20190520225007.2308-8-jmkrzyszt@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520225007.2308-1-jmkrzyszt@gmail.com>
 References: <20190520225007.2308-1-jmkrzyszt@gmail.com>
@@ -64,48 +64,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad
-op get_fmt") converted a former ov6650_g_fmt() video operation callback
-to an ov6650_get_fmt() pad operation callback.  However, the converted
-function disregards a format->which flag that pad operations should
-obey and always returns active frame format settings.
+It is not clear what pixel format is actually configured in hardware on
+reset.  MEDIA_BUS_FMT_YUYV8_2X8, assumed on device probe since the
+driver was intiially submitted, is for sure not the one.
 
-That can be fixed by always responding to V4L2_SUBDEV_FORMAT_TRY with
--EINVAL, or providing the response from a pad config argument, likely
-updated by a former user call to V4L2_SUBDEV_FORMAT_TRY .set_fmt().
-Since implementation of the latter is trivial, go for it.
+Fix it by explicitly applying a known, driver default frame format just
+after initial device reset.
 
-Fixes: da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad op get_fmt")
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
 Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/media/i2c/ov6650.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov6650.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index 731b03bef7a5..1915a43bff87 100644
+index 1915a43bff87..b199332f62d7 100644
 --- a/drivers/media/i2c/ov6650.c
 +++ b/drivers/media/i2c/ov6650.c
-@@ -528,10 +528,16 @@ static int ov6650_get_fmt(struct v4l2_subdev *sd,
- 	*mf = ov6650_def_fmt;
- 
- 	/* update media bus format code and frame size */
--	mf->width	= priv->rect.width >> priv->half_scale;
--	mf->height	= priv->rect.height >> priv->half_scale;
--	mf->code	= priv->code;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		mf->width = cfg->try_fmt.width;
-+		mf->height = cfg->try_fmt.height;
-+		mf->code = cfg->try_fmt.code;
- 
-+	} else {
-+		mf->width = priv->rect.width >> priv->half_scale;
-+		mf->height = priv->rect.height >> priv->half_scale;
-+		mf->code = priv->code;
+@@ -876,6 +876,11 @@ static int ov6650_video_probe(struct v4l2_subdev *sd)
+ 	ret = ov6650_reset(client);
+ 	if (!ret)
+ 		ret = ov6650_prog_dflt(client);
++	if (!ret) {
++		struct v4l2_mbus_framefmt mf = ov6650_def_fmt;
++
++		ret = ov6650_s_fmt(sd, &mf);
 +	}
- 	return 0;
- }
+ 	if (!ret)
+ 		ret = v4l2_ctrl_handler_setup(&priv->hdl);
  
+@@ -1030,8 +1035,6 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->rect.top	  = DEF_VSTRT << 1;
+ 	priv->rect.width  = W_CIF;
+ 	priv->rect.height = H_CIF;
+-	priv->half_scale  = false;
+-	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 
+ 	priv->subdev.internal_ops = &ov6650_internal_ops;
+ 	priv->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 -- 
 2.21.0
 
