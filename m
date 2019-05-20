@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F77823483
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 137E02355C
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389523AbfETM1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
+        id S2390976AbfETMem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:34:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389171AbfETM1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:41 -0400
+        id S2387444AbfETMel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:34:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ED1920675;
-        Mon, 20 May 2019 12:27:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7758320645;
+        Mon, 20 May 2019 12:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355260;
-        bh=ZcfGYjcTJYQ2Gn8coona0MK2VNNKyljTHwHSF+fKYWE=;
+        s=default; t=1558355681;
+        bh=T8dAJpl6NQ3up2szpVSvaWP2GQMjzLSzmhNE8uxP6YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwHhH/ny9NVpUM22YVcFPSul0jR4rsS4lBgm3Ndluw3W0cBhtJlAc6pj+Zsm7Ay4w
-         kiP511iwWzlFSZs3UqJKytseA2dggWnqBJ/J+xsSOY09oAfTpd1WN48GPZSsl5i5b2
-         jc46F2PQUfWpArJO1Snta6HuMeVWwPRuk3xwETJM=
+        b=zxABOdsmYE+WXf1bvj+PYKKuDdzkpBJ2uU39F1UYvpo13SodPtEddnxzkHiqFWMkK
+         xAlRpF9z5z1Zoqn3liRDGdEXTxu/xU0z2/zHQ9HPXIiB3jKCZaI8hhI3/dQKBg7UBM
+         mVtZr5DlpgooBtwuvjS2UMaBVsKAX+kfPOLwBEmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 050/123] ALSA: hda/hdmi - Consider eld_valid when reporting jack event
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.1 043/128] drivers/dax: Allow to include DEV_DAX_PMEM as builtin
 Date:   Mon, 20 May 2019 14:13:50 +0200
-Message-Id: <20190520115248.060176587@linuxfoundation.org>
+Message-Id: <20190520115252.634655843@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 7f641e26a6df9269cb25dd7a4b0a91d6586ed441 upstream.
+commit 67476656febd7ec5f1fe1aeec3c441fcf53b1e45 upstream.
 
-On the machines with AMD GPU or Nvidia GPU, we often meet this issue:
-after s3, there are 4 HDMI/DP audio devices in the gnome-sound-setting
-even there is no any monitors plugged.
+This move the dependency to DEV_DAX_PMEM_COMPAT such that only
+if DEV_DAX_PMEM is built as module we can allow the compat support.
 
-When this problem happens, we check the /proc/asound/cardX/eld#N.M, we
-will find the monitor_present=1, eld_valid=0.
+This allows to test the new code easily in a emulation setup where we
+often build things without module support.
 
-The root cause is BIOS or GPU driver makes the PRESENCE valid even no
-monitor plugged, and of course the driver will not get the valid
-eld_data subsequently.
-
-In this situation, we should not report the jack_plugged event, to do
-so, let us change the function hdmi_present_sense_via_verbs(). In this
-function, it reads the pin_sense via snd_hda_pin_sense(), after
-calling this function, the jack_dirty is 0, and before exiting
-via_verbs(), we change the shadow pin_sense according to both
-monitor_present and eld_valid, then in the snd_hda_jack_report_sync(),
-since the jack_dirty is still 0, it will report jack event according
-to this modified shadow pin_sense.
-
-After this change, the driver will not report Jack_is_plugged event
-through hdmi_present_sense_via_verbs() if monitor_present is 1 and
-eld_valid is 0.
-
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 730926c3b099 ("device-dax: Add /sys/class/dax backwards compatibility")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_hdmi.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/dax/Kconfig |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1548,9 +1548,11 @@ static bool hdmi_present_sense_via_verbs
- 	ret = !repoll || !eld->monitor_present || eld->eld_valid;
+--- a/drivers/dax/Kconfig
++++ b/drivers/dax/Kconfig
+@@ -23,7 +23,6 @@ config DEV_DAX
+ config DEV_DAX_PMEM
+ 	tristate "PMEM DAX: direct access to persistent memory"
+ 	depends on LIBNVDIMM && NVDIMM_DAX && DEV_DAX
+-	depends on m # until we can kill DEV_DAX_PMEM_COMPAT
+ 	default DEV_DAX
+ 	help
+ 	  Support raw access to persistent memory.  Note that this
+@@ -50,7 +49,7 @@ config DEV_DAX_KMEM
  
- 	jack = snd_hda_jack_tbl_get(codec, pin_nid);
--	if (jack)
-+	if (jack) {
- 		jack->block_report = !ret;
--
-+		jack->pin_sense = (eld->monitor_present && eld->eld_valid) ?
-+			AC_PINSENSE_PRESENCE : 0;
-+	}
- 	mutex_unlock(&per_pin->lock);
- 	return ret;
- }
+ config DEV_DAX_PMEM_COMPAT
+ 	tristate "PMEM DAX: support the deprecated /sys/class/dax interface"
+-	depends on DEV_DAX_PMEM
++	depends on m && DEV_DAX_PMEM=m
+ 	default DEV_DAX_PMEM
+ 	help
+ 	  Older versions of the libdaxctl library expect to find all
 
 
