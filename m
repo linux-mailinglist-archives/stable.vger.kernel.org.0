@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7375E23511
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05F862340F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390196AbfETMcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S1733288AbfETMWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390035AbfETMcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:32:48 -0400
+        id S2388504AbfETMWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:22:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C89E720645;
-        Mon, 20 May 2019 12:32:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F53220645;
+        Mon, 20 May 2019 12:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355568;
-        bh=xxLEzmsGULtUDU3Io0agV8eEWFU+4vqzpgbIFY8kxKE=;
+        s=default; t=1558354969;
+        bh=s1AmIjUuHttMtGumDw8a0cBTSEY0tPGQ3gjnVenLO6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taPYH1olIIlE3qRaFQqK3oJK2xwLp1LtJuEA9YG9IvxJmmolBDyJ5HqEm5oms2s0q
-         hjTeby32HAZmt3k1a08S4W2Y5cSjXObTpkM4y4ZoAK/TupHxiaZpEZ/VZjYWYlNawx
-         cbiViUdphgFjWKln6tdvlmrgAWa6mFDum9KC8yfg=
+        b=HkaxxxM1GmBhAr4XiAh+pGKs7OIx6y71HuD6iuQMjGy+LPpV9xa9iBtcvtA0awXQP
+         XT2QbQdCG6j0fhbUXiQS3zv7n7Qt5mghwIu4219fT3aOQ+EVqkExgN+8vnHw1Jjk3e
+         idcPLRHzbzqfhIZ+v0WwcJCpJRm259i0YujWVmTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stuart Menefy <stuart.menefy@mathembedded.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.1 008/128] ARM: dts: exynos: Fix interrupt for shared EINTs on Exynos5260
+Subject: [PATCH 4.19 009/105] ARM: exynos: Fix a leaked reference by adding missing of_node_put
 Date:   Mon, 20 May 2019 14:13:15 +0200
-Message-Id: <20190520115250.009565716@linuxfoundation.org>
+Message-Id: <20190520115247.693573799@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Menefy <stuart.menefy@mathembedded.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-commit b7ed69d67ff0788d8463e599dd5dd1b45c701a7e upstream.
+commit 629266bf7229cd6a550075f5961f95607b823b59 upstream.
 
-Fix the interrupt information for the GPIO lines with a shared EINT
-interrupt.
+The call to of_get_next_child returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Fixes: 16d7ff2642e7 ("ARM: dts: add dts files for exynos5260 SoC")
+Detected by coccinelle with warnings like:
+    arch/arm/mach-exynos/firmware.c:201:2-8: ERROR: missing of_node_put;
+        acquired a node pointer with refcount incremented on line 193,
+        but without a corresponding object release within this function.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/exynos5260.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-exynos/firmware.c |    1 +
+ arch/arm/mach-exynos/suspend.c  |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/exynos5260.dtsi
-+++ b/arch/arm/boot/dts/exynos5260.dtsi
-@@ -223,7 +223,7 @@
- 			wakeup-interrupt-controller {
- 				compatible = "samsung,exynos4210-wakeup-eint";
- 				interrupt-parent = <&gic>;
--				interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-+				interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
- 			};
- 		};
+--- a/arch/arm/mach-exynos/firmware.c
++++ b/arch/arm/mach-exynos/firmware.c
+@@ -196,6 +196,7 @@ void __init exynos_firmware_init(void)
+ 		return;
+ 
+ 	addr = of_get_address(nd, 0, NULL, NULL);
++	of_node_put(nd);
+ 	if (!addr) {
+ 		pr_err("%s: No address specified.\n", __func__);
+ 		return;
+--- a/arch/arm/mach-exynos/suspend.c
++++ b/arch/arm/mach-exynos/suspend.c
+@@ -639,8 +639,10 @@ void __init exynos_pm_init(void)
+ 
+ 	if (WARN_ON(!of_find_property(np, "interrupt-controller", NULL))) {
+ 		pr_warn("Outdated DT detected, suspend/resume will NOT work\n");
++		of_node_put(np);
+ 		return;
+ 	}
++	of_node_put(np);
+ 
+ 	pm_data = (const struct exynos_pm_data *) match->data;
  
 
 
