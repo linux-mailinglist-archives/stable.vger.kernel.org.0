@@ -2,198 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7CE22A51
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 05:17:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0682D22C1E
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 08:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbfETDRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 May 2019 23:17:44 -0400
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:60232 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727260AbfETDRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 23:17:43 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07417;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0TSAtqql_1558322252;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TSAtqql_1558322252)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 20 May 2019 11:17:39 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     jstancek@redhat.com, peterz@infradead.org, will.deacon@arm.com,
-        npiggin@gmail.com, aneesh.kumar@linux.ibm.com, namit@vmware.com,
-        minchan@kernel.org, mgorman@suse.de, akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [v3 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force flush
-Date:   Mon, 20 May 2019 11:17:32 +0800
-Message-Id: <1558322252-113575-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1729731AbfETGdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 02:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34408 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729718AbfETGde (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 02:33:34 -0400
+Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
+        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DEA2206B6;
+        Mon, 20 May 2019 06:33:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558334014;
+        bh=QRKYgLNzDZOhAn3LHJcZN2xR9Hu+AIL+I/Vtp5mmIME=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SBVaXPLrUn3UyIT7oDINmTX9zltWSxVAo/QDBoofDh2yNPXYBXsPmNL/FBWWtjlgY
+         NqD3Bv9Nf9mLSqaqmi5ApY8mP5ivyuIWRKWNzLI5qsA/D6IEO/6nKJ88/ymq0Bw1fE
+         3zAm38KkwaMLc3r4oYBisNl1koNsujGEbJGCf7Z8=
+Date:   Mon, 20 May 2019 14:32:45 +0800
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Fabio Estevam <festevam@gmail.com>
+Cc:     linux-arm-kernel@lists.infradead.org, anson.huang@nxp.com,
+        kernel@pengutronix.de, linux-imx@nxp.com,
+        cniedermaier@dh-electronics.com, sebastien.szymanski@armadeus.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO
+ increase to i.MX6SX
+Message-ID: <20190520063244.GR15856@dragon>
+References: <20190513031531.7879-1-festevam@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190513031531.7879-1-festevam@gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A few new fields were added to mmu_gather to make TLB flush smarter for
-huge page by telling what level of page table is changed.
+On Mon, May 13, 2019 at 12:15:31AM -0300, Fabio Estevam wrote:
+> Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
+> setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
+> as reported by Christoph Niedermaier.
+> 
+> The intention of such commit was to increase the SW2ISO field for i.MX6SX
+> only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
+> unintended side effects on other SoCs.
+> 
+> Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
+> and only increase SW2ISO in the i.MX6SX case.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on i.mx6sx")
+> Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+> Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+> Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-__tlb_reset_range() is used to reset all these page table state to
-unchanged, which is called by TLB flush for parallel mapping changes for
-the same range under non-exclusive lock (i.e. read mmap_sem).  Before
-commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
-munmap"), the syscalls (e.g. MADV_DONTNEED, MADV_FREE) which may update
-PTEs in parallel don't remove page tables.  But, the forementioned
-commit may do munmap() under read mmap_sem and free page tables.  This
-may result in program hang on aarch64 reported by Jan Stancek.  The
-problem could be reproduced by his test program with slightly modified
-below.
-
----8<---
-
-static int map_size = 4096;
-static int num_iter = 500;
-static long threads_total;
-
-static void *distant_area;
-
-void *map_write_unmap(void *ptr)
-{
-	int *fd = ptr;
-	unsigned char *map_address;
-	int i, j = 0;
-
-	for (i = 0; i < num_iter; i++) {
-		map_address = mmap(distant_area, (size_t) map_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		if (map_address == MAP_FAILED) {
-			perror("mmap");
-			exit(1);
-		}
-
-		for (j = 0; j < map_size; j++)
-			map_address[j] = 'b';
-
-		if (munmap(map_address, map_size) == -1) {
-			perror("munmap");
-			exit(1);
-		}
-	}
-
-	return NULL;
-}
-
-void *dummy(void *ptr)
-{
-	return NULL;
-}
-
-int main(void)
-{
-	pthread_t thid[2];
-
-	/* hint for mmap in map_write_unmap() */
-	distant_area = mmap(0, DISTANT_MMAP_SIZE, PROT_WRITE | PROT_READ,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	munmap(distant_area, (size_t)DISTANT_MMAP_SIZE);
-	distant_area += DISTANT_MMAP_SIZE / 2;
-
-	while (1) {
-		pthread_create(&thid[0], NULL, map_write_unmap, NULL);
-		pthread_create(&thid[1], NULL, dummy, NULL);
-
-		pthread_join(thid[0], NULL);
-		pthread_join(thid[1], NULL);
-	}
-}
----8<---
-
-The program may bring in parallel execution like below:
-
-        t1                                        t2
-munmap(map_address)
-  downgrade_write(&mm->mmap_sem);
-  unmap_region()
-  tlb_gather_mmu()
-    inc_tlb_flush_pending(tlb->mm);
-  free_pgtables()
-    tlb->freed_tables = 1
-    tlb->cleared_pmds = 1
-
-                                        pthread_exit()
-                                        madvise(thread_stack, 8M, MADV_DONTNEED)
-                                          zap_page_range()
-                                            tlb_gather_mmu()
-                                              inc_tlb_flush_pending(tlb->mm);
-
-  tlb_finish_mmu()
-    if (mm_tlb_flush_nested(tlb->mm))
-      __tlb_reset_range()
-
-__tlb_reset_range() would reset freed_tables and cleared_* bits, but
-this may cause inconsistency for munmap() which do free page tables.
-Then it may result in some architectures, e.g. aarch64, may not flush
-TLB completely as expected to have stale TLB entries remained.
-
-Use fullmm flush since it yields much better performance on aarch64 and
-non-fullmm doesn't yields significant difference on x86.
-
-The original proposed fix came from Jan Stancek who mainly debugged this
-issue, I just wrapped up everything together.
-
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Suggested-by: Will Deacon <will.deacon@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Piggin <npiggin@gmail.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: stable@vger.kernel.org  4.20+
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
----
-v3: Adopted fullmm flush suggestion from Will
-v2: Reworked the commit log per Peter and Will
-    Adopted the suggestion from Peter
-
- mm/mmu_gather.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
-
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index 99740e1..289f8cf 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -245,14 +245,28 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
- {
- 	/*
- 	 * If there are parallel threads are doing PTE changes on same range
--	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
--	 * flush by batching, a thread has stable TLB entry can fail to flush
--	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
--	 * forcefully if we detect parallel PTE batching threads.
-+	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
-+	 * flush by batching, one thread may end up seeing inconsistent PTEs
-+	 * and result in having stale TLB entries.  So flush TLB forcefully
-+	 * if we detect parallel PTE batching threads.
-+	 *
-+	 * However, some syscalls, e.g. munmap(), may free page tables, this
-+	 * needs force flush everything in the given range. Otherwise this
-+	 * may result in having stale TLB entries for some architectures,
-+	 * e.g. aarch64, that could specify flush what level TLB.
- 	 */
- 	if (mm_tlb_flush_nested(tlb->mm)) {
-+		/*
-+		 * The aarch64 yields better performance with fullmm by
-+		 * avoiding multiple CPUs spamming TLBI messages at the
-+		 * same time.
-+		 *
-+		 * On x86 non-fullmm doesn't yield significant difference
-+		 * against fullmm.
-+		 */ 
-+		tlb->fullmm = 1;
- 		__tlb_reset_range(tlb);
--		__tlb_adjust_range(tlb, start, end - start);
-+		tlb->freed_tables = 1;
- 	}
- 
- 	tlb_flush_mmu(tlb);
--- 
-1.8.3.1
-
+Applied, thanks.
