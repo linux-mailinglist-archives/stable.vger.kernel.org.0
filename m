@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 776962353D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F47236F2
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390807AbfETMd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
+        id S1733272AbfETMSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390821AbfETMdz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:55 -0400
+        id S2387733AbfETMSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:18:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D91AB20645;
-        Mon, 20 May 2019 12:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E092208C3;
+        Mon, 20 May 2019 12:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355634;
-        bh=JKuqmvvUtsBI5oCflPx+jie8Y+HL1Ah3hRbWlU+reOg=;
+        s=default; t=1558354724;
+        bh=sL+t5AjFEQojtzLpmh7ftp1Yt8bKym9IQMcQwFTwJEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcsUFQD5v4PPqfbS4yEVA9HSGi+G0uPbj4wMyqG16mPt9drRJzKP2PNUZZZ226aNi
-         tR11xhJQWzV3iy98iIjxZKUSAz4eF7uIf8VnQYRThVn4rwsIZjeDDpLrelTuKBua8Z
-         uHh2a/MFu4s4pJc9bwjxP33OEE16R8AJDa9XdpjI=
+        b=qYRqJh6zw7CBGG0yR0qAes5HBRtMpCKHgdTSrdy9Z3YL4kMKrb0ygtGozG1q6vkoA
+         g2s939mFkSpYBliCwhxrI5ryLPG+mHtnBlTY4fGWw5MqcO4RIQXC78ekX8EEMjujp6
+         fij/52ptWFMDFICkRibc58eyshprucySXcsLSF8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 040/128] crypto: caam/qi2 - generate hash keys in-place
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 08/63] objtool: Fix function fallthrough detection
 Date:   Mon, 20 May 2019 14:13:47 +0200
-Message-Id: <20190520115252.428105270@linuxfoundation.org>
+Message-Id: <20190520115232.235909099@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 418cd20e4dcdca97e6f6d59e6336228dacf2e45d upstream.
+commit e6f393bc939d566ce3def71232d8013de9aaadde upstream.
 
-Commit 307244452d3d ("crypto: caam - generate hash keys in-place")
-fixed ahash implementation in caam/jr driver such that user-provided key
-buffer is not DMA mapped, since it's not guaranteed to be DMAable.
+When a function falls through to the next function due to a compiler
+bug, objtool prints some obscure warnings.  For example:
 
-Apply a similar fix for caam/qi2 driver.
+  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x95: return with modified stack frame
+  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x0: stack state mismatch: cfa1=7+32 cfa2=7+8
 
-Cc: <stable@vger.kernel.org> # v4.20+
-Fixes: 3f16f6c9d632 ("crypto: caam/qi2 - add support for ahash algorithms")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Instead it should be printing:
+
+  drivers/regulator/core.o: warning: objtool: regulator_supply_is_couple() falls through to next function regulator_count_voltages()
+
+This used to work, but was broken by the following commit:
+
+  13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+
+The padding nops at the end of a function aren't actually part of the
+function, as defined by the symbol table.  So the 'func' variable in
+validate_branch() is getting cleared to NULL when a padding nop is
+encountered, breaking the fallthrough detection.
+
+If the current instruction doesn't have a function associated with it,
+just consider it to be part of the previously detected function by not
+overwriting the previous value of 'func'.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+Link: http://lkml.kernel.org/r/546d143820cd08a46624ae8440d093dd6c902cae.1557766718.git.jpoimboe@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/caam/caamalg_qi2.c |   41 +++++++++++++-------------------------
- 1 file changed, 15 insertions(+), 26 deletions(-)
+ tools/objtool/check.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/caam/caamalg_qi2.c
-+++ b/drivers/crypto/caam/caamalg_qi2.c
-@@ -3020,13 +3020,13 @@ static void split_key_sh_done(void *cbk_
- }
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1779,7 +1779,8 @@ static int validate_branch(struct objtoo
+ 			return 1;
+ 		}
  
- /* Digest hash size if it is too large */
--static int hash_digest_key(struct caam_hash_ctx *ctx, const u8 *key_in,
--			   u32 *keylen, u8 *key_out, u32 digestsize)
-+static int hash_digest_key(struct caam_hash_ctx *ctx, u32 *keylen, u8 *key,
-+			   u32 digestsize)
- {
- 	struct caam_request *req_ctx;
- 	u32 *desc;
- 	struct split_key_sh_result result;
--	dma_addr_t src_dma, dst_dma;
-+	dma_addr_t key_dma;
- 	struct caam_flc *flc;
- 	dma_addr_t flc_dma;
- 	int ret = -ENOMEM;
-@@ -3043,17 +3043,10 @@ static int hash_digest_key(struct caam_h
- 	if (!flc)
- 		goto err_flc;
+-		func = insn->func ? insn->func->pfunc : NULL;
++		if (insn->func)
++			func = insn->func->pfunc;
  
--	src_dma = dma_map_single(ctx->dev, (void *)key_in, *keylen,
--				 DMA_TO_DEVICE);
--	if (dma_mapping_error(ctx->dev, src_dma)) {
--		dev_err(ctx->dev, "unable to map key input memory\n");
--		goto err_src_dma;
--	}
--	dst_dma = dma_map_single(ctx->dev, (void *)key_out, digestsize,
--				 DMA_FROM_DEVICE);
--	if (dma_mapping_error(ctx->dev, dst_dma)) {
--		dev_err(ctx->dev, "unable to map key output memory\n");
--		goto err_dst_dma;
-+	key_dma = dma_map_single(ctx->dev, key, *keylen, DMA_BIDIRECTIONAL);
-+	if (dma_mapping_error(ctx->dev, key_dma)) {
-+		dev_err(ctx->dev, "unable to map key memory\n");
-+		goto err_key_dma;
- 	}
- 
- 	desc = flc->sh_desc;
-@@ -3078,14 +3071,14 @@ static int hash_digest_key(struct caam_h
- 
- 	dpaa2_fl_set_final(in_fle, true);
- 	dpaa2_fl_set_format(in_fle, dpaa2_fl_single);
--	dpaa2_fl_set_addr(in_fle, src_dma);
-+	dpaa2_fl_set_addr(in_fle, key_dma);
- 	dpaa2_fl_set_len(in_fle, *keylen);
- 	dpaa2_fl_set_format(out_fle, dpaa2_fl_single);
--	dpaa2_fl_set_addr(out_fle, dst_dma);
-+	dpaa2_fl_set_addr(out_fle, key_dma);
- 	dpaa2_fl_set_len(out_fle, digestsize);
- 
- 	print_hex_dump_debug("key_in@" __stringify(__LINE__)": ",
--			     DUMP_PREFIX_ADDRESS, 16, 4, key_in, *keylen, 1);
-+			     DUMP_PREFIX_ADDRESS, 16, 4, key, *keylen, 1);
- 	print_hex_dump_debug("shdesc@" __stringify(__LINE__)": ",
- 			     DUMP_PREFIX_ADDRESS, 16, 4, desc, desc_bytes(desc),
- 			     1);
-@@ -3105,17 +3098,15 @@ static int hash_digest_key(struct caam_h
- 		wait_for_completion(&result.completion);
- 		ret = result.err;
- 		print_hex_dump_debug("digested key@" __stringify(__LINE__)": ",
--				     DUMP_PREFIX_ADDRESS, 16, 4, key_in,
-+				     DUMP_PREFIX_ADDRESS, 16, 4, key,
- 				     digestsize, 1);
- 	}
- 
- 	dma_unmap_single(ctx->dev, flc_dma, sizeof(flc->flc) + desc_bytes(desc),
- 			 DMA_TO_DEVICE);
- err_flc_dma:
--	dma_unmap_single(ctx->dev, dst_dma, digestsize, DMA_FROM_DEVICE);
--err_dst_dma:
--	dma_unmap_single(ctx->dev, src_dma, *keylen, DMA_TO_DEVICE);
--err_src_dma:
-+	dma_unmap_single(ctx->dev, key_dma, *keylen, DMA_BIDIRECTIONAL);
-+err_key_dma:
- 	kfree(flc);
- err_flc:
- 	kfree(req_ctx);
-@@ -3137,12 +3128,10 @@ static int ahash_setkey(struct crypto_ah
- 	dev_dbg(ctx->dev, "keylen %d blocksize %d\n", keylen, blocksize);
- 
- 	if (keylen > blocksize) {
--		hashed_key = kmalloc_array(digestsize, sizeof(*hashed_key),
--					   GFP_KERNEL | GFP_DMA);
-+		hashed_key = kmemdup(key, keylen, GFP_KERNEL | GFP_DMA);
- 		if (!hashed_key)
- 			return -ENOMEM;
--		ret = hash_digest_key(ctx, key, &keylen, hashed_key,
--				      digestsize);
-+		ret = hash_digest_key(ctx, &keylen, hashed_key, digestsize);
- 		if (ret)
- 			goto bad_free_key;
- 		key = hashed_key;
+ 		if (func && insn->ignore) {
+ 			WARN_FUNC("BUG: why am I validating an ignored function?",
 
 
