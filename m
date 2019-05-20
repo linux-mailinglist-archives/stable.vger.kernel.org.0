@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD88234EF
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149662346C
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388930AbfETMbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48648 "EHLO mail.kernel.org"
+        id S2388017AbfETM0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:26:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390461AbfETMby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:54 -0400
+        id S2389344AbfETM0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:26:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7417921726;
-        Mon, 20 May 2019 12:31:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85B0020815;
+        Mon, 20 May 2019 12:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355513;
-        bh=34pvu7oNa5wqsc3tntV2i9diO3rjJi8DbuOwL65B550=;
+        s=default; t=1558355202;
+        bh=qi3DML8mlDtblN7UzD5EbLiMc/EJcxvDlyuGK638yVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iK7j9b9T/KxR9E7DjsGLB0SU8V5r51MPsfpmtByL2OLP3RIRJuKMpqQWZ201WFU+t
-         KYw4v5IX5sq3gITaVBp7FfI/2gvj4JtohSvDIWGNZ7i4o3Rpfwl69jStW26hKA28NA
-         5yH/CjGvh2HXVvRfpX2a8ciULMCVP0Dp+pPnp1bg=
+        b=0m1Olg0hJZpMdfjwJIuRrxuWbB9s08G5dfPYYuQbu/fU5UUbhMCAqD9vLAx0Ji5GL
+         CzbOpkFYmSK8ZF4D+ytRKbXUp1U7ogwIeP+zsPFVTGJeyqMOgl3/R611O+PlCr5fgz
+         jLXDwGVWHq2KIF7R/N5iZM7ruxj3dAZUbMWZATFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
+        Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 023/128] crypto: crypto4xx - fix ctr-aes missing output IV
+Subject: [PATCH 5.0 030/123] crypto: chacha20poly1305 - set cra_name correctly
 Date:   Mon, 20 May 2019 14:13:30 +0200
-Message-Id: <20190520115251.121636001@linuxfoundation.org>
+Message-Id: <20190520115246.776602032@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 25baaf8e2c93197d063b372ef7b62f2767c7ac0b upstream.
+commit 5e27f38f1f3f45a0c938299c3a34a2d2db77165a upstream.
 
-Commit 8efd972ef96a ("crypto: testmgr - support checking skcipher output IV")
-caused the crypto4xx driver to produce the following error:
+If the rfc7539 template is instantiated with specific implementations,
+e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
+"rfc7539(chacha20,poly1305)", then the implementation names end up
+included in the instance's cra_name.  This is incorrect because it then
+prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
+highest priority implementations of chacha20 and poly1305 were selected.
+Also, the self-tests aren't run on an instance allocated in this way.
 
-| ctr-aes-ppc4xx encryption test failed (wrong output IV)
-| on test vector 0, cfg="in-place"
+Fix it by setting the instance's cra_name from the underlying
+algorithms' actual cra_names, rather than from the requested names.
+This matches what other templates do.
 
-This patch fixes this by reworking the crypto4xx_setkey_aes()
-function to:
-
- - not save the iv for ECB (as per 18.2.38 CRYP0_SA_CMD_0:
-   "This bit mut be cleared for DES ECB mode or AES ECB mode,
-   when no IV is used.")
-
- - instruct the hardware to save the generated IV for all
-   other modes of operations that have IV and then supply
-   it back to the callee in pretty much the same way as we
-   do it for cbc-aes already.
-
- - make it clear that the DIR_(IN|OUT)BOUND is the important
-   bit that tells the hardware to encrypt or decrypt the data.
-   (this is cosmetic - but it hopefully prevents me from
-    getting confused again).
-
- - don't load any bogus hash when we don't use any hash
-   operation to begin with.
-
-Cc: stable@vger.kernel.org
-Fixes: f2a13e7cba9e ("crypto: crypto4xx - enable AES RFC3686, ECB, CFB and OFB offloads")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
+Cc: <stable@vger.kernel.org> # v4.2+
+Cc: Martin Willi <martin@strongswan.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Martin Willi <martin@strongswan.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/amcc/crypto4xx_alg.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ crypto/chacha20poly1305.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/amcc/crypto4xx_alg.c
-+++ b/drivers/crypto/amcc/crypto4xx_alg.c
-@@ -141,9 +141,10 @@ static int crypto4xx_setkey_aes(struct c
- 	/* Setup SA */
- 	sa = ctx->sa_in;
+--- a/crypto/chacha20poly1305.c
++++ b/crypto/chacha20poly1305.c
+@@ -645,8 +645,8 @@ static int chachapoly_create(struct cryp
  
--	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_CBC ?
--				 SA_SAVE_IV : SA_NOT_SAVE_IV),
--				 SA_LOAD_HASH_FROM_SA, SA_LOAD_IV_FROM_STATE,
-+	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_ECB ?
-+				 SA_NOT_SAVE_IV : SA_SAVE_IV),
-+				 SA_NOT_LOAD_HASH, (cm == CRYPTO_MODE_ECB ?
-+				 SA_LOAD_IV_FROM_SA : SA_LOAD_IV_FROM_STATE),
- 				 SA_NO_HEADER_PROC, SA_HASH_ALG_NULL,
- 				 SA_CIPHER_ALG_AES, SA_PAD_TYPE_ZERO,
- 				 SA_OP_GROUP_BASIC, SA_OPCODE_DECRYPT,
-@@ -162,6 +163,11 @@ static int crypto4xx_setkey_aes(struct c
- 	memcpy(ctx->sa_out, ctx->sa_in, ctx->sa_len * 4);
- 	sa = ctx->sa_out;
- 	sa->sa_command_0.bf.dir = DIR_OUTBOUND;
-+	/*
-+	 * SA_OPCODE_ENCRYPT is the same value as SA_OPCODE_DECRYPT.
-+	 * it's the DIR_(IN|OUT)BOUND that matters
-+	 */
-+	sa->sa_command_0.bf.opcode = SA_OPCODE_ENCRYPT;
- 
- 	return 0;
- }
+ 	err = -ENAMETOOLONG;
+ 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
+-		     "%s(%s,%s)", name, chacha_name,
+-		     poly_name) >= CRYPTO_MAX_ALG_NAME)
++		     "%s(%s,%s)", name, chacha->base.cra_name,
++		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
+ 		goto out_drop_chacha;
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "%s(%s,%s)", name, chacha->base.cra_driver_name,
 
 
