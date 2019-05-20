@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F43243BB
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F1B243A4
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727404AbfETWvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 18:51:12 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:36220 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726584AbfETWuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:35 -0400
-Received: by mail-lf1-f65.google.com with SMTP id y10so11554002lfl.3;
-        Mon, 20 May 2019 15:50:33 -0700 (PDT)
+        id S1727227AbfETWuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 18:50:37 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45934 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727196AbfETWug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:36 -0400
+Received: by mail-lf1-f66.google.com with SMTP id n22so11485163lfe.12;
+        Mon, 20 May 2019 15:50:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Vxf6jf0I3TNkNsrZiapyq8fbjujSIosIG2y16ynybBA=;
-        b=cPKte+l2qZ4j+ifr+H9BD/YTN4+qCpvm4PqiW4AsAGuOwDsFPhaAkyVA5Uqe69hgN6
-         WjG+vSt/obII1rjN06w4ZNtggFlIMXhjxmeOpnP3TAa2cL2EH4I4EC/3lqf+dJvtWvyE
-         DSY4KwzMUD06suAcdr/fY9/loNVjfDTRZqQpwZUgzEfcwfoMjZwc346NKwZQnRfzK+IS
-         IrtuMWYeFuSbkvz96K0fvOTkbKPFAz82Oiy2OqhieGfVJ0Gq60ttHtwoHjajpx8lVAie
-         zIHBD7ceytsULxLRheDaOo7/Eu3b8xIp1hApNVO4CcFysAqlMRxdu7ybyJYBuZC84Bcy
-         ye9Q==
+        bh=GUZxpMDqtDXRtd7DwTkXbKuXR33GC+jnjVnA6aq1s9o=;
+        b=nxKmT32RtCEAuuCt/tDjVV6SFEd84nudD/RH5wl/LxU/ygz6ew2N6mToZpXbfrcm2j
+         KdczGzi7A4Z+I62nbrImBLcDeNVl/cRdw45m3tq7OxwUJUAtK6yJMXLLbetlVGPsmXwK
+         O+gHBCuwXlWT+DbyJhWlALbIVrmAVTf1bJD6Wn6TBKhNtZ8k9nHq28Xq7qdv/i5rnDZd
+         xbVa+3n3qj/ZBaaS9/GUd22XjLYQAi7XXZBY4j34fXYYTwoPCXUr3ly4Ni3lQNPFBe9A
+         bnRozVMj02D5nniBuVkouRvXpKC/aeDbU08Rcze4TZkUvVZ3T141oUxJqhQvzBMyuiyt
+         Ua7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Vxf6jf0I3TNkNsrZiapyq8fbjujSIosIG2y16ynybBA=;
-        b=frdtAuuFrLeLZvGlLlZ3Yfot5uMz9HJCLclpuBk+ODBTQNRkXq9vQKKOHX7Y4fY9rp
-         gWXW+a+V672g3NhwMRcUS/LBMpYFFGcNZPJmS+jmOelvL0Npz+ydMK/BSH3OvUL0dJK5
-         Q6MSXzytTgrFN1AI7JmpWDHA3kJUAlAmI0tSY0EDF+F3EmrAWU+cHBiosnNoa+6Tr7ru
-         AQ/upy9wspJKgLb95DeW0c7hrt4bkcacyG+2XQ98cBM9Wzr8bJZji/FvAS5RHGrZPrGg
-         jqkUDF64yw9skoVaYyvMgFsvOqSoHbSyhCERq411HQ18vg7+RXgemFVfDtRJUsBo4wyK
-         PiJQ==
-X-Gm-Message-State: APjAAAV7zkcrwHtipLPSEMxYLyYzqiORJVg7IY4rN3q6VZ+WOfrMgLjZ
-        U+J1sNBgcGI1hPA0j1L0lVM=
-X-Google-Smtp-Source: APXvYqxlM6gWuNzP4Te1EnZSGJxSQC5D3uHa5MNgaDvgeQmCARPSQA6Kt3myJWreUEXW1NxDCA963g==
-X-Received: by 2002:ac2:4c93:: with SMTP id d19mr19052117lfl.116.1558392632679;
-        Mon, 20 May 2019 15:50:32 -0700 (PDT)
+        bh=GUZxpMDqtDXRtd7DwTkXbKuXR33GC+jnjVnA6aq1s9o=;
+        b=q3UCOh/YeB0CaaAkyVUEfN+u2lWbMN5W2ELcvMh2Dsz/lKwDYUuNuEZeNw94yLsM0o
+         Z5rNlb6XbMHiacZZOBa0ZQvviDnxUGCmg9GK4Hf0UV1EjmJT2UJ90HWmbD8yMwRCwzGv
+         9dE3tKR5x/DIfVfeWQKbIB3DO1YxAea9T0JaskKbHSGtC6M8I65EjkIOPUKzuhr81Edr
+         1hCy9Ta8utdv6vh6OwGL/adC7gNwh8W7inp5Gk+OhBgxIYWkbPxh0lkjSarz14xb1Ek1
+         H3qQx1eekaSsNiHuP083hSN0cxkbmQjCRhIwH6YK645cUsuR+6QFdumk6aDwKd782SUQ
+         f4nQ==
+X-Gm-Message-State: APjAAAVAdCBg+hG7jGHNj+eVEEeQjJaW49SyhC1KJovyNV/BeNViM99o
+        NjRmcFn43nV0xJ9FxyAUIB4=
+X-Google-Smtp-Source: APXvYqwU72a9Fj8I690R6OEe7yvwXBXYXvZoJsZEmBq1oUxROyRDx1vAkdHGJzbNjTPk2JuU26vIHg==
+X-Received: by 2002:ac2:5385:: with SMTP id g5mr5154504lfh.55.1558392633817;
+        Mon, 20 May 2019 15:50:33 -0700 (PDT)
 Received: from z50.gdansk-morena.vectranet.pl (109241207190.gdansk.vectranet.pl. [109.241.207.190])
-        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.31
+        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.32
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 May 2019 15:50:32 -0700 (PDT)
+        Mon, 20 May 2019 15:50:33 -0700 (PDT)
 From:   Janusz Krzysztofik <jmkrzyszt@gmail.com>
 To:     Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -51,9 +51,9 @@ Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
         linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
         Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 2/9] media: ov6650: Fix control handler not freed on init error
-Date:   Tue, 21 May 2019 00:50:00 +0200
-Message-Id: <20190520225007.2308-3-jmkrzyszt@gmail.com>
+Subject: [PATCH v2 3/9] media: ov6650: Fix crop rectangle alignment not passed back
+Date:   Tue, 21 May 2019 00:50:01 +0200
+Message-Id: <20190520225007.2308-4-jmkrzyszt@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520225007.2308-1-jmkrzyszt@gmail.com>
 References: <20190520225007.2308-1-jmkrzyszt@gmail.com>
@@ -64,45 +64,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit afd9690c72c3 ("[media] ov6650: convert to the control
-framework"), if an error occurs during initialization of a control
-handler, resources possibly allocated to the handler are not freed
-before device initialiaton is aborted.  Fix it.
+Commit 4f996594ceaf ("[media] v4l2: make vidioc_s_crop const")
+introduced a writable copy of constified user requested crop rectangle
+in order to be able to perform hardware alignments on it.  Later
+on, commit 10d5509c8d50 ("[media] v4l2: remove g/s_crop from video
+ops") replaced s_crop() video operaion using that const argument with
+set_selection() pad operation which had a corresponding argument not
+constified, however the original behavior of the driver was not
+restored.  Since that time, any hardware alignment applied on a user
+requested crop rectangle is not passed back to the user calling
+.set_selection() as it should be.
 
-Fixes: afd9690c72c3 ("[media] ov6650: convert to the control framework")
+Fix the issue by dropping the copy and replacing all references to it
+with references to the crop rectangle embedded in the user argument.
+
+Fixes: 10d5509c8d50 ("[media] v4l2: remove g/s_crop from video ops")
 Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/media/i2c/ov6650.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/media/i2c/ov6650.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index a3d00afcb0c8..007f0ca24913 100644
+index 007f0ca24913..751b48483f27 100644
 --- a/drivers/media/i2c/ov6650.c
 +++ b/drivers/media/i2c/ov6650.c
-@@ -992,8 +992,10 @@ static int ov6650_probe(struct i2c_client *client,
- 			V4L2_CID_GAMMA, 0, 0xff, 1, 0x12);
+@@ -468,38 +468,37 @@ static int ov6650_set_selection(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov6650 *priv = to_ov6650(client);
+-	struct v4l2_rect rect = sel->r;
+ 	int ret;
  
- 	priv->subdev.ctrl_handler = &priv->hdl;
--	if (priv->hdl.error)
--		return priv->hdl.error;
-+	if (priv->hdl.error) {
-+		ret = priv->hdl.error;
-+		goto ectlhdlfree;
-+	}
+ 	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
+ 	    sel->target != V4L2_SEL_TGT_CROP)
+ 		return -EINVAL;
  
- 	v4l2_ctrl_auto_cluster(2, &priv->autogain, 0, true);
- 	v4l2_ctrl_auto_cluster(3, &priv->autowb, 0, true);
-@@ -1012,8 +1014,10 @@ static int ov6650_probe(struct i2c_client *client,
- 	priv->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+-	v4l_bound_align_image(&rect.width, 2, W_CIF, 1,
+-			      &rect.height, 2, H_CIF, 1, 0);
+-	v4l_bound_align_image(&rect.left, DEF_HSTRT << 1,
+-			      (DEF_HSTRT << 1) + W_CIF - (__s32)rect.width, 1,
+-			      &rect.top, DEF_VSTRT << 1,
+-			      (DEF_VSTRT << 1) + H_CIF - (__s32)rect.height, 1,
+-			      0);
++	v4l_bound_align_image(&sel->r.width, 2, W_CIF, 1,
++			      &sel->r.height, 2, H_CIF, 1, 0);
++	v4l_bound_align_image(&sel->r.left, DEF_HSTRT << 1,
++			      (DEF_HSTRT << 1) + W_CIF - (__s32)sel->r.width, 1,
++			      &sel->r.top, DEF_VSTRT << 1,
++			      (DEF_VSTRT << 1) + H_CIF - (__s32)sel->r.height,
++			      1, 0);
  
- 	ret = v4l2_async_register_subdev(&priv->subdev);
--	if (ret)
--		v4l2_ctrl_handler_free(&priv->hdl);
-+	if (!ret)
-+		return 0;
-+ectlhdlfree:
-+	v4l2_ctrl_handler_free(&priv->hdl);
+-	ret = ov6650_reg_write(client, REG_HSTRT, rect.left >> 1);
++	ret = ov6650_reg_write(client, REG_HSTRT, sel->r.left >> 1);
+ 	if (!ret) {
+-		priv->rect.left = rect.left;
++		priv->rect.left = sel->r.left;
+ 		ret = ov6650_reg_write(client, REG_HSTOP,
+-				(rect.left + rect.width) >> 1);
++				       (sel->r.left + sel->r.width) >> 1);
+ 	}
+ 	if (!ret) {
+-		priv->rect.width = rect.width;
+-		ret = ov6650_reg_write(client, REG_VSTRT, rect.top >> 1);
++		priv->rect.width = sel->r.width;
++		ret = ov6650_reg_write(client, REG_VSTRT, sel->r.top >> 1);
+ 	}
+ 	if (!ret) {
+-		priv->rect.top = rect.top;
++		priv->rect.top = sel->r.top;
+ 		ret = ov6650_reg_write(client, REG_VSTOP,
+-				(rect.top + rect.height) >> 1);
++				       (sel->r.top + sel->r.height) >> 1);
+ 	}
+ 	if (!ret)
+-		priv->rect.height = rect.height;
++		priv->rect.height = sel->r.height;
  
  	return ret;
  }
