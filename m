@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD68230CC
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3DC23199
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 12:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730681AbfETJ4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 05:56:22 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:52529 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfETJ4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 05:56:22 -0400
+        id S1731005AbfETKrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 06:47:05 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:60979 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726011AbfETKrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 06:47:05 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5795E20CA5;
-        Mon, 20 May 2019 05:56:21 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 0C568220AB;
+        Mon, 20 May 2019 06:47:04 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 20 May 2019 05:56:21 -0400
+  by compute6.internal (MEProxy); Mon, 20 May 2019 06:47:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Q3CKgx
-        EgKJ58DCtuo9crOwC4nBPdCAmj7QorIUJLu4I=; b=JBcvt624d6P8+QGw6RUdUG
-        u9Ux9hOQH4OVKZmxl2yZ6NfTp7oNFwfn9hWEZYQOxPnog6WUp58QK3AtPBQzIAqq
-        yLYI/rv0IY3Edk3CSnanLL58Z2FJC5UmAQ/WRXlBhRqHzXU11lZ1SnepVf9X57tm
-        O6F0ueHkNnu5V/MbBitEv7s6dVqM0vtOG3gdlOsPUxQTSXxImahwCgBJN5zJBA1s
-        oF8wHpWh3oonjFG0f5qFRNv5rLhWHcn0d4PeOr2jt40pfFT00dClUQmZ+5OVRsYw
-        MO1I3cTJX4/38adIqq7EpWUPc4ZX3GRDlySwfyz6rIdInlxZO6FK6kzXAppIxCkw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mUzDWy
+        bxffuwSU1a/uIrL4QaNpeQs05ETXdwyz8c5yc=; b=54w8Xak8CBo1ofpm1oUMdI
+        dS0Fo+LV6IDn95hddSmhGHv6HN5Gjzl9XXjx9HFtDUAh+EjvgUAaEffK29LyzZk/
+        AJYpeqC1zmhYLwfILPOPu6SZ3JVAmjVmf28VyAf0vZ4UrZk/2eEA8ai2xjjY10Xp
+        SKQL1E11qT0LSwKg9ANcZRgTZuJoXXUo/IGgCUQbcAemGsRIcChJclOVIpV13R2c
+        ogLCeF1zrOOrYGCiKc6q6PG9VP+wkDmKU8nXvcMK8CCn8tpHUGjGfNXKJDWuWZAl
+        9qHE6gUQ3u0CjFgerM6TME/jfLUf5JJJcvfiKwaNXljwn7XTRdUoJOC6g4/hjYvA
         ==
-X-ME-Sender: <xms:xXniXO1V_9gBbm9nS-bFoiQjkUdQkBsgKD0frOgAdkjV5__K8d6jUw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtkedgvddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:p4XiXEr0O6i1XiUnXEmvgs22QFrCFWfp6S946C1UqpHx-YewUCRJkA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtkedgfeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:xXniXFwHF6iY74TdKvThqcHNL4eC2KWUVyMAZEMbsGLmbrsDKawpqQ>
-    <xmx:xXniXHIyKTavp5ux5iExTESMbaasfTS4LD6AI_Ysy8wAx9DGUhYX0w>
-    <xmx:xXniXD8jtXov2wsdbPa62WGqZEiJzEbB7WngTg6p7HnO9zjBczkHrQ>
-    <xmx:xXniXPToDUl4ktSuQ3YFi2pK_J7aVZZzBGMxpD6J5RzNj85yAMsV6w>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:p4XiXGVP3OtBK2eIMhyr9R-rqK7Wo-iv1vieX8TMrNhhM4v4ZmsFLg>
+    <xmx:p4XiXD7lhr-6Go4TEukCJso5Woe1wcEVQK78-LTGNTXhktCPSL0-Xg>
+    <xmx:p4XiXM2Wt6WLqDitq05kz2PuyN3CEmkq1GIbzI0E9RQZsPIbzLrzYg>
+    <xmx:qIXiXETMbXtlCS8jh9oY5fUDRIzh0nsTOK930BSGrcniJnXCSKf_7Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B81EE80063;
-        Mon, 20 May 2019 05:56:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] jbd2: fix potential double free" failed to apply to 4.4-stable tree
-To:     cgxu519@gmail.com, tytso@mit.edu
+        by mail.messagingengine.com (Postfix) with ESMTPA id DC6A08005C;
+        Mon, 20 May 2019 06:47:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xen/pvh: correctly setup the PV EFI interface for dom0" failed to apply to 4.19-stable tree
+To:     roger.pau@citrix.com, boris.ostrovsky@oracle.com,
+        pgnet.dev@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 May 2019 11:56:17 +0200
-Message-ID: <155834617795176@kroah.com>
+Date:   Mon, 20 May 2019 12:47:01 +0200
+Message-ID: <1558349221210204@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,230 +68,155 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0d52154bb0a700abb459a2cbce0a30fc2549b67e Mon Sep 17 00:00:00 2001
-From: Chengguang Xu <cgxu519@gmail.com>
-Date: Fri, 10 May 2019 21:15:47 -0400
-Subject: [PATCH] jbd2: fix potential double free
+From 72813bfbf0276a97c82af038efb5f02dcdd9e310 Mon Sep 17 00:00:00 2001
+From: Roger Pau Monne <roger.pau@citrix.com>
+Date: Tue, 23 Apr 2019 15:04:16 +0200
+Subject: [PATCH] xen/pvh: correctly setup the PV EFI interface for dom0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-When failing from creating cache jbd2_inode_cache, we will destroy the
-previously created cache jbd2_handle_cache twice.  This patch fixes
-this by moving each cache initialization/destruction to its own
-separate, individual function.
+This involves initializing the boot params EFI related fields and the
+efi global variable.
 
-Signed-off-by: Chengguang Xu <cgxu519@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Without this fix a PVH dom0 doesn't detect when booted from EFI, and
+thus doesn't support accessing any of the EFI related data.
 
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index 37e16d969925..43df0c943229 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2375,22 +2375,19 @@ static struct kmem_cache *jbd2_journal_head_cache;
- static atomic_t nr_journal_heads = ATOMIC_INIT(0);
+Reported-by: PGNet Dev <pgnet.dev@gmail.com>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: stable@vger.kernel.org # 4.19+
+
+diff --git a/arch/x86/platform/pvh/enlighten.c b/arch/x86/platform/pvh/enlighten.c
+index 62f5c7045944..1861a2ba0f2b 100644
+--- a/arch/x86/platform/pvh/enlighten.c
++++ b/arch/x86/platform/pvh/enlighten.c
+@@ -44,8 +44,6 @@ void __init __weak mem_map_via_hcall(struct boot_params *ptr __maybe_unused)
+ 
+ static void __init init_pvh_bootparams(bool xen_guest)
+ {
+-	memset(&pvh_bootparams, 0, sizeof(pvh_bootparams));
+-
+ 	if ((pvh_start_info.version > 0) && (pvh_start_info.memmap_entries)) {
+ 		struct hvm_memmap_table_entry *ep;
+ 		int i;
+@@ -103,7 +101,7 @@ static void __init init_pvh_bootparams(bool xen_guest)
+  * If we are trying to boot a Xen PVH guest, it is expected that the kernel
+  * will have been configured to provide the required override for this routine.
+  */
+-void __init __weak xen_pvh_init(void)
++void __init __weak xen_pvh_init(struct boot_params *boot_params)
+ {
+ 	xen_raw_printk("Error: Missing xen PVH initialization\n");
+ 	BUG();
+@@ -112,7 +110,7 @@ void __init __weak xen_pvh_init(void)
+ static void hypervisor_specific_init(bool xen_guest)
+ {
+ 	if (xen_guest)
+-		xen_pvh_init();
++		xen_pvh_init(&pvh_bootparams);
+ }
+ 
+ /*
+@@ -131,6 +129,8 @@ void __init xen_prepare_pvh(void)
+ 		BUG();
+ 	}
+ 
++	memset(&pvh_bootparams, 0, sizeof(pvh_bootparams));
++
+ 	hypervisor_specific_init(xen_guest);
+ 
+ 	init_pvh_bootparams(xen_guest);
+diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
+index 1fbb629a9d78..0d3365cb64de 100644
+--- a/arch/x86/xen/efi.c
++++ b/arch/x86/xen/efi.c
+@@ -158,7 +158,7 @@ static enum efi_secureboot_mode xen_efi_get_secureboot(void)
+ 	return efi_secureboot_mode_unknown;
+ }
+ 
+-void __init xen_efi_init(void)
++void __init xen_efi_init(struct boot_params *boot_params)
+ {
+ 	efi_system_table_t *efi_systab_xen;
+ 
+@@ -167,12 +167,12 @@ void __init xen_efi_init(void)
+ 	if (efi_systab_xen == NULL)
+ 		return;
+ 
+-	strncpy((char *)&boot_params.efi_info.efi_loader_signature, "Xen",
+-			sizeof(boot_params.efi_info.efi_loader_signature));
+-	boot_params.efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
+-	boot_params.efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
++	strncpy((char *)&boot_params->efi_info.efi_loader_signature, "Xen",
++			sizeof(boot_params->efi_info.efi_loader_signature));
++	boot_params->efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
++	boot_params->efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
+ 
+-	boot_params.secure_boot = xen_efi_get_secureboot();
++	boot_params->secure_boot = xen_efi_get_secureboot();
+ 
+ 	set_bit(EFI_BOOT, &efi.flags);
+ 	set_bit(EFI_PARAVIRT, &efi.flags);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index c54a493e139a..4722ba2966ac 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1403,7 +1403,7 @@ asmlinkage __visible void __init xen_start_kernel(void)
+ 	/* We need this for printk timestamps */
+ 	xen_setup_runstate_info(0);
+ 
+-	xen_efi_init();
++	xen_efi_init(&boot_params);
+ 
+ 	/* Start the world */
+ #ifdef CONFIG_X86_32
+diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
+index bbffa409e0e8..80a79db72fcf 100644
+--- a/arch/x86/xen/enlighten_pvh.c
++++ b/arch/x86/xen/enlighten_pvh.c
+@@ -13,6 +13,8 @@
+ 
+ #include <xen/interface/memory.h>
+ 
++#include "xen-ops.h"
++
+ /*
+  * PVH variables.
+  *
+@@ -21,7 +23,7 @@
+  */
+ bool xen_pvh __attribute__((section(".data"))) = 0;
+ 
+-void __init xen_pvh_init(void)
++void __init xen_pvh_init(struct boot_params *boot_params)
+ {
+ 	u32 msr;
+ 	u64 pfn;
+@@ -33,6 +35,8 @@ void __init xen_pvh_init(void)
+ 	msr = cpuid_ebx(xen_cpuid_base() + 2);
+ 	pfn = __pa(hypercall_page);
+ 	wrmsr_safe(msr, (u32)pfn, (u32)(pfn >> 32));
++
++	xen_efi_init(boot_params);
+ }
+ 
+ void __init mem_map_via_hcall(struct boot_params *boot_params_p)
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 0e60bd918695..2f111f47ba98 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -122,9 +122,9 @@ static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
+ void __init xen_init_apic(void);
+ 
+ #ifdef CONFIG_XEN_EFI
+-extern void xen_efi_init(void);
++extern void xen_efi_init(struct boot_params *boot_params);
+ #else
+-static inline void __init xen_efi_init(void)
++static inline void __init xen_efi_init(struct boot_params *boot_params)
+ {
+ }
  #endif
- 
--static int jbd2_journal_init_journal_head_cache(void)
-+static int __init jbd2_journal_init_journal_head_cache(void)
- {
--	int retval;
--
--	J_ASSERT(jbd2_journal_head_cache == NULL);
-+	J_ASSERT(!jbd2_journal_head_cache);
- 	jbd2_journal_head_cache = kmem_cache_create("jbd2_journal_head",
- 				sizeof(struct journal_head),
- 				0,		/* offset */
- 				SLAB_TEMPORARY | SLAB_TYPESAFE_BY_RCU,
- 				NULL);		/* ctor */
--	retval = 0;
- 	if (!jbd2_journal_head_cache) {
--		retval = -ENOMEM;
- 		printk(KERN_EMERG "JBD2: no memory for journal_head cache\n");
-+		return -ENOMEM;
- 	}
--	return retval;
-+	return 0;
- }
- 
- static void jbd2_journal_destroy_journal_head_cache(void)
-@@ -2636,28 +2633,38 @@ static void __exit jbd2_remove_jbd_stats_proc_entry(void)
- 
- struct kmem_cache *jbd2_handle_cache, *jbd2_inode_cache;
- 
-+static int __init jbd2_journal_init_inode_cache(void)
-+{
-+	J_ASSERT(!jbd2_inode_cache);
-+	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
-+	if (!jbd2_inode_cache) {
-+		pr_emerg("JBD2: failed to create inode cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
- static int __init jbd2_journal_init_handle_cache(void)
- {
-+	J_ASSERT(!jbd2_handle_cache);
- 	jbd2_handle_cache = KMEM_CACHE(jbd2_journal_handle, SLAB_TEMPORARY);
--	if (jbd2_handle_cache == NULL) {
-+	if (!jbd2_handle_cache) {
- 		printk(KERN_EMERG "JBD2: failed to create handle cache\n");
- 		return -ENOMEM;
- 	}
--	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
--	if (jbd2_inode_cache == NULL) {
--		printk(KERN_EMERG "JBD2: failed to create inode cache\n");
--		kmem_cache_destroy(jbd2_handle_cache);
--		return -ENOMEM;
--	}
- 	return 0;
- }
- 
-+static void jbd2_journal_destroy_inode_cache(void)
-+{
-+	kmem_cache_destroy(jbd2_inode_cache);
-+	jbd2_inode_cache = NULL;
-+}
-+
- static void jbd2_journal_destroy_handle_cache(void)
- {
- 	kmem_cache_destroy(jbd2_handle_cache);
- 	jbd2_handle_cache = NULL;
--	kmem_cache_destroy(jbd2_inode_cache);
--	jbd2_inode_cache = NULL;
- }
- 
- /*
-@@ -2668,11 +2675,15 @@ static int __init journal_init_caches(void)
- {
- 	int ret;
- 
--	ret = jbd2_journal_init_revoke_caches();
-+	ret = jbd2_journal_init_revoke_record_cache();
-+	if (ret == 0)
-+		ret = jbd2_journal_init_revoke_table_cache();
- 	if (ret == 0)
- 		ret = jbd2_journal_init_journal_head_cache();
- 	if (ret == 0)
- 		ret = jbd2_journal_init_handle_cache();
-+	if (ret == 0)
-+		ret = jbd2_journal_init_inode_cache();
- 	if (ret == 0)
- 		ret = jbd2_journal_init_transaction_cache();
- 	return ret;
-@@ -2680,9 +2691,11 @@ static int __init journal_init_caches(void)
- 
- static void jbd2_journal_destroy_caches(void)
- {
--	jbd2_journal_destroy_revoke_caches();
-+	jbd2_journal_destroy_revoke_record_cache();
-+	jbd2_journal_destroy_revoke_table_cache();
- 	jbd2_journal_destroy_journal_head_cache();
- 	jbd2_journal_destroy_handle_cache();
-+	jbd2_journal_destroy_inode_cache();
- 	jbd2_journal_destroy_transaction_cache();
- 	jbd2_journal_destroy_slabs();
- }
-diff --git a/fs/jbd2/revoke.c b/fs/jbd2/revoke.c
-index a1143e57a718..69b9bc329964 100644
---- a/fs/jbd2/revoke.c
-+++ b/fs/jbd2/revoke.c
-@@ -178,33 +178,41 @@ static struct jbd2_revoke_record_s *find_revoke_record(journal_t *journal,
- 	return NULL;
- }
- 
--void jbd2_journal_destroy_revoke_caches(void)
-+void jbd2_journal_destroy_revoke_record_cache(void)
- {
- 	kmem_cache_destroy(jbd2_revoke_record_cache);
- 	jbd2_revoke_record_cache = NULL;
-+}
-+
-+void jbd2_journal_destroy_revoke_table_cache(void)
-+{
- 	kmem_cache_destroy(jbd2_revoke_table_cache);
- 	jbd2_revoke_table_cache = NULL;
- }
- 
--int __init jbd2_journal_init_revoke_caches(void)
-+int __init jbd2_journal_init_revoke_record_cache(void)
- {
- 	J_ASSERT(!jbd2_revoke_record_cache);
--	J_ASSERT(!jbd2_revoke_table_cache);
--
- 	jbd2_revoke_record_cache = KMEM_CACHE(jbd2_revoke_record_s,
- 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY);
--	if (!jbd2_revoke_record_cache)
--		goto record_cache_failure;
- 
-+	if (!jbd2_revoke_record_cache) {
-+		pr_emerg("JBD2: failed to create revoke_record cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+int __init jbd2_journal_init_revoke_table_cache(void)
-+{
-+	J_ASSERT(!jbd2_revoke_table_cache);
- 	jbd2_revoke_table_cache = KMEM_CACHE(jbd2_revoke_table_s,
- 					     SLAB_TEMPORARY);
--	if (!jbd2_revoke_table_cache)
--		goto table_cache_failure;
--	return 0;
--table_cache_failure:
--	jbd2_journal_destroy_revoke_caches();
--record_cache_failure:
-+	if (!jbd2_revoke_table_cache) {
-+		pr_emerg("JBD2: failed to create revoke_table cache\n");
- 		return -ENOMEM;
-+	}
-+	return 0;
- }
- 
- static struct jbd2_revoke_table_s *jbd2_journal_init_revoke_table(int hash_size)
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index f940d31c2adc..8ca4fddc705f 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -42,9 +42,11 @@ int __init jbd2_journal_init_transaction_cache(void)
- 					0,
- 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY,
- 					NULL);
--	if (transaction_cache)
--		return 0;
--	return -ENOMEM;
-+	if (!transaction_cache) {
-+		pr_emerg("JBD2: failed to create transaction cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
- }
- 
- void jbd2_journal_destroy_transaction_cache(void)
-diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
-index 0f919d5fe84f..2cf6e04b08fc 100644
---- a/include/linux/jbd2.h
-+++ b/include/linux/jbd2.h
-@@ -1318,7 +1318,7 @@ extern void		__wait_on_journal (journal_t *);
- 
- /* Transaction cache support */
- extern void jbd2_journal_destroy_transaction_cache(void);
--extern int  jbd2_journal_init_transaction_cache(void);
-+extern int __init jbd2_journal_init_transaction_cache(void);
- extern void jbd2_journal_free_transaction(transaction_t *);
- 
- /*
-@@ -1446,8 +1446,10 @@ static inline void jbd2_free_inode(struct jbd2_inode *jinode)
- /* Primary revoke support */
- #define JOURNAL_REVOKE_DEFAULT_HASH 256
- extern int	   jbd2_journal_init_revoke(journal_t *, int);
--extern void	   jbd2_journal_destroy_revoke_caches(void);
--extern int	   jbd2_journal_init_revoke_caches(void);
-+extern void	   jbd2_journal_destroy_revoke_record_cache(void);
-+extern void	   jbd2_journal_destroy_revoke_table_cache(void);
-+extern int __init jbd2_journal_init_revoke_record_cache(void);
-+extern int __init jbd2_journal_init_revoke_table_cache(void);
- 
- extern void	   jbd2_journal_destroy_revoke(journal_t *);
- extern int	   jbd2_journal_revoke (handle_t *, unsigned long long, struct buffer_head *);
 
