@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7592923391
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C3B23503
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387701AbfETMSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:18:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
+        id S2389838AbfETMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387699AbfETMSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:13 -0400
+        id S2388240AbfETMc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:32:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BFB621479;
-        Mon, 20 May 2019 12:18:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3A34216E3;
+        Mon, 20 May 2019 12:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354692;
-        bh=0hTxHl1kJ3+akPh22gjCFxb1A6uokxdaj6uPddAfjao=;
+        s=default; t=1558355547;
+        bh=NELJ4Hu6YiJbJlmxwVlRRrxhcEXBUQ4E/XUnMCsrArw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zL+zCJOQjkFx8FTsASz1EvG2GwaJGJcQwWW7YEwf4szSG6O1piyvsGRIpJk1Isthp
-         zZsMcBWUYcmBzjAI4k1ch8AsmQVBIzIxkCZ7DHMEMU72SAaqhoMlpxvBoV8hp3FN/I
-         bOum6NzSacYSuC7k8d4TPH0ysgpsYvMt/Rmn90e8=
+        b=csK1FfI3sSlP8iSGkUqfiYFi91jMdQX5r3eW4JVwyOji0WDet6VWp9VZmJnlao1RK
+         +ERS6OmQJwFjywEAOob9I/nfPEbHG9O8PQtkK1DHsupuLJg7FrSuVLIawPJvy568HI
+         M/YSWWOOPhnF8hx71biDIvXMIJUUdsowEbf76rZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/63] net: core: another layer of lists, around PF_MEMALLOC skb handling
+        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 033/128] crypto: crct10dif-generic - fix use via crypto_shash_digest()
 Date:   Mon, 20 May 2019 14:13:40 +0200
-Message-Id: <20190520115231.392707901@linuxfoundation.org>
+Message-Id: <20190520115251.882348672@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,59 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78ed8cc25986ac5c21762eeddc1e86e94d422e36 ]
+From: Eric Biggers <ebiggers@google.com>
 
-First example of a layer splitting the list (rather than merely taking
- individual packets off it).
-Involves new list.h function, list_cut_before(), like list_cut_position()
- but cuts on the other side of the given entry.
+commit 307508d1072979f4435416f87936f87eaeb82054 upstream.
 
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[sl: cut out non list.h bits, we only want list_cut_before]
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The ->digest() method of crct10dif-generic reads the current CRC value
+from the shash_desc context.  But this value is uninitialized, causing
+crypto_shash_digest() to compute the wrong result.  Fix it.
+
+Probably this wasn't noticed before because lib/crc-t10dif.c only uses
+crypto_shash_update(), not crypto_shash_digest().  Likewise,
+crypto_shash_digest() is not yet tested by the crypto self-tests because
+those only test the ahash API which only uses shash init/update/final.
+
+This bug was detected by my patches that improve testmgr to fuzz
+algorithms against their generic implementation.
+
+Fixes: 2d31e518a428 ("crypto: crct10dif - Wrap crc_t10dif function all to use crypto transform framework")
+Cc: <stable@vger.kernel.org> # v3.11+
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/list.h |   30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ crypto/crct10dif_generic.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/include/linux/list.h
-+++ b/include/linux/list.h
-@@ -285,6 +285,36 @@ static inline void list_cut_position(str
- 		__list_cut_position(list, head, entry);
+--- a/crypto/crct10dif_generic.c
++++ b/crypto/crct10dif_generic.c
+@@ -65,10 +65,9 @@ static int chksum_final(struct shash_des
+ 	return 0;
  }
  
-+/**
-+ * list_cut_before - cut a list into two, before given entry
-+ * @list: a new list to add all removed entries
-+ * @head: a list with entries
-+ * @entry: an entry within head, could be the head itself
-+ *
-+ * This helper moves the initial part of @head, up to but
-+ * excluding @entry, from @head to @list.  You should pass
-+ * in @entry an element you know is on @head.  @list should
-+ * be an empty list or a list you do not care about losing
-+ * its data.
-+ * If @entry == @head, all entries on @head are moved to
-+ * @list.
-+ */
-+static inline void list_cut_before(struct list_head *list,
-+				   struct list_head *head,
-+				   struct list_head *entry)
-+{
-+	if (head->next == entry) {
-+		INIT_LIST_HEAD(list);
-+		return;
-+	}
-+	list->next = head->next;
-+	list->next->prev = list;
-+	list->prev = entry->prev;
-+	list->prev->next = list;
-+	head->next = entry;
-+	entry->prev = head;
-+}
-+
- static inline void __list_splice(const struct list_head *list,
- 				 struct list_head *prev,
- 				 struct list_head *next)
+-static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
+-			u8 *out)
++static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
+ {
+-	*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
++	*(__u16 *)out = crc_t10dif_generic(crc, data, len);
+ 	return 0;
+ }
+ 
+@@ -77,15 +76,13 @@ static int chksum_finup(struct shash_des
+ {
+ 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+ 
+-	return __chksum_finup(&ctx->crc, data, len, out);
++	return __chksum_finup(ctx->crc, data, len, out);
+ }
+ 
+ static int chksum_digest(struct shash_desc *desc, const u8 *data,
+ 			 unsigned int length, u8 *out)
+ {
+-	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+-
+-	return __chksum_finup(&ctx->crc, data, length, out);
++	return __chksum_finup(0, data, length, out);
+ }
+ 
+ static struct shash_alg alg = {
 
 
