@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40AE423752
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8A32361A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388079AbfETMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S2389238AbfETM3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388789AbfETMYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:24:19 -0400
+        id S2389834AbfETM3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9E4E20645;
-        Mon, 20 May 2019 12:24:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB4020675;
+        Mon, 20 May 2019 12:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355058;
-        bh=gDXp1YTVd1ZDb9dpxjABJtOXO5WdHbIWePTo2Hqkyqk=;
+        s=default; t=1558355351;
+        bh=RPLq+m8T3vSNN8s9DhNSSyP3IgbA/VzYKO7i2/BFzUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikncR1AqqQzb6ldWFWDGbBmx6Se1XRk73jLehGvtE5mqNiJ82yqxH9iJKM++KE0Ev
-         CxIvMxy6ORS+3SG0x7TxY1VvOnXOwmXJwlwel1OOcYC+pYJIVd9pzHWkJzYU0ncJSf
-         nno5eR2bq2lIFxopwzgXfAKwBcClQ8yR7GOVRypw=
+        b=hOiLczp3FqxYZ+hOnkanl5DqPX1NYG81Vce2Xr+U7W+H+fQzm7FaieJ0J5JFzpGe9
+         17W66Ue6C0bye87UEayNFzu+d56bGg8yh+To8bxELadFq3xuqc2ZOuW3MYGDvRjr6A
+         BDV8fwcPtGukgrdtIADooNJyHvYAzV/n6S4nFELA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 080/105] bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
+        stable@vger.kernel.org,
+        syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Barret Rhoden <brho@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.0 086/123] ext4: fix use-after-free race with debug_want_extra_isize
 Date:   Mon, 20 May 2019 14:14:26 +0200
-Message-Id: <20190520115252.795724367@linuxfoundation.org>
+Message-Id: <20190520115250.599899313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +45,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Barret Rhoden <brho@google.com>
 
-commit 1bee2addc0c8470c8aaa65ef0599eeae96dd88bc upstream.
+commit 7bc04c5c2cc467c5b40f2b03ba08da174a0d5fa7 upstream.
 
-In journal_reclaim() ja->cur_idx of each cache will be update to
-reclaim available journal buckets. Variable 'int n' is used to count how
-many cache is successfully reclaimed, then n is set to c->journal.key
-by SET_KEY_PTRS(). Later in journal_write_unlocked(), a for_each_cache()
-loop will write the jset data onto each cache.
+When remounting with debug_want_extra_isize, we were not performing the
+same checks that we do during a normal mount.  That allowed us to set a
+value for s_want_extra_isize that reached outside the s_inode_size.
 
-The problem is, if all jouranl buckets on each cache is full, the
-following code in journal_reclaim(),
-
-529 for_each_cache(ca, c, iter) {
-530       struct journal_device *ja = &ca->journal;
-531       unsigned int next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
-532
-533       /* No space available on this device */
-534       if (next == ja->discard_idx)
-535               continue;
-536
-537       ja->cur_idx = next;
-538       k->ptr[n++] = MAKE_PTR(0,
-539                         bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
-540                         ca->sb.nr_this_dev);
-541 }
-542
-543 bkey_init(k);
-544 SET_KEY_PTRS(k, n);
-
-If there is no available bucket to reclaim, the if() condition at line
-534 will always true, and n remains 0. Then at line 544, SET_KEY_PTRS()
-will set KEY_PTRS field of c->journal.key to 0.
-
-Setting KEY_PTRS field of c->journal.key to 0 is wrong. Because in
-journal_write_unlocked() the journal data is written in following loop,
-
-649	for (i = 0; i < KEY_PTRS(k); i++) {
-650-671		submit journal data to cache device
-672	}
-
-If KEY_PTRS field is set to 0 in jouranl_reclaim(), the journal data
-won't be written to cache device here. If system crahed or rebooted
-before bkeys of the lost journal entries written into btree nodes, data
-corruption will be reported during bcache reload after rebooting the
-system.
-
-Indeed there is only one cache in a cache set, there is no need to set
-KEY_PTRS field in journal_reclaim() at all. But in order to keep the
-for_each_cache() logic consistent for now, this patch fixes the above
-problem by not setting 0 KEY_PTRS of journal key, if there is no bucket
-available to reclaim.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
+Fixes: e2b911c53584 ("ext4: clean up feature test macros with predicate functions")
+Reported-by: syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Barret Rhoden <brho@google.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/journal.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/ext4/super.c |   58 ++++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 34 insertions(+), 24 deletions(-)
 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -540,11 +540,11 @@ static void journal_reclaim(struct cache
- 				  ca->sb.nr_this_dev);
- 	}
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3514,6 +3514,37 @@ int ext4_calculate_overhead(struct super
+ 	return 0;
+ }
  
--	bkey_init(k);
--	SET_KEY_PTRS(k, n);
--
--	if (n)
-+	if (n) {
-+		bkey_init(k);
-+		SET_KEY_PTRS(k, n);
- 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
-+	}
- out:
- 	if (!journal_full(&c->journal))
- 		__closure_wake_up(&c->journal.wait);
-@@ -671,6 +671,9 @@ static void journal_write_unlocked(struc
- 		ca->journal.seq[ca->journal.cur_idx] = w->data->seq;
- 	}
- 
-+	/* If KEY_PTRS(k) == 0, this jset gets lost in air */
-+	BUG_ON(i == 0);
++static void ext4_clamp_want_extra_isize(struct super_block *sb)
++{
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	struct ext4_super_block *es = sbi->s_es;
 +
- 	atomic_dec_bug(&fifo_back(&c->journal.pin));
- 	bch_journal_next(&c->journal);
- 	journal_reclaim(c);
++	/* determine the minimum size of new large inodes, if present */
++	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
++	    sbi->s_want_extra_isize == 0) {
++		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
++						     EXT4_GOOD_OLD_INODE_SIZE;
++		if (ext4_has_feature_extra_isize(sb)) {
++			if (sbi->s_want_extra_isize <
++			    le16_to_cpu(es->s_want_extra_isize))
++				sbi->s_want_extra_isize =
++					le16_to_cpu(es->s_want_extra_isize);
++			if (sbi->s_want_extra_isize <
++			    le16_to_cpu(es->s_min_extra_isize))
++				sbi->s_want_extra_isize =
++					le16_to_cpu(es->s_min_extra_isize);
++		}
++	}
++	/* Check if enough inode space is available */
++	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
++							sbi->s_inode_size) {
++		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
++						       EXT4_GOOD_OLD_INODE_SIZE;
++		ext4_msg(sb, KERN_INFO,
++			 "required extra inode space not available");
++	}
++}
++
+ static void ext4_set_resv_clusters(struct super_block *sb)
+ {
+ 	ext4_fsblk_t resv_clusters;
+@@ -4388,30 +4419,7 @@ no_journal:
+ 	} else if (ret)
+ 		goto failed_mount4a;
+ 
+-	/* determine the minimum size of new large inodes, if present */
+-	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
+-	    sbi->s_want_extra_isize == 0) {
+-		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
+-						     EXT4_GOOD_OLD_INODE_SIZE;
+-		if (ext4_has_feature_extra_isize(sb)) {
+-			if (sbi->s_want_extra_isize <
+-			    le16_to_cpu(es->s_want_extra_isize))
+-				sbi->s_want_extra_isize =
+-					le16_to_cpu(es->s_want_extra_isize);
+-			if (sbi->s_want_extra_isize <
+-			    le16_to_cpu(es->s_min_extra_isize))
+-				sbi->s_want_extra_isize =
+-					le16_to_cpu(es->s_min_extra_isize);
+-		}
+-	}
+-	/* Check if enough inode space is available */
+-	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
+-							sbi->s_inode_size) {
+-		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
+-						       EXT4_GOOD_OLD_INODE_SIZE;
+-		ext4_msg(sb, KERN_INFO, "required extra inode space not"
+-			 "available");
+-	}
++	ext4_clamp_want_extra_isize(sb);
+ 
+ 	ext4_set_resv_clusters(sb);
+ 
+@@ -5195,6 +5203,8 @@ static int ext4_remount(struct super_blo
+ 		goto restore_opts;
+ 	}
+ 
++	ext4_clamp_want_extra_isize(sb);
++
+ 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
+ 	    test_opt(sb, JOURNAL_CHECKSUM)) {
+ 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
 
 
