@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4C8236E4
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29CA23617
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732690AbfETMRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58744 "EHLO mail.kernel.org"
+        id S2389497AbfETM30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387611AbfETMRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:41 -0400
+        id S2389492AbfETM3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908E021726;
-        Mon, 20 May 2019 12:17:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C4ED20815;
+        Mon, 20 May 2019 12:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354661;
-        bh=hJhvb1Dms8MsY1g+rT6DS/w0wdxn/uWL5NtjZwJQrT4=;
+        s=default; t=1558355364;
+        bh=9F2urZGiUSCTtGpIbm8fQ79y0ev7GzYg8R+c8rTft8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAr2r8Fsk7cub1qOgXWSNoBKZl6pZJQ9NVt/EGNGIWTDprZp9NZtydvaSf7MSxcgJ
-         p7jnGmdVcpQvLL0hGADGymqFjCSek7LcOiKh9xtRnhGv0DByQUahk2UO/jDzUYfXbk
-         VLghhireTN03ueK1mIWXqzaYyL7tCMMiKAwAPOV8=
+        b=Yo8RPD5FtN15DVfsqC48m8vqXlKT1Airxyp5L96X9+C/ZbTe0rB1lIvdNnnb78sIy
+         dmZylJBV++KfDgZqwkRgRP3K7f22YlqWCPUDUgNEGGhpxnyEgZ3V44oHFyQK9g/Zzb
+         27GsLERag+dtGdrm+n+X5nbbMvaB8W5bh4HeKSfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sriram Rajagopalan <sriramr@arista.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.9 41/44] ext4: zero out the unused memory region in the extent tree block
+        stable@vger.kernel.org, Jungyeon <jungyeon@gatech.edu>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.0 090/123] btrfs: Correctly free extent buffer in case btree_read_extent_buffer_pages fails
 Date:   Mon, 20 May 2019 14:14:30 +0200
-Message-Id: <20190520115235.768655787@linuxfoundation.org>
+Message-Id: <20190520115250.895614551@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriram Rajagopalan <sriramr@arista.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 592acbf16821288ecdc4192c47e3774a4c48bb64 upstream.
+commit 537f38f019fa0b762dbb4c0fc95d7fcce9db8e2d upstream.
 
-This commit zeroes out the unused memory region in the buffer_head
-corresponding to the extent metablock after writing the extent header
-and the corresponding extent node entries.
+If a an eb fails to be read for whatever reason - it's corrupted on disk
+and parent transid/key validations fail or IO for eb pages fail then
+this buffer must be removed from the buffer cache. Currently the code
+calls free_extent_buffer if an error occurs. Unfortunately this doesn't
+achieve the desired behavior since btrfs_find_create_tree_block returns
+with eb->refs == 2.
 
-This is done to prevent random uninitialized data from getting into
-the filesystem when the extent block is synced.
+On the other hand free_extent_buffer will only decrement the refs once
+leaving it added to the buffer cache radix tree.  This enables later
+code to look up the buffer from the cache and utilize it potentially
+leading to a crash.
 
-This fixes CVE-2019-11833.
+The correct way to free the buffer is call free_extent_buffer_stale.
+This function will correctly call atomic_dec explicitly for the buffer
+and subsequently call release_extent_buffer which will decrement the
+final reference thus correctly remove the invalid buffer from buffer
+cache. This change affects only newly allocated buffers since they have
+eb->refs == 2.
 
-Signed-off-by: Sriram Rajagopalan <sriramr@arista.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
+Reported-by: Jungyeon <jungyeon@gatech.edu>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ fs/btrfs/disk-io.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -1047,6 +1047,7 @@ static int ext4_ext_split(handle_t *hand
- 	__le32 border;
- 	ext4_fsblk_t *ablocks = NULL; /* array of allocated blocks */
- 	int err = 0;
-+	size_t ext_size = 0;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1017,13 +1017,18 @@ void readahead_tree_block(struct btrfs_f
+ {
+ 	struct extent_buffer *buf = NULL;
+ 	struct inode *btree_inode = fs_info->btree_inode;
++	int ret;
  
- 	/* make decision: where to split? */
- 	/* FIXME: now decision is simplest: at current extent */
-@@ -1138,6 +1139,10 @@ static int ext4_ext_split(handle_t *hand
- 		le16_add_cpu(&neh->eh_entries, m);
+ 	buf = btrfs_find_create_tree_block(fs_info, bytenr);
+ 	if (IS_ERR(buf))
+ 		return;
+-	read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree,
+-				 buf, WAIT_NONE, 0);
+-	free_extent_buffer(buf);
++
++	ret = read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree, buf,
++			WAIT_NONE, 0);
++	if (ret < 0)
++		free_extent_buffer_stale(buf);
++	else
++		free_extent_buffer(buf);
+ }
+ 
+ int reada_tree_block_flagged(struct btrfs_fs_info *fs_info, u64 bytenr,
+@@ -1043,12 +1048,12 @@ int reada_tree_block_flagged(struct btrf
+ 	ret = read_extent_buffer_pages(io_tree, buf, WAIT_PAGE_LOCK,
+ 				       mirror_num);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ret;
  	}
  
-+	/* zero out unused area in the extent block */
-+	ext_size = sizeof(struct ext4_extent_header) +
-+		sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries);
-+	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
- 	ext4_extent_block_csum_set(inode, neh);
- 	set_buffer_uptodate(bh);
- 	unlock_buffer(bh);
-@@ -1217,6 +1222,11 @@ static int ext4_ext_split(handle_t *hand
- 				sizeof(struct ext4_extent_idx) * m);
- 			le16_add_cpu(&neh->eh_entries, m);
- 		}
-+		/* zero out unused area in the extent block */
-+		ext_size = sizeof(struct ext4_extent_header) +
-+		   (sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries));
-+		memset(bh->b_data + ext_size, 0,
-+			inode->i_sb->s_blocksize - ext_size);
- 		ext4_extent_block_csum_set(inode, neh);
- 		set_buffer_uptodate(bh);
- 		unlock_buffer(bh);
-@@ -1282,6 +1292,7 @@ static int ext4_ext_grow_indepth(handle_
- 	ext4_fsblk_t newblock, goal = 0;
- 	struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
- 	int err = 0;
-+	size_t ext_size = 0;
- 
- 	/* Try to prepend new index to old one */
- 	if (ext_depth(inode))
-@@ -1307,9 +1318,11 @@ static int ext4_ext_grow_indepth(handle_
- 		goto out;
+ 	if (test_bit(EXTENT_BUFFER_CORRUPT, &buf->bflags)) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return -EIO;
+ 	} else if (extent_buffer_uptodate(buf)) {
+ 		*eb = buf;
+@@ -1102,7 +1107,7 @@ struct extent_buffer *read_tree_block(st
+ 	ret = btree_read_extent_buffer_pages(fs_info, buf, parent_transid,
+ 					     level, first_key);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ERR_PTR(ret);
  	}
- 
-+	ext_size = sizeof(EXT4_I(inode)->i_data);
- 	/* move top-level index/leaf into new block */
--	memmove(bh->b_data, EXT4_I(inode)->i_data,
--		sizeof(EXT4_I(inode)->i_data));
-+	memmove(bh->b_data, EXT4_I(inode)->i_data, ext_size);
-+	/* zero out unused area in the extent block */
-+	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
- 
- 	/* set size of new block */
- 	neh = ext_block_hdr(bh);
+ 	return buf;
 
 
