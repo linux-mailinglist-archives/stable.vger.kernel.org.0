@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B25230CB
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD68230CC
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbfETJ4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 05:56:20 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56839 "EHLO
+        id S1730681AbfETJ4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 05:56:22 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:52529 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfETJ4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 05:56:20 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfETJ4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 05:56:22 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id ACB5322E6B;
-        Mon, 20 May 2019 05:56:19 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 5795E20CA5;
+        Mon, 20 May 2019 05:56:21 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 20 May 2019 05:56:19 -0400
+  by compute6.internal (MEProxy); Mon, 20 May 2019 05:56:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1Em/rz
-        A2c5wQmyFP7MtlN9O3iCy/qBhd9XVVtgumAeY=; b=z2D6dvJYpi8/ptgQD/7JF0
-        6mfcC7FlCshQDVmXGYaAmZF6Owki5/+SVi/LYC2lenbRGqrGG7POxTV6mnG0t2pm
-        w6I7IxD3xKyLklmpMO1SQqFvwdKfHDCat+a4o/mTnTbxC727WgP6T6G8AJwYVYjd
-        MZIxKFS33XiAalnPQxeq50dRdCB8cskQ62p5VdXdpRPHV7yilyPffhB2edahjKBi
-        q8rWjZd5FdWwp0VlSZmMMapYWTe0RkJQUxsk/rh7gAcX/SPPXSnSmdo+V/I/X9Tx
-        6N2eM9hsOGYCigLL7LFuWFg7gI0yvhN/tcGt795WDoEWesORdp4XvlPPF5fidyHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Q3CKgx
+        EgKJ58DCtuo9crOwC4nBPdCAmj7QorIUJLu4I=; b=JBcvt624d6P8+QGw6RUdUG
+        u9Ux9hOQH4OVKZmxl2yZ6NfTp7oNFwfn9hWEZYQOxPnog6WUp58QK3AtPBQzIAqq
+        yLYI/rv0IY3Edk3CSnanLL58Z2FJC5UmAQ/WRXlBhRqHzXU11lZ1SnepVf9X57tm
+        O6F0ueHkNnu5V/MbBitEv7s6dVqM0vtOG3gdlOsPUxQTSXxImahwCgBJN5zJBA1s
+        oF8wHpWh3oonjFG0f5qFRNv5rLhWHcn0d4PeOr2jt40pfFT00dClUQmZ+5OVRsYw
+        MO1I3cTJX4/38adIqq7EpWUPc4ZX3GRDlySwfyz6rIdInlxZO6FK6kzXAppIxCkw
         ==
-X-ME-Sender: <xms:w3niXAQGx6bHJMGjKG2aJ_fapmMtBRo4es4wMrLkf9uBz390HULFbw>
+X-ME-Sender: <xms:xXniXO1V_9gBbm9nS-bFoiQjkUdQkBsgKD0frOgAdkjV5__K8d6jUw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddtkedgvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:w3niXP0thgJnZFSjgJlBFLG0X-vDZNMAQUCSZ8sxkHy5c6P1zV_dyw>
-    <xmx:w3niXH4qGt8aZ0OZpmoOVPu9YpiZf6E6D3ewjAuoUVS9EnDl2kmlhA>
-    <xmx:w3niXOs2IvbCwWJPqT5ND1NtXDf8utgQHw4XnpvWZvYqsfsMxUcn8Q>
-    <xmx:w3niXOGKTyugjJ5Kr920eHfDWdDzYTqbRabPfW8laFEtVEkrSK_4nw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:xXniXFwHF6iY74TdKvThqcHNL4eC2KWUVyMAZEMbsGLmbrsDKawpqQ>
+    <xmx:xXniXHIyKTavp5ux5iExTESMbaasfTS4LD6AI_Ysy8wAx9DGUhYX0w>
+    <xmx:xXniXD8jtXov2wsdbPa62WGqZEiJzEbB7WngTg6p7HnO9zjBczkHrQ>
+    <xmx:xXniXPToDUl4ktSuQ3YFi2pK_J7aVZZzBGMxpD6J5RzNj85yAMsV6w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 222828005B;
-        Mon, 20 May 2019 05:56:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] jbd2: fix potential double free" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B81EE80063;
+        Mon, 20 May 2019 05:56:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] jbd2: fix potential double free" failed to apply to 4.4-stable tree
 To:     cgxu519@gmail.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 May 2019 11:56:16 +0200
-Message-ID: <15583461764164@kroah.com>
+Date:   Mon, 20 May 2019 11:56:17 +0200
+Message-ID: <155834617795176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
