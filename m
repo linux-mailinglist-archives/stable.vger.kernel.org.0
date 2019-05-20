@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7031123423
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD04A2379C
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388663AbfETMXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
+        id S1731505AbfETMwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:52:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388221AbfETMXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:45 -0400
+        id S2387812AbfETMTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3708421019;
-        Mon, 20 May 2019 12:23:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D9F820656;
+        Mon, 20 May 2019 12:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355024;
-        bh=expjlwB/73mP3qBvKb4YwklP5U0RXcL9LpJh47zrtYc=;
+        s=default; t=1558354771;
+        bh=7msc1tKFakpzZ9gI2yrE7V/oN5Mph5vD65JhgljuaQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzJ5WxjKzHLpNyIn370ClX6O6EGJr0mCuoUo4wb8mo4kSflE3jjmxmqOxxZxGO6GD
-         VLmNg7TurdzoZjTDfFO1f27/jvfQhqtzvo9M8D964vSINWvKjwumS0zXPK1EOK5wA5
-         sFJGlGqu57t/hkJqUqhrRoFqhBethr0f15+n4ktg=
+        b=SdsSu4wiYWp4YEzaJJ/sHQTr3+ql45yQWAunxl3RdkscoiSOXERTU+6ysE0WCa9iz
+         hquUmBTFyjEOZug/jzJkacQdawKwblo2XP6EtefUWVksre5N0kejQYJ/Nisti9oL8S
+         cVQ56YwaBieChfgPvGf4xKkA0J/f9gl5aAkrIHZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 068/105] ext4: ignore e_value_offs for xattrs with value-in-ea-inode
-Date:   Mon, 20 May 2019 14:14:14 +0200
-Message-Id: <20190520115251.872912200@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 36/63] mfd: max77620: Fix swapped FPS_PERIOD_MAX_US values
+Date:   Mon, 20 May 2019 14:14:15 +0200
+Message-Id: <20190520115235.210391284@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit e5d01196c0428a206f307e9ee5f6842964098ff0 upstream.
+commit ea611d1cc180fbb56982c83cd5142a2b34881f5c upstream.
 
-In other places in fs/ext4/xattr.c, if e_value_inum is non-zero, the
-code ignores the value in e_value_offs.  The e_value_offs *should* be
-zero, but we shouldn't depend upon it, since it might not be true in a
-corrupted/fuzzed file system.
+The FPS_PERIOD_MAX_US definitions are swapped for MAX20024 and MAX77620,
+fix it.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202897
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202877
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/xattr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/mfd/max77620.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1700,7 +1700,7 @@ static int ext4_xattr_set_entry(struct e
+--- a/include/linux/mfd/max77620.h
++++ b/include/linux/mfd/max77620.h
+@@ -136,8 +136,8 @@
+ #define MAX77620_FPS_PERIOD_MIN_US		40
+ #define MAX20024_FPS_PERIOD_MIN_US		20
  
- 	/* No failures allowed past this point. */
+-#define MAX77620_FPS_PERIOD_MAX_US		2560
+-#define MAX20024_FPS_PERIOD_MAX_US		5120
++#define MAX20024_FPS_PERIOD_MAX_US		2560
++#define MAX77620_FPS_PERIOD_MAX_US		5120
  
--	if (!s->not_found && here->e_value_size && here->e_value_offs) {
-+	if (!s->not_found && here->e_value_size && !here->e_value_inum) {
- 		/* Remove the old value. */
- 		void *first_val = s->base + min_offs;
- 		size_t offs = le16_to_cpu(here->e_value_offs);
+ #define MAX77620_REG_FPS_GPIO1			0x54
+ #define MAX77620_REG_FPS_GPIO2			0x55
 
 
