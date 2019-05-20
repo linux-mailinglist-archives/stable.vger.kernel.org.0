@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F388A237A9
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B64C2375C
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730479AbfETMxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57780 "EHLO mail.kernel.org"
+        id S2388347AbfETMYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732115AbfETMQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:57 -0400
+        id S2388502AbfETMYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AC60208C3;
-        Mon, 20 May 2019 12:16:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3568421479;
+        Mon, 20 May 2019 12:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354616;
-        bh=oSL33nRfEDexHbU6H9ttwFQneATHUrvFkictUQE1daU=;
+        s=default; t=1558355084;
+        bh=N9QFeO4yQVMQCWzkv0CVm3igV/vAF6zg1t8BEEZGIbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9nBlIsINf3z8e6zr8dK7wUH/N7U1eWVQ9u/Pz/7vB/OQvmMQR2X7uiO+VPaCi4v4
-         jaass0g7zEPBnFs4wjOCy7+Ave6YU7QnpCTatH7Zl2HI7fKngmZX41/pyKNLLYNQ/S
-         c6UTUYJHiCIC683WElXAEmzNJ/mu7UlyJR78d05g=
+        b=ahne2PDQSWZq8HCKGvhI9xFDo26wLPwCLzV+WBr0bt4q1qC263BVV18NUbP2uqZjU
+         qYzafox2TF8bwAMoSxp0nrVpUabnPxRR+OS0uQjresGdHxLkQiS9+fcjjhcpzW3opX
+         PI9D0xuJoKMaaqf5mVh3QLs4Kc8SchpI79wc/vzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 4.9 07/44] ARM: exynos: Fix a leaked reference by adding missing of_node_put
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 050/105] crypto: ccree - HOST_POWER_DOWN_EN should be the last CC access during suspend
 Date:   Mon, 20 May 2019 14:13:56 +0200
-Message-Id: <20190520115231.853415633@linuxfoundation.org>
+Message-Id: <20190520115250.492893602@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit 629266bf7229cd6a550075f5961f95607b823b59 upstream.
+commit 3499efbeed39d114873267683b9e776bcb34b058 upstream.
 
-The call to of_get_next_child returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+During power management suspend the driver need to prepare the device
+for the power down operation and as a last indication write to the
+HOST_POWER_DOWN_EN register which signals to the hardware that
+The ccree is ready for power down.
 
-Detected by coccinelle with warnings like:
-    arch/arm/mach-exynos/firmware.c:201:2-8: ERROR: missing of_node_put;
-        acquired a node pointer with refcount incremented on line 193,
-        but without a corresponding object release within this function.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-exynos/firmware.c |    1 +
- arch/arm/mach-exynos/suspend.c  |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/crypto/ccree/cc_pm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/mach-exynos/firmware.c
-+++ b/arch/arm/mach-exynos/firmware.c
-@@ -205,6 +205,7 @@ void __init exynos_firmware_init(void)
- 		return;
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -25,13 +25,13 @@ int cc_pm_suspend(struct device *dev)
+ 	int rc;
  
- 	addr = of_get_address(nd, 0, NULL, NULL);
-+	of_node_put(nd);
- 	if (!addr) {
- 		pr_err("%s: No address specified.\n", __func__);
- 		return;
---- a/arch/arm/mach-exynos/suspend.c
-+++ b/arch/arm/mach-exynos/suspend.c
-@@ -715,8 +715,10 @@ void __init exynos_pm_init(void)
- 
- 	if (WARN_ON(!of_find_property(np, "interrupt-controller", NULL))) {
- 		pr_warn("Outdated DT detected, suspend/resume will NOT work\n");
-+		of_node_put(np);
- 		return;
+ 	dev_dbg(dev, "set HOST_POWER_DOWN_EN\n");
+-	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
+ 	rc = cc_suspend_req_queue(drvdata);
+ 	if (rc) {
+ 		dev_err(dev, "cc_suspend_req_queue (%x)\n", rc);
+ 		return rc;
  	}
-+	of_node_put(np);
- 
- 	pm_data = (const struct exynos_pm_data *) match->data;
- 
+ 	fini_cc_regs(drvdata);
++	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
+ 	cc_clk_off(drvdata);
+ 	return 0;
+ }
 
 
