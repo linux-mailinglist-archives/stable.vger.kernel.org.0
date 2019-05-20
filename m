@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84AB9233CF
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE2B7235B1
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733065AbfETMUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:20:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
+        id S2390993AbfETMgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730449AbfETMUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:20:11 -0400
+        id S2391338AbfETMgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18ED620656;
-        Mon, 20 May 2019 12:20:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40AB8204FD;
+        Mon, 20 May 2019 12:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354810;
-        bh=SgXpXZq9XtdhF8LXnJ1SB4sVb3RKPlH5SPcOkCu6N1g=;
+        s=default; t=1558355807;
+        bh=rvPQ0exSjMZinuNoMzqfiUw4kYVyake6LNhAnclANe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oLJwQTNw/AApYFDcgF7P9g7jZwjc8EejCAQrWin+tvEBB9OLZQylI7OhFhKE3VQn
-         ePCVDIxEknLEfO0gUBPfYfzrSQfT+qjQ63DscO+LTIf8VYNpfCKPXuVG4Ge3PPfuQu
-         jHz7ceWTxPFq3GAov8HARGFB+d3V/nSY2g71G208=
+        b=rzsunfMAgtZgMn5WNUxMYNbPt1FePyvbHbusHWUJBg5z/gz5MW3g6JKrcDOCVKY4K
+         pMGc7ncBl/5NHWcC8GhVhsC+eZ0yPsvffjigkbVUG720MrWxbZRIyYEUprYFbSF9hB
+         Ecg1uWvQJm2tefXrZeviH6YM3QtmqvzKk65YoqvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Debabrata Banerjee <dbanerje@akamai.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.14 50/63] ext4: fix ext4_show_options for file systems w/o journal
+        stable@vger.kernel.org, Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Yifeng Li <tomli@tomli.me>
+Subject: [PATCH 5.1 082/128] tty: vt.c: Fix TIOCL_BLANKSCREEN console blanking if blankinterval == 0
 Date:   Mon, 20 May 2019 14:14:29 +0200
-Message-Id: <20190520115236.563016206@linuxfoundation.org>
+Message-Id: <20190520115255.132445668@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Debabrata Banerjee <dbanerje@akamai.com>
+From: Yifeng Li <tomli@tomli.me>
 
-commit 50b29d8f033a7c88c5bc011abc2068b1691ab755 upstream.
+commit 75ddbc1fb11efac87b611d48e9802f6fe2bb2163 upstream.
 
-Instead of removing EXT4_MOUNT_JOURNAL_CHECKSUM from s_def_mount_opt as
-I assume was intended, all other options were blown away leading to
-_ext4_show_options() output being incorrect.
+Previously, in the userspace, it was possible to use the "setterm" command
+from util-linux to blank the VT console by default, using the following
+command.
 
-Fixes: 1e381f60dad9 ("ext4: do not allow journal_opts for fs w/o journal")
-Signed-off-by: Debabrata Banerjee <dbanerje@akamai.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+According to the man page,
+
+> The force option keeps the screen blank even if a key is pressed.
+
+It was implemented by calling TIOCL_BLANKSCREEN.
+
+	case BLANKSCREEN:
+		ioctlarg = TIOCL_BLANKSCREEN;
+		if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
+			warn(_("cannot force blank"));
+		break;
+
+However, after Linux 4.12, this command ceased to work anymore, which is
+unexpected. By inspecting the kernel source, it shows that the issue was
+triggered by the side-effect from commit a4199f5eb809 ("tty: Disable
+default console blanking interval").
+
+The console blanking is implemented by function do_blank_screen() in vt.c:
+"blank_state" will be initialized to "blank_normal_wait" in con_init() if
+AND ONLY IF ("blankinterval" > 0). If "blankinterval" is 0, "blank_state"
+will be "blank_off" (== 0), and a call to do_blank_screen() will always
+abort, even if a forced blanking is required from the user by calling
+TIOCL_BLANKSCREEN, the console won't be blanked.
+
+This behavior is unexpected from a user's point-of-view, since it's not
+mentioned in any documentation. The setterm man page suggests it will
+always work, and the kernel comments in uapi/linux/tiocl.h says
+
+> /* keep screen blank even if a key is pressed */
+> #define TIOCL_BLANKSCREEN 14
+
+To fix it, we simply remove the "blank_state != blank_off" check, as
+pointed out by Nicolas Pitre, this check doesn't logically make sense
+and it's safe to remove.
+
+Suggested-by: Nicolas Pitre <nicolas.pitre@linaro.org>
+Fixes: a4199f5eb809 ("tty: Disable default console blanking interval")
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vt.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4209,7 +4209,7 @@ static int ext4_fill_super(struct super_
- 				 "data=, fs mounted w/o journal");
- 			goto failed_mount_wq;
- 		}
--		sbi->s_def_mount_opt &= EXT4_MOUNT_JOURNAL_CHECKSUM;
-+		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
- 		clear_opt(sb, JOURNAL_CHECKSUM);
- 		clear_opt(sb, DATA_FLAGS);
- 		sbi->s_journal = NULL;
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4179,8 +4179,6 @@ void do_blank_screen(int entering_gfx)
+ 		return;
+ 	}
+ 
+-	if (blank_state != blank_normal_wait)
+-		return;
+ 	blank_state = blank_off;
+ 
+ 	/* don't blank graphics */
 
 
