@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 876DF23544
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746EE23703
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390852AbfETMeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51282 "EHLO mail.kernel.org"
+        id S1731998AbfETMTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390216AbfETMeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:06 -0400
+        id S2387843AbfETMTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F837204FD;
-        Mon, 20 May 2019 12:34:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EFEC214AE;
+        Mon, 20 May 2019 12:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355644;
-        bh=JheYeRemG7ge/RLfTC3Z7uqYXL7mC8+knXY/kzQ4Qac=;
+        s=default; t=1558354779;
+        bh=AJyUNc30Zr32QZegT8S0PhQMsuNAecDuD1PmGXAv8cA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWGsgT0nNzCN8gwBw4oDReC3lJoOIS2XHzWa4okV1QW4bUzc1nOwirfl5D64gEO16
-         hIUzdVp+jfrmwPWnyHvHVULzIdTQbtjvhFVlvz70826fiIIHwuoLqcimX3SmrR+Ikb
-         FQzJobBqanGeG16qYZ4IOX77pv7N+LZBX1zAcIWw=
+        b=Ce7WFt6afesWFUDwV+5GzF/8EPOAxSDXJLnSUj2lUp66AN+tzhSn6QKqTIvLes3Ys
+         +HwIlxlEnAVbCBrySDoiEkIlTtwQQwBYYOiwtvhQafDwR5DWK66TxiDieVNSULokq7
+         IhnuN2tf53StJe0ui5X6n2Wcu9+aSzBoGZqTt8GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Piotr Balcer <piotr.balcer@intel.com>,
-        Yan Ma <yan.ma@intel.com>, Pankaj Gupta <pagupta@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Chandan Rajendra <chandan@linux.ibm.com>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 070/128] mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
-Date:   Mon, 20 May 2019 14:14:17 +0200
-Message-Id: <20190520115254.543150708@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>
+Subject: [PATCH 4.14 39/63] tty/vt: fix write/write race in ioctl(KDSKBSENT) handler
+Date:   Mon, 20 May 2019 14:14:18 +0200
+Message-Id: <20190520115235.412470276@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,171 +43,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-commit fce86ff5802bac3a7b19db171aa1949ef9caac31 upstream.
+commit 46ca3f735f345c9d87383dd3a09fa5d43870770e upstream.
 
-Starting with c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page
-protection by insert_pfn_pmd()") vmf_insert_pfn_pmd() internally calls
-pmdp_set_access_flags().  That helper enforces a pmd aligned @address
-argument via VM_BUG_ON() assertion.
+The bug manifests as an attempt to access deallocated memory:
 
-Update the implementation to take a 'struct vm_fault' argument directly
-and apply the address alignment fixup internally to fix crash signatures
-like:
-
-    kernel BUG at arch/x86/mm/pgtable.c:515!
-    invalid opcode: 0000 [#1] SMP NOPTI
-    CPU: 51 PID: 43713 Comm: java Tainted: G           OE     4.19.35 #1
-    [..]
-    RIP: 0010:pmdp_set_access_flags+0x48/0x50
-    [..]
+    BUG: unable to handle kernel paging request at ffff9c8735448000
+    #PF error: [PROT] [WRITE]
+    PGD 288a05067 P4D 288a05067 PUD 288a07067 PMD 7f60c2063 PTE 80000007f5448161
+    Oops: 0003 [#1] PREEMPT SMP
+    CPU: 6 PID: 388 Comm: loadkeys Tainted: G         C        5.0.0-rc6-00153-g5ded5871030e #91
+    Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M-D3H, BIOS F12 11/14/2013
+    RIP: 0010:__memmove+0x81/0x1a0
+    Code: 4c 89 4f 10 4c 89 47 18 48 8d 7f 20 73 d4 48 83 c2 20 e9 a2 00 00 00 66 90 48 89 d1 4c 8b 5c 16 f8 4c 8d 54 17 f8 48 c1 e9 03 <f3> 48 a5 4d 89 1a e9 0c 01 00 00 0f 1f 40 00 48 89 d1 4c 8b 1e 49
+    RSP: 0018:ffffa1b9002d7d08 EFLAGS: 00010203
+    RAX: ffff9c873541af43 RBX: ffff9c873541af43 RCX: 00000c6f105cd6bf
+    RDX: 0000637882e986b6 RSI: ffff9c8735447ffb RDI: ffff9c8735447ffb
+    RBP: ffff9c8739cd3800 R08: ffff9c873b802f00 R09: 00000000fffff73b
+    R10: ffffffffb82b35f1 R11: 00505b1b004d5b1b R12: 0000000000000000
+    R13: ffff9c873541af3d R14: 000000000000000b R15: 000000000000000c
+    FS:  00007f450c390580(0000) GS:ffff9c873f180000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffff9c8735448000 CR3: 00000007e213c002 CR4: 00000000000606e0
     Call Trace:
-     vmf_insert_pfn_pmd+0x198/0x350
-     dax_iomap_fault+0xe82/0x1190
-     ext4_dax_huge_fault+0x103/0x1f0
-     ? __switch_to_asm+0x40/0x70
-     __handle_mm_fault+0x3f6/0x1370
-     ? __switch_to_asm+0x34/0x70
-     ? __switch_to_asm+0x40/0x70
-     handle_mm_fault+0xda/0x200
-     __do_page_fault+0x249/0x4f0
-     do_page_fault+0x32/0x110
-     ? page_fault+0x8/0x30
-     page_fault+0x1e/0x30
+     vt_do_kdgkb_ioctl+0x34d/0x440
+     vt_ioctl+0xba3/0x1190
+     ? __bpf_prog_run32+0x39/0x60
+     ? mem_cgroup_commit_charge+0x7b/0x4e0
+     tty_ioctl+0x23f/0x920
+     ? preempt_count_sub+0x98/0xe0
+     ? __seccomp_filter+0x67/0x600
+     do_vfs_ioctl+0xa2/0x6a0
+     ? syscall_trace_enter+0x192/0x2d0
+     ksys_ioctl+0x3a/0x70
+     __x64_sys_ioctl+0x16/0x20
+     do_syscall_64+0x54/0xe0
+     entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Link: http://lkml.kernel.org/r/155741946350.372037.11148198430068238140.stgit@dwillia2-desk3.amr.corp.intel.com
-Fixes: c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page protection by insert_pfn_pmd()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Piotr Balcer <piotr.balcer@intel.com>
-Tested-by: Yan Ma <yan.ma@intel.com>
-Tested-by: Pankaj Gupta <pagupta@redhat.com>
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Chandan Rajendra <chandan@linux.ibm.com>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The bug manifests on systemd systems with multiple vtcon devices:
+  # cat /sys/devices/virtual/vtconsole/vtcon0/name
+  (S) dummy device
+  # cat /sys/devices/virtual/vtconsole/vtcon1/name
+  (M) frame buffer device
+
+There systemd runs 'loadkeys' tool in tapallel for each vtcon
+instance. This causes two parallel ioctl(KDSKBSENT) calls to
+race into adding the same entry into 'func_table' array at:
+
+    drivers/tty/vt/keyboard.c:vt_do_kdgkb_ioctl()
+
+The function has no locking around writes to 'func_table'.
+
+The simplest reproducer is to have initrams with the following
+init on a 8-CPU machine x86_64:
+
+    #!/bin/sh
+
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+    loadkeys -q windowkeys ru4 &
+    wait
+
+The change adds lock on write path only. Reads are still racy.
+
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Jiri Slaby <jslaby@suse.com>
+Link: https://lkml.org/lkml/2019/2/17/256
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dax/device.c    |    6 ++----
- fs/dax.c                |    6 ++----
- include/linux/huge_mm.h |    6 ++----
- mm/huge_memory.c        |   16 ++++++++++------
- 4 files changed, 16 insertions(+), 18 deletions(-)
+ drivers/tty/vt/keyboard.c |   33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
---- a/drivers/dax/device.c
-+++ b/drivers/dax/device.c
-@@ -184,8 +184,7 @@ static vm_fault_t __dev_dax_pmd_fault(st
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -122,6 +122,7 @@ static const int NR_TYPES = ARRAY_SIZE(m
+ static struct input_handler kbd_handler;
+ static DEFINE_SPINLOCK(kbd_event_lock);
+ static DEFINE_SPINLOCK(led_lock);
++static DEFINE_SPINLOCK(func_buf_lock); /* guard 'func_buf'  and friends */
+ static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
+ static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
+ static bool dead_key_next;
+@@ -1959,11 +1960,12 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 	char *p;
+ 	u_char *q;
+ 	u_char __user *up;
+-	int sz;
++	int sz, fnw_sz;
+ 	int delta;
+ 	char *first_free, *fj, *fnw;
+ 	int i, j, k;
+ 	int ret;
++	unsigned long flags;
  
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
- 
--	return vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pmd(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- 
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
-@@ -235,8 +234,7 @@ static vm_fault_t __dev_dax_pud_fault(st
- 
- 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
- 
--	return vmf_insert_pfn_pud(vmf->vma, vmf->address, vmf->pud, *pfn,
--			vmf->flags & FAULT_FLAG_WRITE);
-+	return vmf_insert_pfn_pud(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
- }
- #else
- static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1575,8 +1575,7 @@ static vm_fault_t dax_iomap_pmd_fault(st
+ 	if (!capable(CAP_SYS_TTY_CONFIG))
+ 		perm = 0;
+@@ -2006,7 +2008,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 			goto reterr;
  		}
  
- 		trace_dax_pmd_insert_mapping(inode, vmf, PMD_SIZE, pfn, entry);
--		result = vmf_insert_pfn_pmd(vma, vmf->address, vmf->pmd, pfn,
--					    write);
-+		result = vmf_insert_pfn_pmd(vmf, pfn, write);
++		fnw = NULL;
++		fnw_sz = 0;
++		/* race aginst other writers */
++		again:
++		spin_lock_irqsave(&func_buf_lock, flags);
+ 		q = func_table[i];
++
++		/* fj pointer to next entry after 'q' */
+ 		first_free = funcbufptr + (funcbufsize - funcbufleft);
+ 		for (j = i+1; j < MAX_NR_FUNC && !func_table[j]; j++)
+ 			;
+@@ -2014,10 +2023,12 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 			fj = func_table[j];
+ 		else
+ 			fj = first_free;
+-
++		/* buffer usage increase by new entry */
+ 		delta = (q ? -strlen(q) : 1) + strlen(kbs->kb_string);
++
+ 		if (delta <= funcbufleft) { 	/* it fits in current buf */
+ 		    if (j < MAX_NR_FUNC) {
++			/* make enough space for new entry at 'fj' */
+ 			memmove(fj + delta, fj, first_free - fj);
+ 			for (k = j; k < MAX_NR_FUNC; k++)
+ 			    if (func_table[k])
+@@ -2030,20 +2041,28 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 		    sz = 256;
+ 		    while (sz < funcbufsize - funcbufleft + delta)
+ 		      sz <<= 1;
+-		    fnw = kmalloc(sz, GFP_KERNEL);
+-		    if(!fnw) {
+-		      ret = -ENOMEM;
+-		      goto reterr;
++		    if (fnw_sz != sz) {
++		      spin_unlock_irqrestore(&func_buf_lock, flags);
++		      kfree(fnw);
++		      fnw = kmalloc(sz, GFP_KERNEL);
++		      fnw_sz = sz;
++		      if (!fnw) {
++			ret = -ENOMEM;
++			goto reterr;
++		      }
++		      goto again;
+ 		    }
+ 
+ 		    if (!q)
+ 		      func_table[i] = fj;
++		    /* copy data before insertion point to new location */
+ 		    if (fj > funcbufptr)
+ 			memmove(fnw, funcbufptr, fj - funcbufptr);
+ 		    for (k = 0; k < j; k++)
+ 		      if (func_table[k])
+ 			func_table[k] = fnw + (func_table[k] - funcbufptr);
+ 
++		    /* copy data after insertion point to new location */
+ 		    if (first_free > fj) {
+ 			memmove(fnw + (fj - funcbufptr) + delta, fj, first_free - fj);
+ 			for (k = j; k < MAX_NR_FUNC; k++)
+@@ -2056,7 +2075,9 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
+ 		    funcbufleft = funcbufleft - delta + sz - funcbufsize;
+ 		    funcbufsize = sz;
+ 		}
++		/* finally insert item itself */
+ 		strcpy(func_table[i], kbs->kb_string);
++		spin_unlock_irqrestore(&func_buf_lock, flags);
  		break;
- 	case IOMAP_UNWRITTEN:
- 	case IOMAP_HOLE:
-@@ -1686,8 +1685,7 @@ dax_insert_pfn_mkwrite(struct vm_fault *
- 		ret = vmf_insert_mixed_mkwrite(vmf->vma, vmf->address, pfn);
- #ifdef CONFIG_FS_DAX_PMD
- 	else if (order == PMD_ORDER)
--		ret = vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd,
--			pfn, true);
-+		ret = vmf_insert_pfn_pmd(vmf, pfn, FAULT_FLAG_WRITE);
- #endif
- 	else
- 		ret = VM_FAULT_FALLBACK;
---- a/include/linux/huge_mm.h
-+++ b/include/linux/huge_mm.h
-@@ -47,10 +47,8 @@ extern bool move_huge_pmd(struct vm_area
- extern int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
- 			unsigned long addr, pgprot_t newprot,
- 			int prot_numa);
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write);
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write);
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write);
- enum transparent_hugepage_flag {
- 	TRANSPARENT_HUGEPAGE_FLAG,
- 	TRANSPARENT_HUGEPAGE_REQ_MADV_FLAG,
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -793,11 +793,13 @@ out_unlock:
- 		pte_free(mm, pgtable);
- }
- 
--vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
--			pmd_t *pmd, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PMD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
- 	pgtable_t pgtable = NULL;
-+
- 	/*
- 	 * If we had pmd_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -820,7 +822,7 @@ vm_fault_t vmf_insert_pfn_pmd(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pmd(vma, addr, pmd, pfn, pgprot, write, pgtable);
-+	insert_pfn_pmd(vma, addr, vmf->pmd, pfn, pgprot, write, pgtable);
- 	return VM_FAULT_NOPAGE;
- }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pmd);
-@@ -869,10 +871,12 @@ out_unlock:
- 	spin_unlock(ptl);
- }
- 
--vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
--			pud_t *pud, pfn_t pfn, bool write)
-+vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write)
- {
-+	unsigned long addr = vmf->address & PUD_MASK;
-+	struct vm_area_struct *vma = vmf->vma;
- 	pgprot_t pgprot = vma->vm_page_prot;
-+
- 	/*
- 	 * If we had pud_special, we could avoid all these restrictions,
- 	 * but we need to be consistent with PTEs and architectures that
-@@ -889,7 +893,7 @@ vm_fault_t vmf_insert_pfn_pud(struct vm_
- 
- 	track_pfn_insert(vma, &pgprot, pfn);
- 
--	insert_pfn_pud(vma, addr, pud, pfn, pgprot, write);
-+	insert_pfn_pud(vma, addr, vmf->pud, pfn, pgprot, write);
- 	return VM_FAULT_NOPAGE;
- }
- EXPORT_SYMBOL_GPL(vmf_insert_pfn_pud);
+ 	}
+ 	ret = 0;
 
 
