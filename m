@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67752367D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 359CC2356A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389127AbfETMZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40830 "EHLO mail.kernel.org"
+        id S2391038AbfETMfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389122AbfETMZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:39 -0400
+        id S2390429AbfETMfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12372216FD;
-        Mon, 20 May 2019 12:25:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D50621479;
+        Mon, 20 May 2019 12:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355138;
-        bh=09QVKkQqMoheB3aUsH33wCiXmOFBHYceqh6lQ2WyUM8=;
+        s=default; t=1558355701;
+        bh=piwKhTcHj4VZCfXF8EKFK2myXkUn0IB9W2vW67NcuNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6qyOIyXwgqtXWestOv1a6pepEiLfTB/Xmh6LFtylDfQ+IrcZgsnz7C8Zvi8k8NZi
-         8SQKkS59uuEhBXyqZSpMZ466pbe8SNcpELmKSbDApn9ybeOtBNP+TNRWC+Z8KVKwrZ
-         kf0J+Nw7bYc7Y3j8wXxsHIC02O5QKg78TKSwlKa0=
+        b=RcxdenNrew9Dd9LvvF78Leofw1leYmTg3nLWmZM0kaFiRea6SOgIjuKlQ6rGJuUHF
+         7LXY7IBkWmdCtT8eNNN/YsYiLdeLjaYZq7JMlohbN8d119jT6tDSJNKxzJKTAkZsJo
+         lcF2pZsfEm71p5tszjDGp44rMp2KhgauHgs220SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 4.19 095/105] kbuild: turn auto.conf.cmd into a mandatory include file
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.1 094/128] btrfs: Honour FITRIM range constraints during free space trim
 Date:   Mon, 20 May 2019 14:14:41 +0200
-Message-Id: <20190520115253.800079090@linuxfoundation.org>
+Message-Id: <20190520115255.652676201@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit d2f8ae0e4c5c754f1b2a7b8388d19a1a977e698a upstream.
+commit c2d1b3aae33605a61cbab445d8ae1c708ccd2698 upstream.
 
-syncconfig is responsible for keeping auto.conf up-to-date, so if it
-fails for any reason, the build must be terminated immediately.
+Up until now trimming the freespace was done irrespective of what the
+arguments of the FITRIM ioctl were. For example fstrim's -o/-l arguments
+will be entirely ignored. Fix it by correctly handling those paramter.
+This requires breaking if the found freespace extent is after the end of
+the passed range as well as completing trim after trimming
+fstrim_range::len bytes.
 
-However, since commit 9390dff66a52 ("kbuild: invoke syncconfig if
-include/config/auto.conf.cmd is missing"), Kbuild continues running
-even after syncconfig fails.
-
-You can confirm this by intentionally making syncconfig error out:
-
-#  diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-#  index 08ba146..307b9de 100644
-#  --- a/scripts/kconfig/confdata.c
-#  +++ b/scripts/kconfig/confdata.c
-#  @@ -1023,6 +1023,9 @@ int conf_write_autoconf(int overwrite)
-#          FILE *out, *tristate, *out_h;
-#          int i;
-#
-#  +       if (overwrite)
-#  +               return 1;
-#  +
-#          if (!overwrite && is_present(autoconf_name))
-#                  return 0;
-
-Then, syncconfig fails, but Make would not stop:
-
-  $ make -s mrproper allyesconfig defconfig
-  $ make
-  scripts/kconfig/conf  --syncconfig Kconfig
-
-  *** Error during sync of the configuration.
-
-  make[2]: *** [scripts/kconfig/Makefile;69: syncconfig] Error 1
-  make[1]: *** [Makefile;557: syncconfig] Error 2
-  make: *** [include/config/auto.conf.cmd] Deleting file 'include/config/tristate.conf'
-  make: Failed to remake makefile 'include/config/auto.conf'.
-    SYSTBL  arch/x86/include/generated/asm/syscalls_32.h
-    SYSHDR  arch/x86/include/generated/asm/unistd_32_ia32.h
-    SYSHDR  arch/x86/include/generated/asm/unistd_64_x32.h
-    SYSTBL  arch/x86/include/generated/asm/syscalls_64.h
-  [ continue running ... ]
-
-The reason is in the behavior of a pattern rule with multi-targets.
-
-  %/auto.conf %/auto.conf.cmd %/tristate.conf: $(KCONFIG_CONFIG)
-          $(Q)$(MAKE) -f $(srctree)/Makefile syncconfig
-
-GNU Make knows this rule is responsible for making all the three files
-simultaneously. As far as examined, auto.conf.cmd is the target in
-question when this rule is invoked. It is probably because auto.conf.cmd
-is included below the inclusion of auto.conf.
-
-The inclusion of auto.conf is mandatory, while that of auto.conf.cmd
-is optional. GNU Make does not care about the failure in the process
-of updating optional include files.
-
-I filed this issue (https://savannah.gnu.org/bugs/?56301) in case this
-behavior could be improved somehow in future releases of GNU Make.
-Anyway, it is quite easy to fix our Makefile.
-
-Given that auto.conf is already a mandatory include file, there is no
-reason to stick auto.conf.cmd optional. Make it mandatory as well.
-
-Cc: linux-stable <stable@vger.kernel.org> # 5.0+
-Fixes: 9390dff66a52 ("kbuild: invoke syncconfig if include/config/auto.conf.cmd is missing")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-[commented out diff above to keep patch happy - gregkh]
+Fixes: 499f377f49f0 ("btrfs: iterate over unused chunk space in FITRIM")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/extent-tree.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -623,7 +623,7 @@ ifeq ($(may-sync-config),1)
- # Read in dependencies to all Kconfig* files, make sure to run syncconfig if
- # changes are detected. This should be included after arch/$(SRCARCH)/Makefile
- # because some architectures define CROSS_COMPILE there.
---include include/config/auto.conf.cmd
-+include include/config/auto.conf.cmd
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -11315,9 +11315,9 @@ int btrfs_error_unpin_extent_range(struc
+  * held back allocations.
+  */
+ static int btrfs_trim_free_extents(struct btrfs_device *device,
+-				   u64 minlen, u64 *trimmed)
++				   struct fstrim_range *range, u64 *trimmed)
+ {
+-	u64 start = 0, len = 0;
++	u64 start = range->start, len = 0;
+ 	int ret;
  
- # To avoid any implicit rule to kick in, define an empty command
- $(KCONFIG_CONFIG): ;
+ 	*trimmed = 0;
+@@ -11360,8 +11360,8 @@ static int btrfs_trim_free_extents(struc
+ 		if (!trans)
+ 			up_read(&fs_info->commit_root_sem);
+ 
+-		ret = find_free_dev_extent_start(trans, device, minlen, start,
+-						 &start, &len);
++		ret = find_free_dev_extent_start(trans, device, range->minlen,
++						 start, &start, &len);
+ 		if (trans) {
+ 			up_read(&fs_info->commit_root_sem);
+ 			btrfs_put_transaction(trans);
+@@ -11374,6 +11374,16 @@ static int btrfs_trim_free_extents(struc
+ 			break;
+ 		}
+ 
++		/* If we are out of the passed range break */
++		if (start > range->start + range->len - 1) {
++			mutex_unlock(&fs_info->chunk_mutex);
++			ret = 0;
++			break;
++		}
++
++		start = max(range->start, start);
++		len = min(range->len, len);
++
+ 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 
+@@ -11383,6 +11393,10 @@ static int btrfs_trim_free_extents(struc
+ 		start += len;
+ 		*trimmed += bytes;
+ 
++		/* We've trimmed enough */
++		if (*trimmed >= range->len)
++			break;
++
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -ERESTARTSYS;
+ 			break;
+@@ -11466,8 +11480,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
+-		ret = btrfs_trim_free_extents(device, range->minlen,
+-					      &group_trimmed);
++		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
+ 		if (ret) {
+ 			dev_failed++;
+ 			dev_ret = ret;
 
 
