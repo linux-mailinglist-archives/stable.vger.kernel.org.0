@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C03D4236CF
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A8C2375B
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387408AbfETMQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:16:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57640 "EHLO mail.kernel.org"
+        id S2388893AbfETMYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387403AbfETMQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:52 -0400
+        id S2388885AbfETMYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32CCF20656;
-        Mon, 20 May 2019 12:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBA3F21019;
+        Mon, 20 May 2019 12:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354611;
-        bh=hcCWdm8G1C81OZqG9T6IE40vqZ2g7WBEfGBUW8Mt+Bg=;
+        s=default; t=1558355079;
+        bh=YAkbjODZNkoC+Zlx6qjgS40R45ZfN0cmn3YqIIsg8Io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOfEv6Wa1kpp2SMlrUuGJZm8LPC8k3BH9Fvviu+Id9RO7G0OxPhiyErgaoenHjN2E
-         E4E4fPx669yvhKGH0zdrUihDgl3uZVZr6EU4zr6Jwu+mda06dxnpiObgBMMI6hJ8Hn
-         6ktlpgwXQUr9OkNAP/53dqBDLAX2AwbaQWXDmIOU=
+        b=gA89OXXPlgzyu5oe4xo/bI1XZQaRcIsOXpBUgxwj+UxwPCKdouhbUMkvzzLuqGudZ
+         DZsh1My30TxMWvU2AVYQjZE8OpuOY1KcO50hRqkhijiTR2Eu9cmP2UVVO3J1dKkuhF
+         7dmbd0TGPEID09aC844nHJhvx6fHx3x9bIg+bHqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Jon Masters <jcm@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 05/44] x86/speculation/mds: Improve CPU buffer clear documentation
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 048/105] crypto: ccree - dont map AEAD key and IV on stack
 Date:   Mon, 20 May 2019 14:13:54 +0200
-Message-Id: <20190520115231.555191031@linuxfoundation.org>
+Message-Id: <20190520115250.343985241@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,80 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 9d8d0294e78a164d407133dea05caf4b84247d6a upstream.
+commit e8662a6a5f8f7f2cadc0edb934aef622d96ac3ee upstream.
 
-On x86_64, all returns to usermode go through
-prepare_exit_to_usermode(), with the sole exception of do_nmi().
-This even includes machine checks -- this was added several years
-ago to support MCE recovery.  Update the documentation.
+The AEAD authenc key and IVs might be passed to us on stack. Copy it to
+a slab buffer before mapping to gurantee proper DMA mapping.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
-Link: http://lkml.kernel.org/r/999fa9e126ba6a48e9d214d2f18dbde5c62ac55c.1557865329.git.luto@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/x86/mds.rst |   39 +++++++--------------------------------
- 1 file changed, 7 insertions(+), 32 deletions(-)
+ drivers/crypto/ccree/cc_aead.c       |   11 ++++++++++-
+ drivers/crypto/ccree/cc_buffer_mgr.c |   15 ++++++++++++---
+ drivers/crypto/ccree/cc_driver.h     |    1 +
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
---- a/Documentation/x86/mds.rst
-+++ b/Documentation/x86/mds.rst
-@@ -142,38 +142,13 @@ Mitigation points
-    mds_user_clear.
+--- a/drivers/crypto/ccree/cc_aead.c
++++ b/drivers/crypto/ccree/cc_aead.c
+@@ -415,7 +415,7 @@ static int validate_keys_sizes(struct cc
+ /* This function prepers the user key so it can pass to the hmac processing
+  * (copy to intenral buffer or hash in case of key longer than block
+  */
+-static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *key,
++static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *authkey,
+ 				 unsigned int keylen)
+ {
+ 	dma_addr_t key_dma_addr = 0;
+@@ -428,6 +428,7 @@ static int cc_get_plain_hmac_key(struct
+ 	unsigned int hashmode;
+ 	unsigned int idx = 0;
+ 	int rc = 0;
++	u8 *key = NULL;
+ 	struct cc_hw_desc desc[MAX_AEAD_SETKEY_SEQ];
+ 	dma_addr_t padded_authkey_dma_addr =
+ 		ctx->auth_state.hmac.padded_authkey_dma_addr;
+@@ -446,11 +447,17 @@ static int cc_get_plain_hmac_key(struct
+ 	}
  
-    The mitigation is invoked in prepare_exit_to_usermode() which covers
--   most of the kernel to user space transitions. There are a few exceptions
--   which are not invoking prepare_exit_to_usermode() on return to user
--   space. These exceptions use the paranoid exit code.
--
--   - Non Maskable Interrupt (NMI):
--
--     Access to sensible data like keys, credentials in the NMI context is
--     mostly theoretical: The CPU can do prefetching or execute a
--     misspeculated code path and thereby fetching data which might end up
--     leaking through a buffer.
--
--     But for mounting other attacks the kernel stack address of the task is
--     already valuable information. So in full mitigation mode, the NMI is
--     mitigated on the return from do_nmi() to provide almost complete
--     coverage.
--
--   - Machine Check Exception (#MC):
--
--     Another corner case is a #MC which hits between the CPU buffer clear
--     invocation and the actual return to user. As this still is in kernel
--     space it takes the paranoid exit path which does not clear the CPU
--     buffers. So the #MC handler repopulates the buffers to some
--     extent. Machine checks are not reliably controllable and the window is
--     extremly small so mitigation would just tick a checkbox that this
--     theoretical corner case is covered. To keep the amount of special
--     cases small, ignore #MC.
--
--   - Debug Exception (#DB):
--
--     This takes the paranoid exit path only when the INT1 breakpoint is in
--     kernel space. #DB on a user space address takes the regular exit path,
--     so no extra mitigation required.
-+   all but one of the kernel to user space transitions.  The exception
-+   is when we return from a Non Maskable Interrupt (NMI), which is
-+   handled directly in do_nmi().
+ 	if (keylen != 0) {
 +
-+   (The reason that NMI is special is that prepare_exit_to_usermode() can
-+    enable IRQs.  In NMI context, NMIs are blocked, and we don't want to
-+    enable IRQs with NMIs blocked.)
++		key = kmemdup(authkey, keylen, GFP_KERNEL);
++		if (!key)
++			return -ENOMEM;
++
+ 		key_dma_addr = dma_map_single(dev, (void *)key, keylen,
+ 					      DMA_TO_DEVICE);
+ 		if (dma_mapping_error(dev, key_dma_addr)) {
+ 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
+ 				key, keylen);
++			kzfree(key);
+ 			return -ENOMEM;
+ 		}
+ 		if (keylen > blocksize) {
+@@ -533,6 +540,8 @@ static int cc_get_plain_hmac_key(struct
+ 	if (key_dma_addr)
+ 		dma_unmap_single(dev, key_dma_addr, keylen, DMA_TO_DEVICE);
  
++	kzfree(key);
++
+ 	return rc;
+ }
  
- 2. C-State transition
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -560,6 +560,7 @@ void cc_unmap_aead_request(struct device
+ 	if (areq_ctx->gen_ctx.iv_dma_addr) {
+ 		dma_unmap_single(dev, areq_ctx->gen_ctx.iv_dma_addr,
+ 				 hw_iv_size, DMA_BIDIRECTIONAL);
++		kzfree(areq_ctx->gen_ctx.iv);
+ 	}
+ 
+ 	/* Release pool */
+@@ -664,19 +665,27 @@ static int cc_aead_chain_iv(struct cc_dr
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+ 	struct device *dev = drvdata_to_dev(drvdata);
++	gfp_t flags = cc_gfp_flags(&req->base);
+ 	int rc = 0;
+ 
+ 	if (!req->iv) {
+ 		areq_ctx->gen_ctx.iv_dma_addr = 0;
++		areq_ctx->gen_ctx.iv = NULL;
+ 		goto chain_iv_exit;
+ 	}
+ 
+-	areq_ctx->gen_ctx.iv_dma_addr = dma_map_single(dev, req->iv,
+-						       hw_iv_size,
+-						       DMA_BIDIRECTIONAL);
++	areq_ctx->gen_ctx.iv = kmemdup(req->iv, hw_iv_size, flags);
++	if (!areq_ctx->gen_ctx.iv)
++		return -ENOMEM;
++
++	areq_ctx->gen_ctx.iv_dma_addr =
++		dma_map_single(dev, areq_ctx->gen_ctx.iv, hw_iv_size,
++			       DMA_BIDIRECTIONAL);
+ 	if (dma_mapping_error(dev, areq_ctx->gen_ctx.iv_dma_addr)) {
+ 		dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
+ 			hw_iv_size, req->iv);
++		kzfree(areq_ctx->gen_ctx.iv);
++		areq_ctx->gen_ctx.iv = NULL;
+ 		rc = -ENOMEM;
+ 		goto chain_iv_exit;
+ 	}
+--- a/drivers/crypto/ccree/cc_driver.h
++++ b/drivers/crypto/ccree/cc_driver.h
+@@ -162,6 +162,7 @@ struct cc_alg_template {
+ 
+ struct async_gen_req_ctx {
+ 	dma_addr_t iv_dma_addr;
++	u8 *iv;
+ 	enum drv_crypto_direction op_type;
+ };
+ 
 
 
