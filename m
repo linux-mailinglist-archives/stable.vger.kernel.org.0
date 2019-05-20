@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFF0234B2
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2C8235BC
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389959AbfETM3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45954 "EHLO mail.kernel.org"
+        id S2390404AbfETMhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389975AbfETM3t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:49 -0400
+        id S2403899AbfETMgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FEFC20645;
-        Mon, 20 May 2019 12:29:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8458B20645;
+        Mon, 20 May 2019 12:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355388;
-        bh=RFoZ3jeziuJ6r1BSpEWc6IiRxtwNs2eooGT9dLw8uJA=;
+        s=default; t=1558355805;
+        bh=4ezE4YFsHI4mkI3Af6ni4X1jrp/rvkB9HrQmp0MjJxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPAm1nCVbVMglBA5kBxFuLy2bgNZ+Oq5nSQIA+97oGKiVaMZngFPC75nc2sQqK9Aw
-         Puj/GZ1ii2WsekH1aWLg5bI3dhRud0Y2Fu2MNACXOMNPfIlai25RHCuK+me6GGGKvK
-         7WM3lMTidn7YO4+CHhAOB9SBF1Ntf+TvkNnfm6v0=
+        b=vc9Myvq8AEnelk4vQEWJvdNHzzBVmS/+PLHgREmY69LOf2RTbR6Q3jQrtK3IYxO7G
+         4K9X6OXoeUGlfH/Ga+kwBQPUyf7wARRsMQd7pYEkhukLyaViHYGcvAkCvaQ+TxXzMn
+         YQh9bQOsuztpNXMAdNMjDwryys1UYueoFoNucrzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiran Kolukuluru <kirank@ami.com>,
-        Kamlakant Patel <kamlakantp@marvell.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.0 098/123] ipmi:ssif: compare block number correctly for multi-part return messages
+        stable@vger.kernel.org, Debabrata Banerjee <dbanerje@akamai.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
+        stable@kernel.org
+Subject: [PATCH 5.1 091/128] ext4: fix ext4_show_options for file systems w/o journal
 Date:   Mon, 20 May 2019 14:14:38 +0200
-Message-Id: <20190520115251.534792655@linuxfoundation.org>
+Message-Id: <20190520115255.508554293@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamlakant Patel <kamlakantp@marvell.com>
+From: Debabrata Banerjee <dbanerje@akamai.com>
 
-commit 55be8658c7e2feb11a5b5b33ee031791dbd23a69 upstream.
+commit 50b29d8f033a7c88c5bc011abc2068b1691ab755 upstream.
 
-According to ipmi spec, block number is a number that is incremented,
-starting with 0, for each new block of message data returned using the
-middle transaction.
+Instead of removing EXT4_MOUNT_JOURNAL_CHECKSUM from s_def_mount_opt as
+I assume was intended, all other options were blown away leading to
+_ext4_show_options() output being incorrect.
 
-Here, the 'blocknum' is data[0] which always starts from zero(0) and
-'ssif_info->multi_pos' starts from 1.
-So, we need to add +1 to blocknum while comparing with multi_pos.
-
-Fixes: 7d6380cd40f79 ("ipmi:ssif: Fix handling of multi-part return messages").
-Reported-by: Kiran Kolukuluru <kirank@ami.com>
-Signed-off-by: Kamlakant Patel <kamlakantp@marvell.com>
-Message-Id: <1556106615-18722-1-git-send-email-kamlakantp@marvell.com>
-[Also added a debug log if the block numbers don't match.]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Cc: stable@vger.kernel.org # 4.4
+Fixes: 1e381f60dad9 ("ext4: do not allow journal_opts for fs w/o journal")
+Signed-off-by: Debabrata Banerjee <dbanerje@akamai.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_ssif.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -690,12 +690,16 @@ static void msg_done_handler(struct ssif
- 			/* End of read */
- 			len = ssif_info->multi_len;
- 			data = ssif_info->data;
--		} else if (blocknum != ssif_info->multi_pos) {
-+		} else if (blocknum + 1 != ssif_info->multi_pos) {
- 			/*
- 			 * Out of sequence block, just abort.  Block
- 			 * numbers start at zero for the second block,
- 			 * but multi_pos starts at one, so the +1.
- 			 */
-+			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
-+				dev_dbg(&ssif_info->client->dev,
-+					"Received message out of sequence, expected %u, got %u\n",
-+					ssif_info->multi_pos - 1, blocknum);
- 			result = -EIO;
- 		} else {
- 			ssif_inc_stat(ssif_info, received_message_parts);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4269,7 +4269,7 @@ static int ext4_fill_super(struct super_
+ 				 "data=, fs mounted w/o journal");
+ 			goto failed_mount_wq;
+ 		}
+-		sbi->s_def_mount_opt &= EXT4_MOUNT_JOURNAL_CHECKSUM;
++		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
+ 		clear_opt(sb, JOURNAL_CHECKSUM);
+ 		clear_opt(sb, DATA_FLAGS);
+ 		sbi->s_journal = NULL;
 
 
