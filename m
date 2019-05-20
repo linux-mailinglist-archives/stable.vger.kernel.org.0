@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B30723556
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40AE423752
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390945AbfETMee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
+        id S2388079AbfETMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387431AbfETMeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:31 -0400
+        id S2388789AbfETMYT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0627320645;
-        Mon, 20 May 2019 12:34:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9E4E20645;
+        Mon, 20 May 2019 12:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355670;
-        bh=5QImTVuc0lxp89bL2HI9b6Gh4NBrFme6P7Laz59P0CI=;
+        s=default; t=1558355058;
+        bh=gDXp1YTVd1ZDb9dpxjABJtOXO5WdHbIWePTo2Hqkyqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWgwM5L9X8rxw8dS0J7EB5sDpn/zGMalbwiC/FSZwMQnsVZQgHokUfb0xvBHMDN53
-         6GIIgvqhCU/vIQO3PhIWv5oBJN089aQ1rtEMBmd/7aPqsq4kVYlyN0VyELHXGvmRx4
-         xrSiM9y9kqWeCbgfhefzJ0UglKcBSekYnYZ+roDw=
+        b=ikncR1AqqQzb6ldWFWDGbBmx6Se1XRk73jLehGvtE5mqNiJ82yqxH9iJKM++KE0Ev
+         CxIvMxy6ORS+3SG0x7TxY1VvOnXOwmXJwlwel1OOcYC+pYJIVd9pzHWkJzYU0ncJSf
+         nno5eR2bq2lIFxopwzgXfAKwBcClQ8yR7GOVRypw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Romain Porte <romain.porte@nokia.com>,
-        Pascal Fabreges <pascal.fabreges@nokia.com>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.1 079/128] mtd: spi-nor: intel-spi: Avoid crossing 4K address boundary on read/write
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 080/105] bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
 Date:   Mon, 20 May 2019 14:14:26 +0200
-Message-Id: <20190520115255.006434205@linuxfoundation.org>
+Message-Id: <20190520115252.795724367@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Coly Li <colyli@suse.de>
 
-commit 2b75ebeea6f4937d4d05ec4982c471cef9a29b7f upstream.
+commit 1bee2addc0c8470c8aaa65ef0599eeae96dd88bc upstream.
 
-It was observed that reads crossing 4K address boundary are failing.
+In journal_reclaim() ja->cur_idx of each cache will be update to
+reclaim available journal buckets. Variable 'int n' is used to count how
+many cache is successfully reclaimed, then n is set to c->journal.key
+by SET_KEY_PTRS(). Later in journal_write_unlocked(), a for_each_cache()
+loop will write the jset data onto each cache.
 
-This limitation is mentioned in Intel documents:
+The problem is, if all jouranl buckets on each cache is full, the
+following code in journal_reclaim(),
 
-Intel(R) 9 Series Chipset Family Platform Controller Hub (PCH) Datasheet:
+529 for_each_cache(ca, c, iter) {
+530       struct journal_device *ja = &ca->journal;
+531       unsigned int next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
+532
+533       /* No space available on this device */
+534       if (next == ja->discard_idx)
+535               continue;
+536
+537       ja->cur_idx = next;
+538       k->ptr[n++] = MAKE_PTR(0,
+539                         bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
+540                         ca->sb.nr_this_dev);
+541 }
+542
+543 bkey_init(k);
+544 SET_KEY_PTRS(k, n);
 
-"5.26.3 Flash Access
-Program Register Access:
-* Program Register Accesses are not allowed to cross a 4 KB boundary..."
+If there is no available bucket to reclaim, the if() condition at line
+534 will always true, and n remains 0. Then at line 544, SET_KEY_PTRS()
+will set KEY_PTRS field of c->journal.key to 0.
 
-Enhanced Serial Peripheral Interface (eSPI)
-Interface Base Specification (for Client and Server Platforms):
+Setting KEY_PTRS field of c->journal.key to 0 is wrong. Because in
+journal_write_unlocked() the journal data is written in following loop,
 
-"5.1.4 Address
-For other memory transactions, the address may start or end at any byte
-boundary. However, the address and payload length combination must not
-cross the naturally aligned address boundary of the corresponding Maximum
-Payload Size. It must not cross a 4 KB address boundary."
+649	for (i = 0; i < KEY_PTRS(k); i++) {
+650-671		submit journal data to cache device
+672	}
 
-Avoid this by splitting an operation crossing the boundary into two
-operations.
+If KEY_PTRS field is set to 0 in jouranl_reclaim(), the journal data
+won't be written to cache device here. If system crahed or rebooted
+before bkeys of the lost journal entries written into btree nodes, data
+corruption will be reported during bcache reload after rebooting the
+system.
 
-Fixes: 8afda8b26d01 ("spi-nor: Add support for Intel SPI serial flash controller")
+Indeed there is only one cache in a cache set, there is no need to set
+KEY_PTRS field in journal_reclaim() at all. But in order to keep the
+for_each_cache() logic consistent for now, this patch fixes the above
+problem by not setting 0 KEY_PTRS of journal key, if there is no bucket
+available to reclaim.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 Cc: stable@vger.kernel.org
-Reported-by: Romain Porte <romain.porte@nokia.com>
-Tested-by: Pascal Fabreges <pascal.fabreges@nokia.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/spi-nor/intel-spi.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/md/bcache/journal.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/mtd/spi-nor/intel-spi.c
-+++ b/drivers/mtd/spi-nor/intel-spi.c
-@@ -632,6 +632,10 @@ static ssize_t intel_spi_read(struct spi
- 	while (len > 0) {
- 		block_size = min_t(size_t, len, INTEL_SPI_FIFO_SZ);
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -540,11 +540,11 @@ static void journal_reclaim(struct cache
+ 				  ca->sb.nr_this_dev);
+ 	}
  
-+		/* Read cannot cross 4K boundary */
-+		block_size = min_t(loff_t, from + block_size,
-+				   round_up(from + 1, SZ_4K)) - from;
+-	bkey_init(k);
+-	SET_KEY_PTRS(k, n);
+-
+-	if (n)
++	if (n) {
++		bkey_init(k);
++		SET_KEY_PTRS(k, n);
+ 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
++	}
+ out:
+ 	if (!journal_full(&c->journal))
+ 		__closure_wake_up(&c->journal.wait);
+@@ -671,6 +671,9 @@ static void journal_write_unlocked(struc
+ 		ca->journal.seq[ca->journal.cur_idx] = w->data->seq;
+ 	}
+ 
++	/* If KEY_PTRS(k) == 0, this jset gets lost in air */
++	BUG_ON(i == 0);
 +
- 		writel(from, ispi->base + FADDR);
- 
- 		val = readl(ispi->base + HSFSTS_CTL);
-@@ -685,6 +689,10 @@ static ssize_t intel_spi_write(struct sp
- 	while (len > 0) {
- 		block_size = min_t(size_t, len, INTEL_SPI_FIFO_SZ);
- 
-+		/* Write cannot cross 4K boundary */
-+		block_size = min_t(loff_t, to + block_size,
-+				   round_up(to + 1, SZ_4K)) - to;
-+
- 		writel(to, ispi->base + FADDR);
- 
- 		val = readl(ispi->base + HSFSTS_CTL);
+ 	atomic_dec_bug(&fifo_back(&c->journal.pin));
+ 	bch_journal_next(&c->journal);
+ 	journal_reclaim(c);
 
 
