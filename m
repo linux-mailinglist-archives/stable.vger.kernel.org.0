@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2238A236D2
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABADC233A8
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387459AbfETMRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57976 "EHLO mail.kernel.org"
+        id S1731597AbfETMTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732747AbfETMRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:07 -0400
+        id S2387801AbfETMTR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C395720656;
-        Mon, 20 May 2019 12:17:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F59C20815;
+        Mon, 20 May 2019 12:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354627;
-        bh=UiuYeVOdzbq/S50Dj8jcg/2b3A6n1zaxu9b9gA2SFEA=;
+        s=default; t=1558354756;
+        bh=nkjVUnaYiahUX1ExbUzV/31xwNKk5fVHRqckHsd1opo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+eH70zBUpsfcMymLED6bF4Agd+AwrqD14BGrFaeRRe0bV0dRwWxWQFPF1sFn9qhF
-         Ol0Ks8R7y9MU8uevhLZKwWSUkz0I5VRbnLQeit3VWWAoq09XDE9YlJl6lqWG1h3oAu
-         Ev2l34CqyLeoxTdQa+HE+NpAReo9g107PBYMRlkw=
+        b=J+DSeOxqOT//I61+S+O/i5OYJx5qZ40gPNM3/IPK2P5OztegDj8vgE3mgRlf9PA7+
+         qZlvdls4dfcLYmK+sHB9yzlbG+MIIxo9cFugABXLC/RFU1FdDRQ1q1CDK/4kuuZMHz
+         h6HFzLuw9L76W8a1UYK5FLpGJQHR+xl+p8Nc616g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Ben Zhang <benzh@chromium.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 21/44] ASoC: RT5677-SPI: Disable 16Bit SPI Transfers
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.14 31/63] bpf, arm64: remove prefetch insn in xadd mapping
 Date:   Mon, 20 May 2019 14:14:10 +0200
-Message-Id: <20190520115233.268253010@linuxfoundation.org>
+Message-Id: <20190520115234.777269637@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,131 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Curtis Malainey <cujomalainey@chromium.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit a46eb523220e242affb9a6bc9bb8efc05f4f7459 upstream.
+commit 8968c67a82ab7501bc3b9439c3624a49b42fe54c upstream.
 
-The current algorithm allows 3 types of transfers, 16bit, 32bit and
-burst. According to Realtek, 16bit transfers have a special restriction
-in that it is restricted to the memory region of
-0x18020000 ~ 0x18021000. This region is the memory location of the I2C
-registers. The current algorithm does not uphold this restriction and
-therefore fails to complete writes.
+Prefetch-with-intent-to-write is currently part of the XADD mapping in
+the AArch64 JIT and follows the kernel's implementation of atomic_add.
+This may interfere with other threads executing the LDXR/STXR loop,
+leading to potential starvation and fairness issues. Drop the optional
+prefetch instruction.
 
-Since this has been broken for some time it likely no one is using it.
-Better to simply disable the 16 bit writes. This will allow users to
-properly load firmware over SPI without data corruption.
-
-Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
-Reviewed-by: Ben Zhang <benzh@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 85f68fe89832 ("bpf, arm64: implement jiting of BPF_XADD")
+Reported-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/rt5677-spi.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ arch/arm64/net/bpf_jit.h      |    6 ------
+ arch/arm64/net/bpf_jit_comp.c |    1 -
+ 2 files changed, 7 deletions(-)
 
---- a/sound/soc/codecs/rt5677-spi.c
-+++ b/sound/soc/codecs/rt5677-spi.c
-@@ -60,13 +60,15 @@ static DEFINE_MUTEX(spi_mutex);
-  * RT5677_SPI_READ/WRITE_32:	Transfer 4 bytes
-  * RT5677_SPI_READ/WRITE_BURST:	Transfer any multiples of 8 bytes
-  *
-- * For example, reading 260 bytes at 0x60030002 uses the following commands:
-- * 0x60030002 RT5677_SPI_READ_16	2 bytes
-+ * Note:
-+ * 16 Bit writes and reads are restricted to the address range
-+ * 0x18020000 ~ 0x18021000
-+ *
-+ * For example, reading 256 bytes at 0x60030004 uses the following commands:
-  * 0x60030004 RT5677_SPI_READ_32	4 bytes
-  * 0x60030008 RT5677_SPI_READ_BURST	240 bytes
-  * 0x600300F8 RT5677_SPI_READ_BURST	8 bytes
-  * 0x60030100 RT5677_SPI_READ_32	4 bytes
-- * 0x60030104 RT5677_SPI_READ_16	2 bytes
-  *
-  * Input:
-  * @read: true for read commands; false for write commands
-@@ -81,15 +83,13 @@ static u8 rt5677_spi_select_cmd(bool rea
- {
- 	u8 cmd;
+--- a/arch/arm64/net/bpf_jit.h
++++ b/arch/arm64/net/bpf_jit.h
+@@ -100,12 +100,6 @@
+ #define A64_STXR(sf, Rt, Rn, Rs) \
+ 	A64_LSX(sf, Rt, Rn, Rs, STORE_EX)
  
--	if (align == 2 || align == 6 || remain == 2) {
--		cmd = RT5677_SPI_READ_16;
--		*len = 2;
--	} else if (align == 4 || remain <= 6) {
-+	if (align == 4 || remain <= 4) {
- 		cmd = RT5677_SPI_READ_32;
- 		*len = 4;
- 	} else {
- 		cmd = RT5677_SPI_READ_BURST;
--		*len = min_t(u32, remain & ~7, RT5677_SPI_BURST_LEN);
-+		*len = (((remain - 1) >> 3) + 1) << 3;
-+		*len = min_t(u32, *len, RT5677_SPI_BURST_LEN);
- 	}
- 	return read ? cmd : cmd + 1;
- }
-@@ -110,7 +110,7 @@ static void rt5677_spi_reverse(u8 *dst,
- 	}
- }
- 
--/* Read DSP address space using SPI. addr and len have to be 2-byte aligned. */
-+/* Read DSP address space using SPI. addr and len have to be 4-byte aligned. */
- int rt5677_spi_read(u32 addr, void *rxbuf, size_t len)
- {
- 	u32 offset;
-@@ -126,7 +126,7 @@ int rt5677_spi_read(u32 addr, void *rxbu
- 	if (!g_spi)
- 		return -ENODEV;
- 
--	if ((addr & 1) || (len & 1)) {
-+	if ((addr & 3) || (len & 3)) {
- 		dev_err(&g_spi->dev, "Bad read align 0x%x(%zu)\n", addr, len);
- 		return -EACCES;
- 	}
-@@ -161,13 +161,13 @@ int rt5677_spi_read(u32 addr, void *rxbu
- }
- EXPORT_SYMBOL_GPL(rt5677_spi_read);
- 
--/* Write DSP address space using SPI. addr has to be 2-byte aligned.
-- * If len is not 2-byte aligned, an extra byte of zero is written at the end
-+/* Write DSP address space using SPI. addr has to be 4-byte aligned.
-+ * If len is not 4-byte aligned, then extra zeros are written at the end
-  * as padding.
-  */
- int rt5677_spi_write(u32 addr, const void *txbuf, size_t len)
- {
--	u32 offset, len_with_pad = len;
-+	u32 offset;
- 	int status = 0;
- 	struct spi_transfer t;
- 	struct spi_message m;
-@@ -180,22 +180,19 @@ int rt5677_spi_write(u32 addr, const voi
- 	if (!g_spi)
- 		return -ENODEV;
- 
--	if (addr & 1) {
-+	if (addr & 3) {
- 		dev_err(&g_spi->dev, "Bad write align 0x%x(%zu)\n", addr, len);
- 		return -EACCES;
- 	}
- 
--	if (len & 1)
--		len_with_pad = len + 1;
+-/* Prefetch */
+-#define A64_PRFM(Rn, type, target, policy) \
+-	aarch64_insn_gen_prefetch(Rn, AARCH64_INSN_PRFM_TYPE_##type, \
+-				  AARCH64_INSN_PRFM_TARGET_##target, \
+-				  AARCH64_INSN_PRFM_POLICY_##policy)
 -
- 	memset(&t, 0, sizeof(t));
- 	t.tx_buf = buf;
- 	t.speed_hz = RT5677_SPI_FREQ;
- 	spi_message_init_with_transfers(&m, &t, 1);
- 
--	for (offset = 0; offset < len_with_pad;) {
-+	for (offset = 0; offset < len;) {
- 		spi_cmd = rt5677_spi_select_cmd(false, (addr + offset) & 7,
--				len_with_pad - offset, &t.len);
-+				len - offset, &t.len);
- 
- 		/* Construct SPI message header */
- 		buf[0] = spi_cmd;
+ /* Add/subtract (immediate) */
+ #define A64_ADDSUB_IMM(sf, Rd, Rn, imm12, type) \
+ 	aarch64_insn_gen_add_sub_imm(Rd, Rn, imm12, \
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -712,7 +712,6 @@ emit_cond_jmp:
+ 	case BPF_STX | BPF_XADD | BPF_DW:
+ 		emit_a64_mov_i(1, tmp, off, ctx);
+ 		emit(A64_ADD(1, tmp, tmp, dst), ctx);
+-		emit(A64_PRFM(tmp, PST, L1, STRM), ctx);
+ 		emit(A64_LDXR(isdw, tmp2, tmp), ctx);
+ 		emit(A64_ADD(isdw, tmp2, tmp2, src), ctx);
+ 		emit(A64_STXR(isdw, tmp2, tmp, tmp3), ctx);
 
 
