@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9392363E
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE832371F
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389637AbfETM2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:28:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43936 "EHLO mail.kernel.org"
+        id S2388177AbfETMVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389621AbfETM2N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:28:13 -0400
+        id S2388174AbfETMVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:21:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA88B2171F;
-        Mon, 20 May 2019 12:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69F8720815;
+        Mon, 20 May 2019 12:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355292;
-        bh=yNCRd+eOXOTE0d/MEkfYEESKg8Bn3wudNisrxhdpgho=;
+        s=default; t=1558354889;
+        bh=34pvu7oNa5wqsc3tntV2i9diO3rjJi8DbuOwL65B550=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1IAWiEdNypDJ8uEiC24RlaeFqRcMuEQ/7LjBJi6Izx7nfazwoMeDPb1T8jKynURw
-         ZJc8SuVYpKfCrpXBefexO1tkO1nkweXLYsTYMGGUprRezDUFKGZdqx27QOEORulp88
-         5oN9i9bpf3DvRsVC28Ud3VwJrG83YbpKB5VC2aEo=
+        b=G3zMNbuLdy5QBEFhKFzo73eB2lwCyqIYy1CjUtmTO9u+GYNHFvywWbiufM31WUueL
+         XZ8M+abBs6QNo7OREafkFC6WMJSO71WY/EUXJeCycg+a/FqTH0wImmd+QPwhKSl688
+         wcFD32yuUcnZ0XYGEjVnIsp1hR6XTJWSkSKNLhU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, Arnd Bergmann <arnd@arndb.de>,
-        "clemej@gmail.com" <clemej@gmail.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Pu Wen <puwen@hygon.cn>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        "rafal@milecki.pl" <rafal@milecki.pl>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        x86-ml <x86@kernel.org>
-Subject: [PATCH 5.0 023/123] x86/MCE: Group AMD function prototypes in <asm/mce.h>
-Date:   Mon, 20 May 2019 14:13:23 +0200
-Message-Id: <20190520115246.373480039@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 018/105] crypto: crypto4xx - fix ctr-aes missing output IV
+Date:   Mon, 20 May 2019 14:13:24 +0200
+Message-Id: <20190520115248.277587088@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 9308fd4074551f222f30322d1ee8c5aff18e9747 upstream.
+commit 25baaf8e2c93197d063b372ef7b62f2767c7ac0b upstream.
 
-There are two groups of "ifdef CONFIG_X86_MCE_AMD" function prototypes
-in <asm/mce.h>. Merge these two groups.
+Commit 8efd972ef96a ("crypto: testmgr - support checking skcipher output IV")
+caused the crypto4xx driver to produce the following error:
 
-No functional change.
+| ctr-aes-ppc4xx encryption test failed (wrong output IV)
+| on test vector 0, cfg="in-place"
 
- [ bp: align vertically. ]
+This patch fixes this by reworking the crypto4xx_setkey_aes()
+function to:
 
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "clemej@gmail.com" <clemej@gmail.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Pu Wen <puwen@hygon.cn>
-Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: "rafal@milecki.pl" <rafal@milecki.pl>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190322202848.20749-3-Yazen.Ghannam@amd.com
+ - not save the iv for ECB (as per 18.2.38 CRYP0_SA_CMD_0:
+   "This bit mut be cleared for DES ECB mode or AES ECB mode,
+   when no IV is used.")
+
+ - instruct the hardware to save the generated IV for all
+   other modes of operations that have IV and then supply
+   it back to the callee in pretty much the same way as we
+   do it for cbc-aes already.
+
+ - make it clear that the DIR_(IN|OUT)BOUND is the important
+   bit that tells the hardware to encrypt or decrypt the data.
+   (this is cosmetic - but it hopefully prevents me from
+    getting confused again).
+
+ - don't load any bogus hash when we don't use any hash
+   operation to begin with.
+
+Cc: stable@vger.kernel.org
+Fixes: f2a13e7cba9e ("crypto: crypto4xx - enable AES RFC3686, ECB, CFB and OFB offloads")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/mce.h |   25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/crypto/amcc/crypto4xx_alg.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/x86/include/asm/mce.h
-+++ b/arch/x86/include/asm/mce.h
-@@ -209,16 +209,6 @@ static inline void cmci_rediscover(void)
- static inline void cmci_recheck(void) {}
- #endif
+--- a/drivers/crypto/amcc/crypto4xx_alg.c
++++ b/drivers/crypto/amcc/crypto4xx_alg.c
+@@ -141,9 +141,10 @@ static int crypto4xx_setkey_aes(struct c
+ 	/* Setup SA */
+ 	sa = ctx->sa_in;
  
--#ifdef CONFIG_X86_MCE_AMD
--void mce_amd_feature_init(struct cpuinfo_x86 *c);
--int umc_normaddr_to_sysaddr(u64 norm_addr, u16 nid, u8 umc, u64 *sys_addr);
--#else
--static inline void mce_amd_feature_init(struct cpuinfo_x86 *c) { }
--static inline int umc_normaddr_to_sysaddr(u64 norm_addr, u16 nid, u8 umc, u64 *sys_addr) { return -EINVAL; };
--#endif
--
--static inline void mce_hygon_feature_init(struct cpuinfo_x86 *c) { return mce_amd_feature_init(c); }
--
- int mce_available(struct cpuinfo_x86 *c);
- bool mce_is_memory_error(struct mce *m);
- bool mce_is_correctable(struct mce *m);
-@@ -338,12 +328,19 @@ extern bool amd_mce_is_memory_error(stru
- extern int mce_threshold_create_device(unsigned int cpu);
- extern int mce_threshold_remove_device(unsigned int cpu);
+-	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_CBC ?
+-				 SA_SAVE_IV : SA_NOT_SAVE_IV),
+-				 SA_LOAD_HASH_FROM_SA, SA_LOAD_IV_FROM_STATE,
++	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_ECB ?
++				 SA_NOT_SAVE_IV : SA_SAVE_IV),
++				 SA_NOT_LOAD_HASH, (cm == CRYPTO_MODE_ECB ?
++				 SA_LOAD_IV_FROM_SA : SA_LOAD_IV_FROM_STATE),
+ 				 SA_NO_HEADER_PROC, SA_HASH_ALG_NULL,
+ 				 SA_CIPHER_ALG_AES, SA_PAD_TYPE_ZERO,
+ 				 SA_OP_GROUP_BASIC, SA_OPCODE_DECRYPT,
+@@ -162,6 +163,11 @@ static int crypto4xx_setkey_aes(struct c
+ 	memcpy(ctx->sa_out, ctx->sa_in, ctx->sa_len * 4);
+ 	sa = ctx->sa_out;
+ 	sa->sa_command_0.bf.dir = DIR_OUTBOUND;
++	/*
++	 * SA_OPCODE_ENCRYPT is the same value as SA_OPCODE_DECRYPT.
++	 * it's the DIR_(IN|OUT)BOUND that matters
++	 */
++	sa->sa_command_0.bf.opcode = SA_OPCODE_ENCRYPT;
  
--#else
-+void mce_amd_feature_init(struct cpuinfo_x86 *c);
-+int umc_normaddr_to_sysaddr(u64 norm_addr, u16 nid, u8 umc, u64 *sys_addr);
- 
--static inline int mce_threshold_create_device(unsigned int cpu) { return 0; };
--static inline int mce_threshold_remove_device(unsigned int cpu) { return 0; };
--static inline bool amd_mce_is_memory_error(struct mce *m) { return false; };
-+#else
- 
-+static inline int mce_threshold_create_device(unsigned int cpu)		{ return 0; };
-+static inline int mce_threshold_remove_device(unsigned int cpu)		{ return 0; };
-+static inline bool amd_mce_is_memory_error(struct mce *m)		{ return false; };
-+static inline void mce_amd_feature_init(struct cpuinfo_x86 *c)		{ }
-+static inline int
-+umc_normaddr_to_sysaddr(u64 norm_addr, u16 nid, u8 umc, u64 *sys_addr)	{ return -EINVAL; };
- #endif
- 
-+static inline void mce_hygon_feature_init(struct cpuinfo_x86 *c)	{ return mce_amd_feature_init(c); }
-+
- #endif /* _ASM_X86_MCE_H */
+ 	return 0;
+ }
 
 
