@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B365C235B5
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D4D235B3
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391327AbfETMg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56088 "EHLO mail.kernel.org"
+        id S2389909AbfETMgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387600AbfETMg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:36:57 -0400
+        id S2391374AbfETMgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CD8820815;
-        Mon, 20 May 2019 12:36:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5A1520645;
+        Mon, 20 May 2019 12:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355815;
-        bh=VtIHYF/FNtOHl1ZFGK4J9744SBtaj9ublO9MAc8qAWQ=;
+        s=default; t=1558355810;
+        bh=CaVc0Vmf0CTBvhnD/hDvXM9q76PEYULHxwWmImXaQsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaUj3vpelC4MdW+G1R83Q/V1nnoorymszrWf9i8XRZBbDiplII9nnmuB+koaWvRI7
-         GmTUwn0MUrGORXx98sNLh7me6eHgGqFjgwJ3+ZfLyjbVNao8mLKj3E0UdsWG6Zn0e0
-         M98rxbchQPXNjoFUh4f8RRVzQe29YJQgV2qSuqEc=
+        b=U+oT/Q1Q5HEjNkhaPKLhfL+r5yEjHRvOXMsDzySJ9omtMk73puec7y6GhnFaUO0Sf
+         Sr1yjN061MHGq6BjbiHm81enI84PwOWsuuY/0asVInbU14K1XELAQxJ0Hd33+Tt7da
+         uQsLf+OL+8bI6ABbL+6aqK2xiFKux0znn0Onk2NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5.1 126/128] s390/mm: convert to the generic get_user_pages_fast code
-Date:   Mon, 20 May 2019 14:15:13 +0200
-Message-Id: <20190520115257.092704840@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.1 127/128] ext4: unsigned int compared against zero
+Date:   Mon, 20 May 2019 14:15:14 +0200
+Message-Id: <20190520115257.149588306@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -42,359 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 1a42010cdc26bb7e5912984f3c91b8c6d55f089a upstream.
+commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c upstream.
 
-Define the gup_fast_permitted to check against the asce_limit of the
-mm attached to the current task, then replace the s390 specific gup
-code with the generic implementation in mm/gup.c.
+There are two cases where u32 variables n and err are being checked
+for less than zero error values, the checks is always false because
+the variables are not signed. Fix this by making the variables ints.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Addresses-Coverity: ("Unsigned compared against 0")
+Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/Kconfig               |    1 
- arch/s390/include/asm/pgtable.h |   12 +
- arch/s390/mm/Makefile           |    2 
- arch/s390/mm/gup.c              |  291 ----------------------------------------
- 4 files changed, 14 insertions(+), 292 deletions(-)
+ fs/ext4/block_validity.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -149,6 +149,7 @@ config S390
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_GCC_PLUGINS
-+	select HAVE_GENERIC_GUP
- 	select HAVE_KERNEL_BZIP2
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZ4
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1265,6 +1265,18 @@ static inline pte_t *pte_offset(pmd_t *p
- #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_unmap(pte) do { } while (0)
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -142,7 +142,8 @@ static int ext4_protect_reserved_inode(s
+ 	struct inode *inode;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_map_blocks map;
+-	u32 i = 0, err = 0, num, n;
++	u32 i = 0, num;
++	int err = 0, n;
  
-+static inline bool gup_fast_permitted(unsigned long start, int nr_pages)
-+{
-+	unsigned long len, end;
-+
-+	len = (unsigned long) nr_pages << PAGE_SHIFT;
-+	end = start + len;
-+	if (end < start)
-+		return false;
-+	return end <= current->mm->context.asce_limit;
-+}
-+#define gup_fast_permitted gup_fast_permitted
-+
- #define pfn_pte(pfn,pgprot) mk_pte_phys(__pa((pfn) << PAGE_SHIFT),(pgprot))
- #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
- #define pte_page(x) pfn_to_page(pte_pfn(x))
---- a/arch/s390/mm/Makefile
-+++ b/arch/s390/mm/Makefile
-@@ -4,7 +4,7 @@
- #
- 
- obj-y		:= init.o fault.o extmem.o mmap.o vmem.o maccess.o
--obj-y		+= page-states.o gup.o pageattr.o pgtable.o pgalloc.o
-+obj-y		+= page-states.o pageattr.o pgtable.o pgalloc.o
- 
- obj-$(CONFIG_CMM)		+= cmm.o
- obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
---- a/arch/s390/mm/gup.c
-+++ /dev/null
-@@ -1,291 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- *  Lockless get_user_pages_fast for s390
-- *
-- *  Copyright IBM Corp. 2010
-- *  Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
-- */
--#include <linux/sched.h>
--#include <linux/mm.h>
--#include <linux/hugetlb.h>
--#include <linux/vmstat.h>
--#include <linux/pagemap.h>
--#include <linux/rwsem.h>
--#include <asm/pgtable.h>
--
--/*
-- * The performance critical leaf functions are made noinline otherwise gcc
-- * inlines everything into a single function which results in too much
-- * register pressure.
-- */
--static inline int gup_pte_range(pmd_t pmd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	struct page *head, *page;
--	unsigned long mask;
--	pte_t *ptep, pte;
--
--	mask = (write ? _PAGE_PROTECT : 0) | _PAGE_INVALID | _PAGE_SPECIAL;
--
--	ptep = pte_offset_map(&pmd, addr);
--	do {
--		pte = *ptep;
--		barrier();
--		/* Similar to the PMD case, NUMA hinting must take slow path */
--		if (pte_protnone(pte))
--			return 0;
--		if ((pte_val(pte) & mask) != 0)
--			return 0;
--		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
--		page = pte_page(pte);
--		head = compound_head(page);
--		if (!page_cache_get_speculative(head))
--			return 0;
--		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
--			put_page(head);
--			return 0;
--		}
--		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--		pages[*nr] = page;
--		(*nr)++;
--
--	} while (ptep++, addr += PAGE_SIZE, addr != end);
--
--	return 1;
--}
--
--static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	struct page *head, *page;
--	unsigned long mask;
--	int refs;
--
--	mask = (write ? _SEGMENT_ENTRY_PROTECT : 0) | _SEGMENT_ENTRY_INVALID;
--	if ((pmd_val(pmd) & mask) != 0)
--		return 0;
--	VM_BUG_ON(!pfn_valid(pmd_val(pmd) >> PAGE_SHIFT));
--
--	refs = 0;
--	head = pmd_page(pmd);
--	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
--	do {
--		VM_BUG_ON(compound_head(page) != head);
--		pages[*nr] = page;
--		(*nr)++;
--		page++;
--		refs++;
--	} while (addr += PAGE_SIZE, addr != end);
--
--	if (!page_cache_add_speculative(head, refs)) {
--		*nr -= refs;
--		return 0;
--	}
--
--	if (unlikely(pmd_val(pmd) != pmd_val(*pmdp))) {
--		*nr -= refs;
--		while (refs--)
--			put_page(head);
--		return 0;
--	}
--
--	return 1;
--}
--
--
--static inline int gup_pmd_range(pud_t pud, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	pmd_t *pmdp, pmd;
--
--	pmdp = pmd_offset(&pud, addr);
--	do {
--		pmd = *pmdp;
--		barrier();
--		next = pmd_addr_end(addr, end);
--		if (pmd_none(pmd))
--			return 0;
--		if (unlikely(pmd_large(pmd))) {
--			/*
--			 * NUMA hinting faults need to be handled in the GUP
--			 * slowpath for accounting purposes and so that they
--			 * can be serialised against THP migration.
--			 */
--			if (pmd_protnone(pmd))
--				return 0;
--			if (!gup_huge_pmd(pmdp, pmd, addr, next,
--					  write, pages, nr))
--				return 0;
--		} else if (!gup_pte_range(pmd, addr, next,
--					  write, pages, nr))
--			return 0;
--	} while (pmdp++, addr = next, addr != end);
--
--	return 1;
--}
--
--static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	struct page *head, *page;
--	unsigned long mask;
--	int refs;
--
--	mask = (write ? _REGION_ENTRY_PROTECT : 0) | _REGION_ENTRY_INVALID;
--	if ((pud_val(pud) & mask) != 0)
--		return 0;
--	VM_BUG_ON(!pfn_valid(pud_pfn(pud)));
--
--	refs = 0;
--	head = pud_page(pud);
--	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
--	do {
--		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--		pages[*nr] = page;
--		(*nr)++;
--		page++;
--		refs++;
--	} while (addr += PAGE_SIZE, addr != end);
--
--	if (!page_cache_add_speculative(head, refs)) {
--		*nr -= refs;
--		return 0;
--	}
--
--	if (unlikely(pud_val(pud) != pud_val(*pudp))) {
--		*nr -= refs;
--		while (refs--)
--			put_page(head);
--		return 0;
--	}
--
--	return 1;
--}
--
--static inline int gup_pud_range(p4d_t p4d, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	pud_t *pudp, pud;
--
--	pudp = pud_offset(&p4d, addr);
--	do {
--		pud = *pudp;
--		barrier();
--		next = pud_addr_end(addr, end);
--		if (pud_none(pud))
--			return 0;
--		if (unlikely(pud_large(pud))) {
--			if (!gup_huge_pud(pudp, pud, addr, next, write, pages,
--					  nr))
--				return 0;
--		} else if (!gup_pmd_range(pud, addr, next, write, pages,
--					  nr))
--			return 0;
--	} while (pudp++, addr = next, addr != end);
--
--	return 1;
--}
--
--static inline int gup_p4d_range(pgd_t pgd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
--{
--	unsigned long next;
--	p4d_t *p4dp, p4d;
--
--	p4dp = p4d_offset(&pgd, addr);
--	do {
--		p4d = *p4dp;
--		barrier();
--		next = p4d_addr_end(addr, end);
--		if (p4d_none(p4d))
--			return 0;
--		if (!gup_pud_range(p4d, addr, next, write, pages, nr))
--			return 0;
--	} while (p4dp++, addr = next, addr != end);
--
--	return 1;
--}
--
--/*
-- * Like get_user_pages_fast() except its IRQ-safe in that it won't fall
-- * back to the regular GUP.
-- * Note a difference with get_user_pages_fast: this always returns the
-- * number of pages pinned, 0 if no pages were pinned.
-- */
--int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
--			  struct page **pages)
--{
--	struct mm_struct *mm = current->mm;
--	unsigned long addr, len, end;
--	unsigned long next, flags;
--	pgd_t *pgdp, pgd;
--	int nr = 0;
--
--	start &= PAGE_MASK;
--	addr = start;
--	len = (unsigned long) nr_pages << PAGE_SHIFT;
--	end = start + len;
--	if ((end <= start) || (end > mm->context.asce_limit))
--		return 0;
--	/*
--	 * local_irq_save() doesn't prevent pagetable teardown, but does
--	 * prevent the pagetables from being freed on s390.
--	 *
--	 * So long as we atomically load page table pointers versus teardown,
--	 * we can follow the address down to the the page and take a ref on it.
--	 */
--	local_irq_save(flags);
--	pgdp = pgd_offset(mm, addr);
--	do {
--		pgd = *pgdp;
--		barrier();
--		next = pgd_addr_end(addr, end);
--		if (pgd_none(pgd))
--			break;
--		if (!gup_p4d_range(pgd, addr, next, write, pages, &nr))
--			break;
--	} while (pgdp++, addr = next, addr != end);
--	local_irq_restore(flags);
--
--	return nr;
--}
--
--/**
-- * get_user_pages_fast() - pin user pages in memory
-- * @start:	starting user address
-- * @nr_pages:	number of pages from start to pin
-- * @write:	whether pages will be written to
-- * @pages:	array that receives pointers to the pages pinned.
-- *		Should be at least nr_pages long.
-- *
-- * Attempt to pin user pages in memory without taking mm->mmap_sem.
-- * If not successful, it will fall back to taking the lock and
-- * calling get_user_pages().
-- *
-- * Returns number of pages pinned. This may be fewer than the number
-- * requested. If nr_pages is 0 or negative, returns 0. If no pages
-- * were pinned, returns -errno.
-- */
--int get_user_pages_fast(unsigned long start, int nr_pages, int write,
--			struct page **pages)
--{
--	int nr, ret;
--
--	might_sleep();
--	start &= PAGE_MASK;
--	nr = __get_user_pages_fast(start, nr_pages, write, pages);
--	if (nr == nr_pages)
--		return nr;
--
--	/* Try to get the remaining pages with get_user_pages */
--	start += nr << PAGE_SHIFT;
--	pages += nr;
--	ret = get_user_pages_unlocked(start, nr_pages - nr, pages,
--				      write ? FOLL_WRITE : 0);
--	/* Have to be a bit careful with return values */
--	if (nr > 0)
--		ret = (ret < 0) ? nr : ret + nr;
--	return ret;
--}
+ 	if ((ino < EXT4_ROOT_INO) ||
+ 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
 
 
