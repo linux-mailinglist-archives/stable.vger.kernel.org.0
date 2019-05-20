@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D0023738
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B2B23643
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731730AbfETMW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
+        id S2389231AbfETM1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:27:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388259AbfETMW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:22:56 -0400
+        id S2389565AbfETM1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB784216C4;
-        Mon, 20 May 2019 12:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E204B20645;
+        Mon, 20 May 2019 12:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354975;
-        bh=kYit0N1s3XyiwEJ9BAPv+JHUmMpjAlox7xrrRbfxqOI=;
+        s=default; t=1558355271;
+        bh=rEAbe9tJjKeSiNz+SGz1+y60zU+ppV1EBFLMiGPkidg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1glLL6OoHybrzoQYJsmNTngAa0aUWgfkOp0ATCrznFifzR6itv7gMmSgs5tHL79H+
-         u5C6hMRGqKuY/NHjgCMs+/WgwhKCj4TmEEfY1iIMWxXs3YaK0nawGzKikgJBaG5J6a
-         hh5ZqiUVMWiDyJBywN9XOxRRfLaK9SD9UnEheXmw=
+        b=katH2zM/zgEc1tlQ0C9AQHzbLP9Ssv/5bGisedOJzXIurDVTvyw1aAzdKoEWkuMkk
+         rH7OeVCKAy/ku+GzHJHLneLucjayhyR6Bj6Ur3WlcdvTqwgwSJe1CIGK7jpp8D7J6s
+         qfsfx+N+LRj+TnTRwVM7KejMwyCrZ4WN0KsX/1dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.19 011/105] power: supply: axp288_fuel_gauge: Add ACEPC T8 and T11 mini PCs to the blacklist
-Date:   Mon, 20 May 2019 14:13:17 +0200
-Message-Id: <20190520115247.828904395@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.0 018/123] arm64: Save and restore OSDLR_EL1 across suspend/resume
+Date:   Mon, 20 May 2019 14:13:18 +0200
+Message-Id: <20190520115246.153498043@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-commit 9274c78305e12c5f461bec15f49c38e0f32ca705 upstream.
+commit 827a108e354db633698f0b4a10c1ffd2b1f8d1d0 upstream.
 
-The ACEPC T8 and T11 Cherry Trail Z8350 mini PCs use an AXP288 and as PCs,
-rather then portables, they does not have a battery. Still for some
-reason the AXP288 not only thinks there is a battery, it actually
-thinks it is discharging while the PC is running, slowly going to
-0% full, causing userspace to shutdown the system due to the battery
-being critically low after a while.
+When the CPU comes out of suspend, the firmware may have modified the OS
+Double Lock Register. Save it in an unused slot of cpu_suspend_ctx, and
+restore it on resume.
 
-This commit adds the ACEPC T8 and T11 to the axp288 fuel-gauge driver
-blacklist, so that we stop reporting bogus battery readings on this device.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1690852
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/axp288_fuel_gauge.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/arm64/mm/proc.S |   34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -696,6 +696,26 @@ intr_failed:
-  */
- static const struct dmi_system_id axp288_fuel_gauge_blacklist[] = {
- 	{
-+		/* ACEPC T8 Cherry Trail Z8350 mini PC */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T8"),
-+			/* also match on somewhat unique bios-version */
-+			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
-+		},
-+	},
-+	{
-+		/* ACEPC T11 Cherry Trail Z8350 mini PC */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "To be filled by O.E.M."),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "T11"),
-+			/* also match on somewhat unique bios-version */
-+			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
-+		},
-+	},
-+	{
- 		/* Intel Cherry Trail Compute Stick, Windows version */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -76,24 +76,25 @@ ENTRY(cpu_do_suspend)
+ 	mrs	x2, tpidr_el0
+ 	mrs	x3, tpidrro_el0
+ 	mrs	x4, contextidr_el1
+-	mrs	x5, cpacr_el1
+-	mrs	x6, tcr_el1
+-	mrs	x7, vbar_el1
+-	mrs	x8, mdscr_el1
+-	mrs	x9, oslsr_el1
+-	mrs	x10, sctlr_el1
++	mrs	x5, osdlr_el1
++	mrs	x6, cpacr_el1
++	mrs	x7, tcr_el1
++	mrs	x8, vbar_el1
++	mrs	x9, mdscr_el1
++	mrs	x10, oslsr_el1
++	mrs	x11, sctlr_el1
+ alternative_if_not ARM64_HAS_VIRT_HOST_EXTN
+-	mrs	x11, tpidr_el1
++	mrs	x12, tpidr_el1
+ alternative_else
+-	mrs	x11, tpidr_el2
++	mrs	x12, tpidr_el2
+ alternative_endif
+-	mrs	x12, sp_el0
++	mrs	x13, sp_el0
+ 	stp	x2, x3, [x0]
+-	stp	x4, xzr, [x0, #16]
+-	stp	x5, x6, [x0, #32]
+-	stp	x7, x8, [x0, #48]
+-	stp	x9, x10, [x0, #64]
+-	stp	x11, x12, [x0, #80]
++	stp	x4, x5, [x0, #16]
++	stp	x6, x7, [x0, #32]
++	stp	x8, x9, [x0, #48]
++	stp	x10, x11, [x0, #64]
++	stp	x12, x13, [x0, #80]
+ 	ret
+ ENDPROC(cpu_do_suspend)
+ 
+@@ -116,8 +117,8 @@ ENTRY(cpu_do_resume)
+ 	msr	cpacr_el1, x6
+ 
+ 	/* Don't change t0sz here, mask those bits when restoring */
+-	mrs	x5, tcr_el1
+-	bfi	x8, x5, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
++	mrs	x7, tcr_el1
++	bfi	x8, x7, TCR_T0SZ_OFFSET, TCR_TxSZ_WIDTH
+ 
+ 	msr	tcr_el1, x8
+ 	msr	vbar_el1, x9
+@@ -141,6 +142,7 @@ alternative_endif
+ 	/*
+ 	 * Restore oslsr_el1 by writing oslar_el1
+ 	 */
++	msr	osdlr_el1, x5
+ 	ubfx	x11, x11, #1, #1
+ 	msr	oslar_el1, x11
+ 	reset_pmuserenr_el0 x0			// Disable PMU access from EL0
 
 
