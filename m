@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B77236CE
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF855236F6
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733294AbfETMQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:16:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57590 "EHLO mail.kernel.org"
+        id S2387760AbfETMSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733292AbfETMQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:50 -0400
+        id S2387756AbfETMSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:18:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8520C20863;
-        Mon, 20 May 2019 12:16:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25BED213F2;
+        Mon, 20 May 2019 12:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354609;
-        bh=PTYGx9/Qs/Lx+KktI6LWC0BAUKBvbzdl9YW9wTgYltU=;
+        s=default; t=1558354732;
+        bh=I/hI+umuXa770PYF5SVFB/mKMzPbTnYS3RdF0RFdZPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8YpcTEN9/uH10ccTpUJp+7mtPJ812XRkrehqA31jvXYEsfTGD1Jp8M2lCaQTGmkd
-         f1Q8RZ2CahkZQVFbteCsQiuDH0C0ss+KmYuIuIE9l4Nq4NUMRU5P8HZKOXw42PdOQZ
-         w9fU/bUC5Dm7s61pXwiKXsv2ZTaQRKOYFQsdkD3o=
+        b=ssbB+Y7RkEXtwzIF2Aug20Lz39pSG49OckijV3n0eJG7J2sxPEBEGhxNhnB4k3/cd
+         T8BsKgtyuYKzFHigaYgPA61qJcIawKXCdfWKkUI+Eo2/xvNiTXIzArqtEHIaowOXqr
+         0+L7lNwAzHIBuaYwLiam+AuaFP8n9uZpKnlEgHMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Jon Masters <jcm@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 04/44] x86/speculation/mds: Revert CPU buffer clear on double fault exit
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.14 14/63] arm64: Clear OSDLR_EL1 on CPU boot
 Date:   Mon, 20 May 2019 14:13:53 +0200
-Message-Id: <20190520115231.418026516@linuxfoundation.org>
+Message-Id: <20190520115232.667190980@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,73 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-commit 88640e1dcd089879530a49a8d212d1814678dfe7 upstream.
+commit 6fda41bf12615ee7c3ddac88155099b1a8cf8d00 upstream.
 
-The double fault ESPFIX path doesn't return to user mode at all --
-it returns back to the kernel by simulating a #GP fault.
-prepare_exit_to_usermode() will run on the way out of
-general_protection before running user code.
+Some firmwares may reboot CPUs with OS Double Lock set. Make sure that
+it is unlocked, in order to use debug exceptions.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
-Link: http://lkml.kernel.org/r/ac97612445c0a44ee10374f6ea79c222fe22a5c4.1557865329.git.luto@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/x86/mds.rst |    7 -------
- arch/x86/kernel/traps.c   |    8 --------
- 2 files changed, 15 deletions(-)
+ arch/arm64/kernel/debug-monitors.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/x86/mds.rst
-+++ b/Documentation/x86/mds.rst
-@@ -158,13 +158,6 @@ Mitigation points
-      mitigated on the return from do_nmi() to provide almost complete
-      coverage.
- 
--   - Double fault (#DF):
--
--     A double fault is usually fatal, but the ESPFIX workaround, which can
--     be triggered from user space through modify_ldt(2) is a recoverable
--     double fault. #DF uses the paranoid exit path, so explicit mitigation
--     in the double fault handler is required.
--
-    - Machine Check Exception (#MC):
- 
-      Another corner case is a #MC which hits between the CPU buffer clear
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -62,7 +62,6 @@
- #include <asm/alternative.h>
- #include <asm/fpu/xstate.h>
- #include <asm/trace/mpx.h>
--#include <asm/nospec-branch.h>
- #include <asm/mpx.h>
- #include <asm/vm86.h>
- 
-@@ -341,13 +340,6 @@ dotraplinkage void do_double_fault(struc
- 		regs->ip = (unsigned long)general_protection;
- 		regs->sp = (unsigned long)&normal_regs->orig_ax;
- 
--		/*
--		 * This situation can be triggered by userspace via
--		 * modify_ldt(2) and the return does not take the regular
--		 * user space exit, so a CPU buffer clear is required when
--		 * MDS mitigation is enabled.
--		 */
--		mds_user_clear_cpu_buffers();
- 		return;
- 	}
- #endif
+--- a/arch/arm64/kernel/debug-monitors.c
++++ b/arch/arm64/kernel/debug-monitors.c
+@@ -133,6 +133,7 @@ NOKPROBE_SYMBOL(disable_debug_monitors);
+  */
+ static int clear_os_lock(unsigned int cpu)
+ {
++	write_sysreg(0, osdlr_el1);
+ 	write_sysreg(0, oslar_el1);
+ 	isb();
+ 	return 0;
 
 
