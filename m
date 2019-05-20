@@ -2,40 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A8523672
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C94823719
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389277AbfETM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
+        id S2388105AbfETMVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389273AbfETM0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:26:13 -0400
+        id S2388102AbfETMVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:21:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47A8720675;
-        Mon, 20 May 2019 12:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34B1520656;
+        Mon, 20 May 2019 12:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355172;
-        bh=S0+Es+ueAy/x0zXzT9SbpxIg6lSGzCUvU/HBkCjgpAc=;
+        s=default; t=1558354865;
+        bh=WqXVU298ghjn0eTgBxKUTiGOrwmB4Y3FBEDjgQl9Rhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEYjaLoDITFMGJsTDhLOrGQkHgwVVBEAGSHoIEpjwDWzCWmNnPSGJu6g8xQ50zhoN
-         iXWuNiICz54n8yJxfd6JWuUEOwud9EIX5ozSJTOsw0B1RQQTjsUn2IFvpOSWRIKxIG
-         SvCHNeDGxUHnkWacy5bfMEJryovsa8eVspPGLyQE=
+        b=pOA5qxqdSJ9Ua3bwO2WKctBo8TFA3Lq2na0/E2b2b/XKqzg3/RDdPjjGvT/srFuXV
+         1ZQl2l+jlN/Sa57NUVj/q5HOLjZvl7x6PMgTQFhBBSw9hKJYuktuNF2DxOMjfvXQKX
+         5O6dnn6HxEX7bkameA6oRW9V7h/e2gvPythSJ+8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Andy Gross <agross@kernel.org>
-Subject: [PATCH 5.0 007/123] ARM: dts: qcom: ipq4019: enlarge PCIe BAR range
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Will Deacon <will.deacon@arm.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 001/105] locking/rwsem: Prevent decrement of reader count before increment
 Date:   Mon, 20 May 2019 14:13:07 +0200
-Message-Id: <20190520115245.755921326@linuxfoundation.org>
+Message-Id: <20190520115247.158720523@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,53 +53,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+[ Upstream commit a9e9bcb45b1525ba7aea26ed9441e8632aeeda58 ]
 
-commit f3e35357cd460a8aeb48b8113dc4b761a7d5c828 upstream.
+During my rwsem testing, it was found that after a down_read(), the
+reader count may occasionally become 0 or even negative. Consequently,
+a writer may steal the lock at that time and execute with the reader
+in parallel thus breaking the mutual exclusion guarantee of the write
+lock. In other words, both readers and writer can become rwsem owners
+simultaneously.
 
-David Bauer reported that the VDSL modem (attached via PCIe)
-on his AVM Fritz!Box 7530 was complaining about not having
-enough space in the BAR. A closer inspection of the old
-qcom-ipq40xx.dtsi pulled from the GL-iNet repository listed:
+The current reader wakeup code does it in one pass to clear waiter->task
+and put them into wake_q before fully incrementing the reader count.
+Once waiter->task is cleared, the corresponding reader may see it,
+finish the critical section and do unlock to decrement the count before
+the count is incremented. This is not a problem if there is only one
+reader to wake up as the count has been pre-incremented by 1.  It is
+a problem if there are more than one readers to be woken up and writer
+can steal the lock.
 
-| qcom,pcie@80000 {
-|	compatible = "qcom,msm_pcie";
-|	reg = <0x80000 0x2000>,
-|	      <0x99000 0x800>,
-|	      <0x40000000 0xf1d>,
-|	      <0x40000f20 0xa8>,
-|	      <0x40100000 0x1000>,
-|	      <0x40200000 0x100000>,
-|	      <0x40300000 0xd00000>;
-|	reg-names = "parf", "phy", "dm_core", "elbi",
-|			"conf", "io", "bars";
+The wakeup was actually done in 2 passes before the following v4.9 commit:
 
-Matching the reg-names with the listed reg leads to
-<0xd00000> as the size for the "bars".
+  70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
 
-Cc: stable@vger.kernel.org
-BugLink: https://www.mail-archive.com/openwrt-devel@lists.openwrt.org/msg45212.html
-Reported-by: David Bauer <mail@david-bauer.net>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Andy Gross <agross@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this problem, the wakeup is now done in two passes
+again. In the first pass, we collect the readers and count them.
+The reader count is then fully incremented. In the second pass, the
+waiter->task is then cleared and they are put into wake_q to be woken
+up later.
 
+Signed-off-by: Waiman Long <longman@redhat.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Fixes: 70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
+Link: http://lkml.kernel.org/r/20190428212557.13482-2-longman@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq4019.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/locking/rwsem-xadd.c |   44 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
 
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -393,8 +393,8 @@
- 			#address-cells = <3>;
- 			#size-cells = <2>;
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -130,6 +130,7 @@ static void __rwsem_mark_wake(struct rw_
+ {
+ 	struct rwsem_waiter *waiter, *tmp;
+ 	long oldcount, woken = 0, adjustment = 0;
++	struct list_head wlist;
  
--			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000
--				  0x82000000 0 0x40300000 0x40300000 0 0x400000>;
-+			ranges = <0x81000000 0 0x40200000 0x40200000 0 0x00100000>,
-+				 <0x82000000 0 0x40300000 0x40300000 0 0x00d00000>;
+ 	/*
+ 	 * Take a peek at the queue head waiter such that we can determine
+@@ -188,18 +189,42 @@ static void __rwsem_mark_wake(struct rw_
+ 	 * of the queue. We know that woken will be at least 1 as we accounted
+ 	 * for above. Note we increment the 'active part' of the count by the
+ 	 * number of readers before waking any processes up.
++	 *
++	 * We have to do wakeup in 2 passes to prevent the possibility that
++	 * the reader count may be decremented before it is incremented. It
++	 * is because the to-be-woken waiter may not have slept yet. So it
++	 * may see waiter->task got cleared, finish its critical section and
++	 * do an unlock before the reader count increment.
++	 *
++	 * 1) Collect the read-waiters in a separate list, count them and
++	 *    fully increment the reader count in rwsem.
++	 * 2) For each waiters in the new list, clear waiter->task and
++	 *    put them into wake_q to be woken up later.
+ 	 */
+-	list_for_each_entry_safe(waiter, tmp, &sem->wait_list, list) {
+-		struct task_struct *tsk;
+-
++	list_for_each_entry(waiter, &sem->wait_list, list) {
+ 		if (waiter->type == RWSEM_WAITING_FOR_WRITE)
+ 			break;
  
- 			interrupts = <GIC_SPI 141 IRQ_TYPE_EDGE_RISING>;
- 			interrupt-names = "msi";
+ 		woken++;
+-		tsk = waiter->task;
++	}
++	list_cut_before(&wlist, &sem->wait_list, &waiter->list);
++
++	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
++	if (list_empty(&sem->wait_list)) {
++		/* hit end of list above */
++		adjustment -= RWSEM_WAITING_BIAS;
++	}
++
++	if (adjustment)
++		atomic_long_add(adjustment, &sem->count);
+ 
++	/* 2nd pass */
++	list_for_each_entry_safe(waiter, tmp, &wlist, list) {
++		struct task_struct *tsk;
++
++		tsk = waiter->task;
+ 		get_task_struct(tsk);
+-		list_del(&waiter->list);
++
+ 		/*
+ 		 * Ensure calling get_task_struct() before setting the reader
+ 		 * waiter to nil such that rwsem_down_read_failed() cannot
+@@ -215,15 +240,6 @@ static void __rwsem_mark_wake(struct rw_
+ 		/* wake_q_add() already take the task ref */
+ 		put_task_struct(tsk);
+ 	}
+-
+-	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
+-	if (list_empty(&sem->wait_list)) {
+-		/* hit end of list above */
+-		adjustment -= RWSEM_WAITING_BIAS;
+-	}
+-
+-	if (adjustment)
+-		atomic_long_add(adjustment, &sem->count);
+ }
+ 
+ /*
 
 
