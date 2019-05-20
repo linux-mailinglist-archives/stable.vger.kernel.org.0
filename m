@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C42D23428
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF864236CD
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388731AbfETMX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38712 "EHLO mail.kernel.org"
+        id S1733302AbfETMQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731841AbfETMX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:58 -0400
+        id S1733298AbfETMQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EBDC21019;
-        Mon, 20 May 2019 12:23:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF26E20656;
+        Mon, 20 May 2019 12:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355037;
-        bh=IJ56Gfg/ZuObPvWDkhIhB0XNueE9tEbv3xnUjf7eU/c=;
+        s=default; t=1558354606;
+        bh=nVMnlszG0Mg/hy+jgxq26XNabFL/BiaZI+yWNNiXoks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2u/R27Cd9Eyjf/6jxGZpD3Q14kdYwoQ+CA1OoR2XPHczxAXcVsDeklaqwk3SWeUmX
-         yHW0mfcdsJFjxXyZ854vi3CP4zEWsZzu43Pb8Q+sVBMILLKkNWLbt1Jz0kGOgyAF7E
-         ebW//iIn0+yc1M+VWPDVTgm0hui3+/2J7NKK57Zo=
+        b=dTa3O5cGP+w155x08sTphv/lNB7tzNdc8PnBd6+66h0l1GTXrrHtlC+wVn3M7Ew/S
+         KtQtgPafwyccJei/kDsBf6wwE2OI3q7Fb0waonyQIxoMe/NaQONtmOhm4kWLX+W+mP
+         wePtZn+lAebMZZ/oFqAuq6ztoi3cbGyGn1juUSbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 046/105] crypto: ccree - dont map MAC key on stack
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/44] PCI: hv: Fix a memory leak in hv_eject_device_work()
 Date:   Mon, 20 May 2019 14:13:52 +0200
-Message-Id: <20190520115250.198221588@linuxfoundation.org>
+Message-Id: <20190520115231.364483225@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+[ Upstream commit 05f151a73ec2b23ffbff706e5203e729a995cdc2 ]
 
-commit 874e163759f27e0a9988c5d1f4605e3f25564fd2 upstream.
+When a device is created in new_pcichild_device(), hpdev->refs is set
+to 2 (i.e. the initial value of 1 plus the get_pcichild()).
 
-The MAC hash key might be passed to us on stack. Copy it to
-a slab buffer before mapping to gurantee proper DMA mapping.
+When we hot remove the device from the host, in a Linux VM we first call
+hv_pci_eject_device(), which increases hpdev->refs by get_pcichild() and
+then schedules a work of hv_eject_device_work(), so hpdev->refs becomes
+3 (let's ignore the paired get/put_pcichild() in other places). But in
+hv_eject_device_work(), currently we only call put_pcichild() twice,
+meaning the 'hpdev' struct can't be freed in put_pcichild().
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add one put_pcichild() to fix the memory leak.
 
+The device can also be removed when we run "rmmod pci-hyperv". On this
+path (hv_pci_remove() -> hv_pci_bus_exit() -> hv_pci_devices_present()),
+hpdev->refs is 2, and we do correctly call put_pcichild() twice in
+pci_devices_present_work().
+
+Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft Hyper-V VMs")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+[lorenzo.pieralisi@arm.com: commit log rework]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_hash.c |   24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ drivers/pci/host/pci-hyperv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/crypto/ccree/cc_hash.c
-+++ b/drivers/crypto/ccree/cc_hash.c
-@@ -64,6 +64,7 @@ struct cc_hash_alg {
- struct hash_key_req_ctx {
- 	u32 keylen;
- 	dma_addr_t key_dma_addr;
-+	u8 *key;
- };
+diff --git a/drivers/pci/host/pci-hyperv.c b/drivers/pci/host/pci-hyperv.c
+index b4d8ccfd9f7c2..200b415765264 100644
+--- a/drivers/pci/host/pci-hyperv.c
++++ b/drivers/pci/host/pci-hyperv.c
+@@ -1620,6 +1620,7 @@ static void hv_eject_device_work(struct work_struct *work)
+ 	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
  
- /* hash per-session context */
-@@ -724,13 +725,20 @@ static int cc_hash_setkey(struct crypto_
- 	ctx->key_params.keylen = keylen;
- 	ctx->key_params.key_dma_addr = 0;
- 	ctx->is_hmac = true;
-+	ctx->key_params.key = NULL;
- 
- 	if (keylen) {
-+		ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
-+		if (!ctx->key_params.key)
-+			return -ENOMEM;
-+
- 		ctx->key_params.key_dma_addr =
--			dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
-+			dma_map_single(dev, (void *)ctx->key_params.key, keylen,
-+				       DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
- 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
--				key, keylen);
-+				ctx->key_params.key, keylen);
-+			kzfree(ctx->key_params.key);
- 			return -ENOMEM;
- 		}
- 		dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
-@@ -881,6 +889,9 @@ out:
- 		dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
- 			&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
- 	}
-+
-+	kzfree(ctx->key_params.key);
-+
- 	return rc;
+ 	put_pcichild(hpdev, hv_pcidev_ref_childlist);
++	put_pcichild(hpdev, hv_pcidev_ref_initial);
+ 	put_pcichild(hpdev, hv_pcidev_ref_pnp);
+ 	put_hvpcibus(hpdev->hbus);
  }
- 
-@@ -907,11 +918,16 @@ static int cc_xcbc_setkey(struct crypto_
- 
- 	ctx->key_params.keylen = keylen;
- 
-+	ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
-+	if (!ctx->key_params.key)
-+		return -ENOMEM;
-+
- 	ctx->key_params.key_dma_addr =
--		dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
-+		dma_map_single(dev, ctx->key_params.key, keylen, DMA_TO_DEVICE);
- 	if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
- 		dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
- 			key, keylen);
-+		kzfree(ctx->key_params.key);
- 		return -ENOMEM;
- 	}
- 	dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
-@@ -963,6 +979,8 @@ static int cc_xcbc_setkey(struct crypto_
- 	dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
- 		&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
- 
-+	kzfree(ctx->key_params.key);
-+
- 	return rc;
- }
- 
+-- 
+2.20.1
+
 
 
