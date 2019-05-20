@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A655623651
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 728542339A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388166AbfETM10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42994 "EHLO mail.kernel.org"
+        id S1731934AbfETMSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389093AbfETM1Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:25 -0400
+        id S2387725AbfETMSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:18:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30A2421479;
-        Mon, 20 May 2019 12:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14E36208C3;
+        Mon, 20 May 2019 12:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355244;
-        bh=K/i1J2VARTHB1Re1+MeWCyySYY/NtjnZ0I5Cb6zZXEc=;
+        s=default; t=1558354716;
+        bh=ofEIYAS8+rvPfYlANzMOn0TgjZ0h4w0AB+vYOudGgtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNZRwm1d0nLEtLiGJJJo4pP1O28Z0YqEdAfh7oLHkgcLXvpBkcLgb8P9imGCRI+9m
-         LEhO47fHx3grLGAwXzNiKHLKlQH8oPRLejlBdktcmppxcybBsjuMxevEngXugT8m0O
-         N6Z5MZEbLigXhEV6oHa5Rh8G5f9z5YgSrIA/Z/7g=
+        b=v81g+zm+KjoM2/7suwioOoBlqz3Wq8LidTX9hB5ALljZzPoRbAm3vA75mQAx9lQYU
+         7SXOALMavJVq1jibTePGaMTqxWkzcxt548vnkNqqr4GdR8iVn3wmXhUZrtecrKCpuf
+         uvb7X9v3tASC4DkVndpiCbtz8J2jKtWhFALUpAXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.0 044/123] mmc: tegra: fix ddr signaling for non-ddr modes
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/63] PCI: hv: Add pci_destroy_slot() in pci_devices_present_work(), if necessary
 Date:   Mon, 20 May 2019 14:13:44 +0200
-Message-Id: <20190520115247.665351725@linuxfoundation.org>
+Message-Id: <20190520115231.834981202@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+[ Upstream commit 340d455699400f2c2c0f9b3f703ade3085cdb501 ]
 
-commit 92cd1667d579af5c3ef383680598a112da3695df upstream.
+When we hot-remove a device, usually the host sends us a PCI_EJECT message,
+and a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
-ddr_signaling is set to true for DDR50 and DDR52 modes but is
-not set back to false for other modes. This programs incorrect
-host clock when mode change happens from DDR52/DDR50 to other
-SDR or HS modes like incase of mmc_retune where it switches
-from HS400 to HS DDR and then from HS DDR to HS mode and then
-to HS200.
+When we execute the quick hot-add/hot-remove test, the host may not send
+us the PCI_EJECT message if the guest has not fully finished the
+initialization by sending the PCI_RESOURCES_ASSIGNED* message to the
+host, so it's potentially unsafe to only depend on the
+pci_destroy_slot() in hv_eject_device_work() because the code path
 
-This patch fixes the ddr_signaling to set properly for non DDR
-modes.
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: stable@vger.kernel.org # v4.20 +
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+is not called in this case. Note: in this case, the host still sends the
+guest a PCI_BUS_RELATIONS message with bus_rel->device_count == 0.
 
+In the quick hot-add/hot-remove test, we can have such a race before
+the code path
+
+pci_devices_present_work()
+ -> new_pcichild_device()
+
+adds the new device into the hbus->children list, we may have already
+received the PCI_EJECT message, and since the tasklet handler
+
+hv_pci_onchannelcallback()
+
+may fail to find the "hpdev" by calling
+
+get_pcichild_wslot(hbus, dev_message->wslot.slot)
+
+hv_pci_eject_device() is not called; Later, by continuing execution
+
+create_root_hv_pci_bus()
+ -> hv_pci_assign_slots()
+
+creates the slot and the PCI_BUS_RELATIONS message with
+bus_rel->device_count == 0 removes the device from hbus->children, and
+we end up being unable to remove the slot in
+
+hv_pci_remove()
+ -> hv_pci_remove_slots()
+
+Remove the slot in pci_devices_present_work() when the device
+is removed to address this race.
+
+pci_devices_present_work() and hv_eject_device_work() run in the
+singled-threaded hbus->wq, so there is not a double-remove issue for the
+slot.
+
+We cannot offload hv_pci_eject_device() from hv_pci_onchannelcallback()
+to the workqueue, because we need the hv_pci_onchannelcallback()
+synchronously call hv_pci_eject_device() to poll the channel
+ringbuffer to work around the "hangs in hv_compose_msi_msg()" issue
+fixed in commit de0aa7b2f97d ("PCI: hv: Fix 2 hang issues in
+hv_compose_msi_msg()")
+
+Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+[lorenzo.pieralisi@arm.com: rewritten commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
+Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-tegra.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/host/pci-hyperv.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -675,6 +675,7 @@ static void tegra_sdhci_set_uhs_signalin
- 	bool set_dqs_trim = false;
- 	bool do_hs400_dll_cal = false;
+diff --git a/drivers/pci/host/pci-hyperv.c b/drivers/pci/host/pci-hyperv.c
+index a5825bbcded72..f591de23f3d35 100644
+--- a/drivers/pci/host/pci-hyperv.c
++++ b/drivers/pci/host/pci-hyperv.c
+@@ -1824,6 +1824,10 @@ static void pci_devices_present_work(struct work_struct *work)
+ 		hpdev = list_first_entry(&removed, struct hv_pci_dev,
+ 					 list_entry);
+ 		list_del(&hpdev->list_entry);
++
++		if (hpdev->pci_slot)
++			pci_destroy_slot(hpdev->pci_slot);
++
+ 		put_pcichild(hpdev, hv_pcidev_ref_initial);
+ 	}
  
-+	tegra_host->ddr_signaling = false;
- 	switch (timing) {
- 	case MMC_TIMING_UHS_SDR50:
- 	case MMC_TIMING_UHS_SDR104:
+-- 
+2.20.1
+
 
 
