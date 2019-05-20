@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6CA23518
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F248223644
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389984AbfETMdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
+        id S2390053AbfETMo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:44:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390453AbfETMdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:00 -0400
+        id S1730759AbfETM1z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:27:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B7FE204FD;
-        Mon, 20 May 2019 12:32:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B87B20675;
+        Mon, 20 May 2019 12:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355579;
-        bh=oylC+PnrQAI7xZixoEnQt8HZ1NVPrVmRDNirD/k4gVs=;
+        s=default; t=1558355274;
+        bh=OldcNS/8cfAStbn9CYCK1KVQwgBRyRmGuLt9D8O4Hx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EK2brj8Xsv/bWpiefnOA0e/Zpwm3M/03JIX84IiBYI4oTeEu1nvsyvf83vgVvo/RG
-         xCQq65I7GCPBXFPjeMyhe7aVsBAaFwhg5uIgpH2bnqAUr2tFfxgwWv5nIBHaQ6VzRd
-         Z1WWDdSjgL932HKtPRCry53NgK09x2YL/JQrVcac=
+        b=KYlxN09hMinr81oWoFVL/JZU3pCzOxNLKdOywjHH4SMAerVfWZ2RigOA0YzI8H69K
+         uqvvTnv2p4wZ3lIpnYahkw8Ct42cvHrdk83OZLe0GgrwS3A2EICpqF/EuwBZB1g6bc
+         Qj8QB2eFpB0YkjPIMD99YB1eXxTw+xdWITbLuVeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 047/128] mmc: sdhci-pci: Fix BYT OCP setting
+        stable@vger.kernel.org,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Ben Zhang <benzh@chromium.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.0 054/123] ASoC: RT5677-SPI: Disable 16Bit SPI Transfers
 Date:   Mon, 20 May 2019 14:13:54 +0200
-Message-Id: <20190520115252.931010312@linuxfoundation.org>
+Message-Id: <20190520115248.335064901@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,185 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Curtis Malainey <cujomalainey@chromium.org>
 
-commit 0a49a619e7e1aeb3f5f5511ca59314423c83dae2 upstream.
+commit a46eb523220e242affb9a6bc9bb8efc05f4f7459 upstream.
 
-Some time ago, a fix was done for the sdhci-acpi driver, refer
-commit 6e1c7d6103fe ("mmc: sdhci-acpi: Reduce Baytrail eMMC/SD/SDIO
-hangs"). The same issue was not expected to affect the sdhci-pci driver,
-but there have been reports to the contrary, so make the same hardware
-setting change.
+The current algorithm allows 3 types of transfers, 16bit, 32bit and
+burst. According to Realtek, 16bit transfers have a special restriction
+in that it is restricted to the memory region of
+0x18020000 ~ 0x18021000. This region is the memory location of the I2C
+registers. The current algorithm does not uphold this restriction and
+therefore fails to complete writes.
 
-This patch applies to v5.0+ but before that backports will be required.
+Since this has been broken for some time it likely no one is using it.
+Better to simply disable the 16 bit writes. This will allow users to
+properly load firmware over SPI without data corruption.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Reviewed-by: Ben Zhang <benzh@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/Kconfig          |    1 
- drivers/mmc/host/sdhci-pci-core.c |   96 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+ sound/soc/codecs/rt5677-spi.c |   35 ++++++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
 
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -92,6 +92,7 @@ config MMC_SDHCI_PCI
- 	tristate "SDHCI support on PCI bus"
- 	depends on MMC_SDHCI && PCI
- 	select MMC_CQHCI
-+	select IOSF_MBI if X86
- 	help
- 	  This selects the PCI Secure Digital Host Controller Interface.
- 	  Most controllers found today are PCI devices.
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -31,6 +31,10 @@
- #include <linux/mmc/sdhci-pci-data.h>
- #include <linux/acpi.h>
+--- a/sound/soc/codecs/rt5677-spi.c
++++ b/sound/soc/codecs/rt5677-spi.c
+@@ -57,13 +57,15 @@ static DEFINE_MUTEX(spi_mutex);
+  * RT5677_SPI_READ/WRITE_32:	Transfer 4 bytes
+  * RT5677_SPI_READ/WRITE_BURST:	Transfer any multiples of 8 bytes
+  *
+- * For example, reading 260 bytes at 0x60030002 uses the following commands:
+- * 0x60030002 RT5677_SPI_READ_16	2 bytes
++ * Note:
++ * 16 Bit writes and reads are restricted to the address range
++ * 0x18020000 ~ 0x18021000
++ *
++ * For example, reading 256 bytes at 0x60030004 uses the following commands:
+  * 0x60030004 RT5677_SPI_READ_32	4 bytes
+  * 0x60030008 RT5677_SPI_READ_BURST	240 bytes
+  * 0x600300F8 RT5677_SPI_READ_BURST	8 bytes
+  * 0x60030100 RT5677_SPI_READ_32	4 bytes
+- * 0x60030104 RT5677_SPI_READ_16	2 bytes
+  *
+  * Input:
+  * @read: true for read commands; false for write commands
+@@ -78,15 +80,13 @@ static u8 rt5677_spi_select_cmd(bool rea
+ {
+ 	u8 cmd;
  
-+#ifdef CONFIG_X86
-+#include <asm/iosf_mbi.h>
-+#endif
-+
- #include "cqhci.h"
- 
- #include "sdhci.h"
-@@ -451,6 +455,50 @@ static const struct sdhci_pci_fixes sdhc
- 	.probe_slot	= pch_hc_probe_slot,
- };
- 
-+#ifdef CONFIG_X86
-+
-+#define BYT_IOSF_SCCEP			0x63
-+#define BYT_IOSF_OCP_NETCTRL0		0x1078
-+#define BYT_IOSF_OCP_TIMEOUT_BASE	GENMASK(10, 8)
-+
-+static void byt_ocp_setting(struct pci_dev *pdev)
-+{
-+	u32 val = 0;
-+
-+	if (pdev->device != PCI_DEVICE_ID_INTEL_BYT_EMMC &&
-+	    pdev->device != PCI_DEVICE_ID_INTEL_BYT_SDIO &&
-+	    pdev->device != PCI_DEVICE_ID_INTEL_BYT_SD &&
-+	    pdev->device != PCI_DEVICE_ID_INTEL_BYT_EMMC2)
-+		return;
-+
-+	if (iosf_mbi_read(BYT_IOSF_SCCEP, MBI_CR_READ, BYT_IOSF_OCP_NETCTRL0,
-+			  &val)) {
-+		dev_err(&pdev->dev, "%s read error\n", __func__);
-+		return;
-+	}
-+
-+	if (!(val & BYT_IOSF_OCP_TIMEOUT_BASE))
-+		return;
-+
-+	val &= ~BYT_IOSF_OCP_TIMEOUT_BASE;
-+
-+	if (iosf_mbi_write(BYT_IOSF_SCCEP, MBI_CR_WRITE, BYT_IOSF_OCP_NETCTRL0,
-+			   val)) {
-+		dev_err(&pdev->dev, "%s write error\n", __func__);
-+		return;
-+	}
-+
-+	dev_dbg(&pdev->dev, "%s completed\n", __func__);
-+}
-+
-+#else
-+
-+static inline void byt_ocp_setting(struct pci_dev *pdev)
-+{
-+}
-+
-+#endif
-+
- enum {
- 	INTEL_DSM_FNS		=  0,
- 	INTEL_DSM_V18_SWITCH	=  3,
-@@ -715,6 +763,8 @@ static void byt_probe_slot(struct sdhci_
- 
- 	byt_read_dsm(slot);
- 
-+	byt_ocp_setting(slot->chip->pdev);
-+
- 	ops->execute_tuning = intel_execute_tuning;
- 	ops->start_signal_voltage_switch = intel_start_signal_voltage_switch;
- 
-@@ -938,7 +988,35 @@ static int byt_sd_probe_slot(struct sdhc
- 	return 0;
+-	if (align == 2 || align == 6 || remain == 2) {
+-		cmd = RT5677_SPI_READ_16;
+-		*len = 2;
+-	} else if (align == 4 || remain <= 6) {
++	if (align == 4 || remain <= 4) {
+ 		cmd = RT5677_SPI_READ_32;
+ 		*len = 4;
+ 	} else {
+ 		cmd = RT5677_SPI_READ_BURST;
+-		*len = min_t(u32, remain & ~7, RT5677_SPI_BURST_LEN);
++		*len = (((remain - 1) >> 3) + 1) << 3;
++		*len = min_t(u32, *len, RT5677_SPI_BURST_LEN);
+ 	}
+ 	return read ? cmd : cmd + 1;
+ }
+@@ -107,7 +107,7 @@ static void rt5677_spi_reverse(u8 *dst,
+ 	}
  }
  
-+#ifdef CONFIG_PM_SLEEP
-+
-+static int byt_resume(struct sdhci_pci_chip *chip)
-+{
-+	byt_ocp_setting(chip->pdev);
-+
-+	return sdhci_pci_resume_host(chip);
-+}
-+
-+#endif
-+
-+#ifdef CONFIG_PM
-+
-+static int byt_runtime_resume(struct sdhci_pci_chip *chip)
-+{
-+	byt_ocp_setting(chip->pdev);
-+
-+	return sdhci_pci_runtime_resume_host(chip);
-+}
-+
-+#endif
-+
- static const struct sdhci_pci_fixes sdhci_intel_byt_emmc = {
-+#ifdef CONFIG_PM_SLEEP
-+	.resume		= byt_resume,
-+#endif
-+#ifdef CONFIG_PM
-+	.runtime_resume	= byt_runtime_resume,
-+#endif
- 	.allow_runtime_pm = true,
- 	.probe_slot	= byt_emmc_probe_slot,
- 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC |
-@@ -972,6 +1050,12 @@ static const struct sdhci_pci_fixes sdhc
- };
+-/* Read DSP address space using SPI. addr and len have to be 2-byte aligned. */
++/* Read DSP address space using SPI. addr and len have to be 4-byte aligned. */
+ int rt5677_spi_read(u32 addr, void *rxbuf, size_t len)
+ {
+ 	u32 offset;
+@@ -123,7 +123,7 @@ int rt5677_spi_read(u32 addr, void *rxbu
+ 	if (!g_spi)
+ 		return -ENODEV;
  
- static const struct sdhci_pci_fixes sdhci_ni_byt_sdio = {
-+#ifdef CONFIG_PM_SLEEP
-+	.resume		= byt_resume,
-+#endif
-+#ifdef CONFIG_PM
-+	.runtime_resume	= byt_runtime_resume,
-+#endif
- 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC |
- 			  SDHCI_QUIRK_NO_LED,
- 	.quirks2	= SDHCI_QUIRK2_HOST_OFF_CARD_ON |
-@@ -983,6 +1067,12 @@ static const struct sdhci_pci_fixes sdhc
- };
+-	if ((addr & 1) || (len & 1)) {
++	if ((addr & 3) || (len & 3)) {
+ 		dev_err(&g_spi->dev, "Bad read align 0x%x(%zu)\n", addr, len);
+ 		return -EACCES;
+ 	}
+@@ -158,13 +158,13 @@ int rt5677_spi_read(u32 addr, void *rxbu
+ }
+ EXPORT_SYMBOL_GPL(rt5677_spi_read);
  
- static const struct sdhci_pci_fixes sdhci_intel_byt_sdio = {
-+#ifdef CONFIG_PM_SLEEP
-+	.resume		= byt_resume,
-+#endif
-+#ifdef CONFIG_PM
-+	.runtime_resume	= byt_runtime_resume,
-+#endif
- 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC |
- 			  SDHCI_QUIRK_NO_LED,
- 	.quirks2	= SDHCI_QUIRK2_HOST_OFF_CARD_ON |
-@@ -994,6 +1084,12 @@ static const struct sdhci_pci_fixes sdhc
- };
+-/* Write DSP address space using SPI. addr has to be 2-byte aligned.
+- * If len is not 2-byte aligned, an extra byte of zero is written at the end
++/* Write DSP address space using SPI. addr has to be 4-byte aligned.
++ * If len is not 4-byte aligned, then extra zeros are written at the end
+  * as padding.
+  */
+ int rt5677_spi_write(u32 addr, const void *txbuf, size_t len)
+ {
+-	u32 offset, len_with_pad = len;
++	u32 offset;
+ 	int status = 0;
+ 	struct spi_transfer t;
+ 	struct spi_message m;
+@@ -177,22 +177,19 @@ int rt5677_spi_write(u32 addr, const voi
+ 	if (!g_spi)
+ 		return -ENODEV;
  
- static const struct sdhci_pci_fixes sdhci_intel_byt_sd = {
-+#ifdef CONFIG_PM_SLEEP
-+	.resume		= byt_resume,
-+#endif
-+#ifdef CONFIG_PM
-+	.runtime_resume	= byt_runtime_resume,
-+#endif
- 	.quirks		= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC |
- 			  SDHCI_QUIRK_NO_LED,
- 	.quirks2	= SDHCI_QUIRK2_CARD_ON_NEEDS_BUS_ON |
+-	if (addr & 1) {
++	if (addr & 3) {
+ 		dev_err(&g_spi->dev, "Bad write align 0x%x(%zu)\n", addr, len);
+ 		return -EACCES;
+ 	}
+ 
+-	if (len & 1)
+-		len_with_pad = len + 1;
+-
+ 	memset(&t, 0, sizeof(t));
+ 	t.tx_buf = buf;
+ 	t.speed_hz = RT5677_SPI_FREQ;
+ 	spi_message_init_with_transfers(&m, &t, 1);
+ 
+-	for (offset = 0; offset < len_with_pad;) {
++	for (offset = 0; offset < len;) {
+ 		spi_cmd = rt5677_spi_select_cmd(false, (addr + offset) & 7,
+-				len_with_pad - offset, &t.len);
++				len - offset, &t.len);
+ 
+ 		/* Construct SPI message header */
+ 		buf[0] = spi_cmd;
 
 
