@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B64243A2
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F43243BB
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726703AbfETWue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 18:50:34 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:41206 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbfETWud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:33 -0400
-Received: by mail-lj1-f193.google.com with SMTP id q16so3022983ljj.8;
-        Mon, 20 May 2019 15:50:32 -0700 (PDT)
+        id S1727404AbfETWvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 18:51:12 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:36220 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726584AbfETWuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:50:35 -0400
+Received: by mail-lf1-f65.google.com with SMTP id y10so11554002lfl.3;
+        Mon, 20 May 2019 15:50:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=JZGMHVwL/wB6dikUoQRPrzvmQgfUVtWFgGUr1uNGhMY=;
-        b=V/jTJmvP07Eut0UjDTwqWaHV4gc4bHSZ082UD2by0Gzoe+KolR+nuoUpYIorvJlzQe
-         pGmGfuD7U0kc7XwdiKMYILOW01+SYtvC3pqTWZEm7n54743m4hTycQtcbzJAaWnxwKVG
-         gMLR5PjsZO5OWqx8/Zp6mnWGdK5ClN0DgIvkx/lMgLI9CF7+BcDg4N8fu9OWwutJaiac
-         7sO5sTq1fPm9oIUOyVgqoJvXOGgQGEW9+gsuC8xmNV6rkMhikyK2QWa0g0C2QdOWmbvO
-         hTY+6Zks1mv+LN7w/RFOQ0sx491kJiPuMvSddHrD9ZKsldyoeoxJVOnpzxL6PeAW6fGP
-         LjmA==
+        bh=Vxf6jf0I3TNkNsrZiapyq8fbjujSIosIG2y16ynybBA=;
+        b=cPKte+l2qZ4j+ifr+H9BD/YTN4+qCpvm4PqiW4AsAGuOwDsFPhaAkyVA5Uqe69hgN6
+         WjG+vSt/obII1rjN06w4ZNtggFlIMXhjxmeOpnP3TAa2cL2EH4I4EC/3lqf+dJvtWvyE
+         DSY4KwzMUD06suAcdr/fY9/loNVjfDTRZqQpwZUgzEfcwfoMjZwc346NKwZQnRfzK+IS
+         IrtuMWYeFuSbkvz96K0fvOTkbKPFAz82Oiy2OqhieGfVJ0Gq60ttHtwoHjajpx8lVAie
+         zIHBD7ceytsULxLRheDaOo7/Eu3b8xIp1hApNVO4CcFysAqlMRxdu7ybyJYBuZC84Bcy
+         ye9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=JZGMHVwL/wB6dikUoQRPrzvmQgfUVtWFgGUr1uNGhMY=;
-        b=YloQeav5qrfD6ApXF1ImfJBXLrfLgvNWzus/tuOHhOleIv9K2YPSydD2P7x/o/r1mq
-         frZ0s4l3u//QTMvFDUwZJWfZFkD+2peA6qsLkw56NujdmaeVO6Xp27dGwDzpfM3ubZSq
-         Sw8xRx6PR+wKfmsAn5GiqRSeNzmuCNytcreLrZR2qUNa4oqtootB+VmLiNvOkhROpK1v
-         Tva2i9LUgxNPG3U+X00QSn+Dv1DR7nQxvvsY9mzAueV+BjoRHyQiAk1dWjoEp5mUM1as
-         qwY6dWnu9RXQ6H+QNtg0gsltB1OpTUkF4svZ5+DK0vzTBVTI2boGxiDSrIFLQbRC+lqK
-         1E5g==
-X-Gm-Message-State: APjAAAVxXJ3aRiybMJyERfS9bnlflX+qKL0wxp8kdT//CP3hbsI12W6F
-        YsgPxkNw2LSesiq4n240Th0=
-X-Google-Smtp-Source: APXvYqzTQmiSzVMxBmZHErObRzwXMR88rpal8E+LmtTx/hZLsL4qRiLr1OnRrWvcK6Eac7zpqPG4xg==
-X-Received: by 2002:a2e:a0d1:: with SMTP id f17mr1721582ljm.117.1558392631490;
-        Mon, 20 May 2019 15:50:31 -0700 (PDT)
+        bh=Vxf6jf0I3TNkNsrZiapyq8fbjujSIosIG2y16ynybBA=;
+        b=frdtAuuFrLeLZvGlLlZ3Yfot5uMz9HJCLclpuBk+ODBTQNRkXq9vQKKOHX7Y4fY9rp
+         gWXW+a+V672g3NhwMRcUS/LBMpYFFGcNZPJmS+jmOelvL0Npz+ydMK/BSH3OvUL0dJK5
+         Q6MSXzytTgrFN1AI7JmpWDHA3kJUAlAmI0tSY0EDF+F3EmrAWU+cHBiosnNoa+6Tr7ru
+         AQ/upy9wspJKgLb95DeW0c7hrt4bkcacyG+2XQ98cBM9Wzr8bJZji/FvAS5RHGrZPrGg
+         jqkUDF64yw9skoVaYyvMgFsvOqSoHbSyhCERq411HQ18vg7+RXgemFVfDtRJUsBo4wyK
+         PiJQ==
+X-Gm-Message-State: APjAAAV7zkcrwHtipLPSEMxYLyYzqiORJVg7IY4rN3q6VZ+WOfrMgLjZ
+        U+J1sNBgcGI1hPA0j1L0lVM=
+X-Google-Smtp-Source: APXvYqxlM6gWuNzP4Te1EnZSGJxSQC5D3uHa5MNgaDvgeQmCARPSQA6Kt3myJWreUEXW1NxDCA963g==
+X-Received: by 2002:ac2:4c93:: with SMTP id d19mr19052117lfl.116.1558392632679;
+        Mon, 20 May 2019 15:50:32 -0700 (PDT)
 Received: from z50.gdansk-morena.vectranet.pl (109241207190.gdansk.vectranet.pl. [109.241.207.190])
-        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.30
+        by smtp.gmail.com with ESMTPSA id t13sm2371646lji.47.2019.05.20.15.50.31
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 May 2019 15:50:30 -0700 (PDT)
+        Mon, 20 May 2019 15:50:32 -0700 (PDT)
 From:   Janusz Krzysztofik <jmkrzyszt@gmail.com>
 To:     Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -51,9 +51,9 @@ Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
         linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
         Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/9] media: ov6650: Fix MODDULE_DESCRIPTION
-Date:   Tue, 21 May 2019 00:49:59 +0200
-Message-Id: <20190520225007.2308-2-jmkrzyszt@gmail.com>
+Subject: [PATCH v2 2/9] media: ov6650: Fix control handler not freed on init error
+Date:   Tue, 21 May 2019 00:50:00 +0200
+Message-Id: <20190520225007.2308-3-jmkrzyszt@gmail.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520225007.2308-1-jmkrzyszt@gmail.com>
 References: <20190520225007.2308-1-jmkrzyszt@gmail.com>
@@ -64,33 +64,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 23a52386fabe ("media: ov6650: convert to standalone v4l2
-subdevice") converted the driver from a soc_camera sensor to a
-standalone V4L subdevice driver.  Unfortunately, module description was
-not updated to reflect the change.  Fix it.
+Since commit afd9690c72c3 ("[media] ov6650: convert to the control
+framework"), if an error occurs during initialization of a control
+handler, resources possibly allocated to the handler are not freed
+before device initialiaton is aborted.  Fix it.
 
-While being at it, update email address of the module author.
-
-Fixes: 23a52386fabe ("media: ov6650: convert to standalone v4l2 subdevice")
+Fixes: afd9690c72c3 ("[media] ov6650: convert to the control framework")
 Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org
 ---
- drivers/media/i2c/ov6650.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov6650.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index 1b972e591b48..a3d00afcb0c8 100644
+index a3d00afcb0c8..007f0ca24913 100644
 --- a/drivers/media/i2c/ov6650.c
 +++ b/drivers/media/i2c/ov6650.c
-@@ -1045,6 +1045,6 @@ static struct i2c_driver ov6650_i2c_driver = {
+@@ -992,8 +992,10 @@ static int ov6650_probe(struct i2c_client *client,
+ 			V4L2_CID_GAMMA, 0, 0xff, 1, 0x12);
  
- module_i2c_driver(ov6650_i2c_driver);
+ 	priv->subdev.ctrl_handler = &priv->hdl;
+-	if (priv->hdl.error)
+-		return priv->hdl.error;
++	if (priv->hdl.error) {
++		ret = priv->hdl.error;
++		goto ectlhdlfree;
++	}
  
--MODULE_DESCRIPTION("SoC Camera driver for OmniVision OV6650");
--MODULE_AUTHOR("Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>");
-+MODULE_DESCRIPTION("V4L2 subdevice driver for OmniVision OV6650 camera sensor");
-+MODULE_AUTHOR("Janusz Krzysztofik <jmkrzyszt@gmail.com");
- MODULE_LICENSE("GPL v2");
+ 	v4l2_ctrl_auto_cluster(2, &priv->autogain, 0, true);
+ 	v4l2_ctrl_auto_cluster(3, &priv->autowb, 0, true);
+@@ -1012,8 +1014,10 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 
+ 	ret = v4l2_async_register_subdev(&priv->subdev);
+-	if (ret)
+-		v4l2_ctrl_handler_free(&priv->hdl);
++	if (!ret)
++		return 0;
++ectlhdlfree:
++	v4l2_ctrl_handler_free(&priv->hdl);
+ 
+ 	return ret;
+ }
 -- 
 2.21.0
 
