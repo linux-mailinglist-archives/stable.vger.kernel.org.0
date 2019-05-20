@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF06E234A4
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2454233DA
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389264AbfETM3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
+        id S1730727AbfETMUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389843AbfETM3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:14 -0400
+        id S2388026AbfETMUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:20:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E98820645;
-        Mon, 20 May 2019 12:29:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE60021479;
+        Mon, 20 May 2019 12:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355354;
-        bh=jS18uhjhZFB0J7GPa296xwoUoszjtacB5vvBJtErWs8=;
+        s=default; t=1558354839;
+        bh=JSpRtVrQfqcSTyU5q2HUJokVCkqDhJxFKC/Xsx9ZprU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTWndb4kDopFDVLmcwB1PffqwKgstb5BW6Gt484s9Xp9p7OHdCGTCnZKPQhnR7dVT
-         4+MiNy0qYHq6biWFMtZo62hX9dHu6OPFj/WHsASWuMIf6CnzgKprqgI0M1jBXIYIaj
-         MJng72E+DGPzBrL8HmiL7ZXX3jvdc1wH8BuA15cw=
+        b=VzoaTwVdAro96XotUYZb2/DLH8tIIuWVE8OdmJPASv5qn2HorE+B5qXQwqnQ0ivmI
+         3v/NcO45RIkvoq3/0JA+y+qqsAMENd9u9D/UWcbeRF72M2uDYTvdoY+OLf2XtmIjb0
+         QugB2kkhtK9cn82UIcWkvu5opPJlQ6lnNOkqxufs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.0 060/123] crypto: ccree - dont map MAC key on stack
-Date:   Mon, 20 May 2019 14:14:00 +0200
-Message-Id: <20190520115248.773914614@linuxfoundation.org>
+Subject: [PATCH 4.14 22/63] crypto: gcm - fix incompatibility between "gcm" and "gcm_base"
+Date:   Mon, 20 May 2019 14:14:01 +0200
+Message-Id: <20190520115233.518758551@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +43,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 874e163759f27e0a9988c5d1f4605e3f25564fd2 upstream.
+commit f699594d436960160f6d5ba84ed4a222f20d11cd upstream.
 
-The MAC hash key might be passed to us on stack. Copy it to
-a slab buffer before mapping to gurantee proper DMA mapping.
+GCM instances can be created by either the "gcm" template, which only
+allows choosing the block cipher, e.g. "gcm(aes)"; or by "gcm_base",
+which allows choosing the ctr and ghash implementations, e.g.
+"gcm_base(ctr(aes-generic),ghash-generic)".
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
+However, a "gcm_base" instance prevents a "gcm" instance from being
+registered using the same implementations.  Nor will the instance be
+found by lookups of "gcm".  This can be used as a denial of service.
+Moreover, "gcm_base" instances are never tested by the crypto
+self-tests, even if there are compatible "gcm" tests.
+
+The root cause of these problems is that instances of the two templates
+use different cra_names.  Therefore, fix these problems by making
+"gcm_base" instances set the same cra_name as "gcm" instances, e.g.
+"gcm(aes)" instead of "gcm_base(ctr(aes-generic),ghash-generic)".
+
+This requires extracting the block cipher name from the name of the ctr
+algorithm.  It also requires starting to verify that the algorithms are
+really ctr and ghash, not something else entirely.  But it would be
+bizarre if anyone were actually using non-gcm-compatible algorithms with
+gcm_base, so this shouldn't break anyone in practice.
+
+Fixes: d00aa19b507b ("[CRYPTO] gcm: Allow block cipher parameter")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_hash.c |   24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ crypto/gcm.c |   34 +++++++++++-----------------------
+ 1 file changed, 11 insertions(+), 23 deletions(-)
 
---- a/drivers/crypto/ccree/cc_hash.c
-+++ b/drivers/crypto/ccree/cc_hash.c
-@@ -69,6 +69,7 @@ struct cc_hash_alg {
- struct hash_key_req_ctx {
- 	u32 keylen;
- 	dma_addr_t key_dma_addr;
-+	u8 *key;
- };
+--- a/crypto/gcm.c
++++ b/crypto/gcm.c
+@@ -616,7 +616,6 @@ static void crypto_gcm_free(struct aead_
  
- /* hash per-session context */
-@@ -730,13 +731,20 @@ static int cc_hash_setkey(struct crypto_
- 	ctx->key_params.keylen = keylen;
- 	ctx->key_params.key_dma_addr = 0;
- 	ctx->is_hmac = true;
-+	ctx->key_params.key = NULL;
+ static int crypto_gcm_create_common(struct crypto_template *tmpl,
+ 				    struct rtattr **tb,
+-				    const char *full_name,
+ 				    const char *ctr_name,
+ 				    const char *ghash_name)
+ {
+@@ -657,7 +656,8 @@ static int crypto_gcm_create_common(stru
+ 		goto err_free_inst;
  
- 	if (keylen) {
-+		ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
-+		if (!ctx->key_params.key)
-+			return -ENOMEM;
-+
- 		ctx->key_params.key_dma_addr =
--			dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
-+			dma_map_single(dev, (void *)ctx->key_params.key, keylen,
-+				       DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
- 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
--				key, keylen);
-+				ctx->key_params.key, keylen);
-+			kzfree(ctx->key_params.key);
- 			return -ENOMEM;
- 		}
- 		dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
-@@ -887,6 +895,9 @@ out:
- 		dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
- 			&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
- 	}
-+
-+	kzfree(ctx->key_params.key);
-+
- 	return rc;
+ 	err = -EINVAL;
+-	if (ghash->digestsize != 16)
++	if (strcmp(ghash->base.cra_name, "ghash") != 0 ||
++	    ghash->digestsize != 16)
+ 		goto err_drop_ghash;
+ 
+ 	crypto_set_skcipher_spawn(&ctx->ctr, aead_crypto_instance(inst));
+@@ -669,24 +669,24 @@ static int crypto_gcm_create_common(stru
+ 
+ 	ctr = crypto_spawn_skcipher_alg(&ctx->ctr);
+ 
+-	/* We only support 16-byte blocks. */
++	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
+ 	err = -EINVAL;
+-	if (crypto_skcipher_alg_ivsize(ctr) != 16)
++	if (strncmp(ctr->base.cra_name, "ctr(", 4) != 0 ||
++	    crypto_skcipher_alg_ivsize(ctr) != 16 ||
++	    ctr->base.cra_blocksize != 1)
+ 		goto out_put_ctr;
+ 
+-	/* Not a stream cipher? */
+-	if (ctr->base.cra_blocksize != 1)
++	err = -ENAMETOOLONG;
++	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
++		     "gcm(%s", ctr->base.cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
+ 		goto out_put_ctr;
+ 
+-	err = -ENAMETOOLONG;
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "gcm_base(%s,%s)", ctr->base.cra_driver_name,
+ 		     ghash_alg->cra_driver_name) >=
+ 	    CRYPTO_MAX_ALG_NAME)
+ 		goto out_put_ctr;
+ 
+-	memcpy(inst->alg.base.cra_name, full_name, CRYPTO_MAX_ALG_NAME);
+-
+ 	inst->alg.base.cra_flags = (ghash->base.cra_flags |
+ 				    ctr->base.cra_flags) & CRYPTO_ALG_ASYNC;
+ 	inst->alg.base.cra_priority = (ghash->base.cra_priority +
+@@ -728,7 +728,6 @@ static int crypto_gcm_create(struct cryp
+ {
+ 	const char *cipher_name;
+ 	char ctr_name[CRYPTO_MAX_ALG_NAME];
+-	char full_name[CRYPTO_MAX_ALG_NAME];
+ 
+ 	cipher_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(cipher_name))
+@@ -738,12 +737,7 @@ static int crypto_gcm_create(struct cryp
+ 	    CRYPTO_MAX_ALG_NAME)
+ 		return -ENAMETOOLONG;
+ 
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm(%s)", cipher_name) >=
+-	    CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
+-
+-	return crypto_gcm_create_common(tmpl, tb, full_name,
+-					ctr_name, "ghash");
++	return crypto_gcm_create_common(tmpl, tb, ctr_name, "ghash");
  }
  
-@@ -913,11 +924,16 @@ static int cc_xcbc_setkey(struct crypto_
+ static struct crypto_template crypto_gcm_tmpl = {
+@@ -757,7 +751,6 @@ static int crypto_gcm_base_create(struct
+ {
+ 	const char *ctr_name;
+ 	const char *ghash_name;
+-	char full_name[CRYPTO_MAX_ALG_NAME];
  
- 	ctx->key_params.keylen = keylen;
+ 	ctr_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(ctr_name))
+@@ -767,12 +760,7 @@ static int crypto_gcm_base_create(struct
+ 	if (IS_ERR(ghash_name))
+ 		return PTR_ERR(ghash_name);
  
-+	ctx->key_params.key = kmemdup(key, keylen, GFP_KERNEL);
-+	if (!ctx->key_params.key)
-+		return -ENOMEM;
-+
- 	ctx->key_params.key_dma_addr =
--		dma_map_single(dev, (void *)key, keylen, DMA_TO_DEVICE);
-+		dma_map_single(dev, ctx->key_params.key, keylen, DMA_TO_DEVICE);
- 	if (dma_mapping_error(dev, ctx->key_params.key_dma_addr)) {
- 		dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
- 			key, keylen);
-+		kzfree(ctx->key_params.key);
- 		return -ENOMEM;
- 	}
- 	dev_dbg(dev, "mapping key-buffer: key_dma_addr=%pad keylen=%u\n",
-@@ -969,6 +985,8 @@ static int cc_xcbc_setkey(struct crypto_
- 	dev_dbg(dev, "Unmapped key-buffer: key_dma_addr=%pad keylen=%u\n",
- 		&ctx->key_params.key_dma_addr, ctx->key_params.keylen);
- 
-+	kzfree(ctx->key_params.key);
-+
- 	return rc;
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm_base(%s,%s)",
+-		     ctr_name, ghash_name) >= CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
+-
+-	return crypto_gcm_create_common(tmpl, tb, full_name,
+-					ctr_name, ghash_name);
++	return crypto_gcm_create_common(tmpl, tb, ctr_name, ghash_name);
  }
  
+ static struct crypto_template crypto_gcm_base_tmpl = {
 
 
