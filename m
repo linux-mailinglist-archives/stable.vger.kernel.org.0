@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2F1523682
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A9D23611
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389075AbfETMZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40538 "EHLO mail.kernel.org"
+        id S2388855AbfETM3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389059AbfETMZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:26 -0400
+        id S2389556AbfETM3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E287320675;
-        Mon, 20 May 2019 12:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B12A20675;
+        Mon, 20 May 2019 12:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355125;
-        bh=s0RGvyqC7nuSJTpCF2VB3TyaIORNOqn0wLd18iuFbGM=;
+        s=default; t=1558355380;
+        bh=DsNiHMusas3sE1yJQ4pCj2xQBDoxoi4RyV6Wd7ipSHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEsncRtyCC1VP87d5vLlR4s+AcHuQvgLb6AlY3zekuw3jfQJMV0cvDQLKbmGcNQQs
-         i6l84fAWdsD8AsucU6fZhxB2Tfbrg8bOj5/EQ6G0ixmAVLFw/IoV+B8CDyUbhmLMwV
-         6jcnOc43uc+7XjxF/GQV+ICaCtlM4Scvm0g1O4hQ=
+        b=ATuoXPCazXcWE2Oqq5O9hXl6YVT0p2i0I3TkJtn0h4R2fYAPUyLXEtieJmUDMGrbm
+         kYceMSPMXDwEHyHhqKwyZJo2r86Rit3dgNRAkodusbql2y9qR92sIsUQ2GKydBps3J
+         sY8C4vMvOKdPt3aECfXZk4+sD97RjXo9fVfuwQKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 090/105] ALSA: hda/realtek - Fixup headphone noise via runtime suspend
+        stable@vger.kernel.org, Liang Chen <liangchen.linux@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.0 096/123] bcache: fix a race between cache register and cacheset unregister
 Date:   Mon, 20 May 2019 14:14:36 +0200
-Message-Id: <20190520115253.495222002@linuxfoundation.org>
+Message-Id: <20190520115251.387299514@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-commit dad3197da7a3817f27bb24f7fd3c135ffa707202 upstream.
+commit a4b732a248d12cbdb46999daf0bf288c011335eb upstream.
 
-Dell platform with ALC298.
-system enter to runtime suspend. Headphone had noise.
-Let Headset Mic not shutup will solve this issue.
+There is a race between cache device register and cache set unregister.
+For an already registered cache device, register_bcache will call
+bch_is_open to iterate through all cachesets and check every cache
+there. The race occurs if cache_set_free executes at the same time and
+clears the caches right before ca is dereferenced in bch_is_open_cache.
+To close the race, let's make sure the clean up work is protected by
+the bch_register_lock as well.
 
-[ Fixed minor coding style issues by tiwai ]
+This issue can be reproduced as follows,
+while true; do echo /dev/XXX> /sys/fs/bcache/register ; done&
+while true; do echo 1> /sys/block/XXX/bcache/set/unregister ; done &
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+and results in the following oops,
+
+[  +0.000053] BUG: unable to handle kernel NULL pointer dereference at 0000000000000998
+[  +0.000457] #PF error: [normal kernel read fault]
+[  +0.000464] PGD 800000003ca9d067 P4D 800000003ca9d067 PUD 3ca9c067 PMD 0
+[  +0.000388] Oops: 0000 [#1] SMP PTI
+[  +0.000269] CPU: 1 PID: 3266 Comm: bash Not tainted 5.0.0+ #6
+[  +0.000346] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.fc28 04/01/2014
+[  +0.000472] RIP: 0010:register_bcache+0x1829/0x1990 [bcache]
+[  +0.000344] Code: b0 48 83 e8 50 48 81 fa e0 e1 10 c0 0f 84 a9 00 00 00 48 89 c6 48 89 ca 0f b7 ba 54 04 00 00 4c 8b 82 60 0c 00 00 85 ff 74 2f <49> 3b a8 98 09 00 00 74 4e 44 8d 47 ff 31 ff 49 c1 e0 03 eb 0d
+[  +0.000839] RSP: 0018:ffff92ee804cbd88 EFLAGS: 00010202
+[  +0.000328] RAX: ffffffffc010e190 RBX: ffff918b5c6b5000 RCX: ffff918b7d8e0000
+[  +0.000399] RDX: ffff918b7d8e0000 RSI: ffffffffc010e190 RDI: 0000000000000001
+[  +0.000398] RBP: ffff918b7d318340 R08: 0000000000000000 R09: ffffffffb9bd2d7a
+[  +0.000385] R10: ffff918b7eb253c0 R11: ffffb95980f51200 R12: ffffffffc010e1a0
+[  +0.000411] R13: fffffffffffffff2 R14: 000000000000000b R15: ffff918b7e232620
+[  +0.000384] FS:  00007f955bec2740(0000) GS:ffff918b7eb00000(0000) knlGS:0000000000000000
+[  +0.000420] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0.000801] CR2: 0000000000000998 CR3: 000000003cad6000 CR4: 00000000001406e0
+[  +0.000837] Call Trace:
+[  +0.000682]  ? _cond_resched+0x10/0x20
+[  +0.000691]  ? __kmalloc+0x131/0x1b0
+[  +0.000710]  kernfs_fop_write+0xfa/0x170
+[  +0.000733]  __vfs_write+0x2e/0x190
+[  +0.000688]  ? inode_security+0x10/0x30
+[  +0.000698]  ? selinux_file_permission+0xd2/0x120
+[  +0.000752]  ? security_file_permission+0x2b/0x100
+[  +0.000753]  vfs_write+0xa8/0x1a0
+[  +0.000676]  ksys_write+0x4d/0xb0
+[  +0.000699]  do_syscall_64+0x3a/0xf0
+[  +0.000692]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   59 ++++++++++++++++++++++++------------------
- 1 file changed, 35 insertions(+), 24 deletions(-)
+ drivers/md/bcache/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -477,12 +477,45 @@ static void alc_auto_setup_eapd(struct h
- 		set_eapd(codec, *p, on);
- }
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1516,6 +1516,7 @@ static void cache_set_free(struct closur
+ 	bch_btree_cache_free(c);
+ 	bch_journal_free(c);
  
-+static int find_ext_mic_pin(struct hda_codec *codec);
-+
-+static void alc_headset_mic_no_shutup(struct hda_codec *codec)
-+{
-+	const struct hda_pincfg *pin;
-+	int mic_pin = find_ext_mic_pin(codec);
-+	int i;
-+
-+	/* don't shut up pins when unloading the driver; otherwise it breaks
-+	 * the default pin setup at the next load of the driver
-+	 */
-+	if (codec->bus->shutdown)
-+		return;
-+
-+	snd_array_for_each(&codec->init_pins, i, pin) {
-+		/* use read here for syncing after issuing each verb */
-+		if (pin->nid != mic_pin)
-+			snd_hda_codec_read(codec, pin->nid, 0,
-+					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
-+	}
-+
-+	codec->pins_shutup = 1;
-+}
-+
- static void alc_shutup_pins(struct hda_codec *codec)
- {
- 	struct alc_spec *spec = codec->spec;
++	mutex_lock(&bch_register_lock);
+ 	for_each_cache(ca, c, i)
+ 		if (ca) {
+ 			ca->set = NULL;
+@@ -1534,7 +1535,6 @@ static void cache_set_free(struct closur
+ 	mempool_exit(&c->search);
+ 	kfree(c->devices);
  
--	if (!spec->no_shutup_pins)
--		snd_hda_shutup_pins(codec);
-+	switch (codec->core.vendor_id) {
-+	case 0x10ec0286:
-+	case 0x10ec0288:
-+	case 0x10ec0298:
-+		alc_headset_mic_no_shutup(codec);
-+		break;
-+	default:
-+		if (!spec->no_shutup_pins)
-+			snd_hda_shutup_pins(codec);
-+		break;
-+	}
- }
+-	mutex_lock(&bch_register_lock);
+ 	list_del(&c->list);
+ 	mutex_unlock(&bch_register_lock);
  
- /* generic shutup callback;
-@@ -2923,27 +2956,6 @@ static int alc269_parse_auto_config(stru
- 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
- }
- 
--static int find_ext_mic_pin(struct hda_codec *codec);
--
--static void alc286_shutup(struct hda_codec *codec)
--{
--	const struct hda_pincfg *pin;
--	int i;
--	int mic_pin = find_ext_mic_pin(codec);
--	/* don't shut up pins when unloading the driver; otherwise it breaks
--	 * the default pin setup at the next load of the driver
--	 */
--	if (codec->bus->shutdown)
--		return;
--	snd_array_for_each(&codec->init_pins, i, pin) {
--		/* use read here for syncing after issuing each verb */
--		if (pin->nid != mic_pin)
--			snd_hda_codec_read(codec, pin->nid, 0,
--					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
--	}
--	codec->pins_shutup = 1;
--}
--
- static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
- {
- 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
-@@ -7611,7 +7623,6 @@ static int patch_alc269(struct hda_codec
- 	case 0x10ec0286:
- 	case 0x10ec0288:
- 		spec->codec_variant = ALC269_TYPE_ALC286;
--		spec->shutup = alc286_shutup;
- 		break;
- 	case 0x10ec0298:
- 		spec->codec_variant = ALC269_TYPE_ALC298;
 
 
