@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E1E423398
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 570292347A
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733232AbfETMSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59572 "EHLO mail.kernel.org"
+        id S2389052AbfETM1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733251AbfETMS3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:29 -0400
+        id S2389465AbfETM1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:27:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2A0220815;
-        Mon, 20 May 2019 12:18:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84FED21479;
+        Mon, 20 May 2019 12:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354708;
-        bh=GwKL8QXGzXncpLaeS1w+0jUMCaFA2lV7Bl/4RpPP5iQ=;
+        s=default; t=1558355234;
+        bh=jtIPTCrCDBggXmWVcRLXc+5STIRFw19bMK6i/GTSBXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBDtVIChqBLCqSRMxbpEH8uOggDXSOzunHELCdFhdaeBopvsZrdv6uQXPlMds2bsy
-         ri5MrZXWbI6wW/ob8JumT6twThqTunn5pI5/W8ip5BOPmqJzkdPJsyngkBWLC+cPak
-         /QhKv+v2hviXO9Jglb2Atefl0/C+sJqNH7vlDLm0=
+        b=gQIQhwM25Pglby1CpaN5mVzYDJ3eBsdp3PIx8lrrwSURNoiv8JZdwgtRJ/+lTt6Af
+         /j0xLA40Y4X5jlAe5iIKgpE4XK7skI9iAjxg4aObAClfsMJldNpGVNhQ38lswLEo8G
+         /FTIY0KtjHMetJOhINiBMmaPS+Soie5XVJx0BiqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Will Deacon <will.deacon@arm.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/63] locking/rwsem: Prevent decrement of reader count before increment
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.0 041/123] crypto: caam/qi2 - generate hash keys in-place
 Date:   Mon, 20 May 2019 14:13:41 +0200
-Message-Id: <20190520115231.459989564@linuxfoundation.org>
+Message-Id: <20190520115247.453960552@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,129 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9e9bcb45b1525ba7aea26ed9441e8632aeeda58 ]
+From: Horia Geantă <horia.geanta@nxp.com>
 
-During my rwsem testing, it was found that after a down_read(), the
-reader count may occasionally become 0 or even negative. Consequently,
-a writer may steal the lock at that time and execute with the reader
-in parallel thus breaking the mutual exclusion guarantee of the write
-lock. In other words, both readers and writer can become rwsem owners
-simultaneously.
+commit 418cd20e4dcdca97e6f6d59e6336228dacf2e45d upstream.
 
-The current reader wakeup code does it in one pass to clear waiter->task
-and put them into wake_q before fully incrementing the reader count.
-Once waiter->task is cleared, the corresponding reader may see it,
-finish the critical section and do unlock to decrement the count before
-the count is incremented. This is not a problem if there is only one
-reader to wake up as the count has been pre-incremented by 1.  It is
-a problem if there are more than one readers to be woken up and writer
-can steal the lock.
+Commit 307244452d3d ("crypto: caam - generate hash keys in-place")
+fixed ahash implementation in caam/jr driver such that user-provided key
+buffer is not DMA mapped, since it's not guaranteed to be DMAable.
 
-The wakeup was actually done in 2 passes before the following v4.9 commit:
+Apply a similar fix for caam/qi2 driver.
 
-  70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
+Cc: <stable@vger.kernel.org> # v4.20+
+Fixes: 3f16f6c9d632 ("crypto: caam/qi2 - add support for ahash algorithms")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-To fix this problem, the wakeup is now done in two passes
-again. In the first pass, we collect the readers and count them.
-The reader count is then fully incremented. In the second pass, the
-waiter->task is then cleared and they are put into wake_q to be woken
-up later.
-
-Signed-off-by: Waiman Long <longman@redhat.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Fixes: 70800c3c0cc5 ("locking/rwsem: Scan the wait_list for readers only once")
-Link: http://lkml.kernel.org/r/20190428212557.13482-2-longman@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/rwsem-xadd.c | 44 +++++++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ drivers/crypto/caam/caamalg_qi2.c |   41 +++++++++++++-------------------------
+ 1 file changed, 15 insertions(+), 26 deletions(-)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index c75017326c37a..3f5be624c7649 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -130,6 +130,7 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- {
- 	struct rwsem_waiter *waiter, *tmp;
- 	long oldcount, woken = 0, adjustment = 0;
-+	struct list_head wlist;
- 
- 	/*
- 	 * Take a peek at the queue head waiter such that we can determine
-@@ -188,18 +189,42 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- 	 * of the queue. We know that woken will be at least 1 as we accounted
- 	 * for above. Note we increment the 'active part' of the count by the
- 	 * number of readers before waking any processes up.
-+	 *
-+	 * We have to do wakeup in 2 passes to prevent the possibility that
-+	 * the reader count may be decremented before it is incremented. It
-+	 * is because the to-be-woken waiter may not have slept yet. So it
-+	 * may see waiter->task got cleared, finish its critical section and
-+	 * do an unlock before the reader count increment.
-+	 *
-+	 * 1) Collect the read-waiters in a separate list, count them and
-+	 *    fully increment the reader count in rwsem.
-+	 * 2) For each waiters in the new list, clear waiter->task and
-+	 *    put them into wake_q to be woken up later.
- 	 */
--	list_for_each_entry_safe(waiter, tmp, &sem->wait_list, list) {
--		struct task_struct *tsk;
--
-+	list_for_each_entry(waiter, &sem->wait_list, list) {
- 		if (waiter->type == RWSEM_WAITING_FOR_WRITE)
- 			break;
- 
- 		woken++;
--		tsk = waiter->task;
-+	}
-+	list_cut_before(&wlist, &sem->wait_list, &waiter->list);
-+
-+	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
-+	if (list_empty(&sem->wait_list)) {
-+		/* hit end of list above */
-+		adjustment -= RWSEM_WAITING_BIAS;
-+	}
-+
-+	if (adjustment)
-+		atomic_long_add(adjustment, &sem->count);
-+
-+	/* 2nd pass */
-+	list_for_each_entry_safe(waiter, tmp, &wlist, list) {
-+		struct task_struct *tsk;
- 
-+		tsk = waiter->task;
- 		get_task_struct(tsk);
--		list_del(&waiter->list);
-+
- 		/*
- 		 * Ensure calling get_task_struct() before setting the reader
- 		 * waiter to nil such that rwsem_down_read_failed() cannot
-@@ -215,15 +240,6 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- 		/* wake_q_add() already take the task ref */
- 		put_task_struct(tsk);
- 	}
--
--	adjustment = woken * RWSEM_ACTIVE_READ_BIAS - adjustment;
--	if (list_empty(&sem->wait_list)) {
--		/* hit end of list above */
--		adjustment -= RWSEM_WAITING_BIAS;
--	}
--
--	if (adjustment)
--		atomic_long_add(adjustment, &sem->count);
+--- a/drivers/crypto/caam/caamalg_qi2.c
++++ b/drivers/crypto/caam/caamalg_qi2.c
+@@ -3021,13 +3021,13 @@ static void split_key_sh_done(void *cbk_
  }
  
- /*
--- 
-2.20.1
-
+ /* Digest hash size if it is too large */
+-static int hash_digest_key(struct caam_hash_ctx *ctx, const u8 *key_in,
+-			   u32 *keylen, u8 *key_out, u32 digestsize)
++static int hash_digest_key(struct caam_hash_ctx *ctx, u32 *keylen, u8 *key,
++			   u32 digestsize)
+ {
+ 	struct caam_request *req_ctx;
+ 	u32 *desc;
+ 	struct split_key_sh_result result;
+-	dma_addr_t src_dma, dst_dma;
++	dma_addr_t key_dma;
+ 	struct caam_flc *flc;
+ 	dma_addr_t flc_dma;
+ 	int ret = -ENOMEM;
+@@ -3044,17 +3044,10 @@ static int hash_digest_key(struct caam_h
+ 	if (!flc)
+ 		goto err_flc;
+ 
+-	src_dma = dma_map_single(ctx->dev, (void *)key_in, *keylen,
+-				 DMA_TO_DEVICE);
+-	if (dma_mapping_error(ctx->dev, src_dma)) {
+-		dev_err(ctx->dev, "unable to map key input memory\n");
+-		goto err_src_dma;
+-	}
+-	dst_dma = dma_map_single(ctx->dev, (void *)key_out, digestsize,
+-				 DMA_FROM_DEVICE);
+-	if (dma_mapping_error(ctx->dev, dst_dma)) {
+-		dev_err(ctx->dev, "unable to map key output memory\n");
+-		goto err_dst_dma;
++	key_dma = dma_map_single(ctx->dev, key, *keylen, DMA_BIDIRECTIONAL);
++	if (dma_mapping_error(ctx->dev, key_dma)) {
++		dev_err(ctx->dev, "unable to map key memory\n");
++		goto err_key_dma;
+ 	}
+ 
+ 	desc = flc->sh_desc;
+@@ -3079,14 +3072,14 @@ static int hash_digest_key(struct caam_h
+ 
+ 	dpaa2_fl_set_final(in_fle, true);
+ 	dpaa2_fl_set_format(in_fle, dpaa2_fl_single);
+-	dpaa2_fl_set_addr(in_fle, src_dma);
++	dpaa2_fl_set_addr(in_fle, key_dma);
+ 	dpaa2_fl_set_len(in_fle, *keylen);
+ 	dpaa2_fl_set_format(out_fle, dpaa2_fl_single);
+-	dpaa2_fl_set_addr(out_fle, dst_dma);
++	dpaa2_fl_set_addr(out_fle, key_dma);
+ 	dpaa2_fl_set_len(out_fle, digestsize);
+ 
+ 	print_hex_dump_debug("key_in@" __stringify(__LINE__)": ",
+-			     DUMP_PREFIX_ADDRESS, 16, 4, key_in, *keylen, 1);
++			     DUMP_PREFIX_ADDRESS, 16, 4, key, *keylen, 1);
+ 	print_hex_dump_debug("shdesc@" __stringify(__LINE__)": ",
+ 			     DUMP_PREFIX_ADDRESS, 16, 4, desc, desc_bytes(desc),
+ 			     1);
+@@ -3106,17 +3099,15 @@ static int hash_digest_key(struct caam_h
+ 		wait_for_completion(&result.completion);
+ 		ret = result.err;
+ 		print_hex_dump_debug("digested key@" __stringify(__LINE__)": ",
+-				     DUMP_PREFIX_ADDRESS, 16, 4, key_in,
++				     DUMP_PREFIX_ADDRESS, 16, 4, key,
+ 				     digestsize, 1);
+ 	}
+ 
+ 	dma_unmap_single(ctx->dev, flc_dma, sizeof(flc->flc) + desc_bytes(desc),
+ 			 DMA_TO_DEVICE);
+ err_flc_dma:
+-	dma_unmap_single(ctx->dev, dst_dma, digestsize, DMA_FROM_DEVICE);
+-err_dst_dma:
+-	dma_unmap_single(ctx->dev, src_dma, *keylen, DMA_TO_DEVICE);
+-err_src_dma:
++	dma_unmap_single(ctx->dev, key_dma, *keylen, DMA_BIDIRECTIONAL);
++err_key_dma:
+ 	kfree(flc);
+ err_flc:
+ 	kfree(req_ctx);
+@@ -3138,12 +3129,10 @@ static int ahash_setkey(struct crypto_ah
+ 	dev_dbg(ctx->dev, "keylen %d blocksize %d\n", keylen, blocksize);
+ 
+ 	if (keylen > blocksize) {
+-		hashed_key = kmalloc_array(digestsize, sizeof(*hashed_key),
+-					   GFP_KERNEL | GFP_DMA);
++		hashed_key = kmemdup(key, keylen, GFP_KERNEL | GFP_DMA);
+ 		if (!hashed_key)
+ 			return -ENOMEM;
+-		ret = hash_digest_key(ctx, key, &keylen, hashed_key,
+-				      digestsize);
++		ret = hash_digest_key(ctx, &keylen, hashed_key, digestsize);
+ 		if (ret)
+ 			goto bad_free_key;
+ 		key = hashed_key;
 
 
