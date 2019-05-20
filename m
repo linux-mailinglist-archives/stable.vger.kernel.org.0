@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D56E233B9
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E840F236DE
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733073AbfETMUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33378 "EHLO mail.kernel.org"
+        id S1730967AbfETMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387923AbfETMUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:20:04 -0400
+        id S2387523AbfETMR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53E4C21734;
-        Mon, 20 May 2019 12:20:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A361921019;
+        Mon, 20 May 2019 12:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354802;
-        bh=4aaPn3LrBIPLPHNrCNB+LQSAkpLaxCb335jdyp1Sg18=;
+        s=default; t=1558354648;
+        bh=Oew7obFmunycMIJ2UJPJdli7xmc7FLlH1V4LzxOuboI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJYkpjU4grG0oEN4jdZi+UoVHayiwTaZbjA1Hq5jCHhs79t4xS3gRvW79gVQWh81v
-         LmCuJFQU0ck0jf5NeF/bKIWG6MdYFF/FdDZYzTr1GxS5kniFMj3mkgvgMrULrPtcPl
-         3zu2P+i0Z0WYS9f7mURtysLOJqc5OWBp7CsXFOSs=
+        b=uBvx0J2Ux3gArt9ROzFeWrcLF7FJZFqRoSYkAKN5/fc2bOW3O61RJKPuuIKniHVt8
+         LDxyFomOgZFXznw7BXDuJUxrPdQk109v5j/pGuu6v0BASqidWwfizt5jmdlMmgw08X
+         WS3z8ZonIbh/6+2gpZmlfsu82Q7X9Z0E7izPeMAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 47/63] bcache: never set KEY_PTRS of journal key to 0 in journal_reclaim()
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 37/44] crypto: arm/aes-neonbs - dont access already-freed walk.iv
 Date:   Mon, 20 May 2019 14:14:26 +0200
-Message-Id: <20190520115236.273590377@linuxfoundation.org>
+Message-Id: <20190520115235.408291823@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 1bee2addc0c8470c8aaa65ef0599eeae96dd88bc upstream.
+commit 767f015ea0b7ab9d60432ff6cd06b664fd71f50f upstream.
 
-In journal_reclaim() ja->cur_idx of each cache will be update to
-reclaim available journal buckets. Variable 'int n' is used to count how
-many cache is successfully reclaimed, then n is set to c->journal.key
-by SET_KEY_PTRS(). Later in journal_write_unlocked(), a for_each_cache()
-loop will write the jset data onto each cache.
+If the user-provided IV needs to be aligned to the algorithm's
+alignmask, then skcipher_walk_virt() copies the IV into a new aligned
+buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
+if the caller unconditionally accesses walk.iv, it's a use-after-free.
 
-The problem is, if all jouranl buckets on each cache is full, the
-following code in journal_reclaim(),
+arm32 xts-aes-neonbs doesn't set an alignmask, so currently it isn't
+affected by this despite unconditionally accessing walk.iv.  However
+this is more subtle than desired, and it was actually broken prior to
+the alignmask being removed by commit cc477bf64573 ("crypto: arm/aes -
+replace bit-sliced OpenSSL NEON code").  Thus, update xts-aes-neonbs to
+start checking the return value of skcipher_walk_virt().
 
-529 for_each_cache(ca, c, iter) {
-530       struct journal_device *ja = &ca->journal;
-531       unsigned int next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
-532
-533       /* No space available on this device */
-534       if (next == ja->discard_idx)
-535               continue;
-536
-537       ja->cur_idx = next;
-538       k->ptr[n++] = MAKE_PTR(0,
-539                         bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
-540                         ca->sb.nr_this_dev);
-541 }
-542
-543 bkey_init(k);
-544 SET_KEY_PTRS(k, n);
-
-If there is no available bucket to reclaim, the if() condition at line
-534 will always true, and n remains 0. Then at line 544, SET_KEY_PTRS()
-will set KEY_PTRS field of c->journal.key to 0.
-
-Setting KEY_PTRS field of c->journal.key to 0 is wrong. Because in
-journal_write_unlocked() the journal data is written in following loop,
-
-649	for (i = 0; i < KEY_PTRS(k); i++) {
-650-671		submit journal data to cache device
-672	}
-
-If KEY_PTRS field is set to 0 in jouranl_reclaim(), the journal data
-won't be written to cache device here. If system crahed or rebooted
-before bkeys of the lost journal entries written into btree nodes, data
-corruption will be reported during bcache reload after rebooting the
-system.
-
-Indeed there is only one cache in a cache set, there is no need to set
-KEY_PTRS field in journal_reclaim() at all. But in order to keep the
-for_each_cache() logic consistent for now, this patch fixes the above
-problem by not setting 0 KEY_PTRS of journal key, if there is no bucket
-available to reclaim.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e4e7f10bfc40 ("ARM: add support for bit sliced AES using NEON instructions")
+Cc: <stable@vger.kernel.org> # v3.13+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/md/bcache/journal.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -512,11 +512,11 @@ static void journal_reclaim(struct cache
- 				  ca->sb.nr_this_dev);
- 	}
+---
+ arch/arm/crypto/aesbs-glue.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/arch/arm/crypto/aesbs-glue.c
++++ b/arch/arm/crypto/aesbs-glue.c
+@@ -265,6 +265,8 @@ static int aesbs_xts_encrypt(struct blkc
  
--	bkey_init(k);
--	SET_KEY_PTRS(k, n);
--
--	if (n)
-+	if (n) {
-+		bkey_init(k);
-+		SET_KEY_PTRS(k, n);
- 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
-+	}
- out:
- 	if (!journal_full(&c->journal))
- 		__closure_wake_up(&c->journal.wait);
-@@ -641,6 +641,9 @@ static void journal_write_unlocked(struc
- 		ca->journal.seq[ca->journal.cur_idx] = w->data->seq;
- 	}
+ 	blkcipher_walk_init(&walk, dst, src, nbytes);
+ 	err = blkcipher_walk_virt_block(desc, &walk, 8 * AES_BLOCK_SIZE);
++	if (err)
++		return err;
  
-+	/* If KEY_PTRS(k) == 0, this jset gets lost in air */
-+	BUG_ON(i == 0);
-+
- 	atomic_dec_bug(&fifo_back(&c->journal.pin));
- 	bch_journal_next(&c->journal);
- 	journal_reclaim(c);
+ 	/* generate the initial tweak */
+ 	AES_encrypt(walk.iv, walk.iv, &ctx->twkey);
+@@ -289,6 +291,8 @@ static int aesbs_xts_decrypt(struct blkc
+ 
+ 	blkcipher_walk_init(&walk, dst, src, nbytes);
+ 	err = blkcipher_walk_virt_block(desc, &walk, 8 * AES_BLOCK_SIZE);
++	if (err)
++		return err;
+ 
+ 	/* generate the initial tweak */
+ 	AES_encrypt(walk.iv, walk.iv, &ctx->twkey);
 
 
