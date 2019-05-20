@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F4B23505
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A6E233FF
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390134AbfETMcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49442 "EHLO mail.kernel.org"
+        id S2388391AbfETMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388240AbfETMca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:32:30 -0400
+        id S2387666AbfETMWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:22:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FA39204FD;
-        Mon, 20 May 2019 12:32:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33F5B21019;
+        Mon, 20 May 2019 12:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355550;
-        bh=9w1eD9LOYu+B0ZhLMva+4PilKq5GI79QCCu43FAARhA=;
+        s=default; t=1558354940;
+        bh=6ZPD1QSHdzGTzkY0bnB7RTClmvWPiJlvDHS9dNTMtq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1TfCIaQw+pTftBdt65J88YUM6yNuPuwuabc+B7IHesrDBzcB9xNjlJPM4NaiZM3+
-         dYizlRTN1RbLY2Gnh4qaEvBxLWLwgbE3x8yUeFuKPkaw95t8YATMJTsSU964WGdDvn
-         ezIE+7WiC9g/GToh/FKI/zvznPMKem6kcnmA1wpY=
+        b=YEsK5atORVi2EVcyaZnY4biDAHSlPQTXHHMVPJYd1p76DIdykShCirIPCCqbwpGma
+         5cnG5WN/vJz7OjCeULwBzkpMpzZtPt1SVRLOFsWmE+eKvJ13K4WucMVyRtkQha2FzZ
+         sM8ChHhbTe3eFFhQ5+73wd3NgVZpOiXJPTHoVn5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 034/128] crypto: x86/crct10dif-pcl - fix use via crypto_shash_digest()
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 035/105] ALSA: hda/hdmi - Read the pin sense from register when repolling
 Date:   Mon, 20 May 2019 14:13:41 +0200
-Message-Id: <20190520115251.962802118@linuxfoundation.org>
+Message-Id: <20190520115249.464956414@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit dec3d0b1071a0f3194e66a83d26ecf4aa8c5910e upstream.
+commit 8c2e6728c2bf95765b724e07d0278ae97cd1ee0d upstream.
 
-The ->digest() method of crct10dif-pclmul reads the current CRC value
-from the shash_desc context.  But this value is uninitialized, causing
-crypto_shash_digest() to compute the wrong result.  Fix it.
+The driver will check the monitor presence when resuming from suspend,
+starting poll or interrupt triggers. In these 3 situations, the
+jack_dirty will be set to 1 first, then the hda_jack.c reads the
+pin_sense from register, after reading the register, the jack_dirty
+will be set to 0. But hdmi_repoll_work() is enabled in these 3
+situations, It will read the pin_sense a couple of times subsequently,
+since the jack_dirty is 0 now, It does not read the register anymore,
+instead it uses the shadow pin_sense which is read at the first time.
 
-Probably this wasn't noticed before because lib/crc-t10dif.c only uses
-crypto_shash_update(), not crypto_shash_digest().  Likewise,
-crypto_shash_digest() is not yet tested by the crypto self-tests because
-those only test the ahash API which only uses shash init/update/final.
+It is meaningless to check the shadow pin_sense a couple of times,
+we need to read the register to check the real plugging state, so
+we set the jack_dirty to 1 in the hdmi_repoll_work().
 
-Fixes: 0b95a7f85718 ("crypto: crct10dif - Glue code to cast accelerated CRCT10DIF assembly as a crypto transform")
-Cc: <stable@vger.kernel.org> # v3.11+
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/crypto/crct10dif-pclmul_glue.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/x86/crypto/crct10dif-pclmul_glue.c
-+++ b/arch/x86/crypto/crct10dif-pclmul_glue.c
-@@ -70,15 +70,14 @@ static int chksum_final(struct shash_des
- 	return 0;
- }
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1660,6 +1660,11 @@ static void hdmi_repoll_eld(struct work_
+ 	container_of(to_delayed_work(work), struct hdmi_spec_per_pin, work);
+ 	struct hda_codec *codec = per_pin->codec;
+ 	struct hdmi_spec *spec = codec->spec;
++	struct hda_jack_tbl *jack;
++
++	jack = snd_hda_jack_tbl_get(codec, per_pin->pin_nid);
++	if (jack)
++		jack->jack_dirty = 1;
  
--static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
--			u8 *out)
-+static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
- {
- 	if (len >= 16 && irq_fpu_usable()) {
- 		kernel_fpu_begin();
--		*(__u16 *)out = crc_t10dif_pcl(*crcp, data, len);
-+		*(__u16 *)out = crc_t10dif_pcl(crc, data, len);
- 		kernel_fpu_end();
- 	} else
--		*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
-+		*(__u16 *)out = crc_t10dif_generic(crc, data, len);
- 	return 0;
- }
- 
-@@ -87,15 +86,13 @@ static int chksum_finup(struct shash_des
- {
- 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
- 
--	return __chksum_finup(&ctx->crc, data, len, out);
-+	return __chksum_finup(ctx->crc, data, len, out);
- }
- 
- static int chksum_digest(struct shash_desc *desc, const u8 *data,
- 			 unsigned int length, u8 *out)
- {
--	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
--
--	return __chksum_finup(&ctx->crc, data, length, out);
-+	return __chksum_finup(0, data, length, out);
- }
- 
- static struct shash_alg alg = {
+ 	if (per_pin->repoll_count++ > 6)
+ 		per_pin->repoll_count = 0;
 
 
