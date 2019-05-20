@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A080E2378C
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E19823381
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387527AbfETMvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
+        id S1731383AbfETMRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:17:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733107AbfETMUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:20:06 -0400
+        id S2387561AbfETMRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:17:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDA4720656;
-        Mon, 20 May 2019 12:20:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AED920815;
+        Mon, 20 May 2019 12:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354805;
-        bh=7pthDh/v0aDGlvjdne4/NwJEb+6uwVQBaiBChHV5NoU=;
+        s=default; t=1558354650;
+        bh=udL3M1vP8B8S3V4S/JWx04LQMK+eLIfFE9fbigQye/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAGLWUveiHrCOF3edyJVv7lOsPxBJfoSDGgvBtnZ1xUIzqWsaJfS0dVzly13TWya/
-         3Q9Hu3GJi5gltiLb3ddHgF38IU9iPac8RJF2UPuH0cgf94BsxIE3onxeXr7F+NT0P+
-         1Wuqc2snnSVi7egSC1DhHvJGSUjrz/EPO5PVqBVU=
+        b=sGjYFNxZXYYxYDC2Xh5KAhJ+4g6DyasTmpDU0o5eBjHfoDq9kEMXtRmzakfF3m36S
+         GePuXYBj9a2M9A8miFNUskbhjKzDpZyDDBZ64DqeLiMKqu60gwl0fvoeMvRAVa9FYy
+         Z+PK3Uo6sQ3nbClKLBCQvg4e0pGc/zMpmjAzoXuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Barret Rhoden <brho@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 48/63] ext4: fix use-after-free race with debug_want_extra_isize
+        Nathan Chancellor <natechancellor@gmail.com>,
+        David Ahern <dsahern@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 38/44] fib_rules: fix error in backport of e9919a24d302 ("fib_rules: return 0...")
 Date:   Mon, 20 May 2019 14:14:27 +0200
-Message-Id: <20190520115236.343866678@linuxfoundation.org>
+Message-Id: <20190520115235.482112363@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,106 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barret Rhoden <brho@google.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 7bc04c5c2cc467c5b40f2b03ba08da174a0d5fa7 upstream.
+When commit e9919a24d302 ("fib_rules: return 0 directly if an exactly
+same rule exists when NLM_F_EXCL not supplied") was backported to 4.9.y,
+it changed the logic a bit as err should have been reset before exiting
+the test, like it happens in the original logic.
 
-When remounting with debug_want_extra_isize, we were not performing the
-same checks that we do during a normal mount.  That allowed us to set a
-value for s_want_extra_isize that reached outside the s_inode_size.
+If this is not set, errors happen :(
 
-Fixes: e2b911c53584 ("ext4: clean up feature test macros with predicate functions")
-Reported-by: syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Barret Rhoden <brho@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@vger.kernel.org
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: David Ahern <dsahern@gmail.com>
+Reported-by: Florian Westphal <fw@strlen.de>
+Cc: Hangbin Liu <liuhangbin@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/ext4/super.c |   58 ++++++++++++++++++++++++++++++++------------------------
- 1 file changed, 34 insertions(+), 24 deletions(-)
+ net/core/fib_rules.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3454,6 +3454,37 @@ int ext4_calculate_overhead(struct super
- 	return 0;
- }
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -430,6 +430,7 @@ int fib_nl_newrule(struct sk_buff *skb,
+ 		goto errout_free;
  
-+static void ext4_clamp_want_extra_isize(struct super_block *sb)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_super_block *es = sbi->s_es;
-+
-+	/* determine the minimum size of new large inodes, if present */
-+	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
-+	    sbi->s_want_extra_isize == 0) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						     EXT4_GOOD_OLD_INODE_SIZE;
-+		if (ext4_has_feature_extra_isize(sb)) {
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_want_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_want_extra_isize);
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_min_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_min_extra_isize);
-+		}
-+	}
-+	/* Check if enough inode space is available */
-+	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
-+							sbi->s_inode_size) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						       EXT4_GOOD_OLD_INODE_SIZE;
-+		ext4_msg(sb, KERN_INFO,
-+			 "required extra inode space not available");
-+	}
-+}
-+
- static void ext4_set_resv_clusters(struct super_block *sb)
- {
- 	ext4_fsblk_t resv_clusters;
-@@ -4320,30 +4351,7 @@ no_journal:
- 	if (ext4_setup_super(sb, es, sb_rdonly(sb)))
- 		sb->s_flags |= MS_RDONLY;
- 
--	/* determine the minimum size of new large inodes, if present */
--	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
--	    sbi->s_want_extra_isize == 0) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						     EXT4_GOOD_OLD_INODE_SIZE;
--		if (ext4_has_feature_extra_isize(sb)) {
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_want_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_want_extra_isize);
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_min_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_min_extra_isize);
--		}
--	}
--	/* Check if enough inode space is available */
--	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						       EXT4_GOOD_OLD_INODE_SIZE;
--		ext4_msg(sb, KERN_INFO, "required extra inode space not"
--			 "available");
--	}
-+	ext4_clamp_want_extra_isize(sb);
- 
- 	ext4_set_resv_clusters(sb);
- 
-@@ -5128,6 +5136,8 @@ static int ext4_remount(struct super_blo
- 		goto restore_opts;
- 	}
- 
-+	ext4_clamp_want_extra_isize(sb);
-+
- 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
- 	    test_opt(sb, JOURNAL_CHECKSUM)) {
- 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
+ 	if (rule_exists(ops, frh, tb, rule)) {
++		err = 0;
+ 		if (nlh->nlmsg_flags & NLM_F_EXCL)
+ 			err = -EEXIST;
+ 		goto errout_free;
 
 
