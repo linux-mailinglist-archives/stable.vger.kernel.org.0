@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E152349D
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E95F72342B
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389743AbfETM25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:28:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44894 "EHLO mail.kernel.org"
+        id S2388752AbfETMYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389406AbfETM24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:28:56 -0400
+        id S2388746AbfETMYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5701C21479;
-        Mon, 20 May 2019 12:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 535E921019;
+        Mon, 20 May 2019 12:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355335;
-        bh=owXxDJuin8fiB3s3o/ZhdHhABjedOOL2ewp+5ALLo8I=;
+        s=default; t=1558355042;
+        bh=ZyO2+CO4S/HcphVrzKwg2uGxCfCMMKt6+PAFr3DstdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7TSBxmLzQ8m64WLceeWbwFezJ2X9Vt+jIU0YW6QViAr2fmSoBVmSmZn1Q64CyXbc
-         v+56M8uVZ3B1rRqrKapI8otDcCWotg2q0+dLI56RGvy2H3kqkjXTWKYsFKc2afe05D
-         0QAJTKI+op6IJ6fH3temeKvc3fS75mM2DB7U61as=
+        b=RWwDSf60aFu2hf+TvBuqrGEltWD1oOa0i53ecc1rVbUxxjyZOu4gQ+6Z9nlSm1rF/
+         3MmyOqCya1IpVf0HM9mVCDqesmGAiMjFAZa4xpHmV6Bg5OooJwojWjPfXJ18JxvOeU
+         5y6AYAnX0ARC9v+7Oh3JHyWWUKDUxNQ2q8F30qKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.com>,
-        Sergei Trofimovich <slyfox@gentoo.org>
-Subject: [PATCH 5.0 080/123] tty/vt: fix write/write race in ioctl(KDSKBSENT) handler
+        stable@vger.kernel.org, Jungyeon <jungyeon@gatech.edu>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 074/105] btrfs: Correctly free extent buffer in case btree_read_extent_buffer_pages fails
 Date:   Mon, 20 May 2019 14:14:20 +0200
-Message-Id: <20190520115250.170531535@linuxfoundation.org>
+Message-Id: <20190520115252.322297644@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,183 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 46ca3f735f345c9d87383dd3a09fa5d43870770e upstream.
+commit 537f38f019fa0b762dbb4c0fc95d7fcce9db8e2d upstream.
 
-The bug manifests as an attempt to access deallocated memory:
+If a an eb fails to be read for whatever reason - it's corrupted on disk
+and parent transid/key validations fail or IO for eb pages fail then
+this buffer must be removed from the buffer cache. Currently the code
+calls free_extent_buffer if an error occurs. Unfortunately this doesn't
+achieve the desired behavior since btrfs_find_create_tree_block returns
+with eb->refs == 2.
 
-    BUG: unable to handle kernel paging request at ffff9c8735448000
-    #PF error: [PROT] [WRITE]
-    PGD 288a05067 P4D 288a05067 PUD 288a07067 PMD 7f60c2063 PTE 80000007f5448161
-    Oops: 0003 [#1] PREEMPT SMP
-    CPU: 6 PID: 388 Comm: loadkeys Tainted: G         C        5.0.0-rc6-00153-g5ded5871030e #91
-    Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M-D3H, BIOS F12 11/14/2013
-    RIP: 0010:__memmove+0x81/0x1a0
-    Code: 4c 89 4f 10 4c 89 47 18 48 8d 7f 20 73 d4 48 83 c2 20 e9 a2 00 00 00 66 90 48 89 d1 4c 8b 5c 16 f8 4c 8d 54 17 f8 48 c1 e9 03 <f3> 48 a5 4d 89 1a e9 0c 01 00 00 0f 1f 40 00 48 89 d1 4c 8b 1e 49
-    RSP: 0018:ffffa1b9002d7d08 EFLAGS: 00010203
-    RAX: ffff9c873541af43 RBX: ffff9c873541af43 RCX: 00000c6f105cd6bf
-    RDX: 0000637882e986b6 RSI: ffff9c8735447ffb RDI: ffff9c8735447ffb
-    RBP: ffff9c8739cd3800 R08: ffff9c873b802f00 R09: 00000000fffff73b
-    R10: ffffffffb82b35f1 R11: 00505b1b004d5b1b R12: 0000000000000000
-    R13: ffff9c873541af3d R14: 000000000000000b R15: 000000000000000c
-    FS:  00007f450c390580(0000) GS:ffff9c873f180000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: ffff9c8735448000 CR3: 00000007e213c002 CR4: 00000000000606e0
-    Call Trace:
-     vt_do_kdgkb_ioctl+0x34d/0x440
-     vt_ioctl+0xba3/0x1190
-     ? __bpf_prog_run32+0x39/0x60
-     ? mem_cgroup_commit_charge+0x7b/0x4e0
-     tty_ioctl+0x23f/0x920
-     ? preempt_count_sub+0x98/0xe0
-     ? __seccomp_filter+0x67/0x600
-     do_vfs_ioctl+0xa2/0x6a0
-     ? syscall_trace_enter+0x192/0x2d0
-     ksys_ioctl+0x3a/0x70
-     __x64_sys_ioctl+0x16/0x20
-     do_syscall_64+0x54/0xe0
-     entry_SYSCALL_64_after_hwframe+0x49/0xbe
+On the other hand free_extent_buffer will only decrement the refs once
+leaving it added to the buffer cache radix tree.  This enables later
+code to look up the buffer from the cache and utilize it potentially
+leading to a crash.
 
-The bug manifests on systemd systems with multiple vtcon devices:
-  # cat /sys/devices/virtual/vtconsole/vtcon0/name
-  (S) dummy device
-  # cat /sys/devices/virtual/vtconsole/vtcon1/name
-  (M) frame buffer device
+The correct way to free the buffer is call free_extent_buffer_stale.
+This function will correctly call atomic_dec explicitly for the buffer
+and subsequently call release_extent_buffer which will decrement the
+final reference thus correctly remove the invalid buffer from buffer
+cache. This change affects only newly allocated buffers since they have
+eb->refs == 2.
 
-There systemd runs 'loadkeys' tool in tapallel for each vtcon
-instance. This causes two parallel ioctl(KDSKBSENT) calls to
-race into adding the same entry into 'func_table' array at:
-
-    drivers/tty/vt/keyboard.c:vt_do_kdgkb_ioctl()
-
-The function has no locking around writes to 'func_table'.
-
-The simplest reproducer is to have initrams with the following
-init on a 8-CPU machine x86_64:
-
-    #!/bin/sh
-
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-    loadkeys -q windowkeys ru4 &
-    wait
-
-The change adds lock on write path only. Reads are still racy.
-
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC: Jiri Slaby <jslaby@suse.com>
-Link: https://lkml.org/lkml/2019/2/17/256
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
+Reported-by: Jungyeon <jungyeon@gatech.edu>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/keyboard.c |   33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ fs/btrfs/disk-io.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -123,6 +123,7 @@ static const int NR_TYPES = ARRAY_SIZE(m
- static struct input_handler kbd_handler;
- static DEFINE_SPINLOCK(kbd_event_lock);
- static DEFINE_SPINLOCK(led_lock);
-+static DEFINE_SPINLOCK(func_buf_lock); /* guard 'func_buf'  and friends */
- static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
- static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
- static bool dead_key_next;
-@@ -1990,11 +1991,12 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 	char *p;
- 	u_char *q;
- 	u_char __user *up;
--	int sz;
-+	int sz, fnw_sz;
- 	int delta;
- 	char *first_free, *fj, *fnw;
- 	int i, j, k;
- 	int ret;
-+	unsigned long flags;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -995,13 +995,18 @@ void readahead_tree_block(struct btrfs_f
+ {
+ 	struct extent_buffer *buf = NULL;
+ 	struct inode *btree_inode = fs_info->btree_inode;
++	int ret;
  
- 	if (!capable(CAP_SYS_TTY_CONFIG))
- 		perm = 0;
-@@ -2037,7 +2039,14 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 			goto reterr;
- 		}
- 
-+		fnw = NULL;
-+		fnw_sz = 0;
-+		/* race aginst other writers */
-+		again:
-+		spin_lock_irqsave(&func_buf_lock, flags);
- 		q = func_table[i];
+ 	buf = btrfs_find_create_tree_block(fs_info, bytenr);
+ 	if (IS_ERR(buf))
+ 		return;
+-	read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree,
+-				 buf, WAIT_NONE, 0);
+-	free_extent_buffer(buf);
 +
-+		/* fj pointer to next entry after 'q' */
- 		first_free = funcbufptr + (funcbufsize - funcbufleft);
- 		for (j = i+1; j < MAX_NR_FUNC && !func_table[j]; j++)
- 			;
-@@ -2045,10 +2054,12 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 			fj = func_table[j];
- 		else
- 			fj = first_free;
--
-+		/* buffer usage increase by new entry */
- 		delta = (q ? -strlen(q) : 1) + strlen(kbs->kb_string);
-+
- 		if (delta <= funcbufleft) { 	/* it fits in current buf */
- 		    if (j < MAX_NR_FUNC) {
-+			/* make enough space for new entry at 'fj' */
- 			memmove(fj + delta, fj, first_free - fj);
- 			for (k = j; k < MAX_NR_FUNC; k++)
- 			    if (func_table[k])
-@@ -2061,20 +2072,28 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 		    sz = 256;
- 		    while (sz < funcbufsize - funcbufleft + delta)
- 		      sz <<= 1;
--		    fnw = kmalloc(sz, GFP_KERNEL);
--		    if(!fnw) {
--		      ret = -ENOMEM;
--		      goto reterr;
-+		    if (fnw_sz != sz) {
-+		      spin_unlock_irqrestore(&func_buf_lock, flags);
-+		      kfree(fnw);
-+		      fnw = kmalloc(sz, GFP_KERNEL);
-+		      fnw_sz = sz;
-+		      if (!fnw) {
-+			ret = -ENOMEM;
-+			goto reterr;
-+		      }
-+		      goto again;
- 		    }
++	ret = read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree, buf,
++			WAIT_NONE, 0);
++	if (ret < 0)
++		free_extent_buffer_stale(buf);
++	else
++		free_extent_buffer(buf);
+ }
  
- 		    if (!q)
- 		      func_table[i] = fj;
-+		    /* copy data before insertion point to new location */
- 		    if (fj > funcbufptr)
- 			memmove(fnw, funcbufptr, fj - funcbufptr);
- 		    for (k = 0; k < j; k++)
- 		      if (func_table[k])
- 			func_table[k] = fnw + (func_table[k] - funcbufptr);
- 
-+		    /* copy data after insertion point to new location */
- 		    if (first_free > fj) {
- 			memmove(fnw + (fj - funcbufptr) + delta, fj, first_free - fj);
- 			for (k = j; k < MAX_NR_FUNC; k++)
-@@ -2087,7 +2106,9 @@ int vt_do_kdgkb_ioctl(int cmd, struct kb
- 		    funcbufleft = funcbufleft - delta + sz - funcbufsize;
- 		    funcbufsize = sz;
- 		}
-+		/* finally insert item itself */
- 		strcpy(func_table[i], kbs->kb_string);
-+		spin_unlock_irqrestore(&func_buf_lock, flags);
- 		break;
+ int reada_tree_block_flagged(struct btrfs_fs_info *fs_info, u64 bytenr,
+@@ -1021,12 +1026,12 @@ int reada_tree_block_flagged(struct btrf
+ 	ret = read_extent_buffer_pages(io_tree, buf, WAIT_PAGE_LOCK,
+ 				       mirror_num);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ret;
  	}
- 	ret = 0;
+ 
+ 	if (test_bit(EXTENT_BUFFER_CORRUPT, &buf->bflags)) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return -EIO;
+ 	} else if (extent_buffer_uptodate(buf)) {
+ 		*eb = buf;
+@@ -1080,7 +1085,7 @@ struct extent_buffer *read_tree_block(st
+ 	ret = btree_read_extent_buffer_pages(fs_info, buf, parent_transid,
+ 					     level, first_key);
+ 	if (ret) {
+-		free_extent_buffer(buf);
++		free_extent_buffer_stale(buf);
+ 		return ERR_PTR(ret);
+ 	}
+ 	return buf;
 
 
