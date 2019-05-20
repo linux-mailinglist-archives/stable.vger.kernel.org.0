@@ -2,91 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 668B423E1E
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538A323E42
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 19:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390143AbfETRNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 13:13:48 -0400
-Received: from mail-it1-f193.google.com ([209.85.166.193]:35402 "EHLO
-        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388626AbfETRNr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:13:47 -0400
-Received: by mail-it1-f193.google.com with SMTP id u186so239996ith.0
-        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:13:47 -0700 (PDT)
+        id S2390145AbfETRS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 13:18:56 -0400
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:46738 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390154AbfETRSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 13:18:55 -0400
+Received: by mail-wr1-f42.google.com with SMTP id r7so15454875wrr.13
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 10:18:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=H1FOUvYJe9GyyexMviKpT7NCvnyO6AFJxI9TkiP+Icg=;
-        b=KM4JuDeiBmgmjfzz9xKwsYciecObUW9y8hMdjupnmV1VJsnU7BDOwSAYGVubw7EhN+
-         gdfN1/jZZQRm3ewMs8j0MKwAy0/0vTqVOCNyln2c/4Oicts4mJoG8MPlW5Z2xuvGyeU9
-         AEVGLHKFRjdPUE+fAO4IbwnU0tieNdwUlOpzlj7YvtwE1oHqfrcZl7aSj6HSgYUpI1iW
-         gxQPlMfZmX+A11hkDAqSPfFF+X34u4E/C5WzY4dp6NQhzwWDtJMRF/Y9nqUjXDSMz36e
-         vRHUTMwe9XHJTnrE2Ol/n0aV71tTWWdySWWbqVSWVTQ4AOu0RvvqMLdOPLKe5JLRO5mS
-         Spmw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pxyI5TL8hvd5HHAD0U3xN7qE3cCe7FmMwI3QPHrSHyE=;
+        b=VQdhFgHuaWA/rmGm1ng0yiD9NR3LcKwgib05/ob2uOU5cpIAuadfMpGia2t1Dp+uqe
+         Dltkkdj5fYwxe+uvR34n7XIKcxME05Hq6EL+rgGrdrEk0w/zNBZxQ9JjVF/0i4oQXeHv
+         hBcRzoPcLQt9B0EnbVDP8tfGBr8mD8hrV6TV1Xwnir43vxnvEwdNKMMQJ/yLhljRZOox
+         YRYC2ozwmihc+IdeG8d87oyBLmNg+aXWF3w+fN7Gq4UN6YKFERxxV/LHqE4x+hk+wf4u
+         W+17VrPhV7P6jhJO9gE8fvZc48/rt3LWerQewaHK+v4J45q08groRqXOLIrj7OPof880
+         snAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=H1FOUvYJe9GyyexMviKpT7NCvnyO6AFJxI9TkiP+Icg=;
-        b=Gw/6ZhhevP3utmMsH/4Wij6C0nLDOAP9SBscqNkgKt1dVLkuoepC/VI1t6zSgdp1Ks
-         2onYwK5/KKPYZrCePbxe0tWLZ5y10hgJJKhHzydBC/Tp99//WaU9CIlWu/5e4jWk1Saw
-         7co1yL0w1FLvhGG2CkSk8CRqrkVe/OqNsJbeiHigxzAdo6mrN+ybuw/e1wgNJnAT9xGl
-         1I3xLwUQHoqwUTnEVuh/k0whAqNLEL0rw/SRS3zKUO9tUU+ENHA/1Pvi1uGRnWHc2DjD
-         UykR6+2Lt1mq4DF+g07qALLmLAkqJDjR/hzbyNlxcHWpAj+HdxeSDivOm6nWCqi1pLxo
-         jG9w==
-X-Gm-Message-State: APjAAAWHmPm1B0gXCShpq6GfE4Jzd27+HHG/B4a3vpngRUF34Bt4FJFl
-        R1soYsQegZWDEWEQXi4NcTexALzcRk7lDU2jaw8=
-X-Google-Smtp-Source: APXvYqzi/wsT0XW0Vs6SebyWwMtXquMoX+qGTQYz2lKy8YLDPiGuSHZNwOc3db9P3rROw0xFYRdKL9bEVJn5Haq/se0=
-X-Received: by 2002:a24:b8c2:: with SMTP id m185mr124389ite.0.1558372427038;
- Mon, 20 May 2019 10:13:47 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pxyI5TL8hvd5HHAD0U3xN7qE3cCe7FmMwI3QPHrSHyE=;
+        b=hxTdfPxSFD7auI3DzdZKuE6JzOjEqo6PpJFds+9I8LxlvKf1m7bj/s5qmPNpsd5you
+         VMgto2vYVnxV9lmtwy6gOvdF2eA/AgpcgjIg1UVpZRdLbfU+TrgaRGqTwohSVRTEGO22
+         6xVmEO7VqbkrLAKiBbfo9skqW5KU1XRIKWVPHb75TjusRMdJQvaCJ5JOE3VPzgTFhktF
+         JFEbf6HfLQUjtiQfpYYVXvV3VDM/wA4OCyd2obUT3nCZMyufCet9NqAiG5gPYvueDCx0
+         2Pc2Ed5UyeVt3Ir8cAmigr1vu5LOSSUyoCJQluzUIdxbH+TYx28jvA0CFDGlpxy8Wz7w
+         VaMQ==
+X-Gm-Message-State: APjAAAXg3f77f39UucIW0FRZ03Dvl5noqamhXefUw6pkuZmt7KH0ZI0h
+        eqY92Kg+xc0K9aNgJyB4qa9MmjVTAmSL8w==
+X-Google-Smtp-Source: APXvYqwTurtQLHrj3hLQcrkGJB7PIcFfNreonv+hj8DUOYpTds9Xqn2MHf3Yu2Wo5waP/rJ4p9bm/g==
+X-Received: by 2002:adf:e845:: with SMTP id d5mr683814wrn.154.1558372734315;
+        Mon, 20 May 2019 10:18:54 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z13sm14048653wrw.42.2019.05.20.10.18.53
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 May 2019 10:18:53 -0700 (PDT)
+Message-ID: <5ce2e17d.1c69fb81.939ee.87ae@mx.google.com>
+Date:   Mon, 20 May 2019 10:18:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:ad5:5311:0:0:0:0:0 with HTTP; Mon, 20 May 2019 10:13:46
- -0700 (PDT)
-From:   Stephen Allan LLP <stephenallan.stallionmanager@gmail.com>
-Date:   Mon, 20 May 2019 18:13:46 +0100
-Message-ID: <CAN4r5rp3j24-Z-1HcZzRvrCrZU-UQp33EzVjhakyPsWtAaerRg@mail.gmail.com>
-Subject: Your Attention Needed Urgently
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.17-117-gc76436debfdf
+Subject: stable-rc/linux-5.0.y boot: 128 boots: 0 failed,
+ 126 passed with 1 offline, 1 conflict (v5.0.17-117-gc76436debfdf)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My name is Mr Stephen Allan, a legal practitioner in London, United
-Kingdom. I saw your contact and profile and decided that you could
-cooperate with me in this proposition. I have a client, who was
-deceased in November, 2013, in Kuala Lumpur, Malaysia. I am contacting
-you because you have the same surname as my deceased client and i felt
-that you could help me in the distribution of funding that were left
-in my deceased client's bank account. This funding is closed to be
-declared un-serviceable by the bank as there were no indicated next of
-kin or next of beneficiary of the funding in the bank account.
+stable-rc/linux-5.0.y boot: 128 boots: 0 failed, 126 passed with 1 offline,=
+ 1 conflict (v5.0.17-117-gc76436debfdf)
 
-The total amount of cash in the bank account of my deceased client is
-US$ 11.3 Million ( Say, Eleven Million, three Hundred Thousand United
-States dollars Only ), The bank had issued to me a notification to
-contact the next of kin of my deceased client for either to
-re-activate the bank account or to make claim of beneficiary, of the
-funding in the bank account, with a month surcharge of 6% to be
-deducted as an Escrow safe keeping fee of the bank account, so as to
-avoid the indefinite closure of the bank account. My proposition to
-you is to seek your consent, and to present your kind self as the
-next-of-kin and beneficiary of my deceased client, since you have the
-same last name with him.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.0.y/kernel/v5.0.17-117-gc76436debfdf/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
+/kernel/v5.0.17-117-gc76436debfdf/
 
-This means that the proceeds of his bank account would be paid to you
-as his next of kin or the legitimate beneficiary. When the proceeds in
-his bank account are paid to you, we would share the proceeds on a
-mutually agreed-upon percentage of 60% to me and 40% to your kind
-self. All the legal documents to back up your claim as my client's
-next-of-kin would be provided by me. The most important thing I would
-need is your honest cooperation in this proposition. This would be
-done under a legitimate arrangement that would protect you from any
-breach of the law. If this business proposition offends your moral and
-ethical values, feel free to back out. Please contact me at once if
-you are interested.
+Tree: stable-rc
+Branch: linux-5.0.y
+Git Describe: v5.0.17-117-gc76436debfdf
+Git Commit: c76436debfdf5cff1e99cf15f44e49fa7b02664f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 72 unique boards, 24 SoC families, 14 builds out of 208
 
-Regards,
+Boot Regressions Detected:
 
-Stephen Allan  LLP
-London, United Kingdom
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: failing since 3 days (last pass: v5.0.16 - firs=
+t fail: v5.0.17)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
