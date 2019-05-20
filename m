@@ -2,112 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3172522CE0
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 09:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4C622E15
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 10:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727102AbfETH0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 03:26:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51438 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725983AbfETH0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 03:26:53 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B579F20851;
-        Mon, 20 May 2019 07:26:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558337213;
-        bh=VsPiXaQ+14kQCokzvFUVfRaXXQwDBGl7ZFMDCA9v+do=;
-        h=Subject:To:From:Date:From;
-        b=MitPXHF/2c/g4YQpjKqdigs9Nsl15J2FMjHv0oAgrGnr3vfRnLyH9vXJpG3lnphU1
-         zIkn5pHLPv2o93WpBKp68FP6b7kXCHJxDITfr/dYs41s9c2AfpVdnOC6uhusRFymP4
-         DPCm8cQA0zwa7YOJPVxzKHvWVhs3Dy0hukPzBfq8=
-Subject: patch "staging: vc04_services: prevent integer overflow in create_pagelist()" added to staging-linus
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 May 2019 09:26:38 +0200
-Message-ID: <15583371981297@kroah.com>
+        id S1730506AbfETIMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 04:12:43 -0400
+Received: from 4.mo7.mail-out.ovh.net ([178.32.122.254]:53742 "EHLO
+        4.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730445AbfETIMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 04:12:43 -0400
+X-Greylist: delayed 1202 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 May 2019 04:12:41 EDT
+Received: from player760.ha.ovh.net (unknown [10.108.35.232])
+        by mo7.mail-out.ovh.net (Postfix) with ESMTP id CC1DD118D4E
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 09:34:09 +0200 (CEST)
+Received: from armadeus.com (lfbn-1-7591-179.w90-126.abo.wanadoo.fr [90.126.248.179])
+        (Authenticated sender: sebastien.szymanski@armadeus.com)
+        by player760.ha.ovh.net (Postfix) with ESMTPSA id 064FF5F24312;
+        Mon, 20 May 2019 07:33:54 +0000 (UTC)
+Subject: Re: [PATCH RE-RESEND 1/2] drm/panel: Add support for Armadeus ST0700
+ Adapt
+To:     Sam Ravnborg <sam@ravnborg.org>
+References: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+ <CAOMZO5B2nMsVNO6O_D+YTSjux=-DjNPGxhkEi3AQquOZVODumA@mail.gmail.com>
+ <20190507161950.GA24879@ravnborg.org>
+ <20190508083303.GR17751@phenom.ffwll.local>
+ <20190508090612.GT17751@phenom.ffwll.local>
+Cc:     Fabio Estevam <festevam@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, David Airlie <airlied@linux.ie>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        stable <stable@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>
+From:   =?UTF-8?Q?S=c3=a9bastien_Szymanski?= 
+        <sebastien.szymanski@armadeus.com>
+Openpgp: preference=signencrypt
+Message-ID: <0c5d70db-e7c1-5d02-9c33-65dabd431a68@armadeus.com>
+Date:   Mon, 20 May 2019 09:34:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <20190508090612.GT17751@phenom.ffwll.local>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 6372874948130854140
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduuddruddtjedguddvgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Sam,
 
-This is a note to let you know that I've just added the patch titled
+On 5/8/19 11:06 AM, Daniel Vetter wrote:
+> On Wed, May 08, 2019 at 10:33:03AM +0200, Daniel Vetter wrote:
+>> On Tue, May 07, 2019 at 06:19:50PM +0200, Sam Ravnborg wrote:
+>>> Hi Fabio
+>>>
+>>> On Tue, May 07, 2019 at 12:33:39PM -0300, Fabio Estevam wrote:
+>>>> [Adding Sam, who is helping to review/collect panel-simple patches]
+>>>>
+>>>> On Tue, May 7, 2019 at 12:27 PM Sébastien Szymanski
+>>>> <sebastien.szymanski@armadeus.com> wrote:
+>>>>>
+>>>>> This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+>>>>> Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+>>>>> that it can be connected on the TFT header of Armadeus Dev boards.
+>>>>>
+>>>>> Cc: stable@vger.kernel.org # v4.19
+>>>>> Reviewed-by: Rob Herring <robh@kernel.org>
+>>>>> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+>>> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+>>>
+>>> If you wil lresend the patch I can apply it.
+>>> I have lost the original mail.
+>>
+>> Usually patchwork should have it already (and you can pipe the raw
+>> patchwork mbox into dim apply), but somehow it's not there either.
+>> Not sure why, sometimes this is because mails are stuck in moderation,
+>> sometimes because people do interesting things with their mails (e.g. smtp
+>> servers mangling formatting).
+> 
+> patchwork was just a bit slow, it's there now:
+> 
+> https://patchwork.freedesktop.org/series/60408/
+> 
 
-    staging: vc04_services: prevent integer overflow in create_pagelist()
+Will you take the patch from patchwork or should I resent it ?
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
+Regards,
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+> Cheers, Daniel
+> 
 
 
-From ca641bae6da977d638458e78cd1487b6160a2718 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Wed, 15 May 2019 12:38:33 +0300
-Subject: staging: vc04_services: prevent integer overflow in create_pagelist()
-
-The create_pagelist() "count" parameter comes from the user in
-vchiq_ioctl() and it could overflow.  If you look at how create_page()
-is called in vchiq_prepare_bulk_data(), then the "size" variable is an
-int so it doesn't make sense to allow negatives or larger than INT_MAX.
-
-I don't know this code terribly well, but I believe that typical values
-of "count" are typically quite low and I don't think this check will
-affect normal valid uses at all.
-
-The "pagelist_size" calculation can also overflow on 32 bit systems, but
-not on 64 bit systems.  I have added an integer overflow check for that
-as well.
-
-The Raspberry PI doesn't offer the same level of memory protection that
-x86 does so these sorts of bugs are probably not super critical to fix.
-
-Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- .../vc04_services/interface/vchiq_arm/vchiq_2835_arm.c   | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-index a9a22917ecdb..c557c9953724 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-@@ -368,9 +368,18 @@ create_pagelist(char __user *buf, size_t count, unsigned short type)
- 	int dma_buffers;
- 	dma_addr_t dma_addr;
- 
-+	if (count >= INT_MAX - PAGE_SIZE)
-+		return NULL;
-+
- 	offset = ((unsigned int)(unsigned long)buf & (PAGE_SIZE - 1));
- 	num_pages = DIV_ROUND_UP(count + offset, PAGE_SIZE);
- 
-+	if (num_pages > (SIZE_MAX - sizeof(struct pagelist) -
-+			 sizeof(struct vchiq_pagelist_info)) /
-+			(sizeof(u32) + sizeof(pages[0]) +
-+			 sizeof(struct scatterlist)))
-+		return NULL;
-+
- 	pagelist_size = sizeof(struct pagelist) +
- 			(num_pages * sizeof(u32)) +
- 			(num_pages * sizeof(pages[0]) +
 -- 
-2.21.0
-
-
+Sébastien Szymanski
+Software engineer, Armadeus Systems
+Tel: +33 (0)9 72 29 41 44
+Fax: +33 (0)9 72 28 79 26
