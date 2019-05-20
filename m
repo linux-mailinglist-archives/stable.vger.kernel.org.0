@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E64323443
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E0F234D0
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389016AbfETMZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S2390246AbfETMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389015AbfETMZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:12 -0400
+        id S2390238AbfETMbE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:31:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ACF420815;
-        Mon, 20 May 2019 12:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56A0520645;
+        Mon, 20 May 2019 12:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355112;
-        bh=CaVc0Vmf0CTBvhnD/hDvXM9q76PEYULHxwWmImXaQsw=;
+        s=default; t=1558355463;
+        bh=AVWiOWEc1qqNr7Nj3IfW3zZKYO8A2OhvSJw+SaAvmuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5SLnySF24iZH8gY8UuvFp8C2qqzIvhZoGWWoOMetDSEr6jOIrKx8BVbsNp9BLz08
-         J+N/3COhw0pNDNcOmdRNPyAS8dqPIAtVbDieqG9+DbFMxF+TWp6tDfoJoojN3B0rE1
-         ardcI4beoNd3tjEHxXikO8nPYdD0xAOaKaQ1BKR0=
+        b=kSyDRQg4umS2svJKr60lWlz6p9k58YAYOXTpIKQ39ix29qyrbR98rGV39uajkdOjZ
+         vkOWcdv5FewtS5H3y8EHNwr70QHUoYimPQpWN/jLvSqUmxGpRkWg67v7wZvfBxdGa1
+         3zco0QgUzp74SfFfSz4rSJ+FPlRr2FM0B/Fx7I4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 102/105] ext4: unsigned int compared against zero
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Wadowski?= <wadosm@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.0 108/123] ALSA: hda/realtek - Fix for Lenovo B50-70 inverted internal microphone bug
 Date:   Mon, 20 May 2019 14:14:48 +0200
-Message-Id: <20190520115254.280651714@linuxfoundation.org>
+Message-Id: <20190520115252.272801135@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Michał Wadowski <wadosm@gmail.com>
 
-commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c upstream.
+commit 56df90b631fc027fe28b70d41352d820797239bb upstream.
 
-There are two cases where u32 variables n and err are being checked
-for less than zero error values, the checks is always false because
-the variables are not signed. Fix this by making the variables ints.
+Add patch for realtek codec in Lenovo B50-70 that fixes inverted
+internal microphone channel.
+Device IdeaPad Y410P has the same PCI SSID as Lenovo B50-70,
+but first one is about fix the noise and it didn't seem help in a
+later kernel version.
+So I replaced IdeaPad Y410P device description with B50-70 and apply
+inverted microphone fix.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Bugzilla: https://bugs.launchpad.net/ubuntu/+source/alsa-driver/+bug/1524215
+Signed-off-by: Michał Wadowski <wadosm@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -142,7 +142,8 @@ static int ext4_protect_reserved_inode(s
- 	struct inode *inode;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_map_blocks map;
--	u32 i = 0, err = 0, num, n;
-+	u32 i = 0, num;
-+	int err = 0, n;
- 
- 	if ((ino < EXT4_ROOT_INO) ||
- 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6988,7 +6988,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+-	SND_PCI_QUIRK(0x17aa, 0x3978, "IdeaPad Y410P", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x5013, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x501a, "Thinkpad", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x501e, "Thinkpad L440", ALC292_FIXUP_TPT440_DOCK),
 
 
