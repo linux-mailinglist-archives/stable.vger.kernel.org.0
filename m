@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E840F236DE
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBCD23753
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730967AbfETMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58476 "EHLO mail.kernel.org"
+        id S2388779AbfETMYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387523AbfETMR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:28 -0400
+        id S2388796AbfETMYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A361921019;
-        Mon, 20 May 2019 12:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F7BC20645;
+        Mon, 20 May 2019 12:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354648;
-        bh=Oew7obFmunycMIJ2UJPJdli7xmc7FLlH1V4LzxOuboI=;
+        s=default; t=1558355061;
+        bh=Sgs9qAY+GXEt6NrUStKP3nHLtpMEpO9pltJxRwNV2Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBvx0J2Ux3gArt9ROzFeWrcLF7FJZFqRoSYkAKN5/fc2bOW3O61RJKPuuIKniHVt8
-         LDxyFomOgZFXznw7BXDuJUxrPdQk109v5j/pGuu6v0BASqidWwfizt5jmdlMmgw08X
-         WS3z8ZonIbh/6+2gpZmlfsu82Q7X9Z0E7izPeMAk=
+        b=e13bgDR/xmQkjv0qw6CKF9Wx/j9bOx9Muk3O/Pb53AhAY9Z/T3T+IssoSuIVF9Jxa
+         bdiIB1tcpCwkXjT33ayDzLgaKmwGOYZuFu8qHPnT6TZrOaZtJM22O5X1P9jgD9R6Vv
+         3jpsyZREXYNfksqEMSYJ63zh/OnJ6YBCl0VBmatI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 37/44] crypto: arm/aes-neonbs - dont access already-freed walk.iv
-Date:   Mon, 20 May 2019 14:14:26 +0200
-Message-Id: <20190520115235.408291823@linuxfoundation.org>
+        stable@vger.kernel.org, Kiran Kolukuluru <kirank@ami.com>,
+        Kamlakant Patel <kamlakantp@marvell.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 4.19 081/105] ipmi:ssif: compare block number correctly for multi-part return messages
+Date:   Mon, 20 May 2019 14:14:27 +0200
+Message-Id: <20190520115252.857300093@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Kamlakant Patel <kamlakantp@marvell.com>
 
-commit 767f015ea0b7ab9d60432ff6cd06b664fd71f50f upstream.
+commit 55be8658c7e2feb11a5b5b33ee031791dbd23a69 upstream.
 
-If the user-provided IV needs to be aligned to the algorithm's
-alignmask, then skcipher_walk_virt() copies the IV into a new aligned
-buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
-if the caller unconditionally accesses walk.iv, it's a use-after-free.
+According to ipmi spec, block number is a number that is incremented,
+starting with 0, for each new block of message data returned using the
+middle transaction.
 
-arm32 xts-aes-neonbs doesn't set an alignmask, so currently it isn't
-affected by this despite unconditionally accessing walk.iv.  However
-this is more subtle than desired, and it was actually broken prior to
-the alignmask being removed by commit cc477bf64573 ("crypto: arm/aes -
-replace bit-sliced OpenSSL NEON code").  Thus, update xts-aes-neonbs to
-start checking the return value of skcipher_walk_virt().
+Here, the 'blocknum' is data[0] which always starts from zero(0) and
+'ssif_info->multi_pos' starts from 1.
+So, we need to add +1 to blocknum while comparing with multi_pos.
 
-Fixes: e4e7f10bfc40 ("ARM: add support for bit sliced AES using NEON instructions")
-Cc: <stable@vger.kernel.org> # v3.13+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7d6380cd40f79 ("ipmi:ssif: Fix handling of multi-part return messages").
+Reported-by: Kiran Kolukuluru <kirank@ami.com>
+Signed-off-by: Kamlakant Patel <kamlakantp@marvell.com>
+Message-Id: <1556106615-18722-1-git-send-email-kamlakantp@marvell.com>
+[Also added a debug log if the block numbers don't match.]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: stable@vger.kernel.org # 4.4
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- arch/arm/crypto/aesbs-glue.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/ipmi/ipmi_ssif.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm/crypto/aesbs-glue.c
-+++ b/arch/arm/crypto/aesbs-glue.c
-@@ -265,6 +265,8 @@ static int aesbs_xts_encrypt(struct blkc
- 
- 	blkcipher_walk_init(&walk, dst, src, nbytes);
- 	err = blkcipher_walk_virt_block(desc, &walk, 8 * AES_BLOCK_SIZE);
-+	if (err)
-+		return err;
- 
- 	/* generate the initial tweak */
- 	AES_encrypt(walk.iv, walk.iv, &ctx->twkey);
-@@ -289,6 +291,8 @@ static int aesbs_xts_decrypt(struct blkc
- 
- 	blkcipher_walk_init(&walk, dst, src, nbytes);
- 	err = blkcipher_walk_virt_block(desc, &walk, 8 * AES_BLOCK_SIZE);
-+	if (err)
-+		return err;
- 
- 	/* generate the initial tweak */
- 	AES_encrypt(walk.iv, walk.iv, &ctx->twkey);
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -688,12 +688,16 @@ static void msg_done_handler(struct ssif
+ 			/* End of read */
+ 			len = ssif_info->multi_len;
+ 			data = ssif_info->data;
+-		} else if (blocknum != ssif_info->multi_pos) {
++		} else if (blocknum + 1 != ssif_info->multi_pos) {
+ 			/*
+ 			 * Out of sequence block, just abort.  Block
+ 			 * numbers start at zero for the second block,
+ 			 * but multi_pos starts at one, so the +1.
+ 			 */
++			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
++				dev_dbg(&ssif_info->client->dev,
++					"Received message out of sequence, expected %u, got %u\n",
++					ssif_info->multi_pos - 1, blocknum);
+ 			result = -EIO;
+ 		} else {
+ 			ssif_inc_stat(ssif_info, received_message_parts);
 
 
