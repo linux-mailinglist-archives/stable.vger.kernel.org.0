@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA0CA23676
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE2A23675
 	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388786AbfETM0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
+        id S2389239AbfETM0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388273AbfETM0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:26:03 -0400
+        id S2389240AbfETM0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:26:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 811E6214DA;
-        Mon, 20 May 2019 12:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46121216C4;
+        Mon, 20 May 2019 12:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355162;
-        bh=hcCWdm8G1C81OZqG9T6IE40vqZ2g7WBEfGBUW8Mt+Bg=;
+        s=default; t=1558355164;
+        bh=N/CsrdJhnFDOCLTNZZloqC2A4BflCaL1DGI0+4xV6lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUzVLYp8SsdgQqUpNg3pGRJHDY9p2Ibr/9A6we3+ClJf9aC/iTHTn9m0FSnLaw8Td
-         zx+KxM7pEb3czhjdrPpHc2B57FHyeav1CtaNA4pZ6TwWV6oYitm59fLPZc8Bgj01r6
-         uBoX6iWc0/D74oFVn1ZGQy0NsPrOuNnZRRhP+35o=
+        b=OwRqIGOnSv7wDvibI2LXZNQz5WdwUjyOeefFd/zYzJLX3Bl4AqNT/lTxJ2uHPiffc
+         nJg6D3otz7DcJPQDGVnZYMCqBUPBv+jPKRhEpsMRA64Io5KIM9Jp/wBUNe95XzAGHL
+         SpH+1Yoy1/Tse4G/NYgymGZLJcvb2rXOXOHMZLVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Jon Masters <jcm@redhat.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.0 003/123] x86/speculation/mds: Improve CPU buffer clear documentation
-Date:   Mon, 20 May 2019 14:13:03 +0200
-Message-Id: <20190520115245.587746818@linuxfoundation.org>
+Subject: [PATCH 5.0 004/123] objtool: Fix function fallthrough detection
+Date:   Mon, 20 May 2019 14:13:04 +0200
+Message-Id: <20190520115245.634308618@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
 References: <20190520115245.439864225@linuxfoundation.org>
@@ -49,80 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 9d8d0294e78a164d407133dea05caf4b84247d6a upstream.
+commit e6f393bc939d566ce3def71232d8013de9aaadde upstream.
 
-On x86_64, all returns to usermode go through
-prepare_exit_to_usermode(), with the sole exception of do_nmi().
-This even includes machine checks -- this was added several years
-ago to support MCE recovery.  Update the documentation.
+When a function falls through to the next function due to a compiler
+bug, objtool prints some obscure warnings.  For example:
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jon Masters <jcm@redhat.com>
+  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x95: return with modified stack frame
+  drivers/regulator/core.o: warning: objtool: regulator_count_voltages()+0x0: stack state mismatch: cfa1=7+32 cfa2=7+8
+
+Instead it should be printing:
+
+  drivers/regulator/core.o: warning: objtool: regulator_supply_is_couple() falls through to next function regulator_count_voltages()
+
+This used to work, but was broken by the following commit:
+
+  13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+
+The padding nops at the end of a function aren't actually part of the
+function, as defined by the symbol table.  So the 'func' variable in
+validate_branch() is getting cleared to NULL when a padding nop is
+encountered, breaking the fallthrough detection.
+
+If the current instruction doesn't have a function associated with it,
+just consider it to be part of the previously detected function by not
+overwriting the previous value of 'func'.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Fixes: 04dcbdb80578 ("x86/speculation/mds: Clear CPU buffers on exit to user")
-Link: http://lkml.kernel.org/r/999fa9e126ba6a48e9d214d2f18dbde5c62ac55c.1557865329.git.luto@kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+Link: http://lkml.kernel.org/r/546d143820cd08a46624ae8440d093dd6c902cae.1557766718.git.jpoimboe@redhat.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/x86/mds.rst |   39 +++++++--------------------------------
- 1 file changed, 7 insertions(+), 32 deletions(-)
+ tools/objtool/check.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/x86/mds.rst
-+++ b/Documentation/x86/mds.rst
-@@ -142,38 +142,13 @@ Mitigation points
-    mds_user_clear.
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1832,7 +1832,8 @@ static int validate_branch(struct objtoo
+ 			return 1;
+ 		}
  
-    The mitigation is invoked in prepare_exit_to_usermode() which covers
--   most of the kernel to user space transitions. There are a few exceptions
--   which are not invoking prepare_exit_to_usermode() on return to user
--   space. These exceptions use the paranoid exit code.
--
--   - Non Maskable Interrupt (NMI):
--
--     Access to sensible data like keys, credentials in the NMI context is
--     mostly theoretical: The CPU can do prefetching or execute a
--     misspeculated code path and thereby fetching data which might end up
--     leaking through a buffer.
--
--     But for mounting other attacks the kernel stack address of the task is
--     already valuable information. So in full mitigation mode, the NMI is
--     mitigated on the return from do_nmi() to provide almost complete
--     coverage.
--
--   - Machine Check Exception (#MC):
--
--     Another corner case is a #MC which hits between the CPU buffer clear
--     invocation and the actual return to user. As this still is in kernel
--     space it takes the paranoid exit path which does not clear the CPU
--     buffers. So the #MC handler repopulates the buffers to some
--     extent. Machine checks are not reliably controllable and the window is
--     extremly small so mitigation would just tick a checkbox that this
--     theoretical corner case is covered. To keep the amount of special
--     cases small, ignore #MC.
--
--   - Debug Exception (#DB):
--
--     This takes the paranoid exit path only when the INT1 breakpoint is in
--     kernel space. #DB on a user space address takes the regular exit path,
--     so no extra mitigation required.
-+   all but one of the kernel to user space transitions.  The exception
-+   is when we return from a Non Maskable Interrupt (NMI), which is
-+   handled directly in do_nmi().
-+
-+   (The reason that NMI is special is that prepare_exit_to_usermode() can
-+    enable IRQs.  In NMI context, NMIs are blocked, and we don't want to
-+    enable IRQs with NMIs blocked.)
+-		func = insn->func ? insn->func->pfunc : NULL;
++		if (insn->func)
++			func = insn->func->pfunc;
  
- 
- 2. C-State transition
+ 		if (func && insn->ignore) {
+ 			WARN_FUNC("BUG: why am I validating an ignored function?",
 
 
