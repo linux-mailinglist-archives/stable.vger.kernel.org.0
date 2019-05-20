@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE42223537
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06DD23496
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390801AbfETMdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
+        id S2389705AbfETM2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:28:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390464AbfETMdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:49 -0400
+        id S2389693AbfETM2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:28:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 858F3214DA;
-        Mon, 20 May 2019 12:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0EA620645;
+        Mon, 20 May 2019 12:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355629;
-        bh=Uw0pF31YOHlAKBRVzNCneThPQgBmKK3R8VVsUrLP+AI=;
+        s=default; t=1558355312;
+        bh=4MqpRGZefz7Um9TTQzbpqPbOnyQLQcMfqVf5dEROAJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qb1Miz7DnCy45IpKju43H1zO9LCUOtBO4VY57sey63GJ0EHBEaq9pMBbkW/BLF/6p
-         zjfvsC918oPLW3XEzq/742C/FAiawp5cv3hTfhejt940dY02z2PhKCYfgA06csK2gK
-         W82Cn5xvEvXCRl5VfjlFc6gccl7ChYz7dd5Z6rYA=
+        b=hV+GHCdLW0fTy8JH9ylG3YoOM5xyn6EVs2j/wMP8cPGaCw/Li0ypnd5RZn46yAE9O
+         pnAWO8buj0JrxMG2XogOGzzhZ3wA1v7n7gVWG4k7CSIj+ZELTk+55HQu9nfg+bukxj
+         erEFIOr2vhjWtB62vlRI/vUh+1Xm7/7VFIsNpWfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 065/128] crypto: ccree - pm resume first enable the source clk
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        zhong jiang <zhongjiang@huawei.com>,
+        syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com,
+        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.0 072/123] userfaultfd: use RCU to free the task struct when fork fails
 Date:   Mon, 20 May 2019 14:14:12 +0200
-Message-Id: <20190520115254.191615570@linuxfoundation.org>
+Message-Id: <20190520115249.634554502@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +54,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Drang <ofir.drang@arm.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-commit 7766dd774d80463cec7b81d90c8672af91de2da1 upstream.
+commit c3f3ce049f7d97cc7ec9c01cb51d9ec74e0f37c2 upstream.
 
-On power management resume function first enable the device clk source
-to allow access to the device registers.
+The task structure is freed while get_mem_cgroup_from_mm() holds
+rcu_read_lock() and dereferences mm->owner.
 
-Signed-off-by: Ofir Drang <ofir.drang@arm.com>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+  get_mem_cgroup_from_mm()                failing fork()
+  ----                                    ---
+  task = mm->owner
+                                          mm->owner = NULL;
+                                          free(task)
+  if (task) *task; /* use after free */
+
+The fix consists in freeing the task with RCU also in the fork failure
+case, exactly like it always happens for the regular exit(2) path.  That
+is enough to make the rcu_read_lock hold in get_mem_cgroup_from_mm()
+(left side above) effective to avoid a use after free when dereferencing
+the task structure.
+
+An alternate possible fix would be to defer the delivery of the
+userfaultfd contexts to the monitor until after fork() is guaranteed to
+succeed.  Such a change would require more changes because it would
+create a strict ordering dependency where the uffd methods would need to
+be called beyond the last potentially failing branch in order to be
+safe.  This solution as opposed only adds the dependency to common code
+to set mm->owner to NULL and to free the task struct that was pointed by
+mm->owner with RCU, if fork ends up failing.  The userfaultfd methods
+can still be called anywhere during the fork runtime and the monitor
+will keep discarding orphaned "mm" coming from failed forks in userland.
+
+This race condition couldn't trigger if CONFIG_MEMCG was set =n at build
+time.
+
+[aarcange@redhat.com: improve changelog, reduce #ifdefs per Michal]
+  Link: http://lkml.kernel.org/r/20190429035752.4508-1-aarcange@redhat.com
+Link: http://lkml.kernel.org/r/20190325225636.11635-2-aarcange@redhat.com
+Fixes: 893e26e61d04 ("userfaultfd: non-cooperative: Add fork() event")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Tested-by: zhong jiang <zhongjiang@huawei.com>
+Reported-by: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: zhong jiang <zhongjiang@huawei.com>
+Cc: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_pm.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/fork.c |   31 +++++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -42,14 +42,15 @@ int cc_pm_resume(struct device *dev)
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -953,6 +953,15 @@ static void mm_init_aio(struct mm_struct
+ #endif
+ }
  
- 	dev_dbg(dev, "unset HOST_POWER_DOWN_EN\n");
--	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
--
-+	/* Enables the device source clk */
- 	rc = cc_clk_on(drvdata);
- 	if (rc) {
- 		dev_err(dev, "failed getting clock back on. We're toast.\n");
- 		return rc;
- 	}
- 
-+	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
++static __always_inline void mm_clear_owner(struct mm_struct *mm,
++					   struct task_struct *p)
++{
++#ifdef CONFIG_MEMCG
++	if (mm->owner == p)
++		WRITE_ONCE(mm->owner, NULL);
++#endif
++}
 +
- 	rc = init_cc_regs(drvdata, false);
- 	if (rc) {
- 		dev_err(dev, "init_cc_regs (%x)\n", rc);
+ static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
+ {
+ #ifdef CONFIG_MEMCG
+@@ -1332,6 +1341,7 @@ static struct mm_struct *dup_mm(struct t
+ free_pt:
+ 	/* don't put binfmt in mmput, we haven't got module yet */
+ 	mm->binfmt = NULL;
++	mm_init_owner(mm, NULL);
+ 	mmput(mm);
+ 
+ fail_nomem:
+@@ -1663,6 +1673,21 @@ static inline void rcu_copy_process(stru
+ #endif /* #ifdef CONFIG_TASKS_RCU */
+ }
+ 
++static void __delayed_free_task(struct rcu_head *rhp)
++{
++	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
++
++	free_task(tsk);
++}
++
++static __always_inline void delayed_free_task(struct task_struct *tsk)
++{
++	if (IS_ENABLED(CONFIG_MEMCG))
++		call_rcu(&tsk->rcu, __delayed_free_task);
++	else
++		free_task(tsk);
++}
++
+ /*
+  * This creates a new process as a copy of the old one,
+  * but does not actually start it yet.
+@@ -2124,8 +2149,10 @@ bad_fork_cleanup_io:
+ bad_fork_cleanup_namespaces:
+ 	exit_task_namespaces(p);
+ bad_fork_cleanup_mm:
+-	if (p->mm)
++	if (p->mm) {
++		mm_clear_owner(p->mm, p);
+ 		mmput(p->mm);
++	}
+ bad_fork_cleanup_signal:
+ 	if (!(clone_flags & CLONE_THREAD))
+ 		free_signal_struct(p->signal);
+@@ -2156,7 +2183,7 @@ bad_fork_cleanup_count:
+ bad_fork_free:
+ 	p->state = TASK_DEAD;
+ 	put_task_stack(p);
+-	free_task(p);
++	delayed_free_task(p);
+ fork_out:
+ 	spin_lock_irq(&current->sighand->siglock);
+ 	hlist_del_init(&delayed.node);
 
 
