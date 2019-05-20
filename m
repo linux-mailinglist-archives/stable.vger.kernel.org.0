@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFCF23486
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E47923757
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389207AbfETM1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43400 "EHLO mail.kernel.org"
+        id S2388842AbfETMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389527AbfETM1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:49 -0400
+        id S2388839AbfETMY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B2BB20645;
-        Mon, 20 May 2019 12:27:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADA6E20645;
+        Mon, 20 May 2019 12:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355268;
-        bh=SLAe6/IoBPDUbYUdq+rzQEmI9w4plC6PgcfwdwJjL3Y=;
+        s=default; t=1558355066;
+        bh=MX77u6kdfwvVUV47sbTkHYwPbZuLAvAi0T8q94a6MjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIHEuOVv2DIlE/lumVp+HegUClhm4puWTAsEs5BrcqWfm85L2YkZ5pmiFw0ehSCP3
-         F9l3jz9YqzslQ0dyxHe5IiMhE9fXlqipoTmNhxc8/sNvvL0hUUAdDkU+RHU5Oo0WAk
-         xy3Bw/uUOZtywAh7AZ36v/tHOJKfb0QyEAvLJ5U0=
+        b=TZfd1/SD1Jg0Rq+alTlaPGdNt/OFwhBkQBGju/SdfAeIDHt4knzDeAeM0a9uREhWg
+         ugkoEcJNQZlEjNwSZ8vvLAkyGvwr6kX/tXniA94uhtq0cKNges1wj1lEuNsZYzRTRa
+         cMH/J1T92Xml4XFnT7vxdBtpGFmwBHAOLpy0yOWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.0 053/123] ASoC: max98090: Fix restore of DAPM Muxes
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 047/105] crypto: ccree - use correct internal state sizes for export
 Date:   Mon, 20 May 2019 14:13:53 +0200
-Message-Id: <20190520115248.268952638@linuxfoundation.org>
+Message-Id: <20190520115250.270977831@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit ecb2795c08bc825ebd604997e5be440b060c5b18 upstream.
+commit f3df82b468f00cca241d96ee3697c9a5e7fb6bd0 upstream.
 
-The max98090 driver defines 3 DAPM muxes; one for the right line output
-(LINMOD Mux), one for the left headphone mixer source (MIXHPLSEL Mux)
-and one for the right headphone mixer source (MIXHPRSEL Mux). The same
-bit is used for the mux as well as the DAPM enable, and although the mux
-can be correctly configured, after playback has completed, the mux will
-be reset during the disable phase. This is preventing the state of these
-muxes from being saved and restored correctly on system reboot. Fix this
-by marking these muxes as SND_SOC_NOPM.
+We were computing the size of the import buffer based on the digest size
+but the 318 and 224 byte variants use 512 and 256 bytes internal state
+sizes respectfully, thus causing the import buffer to overrun.
 
-Note this has been verified this on the Tegra124 Nyan Big which features
-the MAX98090 codec.
+Fix it by using the right sizes.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/max98090.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/crypto/ccree/cc_hash.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1209,14 +1209,14 @@ static const struct snd_soc_dapm_widget
- 		&max98090_right_rcv_mixer_controls[0],
- 		ARRAY_SIZE(max98090_right_rcv_mixer_controls)),
- 
--	SND_SOC_DAPM_MUX("LINMOD Mux", M98090_REG_LOUTR_MIXER,
--		M98090_LINMOD_SHIFT, 0, &max98090_linmod_mux),
-+	SND_SOC_DAPM_MUX("LINMOD Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_linmod_mux),
- 
--	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPLSEL_SHIFT, 0, &max98090_mixhplsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPLSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhplsel_mux),
- 
--	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", M98090_REG_HP_CONTROL,
--		M98090_MIXHPRSEL_SHIFT, 0, &max98090_mixhprsel_mux),
-+	SND_SOC_DAPM_MUX("MIXHPRSEL Mux", SND_SOC_NOPM, 0, 0,
-+		&max98090_mixhprsel_mux),
- 
- 	SND_SOC_DAPM_PGA("HP Left Out", M98090_REG_OUTPUT_ENABLE,
- 		M98090_HPLEN_SHIFT, 0, NULL, 0),
+--- a/drivers/crypto/ccree/cc_hash.c
++++ b/drivers/crypto/ccree/cc_hash.c
+@@ -1616,7 +1616,7 @@ static struct cc_hash_template driver_ha
+ 			.setkey = cc_hash_setkey,
+ 			.halg = {
+ 				.digestsize = SHA224_DIGEST_SIZE,
+-				.statesize = CC_STATE_SIZE(SHA224_DIGEST_SIZE),
++				.statesize = CC_STATE_SIZE(SHA256_DIGEST_SIZE),
+ 			},
+ 		},
+ 		.hash_mode = DRV_HASH_SHA224,
+@@ -1641,7 +1641,7 @@ static struct cc_hash_template driver_ha
+ 			.setkey = cc_hash_setkey,
+ 			.halg = {
+ 				.digestsize = SHA384_DIGEST_SIZE,
+-				.statesize = CC_STATE_SIZE(SHA384_DIGEST_SIZE),
++				.statesize = CC_STATE_SIZE(SHA512_DIGEST_SIZE),
+ 			},
+ 		},
+ 		.hash_mode = DRV_HASH_SHA384,
 
 
