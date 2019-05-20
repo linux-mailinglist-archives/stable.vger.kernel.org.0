@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1F423765
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E4123546
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388238AbfETMrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:47:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
+        id S2390872AbfETMeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:34:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388738AbfETMYB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:24:01 -0400
+        id S2390859AbfETMeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:34:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD78821479;
-        Mon, 20 May 2019 12:23:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B78E216C4;
+        Mon, 20 May 2019 12:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355040;
-        bh=Lvg+NvsMgmuEkHXtxSJLY+4hNZv7nKUF9/GicZiAfRA=;
+        s=default; t=1558355649;
+        bh=3BdsCKCwZOr6nPEyqN8v/LGY99gnYcCoYtt+UsPGw54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOV3zvlP/rdqDz7cwPyHW+nktb9diTSSHl3RTpYH6pqZc1ChenryHABTWElqdoYa8
-         15S2Xi/kxfqPcNHOwyb44O0HCSLj7Q2ICxk7A+7I7SquY1gRY6f9VSPxikczYTOJUP
-         6BMx9+BUV/m+KILooTNpGEohGHIzSG4aklulmCNg=
+        b=YnU77tfoIS0tj9vcHpP3LJBxYuNOEtpQvsa2WlVGQTO38hkiHm9BQ8qDyt54HzUjM
+         nlQXZrCHJvA9mmkLENFAiAsJCDbGEkx8Rz63lJchZSI16ehQm9uEiSXTYVizyMRy/Z
+         23hnWa6ypMvUQvkVnKcu0CTk1cmuKQjm/4S6Hz/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 073/105] btrfs: Check the first key and level for cached extent buffer
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 072/128] hugetlb: use same fault hash key for shared and private mappings
 Date:   Mon, 20 May 2019 14:14:19 +0200
-Message-Id: <20190520115252.253278568@linuxfoundation.org>
+Message-Id: <20190520115254.651928070@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,166 +49,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit 448de471cd4cab0cedd15770082567a69a784a11 upstream.
+commit 1b426bac66e6cc83c9f2d92b96e4e72acf43419a upstream.
 
-[BUG]
-When reading a file from a fuzzed image, kernel can panic like:
+hugetlb uses a fault mutex hash table to prevent page faults of the
+same pages concurrently.  The key for shared and private mappings is
+different.  Shared keys off address_space and file index.  Private keys
+off mm and virtual address.  Consider a private mappings of a populated
+hugetlbfs file.  A fault will map the page from the file and if needed
+do a COW to map a writable page.
 
-  BTRFS warning (device loop0): csum failed root 5 ino 270 off 0 csum 0x98f94189 expected csum 0x00000000 mirror 1
-  assertion failed: !memcmp_extent_buffer(b, &disk_key, offsetof(struct btrfs_leaf, items[0].key), sizeof(disk_key)), file: fs/btrfs/ctree.c, line: 2544
-  ------------[ cut here ]------------
-  kernel BUG at fs/btrfs/ctree.h:3500!
-  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  RIP: 0010:btrfs_search_slot.cold.24+0x61/0x63 [btrfs]
-  Call Trace:
-   btrfs_lookup_csum+0x52/0x150 [btrfs]
-   __btrfs_lookup_bio_sums+0x209/0x640 [btrfs]
-   btrfs_submit_bio_hook+0x103/0x170 [btrfs]
-   submit_one_bio+0x59/0x80 [btrfs]
-   extent_read_full_page+0x58/0x80 [btrfs]
-   generic_file_read_iter+0x2f6/0x9d0
-   __vfs_read+0x14d/0x1a0
-   vfs_read+0x8d/0x140
-   ksys_read+0x52/0xc0
-   do_syscall_64+0x60/0x210
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Hugetlbfs hole punch uses the fault mutex to prevent mappings of file
+pages.  It uses the address_space file index key.  However, private
+mappings will use a different key and could race with this code to map
+the file page.  This causes problems (BUG) for the page cache remove
+code as it expects the page to be unmapped.  A sample stack is:
 
-[CAUSE]
-The fuzzed image has a corrupted leaf whose first key doesn't match its
-parent:
+page dumped because: VM_BUG_ON_PAGE(page_mapped(page))
+kernel BUG at mm/filemap.c:169!
+...
+RIP: 0010:unaccount_page_cache_page+0x1b8/0x200
+...
+Call Trace:
+__delete_from_page_cache+0x39/0x220
+delete_from_page_cache+0x45/0x70
+remove_inode_hugepages+0x13c/0x380
+? __add_to_page_cache_locked+0x162/0x380
+hugetlbfs_fallocate+0x403/0x540
+? _cond_resched+0x15/0x30
+? __inode_security_revalidate+0x5d/0x70
+? selinux_file_permission+0x100/0x130
+vfs_fallocate+0x13f/0x270
+ksys_fallocate+0x3c/0x80
+__x64_sys_fallocate+0x1a/0x20
+do_syscall_64+0x5b/0x180
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  checksum tree key (CSUM_TREE ROOT_ITEM 0)
-  node 29741056 level 1 items 14 free 107 generation 19 owner CSUM_TREE
-  fs uuid 3381d111-94a3-4ac7-8f39-611bbbdab7e6
-  chunk uuid 9af1c3c7-2af5-488b-8553-530bd515f14c
-  	...
-          key (EXTENT_CSUM EXTENT_CSUM 79691776) block 29761536 gen 19
+There seems to be another potential COW issue/race with this approach
+of different private and shared keys as noted in commit 8382d914ebf7
+("mm, hugetlb: improve page-fault scalability").
 
-  leaf 29761536 items 1 free space 1726 generation 19 owner CSUM_TREE
-  leaf 29761536 flags 0x1(WRITTEN) backref revision 1
-  fs uuid 3381d111-94a3-4ac7-8f39-611bbbdab7e6
-  chunk uuid 9af1c3c7-2af5-488b-8553-530bd515f14c
-          item 0 key (EXTENT_CSUM EXTENT_CSUM 8798638964736) itemoff 1751 itemsize 2244
-                  range start 8798638964736 end 8798641262592 length 2297856
+Since every hugetlb mapping (even anon and private) is actually a file
+mapping, just use the address_space index key for all mappings.  This
+results in potentially more hash collisions.  However, this should not
+be the common case.
 
-When reading the above tree block, we have extent_buffer->refs = 2 in
-the context:
-
-- initial one from __alloc_extent_buffer()
-  alloc_extent_buffer()
-  |- __alloc_extent_buffer()
-     |- atomic_set(&eb->refs, 1)
-
-- one being added to fs_info->buffer_radix
-  alloc_extent_buffer()
-  |- check_buffer_tree_ref()
-     |- atomic_inc(&eb->refs)
-
-So if even we call free_extent_buffer() in read_tree_block or other
-similar situation, we only decrease the refs by 1, it doesn't reach 0
-and won't be freed right now.
-
-The staled eb and its corrupted content will still be kept cached.
-
-Furthermore, we have several extra cases where we either don't do first
-key check or the check is not proper for all callers:
-
-- scrub
-  We just don't have first key in this context.
-
-- shared tree block
-  One tree block can be shared by several snapshot/subvolume trees.
-  In that case, the first key check for one subvolume doesn't apply to
-  another.
-
-So for the above reasons, a corrupted extent buffer can sneak into the
-buffer cache.
-
-[FIX]
-Call verify_level_key in read_block_for_search to do another
-verification. For that purpose the function is exported.
-
-Due to above reasons, although we can free corrupted extent buffer from
-cache, we still need the check in read_block_for_search(), for scrub and
-shared tree blocks.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202757
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202759
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202761
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202767
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202769
-Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: http://lkml.kernel.org/r/20190328234704.27083-3-mike.kravetz@oracle.com
+Link: http://lkml.kernel.org/r/20190412165235.t4sscoujczfhuiyt@linux-r8p5
+Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c   |   10 ++++++++++
- fs/btrfs/disk-io.c |   10 +++++-----
- fs/btrfs/disk-io.h |    3 +++
- 3 files changed, 18 insertions(+), 5 deletions(-)
+ fs/hugetlbfs/inode.c    |    7 ++-----
+ include/linux/hugetlb.h |    4 +---
+ mm/hugetlb.c            |   22 ++++++----------------
+ mm/userfaultfd.c        |    3 +--
+ 4 files changed, 10 insertions(+), 26 deletions(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -2436,6 +2436,16 @@ read_block_for_search(struct btrfs_root
- 	if (tmp) {
- 		/* first we do an atomic uptodate check */
- 		if (btrfs_buffer_uptodate(tmp, gen, 1) > 0) {
-+			/*
-+			 * Do extra check for first_key, eb can be stale due to
-+			 * being cached, read from scrub, or have multiple
-+			 * parents (shared tree blocks).
-+			 */
-+			if (btrfs_verify_level_key(fs_info, tmp,
-+					parent_level - 1, &first_key, gen)) {
-+				free_extent_buffer(tmp);
-+				return -EUCLEAN;
-+			}
- 			*eb_ret = tmp;
- 			return 0;
- 		}
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -408,9 +408,9 @@ static int btrfs_check_super_csum(struct
- 	return ret;
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -440,9 +440,7 @@ static void remove_inode_hugepages(struc
+ 			u32 hash;
+ 
+ 			index = page->index;
+-			hash = hugetlb_fault_mutex_hash(h, current->mm,
+-							&pseudo_vma,
+-							mapping, index, 0);
++			hash = hugetlb_fault_mutex_hash(h, mapping, index, 0);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 			/*
+@@ -639,8 +637,7 @@ static long hugetlbfs_fallocate(struct f
+ 		addr = index * hpage_size;
+ 
+ 		/* mutex taken here, fault path and hole punch */
+-		hash = hugetlb_fault_mutex_hash(h, mm, &pseudo_vma, mapping,
+-						index, addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 		/* See if already present in mapping to avoid alloc/free */
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -123,9 +123,7 @@ void move_hugetlb_state(struct page *old
+ void free_huge_page(struct page *page);
+ void hugetlb_fix_reserve_counts(struct inode *inode);
+ extern struct mutex *hugetlb_fault_mutex_table;
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-				struct vm_area_struct *vma,
+-				struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 				pgoff_t idx, unsigned long address);
+ 
+ pte_t *huge_pmd_share(struct mm_struct *mm, unsigned long addr, pud_t *pud);
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3778,8 +3778,7 @@ retry:
+ 			 * handling userfault.  Reacquire after handling
+ 			 * fault to make calling code simpler.
+ 			 */
+-			hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping,
+-							idx, haddr);
++			hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+@@ -3887,21 +3886,14 @@ backout_unlocked:
  }
  
--static int verify_level_key(struct btrfs_fs_info *fs_info,
--			    struct extent_buffer *eb, int level,
--			    struct btrfs_key *first_key, u64 parent_transid)
-+int btrfs_verify_level_key(struct btrfs_fs_info *fs_info,
-+			   struct extent_buffer *eb, int level,
-+			   struct btrfs_key *first_key, u64 parent_transid)
+ #ifdef CONFIG_SMP
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-			    struct vm_area_struct *vma,
+-			    struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 			    pgoff_t idx, unsigned long address)
  {
- 	int found_level;
- 	struct btrfs_key found_key;
-@@ -487,8 +487,8 @@ static int btree_read_extent_buffer_page
- 			if (verify_parent_transid(io_tree, eb,
- 						   parent_transid, 0))
- 				ret = -EIO;
--			else if (verify_level_key(fs_info, eb, level,
--						  first_key, parent_transid))
-+			else if (btrfs_verify_level_key(fs_info, eb, level,
-+						first_key, parent_transid))
- 				ret = -EUCLEAN;
- 			else
- 				break;
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -39,6 +39,9 @@ static inline u64 btrfs_sb_offset(int mi
- struct btrfs_device;
- struct btrfs_fs_devices;
+ 	unsigned long key[2];
+ 	u32 hash;
  
-+int btrfs_verify_level_key(struct btrfs_fs_info *fs_info,
-+			   struct extent_buffer *eb, int level,
-+			   struct btrfs_key *first_key, u64 parent_transid);
- struct extent_buffer *read_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr,
- 				      u64 parent_transid, int level,
- 				      struct btrfs_key *first_key);
+-	if (vma->vm_flags & VM_SHARED) {
+-		key[0] = (unsigned long) mapping;
+-		key[1] = idx;
+-	} else {
+-		key[0] = (unsigned long) mm;
+-		key[1] = address >> huge_page_shift(h);
+-	}
++	key[0] = (unsigned long) mapping;
++	key[1] = idx;
+ 
+ 	hash = jhash2((u32 *)&key, sizeof(key)/sizeof(u32), 0);
+ 
+@@ -3912,9 +3904,7 @@ u32 hugetlb_fault_mutex_hash(struct hsta
+  * For uniprocesor systems we always use a single mutex, so just
+  * return 0 and avoid the hashing overhead.
+  */
+-u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+-			    struct vm_area_struct *vma,
+-			    struct address_space *mapping,
++u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+ 			    pgoff_t idx, unsigned long address)
+ {
+ 	return 0;
+@@ -3959,7 +3949,7 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 	 * get spurious allocation failures if two CPUs race to instantiate
+ 	 * the same page in the page cache.
+ 	 */
+-	hash = hugetlb_fault_mutex_hash(h, mm, vma, mapping, idx, haddr);
++	hash = hugetlb_fault_mutex_hash(h, mapping, idx, haddr);
+ 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 	entry = huge_ptep_get(ptep);
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -271,8 +271,7 @@ retry:
+ 		 */
+ 		idx = linear_page_index(dst_vma, dst_addr);
+ 		mapping = dst_vma->vm_file->f_mapping;
+-		hash = hugetlb_fault_mutex_hash(h, dst_mm, dst_vma, mapping,
+-								idx, dst_addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, idx, dst_addr);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 		err = -ENOMEM;
 
 
