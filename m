@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B00323450
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1FF234C8
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389139AbfETMZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
+        id S2389514AbfETMao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389138AbfETMZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:41 -0400
+        id S2390150AbfETMan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:30:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5C8721721;
-        Mon, 20 May 2019 12:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F17E520675;
+        Mon, 20 May 2019 12:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355141;
-        bh=yk4aF3+3CUmWowkLP/XwgQN2IGk4lmHrWxdYxoIbi+8=;
+        s=default; t=1558355442;
+        bh=Y8pn0klUBCj5HAGh+Ju8aJxxSJY616eLJ6p9gRpf8b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2abbYaitgosUsZyVi+GMY5OrCNJQwKmRuNcyGTCnTsbqQr7w7/VsK/7YIkEv7FKHl
-         C/+f6gWhM3Spc6C1cea5qjQBMU9fYlYZQ48sA9F/w6hUU/9K4f3AsEPxjVFf9pySBt
-         8VCqjiWt1z4vjgD0fT74iXtmIb1+Zu7KLf+iDrHY=
+        b=bG6mCGeHfajWWUnXuL6VTG0wlznq8/WMEt4uLk3gaJIhlR0VuzdlWeTxNoYtnEcnt
+         bNPfHRLLvHJNqkwYIidG5QGJlxRRykYYbCj39yeEGNuPnF3KMVHfr+4c488+1NYf5d
+         q7IewBH8P8ZcsJI0d6laScxvnOMk+BMQDUJulX/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.19 096/105] xen/pvh: set xen_domain_type to HVM in xen_pvh_init
-Date:   Mon, 20 May 2019 14:14:42 +0200
-Message-Id: <20190520115253.861262520@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.0 103/123] ext4: fix data corruption caused by overlapping unaligned and aligned IO
+Date:   Mon, 20 May 2019 14:14:43 +0200
+Message-Id: <20190520115251.893061163@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-commit c9f804d64bb93c8dbf957df1d7e9de11380e522d upstream.
+commit 57a0da28ced8707cb9f79f071a016b9d005caf5a upstream.
 
-Or else xen_domain() returns false despite xen_pvh being set.
+Unaligned AIO must be serialized because the zeroing of partial blocks
+of unaligned AIO can result in data corruption in case it's overlapping
+another in flight IO.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: stable@vger.kernel.org # 4.19+
+Currently we wait for all unwritten extents before we submit unaligned
+AIO which protects data in case of unaligned AIO is following overlapping
+IO. However if a unaligned AIO is followed by overlapping aligned AIO we
+can still end up corrupting data.
+
+To fix this, we must make sure that the unaligned AIO is the only IO in
+flight by waiting for unwritten extents conversion not just before the
+IO submission, but right after it as well.
+
+This problem can be reproduced by xfstest generic/538
+
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/xen/enlighten_pvh.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/file.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -97,6 +97,7 @@ void __init xen_prepare_pvh(void)
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -264,6 +264,13 @@ ext4_file_write_iter(struct kiocb *iocb,
  	}
  
- 	xen_pvh = 1;
-+	xen_domain_type = XEN_HVM_DOMAIN;
- 	xen_start_flags = pvh_start_info.flags;
+ 	ret = __generic_file_write_iter(iocb, from);
++	/*
++	 * Unaligned direct AIO must be the only IO in flight. Otherwise
++	 * overlapping aligned IO after unaligned might result in data
++	 * corruption.
++	 */
++	if (ret == -EIOCBQUEUED && unaligned_aio)
++		ext4_unwritten_wait(inode);
+ 	inode_unlock(inode);
  
- 	msr = cpuid_ebx(xen_cpuid_base() + 2);
+ 	if (ret > 0)
 
 
