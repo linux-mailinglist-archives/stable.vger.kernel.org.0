@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E0F234D0
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D6923684
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390246AbfETMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47484 "EHLO mail.kernel.org"
+        id S2388601AbfETMZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:25:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390238AbfETMbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:04 -0400
+        id S2389015AbfETMZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56A0520645;
-        Mon, 20 May 2019 12:31:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2167E20645;
+        Mon, 20 May 2019 12:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355463;
-        bh=AVWiOWEc1qqNr7Nj3IfW3zZKYO8A2OhvSJw+SaAvmuY=;
+        s=default; t=1558355114;
+        bh=5zCdNk6o7TvfEzmsRexz2WXo2rRTLCTto/KnK33XGaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSyDRQg4umS2svJKr60lWlz6p9k58YAYOXTpIKQ39ix29qyrbR98rGV39uajkdOjZ
-         vkOWcdv5FewtS5H3y8EHNwr70QHUoYimPQpWN/jLvSqUmxGpRkWg67v7wZvfBxdGa1
-         3zco0QgUzp74SfFfSz4rSJ+FPlRr2FM0B/Fx7I4Q=
+        b=OaY5FlHFNieQjDACbYlw53UkCR6g11OO3pQ1+nf4icSqUhsNnUJGrnXLUpuBMUvgo
+         b19bbRRSXiTQWt1DdAXW7ThxLqr+lx8OvLrE/cw+N3Pl09IScjpeJX0VFWRU7IMlkQ
+         euL/cs83Ee/52LoKx1ftDtti6Z5AVCvSm3Gj1R+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Wadowski?= <wadosm@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 108/123] ALSA: hda/realtek - Fix for Lenovo B50-70 inverted internal microphone bug
-Date:   Mon, 20 May 2019 14:14:48 +0200
-Message-Id: <20190520115252.272801135@linuxfoundation.org>
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 103/105] ext4: fix block validity checks for journal inodes using indirect blocks
+Date:   Mon, 20 May 2019 14:14:49 +0200
+Message-Id: <20190520115254.348194358@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Wadowski <wadosm@gmail.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 56df90b631fc027fe28b70d41352d820797239bb upstream.
+commit 170417c8c7bb2cbbdd949bf5c443c0c8f24a203b upstream.
 
-Add patch for realtek codec in Lenovo B50-70 that fixes inverted
-internal microphone channel.
-Device IdeaPad Y410P has the same PCI SSID as Lenovo B50-70,
-but first one is about fix the noise and it didn't seem help in a
-later kernel version.
-So I replaced IdeaPad Y410P device description with B50-70 and apply
-inverted microphone fix.
+Commit 345c0dbf3a30 ("ext4: protect journal inode's blocks using
+block_validity") failed to add an exception for the journal inode in
+ext4_check_blockref(), which is the function used by ext4_get_branch()
+for indirect blocks.  This caused attempts to read from the ext3-style
+journals to fail with:
 
-Bugzilla: https://bugs.launchpad.net/ubuntu/+source/alsa-driver/+bug/1524215
-Signed-off-by: Michał Wadowski <wadosm@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[  848.968550] EXT4-fs error (device sdb7): ext4_get_branch:171: inode #8: block 30343695: comm jbd2/sdb7-8: invalid block
+
+Fix this by adding the missing exception check.
+
+Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
+Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/block_validity.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6988,7 +6988,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
--	SND_PCI_QUIRK(0x17aa, 0x3978, "IdeaPad Y410P", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x5013, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x17aa, 0x501a, "Thinkpad", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x501e, "Thinkpad L440", ALC292_FIXUP_TPT440_DOCK),
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -276,6 +276,11 @@ int ext4_check_blockref(const char *func
+ 	__le32 *bref = p;
+ 	unsigned int blk;
+ 
++	if (ext4_has_feature_journal(inode->i_sb) &&
++	    (inode->i_ino ==
++	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
++		return 0;
++
+ 	while (bref < p+max) {
+ 		blk = le32_to_cpu(*bref++);
+ 		if (blk &&
 
 
