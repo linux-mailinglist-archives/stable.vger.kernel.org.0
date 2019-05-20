@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C522360A
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A452923525
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390032AbfETMmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:42:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46178 "EHLO mail.kernel.org"
+        id S2390706AbfETMdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:33:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390010AbfETM37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:59 -0400
+        id S2390699AbfETMdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:33:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D9220675;
-        Mon, 20 May 2019 12:29:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5286204FD;
+        Mon, 20 May 2019 12:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355399;
-        bh=Uw0pF31YOHlAKBRVzNCneThPQgBmKK3R8VVsUrLP+AI=;
+        s=default; t=1558355602;
+        bh=AJzAOBfK+W+9PiPw6Q1YZyS50a4r863se8XmdD4S8UU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSizXNwLMrzv5tjiYYDJltPfFOAkrCLVw1zWp/Oq77qZ5wFjbZxTG2cO+7MqiCBBG
-         5ffHJHv0FxNf11C/oNNlPCqK+Fp1zQi1kS22gYAYcsCm60eBuYK35UwGYtg85d8iiW
-         BM5ug6FOvLyeK3DAnEBtOcAUmKQjgm3+eEdz1SrU=
+        b=gte1eeV+gbuOB0sxWb0dOrsGy++xES1DxIXz+ms/JLfk/rno1ZugYpU9lz0tEznJz
+         istxJkDPyhHmMmVzBvuK4kYm97axjWb/jfFix0SaYpIGSXAGlhyBRFt8Nkldmey00T
+         HW4t+6NzJ+Yh2dok/zt4t1pF8xcpLll9KFNi4u7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.0 063/123] crypto: ccree - pm resume first enable the source clk
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.1 056/128] ASoC: fsl_esai: Fix missing break in switch statement
 Date:   Mon, 20 May 2019 14:14:03 +0200
-Message-Id: <20190520115248.994423542@linuxfoundation.org>
+Message-Id: <20190520115253.575225378@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Drang <ofir.drang@arm.com>
+From: S.j. Wang <shengjiu.wang@nxp.com>
 
-commit 7766dd774d80463cec7b81d90c8672af91de2da1 upstream.
+commit 903c220b1ece12f17c868e43f2243b8f81ff2d4c upstream.
 
-On power management resume function first enable the device clk source
-to allow access to the device registers.
+case ESAI_HCKT_EXTAL and case ESAI_HCKR_EXTAL should be
+independent of each other, so replace fall-through with break.
 
-Signed-off-by: Ofir Drang <ofir.drang@arm.com>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 43d24e76b698 ("ASoC: fsl_esai: Add ESAI CPU DAI driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_pm.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/fsl/fsl_esai.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -42,14 +42,15 @@ int cc_pm_resume(struct device *dev)
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
- 
- 	dev_dbg(dev, "unset HOST_POWER_DOWN_EN\n");
--	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
--
-+	/* Enables the device source clk */
- 	rc = cc_clk_on(drvdata);
- 	if (rc) {
- 		dev_err(dev, "failed getting clock back on. We're toast.\n");
- 		return rc;
- 	}
- 
-+	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
-+
- 	rc = init_cc_regs(drvdata, false);
- 	if (rc) {
- 		dev_err(dev, "init_cc_regs (%x)\n", rc);
+--- a/sound/soc/fsl/fsl_esai.c
++++ b/sound/soc/fsl/fsl_esai.c
+@@ -251,7 +251,7 @@ static int fsl_esai_set_dai_sysclk(struc
+ 		break;
+ 	case ESAI_HCKT_EXTAL:
+ 		ecr |= ESAI_ECR_ETI;
+-		/* fall through */
++		break;
+ 	case ESAI_HCKR_EXTAL:
+ 		ecr |= ESAI_ECR_ERI;
+ 		break;
 
 
