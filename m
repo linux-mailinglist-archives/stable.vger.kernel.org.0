@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 777D32368A
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 826A32356D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388136AbfETMqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39944 "EHLO mail.kernel.org"
+        id S2390429AbfETMfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388938AbfETMY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:24:59 -0400
+        id S2391051AbfETMfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67D2220645;
-        Mon, 20 May 2019 12:24:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9263204FD;
+        Mon, 20 May 2019 12:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355097;
-        bh=u1Z1DG+dfw+neeh9hLZCBqpazPFnvD8rEFLVjWvGUbY=;
+        s=default; t=1558355707;
+        bh=tcJn/KtNviF2HVerxI3KvnEcODcrhTBFOURhnQDl580=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKC1EmBHni9a01SHU2OQ54lwRS7dhZAuyVdw1iAqP1E4AxS0bdNr9QW7Dhg9v5ksw
-         ceUnONcZmiDJIE8guZcxVC7n2C88Mz4aaPVqRmlqxHgH45mxaZkqqdPdccBIwFmA0k
-         zfjE8CijrLdY/I6NPugwCH81Gv1/3Pir4+q55rlY=
+        b=XRijK17awV7ZwAGk/v0lbo99PSUY2JPOweUMqxtOEX7J27pd6jwT14y+q1PX8J+tL
+         sjM3pPnqT5RMIn4djtNl8k3zWkU0OmJRq6j2F09SHnKg9zpgSdb2EtBfgEXZoYWt+3
+         0lQhZsMCd4yzKj0JY/p/1XbzBvp415WUmVIw7IfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Erwin Tsaur <erwin.tsaur@oracle.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 4.19 097/105] libnvdimm/namespace: Fix label tracking error
+        stable@vger.kernel.org,
+        Christoph Anton Mitterer <calestyo@scientia.net>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.1 096/128] Btrfs: do not start a transaction during fiemap
 Date:   Mon, 20 May 2019 14:14:43 +0200
-Message-Id: <20190520115253.930121417@linuxfoundation.org>
+Message-Id: <20190520115255.750252803@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,158 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit c4703ce11c23423d4b46e3d59aef7979814fd608 upstream.
+commit 03628cdbc64db6262e50d0357960a4e9562676a1 upstream.
 
-Users have reported intermittent occurrences of DIMM initialization
-failures due to duplicate allocations of address capacity detected in
-the labels, or errors of the form below, both have the same root cause.
+During fiemap, for regular extents (non inline) we need to check if they
+are shared and if they are, set the shared bit. Checking if an extent is
+shared requires checking the delayed references of the currently running
+transaction, since some reference might have not yet hit the extent tree
+and be only in the in-memory delayed references.
 
-    nd namespace1.4: failed to track label: 0
-    WARNING: CPU: 17 PID: 1381 at drivers/nvdimm/label.c:863
+However we were using a transaction join for this, which creates a new
+transaction when there is no transaction currently running. That means
+that two more potential failures can happen: creating the transaction and
+committing it. Further, if no write activity is currently happening in the
+system, and fiemap calls keep being done, we end up creating and
+committing transactions that do nothing.
 
-    RIP: 0010:__pmem_label_update+0x56c/0x590 [libnvdimm]
-    Call Trace:
-     ? nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
-     nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
-     uuid_store+0x17e/0x190 [libnvdimm]
-     kernfs_fop_write+0xf0/0x1a0
-     vfs_write+0xb7/0x1b0
-     ksys_write+0x57/0xd0
-     do_syscall_64+0x60/0x210
+In some extreme cases this can result in the commit of the transaction
+created by fiemap to fail with ENOSPC when updating the root item of a
+subvolume tree because a join does not reserve any space, leading to a
+trace like the following:
 
-Unfortunately those reports were typically with a busy parallel
-namespace creation / destruction loop making it difficult to see the
-components of the bug. However, Jane provided a simple reproducer using
-the work-in-progress sub-section implementation.
+ heisenberg kernel: ------------[ cut here ]------------
+ heisenberg kernel: BTRFS: Transaction aborted (error -28)
+ heisenberg kernel: WARNING: CPU: 0 PID: 7137 at fs/btrfs/root-tree.c:136 btrfs_update_root+0x22b/0x320 [btrfs]
+(...)
+ heisenberg kernel: CPU: 0 PID: 7137 Comm: btrfs-transacti Not tainted 4.19.0-4-amd64 #1 Debian 4.19.28-2
+ heisenberg kernel: Hardware name: FUJITSU LIFEBOOK U757/FJNB2A5, BIOS Version 1.21 03/19/2018
+ heisenberg kernel: RIP: 0010:btrfs_update_root+0x22b/0x320 [btrfs]
+(...)
+ heisenberg kernel: RSP: 0018:ffffb5448828bd40 EFLAGS: 00010286
+ heisenberg kernel: RAX: 0000000000000000 RBX: ffff8ed56bccef50 RCX: 0000000000000006
+ heisenberg kernel: RDX: 0000000000000007 RSI: 0000000000000092 RDI: ffff8ed6bda166a0
+ heisenberg kernel: RBP: 00000000ffffffe4 R08: 00000000000003df R09: 0000000000000007
+ heisenberg kernel: R10: 0000000000000000 R11: 0000000000000001 R12: ffff8ed63396a078
+ heisenberg kernel: R13: ffff8ed092d7c800 R14: ffff8ed64f5db028 R15: ffff8ed6bd03d068
+ heisenberg kernel: FS:  0000000000000000(0000) GS:ffff8ed6bda00000(0000) knlGS:0000000000000000
+ heisenberg kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ heisenberg kernel: CR2: 00007f46f75f8000 CR3: 0000000310a0a002 CR4: 00000000003606f0
+ heisenberg kernel: DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ heisenberg kernel: DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ heisenberg kernel: Call Trace:
+ heisenberg kernel:  commit_fs_roots+0x166/0x1d0 [btrfs]
+ heisenberg kernel:  ? _cond_resched+0x15/0x30
+ heisenberg kernel:  ? btrfs_run_delayed_refs+0xac/0x180 [btrfs]
+ heisenberg kernel:  btrfs_commit_transaction+0x2bd/0x870 [btrfs]
+ heisenberg kernel:  ? start_transaction+0x9d/0x3f0 [btrfs]
+ heisenberg kernel:  transaction_kthread+0x147/0x180 [btrfs]
+ heisenberg kernel:  ? btrfs_cleanup_transaction+0x530/0x530 [btrfs]
+ heisenberg kernel:  kthread+0x112/0x130
+ heisenberg kernel:  ? kthread_bind+0x30/0x30
+ heisenberg kernel:  ret_from_fork+0x35/0x40
+ heisenberg kernel: ---[ end trace 05de912e30e012d9 ]---
 
-When ndctl is reconfiguring a namespace it may take an existing defunct
-/ disabled namespace and reconfigure it with a new uuid and other
-parameters. Critically namespace_update_uuid() takes existing address
-resources and renames them for the new namespace to use / reconfigure as
-it sees fit. The bug is that this rename only happens in the resource
-tracking tree. Existing labels with the old uuid are not reaped leading
-to a scenario where multiple active labels reference the same span of
-address range.
+Since fiemap (and btrfs_check_shared()) is a read-only operation, do not do
+a transaction join to avoid the overhead of creating a new transaction (if
+there is currently no running transaction) and introducing a potential
+point of failure when the new transaction gets committed, instead use a
+transaction attach to grab a handle for the currently running transaction
+if any.
 
-Teach namespace_update_uuid() to flag any references to the old uuid for
-reaping at the next label update attempt.
-
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Link: https://github.com/pmem/ndctl/issues/91
-Reported-by: Jane Chu <jane.chu@oracle.com>
-Reported-by: Jeff Moyer <jmoyer@redhat.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: Christoph Anton Mitterer <calestyo@scientia.net>
+Link: https://lore.kernel.org/linux-btrfs/b2a668d7124f1d3e410367f587926f622b3f03a4.camel@scientia.net/
+Fixes: afce772e87c36c ("btrfs: fix check_shared for fiemap ioctl")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/label.c          |   29 ++++++++++++++++-------------
- drivers/nvdimm/namespace_devs.c |   15 +++++++++++++++
- drivers/nvdimm/nd.h             |    4 ++++
- 3 files changed, 35 insertions(+), 13 deletions(-)
+ fs/btrfs/backref.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -623,6 +623,17 @@ static const guid_t *to_abstraction_guid
- 		return &guid_null;
- }
- 
-+static void reap_victim(struct nd_mapping *nd_mapping,
-+		struct nd_label_ent *victim)
-+{
-+	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
-+	u32 slot = to_slot(ndd, victim->label);
-+
-+	dev_dbg(ndd->dev, "free: %d\n", slot);
-+	nd_label_free_slot(ndd, slot);
-+	victim->label = NULL;
-+}
-+
- static int __pmem_label_update(struct nd_region *nd_region,
- 		struct nd_mapping *nd_mapping, struct nd_namespace_pmem *nspm,
- 		int pos, unsigned long flags)
-@@ -630,9 +641,9 @@ static int __pmem_label_update(struct nd
- 	struct nd_namespace_common *ndns = &nspm->nsio.common;
- 	struct nd_interleave_set *nd_set = nd_region->nd_set;
- 	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
--	struct nd_label_ent *label_ent, *victim = NULL;
- 	struct nd_namespace_label *nd_label;
- 	struct nd_namespace_index *nsindex;
-+	struct nd_label_ent *label_ent;
- 	struct nd_label_id label_id;
- 	struct resource *res;
- 	unsigned long *free;
-@@ -701,18 +712,10 @@ static int __pmem_label_update(struct nd
- 	list_for_each_entry(label_ent, &nd_mapping->labels, list) {
- 		if (!label_ent->label)
- 			continue;
--		if (memcmp(nspm->uuid, label_ent->label->uuid,
--					NSLABEL_UUID_LEN) != 0)
--			continue;
--		victim = label_ent;
--		list_move_tail(&victim->list, &nd_mapping->labels);
--		break;
--	}
--	if (victim) {
--		dev_dbg(ndd->dev, "free: %d\n", slot);
--		slot = to_slot(ndd, victim->label);
--		nd_label_free_slot(ndd, slot);
--		victim->label = NULL;
-+		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)
-+				|| memcmp(nspm->uuid, label_ent->label->uuid,
-+					NSLABEL_UUID_LEN) == 0)
-+			reap_victim(nd_mapping, label_ent);
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -1460,8 +1460,8 @@ int btrfs_find_all_roots(struct btrfs_tr
+  * callers (such as fiemap) which want to know whether the extent is
+  * shared but do not need a ref count.
+  *
+- * This attempts to allocate a transaction in order to account for
+- * delayed refs, but continues on even when the alloc fails.
++ * This attempts to attach to the running transaction in order to account for
++ * delayed refs, but continues on even when no running transaction exists.
+  *
+  * Return: 0 if extent is not shared, 1 if it is shared, < 0 on error.
+  */
+@@ -1484,13 +1484,16 @@ int btrfs_check_shared(struct btrfs_root
+ 	tmp = ulist_alloc(GFP_NOFS);
+ 	roots = ulist_alloc(GFP_NOFS);
+ 	if (!tmp || !roots) {
+-		ulist_free(tmp);
+-		ulist_free(roots);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out;
  	}
  
- 	/* update index */
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -1248,12 +1248,27 @@ static int namespace_update_uuid(struct
- 	for (i = 0; i < nd_region->ndr_mappings; i++) {
- 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
- 		struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
-+		struct nd_label_ent *label_ent;
- 		struct resource *res;
- 
- 		for_each_dpa_resource(ndd, res)
- 			if (strcmp(res->name, old_label_id.id) == 0)
- 				sprintf((void *) res->name, "%s",
- 						new_label_id.id);
-+
-+		mutex_lock(&nd_mapping->lock);
-+		list_for_each_entry(label_ent, &nd_mapping->labels, list) {
-+			struct nd_namespace_label *nd_label = label_ent->label;
-+			struct nd_label_id label_id;
-+
-+			if (!nd_label)
-+				continue;
-+			nd_label_gen_id(&label_id, nd_label->uuid,
-+					__le32_to_cpu(nd_label->flags));
-+			if (strcmp(old_label_id.id, label_id.id) == 0)
-+				set_bit(ND_LABEL_REAP, &label_ent->flags);
+-	trans = btrfs_join_transaction(root);
++	trans = btrfs_attach_transaction(root);
+ 	if (IS_ERR(trans)) {
++		if (PTR_ERR(trans) != -ENOENT && PTR_ERR(trans) != -EROFS) {
++			ret = PTR_ERR(trans);
++			goto out;
 +		}
-+		mutex_unlock(&nd_mapping->lock);
+ 		trans = NULL;
+ 		down_read(&fs_info->commit_root_sem);
+ 	} else {
+@@ -1523,6 +1526,7 @@ int btrfs_check_shared(struct btrfs_root
+ 	} else {
+ 		up_read(&fs_info->commit_root_sem);
  	}
- 	kfree(*old_uuid);
-  out:
---- a/drivers/nvdimm/nd.h
-+++ b/drivers/nvdimm/nd.h
-@@ -113,8 +113,12 @@ struct nd_percpu_lane {
- 	spinlock_t lock;
- };
- 
-+enum nd_label_flags {
-+	ND_LABEL_REAP,
-+};
- struct nd_label_ent {
- 	struct list_head list;
-+	unsigned long flags;
- 	struct nd_namespace_label *label;
- };
- 
++out:
+ 	ulist_free(tmp);
+ 	ulist_free(roots);
+ 	return ret;
 
 
