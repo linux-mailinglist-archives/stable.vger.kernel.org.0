@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA526235F3
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55DE123578
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390222AbfETMbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:31:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
+        id S2391075AbfETMfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390218AbfETMbB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:01 -0400
+        id S2390407AbfETMfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95ADE20645;
-        Mon, 20 May 2019 12:31:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4542204FD;
+        Mon, 20 May 2019 12:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355461;
-        bh=9Lc2Xqg651QpBxUDV8+3G3GlLbdEU1hToyKIoZ7fvQE=;
+        s=default; t=1558355720;
+        bh=HC/idoCOQyV14h07TYHc6VAt31gFUcHJfANAqMDzakQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eiIJI3eJZ4ZzkkyNg69BqS0NCF3yhdPDqXWYVYzNwu5NtkTaDDERFukQp/u1bX3HC
-         AKDDDQIgK6WKYqNwI9ifJSq1mWSJrhCjc9dZsZ6CQAF/UoxnyNY3KqHAvdZyqaZz2z
-         KcKC1OdrKYy39GTudg27+qp9uiaXyyaJrOQ1UCp4=
+        b=ZsPtb5jOkb93YTj6/ddGZ2QhNTxP/AqK2IOa/edPljdtk5DdSSLjsWdNV5aIzmaZx
+         YMl+V9YwThuSqX7HAgtGCNot+LiIWwh/ydzXl+n4/L81QFFmwFhD8ctUJu+JKGRUtJ
+         TVGidr9RG8R5U3qRAbnqQKXp7JFvl3ifliktsSYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 107/123] ALSA: hda/realtek - Fixup headphone noise via runtime suspend
-Date:   Mon, 20 May 2019 14:14:47 +0200
-Message-Id: <20190520115252.183128858@linuxfoundation.org>
+        stable@vger.kernel.org, Kamlakant Patel <kamlakantp@marvell.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.1 101/128] ipmi: Add the i2c-addr property for SSIF interfaces
+Date:   Mon, 20 May 2019 14:14:48 +0200
+Message-Id: <20190520115256.000435552@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +43,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit dad3197da7a3817f27bb24f7fd3c135ffa707202 upstream.
+commit d73236383eb1cd4b7b65c33a09f0ed45f6781f40 upstream.
 
-Dell platform with ALC298.
-system enter to runtime suspend. Headphone had noise.
-Let Headset Mic not shutup will solve this issue.
+This is required for SSIF to work.
 
-[ Fixed minor coding style issues by tiwai ]
+There was no way to know if the interface being added was SI
+or SSIF from the platform data, but that was required so the
+i2c-addr is only added for SSIF interfaces.  So add a field
+for that.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Also rework the logic a bit so that ipmi-type is not set
+for SSIF interfaces, as it is not necessary for that.
+
+Fixes: 3cd83bac481d ("ipmi: Consolidate the adding of platform devices")
+Reported-by: Kamlakant Patel <kamlakantp@marvell.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: stable@vger.kernel.org # 5.1
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   59 ++++++++++++++++++++++++------------------
- 1 file changed, 35 insertions(+), 24 deletions(-)
+ drivers/char/ipmi/ipmi_dmi.c         |    2 ++
+ drivers/char/ipmi/ipmi_plat_data.c   |   27 +++++++++++++++------------
+ drivers/char/ipmi/ipmi_plat_data.h   |    3 +++
+ drivers/char/ipmi/ipmi_si_hardcode.c |    1 +
+ drivers/char/ipmi/ipmi_si_hotmod.c   |    1 +
+ 5 files changed, 22 insertions(+), 12 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -477,12 +477,45 @@ static void alc_auto_setup_eapd(struct h
- 		set_eapd(codec, *p, on);
- }
+--- a/drivers/char/ipmi/ipmi_dmi.c
++++ b/drivers/char/ipmi/ipmi_dmi.c
+@@ -47,9 +47,11 @@ static void __init dmi_add_platform_ipmi
+ 	memset(&p, 0, sizeof(p));
  
-+static int find_ext_mic_pin(struct hda_codec *codec);
-+
-+static void alc_headset_mic_no_shutup(struct hda_codec *codec)
-+{
-+	const struct hda_pincfg *pin;
-+	int mic_pin = find_ext_mic_pin(codec);
-+	int i;
-+
-+	/* don't shut up pins when unloading the driver; otherwise it breaks
-+	 * the default pin setup at the next load of the driver
-+	 */
-+	if (codec->bus->shutdown)
-+		return;
-+
-+	snd_array_for_each(&codec->init_pins, i, pin) {
-+		/* use read here for syncing after issuing each verb */
-+		if (pin->nid != mic_pin)
-+			snd_hda_codec_read(codec, pin->nid, 0,
-+					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
-+	}
-+
-+	codec->pins_shutup = 1;
-+}
-+
- static void alc_shutup_pins(struct hda_codec *codec)
- {
- 	struct alc_spec *spec = codec->spec;
- 
--	if (!spec->no_shutup_pins)
--		snd_hda_shutup_pins(codec);
-+	switch (codec->core.vendor_id) {
-+	case 0x10ec0286:
-+	case 0x10ec0288:
-+	case 0x10ec0298:
-+		alc_headset_mic_no_shutup(codec);
-+		break;
-+	default:
-+		if (!spec->no_shutup_pins)
-+			snd_hda_shutup_pins(codec);
-+		break;
-+	}
- }
- 
- /* generic shutup callback;
-@@ -2923,27 +2956,6 @@ static int alc269_parse_auto_config(stru
- 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
- }
- 
--static int find_ext_mic_pin(struct hda_codec *codec);
--
--static void alc286_shutup(struct hda_codec *codec)
--{
--	const struct hda_pincfg *pin;
--	int i;
--	int mic_pin = find_ext_mic_pin(codec);
--	/* don't shut up pins when unloading the driver; otherwise it breaks
--	 * the default pin setup at the next load of the driver
--	 */
--	if (codec->bus->shutdown)
--		return;
--	snd_array_for_each(&codec->init_pins, i, pin) {
--		/* use read here for syncing after issuing each verb */
--		if (pin->nid != mic_pin)
--			snd_hda_codec_read(codec, pin->nid, 0,
--					AC_VERB_SET_PIN_WIDGET_CONTROL, 0);
--	}
--	codec->pins_shutup = 1;
--}
--
- static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
- {
- 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
-@@ -7705,7 +7717,6 @@ static int patch_alc269(struct hda_codec
- 	case 0x10ec0286:
- 	case 0x10ec0288:
- 		spec->codec_variant = ALC269_TYPE_ALC286;
--		spec->shutup = alc286_shutup;
+ 	name = "dmi-ipmi-si";
++	p.iftype = IPMI_PLAT_IF_SI;
+ 	switch (type) {
+ 	case IPMI_DMI_TYPE_SSIF:
+ 		name = "dmi-ipmi-ssif";
++		p.iftype = IPMI_PLAT_IF_SSIF;
+ 		p.type = SI_TYPE_INVALID;
  		break;
- 	case 0x10ec0298:
- 		spec->codec_variant = ALC269_TYPE_ALC298;
+ 	case IPMI_DMI_TYPE_BT:
+--- a/drivers/char/ipmi/ipmi_plat_data.c
++++ b/drivers/char/ipmi/ipmi_plat_data.c
+@@ -12,7 +12,7 @@ struct platform_device *ipmi_platform_ad
+ 					  struct ipmi_plat_data *p)
+ {
+ 	struct platform_device *pdev;
+-	unsigned int num_r = 1, size, pidx = 0;
++	unsigned int num_r = 1, size = 0, pidx = 0;
+ 	struct resource r[4];
+ 	struct property_entry pr[6];
+ 	u32 flags;
+@@ -21,19 +21,22 @@ struct platform_device *ipmi_platform_ad
+ 	memset(pr, 0, sizeof(pr));
+ 	memset(r, 0, sizeof(r));
+ 
+-	if (p->type == SI_BT)
+-		size = 3;
+-	else if (p->type == SI_TYPE_INVALID)
+-		size = 0;
+-	else
+-		size = 2;
++	if (p->iftype == IPMI_PLAT_IF_SI) {
++		if (p->type == SI_BT)
++			size = 3;
++		else if (p->type != SI_TYPE_INVALID)
++			size = 2;
+ 
+-	if (p->regsize == 0)
+-		p->regsize = DEFAULT_REGSIZE;
+-	if (p->regspacing == 0)
+-		p->regspacing = p->regsize;
++		if (p->regsize == 0)
++			p->regsize = DEFAULT_REGSIZE;
++		if (p->regspacing == 0)
++			p->regspacing = p->regsize;
++
++		pr[pidx++] = PROPERTY_ENTRY_U8("ipmi-type", p->type);
++	} else if (p->iftype == IPMI_PLAT_IF_SSIF) {
++		pr[pidx++] = PROPERTY_ENTRY_U16("i2c-addr", p->addr);
++	}
+ 
+-	pr[pidx++] = PROPERTY_ENTRY_U8("ipmi-type", p->type);
+ 	if (p->slave_addr)
+ 		pr[pidx++] = PROPERTY_ENTRY_U8("slave-addr", p->slave_addr);
+ 	pr[pidx++] = PROPERTY_ENTRY_U8("addr-source", p->addr_source);
+--- a/drivers/char/ipmi/ipmi_plat_data.h
++++ b/drivers/char/ipmi/ipmi_plat_data.h
+@@ -6,7 +6,10 @@
+ 
+ #include <linux/ipmi.h>
+ 
++enum ipmi_plat_interface_type { IPMI_PLAT_IF_SI, IPMI_PLAT_IF_SSIF };
++
+ struct ipmi_plat_data {
++	enum ipmi_plat_interface_type iftype;
+ 	unsigned int type; /* si_type for si, SI_INVALID for others */
+ 	unsigned int space; /* addr_space for si, intf# for ssif. */
+ 	unsigned long addr;
+--- a/drivers/char/ipmi/ipmi_si_hardcode.c
++++ b/drivers/char/ipmi/ipmi_si_hardcode.c
+@@ -83,6 +83,7 @@ static void __init ipmi_hardcode_init_on
+ 
+ 	memset(&p, 0, sizeof(p));
+ 
++	p.iftype = IPMI_PLAT_IF_SI;
+ 	if (!si_type_str || !*si_type_str || strcmp(si_type_str, "kcs") == 0) {
+ 		p.type = SI_KCS;
+ 	} else if (strcmp(si_type_str, "smic") == 0) {
+--- a/drivers/char/ipmi/ipmi_si_hotmod.c
++++ b/drivers/char/ipmi/ipmi_si_hotmod.c
+@@ -108,6 +108,7 @@ static int parse_hotmod_str(const char *
+ 	int rv;
+ 	unsigned int ival;
+ 
++	h->iftype = IPMI_PLAT_IF_SI;
+ 	rv = parse_str(hotmod_ops, &ival, "operation", &curr);
+ 	if (rv)
+ 		return rv;
 
 
