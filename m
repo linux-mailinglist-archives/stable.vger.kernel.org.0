@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2C9236EC
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C41723543
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733123AbfETMSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59242 "EHLO mail.kernel.org"
+        id S2390856AbfETMeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:34:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730757AbfETMSH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:07 -0400
+        id S2390500AbfETMeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:34:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B05AE213F2;
-        Mon, 20 May 2019 12:18:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCF6C214DA;
+        Mon, 20 May 2019 12:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354687;
-        bh=RjQFV7d97jsIaIDeSyZk8Yms3sZBoQs7QVq41FlS79w=;
+        s=default; t=1558355647;
+        bh=OBYT2VnOQ5myBB1lnPNUSWhpcXsLMps3PXjm+pkB0BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoCcmKV0GIdQ7J8kSABBOF1dFBtj9ytLSpS3hQE6bBNt/35UTHAYwP9bEMU6fza+F
-         w2vblVnFnmte2PuiR8wJtUZ1CxxfG+itbr/BlZ+aB80RDygI3MUcG4al02yLKL5+/W
-         /gr2qem2/ToZjxnd4Ks9/NOkEzDrCxDKTdgwjoYc=
+        b=TFDTiViqDMt4wAoOpEG3db95tYvUaesS4r+O1h3j9xTcAxsJdwh1IRXfhtzntwl0Y
+         JZzBlIz6GkgPAhUDpzboE+D6eORR1FMX1q+OeCAib/V1yqxxR6nwR1ozIIDZzXMH5Y
+         TPMayWCv4dRON2GaSUktZcjeB31tu8lONhqJ76rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Debabrata Banerjee <dbanerje@akamai.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.9 29/44] ext4: fix ext4_show_options for file systems w/o journal
+        stable@vger.kernel.org, Kai Shen <shenkai8@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Wang Wang <wangwang2@huawei.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 071/128] mm/hugetlb.c: dont put_page in lock of hugetlb_lock
 Date:   Mon, 20 May 2019 14:14:18 +0200
-Message-Id: <20190520115234.583932733@linuxfoundation.org>
+Message-Id: <20190520115254.598581725@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +49,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Debabrata Banerjee <dbanerje@akamai.com>
+From: Kai Shen <shenkai8@huawei.com>
 
-commit 50b29d8f033a7c88c5bc011abc2068b1691ab755 upstream.
+commit 2bf753e64b4a702e27ce26ff520c59563c62f96b upstream.
 
-Instead of removing EXT4_MOUNT_JOURNAL_CHECKSUM from s_def_mount_opt as
-I assume was intended, all other options were blown away leading to
-_ext4_show_options() output being incorrect.
+spinlock recursion happened when do LTP test:
+#!/bin/bash
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
+./runltp -p -f hugetlb &
 
-Fixes: 1e381f60dad9 ("ext4: do not allow journal_opts for fs w/o journal")
-Signed-off-by: Debabrata Banerjee <dbanerje@akamai.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+The dtor returned by get_compound_page_dtor in __put_compound_page may be
+the function of free_huge_page which will lock the hugetlb_lock, so don't
+put_page in lock of hugetlb_lock.
+
+ BUG: spinlock recursion on CPU#0, hugemmap05/1079
+  lock: hugetlb_lock+0x0/0x18, .magic: dead4ead, .owner: hugemmap05/1079, .owner_cpu: 0
+ Call trace:
+  dump_backtrace+0x0/0x198
+  show_stack+0x24/0x30
+  dump_stack+0xa4/0xcc
+  spin_dump+0x84/0xa8
+  do_raw_spin_lock+0xd0/0x108
+  _raw_spin_lock+0x20/0x30
+  free_huge_page+0x9c/0x260
+  __put_compound_page+0x44/0x50
+  __put_page+0x2c/0x60
+  alloc_surplus_huge_page.constprop.19+0xf0/0x140
+  hugetlb_acct_memory+0x104/0x378
+  hugetlb_reserve_pages+0xe0/0x250
+  hugetlbfs_file_mmap+0xc0/0x140
+  mmap_region+0x3e8/0x5b0
+  do_mmap+0x280/0x460
+  vm_mmap_pgoff+0xf4/0x128
+  ksys_mmap_pgoff+0xb4/0x258
+  __arm64_sys_mmap+0x34/0x48
+  el0_svc_common+0x78/0x130
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
+
+Link: http://lkml.kernel.org/r/b8ade452-2d6b-0372-32c2-703644032b47@huawei.com
+Fixes: 9980d744a0 ("mm, hugetlb: get rid of surplus page accounting tricks")
+Signed-off-by: Kai Shen <shenkai8@huawei.com>
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4034,7 +4034,7 @@ static int ext4_fill_super(struct super_
- 				 "data=, fs mounted w/o journal");
- 			goto failed_mount_wq;
- 		}
--		sbi->s_def_mount_opt &= EXT4_MOUNT_JOURNAL_CHECKSUM;
-+		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
- 		clear_opt(sb, JOURNAL_CHECKSUM);
- 		clear_opt(sb, DATA_FLAGS);
- 		sbi->s_journal = NULL;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1574,8 +1574,9 @@ static struct page *alloc_surplus_huge_p
+ 	 */
+ 	if (h->surplus_huge_pages >= h->nr_overcommit_huge_pages) {
+ 		SetPageHugeTemporary(page);
++		spin_unlock(&hugetlb_lock);
+ 		put_page(page);
+-		page = NULL;
++		return NULL;
+ 	} else {
+ 		h->surplus_huge_pages++;
+ 		h->surplus_huge_pages_node[page_to_nid(page)]++;
 
 
