@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FC123476
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A8872372D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389442AbfETM1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S2387856AbfETMWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:22:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389432AbfETM1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:06 -0400
+        id S2388355AbfETMWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:22:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D8D9214DA;
-        Mon, 20 May 2019 12:27:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1584621019;
+        Mon, 20 May 2019 12:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355226;
-        bh=W6/X+FsS7lgY0ci9ipL3DN72hdu/rw1yHfoWA9Ns1Uk=;
+        s=default; t=1558354932;
+        bh=BNMAL5BQel9VBIquhmcC/3N4kEa6RuB+goYw1Elgy9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd9r/McMWhmk81W6DE+4Wo8bCralZGbsRgCl0QwkIGGdXf2SxA4RJFBqVByyYkd31
-         zmoiLyc1mRteM7lC6YTIiheAKNCD4HYaUG2F4OfyPsipJ7/jBFmIBuNyy+dYz043hO
-         4Q7TC1O/HArYBnAF9GxgMwKDl5yc1dfthQXBw0Ro=
+        b=pMMRsp/GUFQ2GtV2cgMSKiUm424TeAOVfY8gc/x98r3u/NbTUTn8qf2aNlYnng4vT
+         466TtlRjQ3su2dPlJ30YPWsNFJsgACgceYzZ6ipRi9+EhmNQyAIcW5q20FNjy4lzb7
+         XzzOU40ioi4RBrKyp7wCAX/Fn3j2IfpPurTEYuvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Zhang Zhijie <zhangzj@rock-chips.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.0 038/123] crypto: rockchip - update IV buffer to contain the next IV
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 032/105] mmc: core: Fix tag set memory leak
 Date:   Mon, 20 May 2019 14:13:38 +0200
-Message-Id: <20190520115247.256348579@linuxfoundation.org>
+Message-Id: <20190520115249.274436542@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zhijie <zhangzj@rock-chips.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-commit f0cfd57b43fec65761ca61d3892b983a71515f23 upstream.
+commit 43d8dabb4074cf7f3b1404bfbaeba5aa6f3e5cfc upstream.
 
-The Kernel Crypto API request output the next IV data to
-IV buffer for CBC implementation. So the last block data of
-ciphertext should be copid into assigned IV buffer.
+The tag set is allocated in mmc_init_queue but never freed. This results
+in a memory leak. This change makes sure we free the tag set when the
+queue is also freed.
 
-Reported-by: Eric Biggers <ebiggers@google.com>
-Fixes: 433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Zhang Zhijie <zhangzj@rock-chips.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 81196976ed94 ("mmc: block: Add blk-mq support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c |   25 +++++++++++++++------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/mmc/core/queue.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-@@ -250,9 +250,14 @@ static int rk_set_data_start(struct rk_c
- 	u8 *src_last_blk = page_address(sg_page(dev->sg_src)) +
- 		dev->sg_src->offset + dev->sg_src->length - ivsize;
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -494,6 +494,7 @@ void mmc_cleanup_queue(struct mmc_queue
+ 		blk_mq_unquiesce_queue(q);
  
--	/* store the iv that need to be updated in chain mode */
--	if (ctx->mode & RK_CRYPTO_DEC)
-+	/* Store the iv that need to be updated in chain mode.
-+	 * And update the IV buffer to contain the next IV for decryption mode.
-+	 */
-+	if (ctx->mode & RK_CRYPTO_DEC) {
- 		memcpy(ctx->iv, src_last_blk, ivsize);
-+		sg_pcopy_to_buffer(dev->first, dev->src_nents, req->info,
-+				   ivsize, dev->total - ivsize);
-+	}
+ 	blk_cleanup_queue(q);
++	blk_mq_free_tag_set(&mq->tag_set);
  
- 	err = dev->load_data(dev, dev->sg_src, dev->sg_dst);
- 	if (!err)
-@@ -288,13 +293,19 @@ static void rk_iv_copyback(struct rk_cry
- 	struct ablkcipher_request *req =
- 		ablkcipher_request_cast(dev->async_req);
- 	struct crypto_ablkcipher *tfm = crypto_ablkcipher_reqtfm(req);
-+	struct rk_cipher_ctx *ctx = crypto_ablkcipher_ctx(tfm);
- 	u32 ivsize = crypto_ablkcipher_ivsize(tfm);
- 
--	if (ivsize == DES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_TDES_IV_0,
--			      ivsize);
--	else if (ivsize == AES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_AES_IV_0, ivsize);
-+	/* Update the IV buffer to contain the next IV for encryption mode. */
-+	if (!(ctx->mode & RK_CRYPTO_DEC)) {
-+		if (dev->aligned) {
-+			memcpy(req->info, sg_virt(dev->sg_dst) +
-+				dev->sg_dst->length - ivsize, ivsize);
-+		} else {
-+			memcpy(req->info, dev->addr_vir +
-+				dev->count - ivsize, ivsize);
-+		}
-+	}
- }
- 
- static void rk_update_iv(struct rk_crypto_info *dev)
+ 	/*
+ 	 * A request can be completed before the next request, potentially
 
 
