@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F6923587
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A4F23589
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391116AbfETMfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
+        id S2403851AbfETMfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391125AbfETMfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:35:41 -0400
+        id S2390795AbfETMfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:35:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DD0A204FD;
-        Mon, 20 May 2019 12:35:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3295C216C4;
+        Mon, 20 May 2019 12:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355741;
-        bh=Y8pn0klUBCj5HAGh+Ju8aJxxSJY616eLJ6p9gRpf8b4=;
+        s=default; t=1558355743;
+        bh=Y+8Y21qUCRMYjTUDfur/iQJvKkhuVBO32bLyVOUL494=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=geWC9VeleKZ/9o7h2sCzwMhceIv/Urrq6dXtZDCRRMZceyYw72Ns9+Hh1EE3kKN+a
-         tlaTSOOxeZcPIAiaUgbWRbt6frx/B5MTmQMlCsu39KC+FminCAfbRzW5ELMcLlzW61
-         Lf3oEEtg0rJB3d0FJf7QWVOkwBIfNhobVDeyTkMM=
+        b=igDgB5haT3zhFgPc/8ITaa82Ki9BisyfvxRdb76S++6FUC7zvPP19174mErbZrbcN
+         61+otQBqDTwM7LoLQvTH7KlMv+BoMCUmOH4pukKlNkv7PGcblkZn+joX9oUc/or+qC
+         UMQVG3xOe/S/degnSYn5KN2lAyYR7va5pHp5nLLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.1 108/128] ext4: fix data corruption caused by overlapping unaligned and aligned IO
-Date:   Mon, 20 May 2019 14:14:55 +0200
-Message-Id: <20190520115256.315906109@linuxfoundation.org>
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Andreas Dilger <adilger@dilger.ca>, stable@kernel.org
+Subject: [PATCH 5.1 109/128] ext4: fix use-after-free in dx_release()
+Date:   Mon, 20 May 2019 14:14:56 +0200
+Message-Id: <20190520115256.358805739@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -43,49 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-commit 57a0da28ced8707cb9f79f071a016b9d005caf5a upstream.
+commit 08fc98a4d6424af66eb3ac4e2cedd2fc927ed436 upstream.
 
-Unaligned AIO must be serialized because the zeroing of partial blocks
-of unaligned AIO can result in data corruption in case it's overlapping
-another in flight IO.
+The buffer_head (frames[0].bh) and it's corresping page can be
+potentially free'd once brelse() is done inside the for loop
+but before the for loop exits in dx_release(). It can be free'd
+in another context, when the page cache is flushed via
+drop_caches_sysctl_handler(). This results into below data abort
+when accessing info->indirect_levels in dx_release().
 
-Currently we wait for all unwritten extents before we submit unaligned
-AIO which protects data in case of unaligned AIO is following overlapping
-IO. However if a unaligned AIO is followed by overlapping aligned AIO we
-can still end up corrupting data.
+Unable to handle kernel paging request at virtual address ffffffc17ac3e01e
+Call trace:
+ dx_release+0x70/0x90
+ ext4_htree_fill_tree+0x2d4/0x300
+ ext4_readdir+0x244/0x6f8
+ iterate_dir+0xbc/0x160
+ SyS_getdents64+0x94/0x174
 
-To fix this, we must make sure that the unaligned AIO is the only IO in
-flight by waiting for unwritten extents conversion not just before the
-IO submission, but right after it as well.
-
-This problem can be reproduced by xfstest generic/538
-
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/file.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ext4/namei.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -264,6 +264,13 @@ ext4_file_write_iter(struct kiocb *iocb,
- 	}
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -871,12 +871,15 @@ static void dx_release(struct dx_frame *
+ {
+ 	struct dx_root_info *info;
+ 	int i;
++	unsigned int indirect_levels;
  
- 	ret = __generic_file_write_iter(iocb, from);
-+	/*
-+	 * Unaligned direct AIO must be the only IO in flight. Otherwise
-+	 * overlapping aligned IO after unaligned might result in data
-+	 * corruption.
-+	 */
-+	if (ret == -EIOCBQUEUED && unaligned_aio)
-+		ext4_unwritten_wait(inode);
- 	inode_unlock(inode);
+ 	if (frames[0].bh == NULL)
+ 		return;
  
- 	if (ret > 0)
+ 	info = &((struct dx_root *)frames[0].bh->b_data)->info;
+-	for (i = 0; i <= info->indirect_levels; i++) {
++	/* save local copy, "info" may be freed after brelse() */
++	indirect_levels = info->indirect_levels;
++	for (i = 0; i <= indirect_levels; i++) {
+ 		if (frames[i].bh == NULL)
+ 			break;
+ 		brelse(frames[i].bh);
 
 
