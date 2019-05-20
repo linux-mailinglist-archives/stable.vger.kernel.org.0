@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B7D22CC3
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 09:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA45B22CC4
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 09:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730366AbfETHQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 03:16:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
+        id S1726940AbfETHQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 03:16:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726940AbfETHQq (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 20 May 2019 03:16:46 -0400
+        id S1726901AbfETHQt (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 20 May 2019 03:16:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86F5220851;
-        Mon, 20 May 2019 07:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 312CB2081C;
+        Mon, 20 May 2019 07:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558336606;
-        bh=/tfZ1LBo/Z6VlWAnrRCA8FOJbVoNNzVZRlLsbg6Bk0s=;
+        s=default; t=1558336608;
+        bh=5X3u9gPiFcRX2N4qlq6sSIrP47BOGxF4x5wZ17Zdxrs=;
         h=Subject:To:From:Date:From;
-        b=jpSfEutTpzTUSiWcD9uBNpHFuc59ChVlNOdG/6N8GYi1cBMRbbIUEc34LOnFfUVhH
-         +Sj54oUiXBDCyO09udv27clOWwTnXPm+PFIuMufmfcLgA4qO5Z3nBB+Ts47Ooi+aqm
-         fQ+R4+RVSTWZQjH2nvQZ/aO/zUdC4r8C2W/57G4o=
-Subject: patch "iio: adc: ads124: avoid buffer overflow" added to staging-linus
-To:     vincent.stehle@laposte.net, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, dmurphy@ti.com, mojha@codeaurora.org
+        b=a18XJiv5yL1WubsZ/cMCkdRCaliOKyW2C374b6eJpt2aXE4ACJ5rI9rKvVdkmVV4F
+         T+5a+SHNjXg0hcOmsAE0/mROxq/6i4dMckXC76UE8GiY2XTlqgOGmXDHaKtSOlayNL
+         Qs48fT7aC3kulfncm+umWF5pglZYxaC4jOiAE5ZY=
+Subject: patch "iio: adc: ti-ads8688: fix timestamp is not updated in buffer" added to staging-linus
+To:     sean@geanix.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 May 2019 09:16:33 +0200
-Message-ID: <1558336593254142@kroah.com>
+Date:   Mon, 20 May 2019 09:16:34 +0200
+Message-ID: <155833659436@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: ads124: avoid buffer overflow
+    iio: adc: ti-ads8688: fix timestamp is not updated in buffer
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,40 +55,35 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 0db8aa49a97e7f40852a64fd35abcc1292a7c365 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>
-Date: Sun, 31 Mar 2019 20:54:23 +0200
-Subject: iio: adc: ads124: avoid buffer overflow
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From e6d12298310fa1dc11f1d747e05b168016057fdd Mon Sep 17 00:00:00 2001
+From: Sean Nyekjaer <sean@geanix.com>
+Date: Tue, 7 May 2019 10:23:04 +0200
+Subject: iio: adc: ti-ads8688: fix timestamp is not updated in buffer
 
-When initializing the priv->data array starting from index 1, there is one
-less element to consider than when initializing the full array.
+When using the hrtimer iio trigger timestamp isn't updated.
+If we use iio_get_time_ns it is updated correctly.
 
-Fixes: e717f8c6dfec8f76 ("iio: adc: Add the TI ads124s08 ADC code")
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Reviewed-by: Dan Murphy <dmurphy@ti.com>
+Fixes: 2a86487786b5c ("iio: adc: ti-ads8688: add trigger and buffer support")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/ti-ads124s08.c | 2 +-
+ drivers/iio/adc/ti-ads8688.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ti-ads124s08.c b/drivers/iio/adc/ti-ads124s08.c
-index 53f17e4f2f23..552c2be8d87a 100644
---- a/drivers/iio/adc/ti-ads124s08.c
-+++ b/drivers/iio/adc/ti-ads124s08.c
-@@ -202,7 +202,7 @@ static int ads124s_read(struct iio_dev *indio_dev, unsigned int chan)
- 	};
+diff --git a/drivers/iio/adc/ti-ads8688.c b/drivers/iio/adc/ti-ads8688.c
+index 8b4568edd5cb..7f16c77b99fb 100644
+--- a/drivers/iio/adc/ti-ads8688.c
++++ b/drivers/iio/adc/ti-ads8688.c
+@@ -397,7 +397,7 @@ static irqreturn_t ads8688_trigger_handler(int irq, void *p)
+ 	}
  
- 	priv->data[0] = ADS124S08_CMD_RDATA;
--	memset(&priv->data[1], ADS124S08_CMD_NOP, sizeof(priv->data));
-+	memset(&priv->data[1], ADS124S08_CMD_NOP, sizeof(priv->data) - 1);
+ 	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
+-			pf->timestamp);
++			iio_get_time_ns(indio_dev));
  
- 	ret = spi_sync_transfer(priv->spi, t, ARRAY_SIZE(t));
- 	if (ret < 0)
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 -- 
 2.21.0
 
