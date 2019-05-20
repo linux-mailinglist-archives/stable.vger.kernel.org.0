@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B06DD23496
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4E023747
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389705AbfETM2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:28:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44366 "EHLO mail.kernel.org"
+        id S2388666AbfETMXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389693AbfETM2d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:28:33 -0400
+        id S2388637AbfETMXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:23:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0EA620645;
-        Mon, 20 May 2019 12:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C56420675;
+        Mon, 20 May 2019 12:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355312;
-        bh=4MqpRGZefz7Um9TTQzbpqPbOnyQLQcMfqVf5dEROAJ4=;
+        s=default; t=1558355022;
+        bh=iT4yjMJcKkltvxB7A3R4I/OGGLjYhEBIkJulcqRNo5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hV+GHCdLW0fTy8JH9ylG3YoOM5xyn6EVs2j/wMP8cPGaCw/Li0ypnd5RZn46yAE9O
-         pnAWO8buj0JrxMG2XogOGzzhZ3wA1v7n7gVWG4k7CSIj+ZELTk+55HQu9nfg+bukxj
-         erEFIOr2vhjWtB62vlRI/vUh+1Xm7/7VFIsNpWfg=
+        b=0kc0qPmMYznXmitgw2wDP/t/K+1UMCGsFOFkzxvJldjAgBI/+Z5ok0yPAE4Jq1KVT
+         QOjrNNZKuGNFgYVzLPNBxWxQVuS6MPKtmbve2lZhRUxIWMVJW6NSxqUUUrLooRoXMQ
+         85Fb0KPWOOl1ZrOQOgiV/jm9f9MtUHgiU0AiVjL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        zhong jiang <zhongjiang@huawei.com>,
-        syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com,
-        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.0 072/123] userfaultfd: use RCU to free the task struct when fork fails
-Date:   Mon, 20 May 2019 14:14:12 +0200
-Message-Id: <20190520115249.634554502@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.19 067/105] ext4: protect journal inodes blocks using block_validity
+Date:   Mon, 20 May 2019 14:14:13 +0200
+Message-Id: <20190520115251.802050920@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit c3f3ce049f7d97cc7ec9c01cb51d9ec74e0f37c2 upstream.
+commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
 
-The task structure is freed while get_mem_cgroup_from_mm() holds
-rcu_read_lock() and dereferences mm->owner.
+Add the blocks which belong to the journal inode to block_validity's
+system zone so attempts to deallocate or overwrite the journal due a
+corrupted file system where the journal blocks are also claimed by
+another inode.
 
-  get_mem_cgroup_from_mm()                failing fork()
-  ----                                    ---
-  task = mm->owner
-                                          mm->owner = NULL;
-                                          free(task)
-  if (task) *task; /* use after free */
-
-The fix consists in freeing the task with RCU also in the fork failure
-case, exactly like it always happens for the regular exit(2) path.  That
-is enough to make the rcu_read_lock hold in get_mem_cgroup_from_mm()
-(left side above) effective to avoid a use after free when dereferencing
-the task structure.
-
-An alternate possible fix would be to defer the delivery of the
-userfaultfd contexts to the monitor until after fork() is guaranteed to
-succeed.  Such a change would require more changes because it would
-create a strict ordering dependency where the uffd methods would need to
-be called beyond the last potentially failing branch in order to be
-safe.  This solution as opposed only adds the dependency to common code
-to set mm->owner to NULL and to free the task struct that was pointed by
-mm->owner with RCU, if fork ends up failing.  The userfaultfd methods
-can still be called anywhere during the fork runtime and the monitor
-will keep discarding orphaned "mm" coming from failed forks in userland.
-
-This race condition couldn't trigger if CONFIG_MEMCG was set =n at build
-time.
-
-[aarcange@redhat.com: improve changelog, reduce #ifdefs per Michal]
-  Link: http://lkml.kernel.org/r/20190429035752.4508-1-aarcange@redhat.com
-Link: http://lkml.kernel.org/r/20190325225636.11635-2-aarcange@redhat.com
-Fixes: 893e26e61d04 ("userfaultfd: non-cooperative: Add fork() event")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Tested-by: zhong jiang <zhongjiang@huawei.com>
-Reported-by: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: zhong jiang <zhongjiang@huawei.com>
-Cc: syzbot+cbb52e396df3e565ab02@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |   31 +++++++++++++++++++++++++++++--
- 1 file changed, 29 insertions(+), 2 deletions(-)
+ fs/ext4/block_validity.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++
+ fs/ext4/inode.c          |    4 +++
+ 2 files changed, 52 insertions(+)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -953,6 +953,15 @@ static void mm_init_aio(struct mm_struct
- #endif
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4
+ 	printk(KERN_CONT "\n");
  }
  
-+static __always_inline void mm_clear_owner(struct mm_struct *mm,
-+					   struct task_struct *p)
++static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
 +{
-+#ifdef CONFIG_MEMCG
-+	if (mm->owner == p)
-+		WRITE_ONCE(mm->owner, NULL);
-+#endif
-+}
++	struct inode *inode;
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	struct ext4_map_blocks map;
++	u32 i = 0, err = 0, num, n;
 +
- static void mm_init_owner(struct mm_struct *mm, struct task_struct *p)
- {
- #ifdef CONFIG_MEMCG
-@@ -1332,6 +1341,7 @@ static struct mm_struct *dup_mm(struct t
- free_pt:
- 	/* don't put binfmt in mmput, we haven't got module yet */
- 	mm->binfmt = NULL;
-+	mm_init_owner(mm, NULL);
- 	mmput(mm);
- 
- fail_nomem:
-@@ -1663,6 +1673,21 @@ static inline void rcu_copy_process(stru
- #endif /* #ifdef CONFIG_TASKS_RCU */
- }
- 
-+static void __delayed_free_task(struct rcu_head *rhp)
-+{
-+	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
-+
-+	free_task(tsk);
-+}
-+
-+static __always_inline void delayed_free_task(struct task_struct *tsk)
-+{
-+	if (IS_ENABLED(CONFIG_MEMCG))
-+		call_rcu(&tsk->rcu, __delayed_free_task);
-+	else
-+		free_task(tsk);
-+}
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-@@ -2124,8 +2149,10 @@ bad_fork_cleanup_io:
- bad_fork_cleanup_namespaces:
- 	exit_task_namespaces(p);
- bad_fork_cleanup_mm:
--	if (p->mm)
-+	if (p->mm) {
-+		mm_clear_owner(p->mm, p);
- 		mmput(p->mm);
++	if ((ino < EXT4_ROOT_INO) ||
++	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
++		return -EINVAL;
++	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
++	if (IS_ERR(inode))
++		return PTR_ERR(inode);
++	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
++	while (i < num) {
++		map.m_lblk = i;
++		map.m_len = num - i;
++		n = ext4_map_blocks(NULL, inode, &map, 0);
++		if (n < 0) {
++			err = n;
++			break;
++		}
++		if (n == 0) {
++			i++;
++		} else {
++			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
++				ext4_error(sb, "blocks %llu-%llu from inode %u "
++					   "overlap system zone", map.m_pblk,
++					   map.m_pblk + map.m_len - 1, ino);
++				err = -EFSCORRUPTED;
++				break;
++			}
++			err = add_system_zone(sbi, map.m_pblk, n);
++			if (err < 0)
++				break;
++			i += n;
++		}
 +	}
- bad_fork_cleanup_signal:
- 	if (!(clone_flags & CLONE_THREAD))
- 		free_signal_struct(p->signal);
-@@ -2156,7 +2183,7 @@ bad_fork_cleanup_count:
- bad_fork_free:
- 	p->state = TASK_DEAD;
- 	put_task_stack(p);
--	free_task(p);
-+	delayed_free_task(p);
- fork_out:
- 	spin_lock_irq(&current->sighand->siglock);
- 	hlist_del_init(&delayed.node);
++	iput(inode);
++	return err;
++}
++
+ int ext4_setup_system_zone(struct super_block *sb)
+ {
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_
+ 		if (ret)
+ 			return ret;
+ 	}
++	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
++		ret = ext4_protect_reserved_inode(sb,
++				le32_to_cpu(sbi->s_es->s_journal_inum));
++		if (ret)
++			return ret;
++	}
+ 
+ 	if (test_opt(sb, DEBUG))
+ 		debug_print_tree(sbi);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -399,6 +399,10 @@ static int __check_block_validity(struct
+ 				unsigned int line,
+ 				struct ext4_map_blocks *map)
+ {
++	if (ext4_has_feature_journal(inode->i_sb) &&
++	    (inode->i_ino ==
++	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
++		return 0;
+ 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
+ 				   map->m_len)) {
+ 		ext4_error_inode(inode, func, line, map->m_pblk,
 
 
