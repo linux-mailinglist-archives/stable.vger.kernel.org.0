@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF864236CD
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3953233DD
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733302AbfETMQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
+        id S2387426AbfETMUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733298AbfETMQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:47 -0400
+        id S2387414AbfETMUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:20:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF26E20656;
-        Mon, 20 May 2019 12:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8909B21707;
+        Mon, 20 May 2019 12:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354606;
-        bh=nVMnlszG0Mg/hy+jgxq26XNabFL/BiaZI+yWNNiXoks=;
+        s=default; t=1558354842;
+        bh=4s/pIXABEDSZVoKp7kapNJZleYdXNZPVMKYkWaXO+R4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dTa3O5cGP+w155x08sTphv/lNB7tzNdc8PnBd6+66h0l1GTXrrHtlC+wVn3M7Ew/S
-         KtQtgPafwyccJei/kDsBf6wwE2OI3q7Fb0waonyQIxoMe/NaQONtmOhm4kWLX+W+mP
-         wePtZn+lAebMZZ/oFqAuq6ztoi3cbGyGn1juUSbI=
+        b=g+DtfhtP5YHgTo94b/OfyHgsxyAI5lxfYo/FvVfzE81xoiGYAQGSMv3V8SSRd5TK1
+         6oto9gVJN/NF3HOblmTRJ6K7ib8SJbRHN/zCutXhvOFPuN5sNmYVJpBe0Ex0URR7na
+         JTeKBskv8Q1pDKqCQK1Zuoj4DZOll2cQuDgpVVwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/44] PCI: hv: Fix a memory leak in hv_eject_device_work()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Jann Horn <jannh@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>
+Subject: [PATCH 4.14 13/63] arm64: compat: Reduce address limit
 Date:   Mon, 20 May 2019 14:13:52 +0200
-Message-Id: <20190520115231.364483225@linuxfoundation.org>
+Message-Id: <20190520115232.626804299@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 05f151a73ec2b23ffbff706e5203e729a995cdc2 ]
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-When a device is created in new_pcichild_device(), hpdev->refs is set
-to 2 (i.e. the initial value of 1 plus the get_pcichild()).
+commit d263119387de9975d2acba1dfd3392f7c5979c18 upstream.
 
-When we hot remove the device from the host, in a Linux VM we first call
-hv_pci_eject_device(), which increases hpdev->refs by get_pcichild() and
-then schedules a work of hv_eject_device_work(), so hpdev->refs becomes
-3 (let's ignore the paired get/put_pcichild() in other places). But in
-hv_eject_device_work(), currently we only call put_pcichild() twice,
-meaning the 'hpdev' struct can't be freed in put_pcichild().
+Currently, compat tasks running on arm64 can allocate memory up to
+TASK_SIZE_32 (UL(0x100000000)).
 
-Add one put_pcichild() to fix the memory leak.
+This means that mmap() allocations, if we treat them as returning an
+array, are not compliant with the sections 6.5.8 of the C standard
+(C99) which states that: "If the expression P points to an element of
+an array object and the expression Q points to the last element of the
+same array object, the pointer expression Q+1 compares greater than P".
 
-The device can also be removed when we run "rmmod pci-hyperv". On this
-path (hv_pci_remove() -> hv_pci_bus_exit() -> hv_pci_devices_present()),
-hpdev->refs is 2, and we do correctly call put_pcichild() twice in
-pci_devices_present_work().
+Redefine TASK_SIZE_32 to address the issue.
 
-Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft Hyper-V VMs")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: commit log rework]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
-Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: <stable@vger.kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+[will: fixed typo in comment]
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/host/pci-hyperv.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/include/asm/processor.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/pci/host/pci-hyperv.c b/drivers/pci/host/pci-hyperv.c
-index b4d8ccfd9f7c2..200b415765264 100644
---- a/drivers/pci/host/pci-hyperv.c
-+++ b/drivers/pci/host/pci-hyperv.c
-@@ -1620,6 +1620,7 @@ static void hv_eject_device_work(struct work_struct *work)
- 	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
- 
- 	put_pcichild(hpdev, hv_pcidev_ref_childlist);
-+	put_pcichild(hpdev, hv_pcidev_ref_initial);
- 	put_pcichild(hpdev, hv_pcidev_ref_pnp);
- 	put_hvpcibus(hpdev->hbus);
- }
--- 
-2.20.1
-
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -49,7 +49,15 @@
+  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area.
+  */
+ #ifdef CONFIG_COMPAT
++#ifdef CONFIG_ARM64_64K_PAGES
++/*
++ * With CONFIG_ARM64_64K_PAGES enabled, the last page is occupied
++ * by the compat vectors page.
++ */
+ #define TASK_SIZE_32		UL(0x100000000)
++#else
++#define TASK_SIZE_32		(UL(0x100000000) - PAGE_SIZE)
++#endif /* CONFIG_ARM64_64K_PAGES */
+ #define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
+ 				TASK_SIZE_32 : TASK_SIZE_64)
+ #define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
 
 
