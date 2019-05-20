@@ -2,114 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD70C22FEE
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADDD2305B
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 11:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731225AbfETJLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 05:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36816 "EHLO mail.kernel.org"
+        id S1731563AbfETJaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 05:30:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731095AbfETJLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 05:11:34 -0400
+        id S1730966AbfETJaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 05:30:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC74420656;
-        Mon, 20 May 2019 09:11:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9557320675;
+        Mon, 20 May 2019 09:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558343494;
-        bh=U76uCPWwkjAlQMoQuk81T5lqeD1YoluVf7Go70H7KkY=;
+        s=default; t=1558344611;
+        bh=5Ih4ArUAWK//Nx2oUT0KcJI/at5Zl82NJS59rQmq708=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RVY8Ip1ZIHJa47llpQIR+xlhZFIjFM2mNqU7bQOaQCZKKmr0HZdum/SK2Ufw9j+N5
-         haRFjmJW2ZHWFyjvr9ABoHwQBGKA8ZCvG5A/7WjMFZSnzObB2AtBY/VIwBGeg8QNzv
-         16GBOD3fLTHAClbFFk6ZinGouARHnBWxm2nl6RmQ=
-Date:   Mon, 20 May 2019 11:11:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David Ahern <dsahern@gmail.com>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Thomas Haller <thaller@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: Re: [PATCH 4.9 41/51] fib_rules: return 0 directly if an exactly
- same rule exists when NLM_F_EXCL not supplied
-Message-ID: <20190520091131.GA1593@kroah.com>
-References: <20190515090616.669619870@linuxfoundation.org>
- <20190515090628.066392616@linuxfoundation.org>
- <20190519154348.GA113991@archlinux-epyc>
- <a36e3204-b52d-0bf0-f956-654189a18156@gmail.com>
- <20190520090429.GA25812@kroah.com>
+        b=h7HLue19It3sE0XIVt6GtgiE9KZ2l5YsIdaLSMqP9udJvHgM1W/3D2zY7CLEJ59gS
+         qPKXq5wbOocvjHpSxckWlgpcp4KmkMWWpHaFn+yFq41YKgtBHcNZGYy2pWcSjLuMIo
+         bvcHMothVb+eikfwlgUSqoqp+36a4/20aU94Sd4Q=
+Date:   Mon, 20 May 2019 11:30:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Gilad Ben-Yossef <gilad@benyossef.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
+        Ofir Drang <ofir.drang@arm.com>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 00/35] crypto: ccree: features and bug fixes for 5.2
+Message-ID: <20190520093008.GA4476@kroah.com>
+References: <20190418133913.9122-1-gilad@benyossef.com>
+ <CAOtvUMd9WUZAFgTqVH0U2ZZp8bbHXNg9Ae_ZFvGKJTSKNct8JA@mail.gmail.com>
+ <20190517145235.GB10613@kroah.com>
+ <CAOtvUMc++UtTP3fvXofuJA4JpdT86s5gbSx6WRtDK=sWnuUZrg@mail.gmail.com>
+ <CAOtvUMcfXHv0UxytEEdGJG5LM-SfyyVHbnbE0RNALMfBD1zuEQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190520090429.GA25812@kroah.com>
+In-Reply-To: <CAOtvUMcfXHv0UxytEEdGJG5LM-SfyyVHbnbE0RNALMfBD1zuEQ@mail.gmail.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 20, 2019 at 11:04:29AM +0200, Greg Kroah-Hartman wrote:
-> On Sun, May 19, 2019 at 06:29:19PM -0600, David Ahern wrote:
-> > On 5/19/19 9:43 AM, Nathan Chancellor wrote:
-> > > Hi all,
-> > > 
-> > > This commit is causing issues on Android devices when Wi-Fi and mobile
-> > > data are both enabled. The device will do a soft reboot consistently.
-> > > So far, I've had reports on the Pixel 3 XL, OnePlus 6, Pocophone, and
-> > > Note 9 and I can reproduce on my OnePlus 6.
-> > > 
-> > > Sorry for taking so long to report this, I just figured out how to
-> > > reproduce it today and I didn't want to report it without that.
-> > > 
-> > > Attached is a full dmesg and the relevant snippet from Android's logcat.
-> > > 
-> > > Let me know what I can do to help debug,
-> > > Nathan
-> > > 
-> > 
-> > It's a backport problem. err needs to be reset to 0 before the goto.
+On Sun, May 19, 2019 at 11:28:05AM +0300, Gilad Ben-Yossef wrote:
+> On Sat, May 18, 2019 at 10:36 AM Gilad Ben-Yossef <gilad@benyossef.com> wrote:
+> >
+> > Hi
+> >
+> > On Fri, May 17, 2019 at 5:52 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Sun, Apr 21, 2019 at 11:52:55AM +0300, Gilad Ben-Yossef wrote:
+> > > > On Thu, Apr 18, 2019 at 4:39 PM Gilad Ben-Yossef <gilad@benyossef.com> wrote:
+> > > > >
+> > > > > A set of new features, mostly support for CryptoCell 713
+> > > > > features including protected keys, security disable mode and
+> > > > > new HW revision indetification interface alongside many bug fixes.
+> > > >
+> > > > FYI,
+> > > >
+> > > > A port of those patches from this patch series which have been marked
+> > > > for stable is available at
+> > > > https://github.com/gby/linux/tree/4.19-ccree
+> > >
+> > > Hm, all I seem to need are 2 patches that failed to apply.  Can you just
+> > > provide backports for them?
+> >
+> > Sure, I'll send them early next week.
 > 
-> Ah, I see it, let me go queue up a fix for this.
+> hm...  I've just fetched the latest from
+> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git,
+> rebased that branch against the linux-4.19.y branch and it all went
+> smooth.
+> 
+> What am I'm missing? is there some other tree I should be doing this on?
 
-Here's the fix I'm queueing up now:
+I do not know, can you just send the 2 patches that I said failed for
+me?  Those are the only ones that I need here.
 
+I can't use random github trees, sorry, let's stick to email for patches
+please.
 
-From b42f0ebbe4431ff7ce99c916555418f4a4c2be67 Mon Sep 17 00:00:00 2001
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 20 May 2019 11:07:29 +0200
-Subject: [PATCH] fib_rules: fix error in backport of e9919a24d302 ("fib_rules:
- return 0...")
+thanks,
 
-When commit e9919a24d302 ("fib_rules: return 0 directly if an exactly
-same rule exists when NLM_F_EXCL not supplied") was backported to 4.9.y,
-it changed the logic a bit as err should have been reset before exiting
-the test, like it happens in the original logic.
-
-If this is not set, errors happen :(
-
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: David Ahern <dsahern@gmail.com>
-Reported-by: Florian Westphal <fw@strlen.de>
-Cc: Hangbin Liu <liuhangbin@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/fib_rules.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
-index bb26457e8c21..c03dd2104d33 100644
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -430,6 +430,7 @@ int fib_nl_newrule(struct sk_buff *skb, struct nlmsghdr *nlh)
- 		goto errout_free;
- 
- 	if (rule_exists(ops, frh, tb, rule)) {
-+		err = 0;
- 		if (nlh->nlmsg_flags & NLM_F_EXCL)
- 			err = -EEXIST;
- 		goto errout_free;
--- 
-2.21.0
-
+greg k-h
