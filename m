@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11E4223377
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9422375E
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387413AbfETMRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57862 "EHLO mail.kernel.org"
+        id S2388284AbfETMYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:24:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387446AbfETMRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:02 -0400
+        id S2388923AbfETMYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:24:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98AD320656;
-        Mon, 20 May 2019 12:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8013D21479;
+        Mon, 20 May 2019 12:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354622;
-        bh=4s/pIXABEDSZVoKp7kapNJZleYdXNZPVMKYkWaXO+R4=;
+        s=default; t=1558355090;
+        bh=evbFVzhLxEg4SbCoKYUaCDJhdyPgsuUfMr8WxKWYoSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1vTfquyjfrkI8uTppDPI8rWWoOsCwoDrT63Mi53DpeaABNWULq0mTNVM6j82tMKG
-         m1eG4xSh0XBU88+PdfwolIV+e0jiXQCntdqHBxpqoPE+WSQMabmE6RbkfrxVqJohAg
-         EHzi39t+B5DWjS/PFibV4Qbk9sAZnbjzT58wwIog=
+        b=uqratxeL/FEKfOGSyHQUmgwR74/LuMarNB0TwFfK5VbzhXxucbS+xR6C1vD54CGYv
+         Vj5aCPKmfusRZPnKUmAIAUHZelcK2hcvFHv9c3r71n5oO59g2/KfASPpITBsfSVrqo
+         3Xzm68uiPsbix5gYo5UFQITSNGsW6gMtQRvn0Nzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Jann Horn <jannh@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 4.9 09/44] arm64: compat: Reduce address limit
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 052/105] crypto: ccree - handle tee fips error during power management resume
 Date:   Mon, 20 May 2019 14:13:58 +0200
-Message-Id: <20190520115232.082610551@linuxfoundation.org>
+Message-Id: <20190520115250.648743917@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit d263119387de9975d2acba1dfd3392f7c5979c18 upstream.
+commit 7138377ce10455b7183c6dde4b2c51b33f464c45 upstream.
 
-Currently, compat tasks running on arm64 can allocate memory up to
-TASK_SIZE_32 (UL(0x100000000)).
+in order to support cryptocell tee fips error that may occurs while
+cryptocell ree is suspended, an cc_tee_handle_fips_error  call added
+to the cc_pm_resume function.
 
-This means that mmap() allocations, if we treat them as returning an
-array, are not compliant with the sections 6.5.8 of the C standard
-(C99) which states that: "If the expression P points to an element of
-an array object and the expression Q points to the last element of the
-same array object, the pointer expression Q+1 compares greater than P".
-
-Redefine TASK_SIZE_32 to address the issue.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: <stable@vger.kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-[will: fixed typo in comment]
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/processor.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/crypto/ccree/cc_pm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -49,7 +49,15 @@
-  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area.
-  */
- #ifdef CONFIG_COMPAT
-+#ifdef CONFIG_ARM64_64K_PAGES
-+/*
-+ * With CONFIG_ARM64_64K_PAGES enabled, the last page is occupied
-+ * by the compat vectors page.
-+ */
- #define TASK_SIZE_32		UL(0x100000000)
-+#else
-+#define TASK_SIZE_32		(UL(0x100000000) - PAGE_SIZE)
-+#endif /* CONFIG_ARM64_64K_PAGES */
- #define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
- 				TASK_SIZE_32 : TASK_SIZE_64)
- #define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -11,6 +11,7 @@
+ #include "cc_ivgen.h"
+ #include "cc_hash.h"
+ #include "cc_pm.h"
++#include "cc_fips.h"
+ 
+ #define POWER_DOWN_ENABLE 0x01
+ #define POWER_DOWN_DISABLE 0x00
+@@ -50,12 +51,13 @@ int cc_pm_resume(struct device *dev)
+ 	}
+ 
+ 	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_DISABLE);
+-
+ 	rc = init_cc_regs(drvdata, false);
+ 	if (rc) {
+ 		dev_err(dev, "init_cc_regs (%x)\n", rc);
+ 		return rc;
+ 	}
++	/* check if tee fips error occurred during power down */
++	cc_tee_handle_fips_error(drvdata);
+ 
+ 	rc = cc_resume_req_queue(drvdata);
+ 	if (rc) {
 
 
