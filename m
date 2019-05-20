@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CA3B236EF
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8541B23508
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731669AbfETMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59708 "EHLO mail.kernel.org"
+        id S2390582AbfETMcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387720AbfETMSe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:34 -0400
+        id S2390577AbfETMcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:32:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5923521019;
-        Mon, 20 May 2019 12:18:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2858204FD;
+        Mon, 20 May 2019 12:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354713;
-        bh=03B4r+gdfV3zZKsrGh0pxXl2QtZADUcF3UWhdO37XDM=;
+        s=default; t=1558355555;
+        bh=HSEcMdBbRhVoEvlUEFHINEss+Whux1fiVFniM0l20Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1qw6m9zTb0hnI5WBav8eL4V55CaScqX7S9YHxcOu6x6pmDzuxY62LWQcSx8tWPtA
-         lLx6KEXn5OurUJT95YAcNyMpQSu/2odGYWkoxDwv+tu36/qfAdH0792yDgBeRe52Al
-         hhmFlsjURL7hWeyQxf9xQbIW+swt7zcbSJcI/MOo=
+        b=c6o2UyWdaQ+fAcBrklvjGhRQx2LKhh30nQP8bhgOY4kRNFvk3dL39ceK8T6+Vv7ps
+         5oV3dalF4xTo25WVZchRHMJfLoaL5FNCravcJMqKQt8NgUSogP9W3WSW6oPIPPno/0
+         x+jMWDxozbX1eZswbrTZmalO2DZwMkwRw3c7ybkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/63] PCI: hv: Add hv_pci_remove_slots() when we unload the driver
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 036/128] crypto: gcm - fix incompatibility between "gcm" and "gcm_base"
 Date:   Mon, 20 May 2019 14:13:43 +0200
-Message-Id: <20190520115231.769898685@linuxfoundation.org>
+Message-Id: <20190520115252.112924967@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
+References: <20190520115249.449077487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +43,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15becc2b56c6eda3d9bf5ae993bafd5661c1fad1 ]
+From: Eric Biggers <ebiggers@google.com>
 
-When we unload the pci-hyperv host controller driver, the host does not
-send us a PCI_EJECT message.
+commit f699594d436960160f6d5ba84ed4a222f20d11cd upstream.
 
-In this case we also need to make sure the sysfs PCI slot directory is
-removed, otherwise a command on a slot file eg:
+GCM instances can be created by either the "gcm" template, which only
+allows choosing the block cipher, e.g. "gcm(aes)"; or by "gcm_base",
+which allows choosing the ctr and ghash implementations, e.g.
+"gcm_base(ctr(aes-generic),ghash-generic)".
 
-"cat /sys/bus/pci/slots/2/address"
+However, a "gcm_base" instance prevents a "gcm" instance from being
+registered using the same implementations.  Nor will the instance be
+found by lookups of "gcm".  This can be used as a denial of service.
+Moreover, "gcm_base" instances are never tested by the crypto
+self-tests, even if there are compatible "gcm" tests.
 
-will trigger a
+The root cause of these problems is that instances of the two templates
+use different cra_names.  Therefore, fix these problems by making
+"gcm_base" instances set the same cra_name as "gcm" instances, e.g.
+"gcm(aes)" instead of "gcm_base(ctr(aes-generic),ghash-generic)".
 
-"BUG: unable to handle kernel paging request"
+This requires extracting the block cipher name from the name of the ctr
+algorithm.  It also requires starting to verify that the algorithms are
+really ctr and ghash, not something else entirely.  But it would be
+bizarre if anyone were actually using non-gcm-compatible algorithms with
+gcm_base, so this shouldn't break anyone in practice.
 
-and, if we unload/reload the driver several times we would end up with
-stale slot entries in PCI slot directories in /sys/bus/pci/slots/
-
-root@localhost:~# ls -rtl  /sys/bus/pci/slots/
-total 0
-drwxr-xr-x 2 root root 0 Feb  7 10:49 2
-drwxr-xr-x 2 root root 0 Feb  7 10:49 2-1
-drwxr-xr-x 2 root root 0 Feb  7 10:51 2-2
-
-Add the missing code to remove the PCI slot and fix the current
-behaviour.
-
-Fixes: a15f2c08c708 ("PCI: hv: support reporting serial number as slot information")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-[lorenzo.pieralisi@arm.com: reformatted the log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Stephen Hemminger <sthemmin@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Fixes: d00aa19b507b ("[CRYPTO] gcm: Allow block cipher parameter")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/pci/host/pci-hyperv.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/pci/host/pci-hyperv.c b/drivers/pci/host/pci-hyperv.c
-index 292450c7da625..a5825bbcded72 100644
---- a/drivers/pci/host/pci-hyperv.c
-+++ b/drivers/pci/host/pci-hyperv.c
-@@ -1513,6 +1513,21 @@ static void hv_pci_assign_slots(struct hv_pcibus_device *hbus)
- 	}
+---
+ crypto/gcm.c |   34 +++++++++++-----------------------
+ 1 file changed, 11 insertions(+), 23 deletions(-)
+
+--- a/crypto/gcm.c
++++ b/crypto/gcm.c
+@@ -597,7 +597,6 @@ static void crypto_gcm_free(struct aead_
+ 
+ static int crypto_gcm_create_common(struct crypto_template *tmpl,
+ 				    struct rtattr **tb,
+-				    const char *full_name,
+ 				    const char *ctr_name,
+ 				    const char *ghash_name)
+ {
+@@ -638,7 +637,8 @@ static int crypto_gcm_create_common(stru
+ 		goto err_free_inst;
+ 
+ 	err = -EINVAL;
+-	if (ghash->digestsize != 16)
++	if (strcmp(ghash->base.cra_name, "ghash") != 0 ||
++	    ghash->digestsize != 16)
+ 		goto err_drop_ghash;
+ 
+ 	crypto_set_skcipher_spawn(&ctx->ctr, aead_crypto_instance(inst));
+@@ -650,24 +650,24 @@ static int crypto_gcm_create_common(stru
+ 
+ 	ctr = crypto_spawn_skcipher_alg(&ctx->ctr);
+ 
+-	/* We only support 16-byte blocks. */
++	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
+ 	err = -EINVAL;
+-	if (crypto_skcipher_alg_ivsize(ctr) != 16)
++	if (strncmp(ctr->base.cra_name, "ctr(", 4) != 0 ||
++	    crypto_skcipher_alg_ivsize(ctr) != 16 ||
++	    ctr->base.cra_blocksize != 1)
+ 		goto out_put_ctr;
+ 
+-	/* Not a stream cipher? */
+-	if (ctr->base.cra_blocksize != 1)
++	err = -ENAMETOOLONG;
++	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
++		     "gcm(%s", ctr->base.cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
+ 		goto out_put_ctr;
+ 
+-	err = -ENAMETOOLONG;
+ 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+ 		     "gcm_base(%s,%s)", ctr->base.cra_driver_name,
+ 		     ghash_alg->cra_driver_name) >=
+ 	    CRYPTO_MAX_ALG_NAME)
+ 		goto out_put_ctr;
+ 
+-	memcpy(inst->alg.base.cra_name, full_name, CRYPTO_MAX_ALG_NAME);
+-
+ 	inst->alg.base.cra_flags = (ghash->base.cra_flags |
+ 				    ctr->base.cra_flags) & CRYPTO_ALG_ASYNC;
+ 	inst->alg.base.cra_priority = (ghash->base.cra_priority +
+@@ -709,7 +709,6 @@ static int crypto_gcm_create(struct cryp
+ {
+ 	const char *cipher_name;
+ 	char ctr_name[CRYPTO_MAX_ALG_NAME];
+-	char full_name[CRYPTO_MAX_ALG_NAME];
+ 
+ 	cipher_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(cipher_name))
+@@ -719,12 +718,7 @@ static int crypto_gcm_create(struct cryp
+ 	    CRYPTO_MAX_ALG_NAME)
+ 		return -ENAMETOOLONG;
+ 
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm(%s)", cipher_name) >=
+-	    CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
+-
+-	return crypto_gcm_create_common(tmpl, tb, full_name,
+-					ctr_name, "ghash");
++	return crypto_gcm_create_common(tmpl, tb, ctr_name, "ghash");
  }
  
-+/*
-+ * Remove entries in sysfs pci slot directory.
-+ */
-+static void hv_pci_remove_slots(struct hv_pcibus_device *hbus)
-+{
-+	struct hv_pci_dev *hpdev;
-+
-+	list_for_each_entry(hpdev, &hbus->children, list_entry) {
-+		if (!hpdev->pci_slot)
-+			continue;
-+		pci_destroy_slot(hpdev->pci_slot);
-+		hpdev->pci_slot = NULL;
-+	}
-+}
-+
- /**
-  * create_root_hv_pci_bus() - Expose a new root PCI bus
-  * @hbus:	Root PCI bus, as understood by this driver
-@@ -2719,6 +2734,7 @@ static int hv_pci_remove(struct hv_device *hdev)
- 		pci_lock_rescan_remove();
- 		pci_stop_root_bus(hbus->pci_bus);
- 		pci_remove_root_bus(hbus->pci_bus);
-+		hv_pci_remove_slots(hbus);
- 		pci_unlock_rescan_remove();
- 		hbus->state = hv_pcibus_removed;
- 	}
--- 
-2.20.1
-
+ static int crypto_gcm_base_create(struct crypto_template *tmpl,
+@@ -732,7 +726,6 @@ static int crypto_gcm_base_create(struct
+ {
+ 	const char *ctr_name;
+ 	const char *ghash_name;
+-	char full_name[CRYPTO_MAX_ALG_NAME];
+ 
+ 	ctr_name = crypto_attr_alg_name(tb[1]);
+ 	if (IS_ERR(ctr_name))
+@@ -742,12 +735,7 @@ static int crypto_gcm_base_create(struct
+ 	if (IS_ERR(ghash_name))
+ 		return PTR_ERR(ghash_name);
+ 
+-	if (snprintf(full_name, CRYPTO_MAX_ALG_NAME, "gcm_base(%s,%s)",
+-		     ctr_name, ghash_name) >= CRYPTO_MAX_ALG_NAME)
+-		return -ENAMETOOLONG;
+-
+-	return crypto_gcm_create_common(tmpl, tb, full_name,
+-					ctr_name, ghash_name);
++	return crypto_gcm_create_common(tmpl, tb, ctr_name, ghash_name);
+ }
+ 
+ static int crypto_rfc4106_setkey(struct crypto_aead *parent, const u8 *key,
 
 
