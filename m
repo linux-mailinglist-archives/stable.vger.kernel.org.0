@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1A32364B
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D48D23744
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388873AbfETM1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43314 "EHLO mail.kernel.org"
+        id S2388594AbfETMXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389527AbfETM1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:27:43 -0400
+        id S2388023AbfETMX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:23:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0CCB20675;
-        Mon, 20 May 2019 12:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9365B20675;
+        Mon, 20 May 2019 12:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355263;
-        bh=Y5gLgaKUCRhk57m/UXAViF0p7JGbNm1P9I90M+EkMGM=;
+        s=default; t=1558355009;
+        bh=Vc76SIEwx46ODrXQqltdqyN2/mHnKSGbQiibyzx/1hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5+P7mxew/+nKSX5IM/+YsKeMfPT+iX84ANL/33Fw/3gtA9K6RReyj18mHhD5wDgL
-         NuAuJnAicFvKf8JQ/xhha4TZrDg6U2ASn/sFQtS9VPhucsEFahyjTXjjfqQKXhdYDY
-         59kAZaE4upZukj7nuJGVok+YPKeNc+9FZ3Pd5q94=
+        b=auzmw+dpH+8DZGb3Sh0ZSb5o1JdWQe9lIB8YznJUcGcMzJYgrBszwKCq0jvKXQxsZ
+         3BzY2SQrmY6oXkSIzOEZthXnw2pbcBoVP+bWofMbLfFqVGjFepCzAYYp2vU1bKsw4H
+         CSMRSlCe0M7TVvkMKd82rMgWDMa1aA3fqb5oxYZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.0 051/123] ALSA: hda/realtek - EAPD turn on later
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 045/105] crypto: ccree - fix mem leak on error path
 Date:   Mon, 20 May 2019 14:13:51 +0200
-Message-Id: <20190520115248.128333567@linuxfoundation.org>
+Message-Id: <20190520115250.133283526@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 607ca3bd220f4022e6f5356026b19dafc363863a upstream.
+commit d574b707c873d6ef1a2a155f8cfcfecd821e9a2e upstream.
 
-Let EAPD turn on after set pin output.
+Fix a memory leak on the error path of IV generation code.
 
-[ NOTE: This change is supposed to reduce the possible click noises at
-  (runtime) PM resume.  The functionality should be same (i.e. the
-  verbs are executed correctly) no matter which order is, so this
-  should be safe to apply for all codecs -- tiwai ]
-
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/crypto/ccree/cc_ivgen.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -803,11 +803,10 @@ static int alc_init(struct hda_codec *co
- 	if (spec->init_hook)
- 		spec->init_hook(codec);
+--- a/drivers/crypto/ccree/cc_ivgen.c
++++ b/drivers/crypto/ccree/cc_ivgen.c
+@@ -154,9 +154,6 @@ void cc_ivgen_fini(struct cc_drvdata *dr
+ 	}
  
-+	snd_hda_gen_init(codec);
- 	alc_fix_pll(codec);
- 	alc_auto_init_amp(codec, spec->init_amp);
- 
--	snd_hda_gen_init(codec);
+ 	ivgen_ctx->pool = NULL_SRAM_ADDR;
 -
- 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_INIT);
+-	/* release "this" context */
+-	kfree(ivgen_ctx);
+ }
  
- 	return 0;
+ /*!
+@@ -174,10 +171,12 @@ int cc_ivgen_init(struct cc_drvdata *drv
+ 	int rc;
+ 
+ 	/* Allocate "this" context */
+-	ivgen_ctx = kzalloc(sizeof(*ivgen_ctx), GFP_KERNEL);
++	ivgen_ctx = devm_kzalloc(device, sizeof(*ivgen_ctx), GFP_KERNEL);
+ 	if (!ivgen_ctx)
+ 		return -ENOMEM;
+ 
++	drvdata->ivgen_handle = ivgen_ctx;
++
+ 	/* Allocate pool's header for initial enc. key/IV */
+ 	ivgen_ctx->pool_meta = dma_alloc_coherent(device, CC_IVPOOL_META_SIZE,
+ 						  &ivgen_ctx->pool_meta_dma,
+@@ -196,8 +195,6 @@ int cc_ivgen_init(struct cc_drvdata *drv
+ 		goto out;
+ 	}
+ 
+-	drvdata->ivgen_handle = ivgen_ctx;
+-
+ 	return cc_init_iv_sram(drvdata);
+ 
+ out:
 
 
