@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6945723683
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A656623718
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389035AbfETMZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S2388077AbfETMVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389059AbfETMZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:25:23 -0400
+        id S2388092AbfETMVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:21:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3513F20645;
-        Mon, 20 May 2019 12:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 978BF213F2;
+        Mon, 20 May 2019 12:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355122;
-        bh=jPac1uf8ILePb+86JbGZlaeKROdFkuYq50LyNHILdGo=;
+        s=default; t=1558354863;
+        bh=QzXMABAp5useRBARdCL6vnv7ldSqL36jJR/3j27x2Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rg7O/Fg0rho0ox6Go3w5QyG0xMyXU1iFY5+8DN5cA7xVfKuXmsDDeH0BGkt2Hjlx8
-         N8vfghjz5ZqJRLh81wJoHZ/pliKtpc1+w9c23+Rzos4QClxQswjfBRvzyTH5z9rfel
-         1WpiGCNXOp+6zygNeFOC+x/DwCQ+FW2fpLVIofeU=
+        b=Wjmz4oLSVKueXoT2linGF7/e9cihKmxczCLGowupARVjLh3/p+Wi2ICHxpdLZLC7j
+         6820g4CB/plMhyBRHJxqQHSbXJkL1wQfdUupn8lG6QPUiVH3Cbox0slKIdji4J07aJ
+         GCFkT+67TPUjud43NyFX+XXhOqPyYyi0refY1FM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Soller <jeremy@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 089/105] ALSA: hda/realtek - Corrected fixup for System76 Gazelle (gaze14)
+        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 56/63] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 Date:   Mon, 20 May 2019 14:14:35 +0200
-Message-Id: <20190520115253.428519912@linuxfoundation.org>
+Message-Id: <20190520115237.198784160@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-commit 891afcf2462d2cc4ef7caf94215358ca61fa32cb upstream.
+commit ec084de929e419e51bcdafaafe567d9e7d0273b7 upstream.
 
-A mistake was made in the identification of the four variants of the
-System76 Gazelle (gaze14). This patch corrects the PCI ID of the
-17-inch, GTX 1660 Ti variant from 0x8560 to 0x8551. This patch also
-adds the correct fixups for the 15-inch and 17-inch GTX 1650 variants
-with PCI IDs 0x8560 and 0x8561.
+synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb
+switch may not go to the workqueue after synchronize_rcu().  Thus
+previous scheduled switches was not finished even flushing the
+workqueue, which will cause a NULL pointer dereferenced followed below.
 
-Tests were done on all four variants ensuring full audio capability.
+  VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
+    evict+0xb3/0x180
+    iput+0x1b0/0x230
+    inode_switch_wbs_work_fn+0x3c0/0x6a0
+    worker_thread+0x4e/0x490
+    ? process_one_work+0x410/0x410
+    kthread+0xe6/0x100
+    ret_from_fork+0x39/0x50
 
-Fixes: 80a5052db751 ("ALSA: hdea/realtek - Headset fixup for System76 Gazelle (gaze14)")
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
+Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
+pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu()
+in inode_switch_wbs() to make more sense.
+
+Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Suggested-by: Tejun Heo <tj@kernel.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/fs-writeback.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6841,7 +6841,9 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1558, 0x1325, "System76 Darter Pro (darp5)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8550, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
--	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x8551, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
- 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
- 	SND_PCI_QUIRK(0x17aa, 0x215e, "Thinkpad L512", ALC269_FIXUP_SKU_IGNORE),
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -530,8 +530,6 @@ static void inode_switch_wbs(struct inod
+ 
+ 	isw->inode = inode;
+ 
+-	atomic_inc(&isw_nr_in_flight);
+-
+ 	/*
+ 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+ 	 * the RCU protected stat update paths to grab the mapping's
+@@ -539,6 +537,9 @@ static void inode_switch_wbs(struct inod
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
++
++	atomic_inc(&isw_nr_in_flight);
++
+ 	goto out_unlock;
+ 
+ out_free:
+@@ -908,7 +909,11 @@ restart:
+ void cgroup_writeback_umount(void)
+ {
+ 	if (atomic_read(&isw_nr_in_flight)) {
+-		synchronize_rcu();
++		/*
++		 * Use rcu_barrier() to wait for all pending callbacks to
++		 * ensure that all in-flight wb switches are in the workqueue.
++		 */
++		rcu_barrier();
+ 		flush_workqueue(isw_wq);
+ 	}
+ }
 
 
