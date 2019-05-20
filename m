@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A1C23523
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D87234B6
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390695AbfETMdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
+        id S2389975AbfETM37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390690AbfETMdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:20 -0400
+        id S2390007AbfETM35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3051C204FD;
-        Mon, 20 May 2019 12:33:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CDAE20645;
+        Mon, 20 May 2019 12:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355599;
-        bh=OldcNS/8cfAStbn9CYCK1KVQwgBRyRmGuLt9D8O4Hx4=;
+        s=default; t=1558355396;
+        bh=2TRMfZDviT4+xoulx6yedoRHajY+kmB/koE91teu8Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDuPSRASN6LSF7DN1EfIWInOOrKBvdOJbcoASPbkn76u79IRpGYBbWLPHq05zJhDu
-         SEffYwONqZcpOc75dQM6Pxw5GuR364FezhchMg+Kq0n8xWSbswfHT7qVbZDk/SQLYA
-         T8yO/7WUZNezkaOkh0gFaRsJncrqL7yuKi2ODlOI=
+        b=DZz3Ba05G4fCi7W/CN8xH764Ed663rTGo9pxsATVcKGu/rJ06dtmxQIOPdmcH1f4f
+         N2nxACrhOTvCXNbtqokg23Vii1ZrzhbN7/GlyDmEpxCMslXa/Ld/QRID9ItO9nvzrA
+         0XXp9DsGunVDLfCR4mVXu47qWdZk2Y8cLN2sV3Cg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Ben Zhang <benzh@chromium.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.1 055/128] ASoC: RT5677-SPI: Disable 16Bit SPI Transfers
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.0 062/123] crypto: ccree - dont map AEAD key and IV on stack
 Date:   Mon, 20 May 2019 14:14:02 +0200
-Message-Id: <20190520115253.516364496@linuxfoundation.org>
+Message-Id: <20190520115248.925921091@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,131 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Curtis Malainey <cujomalainey@chromium.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit a46eb523220e242affb9a6bc9bb8efc05f4f7459 upstream.
+commit e8662a6a5f8f7f2cadc0edb934aef622d96ac3ee upstream.
 
-The current algorithm allows 3 types of transfers, 16bit, 32bit and
-burst. According to Realtek, 16bit transfers have a special restriction
-in that it is restricted to the memory region of
-0x18020000 ~ 0x18021000. This region is the memory location of the I2C
-registers. The current algorithm does not uphold this restriction and
-therefore fails to complete writes.
+The AEAD authenc key and IVs might be passed to us on stack. Copy it to
+a slab buffer before mapping to gurantee proper DMA mapping.
 
-Since this has been broken for some time it likely no one is using it.
-Better to simply disable the 16 bit writes. This will allow users to
-properly load firmware over SPI without data corruption.
-
-Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
-Reviewed-by: Ben Zhang <benzh@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/rt5677-spi.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ drivers/crypto/ccree/cc_aead.c       |   11 ++++++++++-
+ drivers/crypto/ccree/cc_buffer_mgr.c |   15 ++++++++++++---
+ drivers/crypto/ccree/cc_driver.h     |    1 +
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
---- a/sound/soc/codecs/rt5677-spi.c
-+++ b/sound/soc/codecs/rt5677-spi.c
-@@ -57,13 +57,15 @@ static DEFINE_MUTEX(spi_mutex);
-  * RT5677_SPI_READ/WRITE_32:	Transfer 4 bytes
-  * RT5677_SPI_READ/WRITE_BURST:	Transfer any multiples of 8 bytes
-  *
-- * For example, reading 260 bytes at 0x60030002 uses the following commands:
-- * 0x60030002 RT5677_SPI_READ_16	2 bytes
-+ * Note:
-+ * 16 Bit writes and reads are restricted to the address range
-+ * 0x18020000 ~ 0x18021000
-+ *
-+ * For example, reading 256 bytes at 0x60030004 uses the following commands:
-  * 0x60030004 RT5677_SPI_READ_32	4 bytes
-  * 0x60030008 RT5677_SPI_READ_BURST	240 bytes
-  * 0x600300F8 RT5677_SPI_READ_BURST	8 bytes
-  * 0x60030100 RT5677_SPI_READ_32	4 bytes
-- * 0x60030104 RT5677_SPI_READ_16	2 bytes
-  *
-  * Input:
-  * @read: true for read commands; false for write commands
-@@ -78,15 +80,13 @@ static u8 rt5677_spi_select_cmd(bool rea
- {
- 	u8 cmd;
- 
--	if (align == 2 || align == 6 || remain == 2) {
--		cmd = RT5677_SPI_READ_16;
--		*len = 2;
--	} else if (align == 4 || remain <= 6) {
-+	if (align == 4 || remain <= 4) {
- 		cmd = RT5677_SPI_READ_32;
- 		*len = 4;
- 	} else {
- 		cmd = RT5677_SPI_READ_BURST;
--		*len = min_t(u32, remain & ~7, RT5677_SPI_BURST_LEN);
-+		*len = (((remain - 1) >> 3) + 1) << 3;
-+		*len = min_t(u32, *len, RT5677_SPI_BURST_LEN);
- 	}
- 	return read ? cmd : cmd + 1;
- }
-@@ -107,7 +107,7 @@ static void rt5677_spi_reverse(u8 *dst,
- 	}
- }
- 
--/* Read DSP address space using SPI. addr and len have to be 2-byte aligned. */
-+/* Read DSP address space using SPI. addr and len have to be 4-byte aligned. */
- int rt5677_spi_read(u32 addr, void *rxbuf, size_t len)
- {
- 	u32 offset;
-@@ -123,7 +123,7 @@ int rt5677_spi_read(u32 addr, void *rxbu
- 	if (!g_spi)
- 		return -ENODEV;
- 
--	if ((addr & 1) || (len & 1)) {
-+	if ((addr & 3) || (len & 3)) {
- 		dev_err(&g_spi->dev, "Bad read align 0x%x(%zu)\n", addr, len);
- 		return -EACCES;
- 	}
-@@ -158,13 +158,13 @@ int rt5677_spi_read(u32 addr, void *rxbu
- }
- EXPORT_SYMBOL_GPL(rt5677_spi_read);
- 
--/* Write DSP address space using SPI. addr has to be 2-byte aligned.
-- * If len is not 2-byte aligned, an extra byte of zero is written at the end
-+/* Write DSP address space using SPI. addr has to be 4-byte aligned.
-+ * If len is not 4-byte aligned, then extra zeros are written at the end
-  * as padding.
+--- a/drivers/crypto/ccree/cc_aead.c
++++ b/drivers/crypto/ccree/cc_aead.c
+@@ -424,7 +424,7 @@ static int validate_keys_sizes(struct cc
+ /* This function prepers the user key so it can pass to the hmac processing
+  * (copy to intenral buffer or hash in case of key longer than block
   */
- int rt5677_spi_write(u32 addr, const void *txbuf, size_t len)
+-static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *key,
++static int cc_get_plain_hmac_key(struct crypto_aead *tfm, const u8 *authkey,
+ 				 unsigned int keylen)
  {
--	u32 offset, len_with_pad = len;
-+	u32 offset;
- 	int status = 0;
- 	struct spi_transfer t;
- 	struct spi_message m;
-@@ -177,22 +177,19 @@ int rt5677_spi_write(u32 addr, const voi
- 	if (!g_spi)
- 		return -ENODEV;
- 
--	if (addr & 1) {
-+	if (addr & 3) {
- 		dev_err(&g_spi->dev, "Bad write align 0x%x(%zu)\n", addr, len);
- 		return -EACCES;
+ 	dma_addr_t key_dma_addr = 0;
+@@ -437,6 +437,7 @@ static int cc_get_plain_hmac_key(struct
+ 	unsigned int hashmode;
+ 	unsigned int idx = 0;
+ 	int rc = 0;
++	u8 *key = NULL;
+ 	struct cc_hw_desc desc[MAX_AEAD_SETKEY_SEQ];
+ 	dma_addr_t padded_authkey_dma_addr =
+ 		ctx->auth_state.hmac.padded_authkey_dma_addr;
+@@ -455,11 +456,17 @@ static int cc_get_plain_hmac_key(struct
  	}
  
--	if (len & 1)
--		len_with_pad = len + 1;
--
- 	memset(&t, 0, sizeof(t));
- 	t.tx_buf = buf;
- 	t.speed_hz = RT5677_SPI_FREQ;
- 	spi_message_init_with_transfers(&m, &t, 1);
+ 	if (keylen != 0) {
++
++		key = kmemdup(authkey, keylen, GFP_KERNEL);
++		if (!key)
++			return -ENOMEM;
++
+ 		key_dma_addr = dma_map_single(dev, (void *)key, keylen,
+ 					      DMA_TO_DEVICE);
+ 		if (dma_mapping_error(dev, key_dma_addr)) {
+ 			dev_err(dev, "Mapping key va=0x%p len=%u for DMA failed\n",
+ 				key, keylen);
++			kzfree(key);
+ 			return -ENOMEM;
+ 		}
+ 		if (keylen > blocksize) {
+@@ -542,6 +549,8 @@ static int cc_get_plain_hmac_key(struct
+ 	if (key_dma_addr)
+ 		dma_unmap_single(dev, key_dma_addr, keylen, DMA_TO_DEVICE);
  
--	for (offset = 0; offset < len_with_pad;) {
-+	for (offset = 0; offset < len;) {
- 		spi_cmd = rt5677_spi_select_cmd(false, (addr + offset) & 7,
--				len_with_pad - offset, &t.len);
-+				len - offset, &t.len);
++	kzfree(key);
++
+ 	return rc;
+ }
  
- 		/* Construct SPI message header */
- 		buf[0] = spi_cmd;
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -560,6 +560,7 @@ void cc_unmap_aead_request(struct device
+ 	if (areq_ctx->gen_ctx.iv_dma_addr) {
+ 		dma_unmap_single(dev, areq_ctx->gen_ctx.iv_dma_addr,
+ 				 hw_iv_size, DMA_BIDIRECTIONAL);
++		kzfree(areq_ctx->gen_ctx.iv);
+ 	}
+ 
+ 	/* Release pool */
+@@ -664,19 +665,27 @@ static int cc_aead_chain_iv(struct cc_dr
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+ 	struct device *dev = drvdata_to_dev(drvdata);
++	gfp_t flags = cc_gfp_flags(&req->base);
+ 	int rc = 0;
+ 
+ 	if (!req->iv) {
+ 		areq_ctx->gen_ctx.iv_dma_addr = 0;
++		areq_ctx->gen_ctx.iv = NULL;
+ 		goto chain_iv_exit;
+ 	}
+ 
+-	areq_ctx->gen_ctx.iv_dma_addr = dma_map_single(dev, req->iv,
+-						       hw_iv_size,
+-						       DMA_BIDIRECTIONAL);
++	areq_ctx->gen_ctx.iv = kmemdup(req->iv, hw_iv_size, flags);
++	if (!areq_ctx->gen_ctx.iv)
++		return -ENOMEM;
++
++	areq_ctx->gen_ctx.iv_dma_addr =
++		dma_map_single(dev, areq_ctx->gen_ctx.iv, hw_iv_size,
++			       DMA_BIDIRECTIONAL);
+ 	if (dma_mapping_error(dev, areq_ctx->gen_ctx.iv_dma_addr)) {
+ 		dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
+ 			hw_iv_size, req->iv);
++		kzfree(areq_ctx->gen_ctx.iv);
++		areq_ctx->gen_ctx.iv = NULL;
+ 		rc = -ENOMEM;
+ 		goto chain_iv_exit;
+ 	}
+--- a/drivers/crypto/ccree/cc_driver.h
++++ b/drivers/crypto/ccree/cc_driver.h
+@@ -170,6 +170,7 @@ struct cc_alg_template {
+ 
+ struct async_gen_req_ctx {
+ 	dma_addr_t iv_dma_addr;
++	u8 *iv;
+ 	enum drv_crypto_direction op_type;
+ };
+ 
 
 
