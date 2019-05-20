@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E25F23305
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 13:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B46523307
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 13:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731726AbfETLui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 07:50:38 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:43982 "EHLO
-        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730606AbfETLui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 07:50:38 -0400
+        id S1731790AbfETLul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 07:50:41 -0400
+Received: from foss.arm.com ([217.140.101.70]:43990 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731777AbfETLuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 07:50:40 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8030015AB;
-        Mon, 20 May 2019 04:50:37 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1E45715AD;
+        Mon, 20 May 2019 04:50:40 -0700 (PDT)
 Received: from e110176-lin.kfn.arm.com (unknown [10.50.4.178])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D7BE13F5AF;
-        Mon, 20 May 2019 04:50:35 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7584D3F5AF;
+        Mon, 20 May 2019 04:50:38 -0700 (PDT)
 From:   Gilad Ben-Yossef <gilad@benyossef.com>
 To:     gregkh@linuxfoundation.org,
         Herbert Xu <herbert@gondor.apana.org.au>,
         "David S. Miller" <davem@davemloft.net>
 Cc:     stable@vger.kernel.org, linux-crypto@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [STABLE PATCH 1/2] crypto: ccree: zap entire sg on aead request unmap
-Date:   Mon, 20 May 2019 14:50:23 +0300
-Message-Id: <20190520115025.16457-2-gilad@benyossef.com>
+Subject: [STABLE PATCH 2/2] crypto: ccree: fix backlog notifications
+Date:   Mon, 20 May 2019 14:50:24 +0300
+Message-Id: <20190520115025.16457-3-gilad@benyossef.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115025.16457-1-gilad@benyossef.com>
 References: <20190520115025.16457-1-gilad@benyossef.com>
@@ -36,59 +36,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We were trying to be clever zapping out of the cache only the required
-length out of scatter list on AEAD request completion and getting it
-wrong.
+We were doing backlog notification callbacks via a cipher/hash/aead
+request structure cast to the base structure, which may or may not
+work based on how the structure is laid in memory and is not safe.
 
-As Knuth said: "when in douby, use brute force". Zap the whole length of
-the scatter list.
+Fix it by delegating the backlog notification to the appropriate
+internal callbacks which are type aware.
 
 Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c | 18 ++----------------
- 1 file changed, 2 insertions(+), 16 deletions(-)
+ drivers/crypto/ccree/cc_aead.c        |  4 ++++
+ drivers/crypto/ccree/cc_cipher.c      |  4 ++++
+ drivers/crypto/ccree/cc_hash.c        | 28 +++++++++++++++++++--------
+ drivers/crypto/ccree/cc_request_mgr.c | 11 ++++++++---
+ 4 files changed, 36 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
-index 0ee1c52da0a4..0774bf54fcab 100644
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -568,11 +568,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
+diff --git a/drivers/crypto/ccree/cc_aead.c b/drivers/crypto/ccree/cc_aead.c
+index a3527c00b29a..8c08a50a4008 100644
+--- a/drivers/crypto/ccree/cc_aead.c
++++ b/drivers/crypto/ccree/cc_aead.c
+@@ -220,6 +220,10 @@ static void cc_aead_complete(struct device *dev, void *cc_req, int err)
+ 	struct crypto_aead *tfm = crypto_aead_reqtfm(cc_req);
+ 	struct cc_aead_ctx *ctx = crypto_aead_ctx(tfm);
+ 
++	/* BACKLOG notification */
++	if (err == -EINPROGRESS)
++		goto done;
++
+ 	cc_unmap_aead_request(dev, areq);
+ 
+ 	/* Restore ordinary iv pointer */
+diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_cipher.c
+index d9c17078517b..202526648e4a 100644
+--- a/drivers/crypto/ccree/cc_cipher.c
++++ b/drivers/crypto/ccree/cc_cipher.c
+@@ -654,6 +654,9 @@ static void cc_cipher_complete(struct device *dev, void *cc_req, int err)
+ 	unsigned int ivsize = crypto_skcipher_ivsize(sk_tfm);
+ 	unsigned int len;
+ 
++	if (err == -EINPROGRESS)
++		goto done;
++
+ 	cc_unmap_cipher_request(dev, req_ctx, ivsize, src, dst);
+ 
+ 	switch (ctx_p->cipher_mode) {
+@@ -687,6 +690,7 @@ static void cc_cipher_complete(struct device *dev, void *cc_req, int err)
+ 
+ 	kzfree(req_ctx->iv);
+ 
++done:
+ 	skcipher_request_complete(req, err);
+ }
+ 
+diff --git a/drivers/crypto/ccree/cc_hash.c b/drivers/crypto/ccree/cc_hash.c
+index 2c4ddc8fb76b..e824ab60b59c 100644
+--- a/drivers/crypto/ccree/cc_hash.c
++++ b/drivers/crypto/ccree/cc_hash.c
+@@ -280,8 +280,12 @@ static void cc_update_complete(struct device *dev, void *cc_req, int err)
+ 
+ 	dev_dbg(dev, "req=%pK\n", req);
+ 
+-	cc_unmap_hash_request(dev, state, req->src, false);
+-	cc_unmap_req(dev, state, ctx);
++	if (err != -EINPROGRESS) {
++		/* Not a BACKLOG notification */
++		cc_unmap_hash_request(dev, state, req->src, false);
++		cc_unmap_req(dev, state, ctx);
++	}
++
+ 	req->base.complete(&req->base, err);
+ }
+ 
+@@ -295,9 +299,13 @@ static void cc_digest_complete(struct device *dev, void *cc_req, int err)
+ 
+ 	dev_dbg(dev, "req=%pK\n", req);
+ 
+-	cc_unmap_hash_request(dev, state, req->src, false);
+-	cc_unmap_result(dev, state, digestsize, req->result);
+-	cc_unmap_req(dev, state, ctx);
++	if (err != -EINPROGRESS) {
++		/* Not a BACKLOG notification */
++		cc_unmap_hash_request(dev, state, req->src, false);
++		cc_unmap_result(dev, state, digestsize, req->result);
++		cc_unmap_req(dev, state, ctx);
++	}
++
+ 	req->base.complete(&req->base, err);
+ }
+ 
+@@ -311,9 +319,13 @@ static void cc_hash_complete(struct device *dev, void *cc_req, int err)
+ 
+ 	dev_dbg(dev, "req=%pK\n", req);
+ 
+-	cc_unmap_hash_request(dev, state, req->src, false);
+-	cc_unmap_result(dev, state, digestsize, req->result);
+-	cc_unmap_req(dev, state, ctx);
++	if (err != -EINPROGRESS) {
++		/* Not a BACKLOG notification */
++		cc_unmap_hash_request(dev, state, req->src, false);
++		cc_unmap_result(dev, state, digestsize, req->result);
++		cc_unmap_req(dev, state, ctx);
++	}
++
+ 	req->base.complete(&req->base, err);
+ }
+ 
+diff --git a/drivers/crypto/ccree/cc_request_mgr.c b/drivers/crypto/ccree/cc_request_mgr.c
+index 83a8aaae61c7..ddaa41de7ae7 100644
+--- a/drivers/crypto/ccree/cc_request_mgr.c
++++ b/drivers/crypto/ccree/cc_request_mgr.c
+@@ -336,10 +336,12 @@ static void cc_enqueue_backlog(struct cc_drvdata *drvdata,
+ 			       struct cc_bl_item *bli)
  {
- 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
- 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
--	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
--	u32 dummy;
--	bool chained;
--	u32 size_to_unmap = 0;
+ 	struct cc_req_mgr_handle *mgr = drvdata->request_mgr_handle;
++	struct device *dev = drvdata_to_dev(drvdata);
  
- 	if (areq_ctx->mac_buf_dma_addr) {
- 		dma_unmap_single(dev, areq_ctx->mac_buf_dma_addr,
-@@ -629,22 +625,12 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
- 	dev_dbg(dev, "Unmapping src sgl: req->src=%pK areq_ctx->src.nents=%u areq_ctx->assoc.nents=%u assoclen:%u cryptlen=%u\n",
- 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
- 		req->assoclen, req->cryptlen);
--	size_to_unmap = req->assoclen + req->cryptlen;
--	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
--		size_to_unmap += areq_ctx->req_authsize;
--	if (areq_ctx->is_gcm4543)
--		size_to_unmap += crypto_aead_ivsize(tfm);
+ 	spin_lock_bh(&mgr->bl_lock);
+ 	list_add_tail(&bli->list, &mgr->backlog);
+ 	++mgr->bl_len;
++	dev_dbg(dev, "+++bl len: %d\n", mgr->bl_len);
+ 	spin_unlock_bh(&mgr->bl_lock);
+ 	tasklet_schedule(&mgr->comptask);
+ }
+@@ -349,7 +351,7 @@ static void cc_proc_backlog(struct cc_drvdata *drvdata)
+ 	struct cc_req_mgr_handle *mgr = drvdata->request_mgr_handle;
+ 	struct cc_bl_item *bli;
+ 	struct cc_crypto_req *creq;
+-	struct crypto_async_request *req;
++	void *req;
+ 	bool ivgen;
+ 	unsigned int total_len;
+ 	struct device *dev = drvdata_to_dev(drvdata);
+@@ -359,17 +361,20 @@ static void cc_proc_backlog(struct cc_drvdata *drvdata)
  
--	dma_unmap_sg(dev, req->src,
--		     cc_get_sgl_nents(dev, req->src, size_to_unmap,
--				      &dummy, &chained),
--		     DMA_BIDIRECTIONAL);
-+	dma_unmap_sg(dev, req->src, sg_nents(req->src), DMA_BIDIRECTIONAL);
- 	if (req->src != req->dst) {
- 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
- 			sg_virt(req->dst));
--		dma_unmap_sg(dev, req->dst,
--			     cc_get_sgl_nents(dev, req->dst, size_to_unmap,
--					      &dummy, &chained),
-+		dma_unmap_sg(dev, req->dst, sg_nents(req->dst),
- 			     DMA_BIDIRECTIONAL);
- 	}
- 	if (drvdata->coherent &&
+ 	while (mgr->bl_len) {
+ 		bli = list_first_entry(&mgr->backlog, struct cc_bl_item, list);
++		dev_dbg(dev, "---bl len: %d\n", mgr->bl_len);
++
+ 		spin_unlock(&mgr->bl_lock);
+ 
++
+ 		creq = &bli->creq;
+-		req = (struct crypto_async_request *)creq->user_arg;
++		req = creq->user_arg;
+ 
+ 		/*
+ 		 * Notify the request we're moving out of the backlog
+ 		 * but only if we haven't done so already.
+ 		 */
+ 		if (!bli->notif) {
+-			req->complete(req, -EINPROGRESS);
++			creq->user_cb(dev, req, -EINPROGRESS);
+ 			bli->notif = true;
+ 		}
+ 
 -- 
 2.21.0
 
