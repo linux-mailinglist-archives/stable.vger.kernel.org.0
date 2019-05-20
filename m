@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3D323769
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF1123609
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbfETMsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:48:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37648 "EHLO mail.kernel.org"
+        id S2390025AbfETMaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:30:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388129AbfETMXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:23:20 -0400
+        id S2389584AbfETMaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:30:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EBBD21479;
-        Mon, 20 May 2019 12:23:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4881421479;
+        Mon, 20 May 2019 12:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354998;
-        bh=cm3X3sPLFncga0AO6FdB7CwX0XUcBLx38ZGNlPvHQfM=;
+        s=default; t=1558355404;
+        bh=UH6JkK6X0kuRS9HGzftnJ0yrDm0rxbG8gjI3mS3bbjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERYY2z9wgAszGxTtv1RW/P0hG/cgmSWqP9m6P0xVJ+RjO9Y49Sz/5UrQNiXZjLGKU
-         ZPBTzQzvXvtvGYXUMKpdz2ZyT0jr1yuB601QjgGIW+tCJkSeQd240ARD4gRvv1Swxm
-         HEIdHwor0aOYOgepkTC360ELFsOz/lBjgRX2uOkQ=
+        b=crIPmrwABNaxYXhQ8xH0YxnN5a8BbKZYTJo0BzZTHxJ/00og/iX37pPaI8jpqg3Es
+         oaV/wHKS9RDDtTlDWpJATA5Gf+qTexriIhX0qDl33ITKuapVLrz0BYlGmE0vyvnu+m
+         XzeNkyRn5p5IecQj4B/lHmtFUpOemAi3NoE92Q44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 059/105] ACPI: PM: Set enable_for_wake for wakeup GPEs during suspend-to-idle
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.0 065/123] crypto: ccree - add function to handle cryptocell tee fips error
 Date:   Mon, 20 May 2019 14:14:05 +0200
-Message-Id: <20190520115251.197424915@linuxfoundation.org>
+Message-Id: <20190520115249.137222777@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
-References: <20190520115247.060821231@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajat Jain <rajatja@google.com>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit 2f844b61db8297a1f7a06adf2eb5c43381f2c183 upstream.
+commit 897ab2316910a66bb048f1c9cefa25e6a592dcd7 upstream.
 
-I noticed that recently multiple systems (chromebooks) couldn't wake
-from S0ix using LID or Keyboard after updating to a newer kernel. I
-bisected and it turned up commit f941d3e41da7 ("ACPI: EC / PM: Disable
-non-wakeup GPEs for suspend-to-idle"). I checked that the issue got
-fixed if that commit was reverted.
+Adds function that checks if cryptocell tee fips error occurred
+and in such case triggers system error through kernel panic.
+Change fips function to use this new routine.
 
-I debugged and found that although PNP0C0D:00 (representing the LID)
-is wake capable and should wakeup the system per the code in
-acpi_wakeup_gpe_init() and in drivers/acpi/button.c:
-
-localhost /sys # cat /proc/acpi/wakeup
-Device  S-state   Status   Sysfs node
-LID0      S4    *enabled   platform:PNP0C0D:00
-CREC      S5    *disabled  platform:GOOG0004:00
-                *disabled  platform:cros-ec-dev.1.auto
-                *disabled  platform:cros-ec-accel.0
-                *disabled  platform:cros-ec-accel.1
-                *disabled  platform:cros-ec-gyro.0
-                *disabled  platform:cros-ec-ring.0
-                *disabled  platform:cros-usbpd-charger.2.auto
-                *disabled  platform:cros-usbpd-logger.3.auto
-D015      S3    *enabled   i2c:i2c-ELAN0000:00
-PENH      S3    *enabled   platform:PRP0001:00
-XHCI      S3    *enabled   pci:0000:00:14.0
-GLAN      S4    *disabled
-WIFI      S3    *disabled  pci:0000:00:14.3
-localhost /sys #
-
-On debugging, I found that its corresponding GPE is not being enabled.
-The particular GPE's "gpe_register_info->enable_for_wake" does not
-have any bits set when acpi_enable_all_wakeup_gpes() comes around to
-use it. I looked at code and could not find any other code path that
-should set the bits in "enable_for_wake" bitmask for the wake enabled
-devices for s2idle.  [I do see that it happens for S3 in
-acpi_sleep_prepare()].
-
-Thus I used the same call to enable the GPEs for wake enabled devices,
-and verified that this fixes the regression I was seeing on multiple
-of my devices.
-
-[ rjw: The problem is that commit f941d3e41da7 ("ACPI: EC / PM:
-  Disable non-wakeup GPEs for suspend-to-idle") forgot to add
-  the acpi_enable_wakeup_devices() call for s2idle along with
-  acpi_enable_all_wakeup_gpes(). ]
-
-Fixes: f941d3e41da7 ("ACPI: EC / PM: Disable non-wakeup GPEs for suspend-to-idle")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203579
-Signed-off-by: Rajat Jain <rajatja@google.com>
-[ rjw: Subject & changelog ]
-Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/sleep.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/crypto/ccree/cc_fips.c |   23 +++++++++++++++--------
+ drivers/crypto/ccree/cc_fips.h |    2 ++
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -977,6 +977,8 @@ static int acpi_s2idle_prepare(void)
- 	if (acpi_sci_irq_valid())
- 		enable_irq_wake(acpi_sci_irq);
+--- a/drivers/crypto/ccree/cc_fips.c
++++ b/drivers/crypto/ccree/cc_fips.c
+@@ -72,20 +72,28 @@ static inline void tee_fips_error(struct
+ 		dev_err(dev, "TEE reported error!\n");
+ }
  
-+	acpi_enable_wakeup_devices(ACPI_STATE_S0);
++/*
++ * This function check if cryptocell tee fips error occurred
++ * and in such case triggers system error
++ */
++void cc_tee_handle_fips_error(struct cc_drvdata *p_drvdata)
++{
++	struct device *dev = drvdata_to_dev(p_drvdata);
 +
- 	/* Change the configuration of GPEs to avoid spurious wakeup. */
- 	acpi_enable_all_wakeup_gpes();
- 	acpi_os_wait_events_complete();
-@@ -1026,6 +1028,8 @@ static void acpi_s2idle_restore(void)
++	if (!cc_get_tee_fips_status(p_drvdata))
++		tee_fips_error(dev);
++}
++
+ /* Deferred service handler, run as interrupt-fired tasklet */
+ static void fips_dsr(unsigned long devarg)
  {
- 	acpi_enable_all_runtime_gpes();
+ 	struct cc_drvdata *drvdata = (struct cc_drvdata *)devarg;
+-	struct device *dev = drvdata_to_dev(drvdata);
+-	u32 irq, state, val;
++	u32 irq, val;
  
-+	acpi_disable_wakeup_devices(ACPI_STATE_S0);
-+
- 	if (acpi_sci_irq_valid())
- 		disable_irq_wake(acpi_sci_irq);
+ 	irq = (drvdata->irq & (CC_GPR0_IRQ_MASK));
+ 
+ 	if (irq) {
+-		state = cc_ioread(drvdata, CC_REG(GPR_HOST));
+-
+-		if (state != (CC_FIPS_SYNC_TEE_STATUS | CC_FIPS_SYNC_MODULE_OK))
+-			tee_fips_error(dev);
++		cc_tee_handle_fips_error(drvdata);
+ 	}
+ 
+ 	/* after verifing that there is nothing to do,
+@@ -113,8 +121,7 @@ int cc_fips_init(struct cc_drvdata *p_dr
+ 	dev_dbg(dev, "Initializing fips tasklet\n");
+ 	tasklet_init(&fips_h->tasklet, fips_dsr, (unsigned long)p_drvdata);
+ 
+-	if (!cc_get_tee_fips_status(p_drvdata))
+-		tee_fips_error(dev);
++	cc_tee_handle_fips_error(p_drvdata);
+ 
+ 	return 0;
+ }
+--- a/drivers/crypto/ccree/cc_fips.h
++++ b/drivers/crypto/ccree/cc_fips.h
+@@ -18,6 +18,7 @@ int cc_fips_init(struct cc_drvdata *p_dr
+ void cc_fips_fini(struct cc_drvdata *drvdata);
+ void fips_handler(struct cc_drvdata *drvdata);
+ void cc_set_ree_fips_status(struct cc_drvdata *drvdata, bool ok);
++void cc_tee_handle_fips_error(struct cc_drvdata *p_drvdata);
+ 
+ #else  /* CONFIG_CRYPTO_FIPS */
+ 
+@@ -30,6 +31,7 @@ static inline void cc_fips_fini(struct c
+ static inline void cc_set_ree_fips_status(struct cc_drvdata *drvdata,
+ 					  bool ok) {}
+ static inline void fips_handler(struct cc_drvdata *drvdata) {}
++static inline void cc_tee_handle_fips_error(struct cc_drvdata *p_drvdata) {}
+ 
+ #endif /* CONFIG_CRYPTO_FIPS */
  
 
 
