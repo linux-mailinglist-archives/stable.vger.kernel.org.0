@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E443233A1
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914CA2336D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731222AbfETMS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60220 "EHLO mail.kernel.org"
+        id S1732985AbfETMQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733048AbfETMS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:18:58 -0400
+        id S1732888AbfETMQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:16:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76D84213F2;
-        Mon, 20 May 2019 12:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32A2520656;
+        Mon, 20 May 2019 12:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354738;
-        bh=pjlpeQRC0hgc3Z+jegXSlr/lM/s+iZPx3nHcu6SNf1U=;
+        s=default; t=1558354580;
+        bh=NELJ4Hu6YiJbJlmxwVlRRrxhcEXBUQ4E/XUnMCsrArw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfS3dzbwHohdC7ZRZ2hFLBFepZoZ3A7vLVFTILzJaOSvN2dkXt76TCaYA+V9TSDzd
-         JlNip/NTfI/Q8/6Ggazd9O1Q24+Y9rMVKOVcap1ZPAfuXvEGL5kcwxXUK4Hf9jU7Ko
-         93CK1fYd66XH3OtzDfWRa59DEHHpFqLJRwRHbKgQ=
+        b=xl7Oh9x1nP3mRtao8wF5SjrgD/aq/RLSjVqCxxfAJbpjQqG9E4g/bzdmo9NTZRCPD
+         W8lxfeeiJ1O9QKqKD3YGg2c2YjYW2nFnVsfA9In4Im+uu7li5mh2ZVA/MzPC806cQv
+         B9151E+1FqaglKkAfWmSTBYbh5e+09yWnN2yzl14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 24/63] crypto: arm/aes-neonbs - dont access already-freed walk.iv
+Subject: [PATCH 4.9 14/44] crypto: crct10dif-generic - fix use via crypto_shash_digest()
 Date:   Mon, 20 May 2019 14:14:03 +0200
-Message-Id: <20190520115233.722741281@linuxfoundation.org>
+Message-Id: <20190520115232.689336976@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
-References: <20190520115231.137981521@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 767f015ea0b7ab9d60432ff6cd06b664fd71f50f upstream.
+commit 307508d1072979f4435416f87936f87eaeb82054 upstream.
 
-If the user-provided IV needs to be aligned to the algorithm's
-alignmask, then skcipher_walk_virt() copies the IV into a new aligned
-buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
-if the caller unconditionally accesses walk.iv, it's a use-after-free.
+The ->digest() method of crct10dif-generic reads the current CRC value
+from the shash_desc context.  But this value is uninitialized, causing
+crypto_shash_digest() to compute the wrong result.  Fix it.
 
-arm32 xts-aes-neonbs doesn't set an alignmask, so currently it isn't
-affected by this despite unconditionally accessing walk.iv.  However
-this is more subtle than desired, and it was actually broken prior to
-the alignmask being removed by commit cc477bf64573 ("crypto: arm/aes -
-replace bit-sliced OpenSSL NEON code").  Thus, update xts-aes-neonbs to
-start checking the return value of skcipher_walk_virt().
+Probably this wasn't noticed before because lib/crc-t10dif.c only uses
+crypto_shash_update(), not crypto_shash_digest().  Likewise,
+crypto_shash_digest() is not yet tested by the crypto self-tests because
+those only test the ahash API which only uses shash init/update/final.
 
-Fixes: e4e7f10bfc40 ("ARM: add support for bit sliced AES using NEON instructions")
-Cc: <stable@vger.kernel.org> # v3.13+
+This bug was detected by my patches that improve testmgr to fuzz
+algorithms against their generic implementation.
+
+Fixes: 2d31e518a428 ("crypto: crct10dif - Wrap crc_t10dif function all to use crypto transform framework")
+Cc: <stable@vger.kernel.org> # v3.11+
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/crypto/aes-neonbs-glue.c |    2 ++
- 1 file changed, 2 insertions(+)
+ crypto/crct10dif_generic.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/arch/arm/crypto/aes-neonbs-glue.c
-+++ b/arch/arm/crypto/aes-neonbs-glue.c
-@@ -280,6 +280,8 @@ static int __xts_crypt(struct skcipher_r
- 	int err;
+--- a/crypto/crct10dif_generic.c
++++ b/crypto/crct10dif_generic.c
+@@ -65,10 +65,9 @@ static int chksum_final(struct shash_des
+ 	return 0;
+ }
  
- 	err = skcipher_walk_virt(&walk, req, true);
-+	if (err)
-+		return err;
+-static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
+-			u8 *out)
++static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
+ {
+-	*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
++	*(__u16 *)out = crc_t10dif_generic(crc, data, len);
+ 	return 0;
+ }
  
- 	crypto_cipher_encrypt_one(ctx->tweak_tfm, walk.iv, walk.iv);
+@@ -77,15 +76,13 @@ static int chksum_finup(struct shash_des
+ {
+ 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
  
+-	return __chksum_finup(&ctx->crc, data, len, out);
++	return __chksum_finup(ctx->crc, data, len, out);
+ }
+ 
+ static int chksum_digest(struct shash_desc *desc, const u8 *data,
+ 			 unsigned int length, u8 *out)
+ {
+-	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+-
+-	return __chksum_finup(&ctx->crc, data, length, out);
++	return __chksum_finup(0, data, length, out);
+ }
+ 
+ static struct shash_alg alg = {
 
 
