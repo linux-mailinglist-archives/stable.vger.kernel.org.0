@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 359CC2356A
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C802123603
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391038AbfETMfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:35:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52850 "EHLO mail.kernel.org"
+        id S2389142AbfETMaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390429AbfETMfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:35:02 -0400
+        id S2390045AbfETMaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:30:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D50621479;
-        Mon, 20 May 2019 12:35:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31CAC20815;
+        Mon, 20 May 2019 12:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355701;
-        bh=piwKhTcHj4VZCfXF8EKFK2myXkUn0IB9W2vW67NcuNo=;
+        s=default; t=1558355412;
+        bh=VpgFCPF+VQV+9StQj8r5gpwZ4Ry5MHG0rcvGOeYFJvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcxdenNrew9Dd9LvvF78Leofw1leYmTg3nLWmZM0kaFiRea6SOgIjuKlQ6rGJuUHF
-         7LXY7IBkWmdCtT8eNNN/YsYiLdeLjaYZq7JMlohbN8d119jT6tDSJNKxzJKTAkZsJo
-         lcF2pZsfEm71p5tszjDGp44rMp2KhgauHgs220SI=
+        b=Jc1ezlajnoa+D0DobZLFqeZGS7y+wPF115lIgyn1uGCGj7HNMNwLDH88sI8YTicKL
+         sFeHPXq1AhyqXcchFWe+541gYpDS8prcv/B2kHWrEc1NNZPlxOqBnJHl2k0ueDOh3k
+         u8icG0r0XP2eXFIPTbN3AjfkEZRzLosy/sYmQHlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.1 094/128] btrfs: Honour FITRIM range constraints during free space trim
-Date:   Mon, 20 May 2019 14:14:41 +0200
-Message-Id: <20190520115255.652676201@linuxfoundation.org>
+        stable@vger.kernel.org, Sriram Rajagopalan <sriramr@arista.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.0 102/123] ext4: zero out the unused memory region in the extent tree block
+Date:   Mon, 20 May 2019 14:14:42 +0200
+Message-Id: <20190520115251.812957758@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Sriram Rajagopalan <sriramr@arista.com>
 
-commit c2d1b3aae33605a61cbab445d8ae1c708ccd2698 upstream.
+commit 592acbf16821288ecdc4192c47e3774a4c48bb64 upstream.
 
-Up until now trimming the freespace was done irrespective of what the
-arguments of the FITRIM ioctl were. For example fstrim's -o/-l arguments
-will be entirely ignored. Fix it by correctly handling those paramter.
-This requires breaking if the found freespace extent is after the end of
-the passed range as well as completing trim after trimming
-fstrim_range::len bytes.
+This commit zeroes out the unused memory region in the buffer_head
+corresponding to the extent metablock after writing the extent header
+and the corresponding extent node entries.
 
-Fixes: 499f377f49f0 ("btrfs: iterate over unused chunk space in FITRIM")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This is done to prevent random uninitialized data from getting into
+the filesystem when the extent block is synced.
+
+This fixes CVE-2019-11833.
+
+Signed-off-by: Sriram Rajagopalan <sriramr@arista.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ fs/ext4/extents.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -11315,9 +11315,9 @@ int btrfs_error_unpin_extent_range(struc
-  * held back allocations.
-  */
- static int btrfs_trim_free_extents(struct btrfs_device *device,
--				   u64 minlen, u64 *trimmed)
-+				   struct fstrim_range *range, u64 *trimmed)
- {
--	u64 start = 0, len = 0;
-+	u64 start = range->start, len = 0;
- 	int ret;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -1035,6 +1035,7 @@ static int ext4_ext_split(handle_t *hand
+ 	__le32 border;
+ 	ext4_fsblk_t *ablocks = NULL; /* array of allocated blocks */
+ 	int err = 0;
++	size_t ext_size = 0;
  
- 	*trimmed = 0;
-@@ -11360,8 +11360,8 @@ static int btrfs_trim_free_extents(struc
- 		if (!trans)
- 			up_read(&fs_info->commit_root_sem);
+ 	/* make decision: where to split? */
+ 	/* FIXME: now decision is simplest: at current extent */
+@@ -1126,6 +1127,10 @@ static int ext4_ext_split(handle_t *hand
+ 		le16_add_cpu(&neh->eh_entries, m);
+ 	}
  
--		ret = find_free_dev_extent_start(trans, device, minlen, start,
--						 &start, &len);
-+		ret = find_free_dev_extent_start(trans, device, range->minlen,
-+						 start, &start, &len);
- 		if (trans) {
- 			up_read(&fs_info->commit_root_sem);
- 			btrfs_put_transaction(trans);
-@@ -11374,6 +11374,16 @@ static int btrfs_trim_free_extents(struc
- 			break;
++	/* zero out unused area in the extent block */
++	ext_size = sizeof(struct ext4_extent_header) +
++		sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries);
++	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
+ 	ext4_extent_block_csum_set(inode, neh);
+ 	set_buffer_uptodate(bh);
+ 	unlock_buffer(bh);
+@@ -1205,6 +1210,11 @@ static int ext4_ext_split(handle_t *hand
+ 				sizeof(struct ext4_extent_idx) * m);
+ 			le16_add_cpu(&neh->eh_entries, m);
  		}
++		/* zero out unused area in the extent block */
++		ext_size = sizeof(struct ext4_extent_header) +
++		   (sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries));
++		memset(bh->b_data + ext_size, 0,
++			inode->i_sb->s_blocksize - ext_size);
+ 		ext4_extent_block_csum_set(inode, neh);
+ 		set_buffer_uptodate(bh);
+ 		unlock_buffer(bh);
+@@ -1270,6 +1280,7 @@ static int ext4_ext_grow_indepth(handle_
+ 	ext4_fsblk_t newblock, goal = 0;
+ 	struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
+ 	int err = 0;
++	size_t ext_size = 0;
  
-+		/* If we are out of the passed range break */
-+		if (start > range->start + range->len - 1) {
-+			mutex_unlock(&fs_info->chunk_mutex);
-+			ret = 0;
-+			break;
-+		}
-+
-+		start = max(range->start, start);
-+		len = min(range->len, len);
-+
- 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
- 		mutex_unlock(&fs_info->chunk_mutex);
+ 	/* Try to prepend new index to old one */
+ 	if (ext_depth(inode))
+@@ -1295,9 +1306,11 @@ static int ext4_ext_grow_indepth(handle_
+ 		goto out;
+ 	}
  
-@@ -11383,6 +11393,10 @@ static int btrfs_trim_free_extents(struc
- 		start += len;
- 		*trimmed += bytes;
++	ext_size = sizeof(EXT4_I(inode)->i_data);
+ 	/* move top-level index/leaf into new block */
+-	memmove(bh->b_data, EXT4_I(inode)->i_data,
+-		sizeof(EXT4_I(inode)->i_data));
++	memmove(bh->b_data, EXT4_I(inode)->i_data, ext_size);
++	/* zero out unused area in the extent block */
++	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
  
-+		/* We've trimmed enough */
-+		if (*trimmed >= range->len)
-+			break;
-+
- 		if (fatal_signal_pending(current)) {
- 			ret = -ERESTARTSYS;
- 			break;
-@@ -11466,8 +11480,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
--		ret = btrfs_trim_free_extents(device, range->minlen,
--					      &group_trimmed);
-+		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
- 			dev_ret = ret;
+ 	/* set size of new block */
+ 	neh = ext_block_hdr(bh);
 
 
