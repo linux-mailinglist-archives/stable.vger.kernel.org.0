@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1377C234E5
+	by mail.lfdr.de (Postfix) with ESMTP id 7F70D234E6
 	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388686AbfETMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:31:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48246 "EHLO mail.kernel.org"
+        id S2390373AbfETMbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390368AbfETMbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:36 -0400
+        id S2390351AbfETMbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:31:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B34B216C4;
-        Mon, 20 May 2019 12:31:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA4152171F;
+        Mon, 20 May 2019 12:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355495;
-        bh=Z2GfKcHpVHwXI4/sFoV0Z1BGczs685S2OFmpzrq1tw8=;
+        s=default; t=1558355498;
+        bh=any/DlHXg37Ff7AbRPFC1GetjoVK2j3ZkSLPNafzbrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOd6zQhOoUDq1GMyuRD943/oyAubr0oocV8Z3VMq+EOg0dHDXE2612yjufI9YQ/f+
-         Fw75tbjAb5OrXwGMI0W0vLr6cZrRWS4aoxYttoMgMzIgiSroqxo6NgxYXEm3XvUL+S
-         UsM0/Zp5oSkL0yyMjUJV2FgocdH6ZW/j6GUXVgtw=
+        b=Y++/50uqLjXXJd2LUzVFTIYCXasIis0CGLaQnjuTYau9zmQDWzgzQLkEFKjbZgTxA
+         HRiJuCV1UiYM/8cUSs+dI8MAIjGvWxDLuD3Vobmk2IShKzPr1eDf2oCSU/XrnNbUdX
+         aTc74m9j0z3aVSLfDCkgZ8Sjg44uDnIO68NSsdYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Jann Horn <jannh@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 5.1 017/128] arm64: compat: Reduce address limit
-Date:   Mon, 20 May 2019 14:13:24 +0200
-Message-Id: <20190520115250.651527616@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 018/128] arm64: Clear OSDLR_EL1 on CPU boot
+Date:   Mon, 20 May 2019 14:13:25 +0200
+Message-Id: <20190520115250.719711304@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -45,52 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-commit d263119387de9975d2acba1dfd3392f7c5979c18 upstream.
+commit 6fda41bf12615ee7c3ddac88155099b1a8cf8d00 upstream.
 
-Currently, compat tasks running on arm64 can allocate memory up to
-TASK_SIZE_32 (UL(0x100000000)).
+Some firmwares may reboot CPUs with OS Double Lock set. Make sure that
+it is unlocked, in order to use debug exceptions.
 
-This means that mmap() allocations, if we treat them as returning an
-array, are not compliant with the sections 6.5.8 of the C standard
-(C99) which states that: "If the expression P points to an element of
-an array object and the expression Q points to the last element of the
-same array object, the pointer expression Q+1 compares greater than P".
-
-Redefine TASK_SIZE_32 to address the issue.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Jann Horn <jannh@google.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-[will: fixed typo in comment]
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/processor.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm64/kernel/debug-monitors.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -57,7 +57,15 @@
- #define TASK_SIZE_64		(UL(1) << vabits_user)
- 
- #ifdef CONFIG_COMPAT
-+#ifdef CONFIG_ARM64_64K_PAGES
-+/*
-+ * With CONFIG_ARM64_64K_PAGES enabled, the last page is occupied
-+ * by the compat vectors page.
-+ */
- #define TASK_SIZE_32		UL(0x100000000)
-+#else
-+#define TASK_SIZE_32		(UL(0x100000000) - PAGE_SIZE)
-+#endif /* CONFIG_ARM64_64K_PAGES */
- #define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
- 				TASK_SIZE_32 : TASK_SIZE_64)
- #define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+--- a/arch/arm64/kernel/debug-monitors.c
++++ b/arch/arm64/kernel/debug-monitors.c
+@@ -135,6 +135,7 @@ NOKPROBE_SYMBOL(disable_debug_monitors);
+  */
+ static int clear_os_lock(unsigned int cpu)
+ {
++	write_sysreg(0, osdlr_el1);
+ 	write_sysreg(0, oslar_el1);
+ 	isb();
+ 	return 0;
 
 
