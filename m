@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31BDE236DA
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2822023620
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733009AbfETMRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:17:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
+        id S2389786AbfETM3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:29:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387513AbfETMRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:17:18 -0400
+        id S2389448AbfETM3B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:29:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 191BE216B7;
-        Mon, 20 May 2019 12:17:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79DFB20675;
+        Mon, 20 May 2019 12:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354637;
-        bh=nokEs38bjUraDYfSWIKhMLapxnq4jYlSU8FJAQUzuyM=;
+        s=default; t=1558355341;
+        bh=gjf+mOszHMrKvbqtvIw9132vFb8gT0KeTwcDppoOEo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLrPidz7Efy+KqrOUFnLOyKVayo/0tmHKr9qA7tKlRDQptnTl6N5qEo+1tBHYD3vw
-         Ned2cl8K/GYhlLLJH85x1qEjuwGzTmFSSP8zlyXosn7gJ0wRbOqlgDRxkhZJpUVpm3
-         HlAjM/7HIpvJuGOqanVM0/K5qqboxaI2+MRlzdNI=
+        b=qEsjQLOAHCpyOJ1rWXKv6UIyvWJlm92YRr8vxn8h4m9Al+/Wf9f3t26ve9BBPgQ3j
+         8m3cAycaS4T7YTZoH9WBqSliMwcbL+bPNd/qCudi1xI/L7hNlFzMMp54tcx1x+WAtA
+         1Su5lWbvHR3eo2mPt3RWh3KOwOOD0JK59omjlOvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiran Kolukuluru <kirank@ami.com>,
-        Kamlakant Patel <kamlakantp@marvell.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.9 33/44] ipmi:ssif: compare block number correctly for multi-part return messages
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.0 082/123] ext4: make sanity check in mballoc more strict
 Date:   Mon, 20 May 2019 14:14:22 +0200
-Message-Id: <20190520115235.096491510@linuxfoundation.org>
+Message-Id: <20190520115250.300766252@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamlakant Patel <kamlakantp@marvell.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 55be8658c7e2feb11a5b5b33ee031791dbd23a69 upstream.
+commit 31562b954b60f02acb91b7349dc6432d3f8c3c5f upstream.
 
-According to ipmi spec, block number is a number that is incremented,
-starting with 0, for each new block of message data returned using the
-middle transaction.
+The sanity check in mb_find_extent() only checked that returned extent
+does not extend past blocksize * 8, however it should not extend past
+EXT4_CLUSTERS_PER_GROUP(sb). This can happen when clusters_per_group <
+blocksize * 8 and the tail of the bitmap is not properly filled by 1s
+which happened e.g. when ancient kernels have grown the filesystem.
 
-Here, the 'blocknum' is data[0] which always starts from zero(0) and
-'ssif_info->multi_pos' starts from 1.
-So, we need to add +1 to blocknum while comparing with multi_pos.
-
-Fixes: 7d6380cd40f79 ("ipmi:ssif: Fix handling of multi-part return messages").
-Reported-by: Kiran Kolukuluru <kirank@ami.com>
-Signed-off-by: Kamlakant Patel <kamlakantp@marvell.com>
-Message-Id: <1556106615-18722-1-git-send-email-kamlakantp@marvell.com>
-[Also added a debug log if the block numbers don't match.]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Cc: stable@vger.kernel.org # 4.4
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_ssif.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ext4/mballoc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -699,12 +699,16 @@ static void msg_done_handler(struct ssif
- 			/* End of read */
- 			len = ssif_info->multi_len;
- 			data = ssif_info->data;
--		} else if (blocknum != ssif_info->multi_pos) {
-+		} else if (blocknum + 1 != ssif_info->multi_pos) {
- 			/*
- 			 * Out of sequence block, just abort.  Block
- 			 * numbers start at zero for the second block,
- 			 * but multi_pos starts at one, so the +1.
- 			 */
-+			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
-+				dev_dbg(&ssif_info->client->dev,
-+					"Received message out of sequence, expected %u, got %u\n",
-+					ssif_info->multi_pos - 1, blocknum);
- 			result = -EIO;
- 		} else {
- 			ssif_inc_stat(ssif_info, received_message_parts);
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1539,7 +1539,7 @@ static int mb_find_extent(struct ext4_bu
+ 		ex->fe_len += 1 << order;
+ 	}
+ 
+-	if (ex->fe_start + ex->fe_len > (1 << (e4b->bd_blkbits + 3))) {
++	if (ex->fe_start + ex->fe_len > EXT4_CLUSTERS_PER_GROUP(e4b->bd_sb)) {
+ 		/* Should never happen! (but apparently sometimes does?!?) */
+ 		WARN_ON(1);
+ 		ext4_error(e4b->bd_sb, "corruption or bug in mb_find_extent "
 
 
