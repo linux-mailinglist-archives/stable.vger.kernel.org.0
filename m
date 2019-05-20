@@ -2,85 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D372A24129
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 21:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D30D624131
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 21:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726474AbfETT0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 15:26:38 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:52971 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725616AbfETT0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 15:26:38 -0400
-Received: from mail-wr1-f69.google.com ([209.85.221.69])
-        by youngberry.canonical.com with esmtps (TLS1.0:RSA_AES_128_CBC_SHA1:16)
-        (Exim 4.76)
-        (envelope-from <guilherme.piccoli@canonical.com>)
-        id 1hSnvg-0003s3-9Z
-        for stable@vger.kernel.org; Mon, 20 May 2019 19:26:36 +0000
-Received: by mail-wr1-f69.google.com with SMTP id u3so6777099wro.2
-        for <stable@vger.kernel.org>; Mon, 20 May 2019 12:26:36 -0700 (PDT)
+        id S1726074AbfETT2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 15:28:19 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:52862 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726207AbfETT2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 15:28:18 -0400
+Received: by mail-wm1-f68.google.com with SMTP id y3so503714wmm.2
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 12:28:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=1w+fH/v8RBSWF87o1Wwaj3X+JwCU/nfmU+CgH+VdYgw=;
+        b=eeQIySQgLbMrJSxJsZ6JOx3D+Ejh4BCO3Y4Qdnke/T2NRm38tXjoFDz/d46/Cp7k2C
+         T0Vm/Q0GIA8yDkRmORwFqdq39y8VjKE8BNOgPnopRc41662JICup+Ilf3qIjsUwdXbv2
+         5uQ8+wXgnJQsSLHm5IUX3nCE5XD5JS+xl+KmXeOGKf3EDa2dY4s/01kFqPj+4YKFyV6d
+         CXM2r3vLWYRqu357RIcE73alx8nrHlxqJ/W8z3bmONPkVbp51zJesKTg5E4MizdlYMcT
+         Yk1T1XNlN4vKJq1uHqW1WMm0sVKULdehIcG/5/dpWXL4kw0L+OD4tJzvkZLamF2i2ve7
+         bzFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lxbg0Zx+exe/5ojq2vGcbLz6N2dA2JR9VJrKe0f54rA=;
-        b=BWLs0OREjGwIzIyabGw+RuwrCe0v5YXP5evwWVHTdCpzCHQM/A7DhdMZvxLkslbDs8
-         YFYzIu6gH2+vPAwE//HOkl16mph7VjhGetG5GaLV3/90m+Viw9+VsXvzvMn5c5Rb7PAM
-         0BxXPkC/uVU1wKRkQkO7dteaeMmTXLLmfwbOWTbgUsUg2bTFL5R2tk7aK4Eq2Rzsldtf
-         nlSThrHXn/fe/SSBbaMo8QRfiQv/4XTF1n6CYr0+tWxxT8YKmdIUMxSxySFt6KlWKExk
-         adwA2ccFW9AGguTEQkstgdHqB2nPuDBPA5aWJMJE01RQTuRGqSaEdyxezVEviLJj6liv
-         yhFQ==
-X-Gm-Message-State: APjAAAV2GZrtHhVEDuDToDAIelZFiq227EYk41FchcF7Mj1PD2lmvGrK
-        czpgWF9P36hLw/YkfCNPtVRO/CrV8FR/A9t5z2dj7QDUBcCZUDgPYt5ThK79LqXELwNxEmsFT/C
-        lLjIzd2mDjUkWApMsiR5VPmL+gYsy1HEZZtmpVCdDw6+na+C32w==
-X-Received: by 2002:a7b:cd0e:: with SMTP id f14mr475711wmj.127.1558380396084;
-        Mon, 20 May 2019 12:26:36 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxxJweMgqMgBbY4mcMB78+O5hkcmDDdJ88xym5ZgH6LwviQZapg7tnDsKjXSPPGYbumV/l4HBVtseOW4pY1BAo=
-X-Received: by 2002:a7b:cd0e:: with SMTP id f14mr475684wmj.127.1558380395603;
- Mon, 20 May 2019 12:26:35 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=1w+fH/v8RBSWF87o1Wwaj3X+JwCU/nfmU+CgH+VdYgw=;
+        b=dC0GRYBNMC57cY3UmbgZolHHMU/OIdHr+YDbECyzqsWkqsXMVF+9V6JzWhik1awJfx
+         8jUvrMt6xN/t/bRBEBu/8B84UKfKAzWFJ6M7McvOnqBS4HVTcKfqEHkXUyB7AeRM5dvu
+         rqcNrNbHKNFsvDvPbtuWzbcJMnc6cH8Ym7qtLsiyd0ESMMx9ArnG4DXRkFESk8WGW9cq
+         PcyiADKuyIDr763n08fUX+jnBA25tBEJ4a5OihOEW4RGfHVYNU4qA3a2mIBu7vmsRRT3
+         3vprhSvWoCl1H4byqlDdCE6XMIjiRm4z4mIZSQ+qct1S2nPvuUlvNh2lvtyBs6ctZBaN
+         MvvA==
+X-Gm-Message-State: APjAAAWDwFSWLch1cpeDzlxd++0PCFqy527T/+6U/bX2NJbJ4xgd8U4G
+        6DRA2/saqym7xvQ6HtBPreCXFQ==
+X-Google-Smtp-Source: APXvYqxeci9/TiZ7dSAkbs+57L8vtptqQMe2a7YDH/o2FHva9o7HtVHYQTOg5CIhlxZe0WQ8/WQgAg==
+X-Received: by 2002:a1c:7d8e:: with SMTP id y136mr481983wmc.129.1558380496475;
+        Mon, 20 May 2019 12:28:16 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id h14sm17334290wrt.11.2019.05.20.12.28.15
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 20 May 2019 12:28:15 -0700 (PDT)
+Message-ID: <5ce2ffcf.1c69fb81.2ec6f.f3a5@mx.google.com>
+Date:   Mon, 20 May 2019 12:28:15 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190430223722.20845-1-gpiccoli@canonical.com>
- <20190430223722.20845-2-gpiccoli@canonical.com> <CAPhsuW4SeUhNOJJkEf9wcLjbbc9qX0=C8zqbyCtC7Q8fdL91hw@mail.gmail.com>
- <c8721ba3-5d38-7906-5049-e2b16e967ecf@canonical.com> <CAPhsuW6ahmkUhCgns=9WHPXSvYefB0Gmr1oB7gdZiD86sKyHFg@mail.gmail.com>
- <5CD2A172.4010302@youngman.org.uk> <0ad36b2f-ec36-6930-b587-da0526613567@gpiccoli.net>
- <5CD3096B.4030302@youngman.org.uk> <CALJn8nOTCcOtFJ1SzZAuJxNuxzf2Tq7Yw34h1E5XE-mbn5CUbg@mail.gmail.com>
- <CAPhsuW7AwsWiHiqaW55paqtiCLvt3U9C+sQ50fbBr1v=czATyg@mail.gmail.com>
-In-Reply-To: <CAPhsuW7AwsWiHiqaW55paqtiCLvt3U9C+sQ50fbBr1v=czATyg@mail.gmail.com>
-From:   Guilherme Piccoli <gpiccoli@canonical.com>
-Date:   Mon, 20 May 2019 16:25:59 -0300
-Message-ID: <CAHD1Q_zYXvqAGT3shFx=GcfQ=ZV91LZGEEK1wXsOuBMhrrTyDQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
- raid0 bios
-To:     Song Liu <liu.song.a23@gmail.com>
-Cc:     "Guilherme G. Piccoli" <kernel@gpiccoli.net>,
-        Wols Lists <antlists@youngman.org.uk>, axboe@kernel.dk,
-        linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
-        Gavin Guo <gavin.guo@canonical.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.177-45-g1a569b62b013
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
+References: <20190520115230.720347034@linuxfoundation.org>
+Subject: Re: [PATCH 4.9 00/44] 4.9.178-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 20, 2019 at 1:24 PM Song Liu <liu.song.a23@gmail.com> wrote:
->
-> On Fri, May 17, 2019 at 9:19 AM Guilherme G. Piccoli
->
-> I will process it. It was delayed due to the merge window.
->
-> Thanks,
-> Song
+stable-rc/linux-4.9.y boot: 94 boots: 1 failed, 91 passed with 1 offline, 1=
+ conflict (v4.9.177-45-g1a569b62b013)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.177-45-g1a569b62b013/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.177-45-g1a569b62b013/
 
-Thank you Song! I'm ready to send a v2, just to match the v2 of patch
-"1/2" of this series (but no
-change in this one, except rebase to 5.2-rc1).
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.177-45-g1a569b62b013
+Git Commit: 1a569b62b013b75248598605647b0c077a399c5c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 22 SoC families, 15 builds out of 197
 
-Cheers,
+Boot Regressions Detected:
 
-Guilherme
+arm:
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.9.177)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: new failure (last pass: v4.9.177)
+
+Boot Failure Detected:
+
+arm:
+    qcom_defconfig:
+        gcc-8:
+            qcom-apq8064-cm-qs600: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
