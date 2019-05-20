@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BE5235F6
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B675923686
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390200AbfETMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:30:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47316 "EHLO mail.kernel.org"
+        id S2388978AbfETMZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:25:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390192AbfETMa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:30:56 -0400
+        id S2388944AbfETMZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:25:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D54F20645;
-        Mon, 20 May 2019 12:30:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5C9E20675;
+        Mon, 20 May 2019 12:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355455;
-        bh=K54YEflfXLM4VSAwoRJKIcxe1vnu5XR84RhZ3XiT9mE=;
+        s=default; t=1558355104;
+        bh=ZkGxzEZLWwXrpJJkC8GbzMTCaMlIEBREVKnobzH24Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DiyGGqy8uvLVZUw2h9JFQ3gnDuKuJyAppeOxABVGP5raS5YMhsJbqRFQq33KfKmQ2
-         2mStOAs2jRPAUO76uH5ig5I8i20PiBK9+NeUOapFRw6Y/+CHEvOvkmd3gk1eoKKw0B
-         yVSBb0LVYnKEIdze3aj+gqnqeIvZw1AIqP5glMwc=
+        b=GJb9uMNbIB046kV77s2WPWn9gUvLLkK6E1ED42G7Zb0v6TrZh/l7nKXK3rvMRCMKd
+         usvxv9HfW4RKkCuLq2/CeI9agI90if/Eoxm5xitsn+vUzXmhy2t9qsgHWc/f0xDPM4
+         WfYnqPAPxxvfFOwJL8M2HTxdo8xxwXghPPod878Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.0 105/123] ext4: avoid panic during forced reboot due to aborted journal
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>
+Subject: [PATCH 4.19 099/105] pstore: Centralize init/exit routines
 Date:   Mon, 20 May 2019 14:14:45 +0200
-Message-Id: <20190520115252.032767836@linuxfoundation.org>
+Message-Id: <20190520115254.063413847@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Kees Cook <keescook@chromium.org>
 
-commit 2c1d0e3631e5732dba98ef49ac0bec1388776793 upstream.
+commit cb095afd44768bf495894b9ad063bd078e4bb201 upstream.
 
-Handling of aborted journal is a special code path different from
-standard ext4_error() one and it can call panic() as well. Commit
-1dc1097ff60e ("ext4: avoid panic during forced reboot") forgot to update
-this path so fix that omission.
+In preparation for having additional actions during init/exit, this moves
+the init/exit into platform.c, centralizing the logic to make call outs
+to the fs init/exit.
 
-Fixes: 1dc1097ff60e ("ext4: avoid panic during forced reboot")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org # 5.1
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Tested-by: Guenter Roeck <groeck@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/pstore/inode.c    |   11 ++---------
+ fs/pstore/internal.h |    5 +++--
+ fs/pstore/platform.c |   23 +++++++++++++++++++++++
+ 3 files changed, 28 insertions(+), 11 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -698,7 +698,7 @@ void __ext4_abort(struct super_block *sb
- 			jbd2_journal_abort(EXT4_SB(sb)->s_journal, -EIO);
- 		save_error_info(sb, function, line);
+--- a/fs/pstore/inode.c
++++ b/fs/pstore/inode.c
+@@ -482,12 +482,10 @@ static struct file_system_type pstore_fs
+ 	.kill_sb	= pstore_kill_sb,
+ };
+ 
+-static int __init init_pstore_fs(void)
++int __init pstore_init_fs(void)
+ {
+ 	int err;
+ 
+-	pstore_choose_compression();
+-
+ 	/* Create a convenient mount point for people to access pstore */
+ 	err = sysfs_create_mount_point(fs_kobj, "pstore");
+ 	if (err)
+@@ -500,14 +498,9 @@ static int __init init_pstore_fs(void)
+ out:
+ 	return err;
+ }
+-module_init(init_pstore_fs)
+ 
+-static void __exit exit_pstore_fs(void)
++void __exit pstore_exit_fs(void)
+ {
+ 	unregister_filesystem(&pstore_fs_type);
+ 	sysfs_remove_mount_point(fs_kobj, "pstore");
+ }
+-module_exit(exit_pstore_fs)
+-
+-MODULE_AUTHOR("Tony Luck <tony.luck@intel.com>");
+-MODULE_LICENSE("GPL");
+--- a/fs/pstore/internal.h
++++ b/fs/pstore/internal.h
+@@ -37,7 +37,8 @@ extern bool	pstore_is_mounted(void);
+ extern void	pstore_record_init(struct pstore_record *record,
+ 				   struct pstore_info *psi);
+ 
+-/* Called during module_init() */
+-extern void __init pstore_choose_compression(void);
++/* Called during pstore init/exit. */
++int __init	pstore_init_fs(void);
++void __exit	pstore_exit_fs(void);
+ 
+ #endif
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -780,8 +780,31 @@ void __init pstore_choose_compression(vo
  	}
--	if (test_opt(sb, ERRORS_PANIC)) {
-+	if (test_opt(sb, ERRORS_PANIC) && !system_going_down()) {
- 		if (EXT4_SB(sb)->s_journal &&
- 		  !(EXT4_SB(sb)->s_journal->j_flags & JBD2_REC_ERR))
- 			return;
+ }
+ 
++static int __init pstore_init(void)
++{
++	int ret;
++
++	pstore_choose_compression();
++
++	ret = pstore_init_fs();
++	if (ret)
++		return ret;
++
++	return 0;
++}
++module_init(pstore_init)
++
++static void __exit pstore_exit(void)
++{
++	pstore_exit_fs();
++}
++module_exit(pstore_exit)
++
+ module_param(compress, charp, 0444);
+ MODULE_PARM_DESC(compress, "Pstore compression to use");
+ 
+ module_param(backend, charp, 0444);
+ MODULE_PARM_DESC(backend, "Pstore backend to use");
++
++MODULE_AUTHOR("Tony Luck <tony.luck@intel.com>");
++MODULE_LICENSE("GPL");
 
 
