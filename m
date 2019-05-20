@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 856362335F
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 100A02373D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732798AbfETMQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56888 "EHLO mail.kernel.org"
+        id S2388528AbfETMXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732794AbfETMQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:16:13 -0400
+        id S2388523AbfETMXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:23:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E92C20862;
-        Mon, 20 May 2019 12:16:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39BFA21707;
+        Mon, 20 May 2019 12:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558354572;
-        bh=hSBsjb0qBcj82K4Q4as66E42q3kuDe2ckcAVEud7e94=;
+        s=default; t=1558354985;
+        bh=QpaUKX3LPyScbe8xYTkn2ByVodrxAj4NIAZUgOtlupc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4wrao6xPLWLrHsR1ptcdjSLujSlYkIbI1m0607WJlyZZKkjLJFYi3yqko2azmsRi
-         PS1wcR0LsHpUwUyLcEZEE6ywiem95V/Zm06HvAC+rF22M5dJ3VIUieshacWa5bGzDO
-         ukhqes/+gvJhF2hAJV93m6z/kKekTrZxe9EhBENI=
+        b=o8woCYSpUb7DQG+QmwWMNWRabyrDLYG82RkGBScgf94LViU9YcD0pn1oEttguI41D
+         UNwy0PGMPhzubop2m5N+hFOHiG+SmWYzZpMzKkzx8m76RoSJ9+r6B+WpyWsc/Tq+gO
+         I89FA6NSHQGjanHwlx16iYenCCaXSg4wy1PzkaOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 11/44] sched/x86: Save [ER]FLAGS on context switch
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Piotr Balcer <piotr.balcer@intel.com>,
+        Yan Ma <yan.ma@intel.com>, Pankaj Gupta <pagupta@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Chandan Rajendra <chandan@linux.ibm.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 054/105] mm/huge_memory: fix vmf_insert_pfn_{pmd, pud}() crash, handle unaligned addresses
 Date:   Mon, 20 May 2019 14:14:00 +0200
-Message-Id: <20190520115232.329399629@linuxfoundation.org>
+Message-Id: <20190520115250.801117859@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
-References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,128 +50,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 6690e86be83ac75832e461c141055b5d601c0a6d upstream.
+commit fce86ff5802bac3a7b19db171aa1949ef9caac31 upstream.
 
-Effectively reverts commit:
+Starting with c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page
+protection by insert_pfn_pmd()") vmf_insert_pfn_pmd() internally calls
+pmdp_set_access_flags().  That helper enforces a pmd aligned @address
+argument via VM_BUG_ON() assertion.
 
-  2c7577a75837 ("sched/x86_64: Don't save flags on context switch")
+Update the implementation to take a 'struct vm_fault' argument directly
+and apply the address alignment fixup internally to fix crash signatures
+like:
 
-Specifically because SMAP uses FLAGS.AC which invalidates the claim
-that the kernel has clean flags.
+    kernel BUG at arch/x86/mm/pgtable.c:515!
+    invalid opcode: 0000 [#1] SMP NOPTI
+    CPU: 51 PID: 43713 Comm: java Tainted: G           OE     4.19.35 #1
+    [..]
+    RIP: 0010:pmdp_set_access_flags+0x48/0x50
+    [..]
+    Call Trace:
+     vmf_insert_pfn_pmd+0x198/0x350
+     dax_iomap_fault+0xe82/0x1190
+     ext4_dax_huge_fault+0x103/0x1f0
+     ? __switch_to_asm+0x40/0x70
+     __handle_mm_fault+0x3f6/0x1370
+     ? __switch_to_asm+0x34/0x70
+     ? __switch_to_asm+0x40/0x70
+     handle_mm_fault+0xda/0x200
+     __do_page_fault+0x249/0x4f0
+     do_page_fault+0x32/0x110
+     ? page_fault+0x8/0x30
+     page_fault+0x1e/0x30
 
-In particular; while preemption from interrupt return is fine (the
-IRET frame on the exception stack contains FLAGS) it breaks any code
-that does synchonous scheduling, including preempt_enable().
-
-This has become a significant issue ever since commit:
-
-  5b24a7a2aa20 ("Add 'unsafe' user access functions for batched accesses")
-
-provided for means of having 'normal' C code between STAC / CLAC,
-exposing the FLAGS.AC state. So far this hasn't led to trouble,
-however fix it before it comes apart.
-
-Reported-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@kernel.org
-Fixes: 5b24a7a2aa20 ("Add 'unsafe' user access functions for batched accesses")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lkml.kernel.org/r/155741946350.372037.11148198430068238140.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: c6f3c5ee40c1 ("mm/huge_memory.c: fix modifying of page protection by insert_pfn_pmd()")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: Piotr Balcer <piotr.balcer@intel.com>
+Tested-by: Yan Ma <yan.ma@intel.com>
+Tested-by: Pankaj Gupta <pagupta@redhat.com>
+Reviewed-by: Matthew Wilcox <willy@infradead.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Chandan Rajendra <chandan@linux.ibm.com>
+Cc: Souptick Joarder <jrdr.linux@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/entry_32.S        |    2 ++
- arch/x86/entry/entry_64.S        |    2 ++
- arch/x86/include/asm/switch_to.h |    1 +
- arch/x86/kernel/process_32.c     |    7 +++++++
- arch/x86/kernel/process_64.c     |    8 ++++++++
- 5 files changed, 20 insertions(+)
+ drivers/dax/device.c    |    6 ++----
+ fs/dax.c                |    6 ++----
+ include/linux/huge_mm.h |    6 ++----
+ mm/huge_memory.c        |   16 ++++++++++------
+ 4 files changed, 16 insertions(+), 18 deletions(-)
 
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -219,6 +219,7 @@ ENTRY(__switch_to_asm)
- 	pushl	%ebx
- 	pushl	%edi
- 	pushl	%esi
-+	pushfl
+--- a/drivers/dax/device.c
++++ b/drivers/dax/device.c
+@@ -325,8 +325,7 @@ static vm_fault_t __dev_dax_pmd_fault(st
  
- 	/* switch stack */
- 	movl	%esp, TASK_threadsp(%eax)
-@@ -241,6 +242,7 @@ ENTRY(__switch_to_asm)
+ 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+ 
+-	return vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd, *pfn,
+-			vmf->flags & FAULT_FLAG_WRITE);
++	return vmf_insert_pfn_pmd(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
+ }
+ 
+ #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+@@ -376,8 +375,7 @@ static vm_fault_t __dev_dax_pud_fault(st
+ 
+ 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+ 
+-	return vmf_insert_pfn_pud(vmf->vma, vmf->address, vmf->pud, *pfn,
+-			vmf->flags & FAULT_FLAG_WRITE);
++	return vmf_insert_pfn_pud(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
+ }
+ #else
+ static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -1660,8 +1660,7 @@ static vm_fault_t dax_iomap_pmd_fault(st
+ 		}
+ 
+ 		trace_dax_pmd_insert_mapping(inode, vmf, PMD_SIZE, pfn, entry);
+-		result = vmf_insert_pfn_pmd(vma, vmf->address, vmf->pmd, pfn,
+-					    write);
++		result = vmf_insert_pfn_pmd(vmf, pfn, write);
+ 		break;
+ 	case IOMAP_UNWRITTEN:
+ 	case IOMAP_HOLE:
+@@ -1775,8 +1774,7 @@ static vm_fault_t dax_insert_pfn_mkwrite
+ 		break;
+ #ifdef CONFIG_FS_DAX_PMD
+ 	case PE_SIZE_PMD:
+-		ret = vmf_insert_pfn_pmd(vmf->vma, vmf->address, vmf->pmd,
+-			pfn, true);
++		ret = vmf_insert_pfn_pmd(vmf, pfn, FAULT_FLAG_WRITE);
+ 		break;
  #endif
+ 	default:
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -47,10 +47,8 @@ extern bool move_huge_pmd(struct vm_area
+ extern int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
+ 			unsigned long addr, pgprot_t newprot,
+ 			int prot_numa);
+-vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
+-			pmd_t *pmd, pfn_t pfn, bool write);
+-vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
+-			pud_t *pud, pfn_t pfn, bool write);
++vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write);
++vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write);
+ enum transparent_hugepage_flag {
+ 	TRANSPARENT_HUGEPAGE_FLAG,
+ 	TRANSPARENT_HUGEPAGE_REQ_MADV_FLAG,
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -772,11 +772,13 @@ out_unlock:
+ 		pte_free(mm, pgtable);
+ }
  
- 	/* restore callee-saved registers */
-+	popfl
- 	popl	%esi
- 	popl	%edi
- 	popl	%ebx
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -313,6 +313,7 @@ ENTRY(__switch_to_asm)
- 	pushq	%r13
- 	pushq	%r14
- 	pushq	%r15
-+	pushfq
- 
- 	/* switch stack */
- 	movq	%rsp, TASK_threadsp(%rdi)
-@@ -335,6 +336,7 @@ ENTRY(__switch_to_asm)
- #endif
- 
- 	/* restore callee-saved registers */
-+	popfq
- 	popq	%r15
- 	popq	%r14
- 	popq	%r13
---- a/arch/x86/include/asm/switch_to.h
-+++ b/arch/x86/include/asm/switch_to.h
-@@ -35,6 +35,7 @@ asmlinkage void ret_from_fork(void);
- 
- /* data that is pointed to by thread.sp */
- struct inactive_task_frame {
-+	unsigned long flags;
- #ifdef CONFIG_X86_64
- 	unsigned long r15;
- 	unsigned long r14;
---- a/arch/x86/kernel/process_32.c
-+++ b/arch/x86/kernel/process_32.c
-@@ -129,6 +129,13 @@ int copy_thread_tls(unsigned long clone_
- 	struct task_struct *tsk;
- 	int err;
- 
-+	/*
-+	 * For a new task use the RESET flags value since there is no before.
-+	 * All the status flags are zero; DF and all the system flags must also
-+	 * be 0, specifically IF must be 0 because we context switch to the new
-+	 * task with interrupts disabled.
-+	 */
-+	frame->flags = X86_EFLAGS_FIXED;
- 	frame->bp = 0;
- 	frame->ret_addr = (unsigned long) ret_from_fork;
- 	p->thread.sp = (unsigned long) fork_frame;
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -268,6 +268,14 @@ int copy_thread_tls(unsigned long clone_
- 	childregs = task_pt_regs(p);
- 	fork_frame = container_of(childregs, struct fork_frame, regs);
- 	frame = &fork_frame->frame;
+-vm_fault_t vmf_insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
+-			pmd_t *pmd, pfn_t pfn, bool write)
++vm_fault_t vmf_insert_pfn_pmd(struct vm_fault *vmf, pfn_t pfn, bool write)
+ {
++	unsigned long addr = vmf->address & PMD_MASK;
++	struct vm_area_struct *vma = vmf->vma;
+ 	pgprot_t pgprot = vma->vm_page_prot;
+ 	pgtable_t pgtable = NULL;
 +
-+	/*
-+	 * For a new task use the RESET flags value since there is no before.
-+	 * All the status flags are zero; DF and all the system flags must also
-+	 * be 0, specifically IF must be 0 because we context switch to the new
-+	 * task with interrupts disabled.
-+	 */
-+	frame->flags = X86_EFLAGS_FIXED;
- 	frame->bp = 0;
- 	frame->ret_addr = (unsigned long) ret_from_fork;
- 	p->thread.sp = (unsigned long) fork_frame;
+ 	/*
+ 	 * If we had pmd_special, we could avoid all these restrictions,
+ 	 * but we need to be consistent with PTEs and architectures that
+@@ -799,7 +801,7 @@ vm_fault_t vmf_insert_pfn_pmd(struct vm_
+ 
+ 	track_pfn_insert(vma, &pgprot, pfn);
+ 
+-	insert_pfn_pmd(vma, addr, pmd, pfn, pgprot, write, pgtable);
++	insert_pfn_pmd(vma, addr, vmf->pmd, pfn, pgprot, write, pgtable);
+ 	return VM_FAULT_NOPAGE;
+ }
+ EXPORT_SYMBOL_GPL(vmf_insert_pfn_pmd);
+@@ -848,10 +850,12 @@ out_unlock:
+ 	spin_unlock(ptl);
+ }
+ 
+-vm_fault_t vmf_insert_pfn_pud(struct vm_area_struct *vma, unsigned long addr,
+-			pud_t *pud, pfn_t pfn, bool write)
++vm_fault_t vmf_insert_pfn_pud(struct vm_fault *vmf, pfn_t pfn, bool write)
+ {
++	unsigned long addr = vmf->address & PUD_MASK;
++	struct vm_area_struct *vma = vmf->vma;
+ 	pgprot_t pgprot = vma->vm_page_prot;
++
+ 	/*
+ 	 * If we had pud_special, we could avoid all these restrictions,
+ 	 * but we need to be consistent with PTEs and architectures that
+@@ -868,7 +872,7 @@ vm_fault_t vmf_insert_pfn_pud(struct vm_
+ 
+ 	track_pfn_insert(vma, &pgprot, pfn);
+ 
+-	insert_pfn_pud(vma, addr, pud, pfn, pgprot, write);
++	insert_pfn_pud(vma, addr, vmf->pud, pfn, pgprot, write);
+ 	return VM_FAULT_NOPAGE;
+ }
+ EXPORT_SYMBOL_GPL(vmf_insert_pfn_pud);
 
 
