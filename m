@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CFB0235EE
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A9523715
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388394AbfETMli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S2388072AbfETMU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390277AbfETMbM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:31:12 -0400
+        id S2388067AbfETMU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:20:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 290EA21721;
-        Mon, 20 May 2019 12:31:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D23C214AE;
+        Mon, 20 May 2019 12:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355471;
-        bh=rzy736CsgS0Y3zt/uwrEMZnuY8Zf2XnsR1lqWDYGqlg=;
+        s=default; t=1558354857;
+        bh=YFU/QKlpZL71fZy6JIevh2vlJq1wS1U6jP3tgfScQ7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/VW0c5dvt9RSuvvaOe8dCOGZCcuVsH40e4vz8FqzIjWYH6+UJinioVT4VhkVfZ0r
-         yVqXd4BD6sbH98sq3WNvmxG08iIXM5NdzA2IyKG9im92py1Q8sE5+kUZOikshMMxGC
-         hKSVmfEDoOdcvYdYKU594Ze/TW6BmXW9lq9q8fas=
+        b=yifoIw2t/17DAI73z7QpPitXX+FBCcNUw7P4LblF6jYtwLpseuPdU4hCx+b6wRO70
+         GFp4dFumMFXeikKZLiW+WKLIh/TPi+HNXRx6GfTmQCt4F2nIVyKCTIDTY8UtgHeT8c
+         iDqAmK8Dm4opSjtmj94IKln4LBx40ZVPhbrobJlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anup Patel <anup.patel@wdc.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmer@sifive.com>
-Subject: [PATCH 5.0 101/123] tty: Dont force RISCV SBI console as preferred console
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH 4.14 62/63] iov_iter: optimize page_copy_sane()
 Date:   Mon, 20 May 2019 14:14:41 +0200
-Message-Id: <20190520115251.749150249@linuxfoundation.org>
+Message-Id: <20190520115237.780771243@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <Anup.Patel@wdc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit f91253a3d005796404ae0e578b3394459b5f9b71 upstream.
+commit 6daef95b8c914866a46247232a048447fff97279 upstream.
 
-The Linux kernel will auto-disables all boot consoles whenever it
-gets a preferred real console.
+Avoid cache line miss dereferencing struct page if we can.
 
-Currently on RISC-V systems, if we have a real console which is not
-RISCV SBI console then boot consoles (such as earlycon=sbi) are not
-auto-disabled when a real console (ttyS0 or ttySIF0) is available.
-This results in duplicate prints at boot-time after kernel starts
-using real console (i.e. ttyS0 or ttySIF0) if "earlycon=" kernel
-parameter was passed by bootloader.
+page_copy_sane() mostly deals with order-0 pages.
 
-The reason for above issue is that RISCV SBI console always adds
-itself as preferred console which is causing other real consoles
-to be not used as preferred console.
+Extra cache line miss is visible on TCP recvmsg() calls dealing
+with GRO packets (typically 45 page frags are attached to one skb).
 
-Ideally "console=" kernel parameter passed by bootloaders should
-be the one selecting a preferred real console.
+Bringing the 45 struct pages into cpu cache while copying the data
+is not free, since the freeing of the skb (and associated
+page frags put_page()) can happen after cache lines have been evicted.
 
-This patch fixes above issue by not forcing RISCV SBI console as
-preferred console.
-
-Fixes: afa6b1ccfad5 ("tty: New RISC-V SBI console driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anup Patel <anup.patel@wdc.com>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/hvc/hvc_riscv_sbi.c |    1 -
- 1 file changed, 1 deletion(-)
+ lib/iov_iter.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/hvc/hvc_riscv_sbi.c
-+++ b/drivers/tty/hvc/hvc_riscv_sbi.c
-@@ -53,7 +53,6 @@ device_initcall(hvc_sbi_init);
- static int __init hvc_sbi_console_init(void)
- {
- 	hvc_instantiate(0, 0, &hvc_sbi_ops);
--	add_preferred_console("hvc", 0, NULL);
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -687,8 +687,21 @@ EXPORT_SYMBOL(_copy_from_iter_full_nocac
  
- 	return 0;
- }
+ static inline bool page_copy_sane(struct page *page, size_t offset, size_t n)
+ {
+-	struct page *head = compound_head(page);
+-	size_t v = n + offset + page_address(page) - page_address(head);
++	struct page *head;
++	size_t v = n + offset;
++
++	/*
++	 * The general case needs to access the page order in order
++	 * to compute the page size.
++	 * However, we mostly deal with order-0 pages and thus can
++	 * avoid a possible cache line miss for requests that fit all
++	 * page orders.
++	 */
++	if (n <= v && v <= PAGE_SIZE)
++		return true;
++
++	head = compound_head(page);
++	v += (page - head) << PAGE_SHIFT;
+ 
+ 	if (likely(n <= v && v <= (PAGE_SIZE << compound_order(head))))
+ 		return true;
 
 
