@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD8C235E1
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6319423409
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390530AbfETMkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
+        id S2388459AbfETMWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388722AbfETMcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:32:41 -0400
+        id S2387993AbfETMWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:22:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E535D204FD;
-        Mon, 20 May 2019 12:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C780621773;
+        Mon, 20 May 2019 12:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355560;
-        bh=nWPuQFxqZUgeHjRnCjzBs8qkng3cSOzOIt2yESDSQ7E=;
+        s=default; t=1558354959;
+        bh=xxLEzmsGULtUDU3Io0agV8eEWFU+4vqzpgbIFY8kxKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zdNBZClTABhYeW11SGulRCZg1AZhKN5c5Th3ZuOocmD3f+gEV4FuHJtrYsMQGJ5TR
-         cw4aGtQopYO3CRsRNQ6xzBY68ait7KpPF+M2UjW3+9eNmkoBMk6Vhf0DYn8DOuAH0o
-         DD/lnJZ/UetE8wMK4qSCDBovIENkRheF2wxB/Ld0=
+        b=zzZWyyvuc6MOl78EH2ZTStDI0VkO+rmhPxGUknxO0SPPlvyUYCK0xNMfu8V0vFxsW
+         roJXRIaYMoWO/I8A/WtKWZBcf1HU7Rs9TsNcsTwcDboA/z5/U7QYMHrYXrf2Gyguup
+         a7eIXuxrL9d+mdYJK2C+E78mRBIoRBeR2sj1/a9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Katsuhiro Suzuki <katsuhiro@katsuster.net>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.1 005/128] arm64: dts: rockchip: fix IO domain voltage setting of APIO5 on rockpro64
+        stable@vger.kernel.org,
+        Stuart Menefy <stuart.menefy@mathembedded.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.19 006/105] ARM: dts: exynos: Fix interrupt for shared EINTs on Exynos5260
 Date:   Mon, 20 May 2019 14:13:12 +0200
-Message-Id: <20190520115249.812882782@linuxfoundation.org>
+Message-Id: <20190520115247.492967613@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+References: <20190520115247.060821231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+From: Stuart Menefy <stuart.menefy@mathembedded.com>
 
-commit 798689e45190756c2eca6656ee4c624370a5012a upstream.
+commit b7ed69d67ff0788d8463e599dd5dd1b45c701a7e upstream.
 
-This patch fixes IO domain voltage setting that is related to
-audio_gpio3d4a_ms (bit 1) of GRF_IO_VSEL.
+Fix the interrupt information for the GPIO lines with a shared EINT
+interrupt.
 
-This is because RockPro64 schematics P.16 says that regulator
-supplies 3.0V power to APIO5_VDD. So audio_gpio3d4a_ms bit should
-be clear (means 3.0V). Power domain map is saying different thing
-(supplies 1.8V) but I believe P.16 is actual connectings.
-
-Fixes: e4f3fb490967 ("arm64: dts: rockchip: add initial dts support for Rockpro64")
+Fixes: 16d7ff2642e7 ("ARM: dts: add dts files for exynos5260 SoC")
 Cc: stable@vger.kernel.org
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Stuart Menefy <stuart.menefy@mathembedded.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts |    2 +-
+ arch/arm/boot/dts/exynos5260.dtsi |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-@@ -504,7 +504,7 @@
- 	status = "okay";
+--- a/arch/arm/boot/dts/exynos5260.dtsi
++++ b/arch/arm/boot/dts/exynos5260.dtsi
+@@ -223,7 +223,7 @@
+ 			wakeup-interrupt-controller {
+ 				compatible = "samsung,exynos4210-wakeup-eint";
+ 				interrupt-parent = <&gic>;
+-				interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
++				interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
+ 			};
+ 		};
  
- 	bt656-supply = <&vcc1v8_dvp>;
--	audio-supply = <&vcca1v8_codec>;
-+	audio-supply = <&vcc_3v0>;
- 	sdmmc-supply = <&vcc_sdio>;
- 	gpio1830-supply = <&vcc_3v0>;
- };
 
 
