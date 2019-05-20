@@ -2,154 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4CD22957
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 00:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC0E2297D
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 02:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbfESWas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 May 2019 18:30:48 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37244 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726062AbfESWar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 May 2019 18:30:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
-        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=l3rRABaJE+hXc0kSwgpaBAIU9xkmeuYS6LaIOoNA094=; b=TUD/SZZmgnyAQbevERd5gSUA0
-        9nUV9ajr1GHTfsy3Bjj7Pvpmwm1G0ecShTqACLJCfd4azEDfqkvZyAhXqWfmBN9yjZpSINeNeSlM1
-        Sz2K0fW64vRhXscwrrHhE5zgPkgc0iy4mfon5uhep/p3JlGgVqUYWvlsg848JysG1JTC0=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hSUKL-0001Gf-7l; Sun, 19 May 2019 22:30:45 +0000
-Received: from broonie by optimist with local (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hSUKK-0001r5-18; Sun, 19 May 2019 23:30:44 +0100
-From:   Build bot for Mark Brown <broonie@kernel.org>
-To:     kernel-build-reports@lists.linaro.org,
-        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
-Subject: v5.1.3 build: 0 failures 10 warnings (v5.1.3)
-Message-Id: <E1hSUKK-0001r5-18@optimist>
-Date:   Sun, 19 May 2019 23:30:44 +0100
+        id S1729569AbfETALD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 May 2019 20:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727391AbfETALD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 May 2019 20:11:03 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4324020675;
+        Mon, 20 May 2019 00:11:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558311062;
+        bh=ViChPQlVCmuJP4DeAj0GffvTOE0giQmWa+adK7cNeC8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eYKhzaYHJAFt8HVFi1j65Bt//wfJFu6PyyY38G1ZMQAY1oWrDJ4Bw6ptsFHP4XAqV
+         o5uO3L6oPs3Rvl/5+wiIXztNFHaUzyc6f2nOKhLL4OWLeZQMVFpF7m+PtRjj1A1eTs
+         OerN6JTvCtpn+0NxKY0vivAm+QQXpIFPoi3bZz6E=
+Date:   Sun, 19 May 2019 20:11:01 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Thomas Haller <thaller@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: Re: [PATCH 4.9 41/51] fib_rules: return 0 directly if an exactly
+ same rule exists when NLM_F_EXCL not supplied
+Message-ID: <20190520001101.GE11972@sasha-vm>
+References: <20190515090616.669619870@linuxfoundation.org>
+ <20190515090628.066392616@linuxfoundation.org>
+ <20190519154348.GA113991@archlinux-epyc>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190519154348.GA113991@archlinux-epyc>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tree/Branch: v5.1.3
-Git describe: v5.1.3
-Commit: 7cb9c5d341 Linux 5.1.3
+On Sun, May 19, 2019 at 08:43:48AM -0700, Nathan Chancellor wrote:
+>On Wed, May 15, 2019 at 12:56:16PM +0200, Greg Kroah-Hartman wrote:
+>> From: Hangbin Liu <liuhangbin@gmail.com>
+>>
+>> [ Upstream commit e9919a24d3022f72bcadc407e73a6ef17093a849 ]
+>>
+>> With commit 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to
+>> fib_nl_newrule") we now able to check if a rule already exists. But this
+>> only works with iproute2. For other tools like libnl, NetworkManager,
+>> it still could add duplicate rules with only NLM_F_CREATE flag, like
+>>
+>> [localhost ~ ]# ip rule
+>> 0:      from all lookup local
+>> 32766:  from all lookup main
+>> 32767:  from all lookup default
+>> 100000: from 192.168.7.5 lookup 5
+>> 100000: from 192.168.7.5 lookup 5
+>>
+>> As it doesn't make sense to create two duplicate rules, let's just return
+>> 0 if the rule exists.
+>>
+>> Fixes: 153380ec4b9 ("fib_rules: Added NLM_F_EXCL support to fib_nl_newrule")
+>> Reported-by: Thomas Haller <thaller@redhat.com>
+>> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> ---
+>>  net/core/fib_rules.c |    6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> --- a/net/core/fib_rules.c
+>> +++ b/net/core/fib_rules.c
+>> @@ -429,9 +429,9 @@ int fib_nl_newrule(struct sk_buff *skb,
+>>  	if (rule->l3mdev && rule->table)
+>>  		goto errout_free;
+>>
+>> -	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
+>> -	    rule_exists(ops, frh, tb, rule)) {
+>> -		err = -EEXIST;
+>> +	if (rule_exists(ops, frh, tb, rule)) {
+>> +		if (nlh->nlmsg_flags & NLM_F_EXCL)
+>> +			err = -EEXIST;
+>>  		goto errout_free;
+>>  	}
+>>
+>>
+>>
+>
+>Hi all,
+>
+>This commit is causing issues on Android devices when Wi-Fi and mobile
+>data are both enabled. The device will do a soft reboot consistently.
+>So far, I've had reports on the Pixel 3 XL, OnePlus 6, Pocophone, and
+>Note 9 and I can reproduce on my OnePlus 6.
 
-Build Time: 139 min 4 sec
+Is this something that happens with Linus's tree as well? or is this a
+backport issue?
 
-Passed:   11 / 11   (100.00 %)
-Failed:    0 / 11   (  0.00 %)
+>Sorry for taking so long to report this, I just figured out how to
+>reproduce it today and I didn't want to report it without that.
 
-Errors: 0
-Warnings: 10
-Section Mismatches: 0
+FWIW, if you see anything suspicious with -stable patches just let us
+know separately from a "better" bug report for upstream, then we can at
+least temporary pull it out of the stable queue while the issue is being
+addressed.
 
--------------------------------------------------------------------------------
-defconfigs with issues (other than build errors):
-      1 warnings    0 mismatches  : arm64-allmodconfig
-      5 warnings    0 mismatches  : arm-multi_v5_defconfig
-      5 warnings    0 mismatches  : arm-multi_v7_defconfig
-      9 warnings    0 mismatches  : arm-allmodconfig
-      5 warnings    0 mismatches  : arm-multi_v4t_defconfig
-      3 warnings    0 mismatches  : x86_64-allmodconfig
-      1 warnings    0 mismatches  : arm64-defconfig
-
--------------------------------------------------------------------------------
-
-Warnings Summary: 10
-	  8 ../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	  4 ../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
-	  3 ../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	  3 ../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	  2 ../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	  1 ../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
-	  1 ../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
-
-
-===============================================================================
-Detailed per-defconfig build reports below:
-
-
--------------------------------------------------------------------------------
-arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
-
-Warnings:
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
--------------------------------------------------------------------------------
-arm-multi_v5_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
-
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
-
--------------------------------------------------------------------------------
-arm-multi_v7_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
-
-Warnings:
-	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
--------------------------------------------------------------------------------
-arm-allmodconfig : PASS, 0 errors, 9 warnings, 0 section mismatches
-
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
--------------------------------------------------------------------------------
-arm-multi_v4t_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
-
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4763:38: warning: array subscript is above array bounds [-Warray-bounds]
-
--------------------------------------------------------------------------------
-x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
-
-Warnings:
-	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-
--------------------------------------------------------------------------------
-arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
-
-Warnings:
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
--------------------------------------------------------------------------------
-
-Passed with no errors, warnings or mismatches:
-
-x86_64-allnoconfig
-arm64-allnoconfig
-arm-allnoconfig
-x86_64-defconfig
+--
+Thanks,
+Sasha
