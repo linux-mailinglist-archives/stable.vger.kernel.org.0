@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7DE2353A
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AAB23700
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390812AbfETMdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:33:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51014 "EHLO mail.kernel.org"
+        id S1731745AbfETMTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390807AbfETMdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:33:52 -0400
+        id S1731671AbfETMT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:19:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22295204FD;
-        Mon, 20 May 2019 12:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6B1E20656;
+        Mon, 20 May 2019 12:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355631;
-        bh=N9QFeO4yQVMQCWzkv0CVm3igV/vAF6zg1t8BEEZGIbY=;
+        s=default; t=1558354769;
+        bh=47h56TplLtOuTZk9bZBytonkt83xqba2oE7Wh9cojE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w+pOkUbpOVhMb+J/2Q+eKdsE7FBJhDA10aLQhUnQpMZ8UUTsfnw9Dz9D4pCJHfyrq
-         8WPUZj+7uBRrMWjqLCJzxB2QjtjeniMMsdB9TG6vJXGw9JaAuC7cYOAzMLkDXT8XmS
-         cGBm2Zig3rNvHvEBZeTyxDzGjBlskFloolQ7ufFc=
+        b=jVaRXVROLHHEWh9VwhBlQFmASw+nRLABTIyKdEYTQSaGysX2v1wD1I3ijQk0Ur4JY
+         wTjmLkT3FJeklSK64cf7qCWZ3TYaAzYFvZ5Cm7a723VbFnGJ23KugS1inrFvGwv06W
+         I9KS0PIUI5R8A8QK9fH2ECYZybpQSMwoVk6uo1uM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 066/128] crypto: ccree - HOST_POWER_DOWN_EN should be the last CC access during suspend
-Date:   Mon, 20 May 2019 14:14:13 +0200
-Message-Id: <20190520115254.272856830@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 35/63] mfd: da9063: Fix OTP control register names to match datasheets for DA9063/63L
+Date:   Mon, 20 May 2019 14:14:14 +0200
+Message-Id: <20190520115235.157532022@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Drang <ofir.drang@arm.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-commit 3499efbeed39d114873267683b9e776bcb34b058 upstream.
+commit 6b4814a9451add06d457e198be418bf6a3e6a990 upstream.
 
-During power management suspend the driver need to prepare the device
-for the power down operation and as a last indication write to the
-HOST_POWER_DOWN_EN register which signals to the hardware that
-The ccree is ready for power down.
+Mismatch between what is found in the Datasheets for DA9063 and DA9063L
+provided by Dialog Semiconductor, and the register names provided in the
+MFD registers file. The changes are for the OTP (one-time-programming)
+control registers. The two naming errors are OPT instead of OTP, and
+COUNT instead of CONT (i.e. control).
 
-Signed-off-by: Ofir Drang <ofir.drang@arm.com>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_pm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/mfd/da9063/registers.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -25,13 +25,13 @@ int cc_pm_suspend(struct device *dev)
- 	int rc;
+--- a/include/linux/mfd/da9063/registers.h
++++ b/include/linux/mfd/da9063/registers.h
+@@ -215,9 +215,9 @@
  
- 	dev_dbg(dev, "set HOST_POWER_DOWN_EN\n");
--	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
- 	rc = cc_suspend_req_queue(drvdata);
- 	if (rc) {
- 		dev_err(dev, "cc_suspend_req_queue (%x)\n", rc);
- 		return rc;
- 	}
- 	fini_cc_regs(drvdata);
-+	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
- 	cc_clk_off(drvdata);
- 	return 0;
- }
+ /* DA9063 Configuration registers */
+ /* OTP */
+-#define	DA9063_REG_OPT_COUNT		0x101
+-#define	DA9063_REG_OPT_ADDR		0x102
+-#define	DA9063_REG_OPT_DATA		0x103
++#define	DA9063_REG_OTP_CONT		0x101
++#define	DA9063_REG_OTP_ADDR		0x102
++#define	DA9063_REG_OTP_DATA		0x103
+ 
+ /* Customer Trim and Configuration */
+ #define	DA9063_REG_T_OFFSET		0x104
 
 
