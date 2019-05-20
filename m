@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A29CA23617
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 660672370C
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 15:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389497AbfETM30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:29:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45526 "EHLO mail.kernel.org"
+        id S1730449AbfETMUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:20:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389492AbfETM3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:29:25 -0400
+        id S1731352AbfETMUN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:20:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C4ED20815;
-        Mon, 20 May 2019 12:29:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A83D320656;
+        Mon, 20 May 2019 12:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355364;
-        bh=9F2urZGiUSCTtGpIbm8fQ79y0ev7GzYg8R+c8rTft8g=;
+        s=default; t=1558354813;
+        bh=/VTRKwRzf9OpodiBI3QttYqqDO7bWs8BllvLYJybVk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yo8RPD5FtN15DVfsqC48m8vqXlKT1Airxyp5L96X9+C/ZbTe0rB1lIvdNnnb78sIy
-         dmZylJBV++KfDgZqwkRgRP3K7f22YlqWCPUDUgNEGGhpxnyEgZ3V44oHFyQK9g/Zzb
-         27GsLERag+dtGdrm+n+X5nbbMvaB8W5bh4HeKSfA=
+        b=yOjIbrFmax2QNItDPALGHUY9VgGZByi+mZHyAx1KJ2jnM7F124GNo2nlB5EwrJr2m
+         8RScpGBFxC6BPt6JAAl4stKnQb+4nuSMSYqK7DXmZ8tFc+4CrkN3w/WjAw/xlvrBia
+         gyItRzgVnGqruYBdNwYACbpBeOhyE8dYZLX4iL+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jungyeon <jungyeon@gatech.edu>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 090/123] btrfs: Correctly free extent buffer in case btree_read_extent_buffer_pages fails
+        stable@vger.kernel.org, Kiran Kolukuluru <kirank@ami.com>,
+        Kamlakant Patel <kamlakantp@marvell.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 4.14 51/63] ipmi:ssif: compare block number correctly for multi-part return messages
 Date:   Mon, 20 May 2019 14:14:30 +0200
-Message-Id: <20190520115250.895614551@linuxfoundation.org>
+Message-Id: <20190520115236.679829363@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
-References: <20190520115245.439864225@linuxfoundation.org>
+In-Reply-To: <20190520115231.137981521@linuxfoundation.org>
+References: <20190520115231.137981521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Kamlakant Patel <kamlakantp@marvell.com>
 
-commit 537f38f019fa0b762dbb4c0fc95d7fcce9db8e2d upstream.
+commit 55be8658c7e2feb11a5b5b33ee031791dbd23a69 upstream.
 
-If a an eb fails to be read for whatever reason - it's corrupted on disk
-and parent transid/key validations fail or IO for eb pages fail then
-this buffer must be removed from the buffer cache. Currently the code
-calls free_extent_buffer if an error occurs. Unfortunately this doesn't
-achieve the desired behavior since btrfs_find_create_tree_block returns
-with eb->refs == 2.
+According to ipmi spec, block number is a number that is incremented,
+starting with 0, for each new block of message data returned using the
+middle transaction.
 
-On the other hand free_extent_buffer will only decrement the refs once
-leaving it added to the buffer cache radix tree.  This enables later
-code to look up the buffer from the cache and utilize it potentially
-leading to a crash.
+Here, the 'blocknum' is data[0] which always starts from zero(0) and
+'ssif_info->multi_pos' starts from 1.
+So, we need to add +1 to blocknum while comparing with multi_pos.
 
-The correct way to free the buffer is call free_extent_buffer_stale.
-This function will correctly call atomic_dec explicitly for the buffer
-and subsequently call release_extent_buffer which will decrement the
-final reference thus correctly remove the invalid buffer from buffer
-cache. This change affects only newly allocated buffers since they have
-eb->refs == 2.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202755
-Reported-by: Jungyeon <jungyeon@gatech.edu>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7d6380cd40f79 ("ipmi:ssif: Fix handling of multi-part return messages").
+Reported-by: Kiran Kolukuluru <kirank@ami.com>
+Signed-off-by: Kamlakant Patel <kamlakantp@marvell.com>
+Message-Id: <1556106615-18722-1-git-send-email-kamlakantp@marvell.com>
+[Also added a debug log if the block numbers don't match.]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: stable@vger.kernel.org # 4.4
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/disk-io.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/char/ipmi/ipmi_ssif.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1017,13 +1017,18 @@ void readahead_tree_block(struct btrfs_f
- {
- 	struct extent_buffer *buf = NULL;
- 	struct inode *btree_inode = fs_info->btree_inode;
-+	int ret;
- 
- 	buf = btrfs_find_create_tree_block(fs_info, bytenr);
- 	if (IS_ERR(buf))
- 		return;
--	read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree,
--				 buf, WAIT_NONE, 0);
--	free_extent_buffer(buf);
-+
-+	ret = read_extent_buffer_pages(&BTRFS_I(btree_inode)->io_tree, buf,
-+			WAIT_NONE, 0);
-+	if (ret < 0)
-+		free_extent_buffer_stale(buf);
-+	else
-+		free_extent_buffer(buf);
- }
- 
- int reada_tree_block_flagged(struct btrfs_fs_info *fs_info, u64 bytenr,
-@@ -1043,12 +1048,12 @@ int reada_tree_block_flagged(struct btrf
- 	ret = read_extent_buffer_pages(io_tree, buf, WAIT_PAGE_LOCK,
- 				       mirror_num);
- 	if (ret) {
--		free_extent_buffer(buf);
-+		free_extent_buffer_stale(buf);
- 		return ret;
- 	}
- 
- 	if (test_bit(EXTENT_BUFFER_CORRUPT, &buf->bflags)) {
--		free_extent_buffer(buf);
-+		free_extent_buffer_stale(buf);
- 		return -EIO;
- 	} else if (extent_buffer_uptodate(buf)) {
- 		*eb = buf;
-@@ -1102,7 +1107,7 @@ struct extent_buffer *read_tree_block(st
- 	ret = btree_read_extent_buffer_pages(fs_info, buf, parent_transid,
- 					     level, first_key);
- 	if (ret) {
--		free_extent_buffer(buf);
-+		free_extent_buffer_stale(buf);
- 		return ERR_PTR(ret);
- 	}
- 	return buf;
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -703,12 +703,16 @@ static void msg_done_handler(struct ssif
+ 			/* End of read */
+ 			len = ssif_info->multi_len;
+ 			data = ssif_info->data;
+-		} else if (blocknum != ssif_info->multi_pos) {
++		} else if (blocknum + 1 != ssif_info->multi_pos) {
+ 			/*
+ 			 * Out of sequence block, just abort.  Block
+ 			 * numbers start at zero for the second block,
+ 			 * but multi_pos starts at one, so the +1.
+ 			 */
++			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
++				dev_dbg(&ssif_info->client->dev,
++					"Received message out of sequence, expected %u, got %u\n",
++					ssif_info->multi_pos - 1, blocknum);
+ 			result = -EIO;
+ 		} else {
+ 			ssif_inc_stat(ssif_info, received_message_parts);
 
 
