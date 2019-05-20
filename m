@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 266D023563
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A655623651
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403775AbfETMew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:34:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52542 "EHLO mail.kernel.org"
+        id S2388166AbfETM10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:27:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403770AbfETMev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:34:51 -0400
+        id S2389093AbfETM1Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:27:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D506221479;
-        Mon, 20 May 2019 12:34:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30A2421479;
+        Mon, 20 May 2019 12:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355691;
-        bh=W6/X+FsS7lgY0ci9ipL3DN72hdu/rw1yHfoWA9Ns1Uk=;
+        s=default; t=1558355244;
+        bh=K/i1J2VARTHB1Re1+MeWCyySYY/NtjnZ0I5Cb6zZXEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grxHO6kPBMvSyyzqdqIW8K7mh4Sz4rvreJeOlQ96SajvqY72p85vFSZ5eIzMvrb75
-         1twVLfI9gOXDMEVdW/AH2f67B/RRuocU9weRIY98n7WVYIzkiqC3/EiX/Q6xHZQfTW
-         jjhZrGMhI8QNSpAq/NoaryVf3IXPQJdBts2YwfJs=
+        b=vNZRwm1d0nLEtLiGJJJo4pP1O28Z0YqEdAfh7oLHkgcLXvpBkcLgb8P9imGCRI+9m
+         LEhO47fHx3grLGAwXzNiKHLKlQH8oPRLejlBdktcmppxcybBsjuMxevEngXugT8m0O
+         N6Z5MZEbLigXhEV6oHa5Rh8G5f9z5YgSrIA/Z/7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Zhang Zhijie <zhangzj@rock-chips.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 037/128] crypto: rockchip - update IV buffer to contain the next IV
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.0 044/123] mmc: tegra: fix ddr signaling for non-ddr modes
 Date:   Mon, 20 May 2019 14:13:44 +0200
-Message-Id: <20190520115252.196308700@linuxfoundation.org>
+Message-Id: <20190520115247.665351725@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
-References: <20190520115249.449077487@linuxfoundation.org>
+In-Reply-To: <20190520115245.439864225@linuxfoundation.org>
+References: <20190520115245.439864225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zhijie <zhangzj@rock-chips.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-commit f0cfd57b43fec65761ca61d3892b983a71515f23 upstream.
+commit 92cd1667d579af5c3ef383680598a112da3695df upstream.
 
-The Kernel Crypto API request output the next IV data to
-IV buffer for CBC implementation. So the last block data of
-ciphertext should be copid into assigned IV buffer.
+ddr_signaling is set to true for DDR50 and DDR52 modes but is
+not set back to false for other modes. This programs incorrect
+host clock when mode change happens from DDR52/DDR50 to other
+SDR or HS modes like incase of mmc_retune where it switches
+from HS400 to HS DDR and then from HS DDR to HS mode and then
+to HS200.
 
-Reported-by: Eric Biggers <ebiggers@google.com>
-Fixes: 433cd2c617bf ("crypto: rockchip - add crypto driver for rk3288")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Zhang Zhijie <zhangzj@rock-chips.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This patch fixes the ddr_signaling to set properly for non DDR
+modes.
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: stable@vger.kernel.org # v4.20 +
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c |   25 +++++++++++++++------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/mmc/host/sdhci-tegra.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
-@@ -250,9 +250,14 @@ static int rk_set_data_start(struct rk_c
- 	u8 *src_last_blk = page_address(sg_page(dev->sg_src)) +
- 		dev->sg_src->offset + dev->sg_src->length - ivsize;
+--- a/drivers/mmc/host/sdhci-tegra.c
++++ b/drivers/mmc/host/sdhci-tegra.c
+@@ -675,6 +675,7 @@ static void tegra_sdhci_set_uhs_signalin
+ 	bool set_dqs_trim = false;
+ 	bool do_hs400_dll_cal = false;
  
--	/* store the iv that need to be updated in chain mode */
--	if (ctx->mode & RK_CRYPTO_DEC)
-+	/* Store the iv that need to be updated in chain mode.
-+	 * And update the IV buffer to contain the next IV for decryption mode.
-+	 */
-+	if (ctx->mode & RK_CRYPTO_DEC) {
- 		memcpy(ctx->iv, src_last_blk, ivsize);
-+		sg_pcopy_to_buffer(dev->first, dev->src_nents, req->info,
-+				   ivsize, dev->total - ivsize);
-+	}
- 
- 	err = dev->load_data(dev, dev->sg_src, dev->sg_dst);
- 	if (!err)
-@@ -288,13 +293,19 @@ static void rk_iv_copyback(struct rk_cry
- 	struct ablkcipher_request *req =
- 		ablkcipher_request_cast(dev->async_req);
- 	struct crypto_ablkcipher *tfm = crypto_ablkcipher_reqtfm(req);
-+	struct rk_cipher_ctx *ctx = crypto_ablkcipher_ctx(tfm);
- 	u32 ivsize = crypto_ablkcipher_ivsize(tfm);
- 
--	if (ivsize == DES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_TDES_IV_0,
--			      ivsize);
--	else if (ivsize == AES_BLOCK_SIZE)
--		memcpy_fromio(req->info, dev->reg + RK_CRYPTO_AES_IV_0, ivsize);
-+	/* Update the IV buffer to contain the next IV for encryption mode. */
-+	if (!(ctx->mode & RK_CRYPTO_DEC)) {
-+		if (dev->aligned) {
-+			memcpy(req->info, sg_virt(dev->sg_dst) +
-+				dev->sg_dst->length - ivsize, ivsize);
-+		} else {
-+			memcpy(req->info, dev->addr_vir +
-+				dev->count - ivsize, ivsize);
-+		}
-+	}
- }
- 
- static void rk_update_iv(struct rk_crypto_info *dev)
++	tegra_host->ddr_signaling = false;
+ 	switch (timing) {
+ 	case MMC_TIMING_UHS_SDR50:
+ 	case MMC_TIMING_UHS_SDR104:
 
 
