@@ -2,162 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F572435D
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92BC22436A
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 00:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726107AbfETWJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 18:09:37 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:55169 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725810AbfETWJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:09:37 -0400
-Received: from mail-qt1-f198.google.com ([209.85.160.198])
-        by youngberry.canonical.com with esmtps (TLS1.0:RSA_AES_128_CBC_SHA1:16)
-        (Exim 4.76)
-        (envelope-from <gpiccoli@canonical.com>)
-        id 1hSqTP-0005r2-A1
-        for stable@vger.kernel.org; Mon, 20 May 2019 22:09:35 +0000
-Received: by mail-qt1-f198.google.com with SMTP id i5so15465587qtd.17
-        for <stable@vger.kernel.org>; Mon, 20 May 2019 15:09:35 -0700 (PDT)
+        id S1726107AbfETWXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 18:23:45 -0400
+Received: from mail-it1-f195.google.com ([209.85.166.195]:55981 "EHLO
+        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726067AbfETWXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 May 2019 18:23:45 -0400
+Received: by mail-it1-f195.google.com with SMTP id g24so1663696iti.5
+        for <stable@vger.kernel.org>; Mon, 20 May 2019 15:23:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=1CaXJMTXc57iqkntwEjIR8nDiCsro9FbdDpUP4+PfJc=;
+        b=Ay6eeb6e5aKiQdi0pweGEDPMMxlx/Mn2AvwEsYkp3UpuDjZhiA40w0+FilAVPXIMnw
+         Alw2aI5RZtIReQYrEqmA++hBDywsBwMx1bOHkhAJeokOOyZXHQjGP1OyKnXw7ao89mpC
+         cZID47+1S6e/pVCm56lUdkxGM4n9ydbzFPSaZhAhltE5fIEyA0E5Au01Qkpy+1pZosUn
+         gAfoMMwWMzjOh1Mg+xuUq7Kfqj2y0FnHmSzlhsTYL8GAUU8Fg2hqHMn7zAXQJdym+kdw
+         7N6Ta16knmQQsOF+5hsv40DvHKn5oUBn2GMN86tN84GSyaNRrzq+mE2I+k57ZDbB9whh
+         t2CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=/Kb9dwGb7EDZjWXcJgCYvh+scyOCXdmQMfxa74lNg9A=;
-        b=HIfYDlapyh64/atpyXV1OlbQGSPF99MaxW52ZbphsVwW9A6R3JKgdvFww+RHJu98d4
-         SVTKnvFxc1lfKm+mtlH4n0Ikg+I7tOlOi3bNj0xDtrZqCX4525Q0vSyMX1D3VZYs1Z+z
-         CkJ0u1LIeqled5vlLzq4yIx85ksBnfPD6A0DrziqLDQRNMC1bWMa6cGd+kn3L6WPm3PN
-         IYV7KolconwcFBEUES2y3+ZtmCDkpkfWc3ByBkzmYSlf8gvVwr5dnztSsQLkopuiAozJ
-         poW+Z8Ro4r/YBTgLLwvJ4p1T7p1xDdfutMdkOxLpAUEi7ioRIkbV+KGrhtnG985zFJNv
-         0UIA==
-X-Gm-Message-State: APjAAAW7wKmyaygmN+Td6WL26qWSXYmajncUtW3Jqyftq4ax7/KMQtwx
-        qYlvN1zZ9pjgkcWrOzJgNjsPkdOW3oswvaPvc6hYRf4PD+6N4O8GtW7bO/vCHqwyfSU15SuepIZ
-        aGz8bskHIkaUlZbeYW5DYuyvx5g0dDpsXUQ==
-X-Received: by 2002:a37:8502:: with SMTP id h2mr17302673qkd.281.1558390174407;
-        Mon, 20 May 2019 15:09:34 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqzRIY8VAy8Nou+AqtITvyvN0y8SyGXWRHpV5X/2071IU5iR1yqSJwUbYPM++Dqa379vjgPjQQ==
-X-Received: by 2002:a37:8502:: with SMTP id h2mr17302655qkd.281.1558390174135;
-        Mon, 20 May 2019 15:09:34 -0700 (PDT)
-Received: from localhost ([152.250.107.7])
-        by smtp.gmail.com with ESMTPSA id j10sm8277639qth.8.2019.05.20.15.09.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 May 2019 15:09:33 -0700 (PDT)
-From:   "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-To:     linux-block@vger.kernel.org, linux-raid@vger.kernel.org
-Cc:     dm-devel@redhat.com, axboe@kernel.dk, gavin.guo@canonical.com,
-        jay.vosburgh@canonical.com, gpiccoli@canonical.com,
-        kernel@gpiccoli.net, Ming Lei <ming.lei@redhat.com>,
-        Song Liu <liu.song.a23@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        stable@vger.kernel.org
-Subject: [PATCH V2 2/2] md/raid0: Do not bypass blocking queue entered for raid0 bios
-Date:   Mon, 20 May 2019 19:09:11 -0300
-Message-Id: <20190520220911.25192-2-gpiccoli@canonical.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190520220911.25192-1-gpiccoli@canonical.com>
-References: <20190520220911.25192-1-gpiccoli@canonical.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to:user-agent;
+        bh=1CaXJMTXc57iqkntwEjIR8nDiCsro9FbdDpUP4+PfJc=;
+        b=ZJhnOtqNhp3ugXJ0m0BbBjZoxkx9RahoorZG475ohx4b7aAFsUb3fH/Yug+slOX5AA
+         gK8G49/Ry5VKvxDtrecVQX1QeJ+2Ugt4Tld1dNQfqPWUVKb/nWvvu3+VFfvIWAhsPfQs
+         IvTyxEbLyGSej5qVLqmrjQq62zOd9/uQuPkI894OY/7IGJjuMHzHysBO2zFZMG8kIHbv
+         Cb8GINa3YDsl8gt2w4AC3N65OFj7VEMlKK4js5AIVESg/d2BGRIyw4tJEQfKO7Sf6iPe
+         uLuk6AtXrhOp1AORRTK1+kEwzQKHKB4LOXNawtRedsKForbPOPYGnzrnyXja7eRtTZpz
+         1Rjg==
+X-Gm-Message-State: APjAAAWn+6qoYoiOJhiWOnvAymUtTtPD4iKvMfZcrntY8MkIbBXumLhk
+        i2vpVqdoStbqdP3hR2ZBaVqm0Q==
+X-Google-Smtp-Source: APXvYqwaTj+wVvNaJbKY/DhmG1joPIZeyJ/GlYIHhg0g6g9QL5lnynyySYJi6RXpoOpFMLcf9hokhQ==
+X-Received: by 2002:a24:2bd3:: with SMTP id h202mr1291405ita.115.1558391024396;
+        Mon, 20 May 2019 15:23:44 -0700 (PDT)
+Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
+        by smtp.gmail.com with ESMTPSA id q72sm501224ita.26.2019.05.20.15.23.43
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 20 May 2019 15:23:43 -0700 (PDT)
+Date:   Mon, 20 May 2019 17:23:42 -0500
+From:   Dan Rue <dan.rue@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-ext4@vger.kernel.org,
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Richard Weinberger <richard.weinberger@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>
+Subject: Re: [PATCH 4.19 000/105] 4.19.45-stable review
+Message-ID: <20190520222342.wtsjx227c6qbkuua@xps.therub.org>
+Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-ext4@vger.kernel.org,
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Richard Weinberger <richard.weinberger@gmail.com>,
+        Theodore Ts'o <tytso@mit.edu>
+References: <20190520115247.060821231@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190520115247.060821231@linuxfoundation.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit cd4a4ae4683d ("block: don't use blocking queue entered for
-recursive bio submits") introduced the flag BIO_QUEUE_ENTERED in order
-split bios bypass the blocking queue entering routine and use the live
-non-blocking version. It was a result of an extensive discussion in
-a linux-block thread[0], and the purpose of this change was to prevent
-a hung task waiting on a reference to drop.
+On Mon, May 20, 2019 at 02:13:06PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.45 release.
+> There are 105 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 22 May 2019 11:50:49 AM UTC.
+> Anything received after that time might be too late.
 
-Happens that md raid0 split bios all the time, and more important,
-it changes their underlying device to the raid member. After the change
-introduced by this flag's usage, we experience various crashes if a raid0
-member is removed during a large write. This happens because the bio
-reaches the live queue entering function when the queue of the raid0
-member is dying.
+We're seeing an ext4 issue previously reported at
+https://lore.kernel.org/lkml/20190514092054.GA6949@osiris.
 
-A simple reproducer of this behavior is presented below:
-a) Build kernel v5.2-rc1 with CONFIG_BLK_DEV_THROTTLING=y.
+[ 1916.032087] EXT4-fs error (device sda): ext4_find_extent:909: inode #8: comm jbd2/sda-8: pblk 121667583 bad header/extent: invalid extent entries - magic f30a, entries 8, max 340(340), depth 0(0)
+[ 1916.073840] jbd2_journal_bmap: journal block not found at offset 4455 on sda-8
+[ 1916.081071] Aborting journal on device sda-8.
+[ 1916.348652] EXT4-fs error (device sda): ext4_journal_check_start:61: Detected aborted journal
+[ 1916.357222] EXT4-fs (sda): Remounting filesystem read-only
 
-b) Create a raid0 md array with 2 NVMe devices as members, and mount it
-with an ext4 filesystem.
+This is seen on 4.19-rc, 5.0-rc, mainline, and next. We don't have data
+for 5.1-rc yet, which is presumably also affected in this RC round.
 
-c) Run the following oneliner (supposing the raid0 is mounted in /mnt):
-(dd of=/mnt/tmp if=/dev/zero bs=1M count=999 &); sleep 0.3;
-echo 1 > /sys/block/nvme0n1/device/device/remove
-(whereas nvme0n1 is the 2nd array member)
+We only see this on x86_64 and i386 devices - though our hardware setups
+vary so it could be coincidence.
 
-This will trigger the following warning/oops:
+I have to run out now, but I'll come back and work on a reproducer and
+bisection later tonight and tomorrow.
 
-------------[ cut here ]------------
-no blkg associated for bio on block-device: nvme0n1
-WARNING: CPU: 9 PID: 184 at ./include/linux/blk-cgroup.h:785
-generic_make_request_checks+0x4dd/0x690
-[...]
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000155
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-RIP: 0010:blk_throtl_bio+0x45/0x970
-[...]
-Call Trace:
- generic_make_request_checks+0x1bf/0x690
- generic_make_request+0x64/0x3f0
- raid0_make_request+0x184/0x620 [raid0]
- ? raid0_make_request+0x184/0x620 [raid0]
- ? blk_queue_split+0x384/0x6d0
- md_handle_request+0x126/0x1a0
- md_make_request+0x7b/0x180
- generic_make_request+0x19e/0x3f0
- submit_bio+0x73/0x140
-[...]
+Here is an example test run; link goes to the spot in the ltp syscalls
+test where the disk goes into read-only mode.
+https://lkft.validation.linaro.org/scheduler/job/735468#L8081
 
-This patch changes raid0 driver to fallback to the "old" blocking queue
-entering procedure, by clearing the BIO_QUEUE_ENTERED from raid0 bios.
-This prevents the crashes and restores the regular behavior of raid0
-arrays when a member is removed during a large write.
+Dan
 
-[0] https://marc.info/?l=linux-block&m=152638475806811
-
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Song Liu <liu.song.a23@gmail.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable@vger.kernel.org # v4.18
-Fixes: cd4a4ae4683d ("block: don't use blocking queue entered for recursive bio submits")
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
----
-
-No changes from V1, only rebased to v5.2-rc1.
-Also, notice that if [1] gets merged before this patch, the
-BIO_QUEUE_ENTERED flag will change to BIO_SPLITTED, so the (easy) conflict
-will need to be worked.
-
-[1] https://lore.kernel.org/linux-block/20190515030310.20393-4-ming.lei@redhat.com/
-
- drivers/md/raid0.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index f3fb5bb8c82a..d5bdc79e0835 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -547,6 +547,7 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
- 			trace_block_bio_remap(bdev_get_queue(rdev->bdev),
- 				discard_bio, disk_devt(mddev->gendisk),
- 				bio->bi_iter.bi_sector);
-+		bio_clear_flag(bio, BIO_QUEUE_ENTERED);
- 		generic_make_request(discard_bio);
- 	}
- 	bio_endio(bio);
-@@ -602,6 +603,7 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
- 				disk_devt(mddev->gendisk), bio_sector);
- 	mddev_check_writesame(mddev, bio);
- 	mddev_check_write_zeroes(mddev, bio);
-+	bio_clear_flag(bio, BIO_QUEUE_ENTERED);
- 	generic_make_request(bio);
- 	return true;
- }
 -- 
-2.21.0
-
+Linaro - Kernel Validation
