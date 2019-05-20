@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD9823595
-	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2204423596
+	for <lists+stable@lfdr.de>; Mon, 20 May 2019 14:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391195AbfETMgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 May 2019 08:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
+        id S2391206AbfETMgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 May 2019 08:36:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391190AbfETMgA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 May 2019 08:36:00 -0400
+        id S2391200AbfETMgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 May 2019 08:36:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 465CA20815;
-        Mon, 20 May 2019 12:35:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECB2B20815;
+        Mon, 20 May 2019 12:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558355759;
-        bh=wbaBD7Oip04UaAK0STTWIKYnZmAitCvYALj8ZhSDriY=;
+        s=default; t=1558355762;
+        bh=OY5qDbJG3cRSO+yxmiSW4AJSiJga1+mxbJUEfBPaWNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQ1N9jPRcHYwQ8QWQIV4eY5WZKVBi2EumJ6qLFwy69QZpq9zArrhWNOVrVowR8Kr5
-         j9tCo2v7Ea3QHPNUBm8iPjIELhdquqNz9l8dT7YI2IC6cyviAyZWz7EsGr6SrcLCF/
-         JGloRZ9aiGBvIqrh9+9o5QxoKArIhJ8kmc+A+Pr8=
+        b=hoOAgfDhtUyLU0MHUy3Q/CyeTOzAc6oA4PhPlEM3NroGeRJMPnKpq3UzsZbk6hs++
+         hsqFK02W34Ph0BzljOQfl4FT8hLCt9lyAxhRLwEwIT5bjBkwPp8Wm5aRfnhBSJu2Af
+         HKOon2wQ7TID0E5jJ1q5bATo4URotlLJOTnM5nHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.1 114/128] jbd2: fix potential double free
-Date:   Mon, 20 May 2019 14:15:01 +0200
-Message-Id: <20190520115256.562611416@linuxfoundation.org>
+        stable@vger.kernel.org, David Hill <hilld@binarystorm.net>,
+        Saar Amar <saaramar@microsoft.com>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Jim Mattson <jmattson@google.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.1 115/128] Revert "KVM: nVMX: Expose RDPMC-exiting only when guest supports PMU"
+Date:   Mon, 20 May 2019 14:15:02 +0200
+Message-Id: <20190520115256.600424113@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190520115249.449077487@linuxfoundation.org>
 References: <20190520115249.449077487@linuxfoundation.org>
@@ -43,230 +48,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@gmail.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 0d52154bb0a700abb459a2cbce0a30fc2549b67e upstream.
+commit f93f7ede087f2edcc18e4b02310df5749a6b5a61 upstream.
 
-When failing from creating cache jbd2_inode_cache, we will destroy the
-previously created cache jbd2_handle_cache twice.  This patch fixes
-this by moving each cache initialization/destruction to its own
-separate, individual function.
+The RDPMC-exiting control is dependent on the existence of the RDPMC
+instruction itself, i.e. is not tied to the "Architectural Performance
+Monitoring" feature.  For all intents and purposes, the control exists
+on all CPUs with VMX support since RDPMC also exists on all VCPUs with
+VMX supported.  Per Intel's SDM:
 
-Signed-off-by: Chengguang Xu <cgxu519@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+  The RDPMC instruction was introduced into the IA-32 Architecture in
+  the Pentium Pro processor and the Pentium processor with MMX technology.
+  The earlier Pentium processors have performance-monitoring counters, but
+  they must be read with the RDMSR instruction.
+
+Because RDPMC-exiting always exists, KVM requires the control and refuses
+to load if it's not available.  As a result, hiding the PMU from a guest
+breaks nested virtualization if the guest attemts to use KVM.
+
+While it's not explicitly stated in the RDPMC pseudocode, the VM-Exit
+check for RDPMC-exiting follows standard fault vs. VM-Exit prioritization
+for privileged instructions, e.g. occurs after the CPL/CR0.PE/CR4.PCE
+checks, but before the counter referenced in ECX is checked for validity.
+
+In other words, the original KVM behavior of injecting a #GP was correct,
+and the KVM unit test needs to be adjusted accordingly, e.g. eat the #GP
+when the unit test guest (L3 in this case) executes RDPMC without
+RDPMC-exiting set in the unit test host (L2).
+
+This reverts commit e51bfdb68725dc052d16241ace40ea3140f938aa.
+
+Fixes: e51bfdb68725 ("KVM: nVMX: Expose RDPMC-exiting only when guest supports PMU")
+Reported-by: David Hill <hilld@binarystorm.net>
+Cc: Saar Amar <saaramar@microsoft.com>
+Cc: Mihai Carabas <mihai.carabas@oracle.com>
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Liran Alon <liran.alon@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jbd2/journal.c     |   49 +++++++++++++++++++++++++++++++------------------
- fs/jbd2/revoke.c      |   32 ++++++++++++++++++++------------
- fs/jbd2/transaction.c |    8 +++++---
- include/linux/jbd2.h  |    8 +++++---
- 4 files changed, 61 insertions(+), 36 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   25 -------------------------
+ 1 file changed, 25 deletions(-)
 
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2375,22 +2375,19 @@ static struct kmem_cache *jbd2_journal_h
- static atomic_t nr_journal_heads = ATOMIC_INIT(0);
- #endif
- 
--static int jbd2_journal_init_journal_head_cache(void)
-+static int __init jbd2_journal_init_journal_head_cache(void)
- {
--	int retval;
--
--	J_ASSERT(jbd2_journal_head_cache == NULL);
-+	J_ASSERT(!jbd2_journal_head_cache);
- 	jbd2_journal_head_cache = kmem_cache_create("jbd2_journal_head",
- 				sizeof(struct journal_head),
- 				0,		/* offset */
- 				SLAB_TEMPORARY | SLAB_TYPESAFE_BY_RCU,
- 				NULL);		/* ctor */
--	retval = 0;
- 	if (!jbd2_journal_head_cache) {
--		retval = -ENOMEM;
- 		printk(KERN_EMERG "JBD2: no memory for journal_head cache\n");
-+		return -ENOMEM;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6856,30 +6856,6 @@ static void nested_vmx_entry_exit_ctls_u
  	}
--	return retval;
-+	return 0;
  }
  
- static void jbd2_journal_destroy_journal_head_cache(void)
-@@ -2636,28 +2633,38 @@ static void __exit jbd2_remove_jbd_stats
- 
- struct kmem_cache *jbd2_handle_cache, *jbd2_inode_cache;
- 
-+static int __init jbd2_journal_init_inode_cache(void)
-+{
-+	J_ASSERT(!jbd2_inode_cache);
-+	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
-+	if (!jbd2_inode_cache) {
-+		pr_emerg("JBD2: failed to create inode cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
- static int __init jbd2_journal_init_handle_cache(void)
- {
-+	J_ASSERT(!jbd2_handle_cache);
- 	jbd2_handle_cache = KMEM_CACHE(jbd2_journal_handle, SLAB_TEMPORARY);
--	if (jbd2_handle_cache == NULL) {
-+	if (!jbd2_handle_cache) {
- 		printk(KERN_EMERG "JBD2: failed to create handle cache\n");
- 		return -ENOMEM;
- 	}
--	jbd2_inode_cache = KMEM_CACHE(jbd2_inode, 0);
--	if (jbd2_inode_cache == NULL) {
--		printk(KERN_EMERG "JBD2: failed to create inode cache\n");
--		kmem_cache_destroy(jbd2_handle_cache);
--		return -ENOMEM;
--	}
- 	return 0;
- }
- 
-+static void jbd2_journal_destroy_inode_cache(void)
-+{
-+	kmem_cache_destroy(jbd2_inode_cache);
-+	jbd2_inode_cache = NULL;
-+}
-+
- static void jbd2_journal_destroy_handle_cache(void)
- {
- 	kmem_cache_destroy(jbd2_handle_cache);
- 	jbd2_handle_cache = NULL;
--	kmem_cache_destroy(jbd2_inode_cache);
--	jbd2_inode_cache = NULL;
- }
- 
- /*
-@@ -2668,21 +2675,27 @@ static int __init journal_init_caches(vo
- {
- 	int ret;
- 
--	ret = jbd2_journal_init_revoke_caches();
-+	ret = jbd2_journal_init_revoke_record_cache();
-+	if (ret == 0)
-+		ret = jbd2_journal_init_revoke_table_cache();
- 	if (ret == 0)
- 		ret = jbd2_journal_init_journal_head_cache();
- 	if (ret == 0)
- 		ret = jbd2_journal_init_handle_cache();
- 	if (ret == 0)
-+		ret = jbd2_journal_init_inode_cache();
-+	if (ret == 0)
- 		ret = jbd2_journal_init_transaction_cache();
- 	return ret;
- }
- 
- static void jbd2_journal_destroy_caches(void)
- {
--	jbd2_journal_destroy_revoke_caches();
-+	jbd2_journal_destroy_revoke_record_cache();
-+	jbd2_journal_destroy_revoke_table_cache();
- 	jbd2_journal_destroy_journal_head_cache();
- 	jbd2_journal_destroy_handle_cache();
-+	jbd2_journal_destroy_inode_cache();
- 	jbd2_journal_destroy_transaction_cache();
- 	jbd2_journal_destroy_slabs();
- }
---- a/fs/jbd2/revoke.c
-+++ b/fs/jbd2/revoke.c
-@@ -178,33 +178,41 @@ static struct jbd2_revoke_record_s *find
- 	return NULL;
- }
- 
--void jbd2_journal_destroy_revoke_caches(void)
-+void jbd2_journal_destroy_revoke_record_cache(void)
- {
- 	kmem_cache_destroy(jbd2_revoke_record_cache);
- 	jbd2_revoke_record_cache = NULL;
-+}
-+
-+void jbd2_journal_destroy_revoke_table_cache(void)
-+{
- 	kmem_cache_destroy(jbd2_revoke_table_cache);
- 	jbd2_revoke_table_cache = NULL;
- }
- 
--int __init jbd2_journal_init_revoke_caches(void)
-+int __init jbd2_journal_init_revoke_record_cache(void)
- {
- 	J_ASSERT(!jbd2_revoke_record_cache);
--	J_ASSERT(!jbd2_revoke_table_cache);
+-static bool guest_cpuid_has_pmu(struct kvm_vcpu *vcpu)
+-{
+-	struct kvm_cpuid_entry2 *entry;
+-	union cpuid10_eax eax;
 -
- 	jbd2_revoke_record_cache = KMEM_CACHE(jbd2_revoke_record_s,
- 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY);
--	if (!jbd2_revoke_record_cache)
--		goto record_cache_failure;
+-	entry = kvm_find_cpuid_entry(vcpu, 0xa, 0);
+-	if (!entry)
+-		return false;
+-
+-	eax.full = entry->eax;
+-	return (eax.split.version_id > 0);
+-}
+-
+-static void nested_vmx_procbased_ctls_update(struct kvm_vcpu *vcpu)
+-{
+-	struct vcpu_vmx *vmx = to_vmx(vcpu);
+-	bool pmu_enabled = guest_cpuid_has_pmu(vcpu);
+-
+-	if (pmu_enabled)
+-		vmx->nested.msrs.procbased_ctls_high |= CPU_BASED_RDPMC_EXITING;
+-	else
+-		vmx->nested.msrs.procbased_ctls_high &= ~CPU_BASED_RDPMC_EXITING;
+-}
+-
+ static void update_intel_pt_cfg(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+@@ -6968,7 +6944,6 @@ static void vmx_cpuid_update(struct kvm_
+ 	if (nested_vmx_allowed(vcpu)) {
+ 		nested_vmx_cr_fixed1_bits_update(vcpu);
+ 		nested_vmx_entry_exit_ctls_update(vcpu);
+-		nested_vmx_procbased_ctls_update(vcpu);
+ 	}
  
-+	if (!jbd2_revoke_record_cache) {
-+		pr_emerg("JBD2: failed to create revoke_record cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+int __init jbd2_journal_init_revoke_table_cache(void)
-+{
-+	J_ASSERT(!jbd2_revoke_table_cache);
- 	jbd2_revoke_table_cache = KMEM_CACHE(jbd2_revoke_table_s,
- 					     SLAB_TEMPORARY);
--	if (!jbd2_revoke_table_cache)
--		goto table_cache_failure;
--	return 0;
--table_cache_failure:
--	jbd2_journal_destroy_revoke_caches();
--record_cache_failure:
-+	if (!jbd2_revoke_table_cache) {
-+		pr_emerg("JBD2: failed to create revoke_table cache\n");
- 		return -ENOMEM;
-+	}
-+	return 0;
- }
- 
- static struct jbd2_revoke_table_s *jbd2_journal_init_revoke_table(int hash_size)
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -42,9 +42,11 @@ int __init jbd2_journal_init_transaction
- 					0,
- 					SLAB_HWCACHE_ALIGN|SLAB_TEMPORARY,
- 					NULL);
--	if (transaction_cache)
--		return 0;
--	return -ENOMEM;
-+	if (!transaction_cache) {
-+		pr_emerg("JBD2: failed to create transaction cache\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
- }
- 
- void jbd2_journal_destroy_transaction_cache(void)
---- a/include/linux/jbd2.h
-+++ b/include/linux/jbd2.h
-@@ -1318,7 +1318,7 @@ extern void		__wait_on_journal (journal_
- 
- /* Transaction cache support */
- extern void jbd2_journal_destroy_transaction_cache(void);
--extern int  jbd2_journal_init_transaction_cache(void);
-+extern int __init jbd2_journal_init_transaction_cache(void);
- extern void jbd2_journal_free_transaction(transaction_t *);
- 
- /*
-@@ -1446,8 +1446,10 @@ static inline void jbd2_free_inode(struc
- /* Primary revoke support */
- #define JOURNAL_REVOKE_DEFAULT_HASH 256
- extern int	   jbd2_journal_init_revoke(journal_t *, int);
--extern void	   jbd2_journal_destroy_revoke_caches(void);
--extern int	   jbd2_journal_init_revoke_caches(void);
-+extern void	   jbd2_journal_destroy_revoke_record_cache(void);
-+extern void	   jbd2_journal_destroy_revoke_table_cache(void);
-+extern int __init jbd2_journal_init_revoke_record_cache(void);
-+extern int __init jbd2_journal_init_revoke_table_cache(void);
- 
- extern void	   jbd2_journal_destroy_revoke(journal_t *);
- extern int	   jbd2_journal_revoke (handle_t *, unsigned long long, struct buffer_head *);
+ 	if (boot_cpu_has(X86_FEATURE_INTEL_PT) &&
 
 
