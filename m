@@ -2,122 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F228C25A69
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A7E25A94
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 01:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727015AbfEUWn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 18:43:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S1726017AbfEUXAk convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 21 May 2019 19:00:40 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55760 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726083AbfEUWn7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 18:43:59 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725797AbfEUXAk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 19:00:40 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB7B92184B;
-        Tue, 21 May 2019 22:43:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558478637;
-        bh=BDTqBY98gwfc/zufw9LKEQ457obIX01gojH2UsjGsNo=;
-        h=Date:From:To:Subject:From;
-        b=lVHTt+JlCi5Omdq3DvSDlJyJxu4Twgwlvjv+z/Yv9aF7gllE+i9oQooHGj/WWqbhe
-         nH8iZN9J6C2UjOJM6SRdwPNp2kTBAT28UdU6Ifmo1lIKYu2k17tsdQHRZDgFJFW0A3
-         jq/e/1lxnsrDTD80u0DjXISXnVcP3IsWp3KZg0YI=
-Date:   Tue, 21 May 2019 15:43:57 -0700
-From:   akpm@linux-foundation.org
-To:     jiufei.xue@linux.alibaba.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, tj@kernel.org
-Subject:  [merged]
- =?US-ASCII?Q?fs-writeback-use-rcu=5Fbarrier-to-wait-for-inflight-wb-swi?=
- =?US-ASCII?Q?tches-going-into-workqueue-when-umount.patch?= removed from
- -mm tree
-Message-ID: <20190521224357.6O-AURWTz%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mx1.redhat.com (Postfix) with ESMTPS id 70857308219E
+        for <stable@vger.kernel.org>; Tue, 21 May 2019 23:00:39 +0000 (UTC)
+Received: from [172.54.180.135] (cpt-0029.paas.prod.upshift.rdu2.redhat.com [10.0.18.92])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 29ADA600C6;
+        Tue, 21 May 2019 23:00:37 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.45-rc2-94c040a.cki
+ (stable)
+Message-ID: <cki.0879D278B2.DB8Q723AA4@redhat.com>
+X-Gitlab-Pipeline-ID: 10528
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10528?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Tue, 21 May 2019 23:00:39 +0000 (UTC)
+Date:   Tue, 21 May 2019 19:00:40 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
-The patch titled
-     Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
-has been removed from the -mm tree.  Its filename was
-     fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
+We ran automated tests on a recent commit from this kernel tree:
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: 84889965d346 - Linux 4.19.45-rc2
 
-------------------------------------------------------
-From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
+The results of these automated tests are provided below.
 
-synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb switch
-may not go to the workqueue after synchronize_rcu().  Thus previous
-scheduled switches was not finished even flushing the workqueue, which
-will cause a NULL pointer dereferenced followed below.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
-[<ffffffff8126a303>] evict+0xb3/0x180
-[<ffffffff8126a760>] iput+0x1b0/0x230
-[<ffffffff8127c690>] inode_switch_wbs_work_fn+0x3c0/0x6a0
-[<ffffffff810a5b2e>] worker_thread+0x4e/0x490
-[<ffffffff810a5ae0>] ? process_one_work+0x410/0x410
-[<ffffffff810ac056>] kthread+0xe6/0x100
-[<ffffffff8173c199>] ret_from_fork+0x39/0x50
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
-pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu() in
-inode_switch_wbs() to make more sense.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
-Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Suggested-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Compile testing
+---------------
 
- fs/fs-writeback.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+We compiled the kernel for 4 architectures:
 
---- a/fs/fs-writeback.c~fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount
-+++ a/fs/fs-writeback.c
-@@ -523,8 +523,6 @@ static void inode_switch_wbs(struct inod
- 
- 	isw->inode = inode;
- 
--	atomic_inc(&isw_nr_in_flight);
--
- 	/*
- 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
- 	 * the RCU protected stat update paths to grab the i_page
-@@ -532,6 +530,9 @@ static void inode_switch_wbs(struct inod
- 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
- 	 */
- 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
-+
-+	atomic_inc(&isw_nr_in_flight);
-+
- 	goto out_unlock;
- 
- out_free:
-@@ -901,7 +902,11 @@ restart:
- void cgroup_writeback_umount(void)
- {
- 	if (atomic_read(&isw_nr_in_flight)) {
--		synchronize_rcu();
-+		/*
-+		 * Use rcu_barrier() to wait for all pending callbacks to
-+		 * ensure that all in-flight wb switches are in the workqueue.
-+		 */
-+		rcu_barrier();
- 		flush_workqueue(isw_wq);
- 	}
- }
-_
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-84889965d346f29e8d1614f9c3cb35c389a40eec.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-84889965d346f29e8d1614f9c3cb35c389a40eec.tar.gz
 
-Patches currently in -mm which might be from jiufei.xue@linux.alibaba.com are
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-84889965d346f29e8d1614f9c3cb35c389a40eec.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-84889965d346f29e8d1614f9c3cb35c389a40eec.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-84889965d346f29e8d1614f9c3cb35c389a40eec.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-84889965d346f29e8d1614f9c3cb35c389a40eec.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-84889965d346f29e8d1614f9c3cb35c389a40eec.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-84889965d346f29e8d1614f9c3cb35c389a40eec.tar.gz
 
 
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [17]
+     🚧 ✅ Networking: igmp conformance test [18]
+     🚧 ✅ Networking route: pmtu [19]
+     🚧 ✅ Networking route_func: local [20]
+     🚧 ✅ Networking route_func: forward [20]
+     🚧 ✅ Networking TCP: keepalive test [21]
+     🚧 ✅ Storage blktests [22]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [17]
+     🚧 ✅ Networking route: pmtu [19]
+     🚧 ✅ Networking route_func: local [20]
+     🚧 ✅ Networking route_func: forward [20]
+     🚧 ✅ Networking TCP: keepalive test [21]
+     🚧 ✅ Storage blktests [22]
+
+  s390x:
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     ✅ Boot test [0]
+     ✅ kdump: sysrq-c [23]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     ✅ Boot test [0]
+     ✅ kdump: sysrq-c - megaraid_sas [23]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [17]
+     🚧 ✅ Networking: igmp conformance test [18]
+     🚧 ✅ Networking route: pmtu [19]
+     🚧 ✅ Networking route_func: local [20]
+     🚧 ✅ Networking route_func: forward [20]
+     🚧 ✅ Networking TCP: keepalive test [21]
+     🚧 ✅ Storage blktests [22]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
