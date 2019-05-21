@@ -2,126 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 491B025A41
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E53E25A4B
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbfEUWVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 18:21:02 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:43002 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725797AbfEUWVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 18:21:02 -0400
-Received: by mail-wr1-f54.google.com with SMTP id l2so29579wrb.9
-        for <stable@vger.kernel.org>; Tue, 21 May 2019 15:21:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=31GgbMEUC97EdKQcx8mFfdEwH4VWKs3J1JDmeDCBsmA=;
-        b=Lv6n2zx9aEqvgXpfDMvYjgZKR6bcAC6eCwe/wRVJw+6ZPI8hRSFB+dFucdhTGwlMB8
-         iHcOjRUGNIsQDqnsWzTijyncLlXB2b5DC9b+pTVvdgUbUE3eqP6hPg3eDDpYiWCDcrdI
-         TR5e/o/A9gftqoT94TcMncgsOjPI87RTtvwN26U15ZvCaBjxsFMo8Aa7arM78O3CJB/z
-         tMOM7W3P6mqNR+t/Ts+dCrX+hn0bPEipzHgIpKrzy62/xna58W5C8B6arpvZeVgh+eBR
-         ykx862ZcPQ6U46A0qlAA1/Hu8UtcEwu8H7Toqm3SkYctyOWiY5+5GvnJqIEtRzRMl/kn
-         xyDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=31GgbMEUC97EdKQcx8mFfdEwH4VWKs3J1JDmeDCBsmA=;
-        b=heuiGDXfILrPqdWkgtS++oWH1t/BAcEWRaGyMK2hpP889OB4gBjD8Kdg3VBd6gk0al
-         r4n9BYa66PM0Mu9rLGVdRSpkGeAhnNsPBsl2DIN9owGxB1HuDJFHWzQ5JvtavN7LoMNj
-         Iegt9LH0NESaDufpyCybc92jirsSl/zBtubjXjOi4AjrWHcxkOo2uAuPp17urHICI9Fe
-         rCJlbJ1gbsn/Rbr2bmXalk2gPOTCaYMWX8S8lSbN9C627wc6M4C0tBuDOiqBowpV6ihP
-         BpTCholypD6WOmpHrAC5IxiurjD1oxdmUfWBVEPbisZoWMiJG7jcSWCSDzF4Zji7fpfG
-         2FEQ==
-X-Gm-Message-State: APjAAAUH5LlduIif+7ZjdP7Key7B8Ac+YDj0hchCo6ZqU/QbAkoXidRx
-        XoOrMSGaenhC60ACTGhfXxenERj+WP9N3w==
-X-Google-Smtp-Source: APXvYqzYWLw8hGRyB0/0ZkirOrB49GlAUNAs7plVDFJiZxjOOIr93lgbLWJIsBYlOgl+cjCzb0SOrQ==
-X-Received: by 2002:a5d:4886:: with SMTP id g6mr1342229wrq.108.1558477260352;
-        Tue, 21 May 2019 15:21:00 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v184sm6901858wma.6.2019.05.21.15.20.59
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 May 2019 15:20:59 -0700 (PDT)
-Message-ID: <5ce479cb.1c69fb81.842a8.27ed@mx.google.com>
-Date:   Tue, 21 May 2019 15:20:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Kernel: v5.1.3-126-ga8112defa801
-Subject: stable-rc/linux-5.1.y boot: 126 boots: 1 failed,
- 121 passed with 3 offline, 1 conflict (v5.1.3-126-ga8112defa801)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1725797AbfEUW1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 18:27:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50018 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726017AbfEUW1u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 18:27:50 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2A5C217D7;
+        Tue, 21 May 2019 22:27:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558477669;
+        bh=f5uEoHUN4BmcdB5I8paRLRa+KIbFOaIzyTepmZ7yDes=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=aYlPqqP861Eho4x2nqqJFvRWWd/odtIQcz9aqclko8lAceqQYjeJ/t5tGi1KP0wiJ
+         038YM5HOU3qLCLPDaAKxkytnBl/M5vZrjsK5K7vMh2XNjz4DcB73WwBR2Yl2AJi/Sm
+         bOws1O/C+vDEjEsToQuVRz5LZMZVnS7PF8zdTE5Q=
+Date:   Tue, 21 May 2019 15:27:48 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Eric Wong <e@80x24.org>
+Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        arnd@arndb.de, dbueso@suse.de, axboe@kernel.dk, dave@stgolabs.net,
+        jbaron@akamai.com, linux-fsdevel@vger.kernel.org,
+        linux-aio@kvack.org, omar.kilani@gmail.com, tglx@linutronix.de,
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH 1/1] signal: Adjust error codes according to
+ restore_user_sigmask()
+Message-Id: <20190521152748.6b4cd70cf83a1183caa6aae7@linux-foundation.org>
+In-Reply-To: <20190521092551.fwtb6recko3tahwj@dcvr>
+References: <20190507043954.9020-1-deepa.kernel@gmail.com>
+        <20190521092551.fwtb6recko3tahwj@dcvr>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 126 boots: 1 failed, 121 passed with 3 offline,=
- 1 conflict (v5.1.3-126-ga8112defa801)
+On Tue, 21 May 2019 09:25:51 +0000 Eric Wong <e@80x24.org> wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.3-126-ga8112defa801/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.3-126-ga8112defa801/
+> Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+> > For all the syscalls that receive a sigmask from the userland,
+> > the user sigmask is to be in effect through the syscall execution.
+> > At the end of syscall, sigmask of the current process is restored
+> > to what it was before the switch over to user sigmask.
+> > But, for this to be true in practice, the sigmask should be restored
+> > only at the the point we change the saved_sigmask. Anything before
+> > that loses signals. And, anything after is just pointless as the
+> > signal is already lost by restoring the sigmask.
+> > 
+> > The inherent issue was detected because of a regression caused by
+> > 854a6ed56839a.
+> > The patch moved the signal_pending() check closer to restoring of the
+> > user sigmask. But, it failed to update the error code accordingly.
+> > 
+> > Detailed issue discussion permalink:
+> > https://lore.kernel.org/linux-fsdevel/20190427093319.sgicqik2oqkez3wk@dcvr/
+> > 
+> > Note that the patch returns interrupted errors (EINTR, ERESTARTNOHAND,
+> > etc) only when there is no other error. If there is a signal and an error
+> > like EINVAL, the syscalls return -EINVAL rather than the interrupted
+> > error codes.
+> > 
+> > The sys_io_uring_enter() seems to be returning success when there is
+> > a signal and the queue is not empty. This seems to be a bug. I will
+> > follow up with a separate patch for that.
+> > 
+> > Reported-by: Eric Wong <e@80x24.org>
+> > Fixes: 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add restore_user_sigmask()")
+> > Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> > Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.3-126-ga8112defa801
-Git Commit: a8112defa801e2b32d9da822880f32966d30158c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 71 unique boards, 24 SoC families, 14 builds out of 209
+(top-posting fixed).
 
-Boot Regressions Detected:
+> It's been 2 weeks and this fix hasn't appeared in mmots / mmotm.
+> I also noticed it's missing Cc: for stable@ (below)
 
-arm:
+Why is a -stable backport needed?  I see some talk above about lost
+signals but it is unclear whether these are being observed after fixing
+the regression caused by 854a6ed56839a.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v5.1.3-129-gcce3bc9ebd2=
-f)
+IOW, can we please have a changelog which has a clear and complete
+description of the user-visible effects of the change.
 
-Boot Failure Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    multi_v7_defconfig:
-        omap4-panda:
-            lab-baylibre: FAIL (gcc-8)
-            lab-baylibre-seattle: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+And please Cc Oleg.
