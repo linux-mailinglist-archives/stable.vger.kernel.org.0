@@ -2,112 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42DEB255F8
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 18:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A73425691
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 19:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728961AbfEUQrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 12:47:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35326 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729018AbfEUQrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 12:47:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 852C82173E;
-        Tue, 21 May 2019 16:47:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558457227;
-        bh=VCJa3i5w4CEBP7yNVDObKsU8P1zdKv+ZIEn4qE1XgR0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yp0RVt7Mcb0wiblPJ1Dj5DS9v15MjkqQ2vED5GQp2K9gsADLE+hue9rwHgiZ7jgh6
-         095FDa5sVep5s7MFQUqhl+epWkTw6malnmJli1I+6vK7PlwYyYttfGFEIXI6bmTRPO
-         6VkVfTsivWHK5Q4ZYJo9U0O4/83DMKpYJ3Duxe84=
-Date:   Tue, 21 May 2019 18:47:04 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim.Bird@sony.com, khilamn@baylibre.org,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Subject: Re: CKI hackfest @Plumbers invite
-Message-ID: <20190521164704.GB8787@kroah.com>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
- <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+        id S1728271AbfEURW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 13:22:59 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:46932 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728114AbfEURW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 13:22:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=F6hzvh3Jla0WhoTxfizl6fXxrFIMr5UOMU03ImxH5Ac=; b=b+/W6d2WiUF/OIvuwtkfb/SkH
+        /3+H3kA7ADfToOu3edm4BJ3fw83zXGvUfTGn1nWi+7xh+UsRyQzwtjc5D7TE5KH0Yxdt2+Ntb1JuT
+        k+UkYrfqVygj7Ya7vRRjZeMSv7/0B8vELoNfEcC5S6znYc0nJZ45UQ6g/RrdMF3atTmuXQGLIkUeL
+        FSIJnnHuCkxK5wpUfYxJ4YtgoLzHO7WvKGn80nF/J8dK81cS52b2JeWuhIINVflNpYjn/gopPVt7r
+        8wdidUGKN9XC0VtidvYMf7NIFF+tcNRHEnIFVJhWN8Eu0WFbjrUqmsi1Oyaz1Ie9gtNMgjKTgf+JY
+        xAmvcaRsw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hT8Ta-0002Ug-G4; Tue, 21 May 2019 17:22:58 +0000
+Date:   Tue, 21 May 2019 10:22:58 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Guilherme Piccoli <gpiccoli@canonical.com>
+Cc:     Christoph Hellwig <hch@infradead.org>, linux-block@vger.kernel.org,
+        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
+        axboe@kernel.dk, Gavin Guo <gavin.guo@canonical.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "Guilherme G. Piccoli" <kernel@gpiccoli.net>,
+        Ming Lei <ming.lei@redhat.com>,
+        Song Liu <liu.song.a23@gmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V2 2/2] md/raid0: Do not bypass blocking queue entered
+ for raid0 bios
+Message-ID: <20190521172258.GA32702@infradead.org>
+References: <20190520220911.25192-1-gpiccoli@canonical.com>
+ <20190520220911.25192-2-gpiccoli@canonical.com>
+ <20190521125634.GB16799@infradead.org>
+ <CAHD1Q_z23AO+NRid1xYTeke_5GAe6hPianEZKBf5P30FrfZGFg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <CAHD1Q_z23AO+NRid1xYTeke_5GAe6hPianEZKBf5P30FrfZGFg@mail.gmail.com>
+User-Agent: Mutt/1.9.2 (2017-12-15)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
-> Hi,
+On Tue, May 21, 2019 at 11:10:05AM -0300, Guilherme Piccoli wrote:
+> Hi Christoph, thanks for looking into this.
+> You're right, this series fixes both issues. The problem I see though
+> is that it relies
+> on legacy IO path removal - for v5.0 and beyond, all fine. But
+> backporting that to
+> v4.17-v4.20 stable series will be quite painful.
 > 
-> as some of you have heard, CKI Project is planning hackfest CI meetings after
-> Plumbers conference this year (Sept. 12-13). We would like to invite everyone
-> who has interest in CI for kernel to come and join us.
-> 
-> The early agenda with summary is at the end of the email. If you think there's
-> something important missing let us know! Also let us know in case you'd want to
-> lead any of the sessions, we'd be happy to delegate out some work :)
-> 
-> 
-> Please send us an email as soon as you decide to come and feel free to invite
-> other people who should be present. We are not planning to cap the attendance
-> right now but need to solve the logistics based on the interest. The event is
-> free to attend, no additional registration except letting us know is needed.
-> 
-> Feel free to contact us if you have any questions,
-> Veronika
-> CKI Project
-> 
-> 
-> -----------------------------------------------------------
-> Here is an early agenda we put together:
-> - Introductions
-> - Common place for upstream results, result publishing in general
->   - The discussion on the mailing list is going strong so we might be able to
->     substitute this session for a different one in case everything is solved by
->     September.
-> - Test result interpretation and bug detection
->   - How to autodetect infrastructure failures, regressions/new bugs and test
->     bugs? How to handle continuous failures due to known bugs in both tests and
->     kernel? What's your solution? Can people always trust the results they
->     receive?
-> - Getting results to developers/maintainers
->   - Aimed at kernel developers and maintainers, share your feedback and
->     expectations.
->   - How much data should be sent in the initial communication vs. a click away
->     in a dashboard? Do you want incremental emails with new results as they come
->     in?
->   - What about adding checks to tested patches in Patchwork when patch series
->     are being tested?
->   - Providing enough data/script to reproduce the failure. What if special HW
->     is needed?
-> - Onboarding new kernel trees to test
->   - Aimed at kernel developers and maintainers.
->   - Which trees are most prone to bring in new problems? Which are the most
->     critical ones? Do you want them to be tested? Which tests do you feel are
->     most beneficial for specific trees or in general?
-> - Security when testing untrusted patches
->   - How do we merge, compile, and test patches that have untrusted code in them
->     and have not yet been reviewed? How do we avoid abuse of systems,
->     information theft, or other damage?
->   - Check out the original patch that sparked the discussion at
->     https://patchwork.ozlabs.org/patch/862123/
-> - Avoiding effort duplication
->   - Food for thought by GregKH
+> My fixes are mostly "oneliners". If we could get both approaches upstream,
+> that'd be perfect!
 
-So I guess I'm going to be there?
-
-Ok, fair enough, I'll be present, looks good :)
-
-thanks,
-
-greg k-h
+But they basically just fix code that otherwise gets removed.  And the way
+this patches uses the ENTERED flag from the md code looks slightly
+sketchy to me.  Maybe we want them as stable only patches.
