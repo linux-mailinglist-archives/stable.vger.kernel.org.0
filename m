@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA60025A68
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F228C25A69
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726363AbfEUWn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 18:43:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52674 "EHLO mail.kernel.org"
+        id S1727015AbfEUWn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 18:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726083AbfEUWn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 18:43:56 -0400
+        id S1726083AbfEUWn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 18:43:59 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0923021850;
-        Tue, 21 May 2019 22:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB7B92184B;
+        Tue, 21 May 2019 22:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558478635;
-        bh=fByXQP5xNXGaZf75AsAwoKJv7hor3hJTASAyNg03Wxo=;
+        s=default; t=1558478637;
+        bh=BDTqBY98gwfc/zufw9LKEQ457obIX01gojH2UsjGsNo=;
         h=Date:From:To:Subject:From;
-        b=SuAC8yDOse5QmHVEOdW+c5U2S7ckCPC8dOqidYQO2Kag6Zjr7axDMTTmmQo+/1uQE
-         7B+7BGPbhBNYC7MKfenb3xBufyo6h0viL2exduKbZDBieHrYzH136pjQkkUVTtKthv
-         VSweRPlOKOsLpKd3532udKrjlBB6V3HM2mXul2kE=
-Date:   Tue, 21 May 2019 15:43:54 -0700
+        b=lVHTt+JlCi5Omdq3DvSDlJyJxu4Twgwlvjv+z/Yv9aF7gllE+i9oQooHGj/WWqbhe
+         nH8iZN9J6C2UjOJM6SRdwPNp2kTBAT28UdU6Ifmo1lIKYu2k17tsdQHRZDgFJFW0A3
+         jq/e/1lxnsrDTD80u0DjXISXnVcP3IsWp3KZg0YI=
+Date:   Tue, 21 May 2019 15:43:57 -0700
 From:   akpm@linux-foundation.org
-To:     aryabinin@virtuozzo.com, cai@lca.pw, dvyukov@google.com,
-        mgorman@techsingularity.net, mhocko@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
+To:     jiufei.xue@linux.alibaba.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, tj@kernel.org
 Subject:  [merged]
- =?US-ASCII?Q?mm-compactionc-correct-zone-boundary-handling-when-isolat?=
- =?US-ASCII?Q?ing-pages-from-a-pageblock.patch?= removed from -mm tree
-Message-ID: <20190521224354.8hGFIINt4%akpm@linux-foundation.org>
+ =?US-ASCII?Q?fs-writeback-use-rcu=5Fbarrier-to-wait-for-inflight-wb-swi?=
+ =?US-ASCII?Q?tches-going-into-workqueue-when-umount.patch?= removed from
+ -mm tree
+Message-ID: <20190521224357.6O-AURWTz%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -42,102 +42,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/compaction.c: correct zone boundary handling when isolating pages from a pageblock
+     Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 has been removed from the -mm tree.  Its filename was
-     mm-compactionc-correct-zone-boundary-handling-when-isolating-pages-from-a-pageblock.patch
+     fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Mel Gorman <mgorman@techsingularity.net>
-Subject: mm/compaction.c: correct zone boundary handling when isolating pages from a pageblock
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Subject: fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
 
-syzbot reported the following error from a tree with a head commit of
-baf76f0c58ae ("slip: make slhc_free() silently accept an error pointer")
+synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb switch
+may not go to the workqueue after synchronize_rcu().  Thus previous
+scheduled switches was not finished even flushing the workqueue, which
+will cause a NULL pointer dereferenced followed below.
 
-  BUG: unable to handle kernel paging request at ffffea0003348000
-  #PF error: [normal kernel read fault]
-  PGD 12c3f9067 P4D 12c3f9067 PUD 12c3f8067 PMD 0
-  Oops: 0000 [#1] PREEMPT SMP KASAN
-  CPU: 1 PID: 28916 Comm: syz-executor.2 Not tainted 5.1.0-rc6+ #89
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:constant_test_bit arch/x86/include/asm/bitops.h:314 [inline]
-  RIP: 0010:PageCompound include/linux/page-flags.h:186 [inline]
-  RIP: 0010:isolate_freepages_block+0x1c0/0xd40 mm/compaction.c:579
-  Code: 01 d8 ff 4d 85 ed 0f 84 ef 07 00 00 e8 29 00 d8 ff 4c 89 e0 83 85 38 ff
-  ff ff 01 48 c1 e8 03 42 80 3c 38 00 0f 85 31 0a 00 00 <4d> 8b 2c 24 31 ff 49
-  c1 ed 10 41 83 e5 01 44 89 ee e8 3a 01 d8 ff
-  RSP: 0018:ffff88802b31eab8 EFLAGS: 00010246
-  RAX: 1ffffd4000669000 RBX: 00000000000cd200 RCX: ffffc9000a235000
-  RDX: 000000000001ca5e RSI: ffffffff81988cc7 RDI: 0000000000000001
-  RBP: ffff88802b31ebd8 R08: ffff88805af700c0 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: ffffea0003348000
-  R13: 0000000000000000 R14: ffff88802b31f030 R15: dffffc0000000000
-  FS:  00007f61648dc700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffffea0003348000 CR3: 0000000037c64000 CR4: 00000000001426e0
-  Call Trace:
-   fast_isolate_around mm/compaction.c:1243 [inline]
-   fast_isolate_freepages mm/compaction.c:1418 [inline]
-   isolate_freepages mm/compaction.c:1438 [inline]
-   compaction_alloc+0x1aee/0x22e0 mm/compaction.c:1550
+VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
+[<ffffffff8126a303>] evict+0xb3/0x180
+[<ffffffff8126a760>] iput+0x1b0/0x230
+[<ffffffff8127c690>] inode_switch_wbs_work_fn+0x3c0/0x6a0
+[<ffffffff810a5b2e>] worker_thread+0x4e/0x490
+[<ffffffff810a5ae0>] ? process_one_work+0x410/0x410
+[<ffffffff810ac056>] kthread+0xe6/0x100
+[<ffffffff8173c199>] ret_from_fork+0x39/0x50
 
-There is no reproducer and it is difficult to hit -- 1 crash every few
-days.  The issue is very similar to the fix in commit 6b0868c820ff
-("mm/compaction.c: correct zone boundary handling when resetting pageblock
-skip hints").  When isolating free pages around a target pageblock, the
-boundary handling is off by one and can stray into the next pageblock. 
-Triggering the syzbot error requires that the end of pageblock is section
-or zone aligned, and that the next section is unpopulated.
+Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
+pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu() in
+inode_switch_wbs() to make more sense.
 
-A more subtle consequence of the bug is that pageblocks were being
-improperly used as migration targets which potentially hurts fragmentation
-avoidance in the long-term one page at a time.
-
-A debugging patch revealed that it's definitely possible to stray outside
-of a pageblock which is not intended.  While syzbot cannot be used to
-verify this patch, it was confirmed that the debugging warning no longer
-triggers with this patch applied.  It has also been confirmed that the THP
-allocation stress tests are not degraded by this patch.
-
-Link: http://lkml.kernel.org/r/20190510182124.GI18914@techsingularity.net
-Fixes: e332f741a8dd ("mm, compaction: be selective about what pageblocks to clear skip hints")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reported-by: syzbot+d84c80f9fe26a0f7a734@syzkaller.appspotmail.com
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org> # v5.1+
+Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Suggested-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/compaction.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/fs-writeback.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/mm/compaction.c~mm-compactionc-correct-zone-boundary-handling-when-isolating-pages-from-a-pageblock
-+++ a/mm/compaction.c
-@@ -1230,7 +1230,7 @@ fast_isolate_around(struct compact_contr
+--- a/fs/fs-writeback.c~fs-writeback-use-rcu_barrier-to-wait-for-inflight-wb-switches-going-into-workqueue-when-umount
++++ a/fs/fs-writeback.c
+@@ -523,8 +523,6 @@ static void inode_switch_wbs(struct inod
  
- 	/* Pageblock boundaries */
- 	start_pfn = pageblock_start_pfn(pfn);
--	end_pfn = min(start_pfn + pageblock_nr_pages, zone_end_pfn(cc->zone));
-+	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
+ 	isw->inode = inode;
  
- 	/* Scan before */
- 	if (start_pfn != pfn) {
-@@ -1241,7 +1241,7 @@ fast_isolate_around(struct compact_contr
+-	atomic_inc(&isw_nr_in_flight);
+-
+ 	/*
+ 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+ 	 * the RCU protected stat update paths to grab the i_page
+@@ -532,6 +530,9 @@ static void inode_switch_wbs(struct inod
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
++
++	atomic_inc(&isw_nr_in_flight);
++
+ 	goto out_unlock;
  
- 	/* Scan after */
- 	start_pfn = pfn + nr_isolated;
--	if (start_pfn != end_pfn)
-+	if (start_pfn < end_pfn)
- 		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
- 
- 	/* Skip this pageblock in the future as it's full or nearly full */
+ out_free:
+@@ -901,7 +902,11 @@ restart:
+ void cgroup_writeback_umount(void)
+ {
+ 	if (atomic_read(&isw_nr_in_flight)) {
+-		synchronize_rcu();
++		/*
++		 * Use rcu_barrier() to wait for all pending callbacks to
++		 * ensure that all in-flight wb switches are in the workqueue.
++		 */
++		rcu_barrier();
+ 		flush_workqueue(isw_wq);
+ 	}
+ }
 _
 
-Patches currently in -mm which might be from mgorman@techsingularity.net are
+Patches currently in -mm which might be from jiufei.xue@linux.alibaba.com are
 
 
