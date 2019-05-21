@@ -2,161 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A44D224CA8
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 12:28:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2298724CC9
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 12:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbfEUK2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 06:28:30 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:35290 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726448AbfEUK23 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 06:28:29 -0400
-Received: by mail-lf1-f67.google.com with SMTP id c17so12691443lfi.2
-        for <stable@vger.kernel.org>; Tue, 21 May 2019 03:28:28 -0700 (PDT)
+        id S1727680AbfEUKeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 06:34:50 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:39498 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726750AbfEUKet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 06:34:49 -0400
+Received: by mail-lf1-f68.google.com with SMTP id f1so12687538lfl.6
+        for <stable@vger.kernel.org>; Tue, 21 May 2019 03:34:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ypEC6tDgKAfHuEBHsi8HF1SX5FcgwInmJVlMmX/EfCU=;
-        b=ZkSCYeAzMi0thhRrnIvfYIQJ8rn7TLQ8Z7DxodHlKXwnrL5Ijd3ZlHAyRC04x3+LW+
-         riiRoAflqyMdLnpDjaG6FeZZtAQC/7FXkkvYZfLCPPOEps0Ua+Ue21OpyP0xdXeh75j1
-         GFnLnUbWZztTc00PaJDSiatCDXDAYlnxzb12xdE2fCNQH2fWnWFtcvvT+QH4d53sMlPp
-         jlzjJ9gI+RgEq2/mL5DCdHtFfbXQhzy7OY/jgZ+gkrnICsONpZ5v95a7YYdq0rxXccxa
-         7LkcMaelW0RyOzZYZ2n4V6k2/8dTgP46LKHKpDKhKTt6+s1Y3B4DivFCD7jBUrW6PS9x
-         yxZw==
+         :cc:content-transfer-encoding;
+        bh=fCy/VGpOq743DayHQQsEozNjpRnyCKmSgWu0EqLS7qg=;
+        b=zP89vje+56kWqEkujYv48d0KS4alfTieGHI7YzDNtsS4JuwFk1Dh8MNxXHZoJPbAxQ
+         CH3lOVrIsd6nqpUPTVZulS1/3Z+tnWTCxbnoLBkwiBZw+zOPGMUncf2qftUjFiql35Lk
+         CdPFd1b7QYx+1e/JzV/e485h65Z1WwH5rdGpe6KrVTAKDG3TOsSMvRfpR9bNtzjaJDh7
+         EwUC03mrqTHncJzjWFsziAhLwIJ5pSDPgI02aDo6COvLOEYrIBe+ClTUuVLXmE58NrqW
+         sJSwMImQdNKURKsZVdP/6VfWR/gfbYg2GXdAyMQ/SzZNCKDKyLzIG6NxyCxBFsvuENeO
+         2nxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ypEC6tDgKAfHuEBHsi8HF1SX5FcgwInmJVlMmX/EfCU=;
-        b=PqBdIn5LqfJ8b5jC+FT9CLSNOJDJiM24nLv7neUNcme9SFY7V2Y/esgv7NYGgqTyZ2
-         PM4cqFeYbQzCUyAuMvbEH22fpcylPVHhyu9w8+VWUHNtFA/QAbvLjtl7roBVGGiIIMTQ
-         +EojI6viOzTxpKBjhuecGWc4AO21v2Zsdl9yTfy2MZpeqnZAAAyf6OH/GnrY+d/u/pOE
-         qDR8ruIMJ5b6OWgNhC63IMTd3AgfQuYWZb/Gr14TB1Tk5y/meAN0OLJBmF+5QPnxpVwC
-         M5sTqq5gagQvollpwEdukkD+JgoKhW8OuAQ7Qp/FjgToOSsdQphnl6qgP0AsLuh1Xnr2
-         V4aQ==
-X-Gm-Message-State: APjAAAXTQ1s5adTxP9l05VxHCMavhVoWrxhy+lF6U8ENpEFFMS15ai9l
-        +1q1HwLQrAx7XELqaiUrRA6yRaEVRfnviEHu04gOvQ==
-X-Google-Smtp-Source: APXvYqxaPoajSLqDQ5wespjdeGowGUfBiNAuDTnpRIMI85N/n48zuFdCpcv8LtcEdpCbkRjFqW/KclwazMexHAvBwM8=
-X-Received: by 2002:ac2:429a:: with SMTP id m26mr1408107lfh.152.1558434507185;
- Tue, 21 May 2019 03:28:27 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=fCy/VGpOq743DayHQQsEozNjpRnyCKmSgWu0EqLS7qg=;
+        b=iQrMKiYpt4M525v/N0IJSTFQoNWA4rVJXdbUfVll7XsLjTED+ihnvruM/4mXsAuvzC
+         KmeCcW2czIkvl0tywRiCLfwDfXwq7ynMOAOzv5NL2aGhM23q6U9XXblD1lz15It/qwbz
+         xdP6f7vu1AHLlVUfsLraU9lYuEE5IzAAjjPegQSMmRX9+NhlRkuRUdFO/3PwOdHTnojz
+         7t7BW7VkTIeA1w0IGFz9gyoOu3VbrZtblu2FUAfc48CVqm8OLg0CW6eeMyY1QQLfe6vi
+         xANYZoVJGyJdyDCwr22eRavVRKX8QNHMEMX7yc3ch/uuF2avKKg61o4u7c1v/hLOVNN1
+         A/nw==
+X-Gm-Message-State: APjAAAW4PSDeqmYRLhMxcEuNj1fu6XzmxLI+y7FalW+ruLbq7QCqp5CJ
+        mR58TD3+KwQDJ7iW8wV1f6zXw9JVBKvfrltY8i7rVA==
+X-Google-Smtp-Source: APXvYqyQFz1GGstt7zS1hAVbudRpaHbP9enaU8FISyREPvFreiVL7X+mhabTLNetdmWxR+2SPWWHYx8+tn/RG6YHtcE=
+X-Received: by 2002:a19:6703:: with SMTP id b3mr5248194lfc.153.1558434887837;
+ Tue, 21 May 2019 03:34:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190520115247.060821231@linuxfoundation.org> <20190520222342.wtsjx227c6qbkuua@xps.therub.org>
- <20190521085956.GC31445@kroah.com> <CA+G9fYvHmUimtwszwo=9fDQLn+MNh8Vq3UGPaPUdhH=dEKzqxg@mail.gmail.com>
- <20190521093849.GA9806@kroah.com>
-In-Reply-To: <20190521093849.GA9806@kroah.com>
+References: <20190520115230.720347034@linuxfoundation.org>
+In-Reply-To: <20190520115230.720347034@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 May 2019 15:58:15 +0530
-Message-ID: <CA+G9fYveeg_FMsL31aunJ2A9XLYk908Y1nSFw4kwkFk3h3uEiA@mail.gmail.com>
-Subject: Re: ext4 regression (was Re: [PATCH 4.19 000/105] 4.19.45-stable review)
+Date:   Tue, 21 May 2019 16:04:35 +0530
+Message-ID: <CA+G9fYs+Ft2v_Xr0KJ3AOdbTTJJ8YB6vgLc-ps6TiVM4nyftLw@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/44] 4.9.178-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Theodore Ts'o" <tytso@mit.edu>,
-        open list <linux-kernel@vger.kernel.org>,
+Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
         Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        linux-ext4@vger.kernel.org,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Richard Weinberger <richard.weinberger@gmail.com>
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 21 May 2019 at 15:08, Greg Kroah-Hartman
+On Mon, 20 May 2019 at 17:47, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> On Tue, May 21, 2019 at 02:58:58PM +0530, Naresh Kamboju wrote:
-> > On Tue, 21 May 2019 at 14:30, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Mon, May 20, 2019 at 05:23:42PM -0500, Dan Rue wrote:
-> > > > On Mon, May 20, 2019 at 02:13:06PM +0200, Greg Kroah-Hartman wrote:
-> > > > > This is the start of the stable review cycle for the 4.19.45 release.
-> > > > > There are 105 patches in this series, all will be posted as a response
-> > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > let me know.
-> > > > >
-> > > > > Responses should be made by Wed 22 May 2019 11:50:49 AM UTC.
-> > > > > Anything received after that time might be too late.
-> > > >
-> > > > We're seeing an ext4 issue previously reported at
-> > > > https://lore.kernel.org/lkml/20190514092054.GA6949@osiris.
-> > > >
-> > > > [ 1916.032087] EXT4-fs error (device sda): ext4_find_extent:909: inode #8: comm jbd2/sda-8: pblk 121667583 bad header/extent: invalid extent entries - magic f30a, entries 8, max 340(340), depth 0(0)
-> > > > [ 1916.073840] jbd2_journal_bmap: journal block not found at offset 4455 on sda-8
-> > > > [ 1916.081071] Aborting journal on device sda-8.
-> > > > [ 1916.348652] EXT4-fs error (device sda): ext4_journal_check_start:61: Detected aborted journal
-> > > > [ 1916.357222] EXT4-fs (sda): Remounting filesystem read-only
-> > > >
-> > > > This is seen on 4.19-rc, 5.0-rc, mainline, and next. We don't have data
-> > > > for 5.1-rc yet, which is presumably also affected in this RC round.
-> > > >
-> > > > We only see this on x86_64 and i386 devices - though our hardware setups
-> > > > vary so it could be coincidence.
-> > > >
-> > > > I have to run out now, but I'll come back and work on a reproducer and
-> > > > bisection later tonight and tomorrow.
-> > > >
-> > > > Here is an example test run; link goes to the spot in the ltp syscalls
-> > > > test where the disk goes into read-only mode.
-> > > > https://lkft.validation.linaro.org/scheduler/job/735468#L8081
-> > >
-> > > Odd, I keep hearing rumors of ext4 issues right now, but nothing
-> > > actually solid that I can point to.  Any help you can provide here would
-> > > be great.
-> > >
-> >
-> > git bisect helped me to land on this commit,
-> >
-> > # git bisect bad
-> > e8fd3c9a5415f9199e3fc5279e0f1dfcc0a80ab2 is the first bad commit
-> > commit e8fd3c9a5415f9199e3fc5279e0f1dfcc0a80ab2
-> > Author: Theodore Ts'o <tytso@mit.edu>
-> > Date:   Tue Apr 9 23:37:08 2019 -0400
-> >
-> >     ext4: protect journal inode's blocks using block_validity
-> >
-> >     commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
-> >
-> >     Add the blocks which belong to the journal inode to block_validity's
-> >     system zone so attempts to deallocate or overwrite the journal due a
-> >     corrupted file system where the journal blocks are also claimed by
-> >     another inode.
-> >
-> >     Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
-> >     Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> >     Cc: stable@kernel.org
-> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >
-> > :040000 040000 b8b6ce2577d60c65021e5cc1c3a38b32e0cbb2ff
-> > 747c67b159b33e4e1da414b1d33567a5da9ae125 M fs
+> This is the start of the stable review cycle for the 4.9.178 release.
+> There are 44 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Ah, many thanks for this bisection.
+> Responses should be made by Wed 22 May 2019 11:50:58 AM UTC.
+> Anything received after that time might be too late.
 >
-> Ted, any ideas here?  Should I drop this from the stable trees, and you
-> revert it from Linus's?  Or something else?
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.178-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
 >
-> Note, I do also have 170417c8c7bb ("ext4: fix block validity checks for
-> journal inodes using indirect blocks") in the trees, which was supposed
-> to fix the problem with this patch, am I missing another one as well?
-
-FYI,
-I have applied fix patch 170417c8c7bb ("ext4: fix block validity checks for
- journal inodes using indirect blocks") but did not fix this problem.
-
+> thanks,
 >
-> (side note, it was mean not to mark 170417c8c7bb for stable, when the
-> patch it was fixing was marked for stable, I'm lucky I caught it...)
->
+> greg k-h
 
-This problem occurring on stable rc 4.19, 5.0, 5.1 branches
-and master branch of mainline and -next trees also.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
+Summary
+------------------------------------------------------------------------
 
-- Naresh
+kernel: 4.9.178-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 1a569b62b013b75248598605647b0c077a399c5c
+git describe: v4.9.177-45-g1a569b62b013
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.177-45-g1a569b62b013
+
+No regressions (compared to build v4.9.177)
+
+No fixes (compared to build v4.9.177)
+
+Ran 23360 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
