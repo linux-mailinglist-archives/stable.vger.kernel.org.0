@@ -2,99 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FF124C89
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 12:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A44D224CA8
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 12:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbfEUKS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 06:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45290 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726138AbfEUKS7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 06:18:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8311A21773;
-        Tue, 21 May 2019 10:18:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558433939;
-        bh=c7syVp+euvjnJkxRU1oOQXfGkTG/51g6ZcC2jmjPlTc=;
-        h=Subject:To:From:Date:From;
-        b=dqPkz5wSthMtocPmpaGcNZldoCjTJvUyD2HYmJckle5QR1WmJCBDhVza3gaI26tir
-         9Socpn7u/Mfr/VcNKdSPKWjVJEsxBOubRPEAlYjj9dn77zUVcEoYOv1ICQTIGaYZUM
-         mmOy8zeet7Im5x5xuehHTbsAQHwRoVQLW4FrDH6o=
-Subject: patch "tty: max310x: Fix external crystal register setup" added to tty-linus
-To:     joe.burmeister@devtank.co.uk, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 May 2019 12:18:44 +0200
-Message-ID: <15584339244214@kroah.com>
+        id S1726525AbfEUK2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 06:28:30 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:35290 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726448AbfEUK23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 06:28:29 -0400
+Received: by mail-lf1-f67.google.com with SMTP id c17so12691443lfi.2
+        for <stable@vger.kernel.org>; Tue, 21 May 2019 03:28:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ypEC6tDgKAfHuEBHsi8HF1SX5FcgwInmJVlMmX/EfCU=;
+        b=ZkSCYeAzMi0thhRrnIvfYIQJ8rn7TLQ8Z7DxodHlKXwnrL5Ijd3ZlHAyRC04x3+LW+
+         riiRoAflqyMdLnpDjaG6FeZZtAQC/7FXkkvYZfLCPPOEps0Ua+Ue21OpyP0xdXeh75j1
+         GFnLnUbWZztTc00PaJDSiatCDXDAYlnxzb12xdE2fCNQH2fWnWFtcvvT+QH4d53sMlPp
+         jlzjJ9gI+RgEq2/mL5DCdHtFfbXQhzy7OY/jgZ+gkrnICsONpZ5v95a7YYdq0rxXccxa
+         7LkcMaelW0RyOzZYZ2n4V6k2/8dTgP46LKHKpDKhKTt6+s1Y3B4DivFCD7jBUrW6PS9x
+         yxZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ypEC6tDgKAfHuEBHsi8HF1SX5FcgwInmJVlMmX/EfCU=;
+        b=PqBdIn5LqfJ8b5jC+FT9CLSNOJDJiM24nLv7neUNcme9SFY7V2Y/esgv7NYGgqTyZ2
+         PM4cqFeYbQzCUyAuMvbEH22fpcylPVHhyu9w8+VWUHNtFA/QAbvLjtl7roBVGGiIIMTQ
+         +EojI6viOzTxpKBjhuecGWc4AO21v2Zsdl9yTfy2MZpeqnZAAAyf6OH/GnrY+d/u/pOE
+         qDR8ruIMJ5b6OWgNhC63IMTd3AgfQuYWZb/Gr14TB1Tk5y/meAN0OLJBmF+5QPnxpVwC
+         M5sTqq5gagQvollpwEdukkD+JgoKhW8OuAQ7Qp/FjgToOSsdQphnl6qgP0AsLuh1Xnr2
+         V4aQ==
+X-Gm-Message-State: APjAAAXTQ1s5adTxP9l05VxHCMavhVoWrxhy+lF6U8ENpEFFMS15ai9l
+        +1q1HwLQrAx7XELqaiUrRA6yRaEVRfnviEHu04gOvQ==
+X-Google-Smtp-Source: APXvYqxaPoajSLqDQ5wespjdeGowGUfBiNAuDTnpRIMI85N/n48zuFdCpcv8LtcEdpCbkRjFqW/KclwazMexHAvBwM8=
+X-Received: by 2002:ac2:429a:: with SMTP id m26mr1408107lfh.152.1558434507185;
+ Tue, 21 May 2019 03:28:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20190520115247.060821231@linuxfoundation.org> <20190520222342.wtsjx227c6qbkuua@xps.therub.org>
+ <20190521085956.GC31445@kroah.com> <CA+G9fYvHmUimtwszwo=9fDQLn+MNh8Vq3UGPaPUdhH=dEKzqxg@mail.gmail.com>
+ <20190521093849.GA9806@kroah.com>
+In-Reply-To: <20190521093849.GA9806@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 21 May 2019 15:58:15 +0530
+Message-ID: <CA+G9fYveeg_FMsL31aunJ2A9XLYk908Y1nSFw4kwkFk3h3uEiA@mail.gmail.com>
+Subject: Re: ext4 regression (was Re: [PATCH 4.19 000/105] 4.19.45-stable review)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        linux-ext4@vger.kernel.org,
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Richard Weinberger <richard.weinberger@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 21 May 2019 at 15:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, May 21, 2019 at 02:58:58PM +0530, Naresh Kamboju wrote:
+> > On Tue, 21 May 2019 at 14:30, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Mon, May 20, 2019 at 05:23:42PM -0500, Dan Rue wrote:
+> > > > On Mon, May 20, 2019 at 02:13:06PM +0200, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 4.19.45 release.
+> > > > > There are 105 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > >
+> > > > > Responses should be made by Wed 22 May 2019 11:50:49 AM UTC.
+> > > > > Anything received after that time might be too late.
+> > > >
+> > > > We're seeing an ext4 issue previously reported at
+> > > > https://lore.kernel.org/lkml/20190514092054.GA6949@osiris.
+> > > >
+> > > > [ 1916.032087] EXT4-fs error (device sda): ext4_find_extent:909: inode #8: comm jbd2/sda-8: pblk 121667583 bad header/extent: invalid extent entries - magic f30a, entries 8, max 340(340), depth 0(0)
+> > > > [ 1916.073840] jbd2_journal_bmap: journal block not found at offset 4455 on sda-8
+> > > > [ 1916.081071] Aborting journal on device sda-8.
+> > > > [ 1916.348652] EXT4-fs error (device sda): ext4_journal_check_start:61: Detected aborted journal
+> > > > [ 1916.357222] EXT4-fs (sda): Remounting filesystem read-only
+> > > >
+> > > > This is seen on 4.19-rc, 5.0-rc, mainline, and next. We don't have data
+> > > > for 5.1-rc yet, which is presumably also affected in this RC round.
+> > > >
+> > > > We only see this on x86_64 and i386 devices - though our hardware setups
+> > > > vary so it could be coincidence.
+> > > >
+> > > > I have to run out now, but I'll come back and work on a reproducer and
+> > > > bisection later tonight and tomorrow.
+> > > >
+> > > > Here is an example test run; link goes to the spot in the ltp syscalls
+> > > > test where the disk goes into read-only mode.
+> > > > https://lkft.validation.linaro.org/scheduler/job/735468#L8081
+> > >
+> > > Odd, I keep hearing rumors of ext4 issues right now, but nothing
+> > > actually solid that I can point to.  Any help you can provide here would
+> > > be great.
+> > >
+> >
+> > git bisect helped me to land on this commit,
+> >
+> > # git bisect bad
+> > e8fd3c9a5415f9199e3fc5279e0f1dfcc0a80ab2 is the first bad commit
+> > commit e8fd3c9a5415f9199e3fc5279e0f1dfcc0a80ab2
+> > Author: Theodore Ts'o <tytso@mit.edu>
+> > Date:   Tue Apr 9 23:37:08 2019 -0400
+> >
+> >     ext4: protect journal inode's blocks using block_validity
+> >
+> >     commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
+> >
+> >     Add the blocks which belong to the journal inode to block_validity's
+> >     system zone so attempts to deallocate or overwrite the journal due a
+> >     corrupted file system where the journal blocks are also claimed by
+> >     another inode.
+> >
+> >     Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
+> >     Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> >     Cc: stable@kernel.org
+> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >
+> > :040000 040000 b8b6ce2577d60c65021e5cc1c3a38b32e0cbb2ff
+> > 747c67b159b33e4e1da414b1d33567a5da9ae125 M fs
+>
+> Ah, many thanks for this bisection.
+>
+> Ted, any ideas here?  Should I drop this from the stable trees, and you
+> revert it from Linus's?  Or something else?
+>
+> Note, I do also have 170417c8c7bb ("ext4: fix block validity checks for
+> journal inodes using indirect blocks") in the trees, which was supposed
+> to fix the problem with this patch, am I missing another one as well?
 
-This is a note to let you know that I've just added the patch titled
+FYI,
+I have applied fix patch 170417c8c7bb ("ext4: fix block validity checks for
+ journal inodes using indirect blocks") but did not fix this problem.
 
-    tty: max310x: Fix external crystal register setup
+>
+> (side note, it was mean not to mark 170417c8c7bb for stable, when the
+> patch it was fixing was marked for stable, I'm lucky I caught it...)
+>
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+This problem occurring on stable rc 4.19, 5.0, 5.1 branches
+and master branch of mainline and -next trees also.
 
 
-From 5d24f455c182d5116dd5db8e1dc501115ecc9c2c Mon Sep 17 00:00:00 2001
-From: Joe Burmeister <joe.burmeister@devtank.co.uk>
-Date: Mon, 13 May 2019 11:23:57 +0100
-Subject: tty: max310x: Fix external crystal register setup
-
-The datasheet states:
-
-  Bit 4: ClockEnSet the ClockEn bit high to enable an external clocking
-(crystal or clock generator at XIN). Set the ClockEn bit to 0 to disable
-clocking
-  Bit 1: CrystalEnSet the CrystalEn bit high to enable the crystal
-oscillator. When using an external clock source at XIN, CrystalEn must
-be set low.
-
-The bit 4, MAX310X_CLKSRC_EXTCLK_BIT, should be set and was not.
-
-This was required to make the MAX3107 with an external crystal on our
-board able to send or receive data.
-
-Signed-off-by: Joe Burmeister <joe.burmeister@devtank.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/max310x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 450ba6d7996c..e5aebbf5f302 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -581,7 +581,7 @@ static int max310x_set_ref_clk(struct device *dev, struct max310x_port *s,
- 	}
- 
- 	/* Configure clock source */
--	clksrc = xtal ? MAX310X_CLKSRC_CRYST_BIT : MAX310X_CLKSRC_EXTCLK_BIT;
-+	clksrc = MAX310X_CLKSRC_EXTCLK_BIT | (xtal ? MAX310X_CLKSRC_CRYST_BIT : 0);
- 
- 	/* Configure PLL */
- 	if (pllcfg) {
--- 
-2.21.0
-
-
+- Naresh
