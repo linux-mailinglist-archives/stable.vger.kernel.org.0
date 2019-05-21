@@ -2,99 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CE625A61
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA60025A68
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 00:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727622AbfEUWkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 18:40:45 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:46430 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727015AbfEUWkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 18:40:45 -0400
-Received: by mail-wr1-f45.google.com with SMTP id r7so47704wrr.13
-        for <stable@vger.kernel.org>; Tue, 21 May 2019 15:40:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=A/NTM6JZzotXS9twj7xzWTbpTUvMjueY4e6uzN3h0o0=;
-        b=ZMKQ3xGJU2AgAI5HZpuqQOxfCKmSn1gq+Mzh6DnQpjOJgbMObTm2F6iG4+MDp4zWLA
-         bubUN2vzRktyBOfoKF9WJn9peMsKIK+KA3TYe37mC27/3xE3H9eFpKNNKP8slWOC1PXU
-         FmXdryRmrcg0tIz859LHsEiKiI1+xRHVYJETzGsulrePNJ7oM6hQyj1kKoUOCPi6ibWq
-         InfHGmJsvdwv+kWZzhSsD2PRGzst08tuNQDdWQmYMLaT23uu+s6Q8dlpCXuJTeRy8lUM
-         ymfpnIyP6JP+bzpj2J/rIyZ2MwykNLnJTd4wVYKNHmI0AqDXv+Jn64W5eYAVdum1lBFP
-         S4PQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=A/NTM6JZzotXS9twj7xzWTbpTUvMjueY4e6uzN3h0o0=;
-        b=iopHVKZon9CPS0tOD0Hb4BZZLsMrk6Baa9lIHWAaQxP21ZXde1P19ToDhiPD45CG2Q
-         WG7MbS23Qh/aleTUCVJhbGi+NKQFYgJ7h0I+HP84+rWvuKkLc1/iivXwjj9XwgSUi7Yy
-         2Z6PChYgpIoelcA5aM+OYttZwDwHmXHw3U5UpodWSQYvDo+lXB0Q47lj90K+97l7VdVX
-         B8bCP4NjsB7E4PpdP9K6Bbwd5mihiVtbmyDuBsykFek3c//AOme9SiIpPKl6Mi7ztvRh
-         +yoFxv9y7v2TpXhfZ12W/hyeU4OxVZVv2w8gFXWCsqWRJ/Wec0sTKB1gm3cLxLOpjTkV
-         d1wA==
-X-Gm-Message-State: APjAAAWs5x+T4KsCUETtUKmaNhM0GioEeu73F+S/Pwv58vXIC3sVLGSQ
-        H4mwtuz9bXuOr2nsRIkSaSxaCW18EwDL+A==
-X-Google-Smtp-Source: APXvYqyJR2IH+Heg/ZZRz5y3OGosDM6ROUJBGB16dP8MRoeeI0MyLYsTlDUBffH8DYFHBpnKiAjaew==
-X-Received: by 2002:adf:f74f:: with SMTP id z15mr25456190wrp.282.1558478443854;
-        Tue, 21 May 2019 15:40:43 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h11sm29292022wrr.44.2019.05.21.15.40.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 May 2019 15:40:43 -0700 (PDT)
-Message-ID: <5ce47e6b.1c69fb81.f599.e8d4@mx.google.com>
-Date:   Tue, 21 May 2019 15:40:43 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726363AbfEUWn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 18:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726083AbfEUWn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 18:43:56 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0923021850;
+        Tue, 21 May 2019 22:43:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558478635;
+        bh=fByXQP5xNXGaZf75AsAwoKJv7hor3hJTASAyNg03Wxo=;
+        h=Date:From:To:Subject:From;
+        b=SuAC8yDOse5QmHVEOdW+c5U2S7ckCPC8dOqidYQO2Kag6Zjr7axDMTTmmQo+/1uQE
+         7B+7BGPbhBNYC7MKfenb3xBufyo6h0viL2exduKbZDBieHrYzH136pjQkkUVTtKthv
+         VSweRPlOKOsLpKd3532udKrjlBB6V3HM2mXul2kE=
+Date:   Tue, 21 May 2019 15:43:54 -0700
+From:   akpm@linux-foundation.org
+To:     aryabinin@virtuozzo.com, cai@lca.pw, dvyukov@google.com,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
+Subject:  [merged]
+ =?US-ASCII?Q?mm-compactionc-correct-zone-boundary-handling-when-isolat?=
+ =?US-ASCII?Q?ing-pages-from-a-pageblock.patch?= removed from -mm tree
+Message-ID: <20190521224354.8hGFIINt4%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.121
-Subject: stable/linux-4.14.y boot: 50 boots: 1 failed,
- 48 passed with 1 untried/unknown (v4.14.121)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 50 boots: 1 failed, 48 passed with 1 untried/unkn=
-own (v4.14.121)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.121/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.121/
+The patch titled
+     Subject: mm/compaction.c: correct zone boundary handling when isolating pages from a pageblock
+has been removed from the -mm tree.  Its filename was
+     mm-compactionc-correct-zone-boundary-handling-when-isolating-pages-from-a-pageblock.patch
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.121
-Git Commit: bbcb3c09eae4cc8d33415c29816debbec20a08df
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 26 unique boards, 16 SoC families, 11 builds out of 201
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-Boot Regressions Detected:
+------------------------------------------------------
+From: Mel Gorman <mgorman@techsingularity.net>
+Subject: mm/compaction.c: correct zone boundary handling when isolating pages from a pageblock
 
-arm:
+syzbot reported the following error from a tree with a head commit of
+baf76f0c58ae ("slip: make slhc_free() silently accept an error pointer")
 
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-baylibre: failing since 4 days (last pass: v4.14.119 - fi=
-rst fail: v4.14.120)
+  BUG: unable to handle kernel paging request at ffffea0003348000
+  #PF error: [normal kernel read fault]
+  PGD 12c3f9067 P4D 12c3f9067 PUD 12c3f8067 PMD 0
+  Oops: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 28916 Comm: syz-executor.2 Not tainted 5.1.0-rc6+ #89
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:constant_test_bit arch/x86/include/asm/bitops.h:314 [inline]
+  RIP: 0010:PageCompound include/linux/page-flags.h:186 [inline]
+  RIP: 0010:isolate_freepages_block+0x1c0/0xd40 mm/compaction.c:579
+  Code: 01 d8 ff 4d 85 ed 0f 84 ef 07 00 00 e8 29 00 d8 ff 4c 89 e0 83 85 38 ff
+  ff ff 01 48 c1 e8 03 42 80 3c 38 00 0f 85 31 0a 00 00 <4d> 8b 2c 24 31 ff 49
+  c1 ed 10 41 83 e5 01 44 89 ee e8 3a 01 d8 ff
+  RSP: 0018:ffff88802b31eab8 EFLAGS: 00010246
+  RAX: 1ffffd4000669000 RBX: 00000000000cd200 RCX: ffffc9000a235000
+  RDX: 000000000001ca5e RSI: ffffffff81988cc7 RDI: 0000000000000001
+  RBP: ffff88802b31ebd8 R08: ffff88805af700c0 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: ffffea0003348000
+  R13: 0000000000000000 R14: ffff88802b31f030 R15: dffffc0000000000
+  FS:  00007f61648dc700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffea0003348000 CR3: 0000000037c64000 CR4: 00000000001426e0
+  Call Trace:
+   fast_isolate_around mm/compaction.c:1243 [inline]
+   fast_isolate_freepages mm/compaction.c:1418 [inline]
+   isolate_freepages mm/compaction.c:1438 [inline]
+   compaction_alloc+0x1aee/0x22e0 mm/compaction.c:1550
 
-Boot Failure Detected:
+There is no reproducer and it is difficult to hit -- 1 crash every few
+days.  The issue is very similar to the fix in commit 6b0868c820ff
+("mm/compaction.c: correct zone boundary handling when resetting pageblock
+skip hints").  When isolating free pages around a target pageblock, the
+boundary handling is off by one and can stray into the next pageblock. 
+Triggering the syzbot error requires that the end of pageblock is section
+or zone aligned, and that the next section is unpopulated.
 
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap4-panda: 1 failed lab
+A more subtle consequence of the bug is that pageblocks were being
+improperly used as migration targets which potentially hurts fragmentation
+avoidance in the long-term one page at a time.
 
+A debugging patch revealed that it's definitely possible to stray outside
+of a pageblock which is not intended.  While syzbot cannot be used to
+verify this patch, it was confirmed that the debugging warning no longer
+triggers with this patch applied.  It has also been confirmed that the THP
+allocation stress tests are not degraded by this patch.
+
+Link: http://lkml.kernel.org/r/20190510182124.GI18914@techsingularity.net
+Fixes: e332f741a8dd ("mm, compaction: be selective about what pageblocks to clear skip hints")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Reported-by: syzbot+d84c80f9fe26a0f7a734@syzkaller.appspotmail.com
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ mm/compaction.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/compaction.c~mm-compactionc-correct-zone-boundary-handling-when-isolating-pages-from-a-pageblock
++++ a/mm/compaction.c
+@@ -1230,7 +1230,7 @@ fast_isolate_around(struct compact_contr
+ 
+ 	/* Pageblock boundaries */
+ 	start_pfn = pageblock_start_pfn(pfn);
+-	end_pfn = min(start_pfn + pageblock_nr_pages, zone_end_pfn(cc->zone));
++	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
+ 
+ 	/* Scan before */
+ 	if (start_pfn != pfn) {
+@@ -1241,7 +1241,7 @@ fast_isolate_around(struct compact_contr
+ 
+ 	/* Scan after */
+ 	start_pfn = pfn + nr_isolated;
+-	if (start_pfn != end_pfn)
++	if (start_pfn < end_pfn)
+ 		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
+ 
+ 	/* Skip this pageblock in the future as it's full or nearly full */
+_
+
+Patches currently in -mm which might be from mgorman@techsingularity.net are
+
+
