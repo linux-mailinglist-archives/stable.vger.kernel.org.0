@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4AA249D4
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 10:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9672D249D1
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 10:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727304AbfEUIJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 04:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34064 "EHLO mail.kernel.org"
+        id S1726391AbfEUIJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 04:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726296AbfEUIJc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 04:09:32 -0400
+        id S1726344AbfEUIJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 04:09:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C1AC21783;
-        Tue, 21 May 2019 08:09:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E84221773;
+        Tue, 21 May 2019 08:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558426171;
-        bh=HVRJR8+D3xURe3jriRQC06GIbWhuyk3+1C2bqzkaJHc=;
+        s=default; t=1558426169;
+        bh=0/MMtfac5R5nZ+NdtJdDKSLwSqFOB6cKHQlhXW2vsCI=;
         h=Subject:To:From:Date:From;
-        b=pDIsGEg2BhkKQFmuanKuXKbxVls5z7rLrZp68jooFoqeTIAnxRmnzt3y+BGtTpZ/Z
-         ml5j4148xZlcCNG5m15/L5GKqvit/hzDi3jXUCUl6dIdUpuT7GHhRiZgmC3HoQGH/d
-         aeGnsUV3DzGnF7mIow1l4DX7aWDOO95Vp2uLxauU=
-Subject: patch "USB: Add LPM quirk for Surface Dock GigE adapter" added to usb-linus
-To:     luzmaximilian@gmail.com, gregkh@linuxfoundation.org,
+        b=fsZsD7R0JWWzaQhfaXu1I1NLKpc5epwUS0B7OLoJAJvQRRMC24XzJEZ5/KyqJHgsK
+         99vAZ9vg+dQpW9PI4Uu1CQ1mbFxm+npoC1dxYuYyKGgIQbGvcJTX9dqx+dn9DQLltm
+         C/5RGpAwgibd5/ItiQH21alLeZOQRU5c5A2mTCn4=
+Subject: patch "USB: sisusbvga: fix oops in error path of sisusb_probe" added to usb-linus
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 21 May 2019 10:09:14 +0200
-Message-ID: <1558426154145158@kroah.com>
+Message-ID: <155842615424669@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: Add LPM quirk for Surface Dock GigE adapter
+    USB: sisusbvga: fix oops in error path of sisusb_probe
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,40 +55,58 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From ea261113385ac0a71c2838185f39e8452d54b152 Mon Sep 17 00:00:00 2001
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Thu, 16 May 2019 17:08:31 +0200
-Subject: USB: Add LPM quirk for Surface Dock GigE adapter
+From 9a5729f68d3a82786aea110b1bfe610be318f80a Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Thu, 9 May 2019 14:41:50 +0200
+Subject: USB: sisusbvga: fix oops in error path of sisusb_probe
 
-Without USB_QUIRK_NO_LPM ethernet will not work and rtl8152 will
-complain with
+The pointer used to log a failure of usb_register_dev() must
+be set before the error is logged.
 
-    r8152 <device...>: Stop submitting intr, status -71
+v2: fix that minor is not available before registration
 
-Adding the quirk resolves this. As the dock is externally powered, this
-should not have any drawbacks.
-
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
+Fixes: 7b5cd5fefbe02 ("USB: SisUSB2VGA: Convert printk to dev_* macros")
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/misc/sisusbvga/sisusb.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 8bc35d53408b..6082b008969b 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -209,6 +209,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* Microsoft LifeCam-VX700 v2.0 */
- 	{ USB_DEVICE(0x045e, 0x0770), .driver_info = USB_QUIRK_RESET_RESUME },
+diff --git a/drivers/usb/misc/sisusbvga/sisusb.c b/drivers/usb/misc/sisusbvga/sisusb.c
+index 9560fde621ee..ea06f1fed6fa 100644
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -3029,6 +3029,13 @@ static int sisusb_probe(struct usb_interface *intf,
  
-+	/* Microsoft Surface Dock Ethernet (RTL8153 GigE) */
-+	{ USB_DEVICE(0x045e, 0x07c6), .driver_info = USB_QUIRK_NO_LPM },
+ 	mutex_init(&(sisusb->lock));
+ 
++	sisusb->sisusb_dev = dev;
++	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
++	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
++	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
++	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
++	/* Everything else is zero */
 +
- 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
- 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
+ 	/* Register device */
+ 	retval = usb_register_dev(intf, &usb_sisusb_class);
+ 	if (retval) {
+@@ -3039,13 +3046,7 @@ static int sisusb_probe(struct usb_interface *intf,
+ 		goto error_1;
+ 	}
  
+-	sisusb->sisusb_dev = dev;
+-	sisusb->minor      = intf->minor;
+-	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
+-	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
+-	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
+-	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
+-	/* Everything else is zero */
++	sisusb->minor = intf->minor;
+ 
+ 	/* Allocate buffers */
+ 	sisusb->ibufsize = SISUSB_IBUF_SIZE;
 -- 
 2.21.0
 
