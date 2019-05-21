@@ -2,83 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 588B924933
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 09:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D13C4249CF
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 10:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726724AbfEUHoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 03:44:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37332 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726316AbfEUHoH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 03:44:07 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id DAB55AD12;
-        Tue, 21 May 2019 07:44:05 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id D0BED1E3C81; Tue, 21 May 2019 09:44:04 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, "Weiny, Ira" <ira.weiny@intel.com>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH 1/3] ext4: Wait for outstanding dio during truncate in nojournal mode
-Date:   Tue, 21 May 2019 09:43:56 +0200
-Message-Id: <20190521074358.17186-2-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190521074358.17186-1-jack@suse.cz>
-References: <20190521074358.17186-1-jack@suse.cz>
+        id S1726642AbfEUIJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 04:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726344AbfEUIJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 04:09:27 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE68221773;
+        Tue, 21 May 2019 08:09:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558426166;
+        bh=45FS1FftW+YoB+ZZ/7DRsxjR+On/CpAuKn+NonYX7dI=;
+        h=Subject:To:From:Date:From;
+        b=l0MadjgXIm3b2+fTUzFO9AdD5TWyf9IiAMXq/J0xriluXjZ8l/QHKSKwgNt00AQxQ
+         yHux9l1ycIEr50DjW1brwn0sEZQ02252gLuw/3iuggR7gn+3Xc4bLTZkzcjUnDBzXI
+         E9zXkwThtYv2rS69C5drkU1FuCfaQ1hpDIm6vXzg=
+Subject: patch "media: usb: siano: Fix general protection fault in smsusb" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        johan@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 21 May 2019 10:09:13 +0200
+Message-ID: <1558426153245181@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We didn't wait for outstanding direct IO during truncate in nojournal
-mode (as we skip orphan handling in that case). This can lead to fs
-corruption or stale data exposure if truncate ends up freeing blocks
-and these get reallocated before direct IO finishes. Fix the condition
-determining whether the wait is necessary.
 
-CC: stable@vger.kernel.org
-Fixes: 1c9114f9c0f1 ("ext4: serialize unlocked dio reads with truncate")
-Signed-off-by: Jan Kara <jack@suse.cz>
+This is a note to let you know that I've just added the patch titled
+
+    media: usb: siano: Fix general protection fault in smsusb
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 31e0456de5be379b10fea0fa94a681057114a96e Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Tue, 7 May 2019 12:39:47 -0400
+Subject: media: usb: siano: Fix general protection fault in smsusb
+
+The syzkaller USB fuzzer found a general-protection-fault bug in the
+smsusb part of the Siano DVB driver.  The fault occurs during probe
+because the driver assumes without checking that the device has both
+IN and OUT endpoints and the IN endpoint is ep1.
+
+By slightly rearranging the driver's initialization code, we can make
+the appropriate checks early on and thus avoid the problem.  If the
+expected endpoints aren't present, the new code safely returns -ENODEV
+from the probe routine.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ drivers/media/usb/siano/smsusb.c | 33 +++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 82298c63ea6d..9bcb7f2b86dd 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5630,20 +5630,17 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
- 				goto err_out;
- 			}
- 		}
--		if (!shrink)
-+		if (!shrink) {
- 			pagecache_isize_extended(inode, oldsize, inode->i_size);
--
--		/*
--		 * Blocks are going to be removed from the inode. Wait
--		 * for dio in flight.  Temporarily disable
--		 * dioread_nolock to prevent livelock.
--		 */
--		if (orphan) {
--			if (!ext4_should_journal_data(inode)) {
--				inode_dio_wait(inode);
--			} else
--				ext4_wait_for_tail_page_commit(inode);
-+		} else {
-+			/*
-+			 * Blocks are going to be removed from the inode. Wait
-+			 * for dio in flight.
-+			 */
-+			inode_dio_wait(inode);
- 		}
-+		if (orphan && ext4_should_journal_data(inode))
-+			ext4_wait_for_tail_page_commit(inode);
- 		down_write(&EXT4_I(inode)->i_mmap_sem);
+diff --git a/drivers/media/usb/siano/smsusb.c b/drivers/media/usb/siano/smsusb.c
+index 4fc03ec8a4f1..27ad14a3f831 100644
+--- a/drivers/media/usb/siano/smsusb.c
++++ b/drivers/media/usb/siano/smsusb.c
+@@ -400,6 +400,7 @@ static int smsusb_init_device(struct usb_interface *intf, int board_id)
+ 	struct smsusb_device_t *dev;
+ 	void *mdev;
+ 	int i, rc;
++	int in_maxp;
  
- 		rc = ext4_break_layouts(inode);
+ 	/* create device object */
+ 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
+@@ -411,6 +412,24 @@ static int smsusb_init_device(struct usb_interface *intf, int board_id)
+ 	dev->udev = interface_to_usbdev(intf);
+ 	dev->state = SMSUSB_DISCONNECTED;
+ 
++	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
++		struct usb_endpoint_descriptor *desc =
++				&intf->cur_altsetting->endpoint[i].desc;
++
++		if (desc->bEndpointAddress & USB_DIR_IN) {
++			dev->in_ep = desc->bEndpointAddress;
++			in_maxp = usb_endpoint_maxp(desc);
++		} else {
++			dev->out_ep = desc->bEndpointAddress;
++		}
++	}
++
++	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
++	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
++		smsusb_term_device(intf);
++		return -ENODEV;
++	}
++
+ 	params.device_type = sms_get_board(board_id)->type;
+ 
+ 	switch (params.device_type) {
+@@ -425,24 +444,12 @@ static int smsusb_init_device(struct usb_interface *intf, int board_id)
+ 		/* fall-thru */
+ 	default:
+ 		dev->buffer_size = USB2_BUFFER_SIZE;
+-		dev->response_alignment =
+-		    le16_to_cpu(dev->udev->ep_in[1]->desc.wMaxPacketSize) -
+-		    sizeof(struct sms_msg_hdr);
++		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
+ 
+ 		params.flags |= SMS_DEVICE_FAMILY2;
+ 		break;
+ 	}
+ 
+-	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
+-		if (intf->cur_altsetting->endpoint[i].desc. bEndpointAddress & USB_DIR_IN)
+-			dev->in_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-		else
+-			dev->out_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-	}
+-
+-	pr_debug("in_ep = %02x, out_ep = %02x\n",
+-		dev->in_ep, dev->out_ep);
+-
+ 	params.device = &dev->udev->dev;
+ 	params.usb_device = dev->udev;
+ 	params.buffer_size = dev->buffer_size;
 -- 
-2.16.4
+2.21.0
+
 
