@@ -2,133 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30CCE259FC
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 23:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4694259FE
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 23:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727881AbfEUVcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 17:32:03 -0400
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:36244 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727174AbfEUVcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 17:32:03 -0400
-Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 73CAD886BF;
-        Wed, 22 May 2019 09:32:00 +1200 (NZST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-        s=mail181024; t=1558474320;
-        bh=KN+7+Y6HuTQUXjJHPxv21KSUpl/58gx83ZuyPRW6tQc=;
-        h=From:To:CC:Subject:Date:References;
-        b=zSTgqhYY419fkqtmofKeCuVgVVHe+SE+eUbLILv5B/q+2lHVNnt2WlSnSGH6FRgW7
-         DIMvZMtLiDJiH3OxjEBD26Xp2r+3k6XSa1Pg3kOMCMc4RZRh4OnNAgGXFKGK7gcwu9
-         0Q+Za0H17501RrknBI9quHJXy6JrpT3HHgdDJQlZc90ePcTCbV0XPpdFHAHewjG87X
-         Bz1vpKYAIqwLZ50bz6f8PIvP2DWG+Xu6lyhZ01zETNtl11GWWnwULz1xDLe2pMa9aJ
-         a60UCLlegL4j3nj970sz7WSwbj0MQOGwpgwPAZkJjAJhivwZgxPS1VSvqE2REpXI5T
-         L7LibLI8p2CqQ==
-Received: from svr-chch-ex1.atlnz.lc (Not Verified[10.32.16.77]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
-        id <B5ce46e4c0002>; Wed, 22 May 2019 09:31:56 +1200
-Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8)
- by svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8) with
- Microsoft SMTP Server (TLS) id 15.0.1156.6; Wed, 22 May 2019 09:32:00 +1200
-Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
- svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
- 15.00.1156.000; Wed, 22 May 2019 09:32:00 +1200
-From:   Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-To:     Philippe Mazenauer <philippe.mazenauer@outlook.de>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-CC:     Yangtao Li <tiny.windzz@gmail.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] clk: armada-xp: Remove unused variables
-Thread-Topic: [PATCH] clk: armada-xp: Remove unused variables
-Thread-Index: AQHVEByfB3zMNKUPxE+M+EKg8bXzJw==
-Date:   Tue, 21 May 2019 21:31:59 +0000
-Message-ID: <b60737773b9049bb80f6b325ac543e67@svr-chch-ex1.atlnz.lc>
-References: <VI1PR07MB4432F4F275BC445289FF3D9CFD070@VI1PR07MB4432.eurprd07.prod.outlook.com>
-Accept-Language: en-NZ, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [2001:df5:b000:22:3a2c:4aff:fe70:2b02]
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+        id S1727560AbfEUVdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 17:33:03 -0400
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:37853 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727526AbfEUVdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 17:33:02 -0400
+Received: by mail-wr1-f52.google.com with SMTP id e15so20248936wrs.4
+        for <stable@vger.kernel.org>; Tue, 21 May 2019 14:33:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=BimdsSwEwXLaOOl2zgkgackprveprJ/BTlp7cMJ1RfQ=;
+        b=ZCV0l50l2QZ7fbnBB4nDF9qlC8fn1TQVIN1+svegu/KXC14T/EGi0fzTKXK3t04iG0
+         hd2GwmwDd1fFBBR4jXSZx0YpJTeopicWT916YOb8JaFzhHUTsBJuLi1KY+TxSVZeWamG
+         alQ6Rlbw8UGTx1RMDJ0F+DymzS3niy/JvLrCvjlBsOHcrawnQIoCh+T/7eWbwG82EgIo
+         7dgNQ4ZVMGaGOF67osexsnnGnsKbJtpBIicAaiCDkvk3U7tMRu+T7g1aIUwGUo7ckofl
+         eCcpBNXudmgjVR5sc67IP+FZnGPPqbJaeZJN6nu2C5kk27chWn5DBUnkQ/JdPlu7EqCU
+         73dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=BimdsSwEwXLaOOl2zgkgackprveprJ/BTlp7cMJ1RfQ=;
+        b=VkJ391hn0y2RwNnEQ9413AOl9ppyDc+zBRgeFhNdJMctU4A2wrbIJ6oIlDBK0nooGk
+         BEsPv6D2BFqP/MpYLqp6wLQq53HDebfH7cFWIZP50JIcU1/qfq4qwH6COG0WnLW94BCz
+         mZtP5WXxRu4yyzj2WuHdj4omNmVYq3Zfx0qdovC5Bu7W+gXIz+dhe1WVhpL9y21CB5Et
+         OOib5jBtH0JDHAvWp3Zp10WyIgNPkxepJGiD+4gaR/NG3qgOZDhkNbXGxyE1gZZe00Qv
+         KomtQX+stw37ulur9xesrXHaO2tcgqz4MR8KBv/PRrv1QIwCXbDjsmCH8tZQBgBQCgI1
+         irWQ==
+X-Gm-Message-State: APjAAAV10E4s2tcsrwRn5fvcffjJYt3VnjmrAGJTLw6zCK2hsmDoTfPL
+        Ie5qhKPqllI9SloLzcm4rUAQM/drDn+1cg==
+X-Google-Smtp-Source: APXvYqyjq1onS6VffLUyatuf+LlpwHHzznuWRCBp/flKHPJAnheMMXR4b0dSyVu0LfVn28XcZqd+3Q==
+X-Received: by 2002:a5d:6143:: with SMTP id y3mr50380185wrt.148.1558474380690;
+        Tue, 21 May 2019 14:33:00 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x64sm8227450wmg.17.2019.05.21.14.32.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 May 2019 14:32:59 -0700 (PDT)
+Message-ID: <5ce46e8b.1c69fb81.913fe.81e8@mx.google.com>
+Date:   Tue, 21 May 2019 14:32:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.17-121-g5eaa7ad66ec7
+Subject: stable-rc/linux-5.0.y boot: 126 boots: 0 failed,
+ 122 passed with 1 offline, 1 untried/unknown,
+ 2 conflicts (v5.0.17-121-g5eaa7ad66ec7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Philippe,=0A=
-=0A=
-On 21/05/19 8:58 PM, Philippe Mazenauer wrote:=0A=
-> Variables 'mv98dx3236_gating_desc' and 'mv98dx3236_coreclks' are=0A=
-> declared static and initialized, but are not used in the file.=0A=
-> =0A=
-> ../drivers/clk/mvebu/armada-xp.c:213:41: warning: =91mv98dx3236_gating_de=
-sc=92 defined but not used [-Wunused-const-variable=3D]=0A=
->   static const struct clk_gating_soc_desc mv98dx3236_gating_desc[] __init=
-const =3D {=0A=
->                                           ^~~~~~~~~~~~~~~~~~~~~~=0A=
-> ../drivers/clk/mvebu/armada-xp.c:171:38: warning: =91mv98dx3236_coreclks=
-=92 defined but not used [-Wunused-const-variable=3D]=0A=
->   static const struct coreclk_soc_desc mv98dx3236_coreclks =3D {=0A=
->                                        ^~~~~~~~~~~~~~~~~~~=0A=
-> =0A=
-> Signed-off-by: Philippe Mazenauer <philippe.mazenauer@outlook.de>=0A=
-=0A=
-The usage of these was moved to a separate file in a later commit and =0A=
-the original code wasn't fully cleaned up.=0A=
-=0A=
-Fixes: 337072604224 ("clk: mvebu: Expand mv98dx3236-core-clock support")=0A=
-Cc: stable@vger.kernel.org=0A=
-Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
-=0A=
-Thanks=0A=
-=0A=
-> ---=0A=
->   drivers/clk/mvebu/armada-xp.c | 14 --------------=0A=
->   1 file changed, 14 deletions(-)=0A=
-> =0A=
-> diff --git a/drivers/clk/mvebu/armada-xp.c b/drivers/clk/mvebu/armada-xp.=
-c=0A=
-> index fa1568279c23..2ae24a5debd0 100644=0A=
-> --- a/drivers/clk/mvebu/armada-xp.c=0A=
-> +++ b/drivers/clk/mvebu/armada-xp.c=0A=
-> @@ -168,11 +168,6 @@ static const struct coreclk_soc_desc axp_coreclks =
-=3D {=0A=
->   	.num_ratios =3D ARRAY_SIZE(axp_coreclk_ratios),=0A=
->   };=0A=
->   =0A=
-> -static const struct coreclk_soc_desc mv98dx3236_coreclks =3D {=0A=
-> -	.get_tclk_freq =3D mv98dx3236_get_tclk_freq,=0A=
-> -	.get_cpu_freq =3D mv98dx3236_get_cpu_freq,=0A=
-> -};=0A=
-> -=0A=
->   /*=0A=
->    * Clock Gating Control=0A=
->    */=0A=
-> @@ -210,15 +205,6 @@ static const struct clk_gating_soc_desc axp_gating_d=
-esc[] __initconst =3D {=0A=
->   	{ }=0A=
->   };=0A=
->   =0A=
-> -static const struct clk_gating_soc_desc mv98dx3236_gating_desc[] __initc=
-onst =3D {=0A=
-> -	{ "ge1", NULL, 3, 0 },=0A=
-> -	{ "ge0", NULL, 4, 0 },=0A=
-> -	{ "pex00", NULL, 5, 0 },=0A=
-> -	{ "sdio", NULL, 17, 0 },=0A=
-> -	{ "xor0", NULL, 22, 0 },=0A=
-> -	{ }=0A=
-> -};=0A=
-> -=0A=
->   static void __init axp_clk_init(struct device_node *np)=0A=
->   {=0A=
->   	struct device_node *cgnp =3D=0A=
-> =0A=
-=0A=
+stable-rc/linux-5.0.y boot: 126 boots: 0 failed, 122 passed with 1 offline,=
+ 1 untried/unknown, 2 conflicts (v5.0.17-121-g5eaa7ad66ec7)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.0.y/kernel/v5.0.17-121-g5eaa7ad66ec7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
+/kernel/v5.0.17-121-g5eaa7ad66ec7/
+
+Tree: stable-rc
+Branch: linux-5.0.y
+Git Describe: v5.0.17-121-g5eaa7ad66ec7
+Git Commit: 5eaa7ad66ec7e9d1c3e1ef871ec29a5427d05ca7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 71 unique boards, 24 SoC families, 14 builds out of 208
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v5.0.17-124-gbb2772791a=
+81)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          qemu:
+              lab-mhart: new failure (last pass: v5.0.17-124-gbb2772791a81)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+arm64:
+    defconfig:
+        qemu:
+            lab-baylibre: PASS (gcc-8)
+            lab-mhart: FAIL (gcc-8)
+            lab-drue: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
