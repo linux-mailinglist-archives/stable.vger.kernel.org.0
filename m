@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 006E8249CE
-	for <lists+stable@lfdr.de>; Tue, 21 May 2019 10:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4AA249D4
+	for <lists+stable@lfdr.de>; Tue, 21 May 2019 10:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726941AbfEUIJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 04:09:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33796 "EHLO mail.kernel.org"
+        id S1727304AbfEUIJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 04:09:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726059AbfEUIJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 04:09:16 -0400
+        id S1726296AbfEUIJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 May 2019 04:09:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0F5C2173E;
-        Tue, 21 May 2019 08:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C1AC21783;
+        Tue, 21 May 2019 08:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558426155;
-        bh=w4f7ru5ftlSuwrOUYG1XkV6VDhHkonFdzkYtQgBRtqg=;
+        s=default; t=1558426171;
+        bh=HVRJR8+D3xURe3jriRQC06GIbWhuyk3+1C2bqzkaJHc=;
         h=Subject:To:From:Date:From;
-        b=JsI/JkfQIimTuQ6f4e865dZ1hMQ0IBKOlBIkhdbX1oywII9WnZ0EuGfLXp41bP/fp
-         C+lxFCtpfiIDZ3csy25yVbt4fEDP9b+RxFcD7W+PWPDkg8QFRnMXcXcZaGwMsxiSw0
-         oGK0grc4qFYE2jRMNBSSYdlU4nQwaCODjYqA3JwA=
-Subject: patch "USB: Fix slab-out-of-bounds write in usb_get_bos_descriptor" added to usb-linus
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        b=pDIsGEg2BhkKQFmuanKuXKbxVls5z7rLrZp68jooFoqeTIAnxRmnzt3y+BGtTpZ/Z
+         ml5j4148xZlcCNG5m15/L5GKqvit/hzDi3jXUCUl6dIdUpuT7GHhRiZgmC3HoQGH/d
+         aeGnsUV3DzGnF7mIow1l4DX7aWDOO95Vp2uLxauU=
+Subject: patch "USB: Add LPM quirk for Surface Dock GigE adapter" added to usb-linus
+To:     luzmaximilian@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 May 2019 10:09:13 +0200
-Message-ID: <1558426153192227@kroah.com>
+Date:   Tue, 21 May 2019 10:09:14 +0200
+Message-ID: <1558426154145158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: Fix slab-out-of-bounds write in usb_get_bos_descriptor
+    USB: Add LPM quirk for Surface Dock GigE adapter
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,41 +55,40 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From a03ff54460817c76105f81f3aa8ef655759ccc9a Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Mon, 13 May 2019 13:14:29 -0400
-Subject: USB: Fix slab-out-of-bounds write in usb_get_bos_descriptor
+From ea261113385ac0a71c2838185f39e8452d54b152 Mon Sep 17 00:00:00 2001
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Date: Thu, 16 May 2019 17:08:31 +0200
+Subject: USB: Add LPM quirk for Surface Dock GigE adapter
 
-The syzkaller USB fuzzer found a slab-out-of-bounds write bug in the
-USB core, caused by a failure to check the actual size of a BOS
-descriptor.  This patch adds a check to make sure the descriptor is at
-least as large as it is supposed to be, so that the code doesn't
-inadvertently access memory beyond the end of the allocated region
-when assigning to dev->bos->desc->bNumDeviceCaps later on.
+Without USB_QUIRK_NO_LPM ethernet will not work and rtl8152 will
+complain with
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+71f1e64501a309fcc012@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
+    r8152 <device...>: Stop submitting intr, status -71
+
+Adding the quirk resolves this. As the dock is externally powered, this
+should not have any drawbacks.
+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/config.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-index 20ff036b4c22..9d6cb709ca7b 100644
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -932,8 +932,8 @@ int usb_get_bos_descriptor(struct usb_device *dev)
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 8bc35d53408b..6082b008969b 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -209,6 +209,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* Microsoft LifeCam-VX700 v2.0 */
+ 	{ USB_DEVICE(0x045e, 0x0770), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	/* Get BOS descriptor */
- 	ret = usb_get_descriptor(dev, USB_DT_BOS, 0, bos, USB_DT_BOS_SIZE);
--	if (ret < USB_DT_BOS_SIZE) {
--		dev_err(ddev, "unable to get BOS descriptor\n");
-+	if (ret < USB_DT_BOS_SIZE || bos->bLength < USB_DT_BOS_SIZE) {
-+		dev_err(ddev, "unable to get BOS descriptor or descriptor too short\n");
- 		if (ret >= 0)
- 			ret = -ENOMSG;
- 		kfree(bos);
++	/* Microsoft Surface Dock Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x045e, 0x07c6), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
+ 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 -- 
 2.21.0
 
