@@ -2,70 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1E026634
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 16:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2790026696
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 17:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729669AbfEVOrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 10:47:05 -0400
-Received: from mail-it1-f177.google.com ([209.85.166.177]:40862 "EHLO
-        mail-it1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729491AbfEVOrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 10:47:05 -0400
-Received: by mail-it1-f177.google.com with SMTP id h11so3458225itf.5;
-        Wed, 22 May 2019 07:47:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wQm3IgF/8GknfNdjBodVZNb9GhgGog8F265tIB47+WQ=;
-        b=AxeYXP8ExC9cVdtJv3AhssRjcHlSrZ7cMCLlAfQy0of+jhm3jY+qT4oQJ1LZqet6n4
-         3GD1fyI3Jb24W6mvKabyhJAmw52OSwpM+Tmdd+CL2V52J3GJPz0HByHj6GB0iTZIAVp1
-         5knz8aEroF1wSje3bSHN09ErM/43HbuGULCa/CUElyfaHrpetzyrvlx2TFG5EwZm3iEY
-         mWkAqj6Aw4oBhwtAndhA1dw/PKT4zo+SuxznOpFYnxxgDTYglC5RGOOhfPU6MHv8z1qO
-         QLtlO4ycB/ZVZIpcvlnzEDNNXDP5IMHO9wnclMOUqFb5+c0OPUxfTE0LZt5a/I+S0O34
-         +uXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wQm3IgF/8GknfNdjBodVZNb9GhgGog8F265tIB47+WQ=;
-        b=qx1qhlHuAIX+ztIafcNKUEAKsJtYDs5bg5Rzzuh0nvinGImpZ/9NH8bDZ3YmU4i5cw
-         aoizVDT+QF5HjSzevANaNmrkCZ0JBeyrS3c3Hg0hnWAVhXQErfO7TZeeNQ8PG+mpPne8
-         pstzhhiaJQ072aC9HdYirI9qoGxO0cGVUVSiRe6u4rKzLaKoDWz2LiG2JmkKtWx6APHN
-         ADS8YUIrE/4CYkwsuJ4Xo8xrByEPaBy714w4Z15h4we7WEwx6VrqnYpe2+SFjal+XlrY
-         Rx/Knl8ICaDQtx7Wf6+NcXEuYfKNT2vo1H1VtTkEDGgKEEjI0Wq/AmSbb6REnzR/xmwt
-         orsQ==
-X-Gm-Message-State: APjAAAXLAXe0fRwYtbJ89WugiGu0SnlkQRlw6uzOWjodmYxpf9HFTKWB
-        yVq/UM/VOLfYIDmY1PVRjtJ/m22AOfeGMrUMUYk=
-X-Google-Smtp-Source: APXvYqwIS0fzq4a3D9fPJ6QV4qBCwY8aGmOhFkZ4l7U9Ig6wqIBjlnmtmRjG3MBD0gvFbfEG4pQBNvdj8w/UYfH1m1k=
-X-Received: by 2002:a24:8988:: with SMTP id s130mr8452004itd.79.1558536424800;
- Wed, 22 May 2019 07:47:04 -0700 (PDT)
+        id S1729522AbfEVPFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 11:05:34 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:33736 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728466AbfEVPFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 11:05:34 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id EA27B3082B1F;
+        Wed, 22 May 2019 15:05:12 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id A4FB4611A0;
+        Wed, 22 May 2019 15:05:08 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Wed, 22 May 2019 17:05:10 +0200 (CEST)
+Date:   Wed, 22 May 2019 17:05:06 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Deepa Dinamani <deepa.kernel@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        viro@zeniv.linux.org.uk, arnd@arndb.de, dbueso@suse.de,
+        axboe@kernel.dk, dave@stgolabs.net, e@80x24.org, jbaron@akamai.com,
+        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+        omar.kilani@gmail.com, tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: [PATCH v2] signal: Adjust error codes according to
+ restore_user_sigmask()
+Message-ID: <20190522150505.GA4915@redhat.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
 MIME-Version: 1.0
-References: <20190522035525.3l7Xf%akpm@linux-foundation.org>
-In-Reply-To: <20190522035525.3l7Xf%akpm@linux-foundation.org>
-From:   Deepa Dinamani <deepa.kernel@gmail.com>
-Date:   Wed, 22 May 2019 07:46:52 -0700
-Message-ID: <CABeXuvr4onqWexVoGfLmzFvnDZPd98xzz6r--tYsNtiHWuZ1bQ@mail.gmail.com>
-Subject: Re: + signal-adjust-error-codes-according-to-restore_user_sigmask.patch
- added to -mm tree
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     mm-commits@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        Oleg Nesterov <oleg@redhat.com>,
-        Jason Baron <jbaron@akamai.com>, Eric Wong <e@80x24.org>,
-        Davidlohr Bueso <dave@stgolabs.net>, axboe@kernel.dk,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190522032144.10995-1-deepa.kernel@gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Wed, 22 May 2019 15:05:33 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andrew,
+On 05/21, Deepa Dinamani wrote:
+>
+> Note that this patch returns interrupted errors (EINTR, ERESTARTNOHAND,
+> etc) only when there is no other error. If there is a signal and an error
+> like EINVAL, the syscalls return -EINVAL rather than the interrupted
+> error codes.
 
-I had accidentally deleted a variable declaration when I rebased v2. I
-sent a v3 fixing the issue. Can you pick up that one instead of this?
+Ugh. I need to re-check, but at first glance I really dislike this change.
 
-Thanks,
-Deepa
+I think we can fix the problem _and_ simplify the code. Something like below.
+The patch is obviously incomplete, it changes only only one caller of
+set_user_sigmask(), epoll_pwait() to explain what I mean.
+
+restore_user_sigmask() should simply die. Although perhaps another helper
+makes sense to add WARN_ON(test_tsk_restore_sigmask() && !signal_pending).
+
+Oleg.
+
+
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 4a0e98d..85f56e4 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2318,19 +2318,19 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd, struct epoll_event __user *, events,
+ 		size_t, sigsetsize)
+ {
+ 	int error;
+-	sigset_t ksigmask, sigsaved;
+ 
+ 	/*
+ 	 * If the caller wants a certain signal mask to be set during the wait,
+ 	 * we apply it here.
+ 	 */
+-	error = set_user_sigmask(sigmask, &ksigmask, &sigsaved, sigsetsize);
++	error = set_user_sigmask(sigmask, sigsetsize);
+ 	if (error)
+ 		return error;
+ 
+ 	error = do_epoll_wait(epfd, events, maxevents, timeout);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
++	if (error != -EINTR)
++		restore_saved_sigmask();
+ 
+ 	return error;
+ }
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index e412c09..1e82ae0 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -416,7 +416,6 @@ void task_join_group_stop(struct task_struct *task);
+ static inline void set_restore_sigmask(void)
+ {
+ 	set_thread_flag(TIF_RESTORE_SIGMASK);
+-	WARN_ON(!test_thread_flag(TIF_SIGPENDING));
+ }
+ 
+ static inline void clear_tsk_restore_sigmask(struct task_struct *tsk)
+@@ -447,7 +446,6 @@ static inline bool test_and_clear_restore_sigmask(void)
+ static inline void set_restore_sigmask(void)
+ {
+ 	current->restore_sigmask = true;
+-	WARN_ON(!test_thread_flag(TIF_SIGPENDING));
+ }
+ static inline void clear_tsk_restore_sigmask(struct task_struct *tsk)
+ {
+diff --git a/include/linux/signal.h b/include/linux/signal.h
+index 9702016..887cea6 100644
+--- a/include/linux/signal.h
++++ b/include/linux/signal.h
+@@ -273,8 +273,7 @@ extern int group_send_sig_info(int sig, struct kernel_siginfo *info,
+ 			       struct task_struct *p, enum pid_type type);
+ extern int __group_send_sig_info(int, struct kernel_siginfo *, struct task_struct *);
+ extern int sigprocmask(int, sigset_t *, sigset_t *);
+-extern int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
+-	sigset_t *oldset, size_t sigsetsize);
++extern int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize);
+ extern void restore_user_sigmask(const void __user *usigmask,
+ 				 sigset_t *sigsaved);
+ extern void set_current_blocked(sigset_t *);
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 227ba17..76f4f9a 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2801,19 +2801,21 @@ EXPORT_SYMBOL(sigprocmask);
+  * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
+  * epoll_pwait where a new sigmask is passed from userland for the syscalls.
+  */
+-int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
+-		     sigset_t *oldset, size_t sigsetsize)
++int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize)
+ {
+-	if (!usigmask)
++	sigset_t *kmask;
++
++	if (!umask)
+ 		return 0;
+ 
+ 	if (sigsetsize != sizeof(sigset_t))
+ 		return -EINVAL;
+-	if (copy_from_user(set, usigmask, sizeof(sigset_t)))
++	if (copy_from_user(kmask, umask, sizeof(sigset_t)))
+ 		return -EFAULT;
+ 
+-	*oldset = current->blocked;
+-	set_current_blocked(set);
++	set_restore_sigmask();
++	current->saved_sigmask = current->blocked;
++	set_current_blocked(kmask);
+ 
+ 	return 0;
+ }
+@@ -2840,39 +2842,6 @@ int set_compat_user_sigmask(const compat_sigset_t __user *usigmask,
+ EXPORT_SYMBOL(set_compat_user_sigmask);
+ #endif
+ 
+-/*
+- * restore_user_sigmask:
+- * usigmask: sigmask passed in from userland.
+- * sigsaved: saved sigmask when the syscall started and changed the sigmask to
+- *           usigmask.
+- *
+- * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
+- * epoll_pwait where a new sigmask is passed in from userland for the syscalls.
+- */
+-void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
+-{
+-
+-	if (!usigmask)
+-		return;
+-	/*
+-	 * When signals are pending, do not restore them here.
+-	 * Restoring sigmask here can lead to delivering signals that the above
+-	 * syscalls are intended to block because of the sigmask passed in.
+-	 */
+-	if (signal_pending(current)) {
+-		current->saved_sigmask = *sigsaved;
+-		set_restore_sigmask();
+-		return;
+-	}
+-
+-	/*
+-	 * This is needed because the fast syscall return path does not restore
+-	 * saved_sigmask when signals are not pending.
+-	 */
+-	set_current_blocked(sigsaved);
+-}
+-EXPORT_SYMBOL(restore_user_sigmask);
+-
+ /**
+  *  sys_rt_sigprocmask - change the list of currently blocked signals
+  *  @how: whether to add, remove, or set signals
+
