@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 929DD26FDD
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:00:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D8E26B03
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731354AbfEVT7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:59:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44298 "EHLO mail.kernel.org"
+        id S1730081AbfEVTX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbfEVTXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:23:24 -0400
+        id S1730893AbfEVTX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:23:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D4DC2173C;
-        Wed, 22 May 2019 19:23:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C57F5217D9;
+        Wed, 22 May 2019 19:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553004;
-        bh=AGbvE1qAgHxbpS5g4jJ4OEIjLr+GAfO0a8RcO+5NDSA=;
+        s=default; t=1558553006;
+        bh=yXAs6xjmO09egqVlHkZmk/XbA+GIQAw/el2/6CZuqm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InNxT5Yt0mtqRxt08qqHPgQlNfg0H4BYl2wrZ96DzDQxKTEj8I+8m8+5MssUQpgQB
-         O8NOF8/7s5+AtnnpjKeSD/SRkJzaOEHalvWHJSWPMImvtEThpOEiNhP6Ys5JA+miZ8
-         0O1c0YqWQv/xwX/hNcDEiWETR1j083fkCqJ8TGiQ=
+        b=pp4vMVrdBpvOhMX7xdlzXB8NXiae6t9F5zlU0vG/iaWUmschhv1g57K1M6TtTtu4S
+         2l6SCNWbPBVfjEcwENDgT06N3CjSE0LRJmh2adi4Tu+ZpfLoOczX0qUX8eJ+Eq76wO
+         WjhA6/DE8zZ7BwriJhvbbc0D9AE2en7hbLa/1Ack=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 072/375] s390: qeth: address type mismatch warning
-Date:   Wed, 22 May 2019 15:16:12 -0400
-Message-Id: <20190522192115.22666-72-sashal@kernel.org>
+Cc:     Will Deacon <will.deacon@arm.com>, stable@kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 073/375] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero result value
+Date:   Wed, 22 May 2019 15:16:13 -0400
+Message-Id: <20190522192115.22666-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -45,62 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit 46b83629dede262315aa82179d105581f11763b6 ]
+[ Upstream commit 84ff7a09c371bc7417eabfda19bf7f113ec917b6 ]
 
-clang produces a harmless warning for each use for the qeth_adp_supported
-macro:
+Rather embarrassingly, our futex() FUTEX_WAKE_OP implementation doesn't
+explicitly set the return value on the non-faulting path and instead
+leaves it holding the result of the underlying atomic operation. This
+means that any FUTEX_WAKE_OP atomic operation which computes a non-zero
+value will be reported as having failed. Regrettably, I wrote the buggy
+code back in 2011 and it was upstreamed as part of the initial arm64
+support in 2012.
 
-drivers/s390/net/qeth_l2_main.c:559:31: warning: implicit conversion from enumeration type 'enum qeth_ipa_setadp_cmd' to
-      different enumeration type 'enum qeth_ipa_funcs' [-Wenum-conversion]
-        if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
-            ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/s390/net/qeth_core.h:179:41: note: expanded from macro 'qeth_adp_supported'
-        qeth_is_ipa_supported(&c->options.adp, f)
-        ~~~~~~~~~~~~~~~~~~~~~                  ^
+The reasons we appear to get away with this are:
 
-Add a version of this macro that uses the correct types, and
-remove the unused qeth_adp_enabled() macro that has the same
-problem.
+  1. FUTEX_WAKE_OP is rarely used and therefore doesn't appear to get
+     exercised by futex() test applications
 
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  2. If the result of the atomic operation is zero, the system call
+     behaves correctly
+
+  3. Prior to version 2.25, the only operation used by GLIBC set the
+     futex to zero, and therefore worked as expected. From 2.25 onwards,
+     FUTEX_WAKE_OP is not used by GLIBC at all.
+
+Fix the implementation by ensuring that the return value is either 0
+to indicate that the atomic operation completed successfully, or -EFAULT
+if we encountered a fault when accessing the user mapping.
+
+Cc: <stable@kernel.org>
+Fixes: 6170a97460db ("arm64: Atomic operations")
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/futex.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index c851cf6e01c43..d603dfea97ab2 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -163,6 +163,12 @@ struct qeth_vnicc_info {
- 	bool rx_bcast_enabled;
- };
- 
-+static inline int qeth_is_adp_supported(struct qeth_ipa_info *ipa,
-+		enum qeth_ipa_setadp_cmd func)
-+{
-+	return (ipa->supported_funcs & func);
-+}
-+
- static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
- 		enum qeth_ipa_funcs func)
+diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
+index 6fb2214333a24..2d78ea6932b7b 100644
+--- a/arch/arm64/include/asm/futex.h
++++ b/arch/arm64/include/asm/futex.h
+@@ -58,7 +58,7 @@ do {									\
+ static inline int
+ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
  {
-@@ -176,9 +182,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
- }
+-	int oldval = 0, ret, tmp;
++	int oldval, ret, tmp;
+ 	u32 __user *uaddr = __uaccess_mask_ptr(_uaddr);
  
- #define qeth_adp_supported(c, f) \
--	qeth_is_ipa_supported(&c->options.adp, f)
--#define qeth_adp_enabled(c, f) \
--	qeth_is_ipa_enabled(&c->options.adp, f)
-+	qeth_is_adp_supported(&c->options.adp, f)
- #define qeth_is_supported(c, f) \
- 	qeth_is_ipa_supported(&c->options.ipa4, f)
- #define qeth_is_enabled(c, f) \
+ 	pagefault_disable();
 -- 
 2.20.1
 
