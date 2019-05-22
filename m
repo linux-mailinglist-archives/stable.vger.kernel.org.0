@@ -2,135 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3144F26051
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381822605E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728638AbfEVJTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 05:19:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48888 "EHLO mx1.suse.de"
+        id S1728912AbfEVJVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 05:21:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49162 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726552AbfEVJTo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 05:19:44 -0400
+        id S1728547AbfEVJVO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 05:21:14 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 843E1ADEC;
-        Wed, 22 May 2019 09:19:42 +0000 (UTC)
-From:   Jiri Slaby <jslaby@suse.cz>
-To:     akpm@linux-foundation.org
-Cc:     linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>, cgroups@vger.kernel.org,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH -resend v2] memcg: make it work on sparse non-0-node systems
-Date:   Wed, 22 May 2019 11:19:40 +0200
-Message-Id: <20190522091940.3615-1-jslaby@suse.cz>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190517114204.6330-1-jslaby@suse.cz>
-References: <20190517114204.6330-1-jslaby@suse.cz>
+        by mx1.suse.de (Postfix) with ESMTP id 0E3CFADEC;
+        Wed, 22 May 2019 09:21:13 +0000 (UTC)
+Date:   Wed, 22 May 2019 11:21:11 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jiri Kosina <jkosina@suse.cz>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Josh Snyder <joshs@netflix.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Dave Chinner <david@fromorbit.com>,
+        Kevin Easton <kevin@guarana.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Cyril Hrubis <chrubis@suse.cz>, Tejun Heo <tj@kernel.org>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Daniel Gruss <daniel@gruss.cc>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: Re: [PATCH 4.19 053/105] mm/mincore.c: make mincore() more
+ conservative
+Message-ID: <20190522092111.GD32329@dhcp22.suse.cz>
+References: <20190520115247.060821231@linuxfoundation.org>
+ <20190520115250.721190520@linuxfoundation.org>
+ <20190522085741.GB8174@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190522085741.GB8174@amd>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We have a single node system with node 0 disabled:
-  Scanning NUMA topology in Northbridge 24
-  Number of physical nodes 2
-  Skipping disabled node 0
-  Node 1 MemBase 0000000000000000 Limit 00000000fbff0000
-  NODE_DATA(1) allocated [mem 0xfbfda000-0xfbfeffff]
+On Wed 22-05-19 10:57:41, Pavel Machek wrote:
+> Hi!
+> 
+> > commit 134fca9063ad4851de767d1768180e5dede9a881 upstream.
+> > 
+> > The semantics of what mincore() considers to be resident is not
+> > completely clear, but Linux has always (since 2.3.52, which is when
+> > mincore() was initially done) treated it as "page is available in page
+> > cache".
+> > 
+> > That's potentially a problem, as that [in]directly exposes
+> > meta-information about pagecache / memory mapping state even about
+> > memory not strictly belonging to the process executing the syscall,
+> > opening possibilities for sidechannel attacks.
+> > 
+> > Change the semantics of mincore() so that it only reveals pagecache
+> > information for non-anonymous mappings that belog to files that the
+> > calling process could (if it tried to) successfully open for writing;
+> > otherwise we'd be including shared non-exclusive mappings, which
+> > 
+> >  - is the sidechannel
+> > 
+> >  - is not the usecase for mincore(), as that's primarily used for data,
+> >    not (shared) text
+> 
+> ...
+> 
+> > @@ -189,8 +205,13 @@ static long do_mincore(unsigned long add
+> >  	vma = find_vma(current->mm, addr);
+> >  	if (!vma || addr < vma->vm_start)
+> >  		return -ENOMEM;
+> > -	mincore_walk.mm = vma->vm_mm;
+> >  	end = min(vma->vm_end, addr + (pages << PAGE_SHIFT));
+> > +	if (!can_do_mincore(vma)) {
+> > +		unsigned long pages = DIV_ROUND_UP(end - addr, PAGE_SIZE);
+> > +		memset(vec, 1, pages);
+> > +		return pages;
+> > +	}
+> > +	mincore_walk.mm = vma->vm_mm;
+> >  	err = walk_page_range(addr, end, &mincore_walk);
+> 
+> We normally return errors when we deny permissions; but this one just
+> returns success and wrong data.
+> 
+> Could we return -EPERM there? If not, should it at least get a
+> comment?
 
-This causes crashes in memcg when system boots:
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-  #PF error: [normal kernel read fault]
-...
-  RIP: 0010:list_lru_add+0x94/0x170
-...
-  Call Trace:
-   d_lru_add+0x44/0x50
-   dput.part.34+0xfc/0x110
-   __fput+0x108/0x230
-   task_work_run+0x9f/0xc0
-   exit_to_usermode_loop+0xf5/0x100
+This was a deliberate decision AFAIR. We cannot return failure because
+this could lead to an unexpected userspace failure. We are pretendeing
+that those pages are present because that is the safest option -
+e.g. consider an application which tries to refault until the page is
+present...
 
-It is reproducible as far as 4.12. I did not try older kernels. You have
-to have a new enough systemd, e.g. 241 (the reason is unknown -- was not
-investigated). Cannot be reproduced with systemd 234.
-
-The system crashes because the size of lru array is never updated in
-memcg_update_all_list_lrus and the reads are past the zero-sized array,
-causing dereferences of random memory.
-
-The root cause are list_lru_memcg_aware checks in the list_lru code.
-The test in list_lru_memcg_aware is broken: it assumes node 0 is always
-present, but it is not true on some systems as can be seen above.
-
-So fix this by avoiding checks on node 0. Remember the memcg-awareness
-by a bool flag in struct list_lru.
-
-[v2] use the idea proposed by Vladimir -- the bool flag.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Suggested-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: <cgroups@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-mm@kvack.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
----
-
-This is only a resent patch. I did not send it the akpm's way previously.
-
- include/linux/list_lru.h | 1 +
- mm/list_lru.c            | 8 +++-----
- 2 files changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/include/linux/list_lru.h b/include/linux/list_lru.h
-index aa5efd9351eb..d5ceb2839a2d 100644
---- a/include/linux/list_lru.h
-+++ b/include/linux/list_lru.h
-@@ -54,6 +54,7 @@ struct list_lru {
- #ifdef CONFIG_MEMCG_KMEM
- 	struct list_head	list;
- 	int			shrinker_id;
-+	bool			memcg_aware;
- #endif
- };
- 
-diff --git a/mm/list_lru.c b/mm/list_lru.c
-index 0730bf8ff39f..d3b538146efd 100644
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -37,11 +37,7 @@ static int lru_shrinker_id(struct list_lru *lru)
- 
- static inline bool list_lru_memcg_aware(struct list_lru *lru)
- {
--	/*
--	 * This needs node 0 to be always present, even
--	 * in the systems supporting sparse numa ids.
--	 */
--	return !!lru->node[0].memcg_lrus;
-+	return lru->memcg_aware;
- }
- 
- static inline struct list_lru_one *
-@@ -451,6 +447,8 @@ static int memcg_init_list_lru(struct list_lru *lru, bool memcg_aware)
- {
- 	int i;
- 
-+	lru->memcg_aware = memcg_aware;
-+
- 	if (!memcg_aware)
- 		return 0;
- 
+Worth a comment? Probably yes, care to send a patch?
 -- 
-2.21.0
-
+Michal Hocko
+SUSE Labs
