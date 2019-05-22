@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 715C227019
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CAEF27021
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730471AbfEVTW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43136 "EHLO mail.kernel.org"
+        id S1730302AbfEVUB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 16:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730460AbfEVTWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:22:25 -0400
+        id S1730469AbfEVTW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:22:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 267E420644;
-        Wed, 22 May 2019 19:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EB762177E;
+        Wed, 22 May 2019 19:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552944;
-        bh=t5xengB7nNuo2KSH7Jj1ZxDwNMwXO7ggXnUm8qMUaWg=;
+        s=default; t=1558552946;
+        bh=fm3B4Pe3j03XFGU1vqiruP0v4b3ADfWzaIFnGy3kgQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P86AuJrAyjGNPkCOo5wvqwhZCddKJtLeF3xXWVWnTsWZlQGkuIJM2xcZVJUsdiiGL
-         /N2gIyqbGJuLCMxAs1JvixgpszUZIPMNWXPUFPofQbtQ45s3779XRFrxFWoR1tZ7H/
-         5KdmBoKt3JXwoygfa0Fqxo+ZFFv8FqV6tJnWnY7A=
+        b=Lfce27fTT0OLXwqdmYi1e+txm3449sH/S86qrRBs2SihoMJ3WLylNKA+UT+7tqwbP
+         fYy1Yd0GgEKZ8OfLPwdJTj8rS8AIxR8tVeocL5dxkNoNWnoUGdWGu8AALnHf4nGrEF
+         prNLgSJ6gMetqt4V+Ks72R8ucjlZNNDDmSVZeT/Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Derrick <jonathan.derrick@intel.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 043/375] drm/nouveau/bar/nv50: ensure BAR is mapped
-Date:   Wed, 22 May 2019 15:15:43 -0400
-Message-Id: <20190522192115.22666-43-sashal@kernel.org>
+Cc:     Fabien Dessenne <fabien.dessenne@st.com>,
+        Hugues Fruchet <hugues.fruchet@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 044/375] media: stm32-dcmi: return appropriate error codes during probe
+Date:   Wed, 22 May 2019 15:15:44 -0400
+Message-Id: <20190522192115.22666-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -44,58 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Fabien Dessenne <fabien.dessenne@st.com>
 
-[ Upstream commit f10b83de1fd49216a4c657816f48001437e4bdd5 ]
+[ Upstream commit b5b5a27bee5884860798ffd0f08e611a3942064b ]
 
-If the BAR is zero size, it indicates it was never successfully mapped.
-Ensure that the BAR is valid during initialization before attempting to
-use it.
+During probe, return the provided errors value instead of -ENODEV.
+This allows the driver to be deferred probed if needed.
 
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Acked-by: Hugues Fruchet <hugues.fruchet@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/media/platform/stm32/stm32-dcmi.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-index 157b076a12723..38c9c086754b6 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-@@ -109,7 +109,7 @@ nv50_bar_oneinit(struct nvkm_bar *base)
- 	struct nvkm_device *device = bar->base.subdev.device;
- 	static struct lock_class_key bar1_lock;
- 	static struct lock_class_key bar2_lock;
--	u64 start, limit;
-+	u64 start, limit, size;
- 	int ret;
+diff --git a/drivers/media/platform/stm32/stm32-dcmi.c b/drivers/media/platform/stm32/stm32-dcmi.c
+index 5fe5b38fa901d..a1f0801081ba9 100644
+--- a/drivers/media/platform/stm32/stm32-dcmi.c
++++ b/drivers/media/platform/stm32/stm32-dcmi.c
+@@ -1645,7 +1645,7 @@ static int dcmi_probe(struct platform_device *pdev)
+ 	dcmi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+ 	if (IS_ERR(dcmi->rstc)) {
+ 		dev_err(&pdev->dev, "Could not get reset control\n");
+-		return -ENODEV;
++		return PTR_ERR(dcmi->rstc);
+ 	}
  
- 	ret = nvkm_gpuobj_new(device, 0x20000, 0, false, NULL, &bar->mem);
-@@ -127,7 +127,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 	/* Get bus characteristics from devicetree */
+@@ -1660,7 +1660,7 @@ static int dcmi_probe(struct platform_device *pdev)
+ 	of_node_put(np);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not parse the endpoint\n");
+-		return -ENODEV;
++		return ret;
+ 	}
  
- 	/* BAR2 */
- 	start = 0x0100000000ULL;
--	limit = start + device->func->resource_size(device, 3);
-+	size = device->func->resource_size(device, 3);
-+	if (!size)
-+		return -ENOMEM;
-+	limit = start + size;
+ 	if (ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
+@@ -1673,8 +1673,9 @@ static int dcmi_probe(struct platform_device *pdev)
  
- 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
- 			   &bar2_lock, "bar2", &bar->bar2_vmm);
-@@ -164,7 +167,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+-		dev_err(&pdev->dev, "Could not get irq\n");
+-		return -ENODEV;
++		if (irq != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Could not get irq\n");
++		return irq;
+ 	}
  
- 	/* BAR1 */
- 	start = 0x0000000000ULL;
--	limit = start + device->func->resource_size(device, 1);
-+	size = device->func->resource_size(device, 1);
-+	if (!size)
-+		return -ENOMEM;
-+	limit = start + size;
+ 	dcmi->res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -1694,12 +1695,13 @@ static int dcmi_probe(struct platform_device *pdev)
+ 					dev_name(&pdev->dev), dcmi);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Unable to request irq %d\n", irq);
+-		return -ENODEV;
++		return ret;
+ 	}
  
- 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
- 			   &bar1_lock, "bar1", &bar->bar1_vmm);
+ 	mclk = devm_clk_get(&pdev->dev, "mclk");
+ 	if (IS_ERR(mclk)) {
+-		dev_err(&pdev->dev, "Unable to get mclk\n");
++		if (PTR_ERR(mclk) != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Unable to get mclk\n");
+ 		return PTR_ERR(mclk);
+ 	}
+ 
 -- 
 2.20.1
 
