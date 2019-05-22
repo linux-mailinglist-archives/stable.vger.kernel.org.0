@@ -2,107 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 381822605E
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA56B2606F
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728912AbfEVJVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 05:21:15 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49162 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728547AbfEVJVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 05:21:14 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0E3CFADEC;
-        Wed, 22 May 2019 09:21:13 +0000 (UTC)
-Date:   Wed, 22 May 2019 11:21:11 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jiri Kosina <jkosina@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Josh Snyder <joshs@netflix.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Dave Chinner <david@fromorbit.com>,
-        Kevin Easton <kevin@guarana.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Cyril Hrubis <chrubis@suse.cz>, Tejun Heo <tj@kernel.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Daniel Gruss <daniel@gruss.cc>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: Re: [PATCH 4.19 053/105] mm/mincore.c: make mincore() more
- conservative
-Message-ID: <20190522092111.GD32329@dhcp22.suse.cz>
-References: <20190520115247.060821231@linuxfoundation.org>
- <20190520115250.721190520@linuxfoundation.org>
- <20190522085741.GB8174@amd>
+        id S1728602AbfEVJZ1 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 22 May 2019 05:25:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60210 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728584AbfEVJZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 05:25:27 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0390330984D1
+        for <stable@vger.kernel.org>; Wed, 22 May 2019 09:25:27 +0000 (UTC)
+Received: from [172.54.180.135] (cpt-0029.paas.prod.upshift.rdu2.redhat.com [10.0.18.92])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0FE0D54375;
+        Wed, 22 May 2019 09:25:21 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190522085741.GB8174@amd>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.5E1FB89A87.CWYU9T40XF@redhat.com>
+X-Gitlab-Pipeline-ID: 10567
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10567?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Wed, 22 May 2019 09:25:27 +0000 (UTC)
+Date:   Wed, 22 May 2019 05:25:27 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 22-05-19 10:57:41, Pavel Machek wrote:
-> Hi!
-> 
-> > commit 134fca9063ad4851de767d1768180e5dede9a881 upstream.
-> > 
-> > The semantics of what mincore() considers to be resident is not
-> > completely clear, but Linux has always (since 2.3.52, which is when
-> > mincore() was initially done) treated it as "page is available in page
-> > cache".
-> > 
-> > That's potentially a problem, as that [in]directly exposes
-> > meta-information about pagecache / memory mapping state even about
-> > memory not strictly belonging to the process executing the syscall,
-> > opening possibilities for sidechannel attacks.
-> > 
-> > Change the semantics of mincore() so that it only reveals pagecache
-> > information for non-anonymous mappings that belog to files that the
-> > calling process could (if it tried to) successfully open for writing;
-> > otherwise we'd be including shared non-exclusive mappings, which
-> > 
-> >  - is the sidechannel
-> > 
-> >  - is not the usecase for mincore(), as that's primarily used for data,
-> >    not (shared) text
-> 
-> ...
-> 
-> > @@ -189,8 +205,13 @@ static long do_mincore(unsigned long add
-> >  	vma = find_vma(current->mm, addr);
-> >  	if (!vma || addr < vma->vm_start)
-> >  		return -ENOMEM;
-> > -	mincore_walk.mm = vma->vm_mm;
-> >  	end = min(vma->vm_end, addr + (pages << PAGE_SHIFT));
-> > +	if (!can_do_mincore(vma)) {
-> > +		unsigned long pages = DIV_ROUND_UP(end - addr, PAGE_SIZE);
-> > +		memset(vec, 1, pages);
-> > +		return pages;
-> > +	}
-> > +	mincore_walk.mm = vma->vm_mm;
-> >  	err = walk_page_range(addr, end, &mincore_walk);
-> 
-> We normally return errors when we deny permissions; but this one just
-> returns success and wrong data.
-> 
-> Could we return -EPERM there? If not, should it at least get a
-> comment?
+Hello,
 
-This was a deliberate decision AFAIR. We cannot return failure because
-this could lead to an unexpected userspace failure. We are pretendeing
-that those pages are present because that is the safest option -
-e.g. consider an application which tries to refault until the page is
-present...
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Worth a comment? Probably yes, care to send a patch?
--- 
-Michal Hocko
-SUSE Labs
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c3a072597748 - Linux 4.19.45
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c3a072597748 - Linux 4.19.45
+
+We then merged the patchset with `git am`:
+
+  ipv6-fix-src-addr-routing-with-the-exception-table.patch
+  ipv6-prevent-possible-fib6-leaks.patch
+  net-always-descend-into-dsa.patch
+  net-avoid-weird-emergency-message.patch
+  net-mlx4_core-change-the-error-print-to-info-print.patch
+  net-test-nouarg-before-dereferencing-zerocopy-pointers.patch
+  net-usb-qmi_wwan-add-telit-0x1260-and-0x1261-compositions.patch
+  nfp-flower-add-rcu-locks-when-accessing-netdev-for-tunnels.patch
+  ppp-deflate-fix-possible-crash-in-deflate_init.patch
+  rtnetlink-always-put-ifla_link-for-links-with-a-link-netnsid.patch
+  tipc-switch-order-of-device-registration-to-fix-a-crash.patch
+  vsock-virtio-free-packets-during-the-socket-release.patch
+  tipc-fix-modprobe-tipc-failed-after-switch-order-of-device-registration.patch
+  vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+  net-mlx5-imply-mlxfw-in-mlx5_core.patch
+  net-mlx5e-fix-ethtool-rxfh-commands-when-config_mlx5_en_rxnfc-is-disabled.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-8e7af37f62bb3250c1b885d266e6fd5f2bca532a.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [1]
+     ✅ Boot test [0]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ audit: audit testsuite test [5]
+     ✅ httpd: mod_ssl smoke sanity [6]
+     ✅ iotop: sanity [7]
+     ✅ tuned: tune-processes-through-perf [8]
+     ✅ stress: stress-ng [9]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking route: pmtu [10]
+     🚧 ✅ Networking route_func: local [11]
+     🚧 ✅ Networking route_func: forward [11]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [1]
+     ✅ Boot test [0]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ audit: audit testsuite test [5]
+     ✅ httpd: mod_ssl smoke sanity [6]
+     ✅ iotop: sanity [7]
+     ✅ tuned: tune-processes-through-perf [8]
+     ✅ stress: stress-ng [9]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking route: pmtu [10]
+     🚧 ✅ Networking route_func: local [11]
+     🚧 ✅ Networking route_func: forward [11]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [1]
+     ✅ Boot test [0]
+     ✅ LTP lite [2]
+     ✅ Ethernet drivers sanity [4]
+     ✅ audit: audit testsuite test [5]
+     ✅ httpd: mod_ssl smoke sanity [6]
+     ✅ iotop: sanity [7]
+     ✅ tuned: tune-processes-through-perf [8]
+     ✅ stress: stress-ng [9]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking route: pmtu [10]
+     🚧 ✅ Networking route_func: local [11]
+     🚧 ✅ Networking route_func: forward [11]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [1]
+     ✅ Boot test [0]
+     ✅ LTP lite [2]
+     ✅ AMTU (Abstract Machine Test Utility) [3]
+     ✅ Ethernet drivers sanity [4]
+     ✅ audit: audit testsuite test [5]
+     ✅ httpd: mod_ssl smoke sanity [6]
+     ✅ iotop: sanity [7]
+     ✅ tuned: tune-processes-through-perf [8]
+     ✅ stress: stress-ng [9]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking route: pmtu [10]
+     🚧 ✅ Networking route_func: local [11]
+     🚧 ✅ Networking route_func: forward [11]
+
+  Test source:
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
