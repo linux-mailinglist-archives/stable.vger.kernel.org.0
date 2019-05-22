@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33BA926C26
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD56626C5E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387559AbfEVTbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:31:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55212 "EHLO mail.kernel.org"
+        id S1732645AbfEVTd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387568AbfEVTbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:31:40 -0400
+        id S2387586AbfEVTbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:31:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AB4120879;
-        Wed, 22 May 2019 19:31:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3225A2173C;
+        Wed, 22 May 2019 19:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553499;
-        bh=mf3CFJnv1gSqZ+O8kLXrKm1i/VlwL7ffOTJyJ+Iekqs=;
+        s=default; t=1558553500;
+        bh=Z5M97+wnGla18P25MkB3sjrGHWb2JtxK/um22vBOWNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7CMYzvU6LmjttgxhUuCfGpUmYluHQvaOGGzBHdNCPrifY50bGMcMcbXh74cTMSMP
-         i1TafsdW3ry+f+fQjSj6rk24kFZm6z6Dq+EuAdENWfXLcgZuc3u/IvaQ6BbWzbvv7D
-         D7ojrDiLRgB63df7a0y9XSDHG3NMz4g7e4gB3zfA=
+        b=PvbRErWoTXFOLvwuGYgJVZ3dUU1zswSHi76dQTZimcomh84xbF4JpEzPC187FMD+f
+         n4ZLIlKmo2AcSXgmAaMsrh2q6aRtre6iVMsWDD+VURtXqt9dMphC1mUWsfLSXCkTOB
+         rRVVpYamVk3eULxbhI2bjd+ZO4fye5PuTNavL8QI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 07/92] brcm80211: potential NULL dereference in brcmf_cfg80211_vndr_cmds_dcmd_handler()
-Date:   Wed, 22 May 2019 15:30:02 -0400
-Message-Id: <20190522193127.27079-7-sashal@kernel.org>
+Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 08/92] rtc: 88pm860x: prevent use-after-free on device remove
+Date:   Wed, 22 May 2019 15:30:03 -0400
+Message-Id: <20190522193127.27079-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193127.27079-1-sashal@kernel.org>
 References: <20190522193127.27079-1-sashal@kernel.org>
@@ -44,57 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit e025da3d7aa4770bb1d1b3b0aa7cc4da1744852d ]
+[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
 
-If "ret_len" is negative then it could lead to a NULL dereference.
+The device's remove() attempts to shut down the delayed_work scheduled
+on the kernel-global workqueue by calling flush_scheduled_work().
 
-The "ret_len" value comes from nl80211_vendor_cmd(), if it's negative
-then we don't allocate the "dcmd_buf" buffer.  Then we pass "ret_len" to
-brcmf_fil_cmd_data_set() where it is cast to a very high u32 value.
-Most of the functions in that call tree check whether the buffer we pass
-is NULL but there are at least a couple places which don't such as
-brcmf_dbg_hex_dump() and brcmf_msgbuf_query_dcmd().  We memcpy() to and
-from the buffer so it would result in a NULL dereference.
+Unfortunately, flush_scheduled_work() does not prevent the delayed_work
+from re-scheduling itself. The delayed_work might run after the device
+has been removed, and touch the already de-allocated info structure.
+This is a potential use-after-free.
 
-The fix is to change the types so that "ret_len" can't be negative.  (If
-we memcpy() zero bytes to NULL, that's a no-op and doesn't cause an
-issue).
+Fix by calling cancel_delayed_work_sync() during remove(): this ensures
+that the delayed work is properly cancelled, is no longer running, and
+is not able to re-schedule itself.
 
-Fixes: 1bacb0487d0e ("brcmfmac: replace cfg80211 testmode with vendor command")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This issue was detected with the help of Coccinelle.
+
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/brcm80211/brcmfmac/vendor.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-88pm860x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/brcm80211/brcmfmac/vendor.c b/drivers/net/wireless/brcm80211/brcmfmac/vendor.c
-index 8eff2753abade..d493021f60318 100644
---- a/drivers/net/wireless/brcm80211/brcmfmac/vendor.c
-+++ b/drivers/net/wireless/brcm80211/brcmfmac/vendor.c
-@@ -35,9 +35,10 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 	struct brcmf_if *ifp;
- 	const struct brcmf_vndr_dcmd_hdr *cmdhdr = data;
- 	struct sk_buff *reply;
--	int ret, payload, ret_len;
-+	unsigned int payload, ret_len;
- 	void *dcmd_buf = NULL, *wr_pointer;
- 	u16 msglen, maxmsglen = PAGE_SIZE - 0x100;
-+	int ret;
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index 19e53b3b8e005..166faae3a59cd 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -414,7 +414,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
+ 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
  
- 	if (len < sizeof(*cmdhdr)) {
- 		brcmf_err("vendor command too short: %d\n", len);
-@@ -65,7 +66,7 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 			brcmf_err("oversize return buffer %d\n", ret_len);
- 			ret_len = BRCMF_DCMD_MAXLEN;
- 		}
--		payload = max(ret_len, len) + 1;
-+		payload = max_t(unsigned int, ret_len, len) + 1;
- 		dcmd_buf = vzalloc(payload);
- 		if (NULL == dcmd_buf)
- 			return -ENOMEM;
+ #ifdef VRTC_CALIBRATION
+-	flush_scheduled_work();
++	cancel_delayed_work_sync(&info->calib_work);
+ 	/* disable measurement */
+ 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
+ #endif	/* VRTC_CALIBRATION */
 -- 
 2.20.1
 
