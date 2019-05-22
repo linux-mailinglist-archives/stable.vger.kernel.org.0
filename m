@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C97C226F6A
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1584E26F5E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731870AbfEVT4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46378 "EHLO mail.kernel.org"
+        id S1730331AbfEVTZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727984AbfEVTZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:25:05 -0400
+        id S1729572AbfEVTZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:25:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F46C217D7;
-        Wed, 22 May 2019 19:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 275582173C;
+        Wed, 22 May 2019 19:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553104;
-        bh=SHTanGl498Jp+C/3CVisWEVSVFlCHF+CC9lNTtyLOMw=;
+        s=default; t=1558553105;
+        bh=uendvqay2zDyUEfWpPL/DqysVoKR2WxL91wopueSweo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htRO7uCpWnyztMJTjbp5cJMJeb1E2C7naW2bRGPU7LIRqWkQm+bJf+k1Lx5uQIbWu
-         wfH3KmGdaFsih15vRW8nkwdcQayzEWDm87ofOSzMKIYo7CbUE9Bet/VHyrjOsqccnr
-         FjYch7B/9Lg1S77Sdwigcgxof8abapt0gSZfWtA0=
+        b=RwFJyg38ZhBHnN6Yk+lJKCuqPG/sZVPoCZPXC+vjJ4SLbkVZhXijopQ8pHwLmMjoj
+         GviP1QkdSMszSHMxfU+1+a5dpYN+buG0TudxS3jU6PqIECPzQkkDojCAceWKYkoiW8
+         Mkz6CcgmNGEnSiDJIIQvSIdHmzn0QjeDFBCVrC0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robbie Ko <robbieko@synology.com>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
         Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 049/317] Btrfs: fix data bytes_may_use underflow with fallocate due to failed quota reserve
-Date:   Wed, 22 May 2019 15:19:10 -0400
-Message-Id: <20190522192338.23715-49-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 050/317] btrfs: fix panic during relocation after ENOSPC before writeback happens
+Date:   Wed, 22 May 2019 15:19:11 -0400
+Message-Id: <20190522192338.23715-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -44,59 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Ko <robbieko@synology.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 39ad317315887c2cb9a4347a93a8859326ddf136 ]
+[ Upstream commit ff612ba7849964b1898fd3ccd1f56941129c6aab ]
 
-When doing fallocate, we first add the range to the reserve_list and
-then reserve the quota.  If quota reservation fails, we'll release all
-reserved parts of reserve_list.
+We've been seeing the following sporadically throughout our fleet
 
-However, cur_offset is not updated to indicate that this range is
-already been inserted into the list.  Therefore, the same range is freed
-twice.  Once at list_for_each_entry loop, and once at the end of the
-function.  This will result in WARN_ON on bytes_may_use when we free the
-remaining space.
+panic: kernel BUG at fs/btrfs/relocation.c:4584!
+netversion: 5.0-0
+Backtrace:
+ #0 [ffffc90003adb880] machine_kexec at ffffffff81041da8
+ #1 [ffffc90003adb8c8] __crash_kexec at ffffffff8110396c
+ #2 [ffffc90003adb988] crash_kexec at ffffffff811048ad
+ #3 [ffffc90003adb9a0] oops_end at ffffffff8101c19a
+ #4 [ffffc90003adb9c0] do_trap at ffffffff81019114
+ #5 [ffffc90003adba00] do_error_trap at ffffffff810195d0
+ #6 [ffffc90003adbab0] invalid_op at ffffffff81a00a9b
+    [exception RIP: btrfs_reloc_cow_block+692]
+    RIP: ffffffff8143b614  RSP: ffffc90003adbb68  RFLAGS: 00010246
+    RAX: fffffffffffffff7  RBX: ffff8806b9c32000  RCX: ffff8806aad00690
+    RDX: ffff880850b295e0  RSI: ffff8806b9c32000  RDI: ffff88084f205bd0
+    RBP: ffff880849415000   R8: ffffc90003adbbe0   R9: ffff88085ac90000
+    R10: ffff8805f7369140  R11: 0000000000000000  R12: ffff880850b295e0
+    R13: ffff88084f205bd0  R14: 0000000000000000  R15: 0000000000000000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffc90003adbbb0] __btrfs_cow_block at ffffffff813bf1cd
+ #8 [ffffc90003adbc28] btrfs_cow_block at ffffffff813bf4b3
+ #9 [ffffc90003adbc78] btrfs_search_slot at ffffffff813c2e6c
 
-At the end, under the 'out' label we have a call to:
+The way relocation moves data extents is by creating a reloc inode and
+preallocating extents in this inode and then copying the data into these
+preallocated extents.  Once we've done this for all of our extents,
+we'll write out these dirty pages, which marks the extent written, and
+goes into btrfs_reloc_cow_block().  From here we get our current
+reloc_control, which _should_ match the reloc_control for the current
+block group we're relocating.
 
-   btrfs_free_reserved_data_space(inode, data_reserved, alloc_start, alloc_end - cur_offset);
+However if we get an ENOSPC in this path at some point we'll bail out,
+never initiating writeback on this inode.  Not a huge deal, unless we
+happen to be doing relocation on a different block group, and this block
+group is now rc->stage == UPDATE_DATA_PTRS.  This trips the BUG_ON() in
+btrfs_reloc_cow_block(), because we expect to be done modifying the data
+inode.  We are in fact done modifying the metadata for the data inode
+we're currently using, but not the one from the failed block group, and
+thus we BUG_ON().
 
-The start offset, third argument, should be cur_offset.
+(This happens when writeback finishes for extents from the previous
+group, when we are at btrfs_finish_ordered_io() which updates the data
+reloc tree (inode item, drops/adds extent items, etc).)
 
-Everything from alloc_start to cur_offset was freed by the
-list_for_each_entry_safe_loop.
+Fix this by writing out the reloc data inode always, and then breaking
+out of the loop after that point to keep from tripping this BUG_ON()
+later.
 
-Fixes: 18513091af94 ("btrfs: update btrfs_space_info's bytes_may_use timely")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Robbie Ko <robbieko@synology.com>
+[ add note from Filipe ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index d38dc8c315337..ab5caf87ef481 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3132,6 +3132,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
- 					cur_offset, last_byte - cur_offset);
- 			if (ret < 0) {
-+				cur_offset = last_byte;
- 				free_extent_map(em);
- 				break;
- 			}
-@@ -3181,7 +3182,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 	/* Let go of our reservation. */
- 	if (ret != 0 && !(mode & FALLOC_FL_ZERO_RANGE))
- 		btrfs_free_reserved_data_space(inode, data_reserved,
--				alloc_start, alloc_end - cur_offset);
-+				cur_offset, alloc_end - cur_offset);
- 	extent_changeset_free(data_reserved);
- 	return ret;
- }
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 272b287f8cf0d..0395b8233c905 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -4271,27 +4271,36 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
+ 		mutex_lock(&fs_info->cleaner_mutex);
+ 		ret = relocate_block_group(rc);
+ 		mutex_unlock(&fs_info->cleaner_mutex);
+-		if (ret < 0) {
++		if (ret < 0)
+ 			err = ret;
+-			goto out;
+-		}
+-
+-		if (rc->extents_found == 0)
+-			break;
+-
+-		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
+ 
++		/*
++		 * We may have gotten ENOSPC after we already dirtied some
++		 * extents.  If writeout happens while we're relocating a
++		 * different block group we could end up hitting the
++		 * BUG_ON(rc->stage == UPDATE_DATA_PTRS) in
++		 * btrfs_reloc_cow_block.  Make sure we write everything out
++		 * properly so we don't trip over this problem, and then break
++		 * out of the loop if we hit an error.
++		 */
+ 		if (rc->stage == MOVE_DATA_EXTENTS && rc->found_file_extent) {
+ 			ret = btrfs_wait_ordered_range(rc->data_inode, 0,
+ 						       (u64)-1);
+-			if (ret) {
++			if (ret)
+ 				err = ret;
+-				goto out;
+-			}
+ 			invalidate_mapping_pages(rc->data_inode->i_mapping,
+ 						 0, -1);
+ 			rc->stage = UPDATE_DATA_PTRS;
+ 		}
++
++		if (err < 0)
++			goto out;
++
++		if (rc->extents_found == 0)
++			break;
++
++		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
++
+ 	}
+ 
+ 	WARN_ON(rc->block_group->pinned > 0);
 -- 
 2.20.1
 
