@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E227426CA1
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3240826C96
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731824AbfEVTgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54316 "EHLO mail.kernel.org"
+        id S2387408AbfEVTay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387395AbfEVTau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:50 -0400
+        id S2387399AbfEVTav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11EF720675;
-        Wed, 22 May 2019 19:30:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A4021473;
+        Wed, 22 May 2019 19:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553449;
-        bh=MO7wHOeODYUsgUTq0t5fXWKpKvu1ZS3FOL1EFL74wr8=;
+        s=default; t=1558553450;
+        bh=/z4pvG5BMzSHX+Zzf6J8UySYZ46trHLr3FMeC7wZZok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9ahqJrhU/p6cCu6OwOcThEvbgiX0I8BFa207qVqdKMCPmLNPXDYhaLhga2Cho32Z
-         poAxd+guEisDU80EX9RWkx82HV7TG18KiCZ5Z+mnfPCdC7Xs5ZJiBJ4IpD9xWHr2yL
-         S47QKW1uPSMKAJQaxRn2I1tprs3qBLjUp3lmH1U4=
+        b=e+3V0dKP4pZJE1SPuH3zX7fG3Hv3kXAaBUDKchEYSVZooOWKvSphxq5JVCWDktzKj
+         WtXVz/hlTivx6yEBZGpTAHRmmd1k5PrE68z9LH0zx32Kv7tf5KL0DTZeit0x/eoC7/
+         OOtfrecT76Bx0dsSsVLMarDN7P0C0i6w0Hu/t7SU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 019/114] dmaengine: pl330: _stop: clear interrupt status
-Date:   Wed, 22 May 2019 15:28:42 -0400
-Message-Id: <20190522193017.26567-19-sashal@kernel.org>
+Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 020/114] mac80211/cfg80211: update bss channel on channel switch
+Date:   Wed, 22 May 2019 15:28:43 -0400
+Message-Id: <20190522193017.26567-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -43,92 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sugar Zhang <sugar.zhang@rock-chips.com>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-[ Upstream commit 2da254cc7908105a60a6bb219d18e8dced03dcb9 ]
+[ Upstream commit 5dc8cdce1d722c733f8c7af14c5fb595cfedbfa8 ]
 
-This patch kill instructs the DMAC to immediately terminate
-execution of a thread. and then clear the interrupt status,
-at last, stop generating interrupts for DMA_SEV. to guarantee
-the next dma start is clean. otherwise, one interrupt maybe leave
-to next start and make some mistake.
+FullMAC STAs have no way to update bss channel after CSA channel switch
+completion. As a result, user-space tools may provide inconsistent
+channel info. For instance, consider the following two commands:
+$ sudo iw dev wlan0 link
+$ sudo iw dev wlan0 info
+The latter command gets channel info from the hardware, so most probably
+its output will be correct. However the former command gets channel info
+from scan cache, so its output will contain outdated channel info.
+In fact, current bss channel info will not be updated until the
+next [re-]connect.
 
-we can reporduce the problem as follows:
+Note that mac80211 STAs have a workaround for this, but it requires
+access to internal cfg80211 data, see ieee80211_chswitch_work:
 
-DMASEV: modify the event-interrupt resource, and if the INTEN sets
-function as interrupt, the DMAC will set irq<event_num> HIGH to
-generate interrupt. write INTCLR to clear interrupt.
+	/* XXX: shouldn't really modify cfg80211-owned data! */
+	ifmgd->associated->channel = sdata->csa_chandef.chan;
 
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			    mask INTEN
-		|				|
-		|			     DMAKILL
-		|				|
-		|			spin_unlock_irqrestore
+This patch suggests to convert mac80211 workaround into cfg80211 behavior
+and to update current bss channel in cfg80211_ch_switch_notify.
 
-in above case, a interrupt was left, and if we unmask INTEN, the DMAC
-will set irq<event_num> HIGH to generate interrupt.
-
-to fix this, do as follows:
-
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			     DMAKILL
-		|				|
-		|			   clear INTCLR
-		|			    mask INTEN
-		|				|
-		|			spin_unlock_irqrestore
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/mac80211/mlme.c    | 3 ---
+ net/wireless/nl80211.c | 5 +++++
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 6d7e3cd4aba4c..57b375d0de292 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -1020,6 +1020,7 @@ static void _stop(struct pl330_thread *thrd)
- {
- 	void __iomem *regs = thrd->dmac->base;
- 	u8 insn[6] = {0, 0, 0, 0, 0, 0};
-+	u32 inten = readl(regs + INTEN);
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 6e0aa296f1346..d787717140e54 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1072,9 +1072,6 @@ static void ieee80211_chswitch_work(struct work_struct *work)
+ 		goto out;
+ 	}
  
- 	if (_state(thrd) == PL330_STATE_FAULT_COMPLETING)
- 		UNTIL(thrd, PL330_STATE_FAULTING | PL330_STATE_KILLING);
-@@ -1032,10 +1033,13 @@ static void _stop(struct pl330_thread *thrd)
- 
- 	_emit_KILL(0, insn);
- 
--	/* Stop generating interrupts for SEV */
--	writel(readl(regs + INTEN) & ~(1 << thrd->ev), regs + INTEN);
+-	/* XXX: shouldn't really modify cfg80211-owned data! */
+-	ifmgd->associated->channel = sdata->csa_chandef.chan;
 -
- 	_execute_DBGINSN(thrd, insn, is_manager(thrd));
-+
-+	/* clear the event */
-+	if (inten & (1 << thrd->ev))
-+		writel(1 << thrd->ev, regs + INTCLR);
-+	/* Stop generating interrupts for SEV */
-+	writel(inten & ~(1 << thrd->ev), regs + INTEN);
- }
+ 	ifmgd->csa_waiting_bcn = true;
  
- /* Start doing req 'idx' of thread 'thrd' */
+ 	ieee80211_sta_reset_beacon_monitor(sdata);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 09a353c6373a8..d6e6293157717 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -14014,6 +14014,11 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
+ 
+ 	wdev->chandef = *chandef;
+ 	wdev->preset_chandef = *chandef;
++
++	if (wdev->iftype == NL80211_IFTYPE_STATION &&
++	    !WARN_ON(!wdev->current_bss))
++		wdev->current_bss->pub.channel = chandef->chan;
++
+ 	nl80211_ch_switch_notify(rdev, dev, chandef, GFP_KERNEL,
+ 				 NL80211_CMD_CH_SWITCH_NOTIFY, 0);
+ }
 -- 
 2.20.1
 
