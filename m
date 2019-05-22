@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F59326CEC
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF1126CEE
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733024AbfEVT3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52916 "EHLO mail.kernel.org"
+        id S1732209AbfEVT3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732968AbfEVT3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:29:45 -0400
+        id S1733026AbfEVT3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:29:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 183B32173C;
-        Wed, 22 May 2019 19:29:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E9A22177E;
+        Wed, 22 May 2019 19:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553384;
-        bh=pO38k8VhxEzdquYnHIYEk/3gJ31kyCzgKZhOtvkygOk=;
+        s=default; t=1558553385;
+        bh=vJsHcoNSg0SBDsu+O0F8uHJTy/8v/IhCGVV7dXKr7IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfpDmu3R6WnpY+z31+Ic4evLB87SYo97+W4hac9nzU33BA7bAZ6K7zEOm5/M6H6xP
-         UMncA6QHNEZk7f3LI4AwamzjiLUKw8kxNOnPDr+ufhVnf6eRPaWyViudt3GPNy/t0i
-         uESzKFiuBTN8vQRfjzHuPZDcZKuleSQmqjzsKOwg=
+        b=mwg2Xj6iOI9UQ6FSbSBYizF8oKjNygjacPP4eiP/qe1FzESht2Nok8QUHr4fQ0NBZ
+         VZH/gDgEQc9nfQjkOHJyJpZoMD/Dc3xMoya1TOsN86Rx/ns22Mp/AKE3+60od5isQ9
+         YHysDMG9YznGxZHk6ZtG7gW8XuqXLSA8zqsQGXCo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 042/167] crypto: sun4i-ss - Fix invalid calculation of hash end
-Date:   Wed, 22 May 2019 15:26:37 -0400
-Message-Id: <20190522192842.25858-42-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Hannes Reinecke <hare@suse.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 043/167] bcache: return error immediately in bch_journal_replay()
+Date:   Wed, 22 May 2019 15:26:38 -0400
+Message-Id: <20190522192842.25858-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
 References: <20190522192842.25858-1-sashal@kernel.org>
@@ -43,40 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit f87391558acf816b48f325a493d81d45dec40da0 ]
+[ Upstream commit 68d10e6979a3b59e3cd2e90bfcafed79c4cf180a ]
 
-When nbytes < 4, end is wronlgy set to a negative value which, due to
-uint, is then interpreted to a large value leading to a deadlock in the
-following code.
+When failure happens inside bch_journal_replay(), calling
+cache_set_err_on() and handling the failure in async way is not a good
+idea. Because after bch_journal_replay() returns, registering code will
+continue to execute following steps, and unregistering code triggered
+by cache_set_err_on() is running in same time. First it is unnecessary
+to handle failure and unregister cache set in an async way, second there
+might be potential race condition to run register and unregister code
+for same cache set.
 
-This patch fix this problem.
+So in this patch, if failure happens in bch_journal_replay(), we don't
+call cache_set_err_on(), and just print out the same error message to
+kernel message buffer, then return -EIO immediately caller. Then caller
+can detect such failure and handle it in synchrnozied way.
 
-Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/md/bcache/journal.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-index a4b5ff2b72f87..f6936bb3b7be4 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-@@ -240,7 +240,10 @@ static int sun4i_hash(struct ahash_request *areq)
- 		}
- 	} else {
- 		/* Since we have the flag final, we can go up to modulo 4 */
--		end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
-+		if (areq->nbytes < 4)
-+			end = 0;
-+		else
-+			end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
- 	}
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index 03cc0722ae486..ec7856c06cbb0 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -323,9 +323,12 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
+ 	list_for_each_entry(i, list, list) {
+ 		BUG_ON(i->pin && atomic_read(i->pin) != 1);
  
- 	/* TODO if SGlen % 4 and !op->len then DMA */
+-		cache_set_err_on(n != i->j.seq, s,
+-"bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
+-				 n, i->j.seq - 1, start, end);
++		if (n != i->j.seq) {
++			pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
++			n, i->j.seq - 1, start, end);
++			ret = -EIO;
++			goto err;
++		}
+ 
+ 		for (k = i->j.start;
+ 		     k < bset_bkey_last(&i->j);
 -- 
 2.20.1
 
