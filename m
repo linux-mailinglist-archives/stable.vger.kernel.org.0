@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF1126CEE
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C8826CF1
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732209AbfEVT3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:29:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52964 "EHLO mail.kernel.org"
+        id S1733033AbfEVT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733026AbfEVT3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:29:46 -0400
+        id S1733029AbfEVT3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:29:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E9A22177E;
-        Wed, 22 May 2019 19:29:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 397DE217D4;
+        Wed, 22 May 2019 19:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553385;
-        bh=vJsHcoNSg0SBDsu+O0F8uHJTy/8v/IhCGVV7dXKr7IE=;
+        s=default; t=1558553387;
+        bh=L8nJfwBmn+WOOOT/IjjmXA7SpxSRH1CGk5f6VDZXDYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwg2Xj6iOI9UQ6FSbSBYizF8oKjNygjacPP4eiP/qe1FzESht2Nok8QUHr4fQ0NBZ
-         VZH/gDgEQc9nfQjkOHJyJpZoMD/Dc3xMoya1TOsN86Rx/ns22Mp/AKE3+60od5isQ9
-         YHysDMG9YznGxZHk6ZtG7gW8XuqXLSA8zqsQGXCo=
+        b=F0G1obHr1JAqek4SZEcXq6inKqDPzA/ZKJ/P3WrMvUIb9nD995rI61nMLmGTVopYi
+         3WxUYVmEf7fmOR9dkzFZaBmyvGEGtNK0GyJwBJVNyUmNZAMUOiCY53rhRu6ZZG1jpE
+         79cL2/6svTG9nki+j5yw36eld3K7MmEwaAW3lDZc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Hannes Reinecke <hare@suse.com>,
+Cc:     Tang Junhui <tang.junhui.linux@gmail.com>,
+        Dennis Schridde <devurandom@gmx.net>, Coly Li <colyli@suse.de>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 043/167] bcache: return error immediately in bch_journal_replay()
-Date:   Wed, 22 May 2019 15:26:38 -0400
-Message-Id: <20190522192842.25858-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 044/167] bcache: fix failure in journal relplay
+Date:   Wed, 22 May 2019 15:26:39 -0400
+Message-Id: <20190522192842.25858-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
 References: <20190522192842.25858-1-sashal@kernel.org>
@@ -43,52 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Tang Junhui <tang.junhui.linux@gmail.com>
 
-[ Upstream commit 68d10e6979a3b59e3cd2e90bfcafed79c4cf180a ]
+[ Upstream commit 631207314d88e9091be02fbdd1fdadb1ae2ed79a ]
 
-When failure happens inside bch_journal_replay(), calling
-cache_set_err_on() and handling the failure in async way is not a good
-idea. Because after bch_journal_replay() returns, registering code will
-continue to execute following steps, and unregistering code triggered
-by cache_set_err_on() is running in same time. First it is unnecessary
-to handle failure and unregister cache set in an async way, second there
-might be potential race condition to run register and unregister code
-for same cache set.
+journal replay failed with messages:
+Sep 10 19:10:43 ceph kernel: bcache: error on
+bb379a64-e44e-4812-b91d-a5599871a3b1: bcache: journal entries
+2057493-2057567 missing! (replaying 2057493-2076601), disabling
+caching
 
-So in this patch, if failure happens in bch_journal_replay(), we don't
-call cache_set_err_on(), and just print out the same error message to
-kernel message buffer, then return -EIO immediately caller. Then caller
-can detect such failure and handle it in synchrnozied way.
+The reason is in journal_reclaim(), when discard is enabled, we send
+discard command and reclaim those journal buckets whose seq is old
+than the last_seq_now, but before we write a journal with last_seq_now,
+the machine is restarted, so the journal with the last_seq_now is not
+written to the journal bucket, and the last_seq_wrote in the newest
+journal is old than last_seq_now which we expect to be, so when we doing
+replay, journals from last_seq_wrote to last_seq_now are missing.
 
+It's hard to write a journal immediately after journal_reclaim(),
+and it harmless if those missed journal are caused by discarding
+since those journals are already wrote to btree node. So, if miss
+seqs are started from the beginning journal, we treat it as normal,
+and only print a message to show the miss journal, and point out
+it maybe caused by discarding.
+
+Patch v2 add a judgement condition to ignore the missed journal
+only when discard enabled as Coly suggested.
+
+(Coly Li: rebase the patch with other changes in bch_journal_replay())
+
+Signed-off-by: Tang Junhui <tang.junhui.linux@gmail.com>
+Tested-by: Dennis Schridde <devurandom@gmx.net>
 Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/journal.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/md/bcache/journal.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index 03cc0722ae486..ec7856c06cbb0 100644
+index ec7856c06cbb0..42e20e9f9d1fd 100644
 --- a/drivers/md/bcache/journal.c
 +++ b/drivers/md/bcache/journal.c
-@@ -323,9 +323,12 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
- 	list_for_each_entry(i, list, list) {
+@@ -310,6 +310,18 @@ void bch_journal_mark(struct cache_set *c, struct list_head *list)
+ 	}
+ }
+ 
++bool is_discard_enabled(struct cache_set *s)
++{
++	struct cache *ca;
++	unsigned int i;
++
++	for_each_cache(ca, s, i)
++		if (ca->discard)
++			return true;
++
++	return false;
++}
++
+ int bch_journal_replay(struct cache_set *s, struct list_head *list)
+ {
+ 	int ret = 0, keys = 0, entries = 0;
+@@ -324,10 +336,15 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
  		BUG_ON(i->pin && atomic_read(i->pin) != 1);
  
--		cache_set_err_on(n != i->j.seq, s,
--"bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
--				 n, i->j.seq - 1, start, end);
-+		if (n != i->j.seq) {
-+			pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
-+			n, i->j.seq - 1, start, end);
-+			ret = -EIO;
-+			goto err;
-+		}
+ 		if (n != i->j.seq) {
+-			pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
+-			n, i->j.seq - 1, start, end);
+-			ret = -EIO;
+-			goto err;
++			if (n == start && is_discard_enabled(s))
++				pr_info("bcache: journal entries %llu-%llu may be discarded! (replaying %llu-%llu)",
++					n, i->j.seq - 1, start, end);
++			else {
++				pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
++					n, i->j.seq - 1, start, end);
++				ret = -EIO;
++				goto err;
++			}
+ 		}
  
  		for (k = i->j.start;
- 		     k < bset_bkey_last(&i->j);
 -- 
 2.20.1
 
