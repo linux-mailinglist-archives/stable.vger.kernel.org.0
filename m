@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EC126EB4
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1335E26EB5
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730043AbfEVT0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47516 "EHLO mail.kernel.org"
+        id S1731074AbfEVT0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:26:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730014AbfEVT0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:09 -0400
+        id S1731897AbfEVT0M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F6FE20879;
-        Wed, 22 May 2019 19:26:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8005021473;
+        Wed, 22 May 2019 19:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553168;
-        bh=PVnJkSzNxVWidruSMa87Z8LhiGWI3JjibOSUTpUmGYQ=;
+        s=default; t=1558553171;
+        bh=zbMQSssgxEcMncoTrO0Isv+fTsVyLkzY3aAYQXjwqlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YL96Dukc2Rb3+2fYB+a4ob0S/Hr2XkQTdaH60DC/8EMRtYcS7aSKpjxXJW375iU+S
-         kW24Egf81m8mHjpmn8iskjxydEsJv9DamA/XhRcuFKu4mR+G+HYN2jOaSkcy/BCACy
-         XuXazeVm3fqJZIpx+wCNJpe2wpr9Y93doZ0psDYc=
+        b=beZAfe2UUxxcDHK9njq8a0YzRFMSwtVdBEZuzjtlyUHyTED90jIjD0WODS+kr0izY
+         S0EE3f7V5BbCOHMZqRzImnuuI9M+Y2AKu5h7syVlsp3Mwu6Ek8LpUBUjziCPcB1DV7
+         bHNDrg+Kkpr9HuiB1TZJe6TcfDy81obD20JhzmKU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Borislav Petkov <bp@suse.de>,
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        kbuild test robot <lkp@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 091/317] x86/build: Move _etext to actual end of .text
-Date:   Wed, 22 May 2019 15:19:52 -0400
-Message-Id: <20190522192338.23715-91-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 092/317] smpboot: Place the __percpu annotation correctly
+Date:   Wed, 22 May 2019 15:19:53 -0400
+Message-Id: <20190522192338.23715-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -47,51 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 392bef709659abea614abfe53cf228e7a59876a4 ]
+[ Upstream commit d4645d30b50d1691c26ff0f8fa4e718b08f8d3bb ]
 
-When building x86 with Clang LTO and CFI, CFI jump regions are
-automatically added to the end of the .text section late in linking. As a
-result, the _etext position was being labelled before the appended jump
-regions, causing confusion about where the boundaries of the executable
-region actually are in the running kernel, and broke at least the fault
-injection code. This moves the _etext mark to outside (and immediately
-after) the .text area, as it already the case on other architectures
-(e.g. arm64, arm).
+The test robot reported a wrong assignment of a per-CPU variable which
+it detected by using sparse and sent a report. The assignment itself is
+correct. The annotation for sparse was wrong and hence the report.
+The first pointer is a "normal" pointer and points to the per-CPU memory
+area. That means that the __percpu annotation has to be moved.
 
-Reported-and-tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@suse.de>
+Move the __percpu annotation to pointer which points to the per-CPU
+area. This change affects only the sparse tool (and is ignored by the
+compiler).
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20190423183827.GA4012@beast
+Fixes: f97f8f06a49fe ("smpboot: Provide infrastructure for percpu hotplug threads")
+Link: http://lkml.kernel.org/r/20190424085253.12178-1-bigeasy@linutronix.de
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/vmlinux.lds.S | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/smpboot.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index c45214c44e612..5cbce783d4d10 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -141,11 +141,11 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--
--		/* End of text section */
--		_etext = .;
- 	} :text = 0x9090
- 
-+	/* End of text section */
-+	_etext = .;
-+
- 	NOTES :text :note
- 
- 	EXCEPTION_TABLE(16) :text = 0x9090
+diff --git a/include/linux/smpboot.h b/include/linux/smpboot.h
+index d0884b5250010..9d1bc65d226cc 100644
+--- a/include/linux/smpboot.h
++++ b/include/linux/smpboot.h
+@@ -29,7 +29,7 @@ struct smpboot_thread_data;
+  * @thread_comm:	The base name of the thread
+  */
+ struct smp_hotplug_thread {
+-	struct task_struct __percpu	**store;
++	struct task_struct		* __percpu *store;
+ 	struct list_head		list;
+ 	int				(*thread_should_run)(unsigned int cpu);
+ 	void				(*thread_fn)(unsigned int cpu);
 -- 
 2.20.1
 
