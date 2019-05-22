@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E830126E5A
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 695D126E53
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731090AbfEVTtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
+        id S1729991AbfEVT1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:27:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732210AbfEVT1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:27:00 -0400
+        id S1732215AbfEVT1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:27:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7842E217D4;
-        Wed, 22 May 2019 19:26:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7288621841;
+        Wed, 22 May 2019 19:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553220;
-        bh=Y4rZJNWy/KfK8Im5OC5EaLPR1l839eDaVllleC5gE3g=;
+        s=default; t=1558553221;
+        bh=olLlbsdVvG3O0pmW/Xs7F+gvHtWBPuONA/cLfOxDLcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqVMQDDnOSP672xiKBXvg1QEwhUio6Ayzn5NaacujwYUFNyXeEmnf0sQ2od4Gt5q6
-         JT5UUuqjBXvFFXp0EbTm39H/Pxt3/8oicjg7r6aNTG+C/1FdXWsdVx/7PA38V6CBhU
-         pDD9l8lDQ8q9JLEg5G6I3OV+RwbOLFq4f/p+vsnE=
+        b=UBqF1TuQRPTvJuHV2y/ToLYPrU0Yg8qedkRNrEW1bBclLlGaTd5yujfivJhlyTUXl
+         IA3IYz6GWyJKAYzDxxZKl9pbKjFG7SLjYRpG26u79CUuO7uJ1Y0KEHYtn/XFej+YxD
+         OpZV88S9UfBc74an5q4Q1i3MQOqJAesKoD3kYBmM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 020/244] ASoC: hdmi-codec: unlock the device on startup errors
-Date:   Wed, 22 May 2019 15:22:46 -0400
-Message-Id: <20190522192630.24917-20-sashal@kernel.org>
+Cc:     Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-leds@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 021/244] leds: avoid races with workqueue
+Date:   Wed, 22 May 2019 15:22:47 -0400
+Message-Id: <20190522192630.24917-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -43,41 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Pavel Machek <pavel@ucw.cz>
 
-[ Upstream commit 30180e8436046344b12813dc954b2e01dfdcd22d ]
+[ Upstream commit 0db37915d912e8dc6588f25da76d3ed36718d92f ]
 
-If the hdmi codec startup fails, it should clear the current_substream
-pointer to free the device. This is properly done for the audio_startup()
-callback but for snd_pcm_hw_constraint_eld().
+There are races between "main" thread and workqueue. They manifest
+themselves on Thinkpad X60:
 
-Make sure the pointer cleared if an error is reported.
+This should result in LED blinking, but it turns it off instead:
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+    root@amd:/data/pavel# cd /sys/class/leds/tpacpi\:\:power
+    root@amd:/sys/class/leds/tpacpi::power# echo timer > trigger
+    root@amd:/sys/class/leds/tpacpi::power# echo timer > trigger
+
+It should be possible to transition from blinking to solid on by echo
+0 > brightness; echo 1 > brightness... but that does not work, either,
+if done too quickly.
+
+Synchronization of the workqueue fixes both.
+
+Fixes: 1afcadfcd184 ("leds: core: Use set_brightness_work for the blocking op")
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdmi-codec.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/leds/led-class.c | 1 +
+ drivers/leds/led-core.c  | 5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
-index d5f73c8372817..7994e8ddc7d21 100644
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -439,8 +439,12 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
- 		if (!ret) {
- 			ret = snd_pcm_hw_constraint_eld(substream->runtime,
- 							hcp->eld);
--			if (ret)
-+			if (ret) {
-+				mutex_lock(&hcp->current_stream_lock);
-+				hcp->current_stream = NULL;
-+				mutex_unlock(&hcp->current_stream_lock);
- 				return ret;
-+			}
- 		}
- 		/* Select chmap supported */
- 		hdmi_codec_eld_chmap(hcp);
+diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
+index 3c7e3487b373b..85848c5da705f 100644
+--- a/drivers/leds/led-class.c
++++ b/drivers/leds/led-class.c
+@@ -57,6 +57,7 @@ static ssize_t brightness_store(struct device *dev,
+ 	if (state == LED_OFF)
+ 		led_trigger_remove(led_cdev);
+ 	led_set_brightness(led_cdev, state);
++	flush_work(&led_cdev->set_brightness_work);
+ 
+ 	ret = size;
+ unlock:
+diff --git a/drivers/leds/led-core.c b/drivers/leds/led-core.c
+index ede4fa0ac2cce..55dec67023599 100644
+--- a/drivers/leds/led-core.c
++++ b/drivers/leds/led-core.c
+@@ -162,6 +162,11 @@ static void led_blink_setup(struct led_classdev *led_cdev,
+ 		     unsigned long *delay_on,
+ 		     unsigned long *delay_off)
+ {
++	/*
++	 * If "set brightness to 0" is pending in workqueue, we don't
++	 * want that to be reordered after blink_set()
++	 */
++	flush_work(&led_cdev->set_brightness_work);
+ 	if (!test_bit(LED_BLINK_ONESHOT, &led_cdev->work_flags) &&
+ 	    led_cdev->blink_set &&
+ 	    !led_cdev->blink_set(led_cdev, delay_on, delay_off))
 -- 
 2.20.1
 
