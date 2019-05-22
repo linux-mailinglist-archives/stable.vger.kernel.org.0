@@ -2,118 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 177AF26913
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 19:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFA32691B
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 19:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729555AbfEVR1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 13:27:03 -0400
-Received: from mail-qt1-f201.google.com ([209.85.160.201]:39442 "EHLO
-        mail-qt1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729500AbfEVR1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 13:27:03 -0400
-Received: by mail-qt1-f201.google.com with SMTP id b46so2707207qte.6
-        for <stable@vger.kernel.org>; Wed, 22 May 2019 10:27:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=GDrZgFBNCd/50aXdWTdcgTRUOjYwaX5HGtY6WfFhngs=;
-        b=HDch0fyonO76nulv6bx/pyYQB+ZJsheTlI/eSzV6LChzFc8bf0pVmFY6ISXNkP2RNo
-         urMfiWQB2BNk4riB+5PGc2QZ7pmVUrtiyyFcBsaNnZnUpYqMQgoGwLJUXtwPoa6UwVXs
-         G2JLwkDNGoWm8gqoYzkRAFfMQIbMsC+l18U6aNaWVLJLO8EywLPl7w6tf8Sb/VnR5g3G
-         HWaGsxGDb0Mq5M+wtu9SSIXcQvEVwl++OhNbq9qOfG0Vj+raZeODuxV1sdQQ324GWI4T
-         YOHIGj7+2z4O+cbXSAdnH5v8aAZxQDWo1UHwKDXwrbzN9MTpRnRBCYZWF/zbKaLfvMc8
-         8jTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=GDrZgFBNCd/50aXdWTdcgTRUOjYwaX5HGtY6WfFhngs=;
-        b=Rf0v8CFTOQ9roRxlljf+vnfxKanUn5oa+AzxwKk1F9AkormFyJGT6ijLDCqTLQJF4k
-         yZxTe3x+YRoF6aOL+wAwrfUZ3oxfwguSqFQ0ksy97GiVQGI9aqycBUGAx6BR6lc8nQO4
-         j+iTHkKkXNjuK/9CcWtZySlUMAOe0CIr9EItyVpesIcGfdKMQIfEZSj6uOeYAXHwFFn5
-         eK7AwRQ+UETFLRYSyhhqFAaw1m7/C2qC8YUTTqb8etqggrI1y/5GvR7wUNhLtIYVEuMj
-         Nd7xmRhvsU17NAGWVBzyXD1vUuHIbkFS6L/JHIoDQugInKwGzc4MwxZ4sk2o5OFzqpJs
-         4crA==
-X-Gm-Message-State: APjAAAUylsxN9TUYN74QibsuIfI3nvcuwkOSJ3gkL1jpXhgSY6zEuqX3
-        lzvR/ZW67Rad1yz6CO+CT+BweeBh5rY=
-X-Google-Smtp-Source: APXvYqzpVYQXKK9BrAQ22QPdc8hj66jbpZQyi15MqeS8wGqjUHYyi6O3dTkTesiBeRQj8YC1zBFY+VlmYNA=
-X-Received: by 2002:ac8:3708:: with SMTP id o8mr75132809qtb.237.1558546022069;
- Wed, 22 May 2019 10:27:02 -0700 (PDT)
-Date:   Wed, 22 May 2019 10:26:55 -0700
-Message-Id: <20190522172655.183977-1-surenb@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.21.0.1020.gf2820cf01a-goog
-Subject: [PATCH 1/1] ALSA: usb-audio: Fix UAF decrement if card has no live
- interfaces in card.c
-From:   Suren Baghdasaryan <surenb@google.com>
-To:     surenb@google.com
-Cc:     perex@perex.cz, tiwai@suse.de, mathias.payer@nebelwelt.net,
-        benquike@gmail.com, kdeus@google.com, alsa-devel@alsa-project.org,
+        id S1727499AbfEVR3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 13:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56884 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727365AbfEVR3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 13:29:47 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 021F620862;
+        Wed, 22 May 2019 17:29:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558546187;
+        bh=pFLnOg9YEhfdDechfOzbrye3GwwnpaSRL0DmTM/u4bo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FjkMBC7Gp9YmSP1kgIVK3rA9aziHPaQQ4FygR/VxHh6xbw1zfI6Ez3ALfBRVIlfc4
+         BnGUrO9EjZp4Z88W4K6fxPSDxO+ZwP7+SxJMpkNFseyTFjk8ZuYznRTIzLx9Cmrmcq
+         K8/N2GItGHwm7hhMpeZSFxsebNtiCX0Cf3V6refA=
+Date:   Wed, 22 May 2019 19:29:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     David Ahern <dsahern@gmail.com>
+Cc:     edumazet@google.com, davem@davemloft.net, kafai@fb.com,
+        syzkaller@googlegroups.com, weiwan@google.com,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: FAILED: patch "[PATCH] ipv6: prevent possible fib6 leaks" failed
+ to apply to 4.14-stable tree
+Message-ID: <20190522172945.GA25977@kroah.com>
+References: <155854389617965@kroah.com>
+ <84edd412-c07d-28be-1723-a4727ae2ea56@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84edd412-c07d-28be-1723-a4727ae2ea56@gmail.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 5f8cf712582617d523120df67d392059eaf2fc4b upstream.
+On Wed, May 22, 2019 at 10:52:57AM -0600, David Ahern wrote:
+> On 5/22/19 10:51 AM, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> As I recall it only needs to go back to 4.17.
 
-This is a backport to stable 3.18.y. Implementation in 3.18 differs using
-chip->probing flag instead of chip->active atomic but it still has the UAF
-issue.
+Thanks, but someone backported the commit mentioned in the Fixes line:
+	Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
 
-If a USB sound card reports 0 interfaces, an error condition is triggered
-and the function usb_audio_probe errors out. In the error path, there was a
-use-after-free vulnerability where the memory object of the card was first
-freed, followed by a decrement of the number of active chips. Moving the
-decrement above the atomic_dec fixes the UAF.
+to 4.14.y.  If it's really not relevant there, not a big deal, now
+dropped.
 
-[ The original problem was introduced in 3.1 kernel, while it was
-  developed in a different form.  The Fixes tag below indicates the
-  original commit but it doesn't mean that the patch is applicable
-  cleanly. -- tiwai ]
+thanks,
 
-Fixes: 362e4e49abe5 ("ALSA: usb-audio - clear chip->probing on error exit")
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Signed-off-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[surenb@google.com: resolve 3.18 differences]
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
----
-Analysis for 3.18 codebase:
-snd_usb_audio_create() sets card->device_data = chip
-snd_usb_audio_probe() calls snd_card_free() and then resets chip->probing
-snd_card_free() results in the following call chain:
- snd_card_free_when_closed() which waits on release_completion
- snd_card_do_free() calls snd_device_free_all() and signals release_completion
- snd_card_do_free() calls __snd_device_free()
- __snd_device_free() calls dev->ops->dev_free() == snd_usb_audio_dev_free()
- snd_usb_audio_dev_free() calls snd_usb_audio_free(chip) and frees "chip"
-chip->probing = 0 results in UAF
-
- sound/usb/card.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index f7dbdc10bf77..59fb1ef3cd55 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -593,9 +593,12 @@ snd_usb_audio_probe(struct usb_device *dev,
- 
-  __error:
- 	if (chip) {
-+		/* chip->probing is inside the chip->card object,
-+		 * reset before memory is possibly returned.
-+		 */
-+		chip->probing = 0;
- 		if (!chip->num_interfaces)
- 			snd_card_free(chip->card);
--		chip->probing = 0;
- 	}
- 	mutex_unlock(&register_mutex);
-  __err_val:
--- 
-2.21.0.1020.gf2820cf01a-goog
-
+greg k-h
