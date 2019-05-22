@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C33A26CB8
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B7D26CB5
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733164AbfEVTgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54036 "EHLO mail.kernel.org"
+        id S1732630AbfEVTgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:36:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733269AbfEVTae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:34 -0400
+        id S1732827AbfEVTah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 303C4217D7;
-        Wed, 22 May 2019 19:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98B20217F9;
+        Wed, 22 May 2019 19:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553433;
-        bh=irppVcgwRVsmn8gpyfP7T1YSfDasC28ynChgPB5Zhbk=;
+        s=default; t=1558553436;
+        bh=YzezW2Fba2Qpg5me27N4CVgznmETrqoWlEbAAN6ufFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9zhMOO+JWUk8lO82hr1UMjS9dFnoShYmO+2diNKjMn/pPDmavec51LC8seAcy0XE
-         QjQnkB/gqHbMNM9WDYPXUlniNS1wkRJGYs7IM61iRhxcuyAOucKAFQyvHhYU1nuN0Y
-         80CkhfKOiWxkNsBVzA4a6fT3ajZ02TPKKltblci4=
+        b=nMW+pBnYkTB6bOu3t0iS1IIqUdrfmqczj1loGgQsGVVJKKLV9Y+SUFcoOYDXK4uAE
+         vP5g5dSp03c955AE1RnmZ76T4iXh+uti+R3Rb3PSEylTg2Mo0kFc1VblLwkkAkJqlz
+         p4u7rmfL1Xxp2wDNPILfBNGbHqrMYBV37qLCEWNw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Flavio Suligoi <f.suligoi@asem.it>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 010/114] spi: pxa2xx: fix SCR (divisor) calculation
-Date:   Wed, 22 May 2019 15:28:33 -0400
-Message-Id: <20190522193017.26567-10-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 011/114] brcm80211: potential NULL dereference in brcmf_cfg80211_vndr_cmds_dcmd_handler()
+Date:   Wed, 22 May 2019 15:28:34 -0400
+Message-Id: <20190522193017.26567-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -44,61 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Flavio Suligoi <f.suligoi@asem.it>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
+[ Upstream commit e025da3d7aa4770bb1d1b3b0aa7cc4da1744852d ]
 
-Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-that the SSP transmission rate can be greater than the device rate.
+If "ret_len" is negative then it could lead to a NULL dereference.
 
-When the division between the SSP clock and the device rate generates
-a reminder, we have to increment by one the divisor.
-In this way the resulting SSP clock will never be greater than the
-device SPI max frequency.
+The "ret_len" value comes from nl80211_vendor_cmd(), if it's negative
+then we don't allocate the "dcmd_buf" buffer.  Then we pass "ret_len" to
+brcmf_fil_cmd_data_set() where it is cast to a very high u32 value.
+Most of the functions in that call tree check whether the buffer we pass
+is NULL but there are at least a couple places which don't such as
+brcmf_dbg_hex_dump() and brcmf_msgbuf_query_dcmd().  We memcpy() to and
+from the buffer so it would result in a NULL dereference.
 
-For example, with:
+The fix is to change the types so that "ret_len" can't be negative.  (If
+we memcpy() zero bytes to NULL, that's a no-op and doesn't cause an
+issue).
 
- - ssp_clk  = 50 MHz
- - dev freq = 15 MHz
-
-without this patch the SSP clock will be greater than 15 MHz:
-
- - 25 MHz for PXA25x_SSP and CE4100_SSP
- - 16,56 MHz for the others
-
-Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
-so the max rate of the SPI device clock is respected.
-
-Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1bacb0487d0e ("brcmfmac: replace cfg80211 testmode with vendor command")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index f2209ec4cb68d..8b618f0fa459f 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -921,10 +921,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
+index 8eff2753abade..d493021f60318 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
+@@ -35,9 +35,10 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
+ 	struct brcmf_if *ifp;
+ 	const struct brcmf_vndr_dcmd_hdr *cmdhdr = data;
+ 	struct sk_buff *reply;
+-	int ret, payload, ret_len;
++	unsigned int payload, ret_len;
+ 	void *dcmd_buf = NULL, *wr_pointer;
+ 	u16 msglen, maxmsglen = PAGE_SIZE - 0x100;
++	int ret;
  
- 	rate = min_t(int, ssp_clk, rate);
- 
-+	/*
-+	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-+	 * that the SSP transmission rate can be greater than the device rate
-+	 */
- 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
--		return (ssp_clk / (2 * rate) - 1) & 0xff;
-+		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
- 	else
--		return (ssp_clk / rate - 1) & 0xfff;
-+		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
- }
- 
- static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
+ 	if (len < sizeof(*cmdhdr)) {
+ 		brcmf_err("vendor command too short: %d\n", len);
+@@ -65,7 +66,7 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
+ 			brcmf_err("oversize return buffer %d\n", ret_len);
+ 			ret_len = BRCMF_DCMD_MAXLEN;
+ 		}
+-		payload = max(ret_len, len) + 1;
++		payload = max_t(unsigned int, ret_len, len) + 1;
+ 		dcmd_buf = vzalloc(payload);
+ 		if (NULL == dcmd_buf)
+ 			return -ENOMEM;
 -- 
 2.20.1
 
