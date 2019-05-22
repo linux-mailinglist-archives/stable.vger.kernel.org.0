@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2F526E67
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7C126B7F
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732198AbfEVTt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:49:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
+        id S1732203AbfEVT06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732191AbfEVT04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:56 -0400
+        id S1732193AbfEVT06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 062A9217F9;
-        Wed, 22 May 2019 19:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2824E21841;
+        Wed, 22 May 2019 19:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553215;
-        bh=iNmR0JZ46jXVV6tOtn7wO2t8f/KBToboSyKHCBh9JPY=;
+        s=default; t=1558553216;
+        bh=VQ+z6nyIUtuOmAmQyBj/ODdCDt9fKjKyt+jb2WU4j/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lKU9BjTBp88K5vAqQmrytgW0e+ANcXIDGTVDlK2vfPpIRWaT9AO8gCK8PXBYBuug
-         MaJteKAZexgf+3jCjzdyapaxKt03OVb6ZDMnzHpdrozAF3ISQq+29ekDoxhLEpiMpl
-         ab8b3rPm/iEc4tfgZyAwb5NcnR1eSuLG0R7eJ6yc=
+        b=zMtfjF9iSVSJtSCEMCmtNIrJaAgsDWA17N48ZycUsjUUL/b1C5RNTsp6pBP3oPMby
+         SvxKAb5gX9WMnG/EHpBKYnwQItglncu/yZ0egHMlalWeHKmWwBMvVqaU7K5sYJzCzD
+         LRd88pg1ZrLCNfedaW1VpugodbvfGuhwq9+cA5b0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mac Chiang <mac.chiang@intel.com>,
-        Benson Leung <bleung@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 017/244] ASoC: Intel: kbl_da7219_max98357a: Map BTN_0 to KEY_PLAYPAUSE
-Date:   Wed, 22 May 2019 15:22:43 -0400
-Message-Id: <20190522192630.24917-17-sashal@kernel.org>
+Cc:     Minas Harutyunyan <minas.harutyunyan@synopsys.com>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 018/244] usb: dwc2: gadget: Increase descriptors count for ISOC's
+Date:   Wed, 22 May 2019 15:22:44 -0400
+Message-Id: <20190522192630.24917-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -45,49 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mac Chiang <mac.chiang@intel.com>
+From: Minas Harutyunyan <minas.harutyunyan@synopsys.com>
 
-[ Upstream commit 16ec5dfe0327ddcf279957bffe4c8fe527088c63 ]
+[ Upstream commit 54f37f56631747075f1f9a2f0edf6ba405e3e66c ]
 
-On kbl_rt5663_max98927, commit 38a5882e4292
-    ("ASoC: Intel: kbl_rt5663_max98927: Map BTN_0 to KEY_PLAYPAUSE")
-    This key pair mapping to play/pause when playing Youtube
+Some function drivers queueing more than 128 ISOC requests at a time.
+To avoid "descriptor chain full" cases, increasing descriptors count
+from MAX_DMA_DESC_NUM_GENERIC to MAX_DMA_DESC_NUM_HS_ISOC for ISOC's
+only.
 
-The Android 3.5mm Headset jack specification mentions that BTN_0 should
-be mapped to KEY_MEDIA, but this is less logical than KEY_PLAYPAUSE,
-which has much broader userspace support.
-
-For example, the Chrome OS userspace now supports KEY_PLAYPAUSE to toggle
-play/pause of videos and audio, but does not handle KEY_MEDIA.
-
-Furthermore, Android itself now supports KEY_PLAYPAUSE equivalently, as the
-new USB headset spec requires KEY_PLAYPAUSE for BTN_0.
-https://source.android.com/devices/accessories/headset/usb-headset-spec
-
-The same fix is required on Chrome kbl_da7219_max98357a.
-
-Signed-off-by: Mac Chiang <mac.chiang@intel.com>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_da7219_max98357a.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/intel/boards/kbl_da7219_max98357a.c b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-index 38f6ab74709d0..07491a0f8fb8b 100644
---- a/sound/soc/intel/boards/kbl_da7219_max98357a.c
-+++ b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-@@ -188,7 +188,7 @@ static int kabylake_da7219_codec_init(struct snd_soc_pcm_runtime *rtd)
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 220c0f9b89b0b..03614ef64ca47 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -675,13 +675,11 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
+ 	unsigned int maxsize;
  
- 	jack = &ctx->kabylake_headset;
+ 	if (is_isoc)
+-		maxsize = hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
+-					   DEV_DMA_ISOC_RX_NBYTES_LIMIT;
++		maxsize = (hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
++					   DEV_DMA_ISOC_RX_NBYTES_LIMIT) *
++					   MAX_DMA_DESC_NUM_HS_ISOC;
+ 	else
+-		maxsize = DEV_DMA_NBYTES_LIMIT;
+-
+-	/* Above size of one descriptor was chosen, multiple it */
+-	maxsize *= MAX_DMA_DESC_NUM_GENERIC;
++		maxsize = DEV_DMA_NBYTES_LIMIT * MAX_DMA_DESC_NUM_GENERIC;
  
--	snd_jack_set_key(jack->jack, SND_JACK_BTN_0, KEY_MEDIA);
-+	snd_jack_set_key(jack->jack, SND_JACK_BTN_0, KEY_PLAYPAUSE);
- 	snd_jack_set_key(jack->jack, SND_JACK_BTN_1, KEY_VOLUMEUP);
- 	snd_jack_set_key(jack->jack, SND_JACK_BTN_2, KEY_VOLUMEDOWN);
- 	snd_jack_set_key(jack->jack, SND_JACK_BTN_3, KEY_VOICECOMMAND);
+ 	return maxsize;
+ }
+@@ -864,7 +862,7 @@ static int dwc2_gadget_fill_isoc_desc(struct dwc2_hsotg_ep *hs_ep,
+ 
+ 	/* Update index of last configured entry in the chain */
+ 	hs_ep->next_desc++;
+-	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_GENERIC)
++	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_HS_ISOC)
+ 		hs_ep->next_desc = 0;
+ 
+ 	return 0;
+@@ -896,7 +894,7 @@ static void dwc2_gadget_start_isoc_ddma(struct dwc2_hsotg_ep *hs_ep)
+ 	}
+ 
+ 	/* Initialize descriptor chain by Host Busy status */
+-	for (i = 0; i < MAX_DMA_DESC_NUM_GENERIC; i++) {
++	for (i = 0; i < MAX_DMA_DESC_NUM_HS_ISOC; i++) {
+ 		desc = &hs_ep->desc_list[i];
+ 		desc->status = 0;
+ 		desc->status |= (DEV_DMA_BUFF_STS_HBUSY
+@@ -2083,7 +2081,7 @@ static void dwc2_gadget_complete_isoc_request_ddma(struct dwc2_hsotg_ep *hs_ep)
+ 		dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, 0);
+ 
+ 		hs_ep->compl_desc++;
+-		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_GENERIC - 1))
++		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_HS_ISOC - 1))
+ 			hs_ep->compl_desc = 0;
+ 		desc_sts = hs_ep->desc_list[hs_ep->compl_desc].status;
+ 	}
+@@ -3779,6 +3777,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
+ 	unsigned int i, val, size;
+ 	int ret = 0;
+ 	unsigned char ep_type;
++	int desc_num;
+ 
+ 	dev_dbg(hsotg->dev,
+ 		"%s: ep %s: a 0x%02x, attr 0x%02x, mps 0x%04x, intr %d\n",
+@@ -3825,11 +3824,15 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
+ 	dev_dbg(hsotg->dev, "%s: read DxEPCTL=0x%08x from 0x%08x\n",
+ 		__func__, epctrl, epctrl_reg);
+ 
++	if (using_desc_dma(hsotg) && ep_type == USB_ENDPOINT_XFER_ISOC)
++		desc_num = MAX_DMA_DESC_NUM_HS_ISOC;
++	else
++		desc_num = MAX_DMA_DESC_NUM_GENERIC;
++
+ 	/* Allocate DMA descriptor chain for non-ctrl endpoints */
+ 	if (using_desc_dma(hsotg) && !hs_ep->desc_list) {
+ 		hs_ep->desc_list = dmam_alloc_coherent(hsotg->dev,
+-			MAX_DMA_DESC_NUM_GENERIC *
+-			sizeof(struct dwc2_dma_desc),
++			desc_num * sizeof(struct dwc2_dma_desc),
+ 			&hs_ep->desc_list_dma, GFP_ATOMIC);
+ 		if (!hs_ep->desc_list) {
+ 			ret = -ENOMEM;
+@@ -3971,7 +3974,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
+ 
+ error2:
+ 	if (ret && using_desc_dma(hsotg) && hs_ep->desc_list) {
+-		dmam_free_coherent(hsotg->dev, MAX_DMA_DESC_NUM_GENERIC *
++		dmam_free_coherent(hsotg->dev, desc_num *
+ 			sizeof(struct dwc2_dma_desc),
+ 			hs_ep->desc_list, hs_ep->desc_list_dma);
+ 		hs_ep->desc_list = NULL;
 -- 
 2.20.1
 
