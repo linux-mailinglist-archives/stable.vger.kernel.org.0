@@ -2,84 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3A526012
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:03:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCCA2603C
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 11:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728518AbfEVJD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 05:03:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42786 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728584AbfEVJD2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 05:03:28 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 1EA33B049;
-        Wed, 22 May 2019 09:03:27 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 68C3F1E3BFD; Wed, 22 May 2019 11:03:27 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH 1/3] ext4: Wait for outstanding dio during truncate in nojournal mode
-Date:   Wed, 22 May 2019 11:03:15 +0200
-Message-Id: <20190522090317.28716-2-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190522090317.28716-1-jack@suse.cz>
-References: <20190522090317.28716-1-jack@suse.cz>
+        id S1728547AbfEVJPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 05:15:12 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42583 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726552AbfEVJPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 05:15:12 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 9DB6280327; Wed, 22 May 2019 11:15:00 +0200 (CEST)
+Date:   Wed, 22 May 2019 11:15:07 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jeremy Soller <jeremy@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH 4.19 038/105] ALSA: hdea/realtek - Headset fixup for
+ System76 Gazelle (gaze14)
+Message-ID: <20190522091506.GC8174@amd>
+References: <20190520115247.060821231@linuxfoundation.org>
+ <20190520115249.657128023@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="H8ygTp4AXg6deix2"
+Content-Disposition: inline
+In-Reply-To: <20190520115249.657128023@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We didn't wait for outstanding direct IO during truncate in nojournal
-mode (as we skip orphan handling in that case). This can lead to fs
-corruption or stale data exposure if truncate ends up freeing blocks
-and these get reallocated before direct IO finishes. Fix the condition
-determining whether the wait is necessary.
 
-CC: stable@vger.kernel.org
-Fixes: 1c9114f9c0f1 ("ext4: serialize unlocked dio reads with truncate")
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/inode.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+--H8ygTp4AXg6deix2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 82298c63ea6d..9bcb7f2b86dd 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5630,20 +5630,17 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
- 				goto err_out;
- 			}
- 		}
--		if (!shrink)
-+		if (!shrink) {
- 			pagecache_isize_extended(inode, oldsize, inode->i_size);
--
--		/*
--		 * Blocks are going to be removed from the inode. Wait
--		 * for dio in flight.  Temporarily disable
--		 * dioread_nolock to prevent livelock.
--		 */
--		if (orphan) {
--			if (!ext4_should_journal_data(inode)) {
--				inode_dio_wait(inode);
--			} else
--				ext4_wait_for_tail_page_commit(inode);
-+		} else {
-+			/*
-+			 * Blocks are going to be removed from the inode. Wait
-+			 * for dio in flight.
-+			 */
-+			inode_dio_wait(inode);
- 		}
-+		if (orphan && ext4_should_journal_data(inode))
-+			ext4_wait_for_tail_page_commit(inode);
- 		down_write(&EXT4_I(inode)->i_mmap_sem);
- 
- 		rc = ext4_break_layouts(inode);
--- 
-2.16.4
+On Mon 2019-05-20 14:13:44, Greg Kroah-Hartman wrote:
+> From: Jeremy Soller <jeremy@system76.com>
+>=20
+> commit 80a5052db75131423b67f38b21958555d7d970e4 upstream.
+>=20
+> On the System76 Gazelle (gaze14), there is a headset microphone input
+> attached to 0x1a that does not have a jack detect. In order to get it
+> working, the pin configuration needs to be set correctly, and the
+> ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC fixup needs to be applied. This is
+> identical to the patch already applied for the System76 Darter Pro
+> (darp5).
 
+Commit 89/ of the series fixes up this patch. Perhaps those two should
+be merged together?
+								Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--H8ygTp4AXg6deix2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlzlExoACgkQMOfwapXb+vJoqgCgwH7VatwMJRBt6nNnFxtHEZsd
+7FsAnA8xeloJQi/y3hmZV1qwZDAd1njM
+=ZI6y
+-----END PGP SIGNATURE-----
+
+--H8ygTp4AXg6deix2--
