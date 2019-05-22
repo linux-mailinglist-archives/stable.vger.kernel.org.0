@@ -2,196 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB9C26A86
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501A227087
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729739AbfEVTGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:06:33 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:37709 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728958AbfEVTGc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 15:06:32 -0400
-Received: by mail-pl1-f196.google.com with SMTP id p15so1518235pll.4
-        for <stable@vger.kernel.org>; Wed, 22 May 2019 12:06:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=IiQBFDiIpDTK4vEtHw7UORzyjym9e09eBd3i/tm/yiU=;
-        b=cpipOdhRq2tGhYI3duW/nRLhgYDkw1FnKJbsVKSudcLp2STTrwR6C352rMoGrQBuej
-         qYsi7KGeai8mhluKGPzQ0PA2DWUXIgtif/WcynfreISfsb12TaHD9Z5UO8wQKd3oOr8L
-         PmAz8rfchXU3rKBUv3jmhBEFqL2yhMOZ1fbYZVpYIK/lsKLUo1UUFNjbDmeF/OI9jGhl
-         d9B6padKnkIHsxS1DLqACQ/9o2i/9VerzfGbLrCiVqE3h8dYasyoS6ptj7aONle0Gqqg
-         kLJwHsn4UcgyhuTo2hqZ6QDkNrIQnpgLBC6a47AZz4OmxwOnrw4h6sdThh/QpaGY2Q2J
-         AC2w==
-X-Gm-Message-State: APjAAAXI89+V5Sx28DVrhQTGKSzl12IlyboDUc4P0imfJkjP+2YDWw9M
-        7i+cBjtK8E6/w//usuZ6C2dzHw==
-X-Google-Smtp-Source: APXvYqwKBz/RPFre7Nl+gugncac+cMbC2sf8e2KPiVzG3bEGBrdkEIU1QMb1JtBNvFhsL40yLZIt3A==
-X-Received: by 2002:a17:902:2e83:: with SMTP id r3mr76329800plb.139.1558551991937;
-        Wed, 22 May 2019 12:06:31 -0700 (PDT)
-Received: from localhost (70-35-37-12.static.wiline.com. [70.35.37.12])
-        by smtp.gmail.com with ESMTPSA id v16sm11421710pfc.26.2019.05.22.12.06.31
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 22 May 2019 12:06:31 -0700 (PDT)
-Date:   Wed, 22 May 2019 12:06:31 -0700 (PDT)
-X-Google-Original-Date: Wed, 22 May 2019 12:06:12 PDT (-0700)
-Subject:     Re: [PATCH 12/18] locking/atomic: riscv: use s64 for atomic64
-In-Reply-To: <20190522132250.26499-13-mark.rutland@arm.com>
-CC:     linux-kernel@vger.kernel.org, peterz@infradead.org,
-        Will Deacon <will.deacon@arm.com>, aou@eecs.berkeley.edu,
-        Arnd Bergmann <arnd@arndb.de>, bp@alien8.de,
-        catalin.marinas@arm.com, davem@davemloft.net, fenghua.yu@intel.com,
-        heiko.carstens@de.ibm.com, herbert@gondor.apana.org.au,
-        ink@jurassic.park.msu.ru, jhogan@kernel.org, linux@armlinux.org.uk,
-        mark.rutland@arm.com, mattst88@gmail.com, mingo@kernel.org,
-        mpe@ellerman.id.au, paul.burton@mips.com, paulus@samba.org,
-        ralf@linux-mips.org, rth@twiddle.net, stable@vger.kernel.org,
-        tglx@linutronix.de, tony.luck@intel.com, vgupta@synopsys.com
-From:   Palmer Dabbelt <palmer@sifive.com>
-To:     mark.rutland@arm.com
-Message-ID: <mhng-678bd8a3-987b-4564-9885-1a764d1725b8@palmer-si-x1e>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S1729719AbfEVTVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:21:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728615AbfEVTVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:21:18 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0A2221473;
+        Wed, 22 May 2019 19:21:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558552877;
+        bh=b3pnOJlavVTSMLrhfhWYxt52OURL4r336/7ktnNmvMU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PlixEF4CxgQGNSweQt8/coqg8ojaOM9oB4bBFTRgfmqje53doDLyMIQ27dyp3glp0
+         I19MXb80ucwlK4uUyjrzDBnZpZ5X7qDt06hxxPrnNqDpf4x+bkcdvmD0/CUnidosLU
+         ffFJhstru/frrjjE6a8peZ5LRt3uwSCOHThVt1yc=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.1 001/375] gfs2: Fix lru_count going negative
+Date:   Wed, 22 May 2019 15:15:01 -0400
+Message-Id: <20190522192115.22666-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 May 2019 06:22:44 PDT (-0700), mark.rutland@arm.com wrote:
-> As a step towards making the atomic64 API use consistent types treewide,
-> let's have the s390 atomic64 implementation use s64 as the underlying
+From: Ross Lagerwall <ross.lagerwall@citrix.com>
 
-and apparently the RISC-V one as well? :)
+[ Upstream commit 7881ef3f33bb80f459ea6020d1e021fc524a6348 ]
 
-> type for atomic64_t, rather than long, matching the generated headers.
->
-> As atomic64_read() depends on the generic defintion of atomic64_t, this
-> still returns long on 64-bit. This will be converted in a subsequent
-> patch.
->
-> Otherwise, there should be no functional change as a result of this patch.
->
-> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Palmer Dabbelt <palmer@sifive.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Will Deacon <will.deacon@arm.com>
-> ---
->  arch/riscv/include/asm/atomic.h | 44 +++++++++++++++++++++--------------------
->  1 file changed, 23 insertions(+), 21 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/atomic.h b/arch/riscv/include/asm/atomic.h
-> index c9e18289d65c..bffebc57357d 100644
-> --- a/arch/riscv/include/asm/atomic.h
-> +++ b/arch/riscv/include/asm/atomic.h
-> @@ -42,11 +42,11 @@ static __always_inline void atomic_set(atomic_t *v, int i)
->
->  #ifndef CONFIG_GENERIC_ATOMIC64
->  #define ATOMIC64_INIT(i) { (i) }
-> -static __always_inline long atomic64_read(const atomic64_t *v)
-> +static __always_inline s64 atomic64_read(const atomic64_t *v)
->  {
->  	return READ_ONCE(v->counter);
->  }
-> -static __always_inline void atomic64_set(atomic64_t *v, long i)
-> +static __always_inline void atomic64_set(atomic64_t *v, s64 i)
->  {
->  	WRITE_ONCE(v->counter, i);
->  }
-> @@ -70,11 +70,11 @@ void atomic##prefix##_##op(c_type i, atomic##prefix##_t *v)		\
->
->  #ifdef CONFIG_GENERIC_ATOMIC64
->  #define ATOMIC_OPS(op, asm_op, I)					\
-> -        ATOMIC_OP (op, asm_op, I, w,  int,   )
-> +        ATOMIC_OP (op, asm_op, I, w, int,   )
->  #else
->  #define ATOMIC_OPS(op, asm_op, I)					\
-> -        ATOMIC_OP (op, asm_op, I, w,  int,   )				\
-> -        ATOMIC_OP (op, asm_op, I, d, long, 64)
-> +        ATOMIC_OP (op, asm_op, I, w, int,   )				\
-> +        ATOMIC_OP (op, asm_op, I, d, s64, 64)
->  #endif
->
->  ATOMIC_OPS(add, add,  i)
-> @@ -131,14 +131,14 @@ c_type atomic##prefix##_##op##_return(c_type i, atomic##prefix##_t *v)	\
->
->  #ifdef CONFIG_GENERIC_ATOMIC64
->  #define ATOMIC_OPS(op, asm_op, c_op, I)					\
-> -        ATOMIC_FETCH_OP( op, asm_op,       I, w,  int,   )		\
-> -        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w,  int,   )
-> +        ATOMIC_FETCH_OP( op, asm_op,       I, w, int,   )		\
-> +        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w, int,   )
->  #else
->  #define ATOMIC_OPS(op, asm_op, c_op, I)					\
-> -        ATOMIC_FETCH_OP( op, asm_op,       I, w,  int,   )		\
-> -        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w,  int,   )		\
-> -        ATOMIC_FETCH_OP( op, asm_op,       I, d, long, 64)		\
-> -        ATOMIC_OP_RETURN(op, asm_op, c_op, I, d, long, 64)
-> +        ATOMIC_FETCH_OP( op, asm_op,       I, w, int,   )		\
-> +        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w, int,   )		\
-> +        ATOMIC_FETCH_OP( op, asm_op,       I, d, s64, 64)		\
-> +        ATOMIC_OP_RETURN(op, asm_op, c_op, I, d, s64, 64)
->  #endif
->
->  ATOMIC_OPS(add, add, +,  i)
-> @@ -170,11 +170,11 @@ ATOMIC_OPS(sub, add, +, -i)
->
->  #ifdef CONFIG_GENERIC_ATOMIC64
->  #define ATOMIC_OPS(op, asm_op, I)					\
-> -        ATOMIC_FETCH_OP(op, asm_op, I, w,  int,   )
-> +        ATOMIC_FETCH_OP(op, asm_op, I, w, int,   )
->  #else
->  #define ATOMIC_OPS(op, asm_op, I)					\
-> -        ATOMIC_FETCH_OP(op, asm_op, I, w,  int,   )			\
-> -        ATOMIC_FETCH_OP(op, asm_op, I, d, long, 64)
-> +        ATOMIC_FETCH_OP(op, asm_op, I, w, int,   )			\
-> +        ATOMIC_FETCH_OP(op, asm_op, I, d, s64, 64)
->  #endif
->
->  ATOMIC_OPS(and, and, i)
-> @@ -223,9 +223,10 @@ static __always_inline int atomic_fetch_add_unless(atomic_t *v, int a, int u)
->  #define atomic_fetch_add_unless atomic_fetch_add_unless
->
->  #ifndef CONFIG_GENERIC_ATOMIC64
-> -static __always_inline long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
-> +static __always_inline s64 atomic64_fetch_add_unless(atomic64_t *v, s64 a, s64 u)
->  {
-> -       long prev, rc;
-> +       s64 prev;
-> +       long rc;
->
->  	__asm__ __volatile__ (
->  		"0:	lr.d     %[p],  %[c]\n"
-> @@ -294,11 +295,11 @@ c_t atomic##prefix##_cmpxchg(atomic##prefix##_t *v, c_t o, c_t n)	\
->
->  #ifdef CONFIG_GENERIC_ATOMIC64
->  #define ATOMIC_OPS()							\
-> -	ATOMIC_OP( int,   , 4)
-> +	ATOMIC_OP(int,   , 4)
->  #else
->  #define ATOMIC_OPS()							\
-> -	ATOMIC_OP( int,   , 4)						\
-> -	ATOMIC_OP(long, 64, 8)
-> +	ATOMIC_OP(int,   , 4)						\
-> +	ATOMIC_OP(s64, 64, 8)
->  #endif
->
->  ATOMIC_OPS()
-> @@ -336,9 +337,10 @@ static __always_inline int atomic_sub_if_positive(atomic_t *v, int offset)
->  #define atomic_dec_if_positive(v)	atomic_sub_if_positive(v, 1)
->
->  #ifndef CONFIG_GENERIC_ATOMIC64
-> -static __always_inline long atomic64_sub_if_positive(atomic64_t *v, long offset)
-> +static __always_inline s64 atomic64_sub_if_positive(atomic64_t *v, s64 offset)
->  {
-> -       long prev, rc;
-> +       s64 prev;
-> +       long rc;
->
->  	__asm__ __volatile__ (
->  		"0:	lr.d     %[p],  %[c]\n"
+Under certain conditions, lru_count may drop below zero resulting in
+a large amount of log spam like this:
 
-Reviwed-by: Palmer Dabbelt <palmer@sifive.com>
+vmscan: shrink_slab: gfs2_dump_glock+0x3b0/0x630 [gfs2] \
+    negative objects to delete nr=-1
 
-Thanks!
+This happens as follows:
+1) A glock is moved from lru_list to the dispose list and lru_count is
+   decremented.
+2) The dispose function calls cond_resched() and drops the lru lock.
+3) Another thread takes the lru lock and tries to add the same glock to
+   lru_list, checking if the glock is on an lru list.
+4) It is on a list (actually the dispose list) and so it avoids
+   incrementing lru_count.
+5) The glock is moved to lru_list.
+5) The original thread doesn't dispose it because it has been re-added
+   to the lru list but the lru_count has still decreased by one.
+
+Fix by checking if the LRU flag is set on the glock rather than checking
+if the glock is on some list and rearrange the code so that the LRU flag
+is added/removed precisely when the glock is added/removed from lru_list.
+
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/gfs2/glock.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index d32964cd11176..e4f6d39500bcc 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -183,15 +183,19 @@ static int demote_ok(const struct gfs2_glock *gl)
+ 
+ void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
+ {
++	if (!(gl->gl_ops->go_flags & GLOF_LRU))
++		return;
++
+ 	spin_lock(&lru_lock);
+ 
+-	if (!list_empty(&gl->gl_lru))
+-		list_del_init(&gl->gl_lru);
+-	else
++	list_del(&gl->gl_lru);
++	list_add_tail(&gl->gl_lru, &lru_list);
++
++	if (!test_bit(GLF_LRU, &gl->gl_flags)) {
++		set_bit(GLF_LRU, &gl->gl_flags);
+ 		atomic_inc(&lru_count);
++	}
+ 
+-	list_add_tail(&gl->gl_lru, &lru_list);
+-	set_bit(GLF_LRU, &gl->gl_flags);
+ 	spin_unlock(&lru_lock);
+ }
+ 
+@@ -201,7 +205,7 @@ static void gfs2_glock_remove_from_lru(struct gfs2_glock *gl)
+ 		return;
+ 
+ 	spin_lock(&lru_lock);
+-	if (!list_empty(&gl->gl_lru)) {
++	if (test_bit(GLF_LRU, &gl->gl_flags)) {
+ 		list_del_init(&gl->gl_lru);
+ 		atomic_dec(&lru_count);
+ 		clear_bit(GLF_LRU, &gl->gl_flags);
+@@ -1159,8 +1163,7 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
+ 		    !test_bit(GLF_DEMOTE, &gl->gl_flags))
+ 			fast_path = 1;
+ 	}
+-	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl) &&
+-	    (glops->go_flags & GLOF_LRU))
++	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl))
+ 		gfs2_glock_add_to_lru(gl);
+ 
+ 	trace_gfs2_glock_queue(gh, 0);
+@@ -1456,6 +1459,7 @@ __acquires(&lru_lock)
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
++			set_bit(GLF_LRU, &gl->gl_flags);
+ 			atomic_inc(&lru_count);
+ 			continue;
+ 		}
+@@ -1463,7 +1467,6 @@ __acquires(&lru_lock)
+ 			spin_unlock(&gl->gl_lockref.lock);
+ 			goto add_back_to_lru;
+ 		}
+-		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		gl->gl_lockref.count++;
+ 		if (demote_ok(gl))
+ 			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+@@ -1498,6 +1501,7 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
++			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
+-- 
+2.20.1
+
