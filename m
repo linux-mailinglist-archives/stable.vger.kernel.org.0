@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8CB26F79
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875EF26F77
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731578AbfEVT4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46024 "EHLO mail.kernel.org"
+        id S1731119AbfEVT4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731417AbfEVTYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:24:50 -0400
+        id S1731434AbfEVTYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:24:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBA3A20675;
-        Wed, 22 May 2019 19:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2565A20879;
+        Wed, 22 May 2019 19:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553089;
-        bh=f4MxGfKMsZHLQ67hMHp83Le2jfTK5/kVWMrsSjlju88=;
+        s=default; t=1558553092;
+        bh=PkZmfk0OqJyY0Cf/BSA2N55nGF6Y2FVS3Bi5FZ5MtjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbUp9w01kzCKpXfNKsEaff8XCeNFqkq4iDrJNef4AbAbawIBb4Sz01Ux3YG1mghh2
-         /3pCvhXsrppo42/TaJ3Rc111F/F5zhU5JC957pXnYYb/LpUeNzfdu3/uCGPSLMJxXL
-         cqdlAiuv6UW5xjngztsoueM5lJNL5bMoxO9duz90=
+        b=Y8e6igcckBocAA9WMlMHiTL2KTTrhw1vyJ4rwtU+NBflTYpXHSZlI0++OB80b84ET
+         6HyTPykt5dEzkMIr85tn7vuosdbJ0YAsAN9XUE4/eoJz1nM/ECNd43BdxG7P/sipWf
+         uEoxgQ2NpO9HiHoikqT7q6GfF5U4dr4/pM9HC5hI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        akpm@linux-foundation.org, ard.biesheuvel@linaro.org,
-        deneen.t.dock@intel.com, kernel-hardening@lists.openwall.com,
-        kristen@linux.intel.com, linux_dti@icloud.com, will.deacon@arm.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 041/317] x86/ftrace: Set trampoline pages as executable
-Date:   Wed, 22 May 2019 15:19:02 -0400
-Message-Id: <20190522192338.23715-41-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        "Gautham R . Shenoy" <ego@linux.vnet.ibm.com>,
+        Ravikumar Bangoria <ravi.bangoria@in.ibm.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.0 042/317] powerpc/watchdog: Use hrtimers for per-CPU heartbeat
+Date:   Wed, 22 May 2019 15:19:03 -0400
+Message-Id: <20190522192338.23715-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -55,74 +46,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 3c0dab44e22782359a0a706cbce72de99a22aa75 ]
+[ Upstream commit 7ae3f6e130e8dc6188b59e3b4ebc2f16e9c8d053 ]
 
-Since alloc_module() will not set the pages as executable soon, set
-ftrace trampoline pages as executable after they are allocated.
+Using a jiffies timer creates a dependency on the tick_do_timer_cpu
+incrementing jiffies. If that CPU has locked up and jiffies is not
+incrementing, the watchdog heartbeat timer for all CPUs stops and
+creates false positives and confusing warnings on local CPUs, and
+also causes the SMP detector to stop, so the root cause is never
+detected.
 
-For the time being, do not change ftrace to use the text_poke()
-interface. As a result, ftrace still breaks W^X.
+Fix this by using hrtimer based timers for the watchdog heartbeat,
+like the generic kernel hardlockup detector.
 
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: <akpm@linux-foundation.org>
-Cc: <ard.biesheuvel@linaro.org>
-Cc: <deneen.t.dock@intel.com>
-Cc: <kernel-hardening@lists.openwall.com>
-Cc: <kristen@linux.intel.com>
-Cc: <linux_dti@icloud.com>
-Cc: <will.deacon@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190426001143.4983-10-namit@vmware.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Reported-by: Ravikumar Bangoria <ravi.bangoria@in.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reported-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/kernel/watchdog.c | 81 +++++++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 41 deletions(-)
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 763d4264d16a6..aebec0b91d746 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -729,6 +729,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	unsigned long end_offset;
- 	unsigned long op_offset;
- 	unsigned long offset;
-+	unsigned long npages;
- 	unsigned long size;
- 	unsigned long retq;
- 	unsigned long *ptr;
-@@ -761,6 +762,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 		return 0;
+diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
+index 3c6ab22a0c4e3..af3c15a1d41eb 100644
+--- a/arch/powerpc/kernel/watchdog.c
++++ b/arch/powerpc/kernel/watchdog.c
+@@ -77,7 +77,7 @@ static u64 wd_smp_panic_timeout_tb __read_mostly; /* panic other CPUs */
  
- 	*tramp_size = size + RET_SIZE + sizeof(void *);
-+	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
+ static u64 wd_timer_period_ms __read_mostly;  /* interval between heartbeat */
  
- 	/* Copy ftrace_caller onto the trampoline memory */
- 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
-@@ -805,6 +807,12 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	/* ALLOC_TRAMP flags lets us know we created it */
- 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+-static DEFINE_PER_CPU(struct timer_list, wd_timer);
++static DEFINE_PER_CPU(struct hrtimer, wd_hrtimer);
+ static DEFINE_PER_CPU(u64, wd_timer_tb);
  
-+	/*
-+	 * Module allocation needs to be completed by making the page
-+	 * executable. The page is still writable, which is a security hazard,
-+	 * but anyhow ftrace breaks W^X completely.
-+	 */
-+	set_memory_x((unsigned long)trampoline, npages);
- 	return (unsigned long)trampoline;
- fail:
- 	tramp_free(trampoline, *tramp_size);
+ /* SMP checker bits */
+@@ -293,21 +293,21 @@ void soft_nmi_interrupt(struct pt_regs *regs)
+ 	nmi_exit();
+ }
+ 
+-static void wd_timer_reset(unsigned int cpu, struct timer_list *t)
+-{
+-	t->expires = jiffies + msecs_to_jiffies(wd_timer_period_ms);
+-	if (wd_timer_period_ms > 1000)
+-		t->expires = __round_jiffies_up(t->expires, cpu);
+-	add_timer_on(t, cpu);
+-}
+-
+-static void wd_timer_fn(struct timer_list *t)
++static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ {
+ 	int cpu = smp_processor_id();
+ 
++	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
++		return HRTIMER_NORESTART;
++
++	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
++		return HRTIMER_NORESTART;
++
+ 	watchdog_timer_interrupt(cpu);
+ 
+-	wd_timer_reset(cpu, t);
++	hrtimer_forward_now(hrtimer, ms_to_ktime(wd_timer_period_ms));
++
++	return HRTIMER_RESTART;
+ }
+ 
+ void arch_touch_nmi_watchdog(void)
+@@ -323,37 +323,22 @@ void arch_touch_nmi_watchdog(void)
+ }
+ EXPORT_SYMBOL(arch_touch_nmi_watchdog);
+ 
+-static void start_watchdog_timer_on(unsigned int cpu)
+-{
+-	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
+-
+-	per_cpu(wd_timer_tb, cpu) = get_tb();
+-
+-	timer_setup(t, wd_timer_fn, TIMER_PINNED);
+-	wd_timer_reset(cpu, t);
+-}
+-
+-static void stop_watchdog_timer_on(unsigned int cpu)
+-{
+-	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
+-
+-	del_timer_sync(t);
+-}
+-
+-static int start_wd_on_cpu(unsigned int cpu)
++static void start_watchdog(void *arg)
+ {
++	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
++	int cpu = smp_processor_id();
+ 	unsigned long flags;
+ 
+ 	if (cpumask_test_cpu(cpu, &wd_cpus_enabled)) {
+ 		WARN_ON(1);
+-		return 0;
++		return;
+ 	}
+ 
+ 	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
+-		return 0;
++		return;
+ 
+ 	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
+-		return 0;
++		return;
+ 
+ 	wd_smp_lock(&flags);
+ 	cpumask_set_cpu(cpu, &wd_cpus_enabled);
+@@ -363,27 +348,40 @@ static int start_wd_on_cpu(unsigned int cpu)
+ 	}
+ 	wd_smp_unlock(&flags);
+ 
+-	start_watchdog_timer_on(cpu);
++	*this_cpu_ptr(&wd_timer_tb) = get_tb();
+ 
+-	return 0;
++	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer->function = watchdog_timer_fn;
++	hrtimer_start(hrtimer, ms_to_ktime(wd_timer_period_ms),
++		      HRTIMER_MODE_REL_PINNED);
+ }
+ 
+-static int stop_wd_on_cpu(unsigned int cpu)
++static int start_watchdog_on_cpu(unsigned int cpu)
+ {
++	return smp_call_function_single(cpu, start_watchdog, NULL, true);
++}
++
++static void stop_watchdog(void *arg)
++{
++	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
++	int cpu = smp_processor_id();
+ 	unsigned long flags;
+ 
+ 	if (!cpumask_test_cpu(cpu, &wd_cpus_enabled))
+-		return 0; /* Can happen in CPU unplug case */
++		return; /* Can happen in CPU unplug case */
+ 
+-	stop_watchdog_timer_on(cpu);
++	hrtimer_cancel(hrtimer);
+ 
+ 	wd_smp_lock(&flags);
+ 	cpumask_clear_cpu(cpu, &wd_cpus_enabled);
+ 	wd_smp_unlock(&flags);
+ 
+ 	wd_smp_clear_cpu_pending(cpu, get_tb());
++}
+ 
+-	return 0;
++static int stop_watchdog_on_cpu(unsigned int cpu)
++{
++	return smp_call_function_single(cpu, stop_watchdog, NULL, true);
+ }
+ 
+ static void watchdog_calc_timeouts(void)
+@@ -402,7 +400,7 @@ void watchdog_nmi_stop(void)
+ 	int cpu;
+ 
+ 	for_each_cpu(cpu, &wd_cpus_enabled)
+-		stop_wd_on_cpu(cpu);
++		stop_watchdog_on_cpu(cpu);
+ }
+ 
+ void watchdog_nmi_start(void)
+@@ -411,7 +409,7 @@ void watchdog_nmi_start(void)
+ 
+ 	watchdog_calc_timeouts();
+ 	for_each_cpu_and(cpu, cpu_online_mask, &watchdog_cpumask)
+-		start_wd_on_cpu(cpu);
++		start_watchdog_on_cpu(cpu);
+ }
+ 
+ /*
+@@ -423,7 +421,8 @@ int __init watchdog_nmi_probe(void)
+ 
+ 	err = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
+ 					"powerpc/watchdog:online",
+-					start_wd_on_cpu, stop_wd_on_cpu);
++					start_watchdog_on_cpu,
++					stop_watchdog_on_cpu);
+ 	if (err < 0) {
+ 		pr_warn("could not be initialized");
+ 		return err;
 -- 
 2.20.1
 
