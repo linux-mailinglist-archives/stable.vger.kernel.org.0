@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB62827029
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D545D2702B
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730371AbfEVTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
+        id S1729564AbfEVUBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 16:01:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730363AbfEVTWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:22:14 -0400
+        id S1730379AbfEVTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:22:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B55C217F9;
-        Wed, 22 May 2019 19:22:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C8CC20675;
+        Wed, 22 May 2019 19:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552934;
-        bh=KFHw9rtYYbCuC9AmYBSNCisP0m9j+BNgf/8uwqrprtY=;
+        s=default; t=1558552936;
+        bh=nEBB5yxuW6ya7Lpwt5XhwuUOQN8F0/Rtm6PbrEMFXGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB9+Qqs+xqE1oqVHgklf5Caf3AS+lWtP7mQJ7xI/p7tUChci2J/Rh4WVcGGQIJR1y
-         TG1mmwcpaRDt5+Lu929HEbqFs8ybuWNjj1UNYwyHkG4l7yXv9TpUgJumAoFAwyRobW
-         GyJULGeNCo+Cz489PCrGLxkT+qWL2mLk2hngfG90=
+        b=ckewIJUOb1//3+UKVYkLBldAsyOA3PRRQT44YxBF+LF1qJdnTYAtDTFaWIOxxkDBG
+         xYZVt7aMMTWGv5HbFa47Bzgwurt0p5Cdec+uyo6+nmw+4LbM46xrBEt3xktiFFf1VX
+         mW3u8IZ2OKESxD7HKQ4D9+GnA4MZHyXlOZFIhTsk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 037/375] spi: atmel-quadspi: fix crash while suspending
-Date:   Wed, 22 May 2019 15:15:37 -0400
-Message-Id: <20190522192115.22666-37-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 038/375] ASoC: imx: fix fiq dependencies
+Date:   Wed, 22 May 2019 15:15:38 -0400
+Message-Id: <20190522192115.22666-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -44,47 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e5c27498a0403b270620b1a8a0a66e3efc222fb6 ]
+[ Upstream commit ea751227c813ab833609afecfeedaf0aa26f327e ]
 
-atmel_qspi objects are kept in spi_controller objects, so, first get
-pointer to spi_controller object and then get atmel_qspi object from
-spi_controller object.
+During randconfig builds, I occasionally run into an invalid configuration
+of the freescale FIQ sound support:
 
-Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+WARNING: unmet direct dependencies detected for SND_SOC_IMX_PCM_FIQ
+  Depends on [m]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]
+  Selected by [y]:
+  - SND_SOC_FSL_SPDIF [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]!=n && (MXC_TZIC [=n] || MXC_AVIC [=y])
+
+sound/soc/fsl/imx-ssi.o: In function `imx_ssi_remove':
+imx-ssi.c:(.text+0x28): undefined reference to `imx_pcm_fiq_exit'
+sound/soc/fsl/imx-ssi.o: In function `imx_ssi_probe':
+imx-ssi.c:(.text+0xa64): undefined reference to `imx_pcm_fiq_init'
+
+The Kconfig warning is a result of the symbol being defined inside of
+the "if SND_IMX_SOC" block, and is otherwise harmless. The link error
+is more tricky and happens with SND_SOC_IMX_SSI=y, which may or may not
+imply FIQ support. However, if SND_SOC_FSL_SSI is set to =m at the same
+time, that selects SND_SOC_IMX_PCM_FIQ as a loadable module dependency,
+which then causes a link failure from imx-ssi.
+
+The solution here is to make SND_SOC_IMX_PCM_FIQ built-in whenever
+one of its potential users is built-in.
+
+Fixes: ff40260f79dc ("ASoC: fsl: refine DMA/FIQ dependencies")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/atmel-quadspi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/fsl/Kconfig | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/atmel-quadspi.c b/drivers/spi/atmel-quadspi.c
-index fffc21cd5f793..b3173ebddaded 100644
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -570,7 +570,8 @@ static int atmel_qspi_remove(struct platform_device *pdev)
+diff --git a/sound/soc/fsl/Kconfig b/sound/soc/fsl/Kconfig
+index 7b1d9970be8b3..1f65cf555ebe0 100644
+--- a/sound/soc/fsl/Kconfig
++++ b/sound/soc/fsl/Kconfig
+@@ -182,16 +182,17 @@ config SND_MPC52xx_SOC_EFIKA
  
- static int __maybe_unused atmel_qspi_suspend(struct device *dev)
- {
--	struct atmel_qspi *aq = dev_get_drvdata(dev);
-+	struct spi_controller *ctrl = dev_get_drvdata(dev);
-+	struct atmel_qspi *aq = spi_controller_get_devdata(ctrl);
+ endif # SND_POWERPC_SOC
  
- 	clk_disable_unprepare(aq->qspick);
- 	clk_disable_unprepare(aq->pclk);
-@@ -580,7 +581,8 @@ static int __maybe_unused atmel_qspi_suspend(struct device *dev)
++config SND_SOC_IMX_PCM_FIQ
++	tristate
++	default y if SND_SOC_IMX_SSI=y && (SND_SOC_FSL_SSI=m || SND_SOC_FSL_SPDIF=m) && (MXC_TZIC || MXC_AVIC)
++	select FIQ
++
+ if SND_IMX_SOC
  
- static int __maybe_unused atmel_qspi_resume(struct device *dev)
- {
--	struct atmel_qspi *aq = dev_get_drvdata(dev);
-+	struct spi_controller *ctrl = dev_get_drvdata(dev);
-+	struct atmel_qspi *aq = spi_controller_get_devdata(ctrl);
+ config SND_SOC_IMX_SSI
+ 	tristate
+ 	select SND_SOC_FSL_UTILS
  
- 	clk_prepare_enable(aq->pclk);
- 	clk_prepare_enable(aq->qspick);
+-config SND_SOC_IMX_PCM_FIQ
+-	tristate
+-	select FIQ
+-
+ comment "SoC Audio support for Freescale i.MX boards:"
+ 
+ config SND_MXC_SOC_WM1133_EV1
 -- 
 2.20.1
 
