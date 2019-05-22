@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A935226E83
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E163226B68
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731415AbfEVT0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
+        id S1730632AbfEVT0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:26:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731008AbfEVT0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:39 -0400
+        id S1732063AbfEVT0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6E5921873;
-        Wed, 22 May 2019 19:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B37721841;
+        Wed, 22 May 2019 19:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553198;
-        bh=G2TNhij8F3WSS536EU40npcJSOOTOsGZ8xKZjteFZBM=;
+        s=default; t=1558553200;
+        bh=YarqdBKlgfXjVduuIHdF2FOY/RYNjFEBKnoLhmvd96c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zt05Tws1tWtYtNeVIbLKpZrmJafp+5LmgHSa2qTpkDDu9wFh9yzslinKqWEWxqo9S
-         lKX8ACMEvRR7Zpm5W9G+fp5BGOk1KNf52vUk8bw6zfQDP+RS5zv6dT77NfVPhF9gh9
-         /hN53jyi+New1VGF4NAwiaP0LDGv/+nSKMkB1T8k=
+        b=Z8Afuyfu4BECEkX+eKBdiT2Xs1BRlJWMcHMtySp3+hAqcs+j0ZzMIlLql0Ilkix1Z
+         5vFawvQsx5LsOGCcuDAi+VGfPbjkvC4d5w4XrMK+WDOwdvyrehQstNdREEjs/bi6EF
+         ojLZgKZY/4RtT4bWiemgKqHcmzyd8qZqPoV96RmQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raul E Rangel <rrangel@chromium.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 006/244] mmc: core: Verify SD bus width
-Date:   Wed, 22 May 2019 15:22:32 -0400
-Message-Id: <20190522192630.24917-6-sashal@kernel.org>
+Cc:     =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com,
+        syzbot+050927a651272b145a5d@syzkaller.appspotmail.com,
+        syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com,
+        syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 007/244] batman-adv: mcast: fix multicast tt/tvlv worker locking
+Date:   Wed, 22 May 2019 15:22:33 -0400
+Message-Id: <20190522192630.24917-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,55 +49,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-[ Upstream commit 9e4be8d03f50d1b25c38e2b59e73b194c130df7d ]
+[ Upstream commit a3c7cd0cdf1107f891aff847ad481e34df727055 ]
 
-The SD Physical Layer Spec says the following: Since the SD Memory Card
-shall support at least the two bus modes 1-bit or 4-bit width, then any SD
-Card shall set at least bits 0 and 2 (SD_BUS_WIDTH="0101").
+Syzbot has reported some issues with the locking assumptions made for
+the multicast tt/tvlv worker: It was able to trigger the WARN_ON() in
+batadv_mcast_mla_tt_retract() and batadv_mcast_mla_tt_add().
+While hard/not reproduceable for us so far it seems that the
+delayed_work_pending() we use might not be quite safe from reordering.
 
-This change verifies the card has specified a bus width.
+Therefore this patch adds an explicit, new spinlock to protect the
+update of the mla_list and flags in bat_priv and then removes the
+WARN_ON(delayed_work_pending()).
 
-AMD SDHC Device 7806 can get into a bad state after a card disconnect
-where anything transferred via the DATA lines will always result in a
-zero filled buffer. Currently the driver will continue without error if
-the HC is in this condition. A block device will be created, but reading
-from it will result in a zero buffer. This makes it seem like the SD
-device has been erased, when in actuality the data is never getting
-copied from the DATA lines to the data buffer.
-
-SCR is the first command in the SD initialization sequence that uses the
-DATA lines. By checking that the response was invalid, we can abort
-mounting the card.
-
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com
+Reported-by: syzbot+050927a651272b145a5d@syzkaller.appspotmail.com
+Reported-by: syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com
+Reported-by: syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com
+Fixes: cbebd363b2e9 ("batman-adv: Use own timer for multicast TT and TVLV updates")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/batman-adv/main.c      |  1 +
+ net/batman-adv/multicast.c | 11 +++--------
+ net/batman-adv/types.h     |  5 +++++
+ 3 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index d0d9f90e7cdfb..cfb8ee24eaba1 100644
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -216,6 +216,14 @@ static int mmc_decode_scr(struct mmc_card *card)
+diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
+index 69c0d85bceb3e..79b8a2d8793e8 100644
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -160,6 +160,7 @@ int batadv_mesh_init(struct net_device *soft_iface)
+ 	spin_lock_init(&bat_priv->tt.commit_lock);
+ 	spin_lock_init(&bat_priv->gw.list_lock);
+ #ifdef CONFIG_BATMAN_ADV_MCAST
++	spin_lock_init(&bat_priv->mcast.mla_lock);
+ 	spin_lock_init(&bat_priv->mcast.want_lists_lock);
+ #endif
+ 	spin_lock_init(&bat_priv->tvlv.container_list_lock);
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index 86725d792e155..b90fe25d6b0b1 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -325,8 +325,6 @@ static void batadv_mcast_mla_list_free(struct hlist_head *mcast_list)
+  * translation table except the ones listed in the given mcast_list.
+  *
+  * If mcast_list is NULL then all are retracted.
+- *
+- * Do not call outside of the mcast worker! (or cancel mcast worker first)
+  */
+ static void batadv_mcast_mla_tt_retract(struct batadv_priv *bat_priv,
+ 					struct hlist_head *mcast_list)
+@@ -334,8 +332,6 @@ static void batadv_mcast_mla_tt_retract(struct batadv_priv *bat_priv,
+ 	struct batadv_hw_addr *mcast_entry;
+ 	struct hlist_node *tmp;
  
- 	if (scr->sda_spec3)
- 		scr->cmds = UNSTUFF_BITS(resp, 32, 2);
+-	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
+-
+ 	hlist_for_each_entry_safe(mcast_entry, tmp, &bat_priv->mcast.mla_list,
+ 				  list) {
+ 		if (mcast_list &&
+@@ -359,8 +355,6 @@ static void batadv_mcast_mla_tt_retract(struct batadv_priv *bat_priv,
+  *
+  * Adds multicast listener announcements from the given mcast_list to the
+  * translation table if they have not been added yet.
+- *
+- * Do not call outside of the mcast worker! (or cancel mcast worker first)
+  */
+ static void batadv_mcast_mla_tt_add(struct batadv_priv *bat_priv,
+ 				    struct hlist_head *mcast_list)
+@@ -368,8 +362,6 @@ static void batadv_mcast_mla_tt_add(struct batadv_priv *bat_priv,
+ 	struct batadv_hw_addr *mcast_entry;
+ 	struct hlist_node *tmp;
+ 
+-	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
+-
+ 	if (!mcast_list)
+ 		return;
+ 
+@@ -658,7 +650,10 @@ static void batadv_mcast_mla_update(struct work_struct *work)
+ 	priv_mcast = container_of(delayed_work, struct batadv_priv_mcast, work);
+ 	bat_priv = container_of(priv_mcast, struct batadv_priv, mcast);
+ 
++	spin_lock(&bat_priv->mcast.mla_lock);
+ 	__batadv_mcast_mla_update(bat_priv);
++	spin_unlock(&bat_priv->mcast.mla_lock);
 +
-+	/* SD Spec says: any SD Card shall set at least bits 0 and 2 */
-+	if (!(scr->bus_widths & SD_SCR_BUS_WIDTH_1) ||
-+	    !(scr->bus_widths & SD_SCR_BUS_WIDTH_4)) {
-+		pr_err("%s: invalid bus width\n", mmc_hostname(card->host));
-+		return -EINVAL;
-+	}
-+
- 	return 0;
+ 	batadv_mcast_start_timer(bat_priv);
  }
  
+diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
+index 343d304851a5c..eeee3e61c625d 100644
+--- a/net/batman-adv/types.h
++++ b/net/batman-adv/types.h
+@@ -1215,6 +1215,11 @@ struct batadv_priv_mcast {
+ 	/** @bridged: whether the soft interface has a bridge on top */
+ 	unsigned char bridged:1;
+ 
++	/**
++	 * @mla_lock: a lock protecting mla_list and mla_flags
++	 */
++	spinlock_t mla_lock;
++
+ 	/**
+ 	 * @num_want_all_unsnoopables: number of nodes wanting unsnoopable IP
+ 	 *  traffic
 -- 
 2.20.1
 
