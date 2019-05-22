@@ -2,94 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FA226D04
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC56C26C1D
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733193AbfEVTi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:38:59 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:40472 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731503AbfEVT3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 15:29:44 -0400
-Received: by mail-pg1-f195.google.com with SMTP id d30so1806654pgm.7;
-        Wed, 22 May 2019 12:29:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=N1lt5YyedYDYRxDOevOGqSo7gsUd5bOy8cykHjsLtD4=;
-        b=bY2LHNLCRmlqE7LZ2ALn4Q1gh+SLFN3JLiF2C7Ru1QyZWI8hRcAfSxfGENzxsOGd9X
-         6ReaQDGqY3unNPurFzVA3zpBAQGilVoYCMiZXEWqkWIyI5/h8y92antbZieW37hZGXlL
-         s2xqlbVdokYNc5NtaVdB0hxtLUZQDYvrujL6SjXophticu47GzYEFA2YljihX75dHsp5
-         EwLod7515r5VerNSBs+o2zTOEf3Q2Z64i8umWxxQj8EOGhyWocqyIXHSC0xQqLI6IWx1
-         skdMPrx2Kq1wSG7FmqrTadMHXkHOs0l59PDpeUltrH2bIFhzgui5wPxUX84bKue8CIGa
-         w68A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=N1lt5YyedYDYRxDOevOGqSo7gsUd5bOy8cykHjsLtD4=;
-        b=BzQ42hys0EmVlTeUrzyy6YHOOkxD2Va2lncI4vmic0QwVRVAF2LPSLvsQw2CsrFokT
-         GT/Rk8MVJ5FsQLjcFtCxEV9dDWIWYW6mcRBnLM9enZ7olFcR+nF60I3wBtYFlEXMFdJQ
-         l69+qVObPuOFPKTJaJnni12dAdhoChLc2IH87C+UOf8SfhQm65784F2MGYpbjiRrCUwA
-         SDZT2l3RwWHWM+A3SeZCNnTc0c9HVSkH1Ng/d35l88KyYkGWIsDj/QTV7Oivbb+1c+/d
-         1zbQhjTIVzvMxjmxqjhIctWEAIRtNYnMHkaNkxA1lnhH9bSpPFSBuu/1Xy8WLniVcY5J
-         a3vA==
-X-Gm-Message-State: APjAAAW9J38MbzS4r9FWVDvBTkRSlOGk6X4PxsYKcL8qXEwmUlVp8kmp
-        ch2FS8tHal9gou+eghEKZWiH+7Uy
-X-Google-Smtp-Source: APXvYqzEfaOkdYrAL9gJoOJDFyg+POabiHIwhe6pRwJkDrCakMPc5mlZ+G9QyXHGTSMVI1JnZQ5BUQ==
-X-Received: by 2002:a63:cf01:: with SMTP id j1mr87053467pgg.97.1558553383396;
-        Wed, 22 May 2019 12:29:43 -0700 (PDT)
-Received: from ?IPv6:2601:282:800:fd80:f892:82c5:66c:c52c? ([2601:282:800:fd80:f892:82c5:66c:c52c])
-        by smtp.googlemail.com with ESMTPSA id 85sm35545612pgb.52.2019.05.22.12.29.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 May 2019 12:29:42 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 4.19 077/244] mlxsw: spectrum_router: Prevent ipv6
- gateway with v4 route via replace and append
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-References: <20190522192630.24917-1-sashal@kernel.org>
- <20190522192630.24917-77-sashal@kernel.org>
-From:   David Ahern <dsahern@gmail.com>
-Message-ID: <2fbc186d-3ec6-f3d1-a3aa-cf9b36b2fd88@gmail.com>
-Date:   Wed, 22 May 2019 13:29:41 -0600
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:52.0)
- Gecko/20100101 Thunderbird/52.9.1
+        id S1732713AbfEVTba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:31:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731355AbfEVTba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:31:30 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 758082173C;
+        Wed, 22 May 2019 19:31:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558553489;
+        bh=hQo1eYLvoR7XE7DvJDItM7yuvQ2SUftFpDLjThbizwY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tJUV7lbFxaVbVC4Tf6GVpXMC7j+esjnlB6R+MSIQjo8THdgpxyAgu4NkMe3KFNJBc
+         4r/wUDibgezk4F9L46m24XR0d5d5LXr0C2K7MqrMGYuMKkRIB24dRJSPeODTM4Qsv4
+         AcJCF4OA6ui1hUX569XrKOQQGnhjgx6QSGew9eyE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.4 01/92] gfs2: Fix lru_count going negative
+Date:   Wed, 22 May 2019 15:29:56 -0400
+Message-Id: <20190522193127.27079-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <20190522192630.24917-77-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/22/19 1:23 PM, Sasha Levin wrote:
-> From: David Ahern <dsahern@gmail.com>
-> 
-> [ Upstream commit 7973d9e76727aa42f0824f5569e96248a572d50b ]
-> 
-> mlxsw currently does not support v6 gateways with v4 routes. Commit
-> 19a9d136f198 ("ipv4: Flag fib_info with a fib_nh using IPv6 gateway")
-> prevents a route from being added, but nothing stops the replace or
-> append. Add a catch for them too.
->     $ ip  ro add 172.16.2.0/24 via 10.99.1.2
->     $ ip  ro replace 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
->     Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
->     $ ip  ro append 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
->     Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
-> 
-> Signed-off-by: David Ahern <dsahern@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 ++
->  1 file changed, 2 insertions(+)
+From: Ross Lagerwall <ross.lagerwall@citrix.com>
 
-This patch is not needed for any release prior to 5.2.
+[ Upstream commit 7881ef3f33bb80f459ea6020d1e021fc524a6348 ]
 
-IPv6 nexthops with an IPv4 route is a 5.2 feature.
+Under certain conditions, lru_count may drop below zero resulting in
+a large amount of log spam like this:
+
+vmscan: shrink_slab: gfs2_dump_glock+0x3b0/0x630 [gfs2] \
+    negative objects to delete nr=-1
+
+This happens as follows:
+1) A glock is moved from lru_list to the dispose list and lru_count is
+   decremented.
+2) The dispose function calls cond_resched() and drops the lru lock.
+3) Another thread takes the lru lock and tries to add the same glock to
+   lru_list, checking if the glock is on an lru list.
+4) It is on a list (actually the dispose list) and so it avoids
+   incrementing lru_count.
+5) The glock is moved to lru_list.
+5) The original thread doesn't dispose it because it has been re-added
+   to the lru list but the lru_count has still decreased by one.
+
+Fix by checking if the LRU flag is set on the glock rather than checking
+if the glock is on some list and rearrange the code so that the LRU flag
+is added/removed precisely when the glock is added/removed from lru_list.
+
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/gfs2/glock.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 09a0cf5f3dd86..1eb737c466ddc 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -136,22 +136,26 @@ static int demote_ok(const struct gfs2_glock *gl)
+ 
+ void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
+ {
++	if (!(gl->gl_ops->go_flags & GLOF_LRU))
++		return;
++
+ 	spin_lock(&lru_lock);
+ 
+-	if (!list_empty(&gl->gl_lru))
+-		list_del_init(&gl->gl_lru);
+-	else
++	list_del(&gl->gl_lru);
++	list_add_tail(&gl->gl_lru, &lru_list);
++
++	if (!test_bit(GLF_LRU, &gl->gl_flags)) {
++		set_bit(GLF_LRU, &gl->gl_flags);
+ 		atomic_inc(&lru_count);
++	}
+ 
+-	list_add_tail(&gl->gl_lru, &lru_list);
+-	set_bit(GLF_LRU, &gl->gl_flags);
+ 	spin_unlock(&lru_lock);
+ }
+ 
+ static void gfs2_glock_remove_from_lru(struct gfs2_glock *gl)
+ {
+ 	spin_lock(&lru_lock);
+-	if (!list_empty(&gl->gl_lru)) {
++	if (test_bit(GLF_LRU, &gl->gl_flags)) {
+ 		list_del_init(&gl->gl_lru);
+ 		atomic_dec(&lru_count);
+ 		clear_bit(GLF_LRU, &gl->gl_flags);
+@@ -1040,8 +1044,7 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
+ 		    !test_bit(GLF_DEMOTE, &gl->gl_flags))
+ 			fast_path = 1;
+ 	}
+-	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl) &&
+-	    (glops->go_flags & GLOF_LRU))
++	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl))
+ 		gfs2_glock_add_to_lru(gl);
+ 
+ 	trace_gfs2_glock_queue(gh, 0);
+@@ -1341,6 +1344,7 @@ __acquires(&lru_lock)
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
++			set_bit(GLF_LRU, &gl->gl_flags);
+ 			atomic_inc(&lru_count);
+ 			continue;
+ 		}
+@@ -1348,7 +1352,6 @@ __acquires(&lru_lock)
+ 			spin_unlock(&gl->gl_lockref.lock);
+ 			goto add_back_to_lru;
+ 		}
+-		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		gl->gl_lockref.count++;
+ 		if (demote_ok(gl))
+ 			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+@@ -1384,6 +1387,7 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
++			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
+-- 
+2.20.1
 
