@@ -2,93 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C10427093
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5206827176
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 23:16:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729791AbfEVUF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 16:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729155AbfEVUF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 16:05:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F13B20821;
-        Wed, 22 May 2019 20:05:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558555558;
-        bh=5djqnQGVaKXRCTW6O7KY3Bd5lqCW5m2JOgocmJU1Pbg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sLcaHVfdp2um8bgxQrSnsb+XHfx3xH0tzosGBdfzptZSc1pFzwl2EAUCyH+qom1wp
-         cAaYZZ+EzIYgfh/98qY9e9BnIUh414wfTphKkkmN/BrHq3tagv0joiUa2ehrZ6KUJI
-         TvvDFCPO7S29EM30ZLop6qoZAaZPZMbfS/B94CDY=
-Date:   Wed, 22 May 2019 22:05:55 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-Subject: Re: [PATCH AUTOSEL 4.14 036/167] driver core: platform: Fix the
- usage of platform device name(pdev->name)
-Message-ID: <20190522200555.GB3598@kroah.com>
-References: <20190522192842.25858-1-sashal@kernel.org>
- <20190522192842.25858-36-sashal@kernel.org>
+        id S1729829AbfEVVQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 17:16:22 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:37203 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729720AbfEVVQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 17:16:22 -0400
+Received: by mail-qt1-f193.google.com with SMTP id o7so4248837qtp.4;
+        Wed, 22 May 2019 14:16:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IRDeg6juu9TInpGEUEsh12JdfkX4fbWASfCdn5kwEwo=;
+        b=l/GM5KjopFjgbnIKVrkQBcZQ7sudlrvhjbQ4BC0yhixsuYYj3KZxqvREtYjHssMFvV
+         c9zBIzzPTmU9Oz8V63hsEdABFGmxdYY6/QMb5DwdhcqEPBleWafiT7m32391zpKJHEPa
+         wKKZ7BxqWO6+nmPPBpKokLXZa6ld4hjH4mb1vajY0vpWVqp8wWcQtrc8oqIsLWurnEsk
+         DER9cebLKx3usmC4h0SxTAPh0gC4XmP9e/I4jN1qh3vUCYydiyoipWLzYQ9yRLQjgR4C
+         EeX0DOLeeowoI/QsIuMzenvb+CbSPugImu8Uj9T50geezggMW3IZg/FMgldGoKIhT074
+         RikQ==
+X-Gm-Message-State: APjAAAVvynSpr4/Desi1FEh3TfHd1iHdn+snK9mqP25eD4R7eDDoqfT1
+        Jk245gKmFIksvba66Qd8tqwQWmOs0TxkkfikrJI=
+X-Google-Smtp-Source: APXvYqxRHIuj8C7LagjHY5o0vw8tutrohkTAg2q5dHo9HC3r8+VsVxO6QVsI0OWyf9koBryzkBEG0/AKdXcmD+aAbnk=
+X-Received: by 2002:ac8:3319:: with SMTP id t25mr76253431qta.204.1558559781276;
+ Wed, 22 May 2019 14:16:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190522192842.25858-36-sashal@kernel.org>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190522132250.26499-1-mark.rutland@arm.com> <20190522132250.26499-4-mark.rutland@arm.com>
+In-Reply-To: <20190522132250.26499-4-mark.rutland@arm.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 22 May 2019 23:16:04 +0200
+Message-ID: <CAK8P3a2jcXwyG2DRmKJfV5VF_R7c9H7L89ys-sx+qWEe_zBhCQ@mail.gmail.com>
+Subject: Re: [PATCH 03/18] locking/atomic: generic: use s64 for atomic64
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        David Miller <davem@davemloft.net>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        James Hogan <jhogan@kernel.org>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Matt Turner <mattst88@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Richard Henderson <rth@twiddle.net>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 03:26:31PM -0400, Sasha Levin wrote:
-> From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-> 
-> [ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
-> 
-> Platform core is using pdev->name as the platform device name to do
-> the binding of the devices with the drivers. But, when the platform
-> driver overrides the platform device name with dev_set_name(),
-> the pdev->name is pointing to a location which is freed and becomes
-> an invalid parameter to do the binding match.
-> 
-> use-after-free instance:
-> 
-> [   33.325013] BUG: KASAN: use-after-free in strcmp+0x8c/0xb0
-> [   33.330646] Read of size 1 at addr ffffffc10beae600 by task modprobe
-> [   33.339068] CPU: 5 PID: 518 Comm: modprobe Tainted:
-> 			G S      W  O      4.19.30+ #3
-> [   33.346835] Hardware name: MTP (DT)
-> [   33.350419] Call trace:
-> [   33.352941]  dump_backtrace+0x0/0x3b8
-> [   33.356713]  show_stack+0x24/0x30
-> [   33.360119]  dump_stack+0x160/0x1d8
-> [   33.363709]  print_address_description+0x84/0x2e0
-> [   33.368549]  kasan_report+0x26c/0x2d0
-> [   33.372322]  __asan_report_load1_noabort+0x2c/0x38
-> [   33.377248]  strcmp+0x8c/0xb0
-> [   33.380306]  platform_match+0x70/0x1f8
-> [   33.384168]  __driver_attach+0x78/0x3a0
-> [   33.388111]  bus_for_each_dev+0x13c/0x1b8
-> [   33.392237]  driver_attach+0x4c/0x58
-> [   33.395910]  bus_add_driver+0x350/0x560
-> [   33.399854]  driver_register+0x23c/0x328
-> [   33.403886]  __platform_driver_register+0xd0/0xe0
-> 
-> So, use dev_name(&pdev->dev), which fetches the platform device name from
-> the kobject(dev->kobj->name) of the device instead of the pdev->name.
-> 
-> Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/base/platform.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+On Wed, May 22, 2019 at 3:23 PM Mark Rutland <mark.rutland@arm.com> wrote:
+>
+> As a step towards making the atomic64 API use consistent types treewide,
+> let's have the generic atomic64 implementation use s64 as the underlying
+> type for atomic64_t, rather than long long, matching the generated
+> headers.
+>
+> Otherwise, there should be no functional change as a result of this
+> patch.
+>
+> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Will Deacon <will.deacon@arm.com>
 
-Again, please just drop from everywhere.
-
-thanks,
-
-greg k-h
+Acked-by: Arnd Bergmann <arnd@arndb.de>
