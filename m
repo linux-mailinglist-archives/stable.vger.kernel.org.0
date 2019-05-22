@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8296B26EBC
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9744826EC5
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731953AbfEVT0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:26:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47900 "EHLO mail.kernel.org"
+        id S1731881AbfEVTvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731948AbfEVT0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:23 -0400
+        id S1731956AbfEVT0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7AF121881;
-        Wed, 22 May 2019 19:26:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD0E4217D7;
+        Wed, 22 May 2019 19:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553182;
-        bh=+emL6wAQkP+GDqX7SW2N6KhPmXp11SOc6Q8U+zzJafQ=;
+        s=default; t=1558553183;
+        bh=dbh08YecQOaTW4Dz04UYWnA92dEZV543KXGAyCDl44g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pvqCdrKgoupxfpft0YbPSUYvaGTmkBel2e30L0YE5oeuw6ztDHQ35nx1bbe5JHPy
-         D6w+lzHETbJVXSWlUvAXh+Dpz3wOgZcMNHnCzI/PkKw3vWz4NVwKC38G0BWij1lRfe
-         IxmVujlUTA1RK2UOTtl3s73pAObEiBQ65vAj2Pmc=
+        b=2ODU6c9v1ba5cr6B4cq4HuKlrqZPHbu8o2aZhC4hsUYLljfVHnMyfdNI1Ewgw4Gu8
+         If9H93ct2bJ17joQPBv3u4Yny4gGHu4vREIJRpiGNnAghkSQcdXGsLRD2BU4z197ze
+         dKkPOBpvuMh0STdMYTs6/wXMTVXribHVm3xnHHns=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ferry Toth <ftoth@exalondelft.nl>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 098/317] Bluetooth: btbcm: Add default address for BCM43341B
-Date:   Wed, 22 May 2019 15:19:59 -0400
-Message-Id: <20190522192338.23715-98-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 099/317] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Date:   Wed, 22 May 2019 15:20:00 -0400
+Message-Id: <20190522192338.23715-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -45,54 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5035726128cd2e3813ee44deedb9898509edb232 ]
+[ Upstream commit 096377525cdb8251e4656085efc988bdf733fb4c ]
 
-The BCM43341B has the default MAC address 43:34:1B:00:1F:AC if none
-is given. This address was found when enabling Bluetooth on multiple
-Intel Edison modules. It also contains the sequence 43341B, the name
-the chip identifies itself as. Using the same BD_ADDR is problematic
-when having multiple Intel Edison modules in each others range.
-The default address also has the LAA (locally administered address)
-bit set which prevents a BNEP device from being created, needed for
-BT tethering.
+According to the logitech_hidpp_2.0_specification_draft_2012-06-04.pdf doc:
+https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
 
-Add this to the list of black listed default MAC addresses and let
-the user configure a valid one using f.i.
-`btmgmt -i hci0 public-addr xx:xx:xx:xx:xx:xx`
+We should use a register-access-protocol request using the short input /
+output report ids. This is necessary because 27MHz HID++ receivers have
+a max-packetsize on their HIP++ endpoint of 8, so they cannot support
+long reports. Using a feature-access-protocol request (which is always
+long or very-long) with these will cause a timeout error, followed by
+the hidpp driver treating the device as not being HID++ capable.
 
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This commit fixes this by switching to using a rap request to get the
+protocol version.
+
+Besides being tested with a (046d:c517) 27MHz receiver with various
+27MHz keyboards and mice, this has also been tested to not cause
+regressions on a non-unifying dual-HID++ nano receiver (046d:c534) with
+k270 and m185 HID++-2.0 devices connected and on a unifying/dj receiver
+(046d:c52b) with a HID++-2.0 Logitech Rechargeable Touchpad T650.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btbcm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hid/hid-logitech-hidpp.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
-index d5d6e6e5da3bf..62d3aa2b26f60 100644
---- a/drivers/bluetooth/btbcm.c
-+++ b/drivers/bluetooth/btbcm.c
-@@ -37,6 +37,7 @@
- #define BDADDR_BCM43430A0 (&(bdaddr_t) {{0xac, 0x1f, 0x12, 0xa0, 0x43, 0x43}})
- #define BDADDR_BCM4324B3 (&(bdaddr_t) {{0x00, 0x00, 0x00, 0xb3, 0x24, 0x43}})
- #define BDADDR_BCM4330B1 (&(bdaddr_t) {{0x00, 0x00, 0x00, 0xb1, 0x30, 0x43}})
-+#define BDADDR_BCM43341B (&(bdaddr_t) {{0xac, 0x1f, 0x00, 0x1b, 0x34, 0x43}})
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 199cc256e9d9d..ffd30c7492df8 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -836,13 +836,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
  
- int btbcm_check_bdaddr(struct hci_dev *hdev)
+ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  {
-@@ -82,7 +83,8 @@ int btbcm_check_bdaddr(struct hci_dev *hdev)
- 	    !bacmp(&bda->bdaddr, BDADDR_BCM20702A1) ||
- 	    !bacmp(&bda->bdaddr, BDADDR_BCM4324B3) ||
- 	    !bacmp(&bda->bdaddr, BDADDR_BCM4330B1) ||
--	    !bacmp(&bda->bdaddr, BDADDR_BCM43430A0)) {
-+	    !bacmp(&bda->bdaddr, BDADDR_BCM43430A0) ||
-+	    !bacmp(&bda->bdaddr, BDADDR_BCM43341B)) {
- 		bt_dev_info(hdev, "BCM: Using default device address (%pMR)",
- 			    &bda->bdaddr);
- 		set_bit(HCI_QUIRK_INVALID_BDADDR, &hdev->quirks);
++	const u8 ping_byte = 0x5a;
++	u8 ping_data[3] = { 0, 0, ping_byte };
+ 	struct hidpp_report response;
+ 	int ret;
+ 
+-	ret = hidpp_send_fap_command_sync(hidpp,
++	ret = hidpp_send_rap_command_sync(hidpp,
++			REPORT_ID_HIDPP_SHORT,
+ 			HIDPP_PAGE_ROOT_IDX,
+ 			CMD_ROOT_GET_PROTOCOL_VERSION,
+-			NULL, 0, &response);
++			ping_data, sizeof(ping_data), &response);
+ 
+ 	if (ret == HIDPP_ERROR_INVALID_SUBID) {
+ 		hidpp->protocol_major = 1;
+@@ -862,8 +865,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ 	if (ret)
+ 		return ret;
+ 
+-	hidpp->protocol_major = response.fap.params[0];
+-	hidpp->protocol_minor = response.fap.params[1];
++	if (response.rap.params[2] != ping_byte) {
++		hid_err(hidpp->hid_dev, "%s: ping mismatch 0x%02x != 0x%02x\n",
++			__func__, response.rap.params[2], ping_byte);
++		return -EPROTO;
++	}
++
++	hidpp->protocol_major = response.rap.params[0];
++	hidpp->protocol_minor = response.rap.params[1];
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
