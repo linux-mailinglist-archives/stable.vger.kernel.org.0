@@ -2,112 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9B626CD4
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:38:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE3426E29
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730585AbfEVThd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:37:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733194AbfEVTaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:16 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C0D8217D7;
-        Wed, 22 May 2019 19:30:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553415;
-        bh=sggYvIFTjVwlhubVJZzr4XZFhH5kkvKII9OXtKTlSPo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V70evVROENHgfIw93Qr/C0tUiSGP0Gx6LK1eE4VeHRtmTjY/16WjVUKyfNR+SL5KN
-         C6//ZE/sn3jFX1XYlV8gYbQ/43w7OBv6slmXUoVLh5LOs57967m2+tGgb0aIMP+IJM
-         ++RyEOnLniwclgI4jGAHNLwoeHVMRA3Xdvgih3Y4=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Shuah Khan <shuah@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 061/167] media: au0828: stop video streaming only when last user stops
-Date:   Wed, 22 May 2019 15:26:56 -0400
-Message-Id: <20190522192842.25858-61-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
-References: <20190522192842.25858-1-sashal@kernel.org>
+        id S1732356AbfEVTqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:46:43 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:39979 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732380AbfEVT1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 15:27:45 -0400
+Received: by mail-pf1-f194.google.com with SMTP id u17so1835130pfn.7;
+        Wed, 22 May 2019 12:27:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=6HMpFkYMLAkJcnVu/PqYynDR+iNuf0Dhku5h2gLjvOk=;
+        b=p6eYoj7X129vSeuFFybTFfzZFwJjIRgE1o2MFLjWEL4dDUC8AOFzc8M82xgTFh2PGg
+         qZPoEGurlVnGRRA6IGQ1fRItBghPRbkwei9a3OVtmevX6D70IqGZjWeE+/TMGdIcn4/D
+         M+2dKrktd0yUIvGmGDyCks1w1o2klhVIbD6/eYtuEpSxoYiUzYuB/vNq0tMVBb7vFCsf
+         QVcKplC3uQ+0YmZy7WdCxRKe+J450QxSqmMrUtamjTcfngLc/CL4vyHbsnbiogU0s6xo
+         hha5oDSA/zJJ0ctY+B48By+45LFen3dgF7BnOEma1xx8I7DyLL41ePFwewxMZYM0ClRO
+         GQ7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=6HMpFkYMLAkJcnVu/PqYynDR+iNuf0Dhku5h2gLjvOk=;
+        b=AaYIQEdKmpm8Jw75bYE1JUDSCuLcJ3WV/HAWWaXlo7nH6QFcwX5ivqZvISzzZf5dVn
+         lePN70DmN7KytyBKo5oDpC7VPEphZwsddMgETsc2KcCHOR0BHkAvsvdGQsG2AkTJE7cY
+         YeS2NGYIUNxX4PLwqZKUWySpnAZRfajejM8bTeLr9StWMxLg+MZiZWqjdBPPrOmxGtET
+         ox/CfDwlmm+HRD1zvjgpaL+UcYzZ5Ft1e1axLFuHgKV64Rgimf30RjVwqfT9Pd+pVcn0
+         wNsfHr9Xg8TCAtxxclGH1CtD9NspIatJ01OBWVhiUcta7D4aWDLOTSr92hlSwjRq8VyG
+         Drow==
+X-Gm-Message-State: APjAAAWQeWnQbtrFkVSs/YJO3TFKVi0j0Wx/wX2nxijqptJCOQEIsfBd
+        oh0ksuSqWtOnwSQeESzS0P2YhweC
+X-Google-Smtp-Source: APXvYqy0+W6pCtcQ81NLeFLQ34/AenkcgMa4SwKkkt1YemhDIVil3IDNXhAoy1wgnKjNjU5wTtCW3Q==
+X-Received: by 2002:a63:465b:: with SMTP id v27mr91368935pgk.38.1558553263948;
+        Wed, 22 May 2019 12:27:43 -0700 (PDT)
+Received: from ?IPv6:2601:282:800:fd80:f892:82c5:66c:c52c? ([2601:282:800:fd80:f892:82c5:66c:c52c])
+        by smtp.googlemail.com with ESMTPSA id u20sm33577328pfm.145.2019.05.22.12.27.42
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 22 May 2019 12:27:43 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.0 095/317] mlxsw: spectrum_router: Prevent ipv6
+ gateway with v4 route via replace and append
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+References: <20190522192338.23715-1-sashal@kernel.org>
+ <20190522192338.23715-95-sashal@kernel.org>
+From:   David Ahern <dsahern@gmail.com>
+Message-ID: <a953cd53-c396-f20d-73b4-9e06ada0e3ad@gmail.com>
+Date:   Wed, 22 May 2019 13:27:41 -0600
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:52.0)
+ Gecko/20100101 Thunderbird/52.9.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190522192338.23715-95-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+On 5/22/19 1:19 PM, Sasha Levin wrote:
+> From: David Ahern <dsahern@gmail.com>
+> 
+> [ Upstream commit 7973d9e76727aa42f0824f5569e96248a572d50b ]
+> 
+> mlxsw currently does not support v6 gateways with v4 routes. Commit
+> 19a9d136f198 ("ipv4: Flag fib_info with a fib_nh using IPv6 gateway")
+> prevents a route from being added, but nothing stops the replace or
+> append. Add a catch for them too.
+>     $ ip  ro add 172.16.2.0/24 via 10.99.1.2
+>     $ ip  ro replace 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
+>     Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
+>     $ ip  ro append 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
+>     Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
+> 
+> Signed-off-by: David Ahern <dsahern@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
 
-[ Upstream commit f604f0f5afb88045944567f604409951b5eb6af8 ]
-
-If the application was streaming from both videoX and vbiX, and streaming
-from videoX was stopped, then the vbi streaming also stopped.
-
-The cause being that stop_streaming for video stopped the subdevs as well,
-instead of only doing that if dev->streaming_users reached 0.
-
-au0828_stop_vbi_streaming was also wrong since it didn't stop the subdevs
-at all when dev->streaming_users reached 0.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Tested-by: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/media/usb/au0828/au0828-video.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
-index 9342402b92f76..7cd2daf869895 100644
---- a/drivers/media/usb/au0828/au0828-video.c
-+++ b/drivers/media/usb/au0828/au0828-video.c
-@@ -839,9 +839,9 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
- 			return rc;
- 		}
- 
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 1);
-+
- 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
--			v4l2_device_call_all(&dev->v4l2_dev, 0, video,
--						s_stream, 1);
- 			dev->vid_timeout_running = 1;
- 			mod_timer(&dev->vid_timeout, jiffies + (HZ / 10));
- 		} else if (vq->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
-@@ -861,10 +861,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
- 
- 	dprintk(1, "au0828_stop_streaming called %d\n", dev->streaming_users);
- 
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
- 
--	v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
- 	dev->vid_timeout_running = 0;
- 	del_timer_sync(&dev->vid_timeout);
- 
-@@ -893,8 +894,10 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
- 	dprintk(1, "au0828_stop_vbi_streaming called %d\n",
- 		dev->streaming_users);
- 
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
- 
- 	spin_lock_irqsave(&dev->slock, flags);
- 	if (dev->isoc_ctl.vbi_buf != NULL) {
--- 
-2.20.1
-
+Not needed for 5.0. IPv6 nexthops with an IPv4 gateway is a 5.2 feature.
