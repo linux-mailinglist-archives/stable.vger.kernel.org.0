@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9973A2649A
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 15:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB302649D
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 15:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729370AbfEVNYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 09:24:49 -0400
-Received: from foss.arm.com ([217.140.101.70]:50926 "EHLO foss.arm.com"
+        id S1729338AbfEVNY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 09:24:57 -0400
+Received: from foss.arm.com ([217.140.101.70]:50974 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729059AbfEVNYt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 09:24:49 -0400
+        id S1729059AbfEVNY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 09:24:57 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BBC0315AB;
-        Wed, 22 May 2019 06:24:48 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35DE780D;
+        Wed, 22 May 2019 06:24:57 -0700 (PDT)
 Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 7C1893F575;
-        Wed, 22 May 2019 06:24:44 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id E59703F575;
+        Wed, 22 May 2019 06:24:52 -0700 (PDT)
 From:   Mark Rutland <mark.rutland@arm.com>
 To:     linux-kernel@vger.kernel.org, peterz@infradead.org,
         will.deacon@arm.com
@@ -29,9 +29,9 @@ Cc:     aou@eecs.berkeley.edu, arnd@arndb.de, bp@alien8.de,
         paulus@samba.org, ralf@linux-mips.org, rth@twiddle.net,
         stable@vger.kernel.org, tglx@linutronix.de, tony.luck@intel.com,
         vgupta@synopsys.com
-Subject: [PATCH 09/18] locking/atomic: mips: use s64 for atomic64
-Date:   Wed, 22 May 2019 14:22:41 +0100
-Message-Id: <20190522132250.26499-10-mark.rutland@arm.com>
+Subject: [PATCH 10/18] locking/atomic: powerpc: use s64 for atomic64
+Date:   Wed, 22 May 2019 14:22:42 +0100
+Message-Id: <20190522132250.26499-11-mark.rutland@arm.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190522132250.26499-1-mark.rutland@arm.com>
 References: <20190522132250.26499-1-mark.rutland@arm.com>
@@ -41,9 +41,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 As a step towards making the atomic64 API use consistent types treewide,
-let's have the mips atomic64 implementation use s64 as the underlying
-type for atomic64_t, rather than long or __s64, matching the generated
-headers.
+let's have the powerpc atomic64 implementation use s64 as the underlying
+type for atomic64_t, rather than long, matching the generated headers.
 
 As atomic64_read() depends on the generic defintion of atomic64_t, this
 still returns long on 64-bit. This will be converted in a subsequent
@@ -53,82 +52,151 @@ Otherwise, there should be no functional change as a result of this
 patch.
 
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Paul Burton <paul.burton@mips.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
 Cc: Will Deacon <will.deacon@arm.com>
 ---
- arch/mips/include/asm/atomic.h | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ arch/powerpc/include/asm/atomic.h | 44 +++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/arch/mips/include/asm/atomic.h b/arch/mips/include/asm/atomic.h
-index 94096299fc56..9a82dd11c0e9 100644
---- a/arch/mips/include/asm/atomic.h
-+++ b/arch/mips/include/asm/atomic.h
-@@ -254,10 +254,10 @@ static __inline__ int atomic_sub_if_positive(int i, atomic_t * v)
- #define atomic64_set(v, i)	WRITE_ONCE((v)->counter, (i))
+diff --git a/arch/powerpc/include/asm/atomic.h b/arch/powerpc/include/asm/atomic.h
+index 52eafaf74054..31c231ea56b7 100644
+--- a/arch/powerpc/include/asm/atomic.h
++++ b/arch/powerpc/include/asm/atomic.h
+@@ -297,24 +297,24 @@ static __inline__ int atomic_dec_if_positive(atomic_t *v)
  
- #define ATOMIC64_OP(op, c_op, asm_op)					      \
--static __inline__ void atomic64_##op(long i, atomic64_t * v)		      \
-+static __inline__ void atomic64_##op(s64 i, atomic64_t * v)		      \
- {									      \
- 	if (kernel_uses_llsc) {						      \
--		long temp;						      \
-+		s64 temp;						      \
- 									      \
- 		loongson_llsc_mb();					      \
- 		__asm__ __volatile__(					      \
-@@ -280,12 +280,12 @@ static __inline__ void atomic64_##op(long i, atomic64_t * v)		      \
- }
+ #define ATOMIC64_INIT(i)	{ (i) }
  
- #define ATOMIC64_OP_RETURN(op, c_op, asm_op)				      \
--static __inline__ long atomic64_##op##_return_relaxed(long i, atomic64_t * v) \
-+static __inline__ s64 atomic64_##op##_return_relaxed(s64 i, atomic64_t * v)   \
- {									      \
--	long result;							      \
-+	s64 result;							      \
- 									      \
- 	if (kernel_uses_llsc) {						      \
--		long temp;						      \
-+		s64 temp;						      \
- 									      \
- 		loongson_llsc_mb();					      \
- 		__asm__ __volatile__(					      \
-@@ -314,12 +314,12 @@ static __inline__ long atomic64_##op##_return_relaxed(long i, atomic64_t * v) \
- }
- 
- #define ATOMIC64_FETCH_OP(op, c_op, asm_op)				      \
--static __inline__ long atomic64_fetch_##op##_relaxed(long i, atomic64_t * v)  \
-+static __inline__ s64 atomic64_fetch_##op##_relaxed(s64 i, atomic64_t * v)    \
- {									      \
--	long result;							      \
-+	s64 result;							      \
- 									      \
- 	if (kernel_uses_llsc) {						      \
--		long temp;						      \
-+		s64 temp;						      \
- 									      \
- 		loongson_llsc_mb();					      \
- 		__asm__ __volatile__(					      \
-@@ -386,14 +386,14 @@ ATOMIC64_OPS(xor, ^=, xor)
-  * Atomically test @v and subtract @i if @v is greater or equal than @i.
-  * The function returns the old value of @v minus @i.
-  */
--static __inline__ long atomic64_sub_if_positive(long i, atomic64_t * v)
-+static __inline__ s64 atomic64_sub_if_positive(s64 i, atomic64_t * v)
+-static __inline__ long atomic64_read(const atomic64_t *v)
++static __inline__ s64 atomic64_read(const atomic64_t *v)
  {
--	long result;
-+	s64 result;
+-	long t;
++	s64 t;
  
- 	smp_mb__before_llsc();
+ 	__asm__ __volatile__("ld%U1%X1 %0,%1" : "=r"(t) : "m"(v->counter));
  
- 	if (kernel_uses_llsc) {
--		long temp;
-+		s64 temp;
+ 	return t;
+ }
  
- 		__asm__ __volatile__(
- 		"	.set	push					\n"
+-static __inline__ void atomic64_set(atomic64_t *v, long i)
++static __inline__ void atomic64_set(atomic64_t *v, s64 i)
+ {
+ 	__asm__ __volatile__("std%U0%X0 %1,%0" : "=m"(v->counter) : "r"(i));
+ }
+ 
+ #define ATOMIC64_OP(op, asm_op)						\
+-static __inline__ void atomic64_##op(long a, atomic64_t *v)		\
++static __inline__ void atomic64_##op(s64 a, atomic64_t *v)		\
+ {									\
+-	long t;								\
++	s64 t;								\
+ 									\
+ 	__asm__ __volatile__(						\
+ "1:	ldarx	%0,0,%3		# atomic64_" #op "\n"			\
+@@ -327,10 +327,10 @@ static __inline__ void atomic64_##op(long a, atomic64_t *v)		\
+ }
+ 
+ #define ATOMIC64_OP_RETURN_RELAXED(op, asm_op)				\
+-static inline long							\
+-atomic64_##op##_return_relaxed(long a, atomic64_t *v)			\
++static inline s64							\
++atomic64_##op##_return_relaxed(s64 a, atomic64_t *v)			\
+ {									\
+-	long t;								\
++	s64 t;								\
+ 									\
+ 	__asm__ __volatile__(						\
+ "1:	ldarx	%0,0,%3		# atomic64_" #op "_return_relaxed\n"	\
+@@ -345,10 +345,10 @@ atomic64_##op##_return_relaxed(long a, atomic64_t *v)			\
+ }
+ 
+ #define ATOMIC64_FETCH_OP_RELAXED(op, asm_op)				\
+-static inline long							\
+-atomic64_fetch_##op##_relaxed(long a, atomic64_t *v)			\
++static inline s64							\
++atomic64_fetch_##op##_relaxed(s64 a, atomic64_t *v)			\
+ {									\
+-	long res, t;							\
++	s64 res, t;							\
+ 									\
+ 	__asm__ __volatile__(						\
+ "1:	ldarx	%0,0,%4		# atomic64_fetch_" #op "_relaxed\n"	\
+@@ -396,7 +396,7 @@ ATOMIC64_OPS(xor, xor)
+ 
+ static __inline__ void atomic64_inc(atomic64_t *v)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__(
+ "1:	ldarx	%0,0,%2		# atomic64_inc\n\
+@@ -409,9 +409,9 @@ static __inline__ void atomic64_inc(atomic64_t *v)
+ }
+ #define atomic64_inc atomic64_inc
+ 
+-static __inline__ long atomic64_inc_return_relaxed(atomic64_t *v)
++static __inline__ s64 atomic64_inc_return_relaxed(atomic64_t *v)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__(
+ "1:	ldarx	%0,0,%2		# atomic64_inc_return_relaxed\n"
+@@ -427,7 +427,7 @@ static __inline__ long atomic64_inc_return_relaxed(atomic64_t *v)
+ 
+ static __inline__ void atomic64_dec(atomic64_t *v)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__(
+ "1:	ldarx	%0,0,%2		# atomic64_dec\n\
+@@ -440,9 +440,9 @@ static __inline__ void atomic64_dec(atomic64_t *v)
+ }
+ #define atomic64_dec atomic64_dec
+ 
+-static __inline__ long atomic64_dec_return_relaxed(atomic64_t *v)
++static __inline__ s64 atomic64_dec_return_relaxed(atomic64_t *v)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__(
+ "1:	ldarx	%0,0,%2		# atomic64_dec_return_relaxed\n"
+@@ -463,9 +463,9 @@ static __inline__ long atomic64_dec_return_relaxed(atomic64_t *v)
+  * Atomically test *v and decrement if it is greater than 0.
+  * The function returns the old value of *v minus 1.
+  */
+-static __inline__ long atomic64_dec_if_positive(atomic64_t *v)
++static __inline__ s64 atomic64_dec_if_positive(atomic64_t *v)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__(
+ 	PPC_ATOMIC_ENTRY_BARRIER
+@@ -502,9 +502,9 @@ static __inline__ long atomic64_dec_if_positive(atomic64_t *v)
+  * Atomically adds @a to @v, so long as it was not @u.
+  * Returns the old value of @v.
+  */
+-static __inline__ long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
++static __inline__ s64 atomic64_fetch_add_unless(atomic64_t *v, s64 a, s64 u)
+ {
+-	long t;
++	s64 t;
+ 
+ 	__asm__ __volatile__ (
+ 	PPC_ATOMIC_ENTRY_BARRIER
+@@ -534,7 +534,7 @@ static __inline__ long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
+  */
+ static __inline__ int atomic64_inc_not_zero(atomic64_t *v)
+ {
+-	long t1, t2;
++	s64 t1, t2;
+ 
+ 	__asm__ __volatile__ (
+ 	PPC_ATOMIC_ENTRY_BARRIER
 -- 
 2.11.0
 
