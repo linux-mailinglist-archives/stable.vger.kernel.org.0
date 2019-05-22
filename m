@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C17426BDB
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C33A26CB8
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733268AbfEVTae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54024 "EHLO mail.kernel.org"
+        id S1733164AbfEVTgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732441AbfEVTad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:33 -0400
+        id S1733269AbfEVTae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42CEA21841;
-        Wed, 22 May 2019 19:30:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 303C4217D7;
+        Wed, 22 May 2019 19:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553432;
-        bh=B7NYvC0ObKs2+BZPDMKWtI+XcjJXwV0A/crcwKiTMYU=;
+        s=default; t=1558553433;
+        bh=irppVcgwRVsmn8gpyfP7T1YSfDasC28ynChgPB5Zhbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNckDID2FAAmATaTHYiRwTOqMw+wVTxqojkhTLfFV7piNgHfwRZjEEfoN7LRxpjS5
-         XJmhmNqhgf+TGhPEQw44roWGRR/HrYU3bD5YpYEUv4OaeXohHBAu+6jRqaZogArdpd
-         eisFrMVqVFch3WWfuc/Vh9hVJ9Y2971n0y0hA7I8=
+        b=A9zhMOO+JWUk8lO82hr1UMjS9dFnoShYmO+2diNKjMn/pPDmavec51LC8seAcy0XE
+         QjQnkB/gqHbMNM9WDYPXUlniNS1wkRJGYs7IM61iRhxcuyAOucKAFQyvHhYU1nuN0Y
+         80CkhfKOiWxkNsBVzA4a6fT3ajZ02TPKKltblci4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 009/114] ASoC: imx: fix fiq dependencies
-Date:   Wed, 22 May 2019 15:28:32 -0400
-Message-Id: <20190522193017.26567-9-sashal@kernel.org>
+Cc:     Flavio Suligoi <f.suligoi@asem.it>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 010/114] spi: pxa2xx: fix SCR (divisor) calculation
+Date:   Wed, 22 May 2019 15:28:33 -0400
+Message-Id: <20190522193017.26567-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -42,67 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Flavio Suligoi <f.suligoi@asem.it>
 
-[ Upstream commit ea751227c813ab833609afecfeedaf0aa26f327e ]
+[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
 
-During randconfig builds, I occasionally run into an invalid configuration
-of the freescale FIQ sound support:
+Calculate the divisor for the SCR (Serial Clock Rate), avoiding
+that the SSP transmission rate can be greater than the device rate.
 
-WARNING: unmet direct dependencies detected for SND_SOC_IMX_PCM_FIQ
-  Depends on [m]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]
-  Selected by [y]:
-  - SND_SOC_FSL_SPDIF [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]!=n && (MXC_TZIC [=n] || MXC_AVIC [=y])
+When the division between the SSP clock and the device rate generates
+a reminder, we have to increment by one the divisor.
+In this way the resulting SSP clock will never be greater than the
+device SPI max frequency.
 
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_remove':
-imx-ssi.c:(.text+0x28): undefined reference to `imx_pcm_fiq_exit'
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_probe':
-imx-ssi.c:(.text+0xa64): undefined reference to `imx_pcm_fiq_init'
+For example, with:
 
-The Kconfig warning is a result of the symbol being defined inside of
-the "if SND_IMX_SOC" block, and is otherwise harmless. The link error
-is more tricky and happens with SND_SOC_IMX_SSI=y, which may or may not
-imply FIQ support. However, if SND_SOC_FSL_SSI is set to =m at the same
-time, that selects SND_SOC_IMX_PCM_FIQ as a loadable module dependency,
-which then causes a link failure from imx-ssi.
+ - ssp_clk  = 50 MHz
+ - dev freq = 15 MHz
 
-The solution here is to make SND_SOC_IMX_PCM_FIQ built-in whenever
-one of its potential users is built-in.
+without this patch the SSP clock will be greater than 15 MHz:
 
-Fixes: ff40260f79dc ("ASoC: fsl: refine DMA/FIQ dependencies")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ - 25 MHz for PXA25x_SSP and CE4100_SSP
+ - 16,56 MHz for the others
+
+Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
+so the max rate of the SPI device clock is respected.
+
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/Kconfig | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/spi/spi-pxa2xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/Kconfig b/sound/soc/fsl/Kconfig
-index a732b3a065c92..8a2873a7899a7 100644
---- a/sound/soc/fsl/Kconfig
-+++ b/sound/soc/fsl/Kconfig
-@@ -172,16 +172,17 @@ config SND_MPC52xx_SOC_EFIKA
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index f2209ec4cb68d..8b618f0fa459f 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -921,10 +921,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
  
- endif # SND_POWERPC_SOC
+ 	rate = min_t(int, ssp_clk, rate);
  
-+config SND_SOC_IMX_PCM_FIQ
-+	tristate
-+	default y if SND_SOC_IMX_SSI=y && (SND_SOC_FSL_SSI=m || SND_SOC_FSL_SPDIF=m) && (MXC_TZIC || MXC_AVIC)
-+	select FIQ
-+
- if SND_IMX_SOC
++	/*
++	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
++	 * that the SSP transmission rate can be greater than the device rate
++	 */
+ 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
+-		return (ssp_clk / (2 * rate) - 1) & 0xff;
++		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
+ 	else
+-		return (ssp_clk / rate - 1) & 0xfff;
++		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
+ }
  
- config SND_SOC_IMX_SSI
- 	tristate
- 	select SND_SOC_FSL_UTILS
- 
--config SND_SOC_IMX_PCM_FIQ
--	tristate
--	select FIQ
--
- comment "SoC Audio support for Freescale i.MX boards:"
- 
- config SND_MXC_SOC_WM1133_EV1
+ static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
 -- 
 2.20.1
 
