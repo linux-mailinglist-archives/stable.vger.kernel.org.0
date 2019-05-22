@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F09426C99
+	by mail.lfdr.de (Postfix) with ESMTP id 1329526C98
 	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387401AbfEVTax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54346 "EHLO mail.kernel.org"
+        id S1732528AbfEVTay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387400AbfEVTaw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:52 -0400
+        id S1732971AbfEVTax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38726204FD;
-        Wed, 22 May 2019 19:30:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AD942177E;
+        Wed, 22 May 2019 19:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553451;
-        bh=PgKnupQdYBqyAjhO6bP5I+70rfrYLfkOkbV+KSfxYYE=;
+        s=default; t=1558553452;
+        bh=f7dg84IkYaJn/zqFRfLVsVVP5Xb09Vvo51Ce1EFlCfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJetH/27Qef2bz0geLHTEHrJICh/tVGElJnzEWArCWK/tgWS9JZFObxhtRaMbMUvY
-         eeuFUfifJ1WSiSwuc6WxZfbIjewR02uMRIiXK69kvydm38cgWzLTUwhXa+CTsUWwPW
-         JTxiJMB7Ay70RCGJ39qRsmu4+NSfrJERY9kBq7Y0=
+        b=PMda66YQHECqZTPVRkZsFF98foXmS0FPI80hUrv5dYBN+gXUXpaELkcynenXsPeC7
+         TFCVVAzl/PoMnM4kSd2TnOj7mnq/mGkuZsA/enURAggPn+JhJ4O7pYNIuAqQv0VgkL
+         rvf4mHPM0Bgih9emVFaWUNEtk5uQFgXUrAjkmNp8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 021/114] driver core: platform: Fix the usage of platform device name(pdev->name)
-Date:   Wed, 22 May 2019 15:28:44 -0400
-Message-Id: <20190522193017.26567-21-sashal@kernel.org>
+Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 022/114] ASoC: fsl_sai: Update is_slave_mode with correct value
+Date:   Wed, 22 May 2019 15:28:45 -0400
+Message-Id: <20190522193017.26567-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -43,89 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-[ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
+[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
 
-Platform core is using pdev->name as the platform device name to do
-the binding of the devices with the drivers. But, when the platform
-driver overrides the platform device name with dev_set_name(),
-the pdev->name is pointing to a location which is freed and becomes
-an invalid parameter to do the binding match.
+is_slave_mode defaults to false because sai structure
+that contains it is kzalloc'ed.
 
-use-after-free instance:
+Anyhow, if we decide to set the following configuration
+SAI slave -> SAI master, is_slave_mode will remain set on true
+although SAI being master it should be set to false.
 
-[   33.325013] BUG: KASAN: use-after-free in strcmp+0x8c/0xb0
-[   33.330646] Read of size 1 at addr ffffffc10beae600 by task modprobe
-[   33.339068] CPU: 5 PID: 518 Comm: modprobe Tainted:
-			G S      W  O      4.19.30+ #3
-[   33.346835] Hardware name: MTP (DT)
-[   33.350419] Call trace:
-[   33.352941]  dump_backtrace+0x0/0x3b8
-[   33.356713]  show_stack+0x24/0x30
-[   33.360119]  dump_stack+0x160/0x1d8
-[   33.363709]  print_address_description+0x84/0x2e0
-[   33.368549]  kasan_report+0x26c/0x2d0
-[   33.372322]  __asan_report_load1_noabort+0x2c/0x38
-[   33.377248]  strcmp+0x8c/0xb0
-[   33.380306]  platform_match+0x70/0x1f8
-[   33.384168]  __driver_attach+0x78/0x3a0
-[   33.388111]  bus_for_each_dev+0x13c/0x1b8
-[   33.392237]  driver_attach+0x4c/0x58
-[   33.395910]  bus_add_driver+0x350/0x560
-[   33.399854]  driver_register+0x23c/0x328
-[   33.403886]  __platform_driver_register+0xd0/0xe0
+Fix this by updating is_slave_mode for each call of
+fsl_sai_set_dai_fmt.
 
-So, use dev_name(&pdev->dev), which fetches the platform device name from
-the kobject(dev->kobj->name) of the device instead of the pdev->name.
-
-Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/fsl/fsl_sai.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 14ff40371f013..ffa77b3df4ba2 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -845,7 +845,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
- 	if (len != -ENODEV)
- 		return len;
- 
--	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
-+	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", dev_name(&pdev->dev));
- 
- 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
- }
-@@ -921,7 +921,7 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
- 		return rc;
- 
- 	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
--			pdev->name);
-+			dev_name(&pdev->dev));
- 	return 0;
- }
- 
-@@ -930,7 +930,7 @@ static const struct platform_device_id *platform_match_id(
- 			struct platform_device *pdev)
- {
- 	while (id->name[0]) {
--		if (strcmp(pdev->name, id->name) == 0) {
-+		if (strcmp(dev_name(&pdev->dev), id->name) == 0) {
- 			pdev->id_entry = id;
- 			return id;
- 		}
-@@ -974,7 +974,7 @@ static int platform_match(struct device *dev, struct device_driver *drv)
- 		return platform_match_id(pdrv->id_table, pdev) != NULL;
- 
- 	/* fall-back to driver name match */
--	return (strcmp(pdev->name, drv->name) == 0);
-+	return (strcmp(dev_name(&pdev->dev), drv->name) == 0);
- }
- 
- #ifdef CONFIG_PM_SLEEP
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 9fadf7e31c5f8..cb43f57f978b1 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -274,12 +274,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		sai->is_slave_mode = true;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBS_CFM:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFS:
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
 -- 
 2.20.1
 
