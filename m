@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D86DF26F0B
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3975226EF8
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731556AbfEVTyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S1731725AbfEVTZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:25:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731708AbfEVTZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:25:43 -0400
+        id S1731719AbfEVTZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:25:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DADAA2173C;
-        Wed, 22 May 2019 19:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 002D3217D9;
+        Wed, 22 May 2019 19:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553142;
-        bh=jcoD00bxnjvv2+MmzAXKJv5S2W4o/Dh1EMfAlwfkR4U=;
+        s=default; t=1558553143;
+        bh=aU4CXQ1D+LlLoIV1mmGR+NNarxByWPbHFnIBHyz5C9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fX3gVMZmzhi+X+V7xsuAWwa+g8+TaU/LCsCs67xUs+ea3GBEwDR90/WkEIJREWZ1F
-         APgAoXOFSFgEj63LPVe3PLniu4CONXoZbIp38cpQx62j3C9Z8eejV3eCY8V5ASxOHi
-         7IYcB7zbYFCBkbynDC6Ixe8zovd2sm3BHefOp5Zs=
+        b=enJDO+kb2GKPbQbcZI3C4IEVISQaE2+mPHYbhG8lVDiiRw25WasNNxX8uxvcgsv87
+         TyqF5RlnNB1UbY7GgrPxcOz41fgEIjM3aiDomxB9UY6JZ8mGc3FMMjkxyS13Ak0257
+         2jCP32KXALZ8aXP9uLCkrP9DHY+NSSioY6R8HrTY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.0 072/317] ASoC: fsl_sai: Update is_slave_mode with correct value
-Date:   Wed, 22 May 2019 15:19:33 -0400
-Message-Id: <20190522192338.23715-72-sashal@kernel.org>
+Cc:     Xiaoli Feng <fengxiaoli0714@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 073/317] Fix nfs4.2 return -EINVAL when do dedupe operation
+Date:   Wed, 22 May 2019 15:19:34 -0400
+Message-Id: <20190522192338.23715-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -44,47 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@nxp.com>
+From: Xiaoli Feng <fengxiaoli0714@gmail.com>
 
-[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
+[ Upstream commit ce96e888fe48ecfa868c9a39adc03292c78a80ff ]
 
-is_slave_mode defaults to false because sai structure
-that contains it is kzalloc'ed.
+dedupe_file_range operations is combiled into remap_file_range.
+But in nfs42_remap_file_range, it's skiped for dedupe operations.
+Before this patch:
+  # dd if=/dev/zero of=nfs/file bs=1M count=1
+  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
+  XFS_IOC_FILE_EXTENT_SAME: Invalid argument
+After this patch:
+  # dd if=/dev/zero of=nfs/file bs=1M count=1
+  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
+  deduped 4096/4096 bytes at offset 65536
+  4 KiB, 1 ops; 0.0046 sec (865.988 KiB/sec and 216.4971 ops/sec)
 
-Anyhow, if we decide to set the following configuration
-SAI slave -> SAI master, is_slave_mode will remain set on true
-although SAI being master it should be set to false.
-
-Fix this by updating is_slave_mode for each call of
-fsl_sai_set_dai_fmt.
-
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Xiaoli Feng <fengxiaoli0714@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_sai.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
-index 4163f2cfc06fc..bfc5b21d0c3f9 100644
---- a/sound/soc/fsl/fsl_sai.c
-+++ b/sound/soc/fsl/fsl_sai.c
-@@ -268,12 +268,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_CBS_CFS:
- 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
- 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
-+		sai->is_slave_mode = false;
- 		break;
- 	case SND_SOC_DAIFMT_CBM_CFM:
- 		sai->is_slave_mode = true;
- 		break;
- 	case SND_SOC_DAIFMT_CBS_CFM:
- 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
-+		sai->is_slave_mode = false;
- 		break;
- 	case SND_SOC_DAIFMT_CBM_CFS:
- 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 00d17198ee12a..f10b660805fc4 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -187,7 +187,7 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
+ 	bool same_inode = false;
+ 	int ret;
+ 
+-	if (remap_flags & ~REMAP_FILE_ADVISORY)
++	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
+ 		return -EINVAL;
+ 
+ 	/* check alignment w.r.t. clone_blksize */
 -- 
 2.20.1
 
