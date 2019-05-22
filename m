@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B28F26CE2
+	by mail.lfdr.de (Postfix) with ESMTP id AE91026CE3
 	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732639AbfEVTaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732304AbfEVTaC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 May 2019 15:30:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730762AbfEVT37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:29:59 -0400
+        id S1731449AbfEVTaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 444B920675;
-        Wed, 22 May 2019 19:29:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 998A320879;
+        Wed, 22 May 2019 19:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553399;
-        bh=D5l7DCBdDPy0Wcsbs+ezBh4hdN29gMtYw7qlOBAZynM=;
+        s=default; t=1558553400;
+        bh=r5bmgqy3VSzuyJK6pVPb+ncXKfOXwCzKbPLLHHbaYyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfgqMxGcSGeZBzwSvojgLHztsdDYCeiVjr9cEV8vh2K3Ldc9bPoIwAb03DUFBSztC
-         TU2TKujnAzZKaKi8OxAYWPlZnQWWYhf8Ok4FH50i+7/bMoOPdVUkK+ddd+Ic8Z8YU5
-         4SJYiYy9C/HcFYtAFo4eNPaLGHbqcluc++DTx+5U=
+        b=ZKHi1jBG1AzDVEpynPjxV6CvhmqwMP6NFImYJF2ZXdzpWB9MV80EipRBnqOgOXSoN
+         Mv9G9JXcIMhgvEwWvWdDdgI/OGI6x3cjYv85f+GzLGl/i+ucpj6deor8e3xN/lB5WK
+         j2YMT9ejDXIC+XPYZDHoUJtlXhjf8PuF1z6TV8wE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        kbuild test robot <lkp@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
+Cc:     Jiri Kosina <jkosina@suse.cz>, Nicolai Stange <nstange@suse.de>,
         Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 051/167] smpboot: Place the __percpu annotation correctly
-Date:   Wed, 22 May 2019 15:26:46 -0400
-Message-Id: <20190522192842.25858-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 052/167] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
+Date:   Wed, 22 May 2019 15:26:47 -0400
+Message-Id: <20190522192842.25858-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
 References: <20190522192842.25858-1-sashal@kernel.org>
@@ -47,47 +50,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit d4645d30b50d1691c26ff0f8fa4e718b08f8d3bb ]
+[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
 
-The test robot reported a wrong assignment of a per-CPU variable which
-it detected by using sparse and sent a report. The assignment itself is
-correct. The annotation for sparse was wrong and hence the report.
-The first pointer is a "normal" pointer and points to the per-CPU memory
-area. That means that the __percpu annotation has to be moved.
+In-NMI warnings have been added to vmalloc_fault() via:
 
-Move the __percpu annotation to pointer which points to the per-CPU
-area. This change affects only the sparse tool (and is ignored by the
-compiler).
+  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+back in the time when our NMI entry code could not cope with nested NMIs.
+
+These days, it's perfectly fine to take a fault in NMI context and we
+don't have to care about the fact that IRET from the fault handler might
+cause NMI nesting.
+
+This warning has already been removed from 32-bit implementation of
+vmalloc_fault() in:
+
+  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
+
+but the 64-bit version was omitted.
+
+Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
+
+Reported-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Joerg Roedel <jroedel@suse.de>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: f97f8f06a49fe ("smpboot: Provide infrastructure for percpu hotplug threads")
-Link: http://lkml.kernel.org/r/20190424085253.12178-1-bigeasy@linutronix.de
+Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
+Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/smpboot.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/mm/fault.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/include/linux/smpboot.h b/include/linux/smpboot.h
-index c174844cf663e..585e777a7f6ef 100644
---- a/include/linux/smpboot.h
-+++ b/include/linux/smpboot.h
-@@ -31,7 +31,7 @@ struct smpboot_thread_data;
-  * @thread_comm:	The base name of the thread
-  */
- struct smp_hotplug_thread {
--	struct task_struct __percpu	**store;
-+	struct task_struct		* __percpu *store;
- 	struct list_head		list;
- 	int				(*thread_should_run)(unsigned int cpu);
- 	void				(*thread_fn)(unsigned int cpu);
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 794c35c4ca736..b162f92fd55cf 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -426,8 +426,6 @@ static noinline int vmalloc_fault(unsigned long address)
+ 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
+ 		return -1;
+ 
+-	WARN_ON_ONCE(in_nmi());
+-
+ 	/*
+ 	 * Copy kernel mappings over when needed. This can also
+ 	 * happen within a race in page table update. In the later
 -- 
 2.20.1
 
