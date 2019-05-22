@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFCA26CCA
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815A026CC7
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733185AbfEVTaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53814 "EHLO mail.kernel.org"
+        id S1733228AbfEVTaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:30:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731850AbfEVTaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:21 -0400
+        id S1732749AbfEVTaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7137421473;
-        Wed, 22 May 2019 19:30:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACA7F20879;
+        Wed, 22 May 2019 19:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553420;
-        bh=c9ljC1X2ktu91elIhaRhXBDMmfcaRhLgFlcxNrYZ3rQ=;
+        s=default; t=1558553422;
+        bh=UapYmnCpWuab03TBWLBB+gBSRoAtQj094QqbPvWrKzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZC7gaMjeAPnlWgHxohN7pHEi1O+zNnJqh9Y2aF774ovdq3DZQyz0HTPEL42mWzj5
-         aZ0/cxUHv3rVnx6xMqnqIrSLLDPkHG9Rw+XqsWxF7b6HLHfYNlh6TnGF/M1rdrWqs7
-         H2IU5kHKmCKEDwypimWDlx8Ca2TCZt9yNQHQJuYU=
+        b=OyVyfnCq+djQdsrGJ9W8kDaU9tKUXR+CIeDBLIJ1LVZdeexyLaU8x00+OqVIY4w9b
+         Lds4ihz26V2qlKQgrX5HywZpqZk5AIdiwi6C4Mx5Q0UxRy+ZWVTcHY+fG7zl6JnwWB
+         ltU2OJV1j8vIBBe29nSjr5Ly9RDr0NoB0ijY7MPE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 002/114] cxgb4: Fix error path in cxgb4_init_module
-Date:   Wed, 22 May 2019 15:28:25 -0400
-Message-Id: <20190522193017.26567-2-sashal@kernel.org>
+Cc:     Raul E Rangel <rrangel@chromium.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 003/114] mmc: core: Verify SD bus width
+Date:   Wed, 22 May 2019 15:28:26 -0400
+Message-Id: <20190522193017.26567-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -43,83 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-[ Upstream commit a3147770bea76c8dbad73eca3a24c2118da5e719 ]
+[ Upstream commit 9e4be8d03f50d1b25c38e2b59e73b194c130df7d ]
 
-BUG: unable to handle kernel paging request at ffffffffa016a270
-PGD 3270067 P4D 3270067 PUD 3271063 PMD 230bbd067 PTE 0
-Oops: 0000 [#1
-CPU: 0 PID: 6134 Comm: modprobe Not tainted 5.1.0+ #33
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:atomic_notifier_chain_register+0x24/0x60
-Code: 1f 80 00 00 00 00 55 48 89 e5 41 54 49 89 f4 53 48 89 fb e8 ae b4 38 01 48 8b 53 38 48 8d 4b 38 48 85 d2 74 20 45 8b 44 24 10 <44> 3b 42 10 7e 08 eb 13 44 39 42 10 7c 0d 48 8d 4a 08 48 8b 52 08
-RSP: 0018:ffffc90000e2bc60 EFLAGS: 00010086
-RAX: 0000000000000292 RBX: ffffffff83467240 RCX: ffffffff83467278
-RDX: ffffffffa016a260 RSI: ffffffff83752140 RDI: ffffffff83467240
-RBP: ffffc90000e2bc70 R08: 0000000000000000 R09: 0000000000000001
-R10: 0000000000000000 R11: 00000000014fa61f R12: ffffffffa01c8260
-R13: ffff888231091e00 R14: 0000000000000000 R15: ffffc90000e2be78
-FS:  00007fbd8d7cd540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffa016a270 CR3: 000000022c7e3000 CR4: 00000000000006f0
-Call Trace:
- register_inet6addr_notifier+0x13/0x20
- cxgb4_init_module+0x6c/0x1000 [cxgb4
- ? 0xffffffffa01d7000
- do_one_initcall+0x6c/0x3cc
- ? do_init_module+0x22/0x1f1
- ? rcu_read_lock_sched_held+0x97/0xb0
- ? kmem_cache_alloc_trace+0x325/0x3b0
- do_init_module+0x5b/0x1f1
- load_module+0x1db1/0x2690
- ? m_show+0x1d0/0x1d0
- __do_sys_finit_module+0xc5/0xd0
- __x64_sys_finit_module+0x15/0x20
- do_syscall_64+0x6b/0x1d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The SD Physical Layer Spec says the following: Since the SD Memory Card
+shall support at least the two bus modes 1-bit or 4-bit width, then any SD
+Card shall set at least bits 0 and 2 (SD_BUS_WIDTH="0101").
 
-If pci_register_driver fails, register inet6addr_notifier is
-pointless. This patch fix the error path in cxgb4_init_module.
+This change verifies the card has specified a bus width.
 
-Fixes: b5a02f503caa ("cxgb4 : Update ipv6 address handling api")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+AMD SDHC Device 7806 can get into a bad state after a card disconnect
+where anything transferred via the DATA lines will always result in a
+zero filled buffer. Currently the driver will continue without error if
+the HC is in this condition. A block device will be created, but reading
+from it will result in a zero buffer. This makes it seem like the SD
+device has been erased, when in actuality the data is never getting
+copied from the DATA lines to the data buffer.
+
+SCR is the first command in the SD initialization sequence that uses the
+DATA lines. By checking that the response was invalid, we can abort
+mounting the card.
+
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/mmc/core/sd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index c71a52a2f8017..5478a2ab45c4c 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -5203,15 +5203,24 @@ static int __init cxgb4_init_module(void)
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index f09148a4ab557..00ba8807dafe4 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -214,6 +214,14 @@ static int mmc_decode_scr(struct mmc_card *card)
  
- 	ret = pci_register_driver(&cxgb4_driver);
- 	if (ret < 0)
--		debugfs_remove(cxgb4_debugfs_root);
-+		goto err_pci;
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 	if (!inet6addr_registered) {
--		register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
--		inet6addr_registered = true;
-+		ret = register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
-+		if (ret)
-+			pci_unregister_driver(&cxgb4_driver);
-+		else
-+			inet6addr_registered = true;
- 	}
- #endif
- 
-+	if (ret == 0)
-+		return ret;
+ 	if (scr->sda_spec3)
+ 		scr->cmds = UNSTUFF_BITS(resp, 32, 2);
 +
-+err_pci:
-+	debugfs_remove(cxgb4_debugfs_root);
++	/* SD Spec says: any SD Card shall set at least bits 0 and 2 */
++	if (!(scr->bus_widths & SD_SCR_BUS_WIDTH_1) ||
++	    !(scr->bus_widths & SD_SCR_BUS_WIDTH_4)) {
++		pr_err("%s: invalid bus width\n", mmc_hostname(card->host));
++		return -EINVAL;
++	}
 +
- 	return ret;
+ 	return 0;
  }
  
 -- 
