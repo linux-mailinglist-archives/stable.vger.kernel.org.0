@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1630327027
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A2526AE0
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730394AbfEVTWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:22:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42958 "EHLO mail.kernel.org"
+        id S1730409AbfEVTWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730387AbfEVTWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:22:17 -0400
+        id S1730399AbfEVTWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:22:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F0FC21851;
-        Wed, 22 May 2019 19:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 903CF2186A;
+        Wed, 22 May 2019 19:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552937;
-        bh=UNA7ilmtExavjSLgp8JG4+7awfg75FhUCfWArenMdpU=;
+        s=default; t=1558552938;
+        bh=dhFMV9qvLi/ZkAM71bphlJObVyLSfI97rd7uk47wU/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q72SScEp+BbcVtlTT6Gp8BK2C0Kl3vkKpDW/95KrWCrLD5wnUpTibhee5jyNW11/J
-         umA1Kdrym8374hzA95HpST+SuGwtgAvZnaXvIV8Ujfk56+TzMpcDgrkFMVumHyaA7j
-         Pf4wI0HHmzX7lceqeBHvhkwsq/tOgOR0sAE4rRMY=
+        b=EnvWDYgjSNO+zpvCBtTXgfY0nXROgWVRLZKHqiH86W7vm6w+oPS4I7LyKeqYQmUD3
+         iuKVS0S01Yz29B+1j2+1YnmNP2nQnb8vDCGRIX9yUgiuX45N+zYF1KJH8oGnfSex++
+         AprZR5qecyWR0FnANDYVte8XxyVzlN+5etGSA304=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Flavio Suligoi <f.suligoi@asem.it>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 039/375] spi: pxa2xx: fix SCR (divisor) calculation
-Date:   Wed, 22 May 2019 15:15:39 -0400
-Message-Id: <20190522192115.22666-39-sashal@kernel.org>
+Cc:     Bodong Wang <bodong@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Vu Pham <vuhuong@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 040/375] net/mlx5: E-Switch, Use atomic rep state to serialize state change
+Date:   Wed, 22 May 2019 15:15:40 -0400
+Message-Id: <20190522192115.22666-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -44,61 +46,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Flavio Suligoi <f.suligoi@asem.it>
+From: Bodong Wang <bodong@mellanox.com>
 
-[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
+[ Upstream commit 6f4e02193c9a9ea54dd3151cf97489fa787cd0e6 ]
 
-Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-that the SSP transmission rate can be greater than the device rate.
+When the state of rep was introduced, it was also designed to prevent
+duplicate unloading of the same rep. Considering the following two
+flows when an eswitch manager is at switchdev mode with n VF reps loaded.
 
-When the division between the SSP clock and the device rate generates
-a reminder, we have to increment by one the divisor.
-In this way the resulting SSP clock will never be greater than the
-device SPI max frequency.
++--------------------------------------+--------------------------------+
+| cpu-0                                | cpu-1                          |
+| --------                             | --------                       |
+| mlx5_ib_remove                       | mlx5_eswitch_disable_sriov     |
+|  mlx5_ib_unregister_vport_reps       |  esw_offloads_cleanup          |
+|   mlx5_eswitch_unregister_vport_reps |   esw_offloads_unload_all_reps |
+|    __unload_reps_all_vport           |    __unload_reps_all_vport     |
++--------------------------------------+--------------------------------+
 
-For example, with:
+These two flows will try to unload the same rep. Per original design,
+once one flow unloads the rep, the state moves to REGISTERED. The 2nd
+flow will no longer needs to do the unload and bails out. However, as
+read and write of the state is not atomic, when 1st flow is doing the
+unload, the state is still LOADED, 2nd flow is able to do the same
+unload action. Kernel crash will happen.
 
- - ssp_clk  = 50 MHz
- - dev freq = 15 MHz
+To solve this, driver should do atomic test-and-set for the state. So
+that only one flow can change the rep state from LOADED to REGISTERED,
+and proceed to do the actual unloading.
 
-without this patch the SSP clock will be greater than 15 MHz:
+Since the state is changing to atomic type, all other read/write should
+be atomic action as well.
 
- - 25 MHz for PXA25x_SSP and CE4100_SSP
- - 16,56 MHz for the others
-
-Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
-so the max rate of the SPI device clock is respected.
-
-Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f121e0ea9586 (net/mlx5: E-Switch, Add state to eswitch vport representors)
+Signed-off-by: Bodong Wang <bodong@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Vu Pham <vuhuong@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ .../mellanox/mlx5/core/eswitch_offloads.c     | 36 +++++++++----------
+ include/linux/mlx5/eswitch.h                  |  2 +-
+ 2 files changed, 18 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index b6ddba833d021..d2076f2f468f0 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -884,10 +884,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 9b2d78ee22b88..d2d8da133082c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -363,7 +363,7 @@ static int esw_set_global_vlan_pop(struct mlx5_eswitch *esw, u8 val)
+ 	esw_debug(esw->dev, "%s applying global %s policy\n", __func__, val ? "pop" : "none");
+ 	for (vf_vport = 1; vf_vport < esw->enabled_vports; vf_vport++) {
+ 		rep = &esw->offloads.vport_reps[vf_vport];
+-		if (rep->rep_if[REP_ETH].state != REP_LOADED)
++		if (atomic_read(&rep->rep_if[REP_ETH].state) != REP_LOADED)
+ 			continue;
  
- 	rate = min_t(int, ssp_clk, rate);
+ 		err = __mlx5_eswitch_set_vport_vlan(esw, rep->vport, 0, 0, val);
+@@ -1306,7 +1306,8 @@ int esw_offloads_init_reps(struct mlx5_eswitch *esw)
+ 		ether_addr_copy(rep->hw_id, hw_id);
  
-+	/*
-+	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-+	 * that the SSP transmission rate can be greater than the device rate
-+	 */
- 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
--		return (ssp_clk / (2 * rate) - 1) & 0xff;
-+		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
- 	else
--		return (ssp_clk / rate - 1) & 0xfff;
-+		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
+ 		for (rep_type = 0; rep_type < NUM_REP_TYPES; rep_type++)
+-			rep->rep_if[rep_type].state = REP_UNREGISTERED;
++			atomic_set(&rep->rep_if[rep_type].state,
++				   REP_UNREGISTERED);
+ 	}
+ 
+ 	return 0;
+@@ -1315,11 +1316,9 @@ int esw_offloads_init_reps(struct mlx5_eswitch *esw)
+ static void __esw_offloads_unload_rep(struct mlx5_eswitch *esw,
+ 				      struct mlx5_eswitch_rep *rep, u8 rep_type)
+ {
+-	if (rep->rep_if[rep_type].state != REP_LOADED)
+-		return;
+-
+-	rep->rep_if[rep_type].unload(rep);
+-	rep->rep_if[rep_type].state = REP_REGISTERED;
++	if (atomic_cmpxchg(&rep->rep_if[rep_type].state,
++			   REP_LOADED, REP_REGISTERED) == REP_LOADED)
++		rep->rep_if[rep_type].unload(rep);
  }
  
- static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
+ static void __unload_reps_special_vport(struct mlx5_eswitch *esw, u8 rep_type)
+@@ -1380,16 +1379,15 @@ static int __esw_offloads_load_rep(struct mlx5_eswitch *esw,
+ {
+ 	int err = 0;
+ 
+-	if (rep->rep_if[rep_type].state != REP_REGISTERED)
+-		return 0;
+-
+-	err = rep->rep_if[rep_type].load(esw->dev, rep);
+-	if (err)
+-		return err;
+-
+-	rep->rep_if[rep_type].state = REP_LOADED;
++	if (atomic_cmpxchg(&rep->rep_if[rep_type].state,
++			   REP_REGISTERED, REP_LOADED) == REP_REGISTERED) {
++		err = rep->rep_if[rep_type].load(esw->dev, rep);
++		if (err)
++			atomic_set(&rep->rep_if[rep_type].state,
++				   REP_REGISTERED);
++	}
+ 
+-	return 0;
++	return err;
+ }
+ 
+ static int __load_reps_special_vport(struct mlx5_eswitch *esw, u8 rep_type)
+@@ -2076,7 +2074,7 @@ void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,
+ 		rep_if->get_proto_dev = __rep_if->get_proto_dev;
+ 		rep_if->priv = __rep_if->priv;
+ 
+-		rep_if->state = REP_REGISTERED;
++		atomic_set(&rep_if->state, REP_REGISTERED);
+ 	}
+ }
+ EXPORT_SYMBOL(mlx5_eswitch_register_vport_reps);
+@@ -2091,7 +2089,7 @@ void mlx5_eswitch_unregister_vport_reps(struct mlx5_eswitch *esw, u8 rep_type)
+ 		__unload_reps_all_vport(esw, max_vf, rep_type);
+ 
+ 	mlx5_esw_for_all_reps(esw, i, rep)
+-		rep->rep_if[rep_type].state = REP_UNREGISTERED;
++		atomic_set(&rep->rep_if[rep_type].state, REP_UNREGISTERED);
+ }
+ EXPORT_SYMBOL(mlx5_eswitch_unregister_vport_reps);
+ 
+@@ -2111,7 +2109,7 @@ void *mlx5_eswitch_get_proto_dev(struct mlx5_eswitch *esw,
+ 
+ 	rep = mlx5_eswitch_get_rep(esw, vport);
+ 
+-	if (rep->rep_if[rep_type].state == REP_LOADED &&
++	if (atomic_read(&rep->rep_if[rep_type].state) == REP_LOADED &&
+ 	    rep->rep_if[rep_type].get_proto_dev)
+ 		return rep->rep_if[rep_type].get_proto_dev(rep);
+ 	return NULL;
+diff --git a/include/linux/mlx5/eswitch.h b/include/linux/mlx5/eswitch.h
+index 96d8435421de8..0ca77dd1429c0 100644
+--- a/include/linux/mlx5/eswitch.h
++++ b/include/linux/mlx5/eswitch.h
+@@ -35,7 +35,7 @@ struct mlx5_eswitch_rep_if {
+ 	void		       (*unload)(struct mlx5_eswitch_rep *rep);
+ 	void		       *(*get_proto_dev)(struct mlx5_eswitch_rep *rep);
+ 	void			*priv;
+-	u8			state;
++	atomic_t		state;
+ };
+ 
+ struct mlx5_eswitch_rep {
 -- 
 2.20.1
 
