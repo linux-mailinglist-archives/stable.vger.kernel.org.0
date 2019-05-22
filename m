@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C34202708F
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C10427093
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbfEVUE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 16:04:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52554 "EHLO mail.kernel.org"
+        id S1729791AbfEVUF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 16:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730435AbfEVUEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 16:04:55 -0400
+        id S1729155AbfEVUF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 16:05:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B51D20863;
-        Wed, 22 May 2019 20:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F13B20821;
+        Wed, 22 May 2019 20:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558555494;
-        bh=aXHyFXPLU9IGpW3HEK+XYNrjGO/kpLN7fcvd6IyvNkI=;
+        s=default; t=1558555558;
+        bh=5djqnQGVaKXRCTW6O7KY3Bd5lqCW5m2JOgocmJU1Pbg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hCj049p6mC4jBEqc//VLCF9O/YiqUtO7UzykZKjw4qelYSdHR+rsrG27eo0tw97yg
-         gEUnW/i/1NnUIWvWeEumIEnIDOTw1zxe6q2W3aGSgpUDThbc8KiFqZj5rfT5dQ2ZTG
-         TuLjCnVSEooeVPO2CReRpUooQ7UneWubXXjOCt1Y=
-Date:   Wed, 22 May 2019 22:04:52 +0200
+        b=sLcaHVfdp2um8bgxQrSnsb+XHfx3xH0tzosGBdfzptZSc1pFzwl2EAUCyH+qom1wp
+         cAaYZZ+EzIYgfh/98qY9e9BnIUh414wfTphKkkmN/BrHq3tagv0joiUa2ehrZ6KUJI
+         TvvDFCPO7S29EM30ZLop6qoZAaZPZMbfS/B94CDY=
+Date:   Wed, 22 May 2019 22:05:55 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-Subject: Re: [PATCH AUTOSEL 5.0 070/317] driver core: platform: Fix the usage
- of platform device name(pdev->name)
-Message-ID: <20190522200452.GA3598@kroah.com>
-References: <20190522192338.23715-1-sashal@kernel.org>
- <20190522192338.23715-70-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.14 036/167] driver core: platform: Fix the
+ usage of platform device name(pdev->name)
+Message-ID: <20190522200555.GB3598@kroah.com>
+References: <20190522192842.25858-1-sashal@kernel.org>
+ <20190522192842.25858-36-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190522192338.23715-70-sashal@kernel.org>
+In-Reply-To: <20190522192842.25858-36-sashal@kernel.org>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 03:19:31PM -0400, Sasha Levin wrote:
+On Wed, May 22, 2019 at 03:26:31PM -0400, Sasha Levin wrote:
 > From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
 > 
 > [ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
@@ -87,9 +87,7 @@ On Wed, May 22, 2019 at 03:19:31PM -0400, Sasha Levin wrote:
 >  drivers/base/platform.c | 8 ++++----
 >  1 file changed, 4 insertions(+), 4 deletions(-)
 
-This patch was broken and got reverted in commit 391c0325cc5f ("Revert
-"driver core: platform: Fix the usage of platform device
-name(pdev->name)"") so please do not include it here, or anywhere.
+Again, please just drop from everywhere.
 
 thanks,
 
