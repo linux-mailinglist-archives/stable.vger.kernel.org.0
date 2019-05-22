@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B806626EF4
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBA626B51
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732015AbfEVTxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:53:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47290 "EHLO mail.kernel.org"
+        id S1731797AbfEVTZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:25:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731781AbfEVTZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:25:53 -0400
+        id S1731785AbfEVTZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:25:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4492A217F9;
-        Wed, 22 May 2019 19:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C81C206BA;
+        Wed, 22 May 2019 19:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553152;
-        bh=lmU9g21+k0C40muQus4b77NNYcsDPyTrcPmreAglkX8=;
+        s=default; t=1558553154;
+        bh=l79+2sNKiOAK3KXSdCcqn+BOVv62zZn13N2XWP62LwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WN+tFWnCldHJFWb2VXDELux2bdm//DOEhGtqV3bQvwg/TQIe/3bG2FrWlgMe6USz
-         fOpjafnhj0sidNSz+ogi4sAhC7Y+4Sj3iDNIk8f9HeT3TMGM0dfepBi5cF1Ex+KZiZ
-         LQ2DhF6W2Y71tXVcj40OziXD+OzVJxMwJ2ZIp4pU=
+        b=hhoG9bUH3TseLi+l3OPIfwEopf+iaqxlR+KpAGCV85eyF4XNtS2Z+wu4BO9cNLz53
+         uzOGdqyrtkihvlJfPUzwG/s7rIewYJGO6EFGVxTHruMS76hDOoVazaWyLcFZF6hYSy
+         UV8D0m4F2M8CXYOxXurgmmut18UpgSWxXdHs+6Dg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.0 080/317] nvme-tcp: fix a NULL deref when an admin connect times out
-Date:   Wed, 22 May 2019 15:19:41 -0400
-Message-Id: <20190522192338.23715-80-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 081/317] ssb: Fix possible NULL pointer dereference in ssb_host_pcmcia_exit
+Date:   Wed, 22 May 2019 15:19:42 -0400
+Message-Id: <20190522192338.23715-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -42,49 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 7a42589654ae79e1177f0d74306a02d6cef7bddf ]
+[ Upstream commit b2c01aab9646ed8ffb7c549afe55d5349c482425 ]
 
-If we timeout the admin startup sequence we might not yet have
-an I/O tagset allocated which causes the teardown sequence to crash.
-Make nvme_tcp_teardown_io_queues safe by not iterating inflight tags
-if the tagset wasn't allocated.
+Syzkaller report this:
 
-Fixes: 39d57757467b ("nvme-tcp: fix timeout handler")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN PTI
+CPU: 0 PID: 4492 Comm: syz-executor.0 Not tainted 5.0.0-rc7+ #45
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:sysfs_remove_file_ns+0x27/0x70 fs/sysfs/file.c:468
+Code: 00 00 00 41 54 55 48 89 fd 53 49 89 d4 48 89 f3 e8 ee 76 9c ff 48 8d 7d 30 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75 2d 48 89 da 48 b8 00 00 00 00 00 fc ff df 48 8b 6d
+RSP: 0018:ffff8881e9d9fc00 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: ffffffff900367e0 RCX: ffffffff81a95952
+RDX: 0000000000000006 RSI: ffffc90001405000 RDI: 0000000000000030
+RBP: 0000000000000000 R08: fffffbfff1fa22ed R09: fffffbfff1fa22ed
+R10: 0000000000000001 R11: fffffbfff1fa22ec R12: 0000000000000000
+R13: ffffffffc1abdac0 R14: 1ffff1103d3b3f8b R15: 0000000000000000
+FS:  00007fe409dc1700(0000) GS:ffff8881f1200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2d721000 CR3: 00000001e98b6005 CR4: 00000000007606f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ sysfs_remove_file include/linux/sysfs.h:519 [inline]
+ driver_remove_file+0x40/0x50 drivers/base/driver.c:122
+ pcmcia_remove_newid_file drivers/pcmcia/ds.c:163 [inline]
+ pcmcia_unregister_driver+0x7d/0x2b0 drivers/pcmcia/ds.c:209
+ ssb_modexit+0xa/0x1b [ssb]
+ __do_sys_delete_module kernel/module.c:1018 [inline]
+ __se_sys_delete_module kernel/module.c:961 [inline]
+ __x64_sys_delete_module+0x3dc/0x5e0 kernel/module.c:961
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x462e99
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fe409dc0c58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200000c0
+RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fe409dc16bc
+R13: 00000000004bccaa R14: 00000000006f6bc8 R15: 00000000ffffffff
+Modules linked in: ssb(-) 3c59x nvme_core macvlan tap pata_hpt3x3 rt2x00pci null_blk tsc40 pm_notifier_error_inject notifier_error_inject mdio cdc_wdm nf_reject_ipv4 ath9k_common ath9k_hw ath pppox ppp_generic slhc ehci_platform wl12xx wlcore tps6507x_ts ioc4 nf_synproxy_core ide_gd_mod ax25 can_dev iwlwifi can_raw atm tm2_touchkey can_gw can sundance adp5588_keys rt2800mmio rt2800lib rt2x00mmio rt2x00lib eeprom_93cx6 pn533 lru_cache elants_i2c ip_set nfnetlink gameport tipc hampshire nhc_ipv6 nhc_hop nhc_udp nhc_fragment nhc_routing nhc_mobility nhc_dest 6lowpan silead brcmutil nfc mt76_usb mt76 mac80211 iptable_security iptable_raw iptable_mangle iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_gre sit hsr veth vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon vcan bridge stp llc ip6_gre ip6_tunnel tunnel6 tun joydev mousedev serio_raw ide_pci_generic piix floppy ide_core sch_fq_codel ip_tables x_tables ipv6
+ [last unloaded: 3c59x]
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+---[ end trace 3913cbf8011e1c05 ]---
+
+In ssb_modinit, it does not fail SSB init when ssb_host_pcmcia_init failed,
+however in ssb_modexit, ssb_host_pcmcia_exit calls pcmcia_unregister_driver
+unconditionally, which may tigger a NULL pointer dereference issue as above.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 399500da18f7 ("ssb: pick PCMCIA host code support from b43 driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/ssb/bridge_pcmcia_80211.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 5f0a004252422..e71b0058c57bd 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1686,7 +1686,9 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+diff --git a/drivers/ssb/bridge_pcmcia_80211.c b/drivers/ssb/bridge_pcmcia_80211.c
+index f51f150307dfb..ffa379efff83c 100644
+--- a/drivers/ssb/bridge_pcmcia_80211.c
++++ b/drivers/ssb/bridge_pcmcia_80211.c
+@@ -113,16 +113,21 @@ static struct pcmcia_driver ssb_host_pcmcia_driver = {
+ 	.resume		= ssb_host_pcmcia_resume,
+ };
+ 
++static int pcmcia_init_failed;
++
+ /*
+  * These are not module init/exit functions!
+  * The module_pcmcia_driver() helper cannot be used here.
+  */
+ int ssb_host_pcmcia_init(void)
  {
- 	blk_mq_quiesce_queue(ctrl->admin_q);
- 	nvme_tcp_stop_queue(ctrl, 0);
--	blk_mq_tagset_busy_iter(ctrl->admin_tagset, nvme_cancel_request, ctrl);
-+	if (ctrl->admin_tagset)
-+		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
-+			nvme_cancel_request, ctrl);
- 	blk_mq_unquiesce_queue(ctrl->admin_q);
- 	nvme_tcp_destroy_admin_queue(ctrl, remove);
+-	return pcmcia_register_driver(&ssb_host_pcmcia_driver);
++	pcmcia_init_failed = pcmcia_register_driver(&ssb_host_pcmcia_driver);
++
++	return pcmcia_init_failed;
  }
-@@ -1698,7 +1700,9 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
- 		return;
- 	nvme_stop_queues(ctrl);
- 	nvme_tcp_stop_io_queues(ctrl);
--	blk_mq_tagset_busy_iter(ctrl->tagset, nvme_cancel_request, ctrl);
-+	if (ctrl->tagset)
-+		blk_mq_tagset_busy_iter(ctrl->tagset,
-+			nvme_cancel_request, ctrl);
- 	if (remove)
- 		nvme_start_queues(ctrl);
- 	nvme_tcp_destroy_io_queues(ctrl, remove);
+ 
+ void ssb_host_pcmcia_exit(void)
+ {
+-	pcmcia_unregister_driver(&ssb_host_pcmcia_driver);
++	if (!pcmcia_init_failed)
++		pcmcia_unregister_driver(&ssb_host_pcmcia_driver);
+ }
 -- 
 2.20.1
 
