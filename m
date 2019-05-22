@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB1226B07
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 750FD26B0A
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbfEVTXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:23:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
+        id S1730219AbfEVTXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730924AbfEVTXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:23:34 -0400
+        id S1730190AbfEVTXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:23:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B367217D4;
-        Wed, 22 May 2019 19:23:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83E6F20879;
+        Wed, 22 May 2019 19:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553013;
-        bh=dwcs9Y0vxroOP9WzRELD7LmuEjDjG77KIt901BZw2uw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FB1qJLCdiHFSxjoDPT0Lxd7zGxTCdRZBbEcuWbJt8LZDklF46bSwlnw6ca9Cwl6yt
-         LAHpdqI3djxtzRrPMhfy2JHYoJMqfKKknsW4e8/qX0uYVTzeNy9cfOfbpdHbqmKxba
-         1d8wMvJD7O7lCkQvZ/0L9+bGjfTKhWJM5Z5N9/Wc=
+        s=default; t=1558553020;
+        bh=bYbZnpEST5OqDf40yz3PDGsK3jix4uC/dgGuEMu5ppE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XLxX0+1tM4PlkClD0qZy8hqcGpD5o78yqfW8mya4m2VnjUzP2a9I6ufb9ombd2nKR
+         +iGZRBx4cs8nj4YGRN6hDnw4NgvltXuReFS0dMFU2r5t3n51z7SnL7ilfCf9fIEtS7
+         XmmerZw6r+aLdzJ7CjnaXPIZMftiuUaP8vYjvouI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 077/375] USB: serial: fix initial-termios handling
-Date:   Wed, 22 May 2019 15:16:17 -0400
-Message-Id: <20190522192115.22666-77-sashal@kernel.org>
+Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.0 001/317] gfs2: Fix lru_count going negative
+Date:   Wed, 22 May 2019 15:18:22 -0400
+Message-Id: <20190522192338.23715-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
-References: <20190522192115.22666-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,75 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Ross Lagerwall <ross.lagerwall@citrix.com>
 
-[ Upstream commit 579bebe5dd522580019e7b10b07daaf500f9fb1e ]
+[ Upstream commit 7881ef3f33bb80f459ea6020d1e021fc524a6348 ]
 
-The USB-serial driver init_termios callback is used to override the
-default initial terminal settings provided by USB-serial core.
+Under certain conditions, lru_count may drop below zero resulting in
+a large amount of log spam like this:
 
-After a bug was fixed in the original implementation introduced by
-commit fe1ae7fdd2ee ("tty: USB serial termios bits"), the init_termios
-callback was no longer called just once on first use as intended but
-rather on every (first) open.
+vmscan: shrink_slab: gfs2_dump_glock+0x3b0/0x630 [gfs2] \
+    negative objects to delete nr=-1
 
-This specifically meant that the terminal settings saved on (final)
-close were ignored when reopening a port for drivers overriding the
-initial settings.
+This happens as follows:
+1) A glock is moved from lru_list to the dispose list and lru_count is
+   decremented.
+2) The dispose function calls cond_resched() and drops the lru lock.
+3) Another thread takes the lru lock and tries to add the same glock to
+   lru_list, checking if the glock is on an lru list.
+4) It is on a list (actually the dispose list) and so it avoids
+   incrementing lru_count.
+5) The glock is moved to lru_list.
+5) The original thread doesn't dispose it because it has been re-added
+   to the lru list but the lru_count has still decreased by one.
 
-Also update the outdated function header referring to the creation of
-termios objects.
+Fix by checking if the LRU flag is set on the glock rather than checking
+if the glock is on some list and rearrange the code so that the LRU flag
+is added/removed precisely when the glock is added/removed from lru_list.
 
-Fixes: 7e29bb4b779f ("usb-serial: fix termios initialization logic")
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/usb-serial.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/gfs2/glock.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index 7e89efbf2c284..676c296103a2f 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -164,9 +164,9 @@ void usb_serial_put(struct usb_serial *serial)
-  * @driver: the driver (USB in our case)
-  * @tty: the tty being created
-  *
-- * Create the termios objects for this tty.  We use the default
-+ * Initialise the termios structure for this tty.  We use the default
-  * USB serial settings but permit them to be overridden by
-- * serial->type->init_termios.
-+ * serial->type->init_termios on first open.
-  *
-  * This is the first place a new tty gets used.  Hence this is where we
-  * acquire references to the usb_serial structure and the driver module,
-@@ -178,6 +178,7 @@ static int serial_install(struct tty_driver *driver, struct tty_struct *tty)
- 	int idx = tty->index;
- 	struct usb_serial *serial;
- 	struct usb_serial_port *port;
-+	bool init_termios;
- 	int retval = -ENODEV;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 4b038f25f2564..2d25d89e77f9b 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -183,15 +183,19 @@ static int demote_ok(const struct gfs2_glock *gl)
  
- 	port = usb_serial_port_get_by_minor(idx);
-@@ -192,14 +193,16 @@ static int serial_install(struct tty_driver *driver, struct tty_struct *tty)
- 	if (retval)
- 		goto error_get_interface;
- 
-+	init_termios = (driver->termios[idx] == NULL);
+ void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
+ {
++	if (!(gl->gl_ops->go_flags & GLOF_LRU))
++		return;
 +
- 	retval = tty_standard_install(driver, tty);
- 	if (retval)
- 		goto error_init_termios;
+ 	spin_lock(&lru_lock);
  
- 	mutex_unlock(&serial->disc_mutex);
+-	if (!list_empty(&gl->gl_lru))
+-		list_del_init(&gl->gl_lru);
+-	else
++	list_del(&gl->gl_lru);
++	list_add_tail(&gl->gl_lru, &lru_list);
++
++	if (!test_bit(GLF_LRU, &gl->gl_flags)) {
++		set_bit(GLF_LRU, &gl->gl_flags);
+ 		atomic_inc(&lru_count);
++	}
  
--	/* allow the driver to update the settings */
--	if (serial->type->init_termios)
-+	/* allow the driver to update the initial settings */
-+	if (init_termios && serial->type->init_termios)
- 		serial->type->init_termios(tty);
+-	list_add_tail(&gl->gl_lru, &lru_list);
+-	set_bit(GLF_LRU, &gl->gl_flags);
+ 	spin_unlock(&lru_lock);
+ }
  
- 	tty->driver_data = port;
+@@ -201,7 +205,7 @@ static void gfs2_glock_remove_from_lru(struct gfs2_glock *gl)
+ 		return;
+ 
+ 	spin_lock(&lru_lock);
+-	if (!list_empty(&gl->gl_lru)) {
++	if (test_bit(GLF_LRU, &gl->gl_flags)) {
+ 		list_del_init(&gl->gl_lru);
+ 		atomic_dec(&lru_count);
+ 		clear_bit(GLF_LRU, &gl->gl_flags);
+@@ -1159,8 +1163,7 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
+ 		    !test_bit(GLF_DEMOTE, &gl->gl_flags))
+ 			fast_path = 1;
+ 	}
+-	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl) &&
+-	    (glops->go_flags & GLOF_LRU))
++	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl))
+ 		gfs2_glock_add_to_lru(gl);
+ 
+ 	trace_gfs2_glock_queue(gh, 0);
+@@ -1456,6 +1459,7 @@ __acquires(&lru_lock)
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
++			set_bit(GLF_LRU, &gl->gl_flags);
+ 			atomic_inc(&lru_count);
+ 			continue;
+ 		}
+@@ -1463,7 +1467,6 @@ __acquires(&lru_lock)
+ 			spin_unlock(&gl->gl_lockref.lock);
+ 			goto add_back_to_lru;
+ 		}
+-		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		gl->gl_lockref.count++;
+ 		if (demote_ok(gl))
+ 			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+@@ -1498,6 +1501,7 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
++			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
 -- 
 2.20.1
 
