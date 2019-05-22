@@ -2,112 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4879D25D7F
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 07:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B5A25DA5
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 07:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726214AbfEVFVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 01:21:25 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:44352 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725796AbfEVFVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 01:21:24 -0400
-Received: by mail-pf1-f195.google.com with SMTP id g9so668634pfo.11;
-        Tue, 21 May 2019 22:21:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=A3GSMoFtIIu9gnm2oZly2q3vAs35Rn87VGmbBuylL+M=;
-        b=X4TZ9d/S3vWo07LOsHAjPNORAxOtuouzOUHa/G4iQLPSL3hN57UsUh84AqVWgiI+vU
-         P971S7BBSPaOD1ahjKh73WlKDa2S5ntc6IP5Nomo4ZSE5e8hotTFimwaYiAzCboEUhRr
-         Tco+ybvVge8XTmAys+Ta82JbS7udrsqPCFrOJ21LaKBF7gltIqugG6ngpe/rGchSxGlg
-         6EY7ICyUFhZ5ZrbaSD3vqHnxFXGLPaLcDhTtSEWblZCRb21QXOpxoQuYYHRSvVi4B+KI
-         0jdHwZ9KKFFe6BC+M7dXeRtfeEn+rxt5K/aqFCcCBaJVMqO2oqmHyCED8VyPbg2NDyP8
-         vmCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=A3GSMoFtIIu9gnm2oZly2q3vAs35Rn87VGmbBuylL+M=;
-        b=NJwxJ0b+OH7hyFjZ49jQSSLaFB8rK8NkqPnYqTCRxvh6EGyXdccI47v0n34hi3/Vx/
-         RAhYwNlWBtFk13TwkErqoPuO9JSwVUwLopeJAoY04YTrg41slLlBj5oekA1ANrZrBYdq
-         IHeP49/PLqrsphbWszUAVCS3Crhi1wKAUHMm0Jl+oxSSDZQKVZTbRLCuWHa00yXw4Gr6
-         56XMVgdkU+cwuzj7Gg5RKgBKi0sXOFq3g2u7j9k6HpFGHg8EX/0dfRyOE/WoSVzBpNmb
-         0b+GXXHFF3tyxme76ZdbiL8WbT7VP9lgjFOvwl1Ju3KDT4H6WcD2xjCH9RB3J3F/tX+6
-         P3CA==
-X-Gm-Message-State: APjAAAUr1G2Ho+b3HbJu7w3k0QkxLYniAsbxTYpilIZRhdJuqKPJSUcK
-        gG4OYCsyaArP6JDHX88wA+E=
-X-Google-Smtp-Source: APXvYqxSZ7EXEUPmJF3/IZH6oaVimhi52QTGFi31kHkYhOmIkXSS1LnhSRqDHbj40ar84kakjRjwjw==
-X-Received: by 2002:a63:9a52:: with SMTP id e18mr88157840pgo.335.1558502483806;
-        Tue, 21 May 2019 22:21:23 -0700 (PDT)
-Received: from anarsoul-thinkpad.lan (216-71-213-236.dyn.novuscom.net. [216.71.213.236])
-        by smtp.gmail.com with ESMTPSA id d9sm28138152pgj.34.2019.05.21.22.21.22
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 May 2019 22:21:23 -0700 (PDT)
-From:   Vasily Khoruzhick <anarsoul@gmail.com>
-To:     Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Vasily Khoruzhick <anarsoul@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] Revert "Bluetooth: Align minimum encryption key size for LE and BR/EDR connections"
-Date:   Tue, 21 May 2019 22:20:02 -0700
-Message-Id: <20190522052002.10411-1-anarsoul@gmail.com>
-X-Mailer: git-send-email 2.21.0
+        id S1728210AbfEVFfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 01:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33324 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725801AbfEVFfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 01:35:03 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E285D20862;
+        Wed, 22 May 2019 05:35:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558503303;
+        bh=rIW/GsA7284cux8meon4p2hWkblm9vX45SryQZ+Jp9E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gdxrYqxkoAtThalF5cIgBOTxjX9FGo8ft5rR4+X12Hbtw06DYwMvrvkmveKh3PxAk
+         ZY1aObdbVvlwfozSXA6If7kDAExRE7HbLhPOT53umeeRNHZ1lnTBlktkATLr8bJ8SY
+         8mOhdkYGbk4SjPOzZ77uNNxqIXgF7JyTQsjCfm7U=
+Date:   Wed, 22 May 2019 07:35:00 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.1 000/128] 5.1.4-stable review
+Message-ID: <20190522053500.GA16977@kroah.com>
+References: <20190520115249.449077487@linuxfoundation.org>
+ <0c574740-e2be-b2ee-4b0e-f17e5b08d342@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0c574740-e2be-b2ee-4b0e-f17e5b08d342@kernel.org>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit d5bb334a8e171b262e48f378bd2096c0ea458265.
+On Tue, May 21, 2019 at 03:11:15PM -0600, shuah wrote:
+> On 5/20/19 6:13 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.1.4 release.
+> > There are 128 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed 22 May 2019 11:50:41 AM UTC.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.4-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Compiled and booted on the test system. No dmesg regressions.
 
-This commit breaks some HID devices, see [1] for details
+Thanks for testing all of these and letting me know.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203643
-
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Cc: stable@vger.kernel.org
----
- include/net/bluetooth/hci_core.h | 3 ---
- net/bluetooth/hci_conn.c         | 8 --------
- 2 files changed, 11 deletions(-)
-
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 05b1b96f4d9e..094e61e07030 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -190,9 +190,6 @@ struct adv_info {
- 
- #define HCI_MAX_SHORT_NAME_LENGTH	10
- 
--/* Min encryption key size to match with SMP */
--#define HCI_MIN_ENC_KEY_SIZE		7
--
- /* Default LE RPA expiry time, 15 minutes */
- #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
- 
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index 3cf0764d5793..bd4978ce8c45 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1276,14 +1276,6 @@ int hci_conn_check_link_mode(struct hci_conn *conn)
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
- 
--	/* The minimum encryption key size needs to be enforced by the
--	 * host stack before establishing any L2CAP connections. The
--	 * specification in theory allows a minimum of 1, but to align
--	 * BR/EDR and LE transports, a minimum of 7 is chosen.
--	 */
--	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
--		return 0;
--
- 	return 1;
- }
- 
--- 
-2.21.0
-
+greg k-h
