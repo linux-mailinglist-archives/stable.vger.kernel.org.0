@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B5426EB6
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8739226EB8
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731921AbfEVT0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47720 "EHLO mail.kernel.org"
+        id S1731929AbfEVT0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731913AbfEVT0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:16 -0400
+        id S1731923AbfEVT0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BE2E21841;
-        Wed, 22 May 2019 19:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EAA7217D7;
+        Wed, 22 May 2019 19:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553175;
-        bh=XM7RHdNJauAwOMwfwdqnMa9dz1dZlVcDBp8bKz6G+t4=;
+        s=default; t=1558553176;
+        bh=Buqndm3cxnXvPQ8zzQzt0Zoz3x/wpACFG1jlQ2chfdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCPwxUzynt1nnBFOd+lr40amgSBuwSg3J5X9wbYQtLbWIpKUKJl9Y+gHILRXIbLqL
-         dMqCh55ag3EHeeLGyY2L2qEpx/GXBLCDqNEFNbPsCITnIcq8gFsSv3KOUrtLy2gJvu
-         3XBTyDNRostzzaqasMkZNXxzxIXS8oBdftSV15yU=
+        b=HY+nEmXV0OP05yfvN+cBnyGu+lDjDNZGbWkHumTgk19zVWtMLh8usvbCuBKDKdmy/
+         gVAk01UXK0ZuJQaUHRHC1jCeBpm8FlqfwGqvyBi0fMHHq45MpaccuSQzFU0v9cRcUA
+         eM1i8jcNf6z3Xrn4PY0bVCJz4PTPyHFrnW8eNtA4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Kosina <jkosina@suse.cz>, Nicolai Stange <nstange@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 094/317] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
-Date:   Wed, 22 May 2019 15:19:55 -0400
-Message-Id: <20190522192338.23715-94-sashal@kernel.org>
+Cc:     David Ahern <dsahern@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 095/317] mlxsw: spectrum_router: Prevent ipv6 gateway with v4 route via replace and append
+Date:   Wed, 22 May 2019 15:19:56 -0400
+Message-Id: <20190522192338.23715-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -50,61 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
+[ Upstream commit 7973d9e76727aa42f0824f5569e96248a572d50b ]
 
-In-NMI warnings have been added to vmalloc_fault() via:
+mlxsw currently does not support v6 gateways with v4 routes. Commit
+19a9d136f198 ("ipv4: Flag fib_info with a fib_nh using IPv6 gateway")
+prevents a route from being added, but nothing stops the replace or
+append. Add a catch for them too.
+    $ ip  ro add 172.16.2.0/24 via 10.99.1.2
+    $ ip  ro replace 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
+    Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
+    $ ip  ro append 172.16.2.0/24 via inet6 fe80::202:ff:fe00:b dev swp1s0
+    Error: mlxsw_spectrum: IPv6 gateway with IPv4 route is not supported.
 
-  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
-
-back in the time when our NMI entry code could not cope with nested NMIs.
-
-These days, it's perfectly fine to take a fault in NMI context and we
-don't have to care about the fact that IRET from the fault handler might
-cause NMI nesting.
-
-This warning has already been removed from 32-bit implementation of
-vmalloc_fault() in:
-
-  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-
-but the 64-bit version was omitted.
-
-Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
-
-Reported-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/fault.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 9d5c75f022956..55233dec5ff4a 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -359,8 +359,6 @@ static noinline int vmalloc_fault(unsigned long address)
- 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
- 		return -1;
- 
--	WARN_ON_ONCE(in_nmi());
--
- 	/*
- 	 * Copy kernel mappings over when needed. This can also
- 	 * happen within a race in page table update. In the later
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index 2f6afbfd689fd..3827f6288271a 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -6065,6 +6065,8 @@ static int mlxsw_sp_router_fib_event(struct notifier_block *nb,
+ 			return notifier_from_errno(err);
+ 		break;
+ 	case FIB_EVENT_ENTRY_ADD:
++	case FIB_EVENT_ENTRY_REPLACE: /* fall through */
++	case FIB_EVENT_ENTRY_APPEND:  /* fall through */
+ 		if (router->aborted) {
+ 			NL_SET_ERR_MSG_MOD(info->extack, "FIB offload was aborted. Not configuring route");
+ 			return notifier_from_errno(-EINVAL);
 -- 
 2.20.1
 
