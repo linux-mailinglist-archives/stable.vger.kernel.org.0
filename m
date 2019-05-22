@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3875F26FFE
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B69F26FFC
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730417AbfEVUAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 16:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
+        id S1730681AbfEVTXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730669AbfEVTW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:22:57 -0400
+        id S1730677AbfEVTW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:22:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C4CB21850;
-        Wed, 22 May 2019 19:22:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76737217D7;
+        Wed, 22 May 2019 19:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552977;
-        bh=cn+i8pwWvdO9z6fGG740+eyt9TrgAHInVAPTUbO0EC4=;
+        s=default; t=1558552978;
+        bh=Nv5cGBCFnMfTv8Ai6NBu5Z5YCU0ScEgWsk8kly9DXlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vqd7MmBfMcDtvL33HEAgTxwnSv/nKP3rIq5fOdzyNpJ86W7eysz4RFKj3NbewfUWV
-         nDi1mtJ5K9Y7GcUPImM9wp1iazYM9qzDa6vXHzWsUaL/Y1iLTj2UvHmF9aIintWet4
-         nqMXENVok5Opiyp3BQUymIUyXuxQRCQPzp1EGTe8=
+        b=gEE10QKCic2vRrv9o00LjQzar9xLOJF40v5/ifLMpEPF72u1Kzu2iZmM2HILeHYlE
+         qQH5SncL/pIAeplBWdaZwnrgjfELSJ87G5wFBsvuLgzBEkUU/N5Lb5n9ZZq7qj1TsP
+         rCsmqJKQ3CQQB7ObWn+JunkaPDxJrhKGkFknnyH8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 057/375] btrfs: fix panic during relocation after ENOSPC before writeback happens
-Date:   Wed, 22 May 2019 15:15:57 -0400
-Message-Id: <20190522192115.22666-57-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 058/375] btrfs: reloc: Fix NULL pointer dereference due to expanded reloc_root lifespan
+Date:   Wed, 22 May 2019 15:15:58 -0400
+Message-Id: <20190522192115.22666-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -44,120 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit ff612ba7849964b1898fd3ccd1f56941129c6aab ]
+[ Upstream commit 10995c0491204c861948c9850939a7f4e90760a4 ]
 
-We've been seeing the following sporadically throughout our fleet
+Commit d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after
+merge_reloc_roots()") expands the life span of root->reloc_root.
 
-panic: kernel BUG at fs/btrfs/relocation.c:4584!
-netversion: 5.0-0
-Backtrace:
- #0 [ffffc90003adb880] machine_kexec at ffffffff81041da8
- #1 [ffffc90003adb8c8] __crash_kexec at ffffffff8110396c
- #2 [ffffc90003adb988] crash_kexec at ffffffff811048ad
- #3 [ffffc90003adb9a0] oops_end at ffffffff8101c19a
- #4 [ffffc90003adb9c0] do_trap at ffffffff81019114
- #5 [ffffc90003adba00] do_error_trap at ffffffff810195d0
- #6 [ffffc90003adbab0] invalid_op at ffffffff81a00a9b
-    [exception RIP: btrfs_reloc_cow_block+692]
-    RIP: ffffffff8143b614  RSP: ffffc90003adbb68  RFLAGS: 00010246
-    RAX: fffffffffffffff7  RBX: ffff8806b9c32000  RCX: ffff8806aad00690
-    RDX: ffff880850b295e0  RSI: ffff8806b9c32000  RDI: ffff88084f205bd0
-    RBP: ffff880849415000   R8: ffffc90003adbbe0   R9: ffff88085ac90000
-    R10: ffff8805f7369140  R11: 0000000000000000  R12: ffff880850b295e0
-    R13: ffff88084f205bd0  R14: 0000000000000000  R15: 0000000000000000
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffc90003adbbb0] __btrfs_cow_block at ffffffff813bf1cd
- #8 [ffffc90003adbc28] btrfs_cow_block at ffffffff813bf4b3
- #9 [ffffc90003adbc78] btrfs_search_slot at ffffffff813c2e6c
+This breaks certain checs of fs_info->reloc_ctl.  Before that commit, if
+we have a root with valid reloc_root, then it's ensured to have
+fs_info->reloc_ctl.
 
-The way relocation moves data extents is by creating a reloc inode and
-preallocating extents in this inode and then copying the data into these
-preallocated extents.  Once we've done this for all of our extents,
-we'll write out these dirty pages, which marks the extent written, and
-goes into btrfs_reloc_cow_block().  From here we get our current
-reloc_control, which _should_ match the reloc_control for the current
-block group we're relocating.
+But now since reloc_root doesn't always mean a valid fs_info->reloc_ctl,
+such check is unreliable and can cause the following NULL pointer
+dereference:
 
-However if we get an ENOSPC in this path at some point we'll bail out,
-never initiating writeback on this inode.  Not a huge deal, unless we
-happen to be doing relocation on a different block group, and this block
-group is now rc->stage == UPDATE_DATA_PTRS.  This trips the BUG_ON() in
-btrfs_reloc_cow_block(), because we expect to be done modifying the data
-inode.  We are in fact done modifying the metadata for the data inode
-we're currently using, but not the one from the failed block group, and
-thus we BUG_ON().
+  BUG: unable to handle kernel NULL pointer dereference at 00000000000005c1
+  IP: btrfs_reloc_pre_snapshot+0x20/0x50 [btrfs]
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 0 PID: 10379 Comm: snapperd Not tainted
+  Call Trace:
+   create_pending_snapshot+0xd7/0xfc0 [btrfs]
+   create_pending_snapshots+0x8e/0xb0 [btrfs]
+   btrfs_commit_transaction+0x2ac/0x8f0 [btrfs]
+   btrfs_mksubvol+0x561/0x570 [btrfs]
+   btrfs_ioctl_snap_create_transid+0x189/0x190 [btrfs]
+   btrfs_ioctl_snap_create_v2+0x102/0x150 [btrfs]
+   btrfs_ioctl+0x5c9/0x1e60 [btrfs]
+   do_vfs_ioctl+0x90/0x5f0
+   SyS_ioctl+0x74/0x80
+   do_syscall_64+0x7b/0x150
+   entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+  RIP: 0033:0x7fd7cdab8467
 
-(This happens when writeback finishes for extents from the previous
-group, when we are at btrfs_finish_ordered_io() which updates the data
-reloc tree (inode item, drops/adds extent items, etc).)
+Fix it by explicitly checking fs_info->reloc_ctl other than using the
+implied root->reloc_root.
 
-Fix this by writing out the reloc data inode always, and then breaking
-out of the loop after that point to keep from tripping this BUG_ON()
-later.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-[ add note from Filipe ]
+Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ fs/btrfs/relocation.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index ddf0285099312..00c3dd92f088f 100644
+index 00c3dd92f088f..1d82ee4883eb3 100644
 --- a/fs/btrfs/relocation.c
 +++ b/fs/btrfs/relocation.c
-@@ -4330,27 +4330,36 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
- 		mutex_lock(&fs_info->cleaner_mutex);
- 		ret = relocate_block_group(rc);
- 		mutex_unlock(&fs_info->cleaner_mutex);
--		if (ret < 0) {
-+		if (ret < 0)
- 			err = ret;
--			goto out;
--		}
--
--		if (rc->extents_found == 0)
--			break;
--
--		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
+@@ -4676,14 +4676,12 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
+ void btrfs_reloc_pre_snapshot(struct btrfs_pending_snapshot *pending,
+ 			      u64 *bytes_to_reserve)
+ {
+-	struct btrfs_root *root;
+-	struct reloc_control *rc;
++	struct btrfs_root *root = pending->root;
++	struct reloc_control *rc = root->fs_info->reloc_ctl;
  
-+		/*
-+		 * We may have gotten ENOSPC after we already dirtied some
-+		 * extents.  If writeout happens while we're relocating a
-+		 * different block group we could end up hitting the
-+		 * BUG_ON(rc->stage == UPDATE_DATA_PTRS) in
-+		 * btrfs_reloc_cow_block.  Make sure we write everything out
-+		 * properly so we don't trip over this problem, and then break
-+		 * out of the loop if we hit an error.
-+		 */
- 		if (rc->stage == MOVE_DATA_EXTENTS && rc->found_file_extent) {
- 			ret = btrfs_wait_ordered_range(rc->data_inode, 0,
- 						       (u64)-1);
--			if (ret) {
-+			if (ret)
- 				err = ret;
--				goto out;
--			}
- 			invalidate_mapping_pages(rc->data_inode->i_mapping,
- 						 0, -1);
- 			rc->stage = UPDATE_DATA_PTRS;
- 		}
-+
-+		if (err < 0)
-+			goto out;
-+
-+		if (rc->extents_found == 0)
-+			break;
-+
-+		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
-+
- 	}
+-	root = pending->root;
+-	if (!root->reloc_root)
++	if (!root->reloc_root || !rc)
+ 		return;
  
- 	WARN_ON(rc->block_group->pinned > 0);
+-	rc = root->fs_info->reloc_ctl;
+ 	if (!rc->merge_reloc_tree)
+ 		return;
+ 
+@@ -4712,10 +4710,10 @@ int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
+ 	struct btrfs_root *root = pending->root;
+ 	struct btrfs_root *reloc_root;
+ 	struct btrfs_root *new_root;
+-	struct reloc_control *rc;
++	struct reloc_control *rc = root->fs_info->reloc_ctl;
+ 	int ret;
+ 
+-	if (!root->reloc_root)
++	if (!root->reloc_root || !rc)
+ 		return 0;
+ 
+ 	rc = root->fs_info->reloc_ctl;
 -- 
 2.20.1
 
