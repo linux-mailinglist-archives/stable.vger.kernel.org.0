@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E768026DC4
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8246C26DBB
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732491AbfEVT2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50748 "EHLO mail.kernel.org"
+        id S2387683AbfEVToI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732487AbfEVT2K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:28:10 -0400
+        id S1730512AbfEVT2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:28:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F76F20675;
-        Wed, 22 May 2019 19:28:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A442A20879;
+        Wed, 22 May 2019 19:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553290;
-        bh=vFVJuNYDSYKtnIIMZt+kTwaWA2+cmXyBrNjfobrAZeE=;
+        s=default; t=1558553291;
+        bh=jZ+X0Yw18m7pNOc9/c4Mc844Bw9q2y3onV4lI9dQdoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiTKZluYZgFhUkKSdwCi4jj7r7G1fJhOHkuvCOqrJC03RYNFAP/NwlEVUIDkFLFTF
-         Jz17dOWG76gkAfrwTGkK7kAHJRjg2FjLRsD7Tnbx91ksqT73nAU/4IFAJtobgnksQO
-         UO7r4tBKFSfBzUWVvhNhGLdVaBrQzUo26RGjeAk8=
+        b=O2del14ycAXhxXEYHneXxcVm/v9z+0UFrnsFy7peOfWn5cKOAsLVIO8bxLexrcAmS
+         M/t//5dIX0p+ukUcMQGJ47J0zslGOMPSFi6Xk3UJR4S35ClEpVkUeKuS8C1kyGVBlv
+         cTnKcUkFgx460uwI8UznsEQ4ZZC53+A4egn/35d4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 062/244] nvme: set 0 capacity if namespace block size exceeds PAGE_SIZE
-Date:   Wed, 22 May 2019 15:23:28 -0400
-Message-Id: <20190522192630.24917-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 063/244] nvme-rdma: fix a NULL deref when an admin connect times out
+Date:   Wed, 22 May 2019 15:23:29 -0400
+Message-Id: <20190522192630.24917-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -46,46 +44,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 01fa017484ad98fccdeaab32db0077c574b6bd6f ]
+[ Upstream commit 1007709d7d06fab09bf2d007657575958676282b ]
 
-If our target exposed a namespace with a block size that is greater
-than PAGE_SIZE, set 0 capacity on the namespace as we do not support it.
+If we timeout the admin startup sequence we might not yet have
+an I/O tagset allocated which causes the teardown sequence to crash.
+Make nvme_tcp_teardown_io_queues safe by not iterating inflight tags
+if the tagset wasn't allocated.
 
-This issue encountered when the nvmet namespace was backed by a tempfile.
-
+Fixes: 4c174e636674 ("nvme-rdma: fix timeout handler")
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvme/host/rdma.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2cdb3032ca0fc..abfb46378cc13 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1480,6 +1480,10 @@ static void nvme_update_disk_info(struct gendisk *disk,
- 	sector_t capacity = le64_to_cpup(&id->nsze) << (ns->lba_shift - 9);
- 	unsigned short bs = 1 << ns->lba_shift;
- 
-+	if (ns->lba_shift > PAGE_SHIFT) {
-+		/* unsupported block size, set capacity to 0 later */
-+		bs = (1 << 9);
-+	}
- 	blk_mq_freeze_queue(disk->queue);
- 	blk_integrity_unregister(disk);
- 
-@@ -1490,7 +1494,8 @@ static void nvme_update_disk_info(struct gendisk *disk,
- 	if (ns->ms && !ns->ext &&
- 	    (ns->ctrl->ops->flags & NVME_F_METADATA_SUPPORTED))
- 		nvme_init_integrity(disk, ns->ms, ns->pi_type);
--	if (ns->ms && !nvme_ns_has_pi(ns) && !blk_get_integrity(disk))
-+	if ((ns->ms && !nvme_ns_has_pi(ns) && !blk_get_integrity(disk)) ||
-+	    ns->lba_shift > PAGE_SHIFT)
- 		capacity = 0;
- 
- 	set_capacity(disk, capacity);
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 0939a4e178fb9..e4f167e35353f 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -880,8 +880,9 @@ static void nvme_rdma_teardown_admin_queue(struct nvme_rdma_ctrl *ctrl,
+ {
+ 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
+ 	nvme_rdma_stop_queue(&ctrl->queues[0]);
+-	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set, nvme_cancel_request,
+-			&ctrl->ctrl);
++	if (ctrl->ctrl.admin_tagset)
++		blk_mq_tagset_busy_iter(ctrl->ctrl.admin_tagset,
++			nvme_cancel_request, &ctrl->ctrl);
+ 	blk_mq_unquiesce_queue(ctrl->ctrl.admin_q);
+ 	nvme_rdma_destroy_admin_queue(ctrl, remove);
+ }
+@@ -892,8 +893,9 @@ static void nvme_rdma_teardown_io_queues(struct nvme_rdma_ctrl *ctrl,
+ 	if (ctrl->ctrl.queue_count > 1) {
+ 		nvme_stop_queues(&ctrl->ctrl);
+ 		nvme_rdma_stop_io_queues(ctrl);
+-		blk_mq_tagset_busy_iter(&ctrl->tag_set, nvme_cancel_request,
+-				&ctrl->ctrl);
++		if (ctrl->ctrl.tagset)
++			blk_mq_tagset_busy_iter(ctrl->ctrl.tagset,
++				nvme_cancel_request, &ctrl->ctrl);
+ 		if (remove)
+ 			nvme_start_queues(&ctrl->ctrl);
+ 		nvme_rdma_destroy_io_queues(ctrl, remove);
 -- 
 2.20.1
 
