@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F2626E62
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B5526B7C
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732166AbfEVT0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48520 "EHLO mail.kernel.org"
+        id S1731018AbfEVT0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732148AbfEVT0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:26:50 -0400
+        id S1730262AbfEVT0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:26:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4E97217F9;
-        Wed, 22 May 2019 19:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C91E21850;
+        Wed, 22 May 2019 19:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553209;
-        bh=OPj4hyP2iivzFkdQtG2vtTeYaImKjX+wHPT3oJiMBX8=;
+        s=default; t=1558553210;
+        bh=eZoYOpEZZXBBGLzR1IIyocDg/nlN3NiCX+nI3TnIoso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jz5kAajdS9PJfdusH0fHOm1UHCMOPv97p1XZb6+V8pb6E/f7K+yO+HLZXCFeTPabK
-         NiGTFIUKxMsNhMqh3E0BfetINBRhnNolDt3ub56f9OeJfxr+OtI5yEwVJpqdN42Chy
-         8jGCt1rUhVxFV/kFfwIC59dUu5E/4MSQ3lg84HBk=
+        b=ZPfIx6S0hhGYgtUv1I689FAmF1ik2c8xdXG/pCRQ4Xq9uulA2iSDq2Ws50YprFT6b
+         Z/prwm3FuGmhflSPn8q4bB7K5YcMiRpLXi4zU4ZUWrhLhhM/iPyFpOan9/XmVkS37G
+         blg8bi10rR80Z6XxEiQhmLUhiNqXFvG43DE1yq9I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephan Klein <stephan.klein@wegfinder.at>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 013/244] hv_netvsc: fix race that may miss tx queue wakeup
-Date:   Wed, 22 May 2019 15:22:39 -0400
-Message-Id: <20190522192630.24917-13-sashal@kernel.org>
+Cc:     Martin Brandenburg <martin@omnibond.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
+Subject: [PATCH AUTOSEL 4.19 014/244] orangefs: truncate before updating size
+Date:   Wed, 22 May 2019 15:22:40 -0400
+Message-Id: <20190522192630.24917-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -45,60 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Martin Brandenburg <martin@omnibond.com>
 
-[ Upstream commit 93aa4792c3908eac87ddd368ee0fe0564148232b ]
+[ Upstream commit 33713cd09ccdc1e01b10d0782ae60200d4989553 ]
 
-When the ring buffer is almost full due to RX completion messages, a
-TX packet may reach the "low watermark" and cause the queue stopped.
-If the TX completion arrives earlier than queue stopping, the wakeup
-may be missed.
+Otherwise we race with orangefs_writepage/orangefs_writepages
+which and does not expect i_size < page_offset.
 
-This patch moves the check for the last pending packet to cover both
-EAGAIN and success cases, so the queue will be reliably waked up when
-necessary.
+Fixes xfstests generic/129.
 
-Reported-and-tested-by: Stephan Klein <stephan.klein@wegfinder.at>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Martin Brandenburg <martin@omnibond.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ fs/orangefs/inode.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index fb12b63439c67..35413041dcf81 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -872,12 +872,6 @@ static inline int netvsc_send_pkt(
- 	} else if (ret == -EAGAIN) {
- 		netif_tx_stop_queue(txq);
- 		ndev_ctx->eth_stats.stop_queue++;
--		if (atomic_read(&nvchan->queue_sends) < 1 &&
--		    !net_device->tx_disable) {
--			netif_tx_wake_queue(txq);
--			ndev_ctx->eth_stats.wake_queue++;
--			ret = -ENOSPC;
--		}
- 	} else {
- 		netdev_err(ndev,
- 			   "Unable to send packet pages %u len %u, ret %d\n",
-@@ -885,6 +879,15 @@ static inline int netvsc_send_pkt(
- 			   ret);
+diff --git a/fs/orangefs/inode.c b/fs/orangefs/inode.c
+index 31932879b7162..9bf2ceed4f29b 100644
+--- a/fs/orangefs/inode.c
++++ b/fs/orangefs/inode.c
+@@ -172,7 +172,11 @@ static int orangefs_setattr_size(struct inode *inode, struct iattr *iattr)
  	}
+ 	orig_size = i_size_read(inode);
  
-+	if (netif_tx_queue_stopped(txq) &&
-+	    atomic_read(&nvchan->queue_sends) < 1 &&
-+	    !net_device->tx_disable) {
-+		netif_tx_wake_queue(txq);
-+		ndev_ctx->eth_stats.wake_queue++;
-+		if (ret == -EAGAIN)
-+			ret = -ENOSPC;
-+	}
-+
- 	return ret;
- }
+-	truncate_setsize(inode, iattr->ia_size);
++	/* This is truncate_setsize in a different order. */
++	truncate_pagecache(inode, iattr->ia_size);
++	i_size_write(inode, iattr->ia_size);
++	if (iattr->ia_size > orig_size)
++		pagecache_isize_extended(inode, orig_size, iattr->ia_size);
  
+ 	new_op = op_alloc(ORANGEFS_VFS_OP_TRUNCATE);
+ 	if (!new_op)
 -- 
 2.20.1
 
