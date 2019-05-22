@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B722126DEE
+	by mail.lfdr.de (Postfix) with ESMTP id 431ED26DEC
 	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729923AbfEVTph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
+        id S1731927AbfEVT15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:27:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731901AbfEVT1z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:27:55 -0400
+        id S1732423AbfEVT14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:27:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23E9920879;
-        Wed, 22 May 2019 19:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27BA521473;
+        Wed, 22 May 2019 19:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553274;
-        bh=eHjR7WKf4S/nm5NSKt//euvYzwhQVvsxfSeDGz2iyFo=;
+        s=default; t=1558553276;
+        bh=irYDzsSaRjmeboTJQ6mVwg/sHDAw4JvY/pG/qqZ33YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqQbDixfFiuId5yelEOPm2Xa84KaIx8KGGvaQ8PaHE2w+4GpLhNdXo80K3oB9SMAo
-         vEm2j9I6bgsiSjcqvrjABLPpPfoFeTcw2piWt0GJy4ljQU9pD+QgSZNTvi0FK+jtgP
-         tQOUoy0Xt+n46bUDsZA3Ts3PSpq2Z1/iztWSAM1A=
+        b=aiNNfUUvQ8ZFszhZDbqLiwaKOoRoYwZT4KiRExtPxnJmrPkTxRfL8/F+LRpbrSvml
+         E/h9pnD3MrmegXk2R35fNtKuL9PhT2tWGkJyvaIvd8EKCIwbryYov838p26WlrPB43
+         qJvjnuElL5PozSqkYgsckNapai/BnbMGQ2Ot74eg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mariusz Bialonczyk <manio@skyboo.net>,
-        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 049/244] w1: fix the resume command API
-Date:   Wed, 22 May 2019 15:23:15 -0400
-Message-Id: <20190522192630.24917-49-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 050/244] s390: qeth: address type mismatch warning
+Date:   Wed, 22 May 2019 15:23:16 -0400
+Message-Id: <20190522192630.24917-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -44,51 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mariusz Bialonczyk <manio@skyboo.net>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 62909da8aca048ecf9fbd7e484e5100608f40a63 ]
+[ Upstream commit 46b83629dede262315aa82179d105581f11763b6 ]
 
->From the DS2408 datasheet [1]:
-"Resume Command function checks the status of the RC flag and, if it is set,
- directly transfers control to the control functions, similar to a Skip ROM
- command. The only way to set the RC flag is through successfully executing
- the Match ROM, Search ROM, Conditional Search ROM, or Overdrive-Match ROM
- command"
+clang produces a harmless warning for each use for the qeth_adp_supported
+macro:
 
-The function currently works perfectly fine in a multidrop bus, but when we
-have only a single slave connected, then only a Skip ROM is used and Match
-ROM is not called at all. This is leading to problems e.g. with single one
-DS2408 connected, as the Resume Command is not working properly and the
-device is responding with failing results after the Resume Command.
+drivers/s390/net/qeth_l2_main.c:559:31: warning: implicit conversion from enumeration type 'enum qeth_ipa_setadp_cmd' to
+      different enumeration type 'enum qeth_ipa_funcs' [-Wenum-conversion]
+        if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
+            ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/s390/net/qeth_core.h:179:41: note: expanded from macro 'qeth_adp_supported'
+        qeth_is_ipa_supported(&c->options.adp, f)
+        ~~~~~~~~~~~~~~~~~~~~~                  ^
 
-This commit is fixing this by using a Skip ROM instead in those cases.
-The bandwidth / performance advantage is exactly the same.
+Add a version of this macro that uses the correct types, and
+remove the unused qeth_adp_enabled() macro that has the same
+problem.
 
-Refs:
-[1] https://datasheets.maximintegrated.com/en/ds/DS2408.pdf
-
-Signed-off-by: Mariusz Bialonczyk <manio@skyboo.net>
-Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/w1_io.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
-index 0364d3329c526..3516ce6718d94 100644
---- a/drivers/w1/w1_io.c
-+++ b/drivers/w1/w1_io.c
-@@ -432,8 +432,7 @@ int w1_reset_resume_command(struct w1_master *dev)
- 	if (w1_reset_bus(dev))
- 		return -1;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 2d1f6a583641b..b2657582cfcfd 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -201,6 +201,12 @@ struct qeth_vnicc_info {
+ 	bool rx_bcast_enabled;
+ };
  
--	/* This will make only the last matched slave perform a skip ROM. */
--	w1_write_8(dev, W1_RESUME_CMD);
-+	w1_write_8(dev, dev->slave_count > 1 ? W1_RESUME_CMD : W1_SKIP_ROM);
- 	return 0;
++static inline int qeth_is_adp_supported(struct qeth_ipa_info *ipa,
++		enum qeth_ipa_setadp_cmd func)
++{
++	return (ipa->supported_funcs & func);
++}
++
+ static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
+ 		enum qeth_ipa_funcs func)
+ {
+@@ -214,9 +220,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
  }
- EXPORT_SYMBOL_GPL(w1_reset_resume_command);
+ 
+ #define qeth_adp_supported(c, f) \
+-	qeth_is_ipa_supported(&c->options.adp, f)
+-#define qeth_adp_enabled(c, f) \
+-	qeth_is_ipa_enabled(&c->options.adp, f)
++	qeth_is_adp_supported(&c->options.adp, f)
+ #define qeth_is_supported(c, f) \
+ 	qeth_is_ipa_supported(&c->options.ipa4, f)
+ #define qeth_is_enabled(c, f) \
 -- 
 2.20.1
 
