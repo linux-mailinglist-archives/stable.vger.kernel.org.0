@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 544B426E32
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2461A26E17
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732429AbfEVTrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:47:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49732 "EHLO mail.kernel.org"
+        id S1732340AbfEVT1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:27:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731164AbfEVT1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:27:31 -0400
+        id S1731746AbfEVT1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:27:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 364B420879;
-        Wed, 22 May 2019 19:27:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB09421473;
+        Wed, 22 May 2019 19:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553250;
-        bh=2Ej++43+0ra7hQ2n3/xZ3y5xmW7GGAxykRpfXfRSlHM=;
+        s=default; t=1558553251;
+        bh=N/HWZ6eecpTpT9fjMbEwRpzm6qtN5IsK/x3qcDuB1yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhCH2P8DMvjHxDnDk2ufsO8fpCfk3fSdxtSZJP0+dhLAG+xfT0KwmQk45p9EJ1+cL
-         aT3XEYBBiR8k8fYERumt/me7GoQfxIeyq6C5Y+E1Vfq2r+8PxrZt5sL0Oii2LK8sQt
-         EnHdGL88XU2BK5xHNohUlrbBfUqq1+3v97e6iooU=
+        b=wUDCh1OPA3pPCUbLYIqCoViDVSHooyYNEZRmGxiuNifuVcYXwGe1JA3nW+rjBJjA1
+         ZXVCBnmMC1AHdDCx0EkXt4Oh9vF98EkGxndxA6At1aA/QeUiegMUG3V41xN2Ok3sEr
+         Ujvny7D8Zu0n0p8elpBZL1g7EAdqJRPCmjRVO5eU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        "Tobin C . Harding" <tobin@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 034/244] sched/cpufreq: Fix kobject memleak
-Date:   Wed, 22 May 2019 15:23:00 -0400
-Message-Id: <20190522192630.24917-34-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        Giridhar Malavali <gmalavali@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 035/244] scsi: qla2xxx: Fix a qla24xx_enable_msix() error path
+Date:   Wed, 22 May 2019 15:23:01 -0400
+Message-Id: <20190522192630.24917-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -50,59 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 9a4f26cc98d81b67ecc23b890c28e2df324e29f3 ]
+[ Upstream commit 24afabdbd0b3553963a2bbf465895492b14d1107 ]
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+Make sure that the allocated interrupts are freed if allocating memory for
+the msix_entries array fails.
 
-Fix it by adding a call to kobject_put() in the error path of
-kobject_init_and_add().
-
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tobin C. Harding <tobin@kernel.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Link: http://lkml.kernel.org/r/20190430001144.24890-1-tobin@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Himanshu Madhani <hmadhani@marvell.com>
+Cc: Giridhar Malavali <gmalavali@marvell.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c          | 1 +
- drivers/cpufreq/cpufreq_governor.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/scsi/qla2xxx/qla_isr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 505c9a55d5551..d3213594d1a7a 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1103,6 +1103,7 @@ static struct cpufreq_policy *cpufreq_policy_alloc(unsigned int cpu)
- 				   cpufreq_global_kobject, "policy%u", cpu);
- 	if (ret) {
- 		pr_err("%s: failed to init policy->kobj: %d\n", __func__, ret);
-+		kobject_put(&policy->kobj);
- 		goto err_free_real_cpus;
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 36cbb29c84f63..88d8acf86a2a4 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3449,7 +3449,7 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
+ 		ql_log(ql_log_fatal, vha, 0x00c8,
+ 		    "Failed to allocate memory for ha->msix_entries.\n");
+ 		ret = -ENOMEM;
+-		goto msix_out;
++		goto free_irqs;
  	}
+ 	ha->flags.msix_enabled = 1;
  
-diff --git a/drivers/cpufreq/cpufreq_governor.c b/drivers/cpufreq/cpufreq_governor.c
-index 6d53f7d9fc7a9..69fc5cf4782fb 100644
---- a/drivers/cpufreq/cpufreq_governor.c
-+++ b/drivers/cpufreq/cpufreq_governor.c
-@@ -459,6 +459,8 @@ int cpufreq_dbs_governor_init(struct cpufreq_policy *policy)
- 	/* Failure, so roll back. */
- 	pr_err("initialization failed (dbs_data kobject init error %d)\n", ret);
+@@ -3532,6 +3532,10 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
  
-+	kobject_put(&dbs_data->attr_set.kobj);
+ msix_out:
+ 	return ret;
 +
- 	policy->governor_data = NULL;
++free_irqs:
++	pci_free_irq_vectors(ha->pdev);
++	goto msix_out;
+ }
  
- 	if (!have_governor_per_policy())
+ int
 -- 
 2.20.1
 
