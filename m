@@ -2,51 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 881B726E1C
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55B726B8F
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732363AbfEVT1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
+        id S1732368AbfEVT1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732356AbfEVT1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:27:41 -0400
+        id S1730529AbfEVT1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:27:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBC25204FD;
-        Wed, 22 May 2019 19:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC89F20675;
+        Wed, 22 May 2019 19:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553260;
-        bh=tzde87vjH/OTodmhhdhKDmFSXdB23EOAgIXssVc8a2E=;
+        s=default; t=1558553261;
+        bh=Z0M1Ru0jdwl8r/WKfcgsUwrussyr67JIQ72gfQBLf24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UD51I8YluyIwujURi2vpeFD4NSvlsm9wvhscrhX+5iLZwJ7ylNWHG+uoniP+yRpNV
-         n3wW9KH+zabcbExb6BS9OR14LVoPrPwIuTwK28/oDQgVKGDr3W1Oz16Vd3wnsmImqN
-         ssvB0U12D8vY2EBx/Iwbmhn2wDIWozW9QixE22B4=
+        b=MfjZFSGKzUAz9cs07Lorn7RtSMByalzoUSc3nV7L0zbGddjvbPdGF0lKXj4zm/lIW
+         vX5orcncL1xLcU8C5dv4kewlMYkpesGZ9+Zp16ACm9Aw2UOKObFy2GtTAWktApFmk+
+         Nf8HwZSKfKOEvI4bv2mE9tinVIq9C9mkDrB74ABY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        akpm@linux-foundation.org, ard.biesheuvel@linaro.org,
-        deneen.t.dock@intel.com, kernel-hardening@lists.openwall.com,
-        kristen@linux.intel.com, linux_dti@icloud.com, will.deacon@arm.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Jessica Yu <jeyu@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 039/244] x86/modules: Avoid breaking W^X while loading modules
-Date:   Wed, 22 May 2019 15:23:05 -0400
-Message-Id: <20190522192630.24917-39-sashal@kernel.org>
+Cc:     Robbie Ko <robbieko@synology.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 040/244] Btrfs: fix data bytes_may_use underflow with fallocate due to failed quota reserve
+Date:   Wed, 22 May 2019 15:23:06 -0400
+Message-Id: <20190522192630.24917-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 References: <20190522192630.24917-1-sashal@kernel.org>
@@ -59,142 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Robbie Ko <robbieko@synology.com>
 
-[ Upstream commit f2c65fb3221adc6b73b0549fc7ba892022db9797 ]
+[ Upstream commit 39ad317315887c2cb9a4347a93a8859326ddf136 ]
 
-When modules and BPF filters are loaded, there is a time window in
-which some memory is both writable and executable. An attacker that has
-already found another vulnerability (e.g., a dangling pointer) might be
-able to exploit this behavior to overwrite kernel code. Prevent having
-writable executable PTEs in this stage.
+When doing fallocate, we first add the range to the reserve_list and
+then reserve the quota.  If quota reservation fails, we'll release all
+reserved parts of reserve_list.
 
-In addition, avoiding having W+X mappings can also slightly simplify the
-patching of modules code on initialization (e.g., by alternatives and
-static-key), as would be done in the next patch. This was actually the
-main motivation for this patch.
+However, cur_offset is not updated to indicate that this range is
+already been inserted into the list.  Therefore, the same range is freed
+twice.  Once at list_for_each_entry loop, and once at the end of the
+function.  This will result in WARN_ON on bytes_may_use when we free the
+remaining space.
 
-To avoid having W+X mappings, set them initially as RW (NX) and after
-they are set as RO set them as X as well. Setting them as executable is
-done as a separate step to avoid one core in which the old PTE is cached
-(hence writable), and another which sees the updated PTE (executable),
-which would break the W^X protection.
+At the end, under the 'out' label we have a call to:
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Suggested-by: Andy Lutomirski <luto@amacapital.net>
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <akpm@linux-foundation.org>
-Cc: <ard.biesheuvel@linaro.org>
-Cc: <deneen.t.dock@intel.com>
-Cc: <kernel-hardening@lists.openwall.com>
-Cc: <kristen@linux.intel.com>
-Cc: <linux_dti@icloud.com>
-Cc: <will.deacon@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Rik van Riel <riel@surriel.com>
-Link: https://lkml.kernel.org/r/20190426001143.4983-12-namit@vmware.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+   btrfs_free_reserved_data_space(inode, data_reserved, alloc_start, alloc_end - cur_offset);
+
+The start offset, third argument, should be cur_offset.
+
+Everything from alloc_start to cur_offset was freed by the
+list_for_each_entry_safe_loop.
+
+Fixes: 18513091af94 ("btrfs: update btrfs_space_info's bytes_may_use timely")
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/alternative.c | 28 +++++++++++++++++++++-------
- arch/x86/kernel/module.c      |  2 +-
- include/linux/filter.h        |  1 +
- kernel/module.c               |  5 +++++
- 4 files changed, 28 insertions(+), 8 deletions(-)
+ fs/btrfs/file.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index b9d5e7c9ef43e..918a23704c0c5 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -662,15 +662,29 @@ void __init alternative_instructions(void)
-  * handlers seeing an inconsistent instruction while you patch.
-  */
- void *__init_or_module text_poke_early(void *addr, const void *opcode,
--					      size_t len)
-+				       size_t len)
- {
- 	unsigned long flags;
--	local_irq_save(flags);
--	memcpy(addr, opcode, len);
--	local_irq_restore(flags);
--	sync_core();
--	/* Could also do a CLFLUSH here to speed up CPU recovery; but
--	   that causes hangs on some VIA CPUs. */
-+
-+	if (boot_cpu_has(X86_FEATURE_NX) &&
-+	    is_module_text_address((unsigned long)addr)) {
-+		/*
-+		 * Modules text is marked initially as non-executable, so the
-+		 * code cannot be running and speculative code-fetches are
-+		 * prevented. Just change the code.
-+		 */
-+		memcpy(addr, opcode, len);
-+	} else {
-+		local_irq_save(flags);
-+		memcpy(addr, opcode, len);
-+		local_irq_restore(flags);
-+		sync_core();
-+
-+		/*
-+		 * Could also do a CLFLUSH here to speed up CPU recovery; but
-+		 * that causes hangs on some VIA CPUs.
-+		 */
-+	}
- 	return addr;
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index ca4902c66dc43..868da8566f84c 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -3151,6 +3151,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
+ 					cur_offset, last_byte - cur_offset);
+ 			if (ret < 0) {
++				cur_offset = last_byte;
+ 				free_extent_map(em);
+ 				break;
+ 			}
+@@ -3200,7 +3201,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 	/* Let go of our reservation. */
+ 	if (ret != 0 && !(mode & FALLOC_FL_ZERO_RANGE))
+ 		btrfs_free_reserved_data_space(inode, data_reserved,
+-				alloc_start, alloc_end - cur_offset);
++				cur_offset, alloc_end - cur_offset);
+ 	extent_changeset_free(data_reserved);
+ 	return ret;
  }
- 
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index f58336af095c9..6645f123419c6 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -87,7 +87,7 @@ void *module_alloc(unsigned long size)
- 	p = __vmalloc_node_range(size, MODULE_ALIGN,
- 				    MODULES_VADDR + get_module_load_offset(),
- 				    MODULES_END, GFP_KERNEL,
--				    PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
-+				    PAGE_KERNEL, 0, NUMA_NO_NODE,
- 				    __builtin_return_address(0));
- 	if (p && (kasan_module_alloc(p, size) < 0)) {
- 		vfree(p);
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 037610845892b..6afc2e2d5aeda 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -684,6 +684,7 @@ static inline void bpf_prog_unlock_ro(struct bpf_prog *fp)
- static inline void bpf_jit_binary_lock_ro(struct bpf_binary_header *hdr)
- {
- 	set_memory_ro((unsigned long)hdr, hdr->pages);
-+	set_memory_x((unsigned long)hdr, hdr->pages);
- }
- 
- static inline void bpf_jit_binary_unlock_ro(struct bpf_binary_header *hdr)
-diff --git a/kernel/module.c b/kernel/module.c
-index 38bf28b5cc202..f797c6ace7121 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1949,8 +1949,13 @@ void module_enable_ro(const struct module *mod, bool after_init)
- 		return;
- 
- 	frob_text(&mod->core_layout, set_memory_ro);
-+	frob_text(&mod->core_layout, set_memory_x);
-+
- 	frob_rodata(&mod->core_layout, set_memory_ro);
-+
- 	frob_text(&mod->init_layout, set_memory_ro);
-+	frob_text(&mod->init_layout, set_memory_x);
-+
- 	frob_rodata(&mod->init_layout, set_memory_ro);
- 
- 	if (after_init)
 -- 
 2.20.1
 
