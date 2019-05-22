@@ -2,116 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4FA25B3A
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 02:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FAE525B6C
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 03:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727208AbfEVAoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 20:44:32 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:39127 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726434AbfEVAoc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 20:44:32 -0400
-Received: by mail-io1-f67.google.com with SMTP id m7so458149ioa.6;
-        Tue, 21 May 2019 17:44:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pWCi9dROwOfQvBvMAXELot1dHsDW9NHuGvLhfRnJ4hE=;
-        b=SfSWg9TeEu5DaP5TRGUM57CeTAi++dYX546ZT6YQE1GsntXdrEm80yuE3lgKb5R7hI
-         Fxj0EWfVmZFdIz8GxjIpdKO+gtBRBBpLtejZBPnrYL4gZejAh01OTXkKGk/ZWOeJLhY8
-         m9Z/pj1g6xv1c9tejcJjP4HFwp95EFIKLcOYDRyJJc9vGNOwoUSBjFmxy2yQhSuxRFtN
-         Zn4kg3aVuL+lM2Ze13lYlR3bhDPX3FhOB4iHPIKyVjkp6s0epY1/DyCUykGga/I3dBQF
-         e/JRdL3Vnx1SzeCcS2pZWHSjgpOXNUuUfCaPb7wutTP5guOmTphZc8f0CzptOO3mDluX
-         dUwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pWCi9dROwOfQvBvMAXELot1dHsDW9NHuGvLhfRnJ4hE=;
-        b=KnwN1q0ZrpQAN/B9St6PAjwRklU1+P8tGId/kwAhhJ37AP2mtGWdk8GDEp0w/BRRi6
-         Hv7yRKgzG23WRs+bJuOb5fqxL8264PKgACABrw+/pIHIOKRk6bw6HxnwhnHpcHCGEHzb
-         PJsMnvJOa176nRlA3ERaIr8H66SF4Uc92p4wQNsmi2Uq8Rg5eiabaDjFEoTD+hGllOxd
-         +wdzkVxwDNgQAzg5wZPSP2i5x51MVZ60voRQ7aS8F4wuQz5iYsPMTat478oIWzug9HD1
-         7j/58rFR3kNSFrZ5mbqgte7EbcphrizWyfi1ntiZAeZKyWwtztJzaNJOI19ewLE26AWm
-         IfCA==
-X-Gm-Message-State: APjAAAUUwbxpgrUJgXIbaVBSsNESNd4+FAoFCPfimDxV5JsjHtX9+snu
-        Q5HuwPecsGXYZ7QlrTz5S4GplmKUvz2OPUa75Bk=
-X-Google-Smtp-Source: APXvYqxUpoov/lRK+3Nk9QPmCfxT+tSQOmPVQFA6wQLCtgq80Rq1EUYHAzQ+cZQrAKyBAe/Hzp+PszAlQTvkghjq1Lc=
-X-Received: by 2002:a5e:840c:: with SMTP id h12mr6278956ioj.81.1558485871505;
- Tue, 21 May 2019 17:44:31 -0700 (PDT)
+        id S1727466AbfEVBAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 21:00:53 -0400
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:40672 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726083AbfEVBAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 21:00:53 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04446;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0TSLG0uI_1558486838;
+Received: from 192.168.1.105(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TSLG0uI_1558486838)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 22 May 2019 09:00:47 +0800
+Subject: Re: [v3 PATCH] mm: mmu_gather: remove __tlb_reset_range() for force
+ flush
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     jstancek@redhat.com, peterz@infradead.org, will.deacon@arm.com,
+        npiggin@gmail.com, aneesh.kumar@linux.ibm.com, namit@vmware.com,
+        minchan@kernel.org, mgorman@suse.de, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <1558322252-113575-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20190521161826.029782de0750c8f5cd2e5dd6@linux-foundation.org>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <9c27f777-3330-8e43-e4cf-cc4d9c3e0229@linux.alibaba.com>
+Date:   Wed, 22 May 2019 09:00:34 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-References: <20190507043954.9020-1-deepa.kernel@gmail.com> <20190521092551.fwtb6recko3tahwj@dcvr>
- <20190521152748.6b4cd70cf83a1183caa6aae7@linux-foundation.org>
- <20190521233319.GA17957@dcvr> <CABeXuvoOGwOGmSz_vgTugLD1NPE=2ULvmESPTtK9d6r8S+WVdQ@mail.gmail.com>
-In-Reply-To: <CABeXuvoOGwOGmSz_vgTugLD1NPE=2ULvmESPTtK9d6r8S+WVdQ@mail.gmail.com>
-From:   Deepa Dinamani <deepa.kernel@gmail.com>
-Date:   Tue, 21 May 2019 17:44:19 -0700
-Message-ID: <CABeXuvrT-mHomeH-CnuLsWzNCQOfymW01s+HGRaBTNA+u2t28w@mail.gmail.com>
-Subject: Re: [PATCH 1/1] signal: Adjust error codes according to restore_user_sigmask()
-To:     Eric Wong <e@80x24.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>, dbueso@suse.de, axboe@kernel.dk,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        Oleg Nesterov <oleg@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190521161826.029782de0750c8f5cd2e5dd6@linux-foundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 21, 2019 at 5:35 PM Deepa Dinamani <deepa.kernel@gmail.com> wrote:
->
-> > > > It's been 2 weeks and this fix hasn't appeared in mmots / mmotm.
-> > > > I also noticed it's missing Cc: for stable@ (below)
-> > >
-> > > Why is a -stable backport needed?  I see some talk above about lost
-> > > signals but it is unclear whether these are being observed after fixing
-> > > the regression caused by 854a6ed56839a.
-> >
-> > I guess Deepa's commit messages wasn't clear...
-> > I suggest prepending this as the first paragraph to Deepa's
-> > original message:
-> >
-> >   This fixes a bug introduced with 854a6ed56839a which caused
-> >   EINTR to not be reported to userspace on epoll_pwait.  Failure
-> >   to report EINTR to userspace caused problems with user code
-> >   which relies on EINTR to run signal handlers.
->
-> This is not what the patch fixed.
->
-> The notable change is userspace is that now whenever a signal is
-> delivered, the return value is adjusted to reflect the signal
-> delivery.
-> Prior to this patch, there was a window, however small it might have
-> been, when the signal was delivered but the errono was not adjusted
-> appropriately.
-> This is because of the regression caused by 854a6ed56839a, which
-> extended the window of delivery of signals that was delivered to
-> userspace.
-> The patch also fixes more than sys_epoll_pwait().
->
-> I will post a follow up patch.
->
-> >
-> > > IOW, can we please have a changelog which has a clear and complete
-> > > description of the user-visible effects of the change.
-> > >
-> > > And please Cc Oleg.
->
-> I will cc Oleg.
 
-Also the commit message was brief because the issue was explained in
-the link that was quoted in the commit message.
 
-Detailed issue discussion permalink:
-https://lore.kernel.org/linux-fsdevel/20190427093319.sgicqik2oqkez3wk@dcvr/
+On 5/22/19 7:18 AM, Andrew Morton wrote:
+> On Mon, 20 May 2019 11:17:32 +0800 Yang Shi <yang.shi@linux.alibaba.com> wrote:
+>
+>> A few new fields were added to mmu_gather to make TLB flush smarter for
+>> huge page by telling what level of page table is changed.
+>>
+>> __tlb_reset_range() is used to reset all these page table state to
+>> unchanged, which is called by TLB flush for parallel mapping changes for
+>> the same range under non-exclusive lock (i.e. read mmap_sem).  Before
+>> commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
+>> munmap"), the syscalls (e.g. MADV_DONTNEED, MADV_FREE) which may update
+>> PTEs in parallel don't remove page tables.  But, the forementioned
+>> commit may do munmap() under read mmap_sem and free page tables.  This
+>> may result in program hang on aarch64 reported by Jan Stancek.  The
+>> problem could be reproduced by his test program with slightly modified
+>> below.
+>>
+>> ...
+>>
+>> Use fullmm flush since it yields much better performance on aarch64 and
+>> non-fullmm doesn't yields significant difference on x86.
+>>
+>> The original proposed fix came from Jan Stancek who mainly debugged this
+>> issue, I just wrapped up everything together.
+> Thanks.  I'll add
+>
+> Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+>
+> to this.
 
--Deepa
+Thanks, Andrew.
+
+
