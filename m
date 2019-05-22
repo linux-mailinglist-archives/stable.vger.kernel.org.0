@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E0726CB3
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B67B26CC1
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733239AbfEVTa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:30:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53898 "EHLO mail.kernel.org"
+        id S1729767AbfEVThT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:37:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731957AbfEVTa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:26 -0400
+        id S1732774AbfEVTa1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5345020879;
-        Wed, 22 May 2019 19:30:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55D942173C;
+        Wed, 22 May 2019 19:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553426;
-        bh=XNdipqEzOx7/+ADkM/ggmrOGx69uPcHMbMepM83nMs0=;
+        s=default; t=1558553427;
+        bh=2tdx0dv/iRRHc+bjoP1rVr48kmKTYBJAsaMm6nfp5zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A23yZlGFflvlaSmrt/OHxL27E6Li4DHdEkd/IvhRlI0oaOB9q5pg9Zapp8dELhJ+U
-         BLV4ZmyuCTn4vH6tzPDcERPy/HolB8Z2WCq4fuHDFHNbN2SyNxfY4UGixQkLKXl143
-         bsSG6JLuLaVT7Z+3yvx9Srl7+pffYRJnHWgEHKwo=
+        b=PoeDWukp7tgzByDrSm/gwL8fSvDLaE7B0ZLPgNG75JKvE1Y1cCinfFRR4OzzSoCAM
+         psqc/FPNn946fksyyKKnyAF4ZWCVojRxyIPlviUuijJh96tNJe91XPbgUOXxj0T6bE
+         O3QOSlJ/jO7hfDOVCx2s2r5N4N6j9ydf9yJuQmP8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sameeh Jubran <sameehj@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 005/114] net: ena: gcc 8: fix compilation warning
-Date:   Wed, 22 May 2019 15:28:28 -0400
-Message-Id: <20190522193017.26567-5-sashal@kernel.org>
+Cc:     Martin Brandenburg <martin@omnibond.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
+Subject: [PATCH AUTOSEL 4.9 006/114] orangefs: truncate before updating size
+Date:   Wed, 22 May 2019 15:28:29 -0400
+Message-Id: <20190522193017.26567-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
 References: <20190522193017.26567-1-sashal@kernel.org>
@@ -43,47 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+From: Martin Brandenburg <martin@omnibond.com>
 
-[ Upstream commit f913308879bc6ae437ce64d878c7b05643ddea44 ]
+[ Upstream commit 33713cd09ccdc1e01b10d0782ae60200d4989553 ]
 
-GCC 8 contains a number of new warnings as well as enhancements to existing
-checkers. The warning - Wstringop-truncation - warns for calls to bounded
-string manipulation functions such as strncat, strncpy, and stpncpy that
-may either truncate the copied string or leave the destination unchanged.
+Otherwise we race with orangefs_writepage/orangefs_writepages
+which and does not expect i_size < page_offset.
 
-In our case the destination string length (32 bytes) is much shorter than
-the source string (64 bytes) which causes this warning to show up. In
-general the destination has to be at least a byte larger than the length
-of the source string with strncpy for this warning not to showup.
+Fixes xfstests generic/129.
 
-This can be easily fixed by using strlcpy instead which already does the
-truncation to the string. Documentation for this function can be
-found here:
-
-https://elixir.bootlin.com/linux/latest/source/lib/string.c#L141
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Martin Brandenburg <martin@omnibond.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/orangefs/inode.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 0c298878bf46f..0780900b37c72 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2116,7 +2116,7 @@ static void ena_config_host_info(struct ena_com_dev *ena_dev)
+diff --git a/fs/orangefs/inode.c b/fs/orangefs/inode.c
+index 08ecdeebd6f70..c85c5f9b17036 100644
+--- a/fs/orangefs/inode.c
++++ b/fs/orangefs/inode.c
+@@ -176,7 +176,11 @@ static int orangefs_setattr_size(struct inode *inode, struct iattr *iattr)
+ 	}
+ 	orig_size = i_size_read(inode);
  
- 	host_info->os_type = ENA_ADMIN_OS_LINUX;
- 	host_info->kernel_ver = LINUX_VERSION_CODE;
--	strncpy(host_info->kernel_ver_str, utsname()->version,
-+	strlcpy(host_info->kernel_ver_str, utsname()->version,
- 		sizeof(host_info->kernel_ver_str) - 1);
- 	host_info->os_dist = 0;
- 	strncpy(host_info->os_dist_str, utsname()->release,
+-	truncate_setsize(inode, iattr->ia_size);
++	/* This is truncate_setsize in a different order. */
++	truncate_pagecache(inode, iattr->ia_size);
++	i_size_write(inode, iattr->ia_size);
++	if (iattr->ia_size > orig_size)
++		pagecache_isize_extended(inode, orig_size, iattr->ia_size);
+ 
+ 	new_op = op_alloc(ORANGEFS_VFS_OP_TRUNCATE);
+ 	if (!new_op)
 -- 
 2.20.1
 
