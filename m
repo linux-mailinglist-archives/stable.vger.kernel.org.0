@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE00F26494
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 15:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D411726496
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 15:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729575AbfEVNYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 09:24:30 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:50766 "EHLO
+        id S1729127AbfEVNYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 09:24:37 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:50818 "EHLO
         foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729161AbfEVNY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 09:24:29 -0400
+        id S1729059AbfEVNYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 09:24:36 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8E71780D;
-        Wed, 22 May 2019 06:24:29 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 89EBD15AB;
+        Wed, 22 May 2019 06:24:36 -0700 (PDT)
 Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4F37C3F575;
-        Wed, 22 May 2019 06:24:25 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4A2F83F575;
+        Wed, 22 May 2019 06:24:32 -0700 (PDT)
 From:   Mark Rutland <mark.rutland@arm.com>
 To:     linux-kernel@vger.kernel.org, peterz@infradead.org,
         will.deacon@arm.com
@@ -29,9 +29,9 @@ Cc:     aou@eecs.berkeley.edu, arnd@arndb.de, bp@alien8.de,
         paulus@samba.org, ralf@linux-mips.org, rth@twiddle.net,
         stable@vger.kernel.org, tglx@linutronix.de, tony.luck@intel.com,
         vgupta@synopsys.com
-Subject: [PATCH 06/18] locking/atomic: arm: use s64 for atomic64
-Date:   Wed, 22 May 2019 14:22:38 +0100
-Message-Id: <20190522132250.26499-7-mark.rutland@arm.com>
+Subject: [PATCH 07/18] locking/atomic: arm64: use s64 for atomic64
+Date:   Wed, 22 May 2019 14:22:39 +0100
+Message-Id: <20190522132250.26499-8-mark.rutland@arm.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20190522132250.26499-1-mark.rutland@arm.com>
 References: <20190522132250.26499-1-mark.rutland@arm.com>
@@ -41,167 +41,193 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 As a step towards making the atomic64 API use consistent types treewide,
-let's have the arm atomic64 implementation use s64 as the underlying
-type for atomic64_t, rather than long long, matching the generated
-headers.
+let's have the arm64 atomic64 implementation use s64 as the underlying
+type for atomic64_t, rather than long, matching the generated headers.
 
-Otherwise, there should be no functional change as a result of this
-patch.
+As atomic64_read() depends on the generic defintion of atomic64_t, this
+still returns long. This will be converted in a subsequent patch.
+
+Note that in arch_atomic64_dec_if_positive(), the x0 variable is left as
+long, as this variable is also used to hold the pointer to the
+atomic64_t.
+
+Otherwise, there should be no functional change as a result of this patch.
 
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Russell King <linux@armlinux.org.uk>
 Cc: Will Deacon <will.deacon@arm.com>
 ---
- arch/arm/include/asm/atomic.h | 50 +++++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 26 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 20 ++++++++++----------
+ arch/arm64/include/asm/atomic_lse.h   | 34 +++++++++++++++++-----------------
+ 2 files changed, 27 insertions(+), 27 deletions(-)
 
-diff --git a/arch/arm/include/asm/atomic.h b/arch/arm/include/asm/atomic.h
-index f74756641410..d45c41f6f69c 100644
---- a/arch/arm/include/asm/atomic.h
-+++ b/arch/arm/include/asm/atomic.h
-@@ -249,15 +249,15 @@ ATOMIC_OPS(xor, ^=, eor)
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index e321293e0c89..f3b12d7f431f 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -133,9 +133,9 @@ ATOMIC_OPS(xor, eor)
  
- #ifndef CONFIG_GENERIC_ATOMIC64
- typedef struct {
--	long long counter;
-+	s64 counter;
- } atomic64_t;
- 
- #define ATOMIC64_INIT(i) { (i) }
- 
- #ifdef CONFIG_ARM_LPAE
--static inline long long atomic64_read(const atomic64_t *v)
-+static inline s64 atomic64_read(const atomic64_t *v)
- {
--	long long result;
-+	s64 result;
- 
- 	__asm__ __volatile__("@ atomic64_read\n"
- "	ldrd	%0, %H0, [%1]"
-@@ -268,7 +268,7 @@ static inline long long atomic64_read(const atomic64_t *v)
- 	return result;
- }
- 
--static inline void atomic64_set(atomic64_t *v, long long i)
-+static inline void atomic64_set(atomic64_t *v, s64 i)
- {
- 	__asm__ __volatile__("@ atomic64_set\n"
- "	strd	%2, %H2, [%1]"
-@@ -277,9 +277,9 @@ static inline void atomic64_set(atomic64_t *v, long long i)
- 	);
- }
- #else
--static inline long long atomic64_read(const atomic64_t *v)
-+static inline s64 atomic64_read(const atomic64_t *v)
- {
--	long long result;
-+	s64 result;
- 
- 	__asm__ __volatile__("@ atomic64_read\n"
- "	ldrexd	%0, %H0, [%1]"
-@@ -290,9 +290,9 @@ static inline long long atomic64_read(const atomic64_t *v)
- 	return result;
- }
- 
--static inline void atomic64_set(atomic64_t *v, long long i)
-+static inline void atomic64_set(atomic64_t *v, s64 i)
- {
--	long long tmp;
-+	s64 tmp;
- 
- 	prefetchw(&v->counter);
- 	__asm__ __volatile__("@ atomic64_set\n"
-@@ -307,9 +307,9 @@ static inline void atomic64_set(atomic64_t *v, long long i)
- #endif
- 
- #define ATOMIC64_OP(op, op1, op2)					\
--static inline void atomic64_##op(long long i, atomic64_t *v)		\
-+static inline void atomic64_##op(s64 i, atomic64_t *v)			\
+ #define ATOMIC64_OP(op, asm_op)						\
+ __LL_SC_INLINE void							\
+-__LL_SC_PREFIX(arch_atomic64_##op(long i, atomic64_t *v))		\
++__LL_SC_PREFIX(arch_atomic64_##op(s64 i, atomic64_t *v))		\
  {									\
--	long long result;						\
+-	long result;							\
 +	s64 result;							\
  	unsigned long tmp;						\
  									\
- 	prefetchw(&v->counter);						\
-@@ -326,10 +326,10 @@ static inline void atomic64_##op(long long i, atomic64_t *v)		\
- }									\
+ 	asm volatile("// atomic64_" #op "\n"				\
+@@ -150,10 +150,10 @@ __LL_SC_PREFIX(arch_atomic64_##op(long i, atomic64_t *v))		\
+ __LL_SC_EXPORT(arch_atomic64_##op);
  
- #define ATOMIC64_OP_RETURN(op, op1, op2)				\
--static inline long long							\
--atomic64_##op##_return_relaxed(long long i, atomic64_t *v)		\
-+static inline s64							\
-+atomic64_##op##_return_relaxed(s64 i, atomic64_t *v)			\
+ #define ATOMIC64_OP_RETURN(name, mb, acq, rel, cl, op, asm_op)		\
+-__LL_SC_INLINE long							\
+-__LL_SC_PREFIX(arch_atomic64_##op##_return##name(long i, atomic64_t *v))\
++__LL_SC_INLINE s64							\
++__LL_SC_PREFIX(arch_atomic64_##op##_return##name(s64 i, atomic64_t *v))\
  {									\
--	long long result;						\
+-	long result;							\
 +	s64 result;							\
  	unsigned long tmp;						\
  									\
- 	prefetchw(&v->counter);						\
-@@ -349,10 +349,10 @@ atomic64_##op##_return_relaxed(long long i, atomic64_t *v)		\
- }
+ 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
+@@ -172,10 +172,10 @@ __LL_SC_PREFIX(arch_atomic64_##op##_return##name(long i, atomic64_t *v))\
+ __LL_SC_EXPORT(arch_atomic64_##op##_return##name);
  
- #define ATOMIC64_FETCH_OP(op, op1, op2)					\
--static inline long long							\
--atomic64_fetch_##op##_relaxed(long long i, atomic64_t *v)		\
-+static inline s64							\
-+atomic64_fetch_##op##_relaxed(s64 i, atomic64_t *v)			\
+ #define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op)		\
+-__LL_SC_INLINE long							\
+-__LL_SC_PREFIX(arch_atomic64_fetch_##op##name(long i, atomic64_t *v))	\
++__LL_SC_INLINE s64							\
++__LL_SC_PREFIX(arch_atomic64_fetch_##op##name(s64 i, atomic64_t *v))	\
  {									\
--	long long result, val;						\
+-	long result, val;						\
 +	s64 result, val;						\
  	unsigned long tmp;						\
  									\
- 	prefetchw(&v->counter);						\
-@@ -406,10 +406,9 @@ ATOMIC64_OPS(xor, eor, eor)
+ 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
+@@ -225,10 +225,10 @@ ATOMIC64_OPS(xor, eor)
  #undef ATOMIC64_OP_RETURN
  #undef ATOMIC64_OP
  
--static inline long long
--atomic64_cmpxchg_relaxed(atomic64_t *ptr, long long old, long long new)
-+static inline s64 atomic64_cmpxchg_relaxed(atomic64_t *ptr, s64 old, s64 new)
+-__LL_SC_INLINE long
++__LL_SC_INLINE s64
+ __LL_SC_PREFIX(arch_atomic64_dec_if_positive(atomic64_t *v))
  {
--	long long oldval;
-+	s64 oldval;
- 	unsigned long res;
- 
- 	prefetchw(&ptr->counter);
-@@ -430,9 +429,9 @@ atomic64_cmpxchg_relaxed(atomic64_t *ptr, long long old, long long new)
- }
- #define atomic64_cmpxchg_relaxed	atomic64_cmpxchg_relaxed
- 
--static inline long long atomic64_xchg_relaxed(atomic64_t *ptr, long long new)
-+static inline s64 atomic64_xchg_relaxed(atomic64_t *ptr, s64 new)
- {
--	long long result;
+-	long result;
 +	s64 result;
  	unsigned long tmp;
  
- 	prefetchw(&ptr->counter);
-@@ -450,9 +449,9 @@ static inline long long atomic64_xchg_relaxed(atomic64_t *ptr, long long new)
- }
- #define atomic64_xchg_relaxed		atomic64_xchg_relaxed
+ 	asm volatile("// atomic64_dec_if_positive\n"
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index 9256a3921e4b..c53832b08af7 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -224,9 +224,9 @@ ATOMIC_FETCH_OP_SUB(        , al, "memory")
  
--static inline long long atomic64_dec_if_positive(atomic64_t *v)
-+static inline s64 atomic64_dec_if_positive(atomic64_t *v)
+ #define __LL_SC_ATOMIC64(op)	__LL_SC_CALL(arch_atomic64_##op)
+ #define ATOMIC64_OP(op, asm_op)						\
+-static inline void arch_atomic64_##op(long i, atomic64_t *v)		\
++static inline void arch_atomic64_##op(s64 i, atomic64_t *v)		\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(__LL_SC_ATOMIC64(op),	\
+@@ -244,9 +244,9 @@ ATOMIC64_OP(add, stadd)
+ #undef ATOMIC64_OP
+ 
+ #define ATOMIC64_FETCH_OP(name, mb, op, asm_op, cl...)			\
+-static inline long arch_atomic64_fetch_##op##name(long i, atomic64_t *v)\
++static inline s64 arch_atomic64_fetch_##op##name(s64 i, atomic64_t *v)	\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+@@ -276,9 +276,9 @@ ATOMIC64_FETCH_OPS(add, ldadd)
+ #undef ATOMIC64_FETCH_OPS
+ 
+ #define ATOMIC64_OP_ADD_RETURN(name, mb, cl...)				\
+-static inline long arch_atomic64_add_return##name(long i, atomic64_t *v)\
++static inline s64 arch_atomic64_add_return##name(s64 i, atomic64_t *v)	\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+@@ -302,9 +302,9 @@ ATOMIC64_OP_ADD_RETURN(        , al, "memory")
+ 
+ #undef ATOMIC64_OP_ADD_RETURN
+ 
+-static inline void arch_atomic64_and(long i, atomic64_t *v)
++static inline void arch_atomic64_and(s64 i, atomic64_t *v)
  {
--	long long result;
-+	s64 result;
- 	unsigned long tmp;
+-	register long x0 asm ("x0") = i;
++	register s64 x0 asm ("x0") = i;
+ 	register atomic64_t *x1 asm ("x1") = v;
  
- 	smp_mb();
-@@ -478,10 +477,9 @@ static inline long long atomic64_dec_if_positive(atomic64_t *v)
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(
+@@ -320,9 +320,9 @@ static inline void arch_atomic64_and(long i, atomic64_t *v)
  }
- #define atomic64_dec_if_positive atomic64_dec_if_positive
  
--static inline long long atomic64_fetch_add_unless(atomic64_t *v, long long a,
--						  long long u)
-+static inline s64 atomic64_fetch_add_unless(atomic64_t *v, s64 a, s64 u)
+ #define ATOMIC64_FETCH_OP_AND(name, mb, cl...)				\
+-static inline long arch_atomic64_fetch_and##name(long i, atomic64_t *v)	\
++static inline s64 arch_atomic64_fetch_and##name(s64 i, atomic64_t *v)	\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+@@ -346,9 +346,9 @@ ATOMIC64_FETCH_OP_AND(        , al, "memory")
+ 
+ #undef ATOMIC64_FETCH_OP_AND
+ 
+-static inline void arch_atomic64_sub(long i, atomic64_t *v)
++static inline void arch_atomic64_sub(s64 i, atomic64_t *v)
  {
--	long long oldval, newval;
-+	s64 oldval, newval;
- 	unsigned long tmp;
+-	register long x0 asm ("x0") = i;
++	register s64 x0 asm ("x0") = i;
+ 	register atomic64_t *x1 asm ("x1") = v;
  
- 	smp_mb();
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(
+@@ -364,9 +364,9 @@ static inline void arch_atomic64_sub(long i, atomic64_t *v)
+ }
+ 
+ #define ATOMIC64_OP_SUB_RETURN(name, mb, cl...)				\
+-static inline long arch_atomic64_sub_return##name(long i, atomic64_t *v)\
++static inline s64 arch_atomic64_sub_return##name(s64 i, atomic64_t *v)	\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+@@ -392,9 +392,9 @@ ATOMIC64_OP_SUB_RETURN(        , al, "memory")
+ #undef ATOMIC64_OP_SUB_RETURN
+ 
+ #define ATOMIC64_FETCH_OP_SUB(name, mb, cl...)				\
+-static inline long arch_atomic64_fetch_sub##name(long i, atomic64_t *v)	\
++static inline s64 arch_atomic64_fetch_sub##name(s64 i, atomic64_t *v)	\
+ {									\
+-	register long x0 asm ("x0") = i;				\
++	register s64 x0 asm ("x0") = i;					\
+ 	register atomic64_t *x1 asm ("x1") = v;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+@@ -418,7 +418,7 @@ ATOMIC64_FETCH_OP_SUB(        , al, "memory")
+ 
+ #undef ATOMIC64_FETCH_OP_SUB
+ 
+-static inline long arch_atomic64_dec_if_positive(atomic64_t *v)
++static inline s64 arch_atomic64_dec_if_positive(atomic64_t *v)
+ {
+ 	register long x0 asm ("x0") = (long)v;
+ 
 -- 
 2.11.0
 
