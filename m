@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C00EB26F0D
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D86DF26F0B
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731708AbfEVTyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:54:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        id S1731556AbfEVTyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:54:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730935AbfEVTZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:25:42 -0400
+        id S1731708AbfEVTZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:25:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0B79206BA;
-        Wed, 22 May 2019 19:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DADAA2173C;
+        Wed, 22 May 2019 19:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553141;
-        bh=Ehv9l5axy+rOHHmU2P3KIBGZ9yQcMadN9FTV6lXCmaI=;
+        s=default; t=1558553142;
+        bh=jcoD00bxnjvv2+MmzAXKJv5S2W4o/Dh1EMfAlwfkR4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VgdVy1k2/Ab0eHdBjLpEo5nUFMa8f91Lc4RPVa4XELQO7x7z44N3H1ODvI180OM7g
-         9wIyXJvViLvxyAyoGeXxVgceRtOzFmQhBh1mrEVMz3sTa+WavAb+8KK+oEREDN8mKw
-         q78ReVlN78lR0/O3EJIjbcZK+3bTIrCWixRj3/30=
+        b=fX3gVMZmzhi+X+V7xsuAWwa+g8+TaU/LCsCs67xUs+ea3GBEwDR90/WkEIJREWZ1F
+         APgAoXOFSFgEj63LPVe3PLniu4CONXoZbIp38cpQx62j3C9Z8eejV3eCY8V5ASxOHi
+         7IYcB7zbYFCBkbynDC6Ixe8zovd2sm3BHefOp5Zs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 071/317] driver core: Postpone DMA tear-down until after devres release for probe failure
-Date:   Wed, 22 May 2019 15:19:32 -0400
-Message-Id: <20190522192338.23715-71-sashal@kernel.org>
+Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.0 072/317] ASoC: fsl_sai: Update is_slave_mode with correct value
+Date:   Wed, 22 May 2019 15:19:33 -0400
+Message-Id: <20190522192338.23715-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -45,120 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-[ Upstream commit 0b777eee88d712256ba8232a9429edb17c4f9ceb ]
+[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
 
-In commit 376991db4b64 ("driver core: Postpone DMA tear-down until after
-devres release"), we changed the ordering of tearing down the device DMA
-ops and releasing all the device's resources; this was because the DMA ops
-should be maintained until we release the device's managed DMA memories.
+is_slave_mode defaults to false because sai structure
+that contains it is kzalloc'ed.
 
-However, we have seen another crash on an arm64 system when a
-device driver probe fails:
+Anyhow, if we decide to set the following configuration
+SAI slave -> SAI master, is_slave_mode will remain set on true
+although SAI being master it should be set to false.
 
-  hisi_sas_v3_hw 0000:74:02.0: Adding to iommu group 2
-  scsi host1: hisi_sas_v3_hw
-  BUG: Bad page state in process swapper/0  pfn:313f5
-  page:ffff7e0000c4fd40 count:1 mapcount:0
-  mapping:0000000000000000 index:0x0
-  flags: 0xfffe00000001000(reserved)
-  raw: 0fffe00000001000 ffff7e0000c4fd48 ffff7e0000c4fd48
-0000000000000000
-  raw: 0000000000000000 0000000000000000 00000001ffffffff
-0000000000000000
-  page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-  bad because of flags: 0x1000(reserved)
-  Modules linked in:
-  CPU: 49 PID: 1 Comm: swapper/0 Not tainted
-5.1.0-rc1-43081-g22d97fd-dirty #1433
-  Hardware name: Huawei D06/D06, BIOS Hisilicon D06 UEFI
-RC0 - V1.12.01 01/29/2019
-  Call trace:
-  dump_backtrace+0x0/0x118
-  show_stack+0x14/0x1c
-  dump_stack+0xa4/0xc8
-  bad_page+0xe4/0x13c
-  free_pages_check_bad+0x4c/0xc0
-  __free_pages_ok+0x30c/0x340
-  __free_pages+0x30/0x44
-  __dma_direct_free_pages+0x30/0x38
-  dma_direct_free+0x24/0x38
-  dma_free_attrs+0x9c/0xd8
-  dmam_release+0x20/0x28
-  release_nodes+0x17c/0x220
-  devres_release_all+0x34/0x54
-  really_probe+0xc4/0x2c8
-  driver_probe_device+0x58/0xfc
-  device_driver_attach+0x68/0x70
-  __driver_attach+0x94/0xdc
-  bus_for_each_dev+0x5c/0xb4
-  driver_attach+0x20/0x28
-  bus_add_driver+0x14c/0x200
-  driver_register+0x6c/0x124
-  __pci_register_driver+0x48/0x50
-  sas_v3_pci_driver_init+0x20/0x28
-  do_one_initcall+0x40/0x25c
-  kernel_init_freeable+0x2b8/0x3c0
-  kernel_init+0x10/0x100
-  ret_from_fork+0x10/0x18
-  Disabling lock debugging due to kernel taint
-  BUG: Bad page state in process swapper/0  pfn:313f6
-  page:ffff7e0000c4fd80 count:1 mapcount:0
-mapping:0000000000000000 index:0x0
-[   89.322983] flags: 0xfffe00000001000(reserved)
-  raw: 0fffe00000001000 ffff7e0000c4fd88 ffff7e0000c4fd88
-0000000000000000
-  raw: 0000000000000000 0000000000000000 00000001ffffffff
-0000000000000000
+Fix this by updating is_slave_mode for each call of
+fsl_sai_set_dai_fmt.
 
-The crash occurs for the same reason.
-
-In this case, on the really_probe() failure path, we are still clearing
-the DMA ops prior to releasing the device's managed memories.
-
-This patch fixes this issue by reordering the DMA ops teardown and the
-call to devres_release_all() on the failure path.
-
-Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
-Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/fsl/fsl_sai.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index d62487d024559..4add909e1a912 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -486,7 +486,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	if (dev->bus->dma_configure) {
- 		ret = dev->bus->dma_configure(dev);
- 		if (ret)
--			goto dma_failed;
-+			goto probe_failed;
- 	}
- 
- 	if (driver_sysfs_add(dev)) {
-@@ -542,14 +542,13 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	goto done;
- 
- probe_failed:
--	arch_teardown_dma_ops(dev);
--dma_failed:
- 	if (dev->bus)
- 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
- 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
- pinctrl_bind_failed:
- 	device_links_no_driver(dev);
- 	devres_release_all(dev);
-+	arch_teardown_dma_ops(dev);
- 	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
- 	dev_set_drvdata(dev, NULL);
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 4163f2cfc06fc..bfc5b21d0c3f9 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -268,12 +268,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		sai->is_slave_mode = true;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBS_CFM:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFS:
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
 -- 
 2.20.1
 
