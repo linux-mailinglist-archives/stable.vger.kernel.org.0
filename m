@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9121026CCF
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1BB26CD1
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733159AbfEVTaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53588 "EHLO mail.kernel.org"
+        id S1733188AbfEVTaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:30:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733173AbfEVTaL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:30:11 -0400
+        id S1733178AbfEVTaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601E4217D7;
-        Wed, 22 May 2019 19:30:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B134C21473;
+        Wed, 22 May 2019 19:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553411;
-        bh=QxLbg+iBDQ7p8auMAtANB0+lL3E39nPvC/YZnTI6xQs=;
+        s=default; t=1558553413;
+        bh=WeJsRdSZVlFBrxd9T9tJ8zeLOk+9iaySj+649hQDRCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+1jc8IvcOjfKUl+SltfrYRUMc2iYFdmQRRilORguKMON70X17NVEnxRCh9NMYk14
-         hEcl01TyJ4Yx0/K8QrrSV+XXqVeI3gAzBf+sqh2WcwTfuTrsBz38CDpxViHKnbpWfm
-         JLrZehEtWgyw8CYE6QJi7tkJ3U7mKdByTApQEm7o=
+        b=h6D2jayMPyxHHKyGXIFmO1Vt61A5P3fGULFNpZi3ps2vm+dbA7DpByliFVi4Y8kiF
+         ldEvll9Y2IUHy/Qw6KP05ytqIuPbpPxXy7jOP4WtPs0MZ2MIWmlcfmbc4vmxBQZcSJ
+         ycIY+cUDRPqZrcdjeZMK52M3qjOYleI+BjnSBhJE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 059/167] media: coda: clear error return value before picture run
-Date:   Wed, 22 May 2019 15:26:54 -0400
-Message-Id: <20190522192842.25858-59-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 060/167] media: ov6650: Move v4l2_clk_get() to ov6650_video_probe() helper
+Date:   Wed, 22 May 2019 15:26:55 -0400
+Message-Id: <20190522192842.25858-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
 References: <20190522192842.25858-1-sashal@kernel.org>
@@ -44,37 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit bbeefa7357a648afe70e7183914c87c3878d528d ]
+[ Upstream commit ccdd85d518d8b9320ace1d87271f0ba2175f21fa ]
 
-The error return value is not written by some firmware codecs, such as
-MPEG-2 decode on CodaHx4. Clear the error return value before starting
-the picture run to avoid misinterpreting unrelated values returned by
-sequence initialization as error return value.
+In preparation for adding asynchronous subdevice support to the driver,
+don't acquire v4l2_clk from the driver .probe() callback as that may
+fail if the clock is provided by a bridge driver which may be not yet
+initialized.  Move the v4l2_clk_get() to ov6650_video_probe() helper
+which is going to be converted to v4l2_subdev_internal_ops.registered()
+callback, executed only when the bridge driver is ready.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/i2c/ov6650.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 3457a5f1c8a8e..6eee55430d46a 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1948,6 +1948,9 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
- 	/* Clear decode success flag */
- 	coda_write(dev, 0, CODA_RET_DEC_PIC_SUCCESS);
+diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
+index 768f2950ea361..965043578323e 100644
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -822,9 +822,16 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 	u8		pidh, pidl, midh, midl;
+ 	int		ret;
  
-+	/* Clear error return value */
-+	coda_write(dev, 0, CODA_RET_DEC_PIC_ERR_MB);
++	priv->clk = v4l2_clk_get(&client->dev, NULL);
++	if (IS_ERR(priv->clk)) {
++		ret = PTR_ERR(priv->clk);
++		dev_err(&client->dev, "v4l2_clk request err: %d\n", ret);
++		return ret;
++	}
 +
- 	trace_coda_dec_pic_run(ctx, meta);
+ 	ret = ov6650_s_power(&priv->subdev, 1);
+ 	if (ret < 0)
+-		return ret;
++		goto eclkput;
  
- 	coda_command_async(ctx, CODA_COMMAND_PIC_RUN);
+ 	/*
+ 	 * check and show product ID and manufacturer ID
+@@ -859,6 +866,11 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 
+ done:
+ 	ov6650_s_power(&priv->subdev, 0);
++	if (!ret)
++		return 0;
++eclkput:
++	v4l2_clk_put(priv->clk);
++
+ 	return ret;
+ }
+ 
+@@ -1004,18 +1016,9 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
+-	priv->clk = v4l2_clk_get(&client->dev, NULL);
+-	if (IS_ERR(priv->clk)) {
+-		ret = PTR_ERR(priv->clk);
+-		goto eclkget;
+-	}
+-
+ 	ret = ov6650_video_probe(client);
+-	if (ret) {
+-		v4l2_clk_put(priv->clk);
+-eclkget:
++	if (ret)
+ 		v4l2_ctrl_handler_free(&priv->hdl);
+-	}
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
