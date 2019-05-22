@@ -2,35 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80EA727017
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883B727005
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730535AbfEVTWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43374 "EHLO mail.kernel.org"
+        id S1729879AbfEVTWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:22:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729879AbfEVTWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:22:39 -0400
+        id S1729670AbfEVTWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:22:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5650206BA;
-        Wed, 22 May 2019 19:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D148821473;
+        Wed, 22 May 2019 19:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552958;
-        bh=a11I/vaysv3cnziupvfWXBYA79pLSBTiQQe3gQRDAO8=;
+        s=default; t=1558552960;
+        bh=BtJ2PSA7lzUFglQbHDLlvlNIJuTaiwvd4PSRXSs8TB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxgnZeR18fI0ZVrQjXxbIJwQ76Kjob3eCpBAHXr+CH46a3pSsLMKVuy7Gqd3ebR5V
-         z9Yj04JUyRKPgp9TU08TsJkjICu/a8rnhK9GyBYmWQcE4ZTNxKLNv3SNwUoEu6cYMS
-         bvI819HZp27eFFPs0f+qbCOMMDVISwkLJI8f39oo=
+        b=Z5WYyBLIEAfogPVLNb8MlDYBrbocmIusxj2TnDPhBgS0upC3yra2a5SrttBryrvCH
+         C5JrH1fXvtGXbctXGT2ZxbD82jGrHA6f4FiNpFJLlGgfG3O9VvV38g8b8cbZx6CkTI
+         wKM0CPe5DRHzDtVcsd7wAI0G0mCs7239C5O6ET2E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 047/375] mt76: remove mt76_queue dependency from tx_queue_skb function pointer
-Date:   Wed, 22 May 2019 15:15:47 -0400
-Message-Id: <20190522192115.22666-47-sashal@kernel.org>
+Cc:     Nadav Amit <namit@vmware.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        akpm@linux-foundation.org, ard.biesheuvel@linaro.org,
+        deneen.t.dock@intel.com, kernel-hardening@lists.openwall.com,
+        kristen@linux.intel.com, linux_dti@icloud.com, will.deacon@arm.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 048/375] x86/ftrace: Set trampoline pages as executable
+Date:   Wed, 22 May 2019 15:15:48 -0400
+Message-Id: <20190522192115.22666-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -43,177 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Nadav Amit <namit@vmware.com>
 
-[ Upstream commit 89a37842b0c13c9e568bf12f4fcbe6507147e41d ]
+[ Upstream commit 3c0dab44e22782359a0a706cbce72de99a22aa75 ]
 
-Remove mt76_queue dependency from tx_queue_skb function pointer and
-rely on mt76_tx_qid instead. This is a preliminary patch to introduce
-mt76_sw_queue support
+Since alloc_module() will not set the pages as executable soon, set
+ftrace trampoline pages as executable after they are allocated.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+For the time being, do not change ftrace to use the text_poke()
+interface. As a result, ftrace still breaks W^X.
+
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <akpm@linux-foundation.org>
+Cc: <ard.biesheuvel@linaro.org>
+Cc: <deneen.t.dock@intel.com>
+Cc: <kernel-hardening@lists.openwall.com>
+Cc: <kristen@linux.intel.com>
+Cc: <linux_dti@icloud.com>
+Cc: <will.deacon@arm.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190426001143.4983-10-namit@vmware.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c           |  3 ++-
- drivers/net/wireless/mediatek/mt76/mt76.h          |  4 ++--
- drivers/net/wireless/mediatek/mt76/mt7603/beacon.c |  6 +++---
- drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c  |  4 ++--
- drivers/net/wireless/mediatek/mt76/tx.c            | 10 +++++-----
- drivers/net/wireless/mediatek/mt76/usb.c           |  3 ++-
- 6 files changed, 16 insertions(+), 14 deletions(-)
+ arch/x86/kernel/ftrace.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 76629b98c78d7..8c7ee8302fb87 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -271,10 +271,11 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, enum mt76_txq_id qid,
- 	return 0;
- }
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index ef49517f6bb24..53ba1aa3a01f8 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -730,6 +730,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	unsigned long end_offset;
+ 	unsigned long op_offset;
+ 	unsigned long offset;
++	unsigned long npages;
+ 	unsigned long size;
+ 	unsigned long retq;
+ 	unsigned long *ptr;
+@@ -762,6 +763,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 		return 0;
  
--int mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
-+int mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
- 			  struct sk_buff *skb, struct mt76_wcid *wcid,
- 			  struct ieee80211_sta *sta)
- {
-+	struct mt76_queue *q = &dev->q_tx[qid];
- 	struct mt76_queue_entry e;
- 	struct mt76_txwi_cache *t;
- 	struct mt76_queue_buf buf[32];
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
-index bcbfd3c4a44b6..eb882b2cbc0ec 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76.h
-@@ -156,7 +156,7 @@ struct mt76_queue_ops {
- 		       struct mt76_queue_buf *buf, int nbufs, u32 info,
- 		       struct sk_buff *skb, void *txwi);
+ 	*tramp_size = size + RET_SIZE + sizeof(void *);
++	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
  
--	int (*tx_queue_skb)(struct mt76_dev *dev, struct mt76_queue *q,
-+	int (*tx_queue_skb)(struct mt76_dev *dev, enum mt76_txq_id qid,
- 			    struct sk_buff *skb, struct mt76_wcid *wcid,
- 			    struct ieee80211_sta *sta);
+ 	/* Copy ftrace_caller onto the trampoline memory */
+ 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
+@@ -806,6 +808,12 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	/* ALLOC_TRAMP flags lets us know we created it */
+ 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
  
-@@ -645,7 +645,7 @@ static inline struct mt76_tx_cb *mt76_tx_skb_cb(struct sk_buff *skb)
- 	return ((void *) IEEE80211_SKB_CB(skb)->status.status_driver_data);
- }
- 
--int mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
-+int mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
- 			  struct sk_buff *skb, struct mt76_wcid *wcid,
- 			  struct ieee80211_sta *sta);
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/beacon.c b/drivers/net/wireless/mediatek/mt76/mt7603/beacon.c
-index 4dcb465095d19..99c0a3ba37cb7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7603/beacon.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/beacon.c
-@@ -23,7 +23,7 @@ mt7603_update_beacon_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
- 	if (!skb)
- 		return;
- 
--	mt76_dma_tx_queue_skb(&dev->mt76, &dev->mt76.q_tx[MT_TXQ_BEACON], skb,
-+	mt76_dma_tx_queue_skb(&dev->mt76, MT_TXQ_BEACON, skb,
- 			      &mvif->sta.wcid, NULL);
- 
- 	spin_lock_bh(&dev->ps_lock);
-@@ -118,8 +118,8 @@ void mt7603_pre_tbtt_tasklet(unsigned long arg)
- 		struct ieee80211_vif *vif = info->control.vif;
- 		struct mt7603_vif *mvif = (struct mt7603_vif *)vif->drv_priv;
- 
--		mt76_dma_tx_queue_skb(&dev->mt76, q, skb, &mvif->sta.wcid,
--				      NULL);
-+		mt76_dma_tx_queue_skb(&dev->mt76, MT_TXQ_CAB, skb,
-+				      &mvif->sta.wcid, NULL);
- 	}
- 	mt76_queue_kick(dev, q);
- 	spin_unlock_bh(&q->lock);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c b/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-index daaed1220147e..952fe19cba9b6 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-@@ -146,8 +146,8 @@ static void mt76x02_pre_tbtt_tasklet(unsigned long arg)
- 		struct ieee80211_vif *vif = info->control.vif;
- 		struct mt76x02_vif *mvif = (struct mt76x02_vif *)vif->drv_priv;
- 
--		mt76_dma_tx_queue_skb(&dev->mt76, q, skb, &mvif->group_wcid,
--				      NULL);
-+		mt76_dma_tx_queue_skb(&dev->mt76, MT_TXQ_PSD, skb,
-+				      &mvif->group_wcid, NULL);
- 	}
- 	spin_unlock_bh(&q->lock);
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/tx.c b/drivers/net/wireless/mediatek/mt76/tx.c
-index 2585df5123350..0c1036da9a92a 100644
---- a/drivers/net/wireless/mediatek/mt76/tx.c
-+++ b/drivers/net/wireless/mediatek/mt76/tx.c
-@@ -286,7 +286,7 @@ mt76_tx(struct mt76_dev *dev, struct ieee80211_sta *sta,
- 	q = &dev->q_tx[qid];
- 
- 	spin_lock_bh(&q->lock);
--	dev->queue_ops->tx_queue_skb(dev, q, skb, wcid, sta);
-+	dev->queue_ops->tx_queue_skb(dev, qid, skb, wcid, sta);
- 	dev->queue_ops->kick(dev, q);
- 
- 	if (q->queued > q->ndesc - 8 && !q->stopped) {
-@@ -327,7 +327,6 @@ mt76_queue_ps_skb(struct mt76_dev *dev, struct ieee80211_sta *sta,
- {
- 	struct mt76_wcid *wcid = (struct mt76_wcid *) sta->drv_priv;
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
--	struct mt76_queue *hwq = &dev->q_tx[MT_TXQ_PSD];
- 
- 	info->control.flags |= IEEE80211_TX_CTRL_PS_RESPONSE;
- 	if (last)
-@@ -335,7 +334,7 @@ mt76_queue_ps_skb(struct mt76_dev *dev, struct ieee80211_sta *sta,
- 			       IEEE80211_TX_CTL_REQ_TX_STATUS;
- 
- 	mt76_skb_set_moredata(skb, !last);
--	dev->queue_ops->tx_queue_skb(dev, hwq, skb, wcid, sta);
-+	dev->queue_ops->tx_queue_skb(dev, MT_TXQ_PSD, skb, wcid, sta);
- }
- 
- void
-@@ -390,6 +389,7 @@ mt76_txq_send_burst(struct mt76_dev *dev, struct mt76_queue *hwq,
- 		    struct mt76_txq *mtxq, bool *empty)
- {
- 	struct ieee80211_txq *txq = mtxq_to_txq(mtxq);
-+	enum mt76_txq_id qid = mt76_txq_get_qid(txq);
- 	struct ieee80211_tx_info *info;
- 	struct mt76_wcid *wcid = mtxq->wcid;
- 	struct sk_buff *skb;
-@@ -423,7 +423,7 @@ mt76_txq_send_burst(struct mt76_dev *dev, struct mt76_queue *hwq,
- 	if (ampdu)
- 		mt76_check_agg_ssn(mtxq, skb);
- 
--	idx = dev->queue_ops->tx_queue_skb(dev, hwq, skb, wcid, txq->sta);
-+	idx = dev->queue_ops->tx_queue_skb(dev, qid, skb, wcid, txq->sta);
- 
- 	if (idx < 0)
- 		return idx;
-@@ -458,7 +458,7 @@ mt76_txq_send_burst(struct mt76_dev *dev, struct mt76_queue *hwq,
- 		if (cur_ampdu)
- 			mt76_check_agg_ssn(mtxq, skb);
- 
--		idx = dev->queue_ops->tx_queue_skb(dev, hwq, skb, wcid,
-+		idx = dev->queue_ops->tx_queue_skb(dev, qid, skb, wcid,
- 						   txq->sta);
- 		if (idx < 0)
- 			return idx;
-diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
-index 4c1abd4924054..b1551419338f0 100644
---- a/drivers/net/wireless/mediatek/mt76/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/usb.c
-@@ -726,10 +726,11 @@ mt76u_tx_build_sg(struct mt76_dev *dev, struct sk_buff *skb,
- }
- 
- static int
--mt76u_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
-+mt76u_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
- 		   struct sk_buff *skb, struct mt76_wcid *wcid,
- 		   struct ieee80211_sta *sta)
- {
-+	struct mt76_queue *q = &dev->q_tx[qid];
- 	struct mt76u_buf *buf;
- 	u16 idx = q->tail;
- 	int err;
++	/*
++	 * Module allocation needs to be completed by making the page
++	 * executable. The page is still writable, which is a security hazard,
++	 * but anyhow ftrace breaks W^X completely.
++	 */
++	set_memory_x((unsigned long)trampoline, npages);
+ 	return (unsigned long)trampoline;
+ fail:
+ 	tramp_free(trampoline, *tramp_size);
 -- 
 2.20.1
 
