@@ -2,96 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2423E25AE1
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 01:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D1D625B2C
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 02:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbfEUXdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 May 2019 19:33:20 -0400
-Received: from dcvr.yhbt.net ([64.71.152.64]:59806 "EHLO dcvr.yhbt.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726017AbfEUXdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 May 2019 19:33:20 -0400
-Received: from localhost (dcvr.yhbt.net [127.0.0.1])
-        by dcvr.yhbt.net (Postfix) with ESMTP id 7D2A61F462;
-        Tue, 21 May 2019 23:33:19 +0000 (UTC)
-Date:   Tue, 21 May 2019 23:33:19 +0000
-From:   Eric Wong <e@80x24.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
-        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
-        arnd@arndb.de, dbueso@suse.de, axboe@kernel.dk, dave@stgolabs.net,
-        jbaron@akamai.com, linux-fsdevel@vger.kernel.org,
-        linux-aio@kvack.org, omar.kilani@gmail.com, tglx@linutronix.de,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [PATCH 1/1] signal: Adjust error codes according to
- restore_user_sigmask()
-Message-ID: <20190521233319.GA17957@dcvr>
-References: <20190507043954.9020-1-deepa.kernel@gmail.com>
- <20190521092551.fwtb6recko3tahwj@dcvr>
- <20190521152748.6b4cd70cf83a1183caa6aae7@linux-foundation.org>
+        id S1726466AbfEVAcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 May 2019 20:32:23 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:36516 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726083AbfEVAcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 May 2019 20:32:23 -0400
+Received: by mail-pl1-f195.google.com with SMTP id d21so162541plr.3;
+        Tue, 21 May 2019 17:32:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=VGIvfzaOgeWFcIXYZN/wl5CoVxGOnE9T7onHlmNH6wQ=;
+        b=irs3SrhUMnEuURqj4z1l/qbrI/tSUIj4JARNCqEv2ZDuEphpUHEn66u0jq75y0Pr/G
+         IX/3C+VcFXcn2ztVs9QciOLvrsfQq5WKLoiAWMeOw1dtFiaIcd+T5n6CikV2PkQyLPDY
+         TBqkUP0vfXVuOozFIT4NQwmsylCIlVR0+500jLAfmbYzE4w2hG0oTZ0I1ByPVaucZ45w
+         4TXNyp5809Mcg8YsovW2CXgmQOD56nnHsVojyCmNHVBJm0yzADH+W2kMbqTyYKqVsJ9M
+         G92nJzXaOYx65NOtGVSu+cevDD3bo7Me+/xqeRHCs9PjWDaUmFmZ2cE3V6VDM+nvvRAY
+         iCGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=VGIvfzaOgeWFcIXYZN/wl5CoVxGOnE9T7onHlmNH6wQ=;
+        b=UqbfMMgb+R5k2X/RrOsLuPO7dRjp3PaANN33xiDods9ej3XoYXqdf5LPhug5gKqFdY
+         jpSNFltYUvgALwQYIHps+aW0xyHLI8PAfFAAfr2FqadNvhoBVtCc0re1qg1jEdIz1ZBz
+         scPwkNJR9raGmwH2i+ZqNRNn1DAvrpnD560g+bP/oSrT5/MLQCkHGhXkTRXNv2T1Gahc
+         FG5LjJTzQz4u2IIJe1SXzEhVE4oSTKOuLUltN71mqkhIZRRf5EWhA9dVWwpNTZv46wvD
+         3NN9lAiLwKW5zpy+FCkcrs6BzzB+9qwHAFrAVC4IN5lEPoAMc/BMb0jjNKVqe2HDEXPF
+         MfXQ==
+X-Gm-Message-State: APjAAAX8KaljwItbKE2jpFHnaBfnJUwO6vauqCpymY6Mb+9/hYh6ziVo
+        dtw39w0A5upAvKbqoAYHpN68RjF7
+X-Google-Smtp-Source: APXvYqxlAWK6Bw1UuJ99F3bEAK9UPQdnN9Ry/S6IfVRHFvOTn3CddATKf0VN7dD2QMZ8hdkTz846ow==
+X-Received: by 2002:a17:902:6b:: with SMTP id 98mr86611463pla.271.1558485142252;
+        Tue, 21 May 2019 17:32:22 -0700 (PDT)
+Received: from [172.30.90.239] (sjewanfw1-nat.mentorg.com. [139.181.7.34])
+        by smtp.gmail.com with ESMTPSA id 14sm26253668pfx.13.2019.05.21.17.32.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 21 May 2019 17:32:20 -0700 (PDT)
+Subject: Re: [PATCH v7 2/5] gpu: ipu-v3: ipu-ic: Fully describe colorspace
+ conversions
+To:     Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20190406230903.16488-3-slongerbeam@gmail.com>
+ <20190408145233.7F26F214C6@mail.kernel.org>
+From:   Steve Longerbeam <slongerbeam@gmail.com>
+Message-ID: <c49da0a6-1165-b283-a4f2-ba02b73af5b5@gmail.com>
+Date:   Tue, 21 May 2019 17:32:16 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190521152748.6b4cd70cf83a1183caa6aae7@linux-foundation.org>
+In-Reply-To: <20190408145233.7F26F214C6@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andrew Morton <akpm@linux-foundation.org> wrote:
-> On Tue, 21 May 2019 09:25:51 +0000 Eric Wong <e@80x24.org> wrote:
-> 
-> > Deepa Dinamani <deepa.kernel@gmail.com> wrote:
-> > > For all the syscalls that receive a sigmask from the userland,
-> > > the user sigmask is to be in effect through the syscall execution.
-> > > At the end of syscall, sigmask of the current process is restored
-> > > to what it was before the switch over to user sigmask.
-> > > But, for this to be true in practice, the sigmask should be restored
-> > > only at the the point we change the saved_sigmask. Anything before
-> > > that loses signals. And, anything after is just pointless as the
-> > > signal is already lost by restoring the sigmask.
-> > > 
-> > > The inherent issue was detected because of a regression caused by
-> > > 854a6ed56839a.
-> > > The patch moved the signal_pending() check closer to restoring of the
-> > > user sigmask. But, it failed to update the error code accordingly.
-> > > 
-> > > Detailed issue discussion permalink:
-> > > https://lore.kernel.org/linux-fsdevel/20190427093319.sgicqik2oqkez3wk@dcvr/
-> > > 
-> > > Note that the patch returns interrupted errors (EINTR, ERESTARTNOHAND,
-> > > etc) only when there is no other error. If there is a signal and an error
-> > > like EINVAL, the syscalls return -EINVAL rather than the interrupted
-> > > error codes.
-> > > 
-> > > The sys_io_uring_enter() seems to be returning success when there is
-> > > a signal and the queue is not empty. This seems to be a bug. I will
-> > > follow up with a separate patch for that.
-> > > 
-> > > Reported-by: Eric Wong <e@80x24.org>
-> > > Fixes: 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add restore_user_sigmask()")
-> > > Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-> > > Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-> 
-> (top-posting fixed).
-> 
-> > It's been 2 weeks and this fix hasn't appeared in mmots / mmotm.
-> > I also noticed it's missing Cc: for stable@ (below)
-> 
-> Why is a -stable backport needed?  I see some talk above about lost
-> signals but it is unclear whether these are being observed after fixing
-> the regression caused by 854a6ed56839a.
+Hi Sasha,
 
-I guess Deepa's commit messages wasn't clear...
-I suggest prepending this as the first paragraph to Deepa's
-original message:
+On 4/8/19 7:52 AM, Sasha Levin wrote:
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 1aa8ea0d2bd5 gpu: ipu-v3: Add Image Converter unit.
+>
+> The bot has tested the following trees: v5.0.7, v4.19.34, v4.14.111, v4.9.168, v4.4.178, v3.18.138.
+>
+> v5.0.7: Failed to apply! Possible dependencies:
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>
+> v4.19.34: Failed to apply! Possible dependencies:
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>      70b9b6b3bcb2 ("gpu: ipu-v3: image-convert: calculate per-tile resize coefficients")
+>      d0cbc93a0110 ("gpu: ipu-v3: ipu-ic: allow to manually set resize coefficients")
+>      dd65d2a93b0c ("gpu: ipu-v3: image-convert: prepare for per-tile configuration")
+>
+> v4.14.111: Failed to apply! Possible dependencies:
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>      70b9b6b3bcb2 ("gpu: ipu-v3: image-convert: calculate per-tile resize coefficients")
+>      d0cbc93a0110 ("gpu: ipu-v3: ipu-ic: allow to manually set resize coefficients")
+>      dd65d2a93b0c ("gpu: ipu-v3: image-convert: prepare for per-tile configuration")
+>
+> v4.9.168: Failed to apply! Possible dependencies:
+>      30310c835f3e ("gpu: ipu-v3: don't depend on DRM being enabled")
+>      4a34ec8e470c ("[media] media: imx: Add CSI subdev driver")
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>      64b5a49df486 ("[media] media: imx: Add Capture Device Interface")
+>      70b9b6b3bcb2 ("gpu: ipu-v3: image-convert: calculate per-tile resize coefficients")
+>      8d67ae25a9ea ("[media] media: v4l2-ctrls: Reserve controls for MAX217X")
+>      92681fe7e98e ("gpu: ipu-v3: hook up PRG unit")
+>      93dae31149bf ("[media] media: imx: Add VDIC subdev driver")
+>      d0cbc93a0110 ("gpu: ipu-v3: ipu-ic: allow to manually set resize coefficients")
+>      d2a34232580a ("gpu: ipu-v3: add driver for Prefetch Resolve Engine")
+>      dd65d2a93b0c ("gpu: ipu-v3: image-convert: prepare for per-tile configuration")
+>      e130291212df ("[media] media: Add i.MX media core driver")
+>      ea9c260514c1 ("gpu: ipu-v3: add driver for Prefetch Resolve Gasket")
+>      f0d9c8924e2c ("[media] media: imx: Add IC subdev drivers")
+>
+> v4.4.178: Failed to apply! Possible dependencies:
+>      2d2ead453077 ("gpu: ipu-v3: Add Video Deinterlacer unit")
+>      30310c835f3e ("gpu: ipu-v3: don't depend on DRM being enabled")
+>      4a34ec8e470c ("[media] media: imx: Add CSI subdev driver")
+>      572a7615aedd ("gpu: ipu-v3: Add ipu_get_num()")
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>      64b5a49df486 ("[media] media: imx: Add Capture Device Interface")
+>      70b9b6b3bcb2 ("gpu: ipu-v3: image-convert: calculate per-tile resize coefficients")
+>      8d67ae25a9ea ("[media] media: v4l2-ctrls: Reserve controls for MAX217X")
+>      92681fe7e98e ("gpu: ipu-v3: hook up PRG unit")
+>      93dae31149bf ("[media] media: imx: Add VDIC subdev driver")
+>      cd98e85a6b78 ("gpu: ipu-v3: Add queued image conversion support")
+>      d0cbc93a0110 ("gpu: ipu-v3: ipu-ic: allow to manually set resize coefficients")
+>      d2a34232580a ("gpu: ipu-v3: add driver for Prefetch Resolve Engine")
+>      dd65d2a93b0c ("gpu: ipu-v3: image-convert: prepare for per-tile configuration")
+>      e130291212df ("[media] media: Add i.MX media core driver")
+>      ea9c260514c1 ("gpu: ipu-v3: add driver for Prefetch Resolve Gasket")
+>      f0d9c8924e2c ("[media] media: imx: Add IC subdev drivers")
+>
+> v3.18.138: Failed to apply! Possible dependencies:
+>      029d61779189 ("[media] adv7180: Cleanup register define naming")
+>      08b717c2ae8b ("[media] adv7180: Add fast switch support")
+>      2d2ead453077 ("gpu: ipu-v3: Add Video Deinterlacer unit")
+>      30310c835f3e ("gpu: ipu-v3: don't depend on DRM being enabled")
+>      3999e5d01da7 ("[media] adv7180: Do implicit register paging")
+>      3e35e33c086c ("[media] adv7180: Consolidate video mode setting")
+>      417d2e507edc ("[media] media: platform: add VPFE capture driver support for AM437X")
+>      572a7615aedd ("gpu: ipu-v3: Add ipu_get_num()")
+>      5a89b98a172c ("gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM")
+>      70b9b6b3bcb2 ("gpu: ipu-v3: image-convert: calculate per-tile resize coefficients")
+>      8d67ae25a9ea ("[media] media: v4l2-ctrls: Reserve controls for MAX217X")
+>      92681fe7e98e ("gpu: ipu-v3: hook up PRG unit")
+>      b37135e395c3 ("[media] adv7180: Add support for the adv7280-m/adv7281-m/adv7281-ma/adv7282-m")
+>      c18818e99067 ("[media] adv7180: Reset the device before initialization")
+>      c4c0283ab3cd ("[media] media: i2c: add support for omnivision's ov2659 sensor")
+>      cd98e85a6b78 ("gpu: ipu-v3: Add queued image conversion support")
+>      d0cbc93a0110 ("gpu: ipu-v3: ipu-ic: allow to manually set resize coefficients")
+>      d2a34232580a ("gpu: ipu-v3: add driver for Prefetch Resolve Engine")
+>      d32d98642de6 ("[media] Driver for Toshiba TC358743 HDMI to CSI-2 bridge")
+>      dd65d2a93b0c ("gpu: ipu-v3: image-convert: prepare for per-tile configuration")
+>      e130291212df ("[media] media: Add i.MX media core driver")
+>      ea9c260514c1 ("gpu: ipu-v3: add driver for Prefetch Resolve Gasket")
+>      f0d9c8924e2c ("[media] media: imx: Add IC subdev drivers")
+>      f5dde49b8f36 ("[media] adv7180: Prepare for multi-chip support")
+>
+>
+> How should we proceed with this patch?
 
-  This fixes a bug introduced with 854a6ed56839a which caused
-  EINTR to not be reported to userspace on epoll_pwait.  Failure
-  to report EINTR to userspace caused problems with user code
-  which relies on EINTR to run signal handlers.
+It will be too difficult to backport this patch to stable trees, so the 
+Fixes: tag should just be removed. I will resubmit this series without it.
 
-> IOW, can we please have a changelog which has a clear and complete
-> description of the user-visible effects of the change.
-> 
-> And please Cc Oleg.
+Steve
+
