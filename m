@@ -2,49 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB6125E3A
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 08:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3430625E3E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 08:39:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728525AbfEVGhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 02:37:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54378 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728438AbfEVGhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 02:37:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0831A2173C;
-        Wed, 22 May 2019 06:37:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558507052;
-        bh=Ne7MBZNHefjJFihtI9LoLR1nw0+6w9iEkYTdm2ZzUrk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K8mH+EZFLj8ShjbKD0c1MGlmmtsOT2cPuiEvZgEDKMM80tM2UFEnFOSo/VkPOuOFY
-         VY0JW2btfJDfuEsSqPOjTA4hLvTz00T7VmS1Mis9dESTCYV9Yh+F9D+G9XFHiyeHZ0
-         uzAYV9L1VepJPjIrkQ7YgTsOfmHJw9SokgAJObkE=
-Date:   Wed, 22 May 2019 08:36:45 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20190522063645.GA2637@kroah.com>
-References: <20190520.233745.1944769860995696408.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190520.233745.1944769860995696408.davem@davemloft.net>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+        id S1727733AbfEVGiP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 22 May 2019 02:38:15 -0400
+Received: from coyote.holtmann.net ([212.227.132.17]:35426 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfEVGiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 02:38:15 -0400
+Received: from marcel-macpro.fritz.box (p5B3D2A37.dip0.t-ipconnect.de [91.61.42.55])
+        by mail.holtmann.org (Postfix) with ESMTPSA id AE754CF183;
+        Wed, 22 May 2019 08:46:31 +0200 (CEST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Subject: Re: [PATCH] Revert "Bluetooth: Align minimum encryption key size for
+ LE and BR/EDR connections"
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20190522052002.10411-1-anarsoul@gmail.com>
+Date:   Wed, 22 May 2019 08:38:12 +0200
+Cc:     Johan Hedberg <johan.hedberg@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <6BD1D3F7-E2F2-4B2D-9479-06E27049133C@holtmann.org>
+References: <20190522052002.10411-1-anarsoul@gmail.com>
+To:     Vasily Khoruzhick <anarsoul@gmail.com>
+X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 20, 2019 at 11:37:45PM -0700, David Miller wrote:
+Hi Vasily,
+
+> This reverts commit d5bb334a8e171b262e48f378bd2096c0ea458265.
 > 
-> Please queue up the following networking bug fixes for v5.0 and v5.1
-> -stable, respectively.
+> This commit breaks some HID devices, see [1] for details
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=203643
+> 
+> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+> Cc: stable@vger.kernel.org
 
-All now queued up, thanks!
+let me have a look at this. Maybe there is a missing initialization for older HID devices that we need to handle. Do you happen to have the full btmon binary trace from controller initialization to connection attempt for me?
 
-greg k-h
+Are both devices Bluetooth 2.1 or later device that are supporting Secure Simple Pairing? Or is one of them a Bluetooth 2.0 or earlier device?
+
+Regards
+
+Marcel
+
