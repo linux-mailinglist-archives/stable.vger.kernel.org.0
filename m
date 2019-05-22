@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F18426F34
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5475826F1E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732020AbfEVTzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46826 "EHLO mail.kernel.org"
+        id S1730576AbfEVTZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:25:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730865AbfEVTZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:25:30 -0400
+        id S1731642AbfEVTZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:25:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B98C62173C;
-        Wed, 22 May 2019 19:25:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B094206BA;
+        Wed, 22 May 2019 19:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553129;
-        bh=Fy9BgBVc74QAoCS/z7JOP+vBjrHz1G376Mmq3tq1ww8=;
+        s=default; t=1558553134;
+        bh=PE2HGYiRWYm3bWODRvBBRePCT8SPjWHWuR9jyCnMjGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y83znSoCYrXFs8bMwLO7y7O3msUyEfeYX9gJGjr2eHvdybf3reCgbDosw4bNkrUkE
-         xEIqEw1nmrn3cxWJfF6v1a1XvfUyDwdkSsN3rcp/+bQ+UJ+kn4BY5R88SIqvYCpl7n
-         ATmEQk9Nrojrjxy5SSw9/rk74rbo/5RoS/7Nh/ss=
+        b=O0AoFZf7hIvYwk6cZa8RDNb/IfEF4GEDhWHoPPD2REtPOfbbbpIdoShvzqlM94Qga
+         EL/DiHyCK2jnJKJ8OQOo8J2n7VH8PpkQWy/fhO/+ndypvXmue50LNBoRAynnYC69II
+         i7vMPqpKWF8HcLKptC+rCQEsnXL7H+D6GS6mk2+4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
+Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 063/317] s390: qeth: address type mismatch warning
-Date:   Wed, 22 May 2019 15:19:24 -0400
-Message-Id: <20190522192338.23715-63-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 064/317] net: hns3: use atomic_t replace u32 for arq's count
+Date:   Wed, 22 May 2019 15:19:25 -0400
+Message-Id: <20190522192338.23715-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 References: <20190522192338.23715-1-sashal@kernel.org>
@@ -45,62 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Huazhong Tan <tanhuazhong@huawei.com>
 
-[ Upstream commit 46b83629dede262315aa82179d105581f11763b6 ]
+[ Upstream commit 30780a8b1677e7409b32ae52a9a84f7d41ae6b43 ]
 
-clang produces a harmless warning for each use for the qeth_adp_supported
-macro:
+Since irq handler and mailbox task will both update arq's count,
+so arq's count should use atomic_t instead of u32, otherwise
+its value may go wrong finally.
 
-drivers/s390/net/qeth_l2_main.c:559:31: warning: implicit conversion from enumeration type 'enum qeth_ipa_setadp_cmd' to
-      different enumeration type 'enum qeth_ipa_funcs' [-Wenum-conversion]
-        if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
-            ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/s390/net/qeth_core.h:179:41: note: expanded from macro 'qeth_adp_supported'
-        qeth_is_ipa_supported(&c->options.adp, f)
-        ~~~~~~~~~~~~~~~~~~~~~                  ^
-
-Add a version of this macro that uses the correct types, and
-remove the unused qeth_adp_enabled() macro that has the same
-problem.
-
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 07a0556a3a73 ("net: hns3: Changes to support ARQ(Asynchronous Receive Queue)")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h          | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 7 ++++---
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 122059ecad848..614bb0f34e8e2 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -215,6 +215,12 @@ struct qeth_vnicc_info {
- 	bool rx_bcast_enabled;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 691d12174902c..3c7a26bb83222 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -102,7 +102,7 @@ struct hclgevf_mbx_arq_ring {
+ 	struct hclgevf_dev *hdev;
+ 	u32 head;
+ 	u32 tail;
+-	u32 count;
++	atomic_t count;
+ 	u16 msg_q[HCLGE_MBX_MAX_ARQ_MSG_NUM][HCLGE_MBX_MAX_ARQ_MSG_SIZE];
  };
  
-+static inline int qeth_is_adp_supported(struct qeth_ipa_info *ipa,
-+		enum qeth_ipa_setadp_cmd func)
-+{
-+	return (ipa->supported_funcs & func);
-+}
-+
- static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
- 		enum qeth_ipa_funcs func)
- {
-@@ -228,9 +234,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+index 4e78e8812a045..b39ff5555a30e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+@@ -327,7 +327,7 @@ int hclgevf_cmd_init(struct hclgevf_dev *hdev)
+ 	hdev->arq.hdev = hdev;
+ 	hdev->arq.head = 0;
+ 	hdev->arq.tail = 0;
+-	hdev->arq.count = 0;
++	atomic_set(&hdev->arq.count, 0);
+ 	hdev->hw.cmq.csq.next_to_clean = 0;
+ 	hdev->hw.cmq.csq.next_to_use = 0;
+ 	hdev->hw.cmq.crq.next_to_clean = 0;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index 84653f58b2d10..fbba8b83b36c9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -207,7 +207,8 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 			/* we will drop the async msg if we find ARQ as full
+ 			 * and continue with next message
+ 			 */
+-			if (hdev->arq.count >= HCLGE_MBX_MAX_ARQ_MSG_NUM) {
++			if (atomic_read(&hdev->arq.count) >=
++			    HCLGE_MBX_MAX_ARQ_MSG_NUM) {
+ 				dev_warn(&hdev->pdev->dev,
+ 					 "Async Q full, dropping msg(%d)\n",
+ 					 req->msg[1]);
+@@ -219,7 +220,7 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 			memcpy(&msg_q[0], req->msg,
+ 			       HCLGE_MBX_MAX_ARQ_MSG_SIZE * sizeof(u16));
+ 			hclge_mbx_tail_ptr_move_arq(hdev->arq);
+-			hdev->arq.count++;
++			atomic_inc(&hdev->arq.count);
  
- #define qeth_adp_supported(c, f) \
--	qeth_is_ipa_supported(&c->options.adp, f)
--#define qeth_adp_enabled(c, f) \
--	qeth_is_ipa_enabled(&c->options.adp, f)
-+	qeth_is_adp_supported(&c->options.adp, f)
- #define qeth_is_supported(c, f) \
- 	qeth_is_ipa_supported(&c->options.ipa4, f)
- #define qeth_is_enabled(c, f) \
+ 			hclgevf_mbx_task_schedule(hdev);
+ 
+@@ -296,7 +297,7 @@ void hclgevf_mbx_async_handler(struct hclgevf_dev *hdev)
+ 		}
+ 
+ 		hclge_mbx_head_ptr_move_arq(hdev->arq);
+-		hdev->arq.count--;
++		atomic_dec(&hdev->arq.count);
+ 		msg_q = hdev->arq.msg_q[hdev->arq.head];
+ 	}
+ }
 -- 
 2.20.1
 
