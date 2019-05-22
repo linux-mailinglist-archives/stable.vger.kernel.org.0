@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8A926D43
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 469D026D3E
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 21:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731153AbfEVTkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52354 "EHLO mail.kernel.org"
+        id S1732844AbfEVT3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732455AbfEVT3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:29:21 -0400
+        id S1732832AbfEVT3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:29:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 089BC20675;
-        Wed, 22 May 2019 19:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C966204FD;
+        Wed, 22 May 2019 19:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553360;
-        bh=T0CgPAtw3smYgxwlLhfRZPK8BvZJpT1eQoQXT9bQzLU=;
+        s=default; t=1558553362;
+        bh=h8tpX0pHhsx8P5zznHyPlZZXH1TAx4K2tQSzVunBwNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWidELxyXKZwBEBznn22j7JXcE8WQeqyTBcQjaatS8G3Av3JacHJVKpol8aIrsrnL
-         DS3BVoL0ME6IBFaOIvSjfu5tvXSAmOjTS1kX23n6pWyeRv/kOIZmCK3SNrL4lxNEdh
-         hWEA8cwUtDsvfzz2R1QeEkO1PCgf8p3Dh6tePH1k=
+        b=wvn9QM/CM3tsbOwTB6Gs+Vfe9hLros1SmX8/6cdNs2zgkgOCgqVLT/eacynlICUot
+         4CPqDvAOcfvwxDcpY/M+RAOCG9uGP9KxNrw97KgtPgYDXkDA9yvEQDkx7mUt/mhlpL
+         +ajR/UOLdhCOItYy0TBvHFi+8Y2bNENlOFx5jxRU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bart Van Assche <bvanassche@acm.org>,
@@ -30,9 +30,9 @@ Cc:     Bart Van Assche <bvanassche@acm.org>,
         Giridhar Malavali <gmalavali@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 023/167] scsi: qla2xxx: Fix a qla24xx_enable_msix() error path
-Date:   Wed, 22 May 2019 15:26:18 -0400
-Message-Id: <20190522192842.25858-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 024/167] scsi: qla2xxx: Fix abort handling in tcm_qla2xxx_write_pending()
+Date:   Wed, 22 May 2019 15:26:19 -0400
+Message-Id: <20190522192842.25858-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
 References: <20190522192842.25858-1-sashal@kernel.org>
@@ -47,45 +47,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 24afabdbd0b3553963a2bbf465895492b14d1107 ]
+[ Upstream commit e209783d66bca04b5fce4429e59338517ffc1a0b ]
 
-Make sure that the allocated interrupts are freed if allocating memory for
-the msix_entries array fails.
+Implementations of the .write_pending() callback functions must guarantee
+that an appropriate LIO core callback function will be called immediately or
+at a later time.  Make sure that this guarantee is met for aborted SCSI
+commands.
+
+[mkp: typo]
 
 Cc: Himanshu Madhani <hmadhani@marvell.com>
 Cc: Giridhar Malavali <gmalavali@marvell.com>
+Fixes: 694833ee00c4 ("scsi: tcm_qla2xxx: Do not allow aborted cmd to advance.") # v4.13.
+Fixes: a07100e00ac4 ("qla2xxx: Fix TMR ABORT interaction issue between qla2xxx and TCM") # v4.5.
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index e073eb16f8a4a..df94ef816826b 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3395,7 +3395,7 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 		ql_log(ql_log_fatal, vha, 0x00c8,
- 		    "Failed to allocate memory for ha->msix_entries.\n");
- 		ret = -ENOMEM;
--		goto msix_out;
-+		goto free_irqs;
+diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+index 9465acd18df03..4c99f1797b489 100644
+--- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
++++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+@@ -391,6 +391,8 @@ static int tcm_qla2xxx_write_pending(struct se_cmd *se_cmd)
+ 			cmd->se_cmd.transport_state,
+ 			cmd->se_cmd.t_state,
+ 			cmd->se_cmd.se_cmd_flags);
++		transport_generic_request_failure(&cmd->se_cmd,
++			TCM_CHECK_CONDITION_ABORT_CMD);
+ 		return 0;
  	}
- 	ha->flags.msix_enabled = 1;
- 
-@@ -3477,6 +3477,10 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 
- msix_out:
- 	return ret;
-+
-+free_irqs:
-+	pci_free_irq_vectors(ha->pdev);
-+	goto msix_out;
- }
- 
- int
+ 	cmd->trc_flags |= TRC_XFR_RDY;
 -- 
 2.20.1
 
