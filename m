@@ -2,83 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2BE26927
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 19:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12588269FD
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 20:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729172AbfEVRgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 13:36:49 -0400
-Received: from mail-pg1-f181.google.com ([209.85.215.181]:42998 "EHLO
-        mail-pg1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729085AbfEVRgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 13:36:49 -0400
-Received: by mail-pg1-f181.google.com with SMTP id e17so1522789pgo.9
-        for <stable@vger.kernel.org>; Wed, 22 May 2019 10:36:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=nsdIr6vIsobebNitre+yMKwaX/E1/lRGkdW5n7MnntA=;
-        b=bl0t3nCyYP5QAtuPdqjEe50QN23zrVPBzdcS/pQoSLUD2tgELRIpf9TRtZKfo9cgIj
-         cYrKtBSi2mY6TKoRKnS/CFevpNLstv7h2zGcp45j38mmCnpKI/GFJrN6hQM74upb5POo
-         0mL38wlqpG/7kjI35reUg8T3PzdIQjxl2KNcaQ+1DvZWhTZLoIfONOqgabK0J43lYLuu
-         uWiv6QDl95R3dB5sSEU7lhzvp2/w24e8FJB+OIuF3eY7nBjamLxKcnocnZ4/BnDO92qN
-         h8lU+twRCYHT7YBuOAgTksvYnBtGMaKdDxavBx+X5e+B/kqEaC1cbYZsD8EMChXW/4fe
-         2a+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nsdIr6vIsobebNitre+yMKwaX/E1/lRGkdW5n7MnntA=;
-        b=THXaPbkn90UMyJL1ncN7DMZ/ErnHyLzD/JoTNxMSlXZEoYiMHt5a4m4FS8WbERU6xD
-         U9aTS3Nu6YXljKatFhiWkBt/CfoFz0W0/f+Y8UDi4LrYj21nnRAqfTprQxtT1WqkaODr
-         abNwY/cK9NRDpMrdfKKBiAN+i4iwnyFp4QEtIawjeB/Tk6IuJhpfLWR962tD0fcm/0VX
-         koNnEia2PEK/t6g/AHPdx+0Zy1dwwmOO6+9bfJUsFtePDPMUIjsC1KHLe6oxGge4wXnT
-         TvFaqxsNMfsAM8HN9JMvGIZAgovbpntFAIIjnBFIpNhZ2a/W4BD6yLpYh0on/X7i/tTv
-         +k4w==
-X-Gm-Message-State: APjAAAWLB9MNUzfhyOa8n6h2rwFrhDLtB+EMRRZqb6cenA8XcA1JATe1
-        aIinnkC/Zye9al8c6fSK6KMICHBk
-X-Google-Smtp-Source: APXvYqzk9ReU3YKpS+hSuhjbbjX8fl71qRSPG+84YBTzrhRxR76oqingmtg+/+ac4+E0SD/r+J++gQ==
-X-Received: by 2002:a63:5659:: with SMTP id g25mr92485786pgm.59.1558546608483;
-        Wed, 22 May 2019 10:36:48 -0700 (PDT)
-Received: from ?IPv6:2601:282:800:fd80:f892:82c5:66c:c52c? ([2601:282:800:fd80:f892:82c5:66c:c52c])
-        by smtp.googlemail.com with ESMTPSA id x28sm36437211pfo.78.2019.05.22.10.36.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 May 2019 10:36:47 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] ipv6: prevent possible fib6 leaks" failed
- to apply to 4.14-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     edumazet@google.com, davem@davemloft.net, kafai@fb.com,
-        syzkaller@googlegroups.com, weiwan@google.com,
-        stable@vger.kernel.org
-References: <155854389617965@kroah.com>
- <84edd412-c07d-28be-1723-a4727ae2ea56@gmail.com>
- <20190522172945.GA25977@kroah.com>
-From:   David Ahern <dsahern@gmail.com>
-Message-ID: <6081e160-5d74-0ec7-59cc-56cdecbaad41@gmail.com>
-Date:   Wed, 22 May 2019 11:36:45 -0600
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:52.0)
- Gecko/20100101 Thunderbird/52.9.1
-MIME-Version: 1.0
-In-Reply-To: <20190522172945.GA25977@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728533AbfEVSme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 14:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54964 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728450AbfEVSme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 14:42:34 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C581120881;
+        Wed, 22 May 2019 18:42:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558550553;
+        bh=/LRpo3+PSJJsRXfvwHBEjPSfTGUZA7TS2tiH8tC5Q4M=;
+        h=Date:From:To:Subject:From;
+        b=XPm345LFr+s6XTDSTRzYBxRvskvhpMIU8Yc2cvVKRYNhgfJPvCtmFQyfWWA5ONeY6
+         xpc4SukAvv1NfqWqddIfRS8tTr8tdh+Nc1WRvRreX/TPKjFV4MjFoUmLxI7aF7UV/0
+         Sa+aydBRZp3dPwYhlpGlSrTuSWQ9wNXuXRIWjMSE=
+Date:   Wed, 22 May 2019 11:42:32 -0700
+From:   akpm@linux-foundation.org
+To:     hannes@cmpxchg.org, jslaby@suse.cz, mhocko@suse.com,
+        mm-commits@vger.kernel.org, raghavendra.kt@linux.vnet.ibm.com,
+        shakeelb@google.com, stable@vger.kernel.org, vdavydov.dev@gmail.com
+Subject:  + memcg-make-it-work-on-sparse-non-0-node-systems.patch
+ added to -mm tree
+Message-ID: <20190522184232.6OnUo3bE7%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/22/19 11:29 AM, Greg KH wrote:
-> Thanks, but someone backported the commit mentioned in the Fixes line:
-> 	Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
-> 
-> to 4.14.y.  If it's really not relevant there, not a big deal, now
-> dropped.
 
+The patch titled
+     Subject: memcg: make it work on sparse non-0-node systems
+has been added to the -mm tree.  Its filename is
+     memcg-make-it-work-on-sparse-non-0-node-systems.patch
 
-Just checked and that commit is not in 4.14 line.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/memcg-make-it-work-on-sparse-non-0-node-systems.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/memcg-make-it-work-on-sparse-non-0-node-systems.patch
 
-It is one of like 90 other patches that actually depend on other changes
-in 4.15, 4.16. I can not imagine some poor soul backporting all of that
-to 4.14.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: memcg: make it work on sparse non-0-node systems
+
+We have a single node system with node 0 disabled:
+  Scanning NUMA topology in Northbridge 24
+  Number of physical nodes 2
+  Skipping disabled node 0
+  Node 1 MemBase 0000000000000000 Limit 00000000fbff0000
+  NODE_DATA(1) allocated [mem 0xfbfda000-0xfbfeffff]
+
+This causes crashes in memcg when system boots:
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+  #PF error: [normal kernel read fault]
+...
+  RIP: 0010:list_lru_add+0x94/0x170
+...
+  Call Trace:
+   d_lru_add+0x44/0x50
+   dput.part.34+0xfc/0x110
+   __fput+0x108/0x230
+   task_work_run+0x9f/0xc0
+   exit_to_usermode_loop+0xf5/0x100
+
+It is reproducible as far as 4.12.  I did not try older kernels.  You have
+to have a new enough systemd, e.g.  241 (the reason is unknown -- was not
+investigated).  Cannot be reproduced with systemd 234.
+
+The system crashes because the size of lru array is never updated in
+memcg_update_all_list_lrus and the reads are past the zero-sized array,
+causing dereferences of random memory.
+
+The root cause are list_lru_memcg_aware checks in the list_lru code.  The
+test in list_lru_memcg_aware is broken: it assumes node 0 is always
+present, but it is not true on some systems as can be seen above.
+
+So fix this by avoiding checks on node 0.  Remember the memcg-awareness by
+a bool flag in struct list_lru.
+
+Link: http://lkml.kernel.org/r/20190522091940.3615-1-jslaby@suse.cz
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Suggested-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/list_lru.h |    1 +
+ mm/list_lru.c            |    8 +++-----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+--- a/include/linux/list_lru.h~memcg-make-it-work-on-sparse-non-0-node-systems
++++ a/include/linux/list_lru.h
+@@ -54,6 +54,7 @@ struct list_lru {
+ #ifdef CONFIG_MEMCG_KMEM
+ 	struct list_head	list;
+ 	int			shrinker_id;
++	bool			memcg_aware;
+ #endif
+ };
+ 
+--- a/mm/list_lru.c~memcg-make-it-work-on-sparse-non-0-node-systems
++++ a/mm/list_lru.c
+@@ -37,11 +37,7 @@ static int lru_shrinker_id(struct list_l
+ 
+ static inline bool list_lru_memcg_aware(struct list_lru *lru)
+ {
+-	/*
+-	 * This needs node 0 to be always present, even
+-	 * in the systems supporting sparse numa ids.
+-	 */
+-	return !!lru->node[0].memcg_lrus;
++	return lru->memcg_aware;
+ }
+ 
+ static inline struct list_lru_one *
+@@ -451,6 +447,8 @@ static int memcg_init_list_lru(struct li
+ {
+ 	int i;
+ 
++	lru->memcg_aware = memcg_aware;
++
+ 	if (!memcg_aware)
+ 		return 0;
+ 
+_
+
+Patches currently in -mm which might be from jslaby@suse.cz are
+
+memcg-make-it-work-on-sparse-non-0-node-systems.patch
+
