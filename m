@@ -2,89 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAEF2261F2
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 12:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CE8D2622F
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 12:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728791AbfEVKgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 06:36:45 -0400
-Received: from mail-wr1-f47.google.com ([209.85.221.47]:39102 "EHLO
-        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729384AbfEVKfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 May 2019 06:35:44 -0400
-Received: by mail-wr1-f47.google.com with SMTP id w8so1692336wrl.6
-        for <stable@vger.kernel.org>; Wed, 22 May 2019 03:35:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AAG2MS84ZrY3cqfmzjEQBlDy9A3NdyZqf4ZZSJ3lOw8=;
-        b=lc720J8yHGu1IJ674vu/gDkDSe7zqoo2NVpqBpK40PYoQyRP2gP4QNy1ViAXsDbt66
-         l7ouYT2StAkv8QjYRBm8vheuIEM1tO8SIFR18oa3PVM8P8yqz3BxgVuvs0LOHfknxOVl
-         bq0uu40sL08G2e7SiAUNpK2gkzdqAvPDjyZm92JtL6vsJwI7xeSH04dT1vBF0pGs2muB
-         1tw/R+1OxCTLzemWNsFj72LxGcVCjtHZSBMyIP941rO4m4h2K8EsHoUXGpzw3W2BQ7Tk
-         Apadeyq3jm1DpKwChK7t6d4rqMXTebopplN4pvlwU79w/wWCWu9Qh5rvOYug9vf/4Xvn
-         OM1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AAG2MS84ZrY3cqfmzjEQBlDy9A3NdyZqf4ZZSJ3lOw8=;
-        b=PqTyn+l4LztjNQk2s2/AoV3DLSvrLj35JBT/SlWK4XeQ0fNta/WvYbBDMxtU54J7zh
-         Vm2fKnyD25Tj/vlVPtJJlmSFhIX/AmQnlsSGOPvKGhHJbkHFVBiAtuXOiOdm1TF0TUEp
-         KzmdH1s3t29ccF4BGlKDs9BZqh1WPNGn+JVai7k1Dwnel+9eHRafy/B2ST5zLsJ7F7gp
-         CirIOJaAg0rK6BqbijZ5GECY/eUJya7QpwMlijiTxIcKmTkeho9DTJ93QhoBdiFL+re0
-         6zFWUI8B/4S/JreWEh9jeuJf80PXj0yv0KG/8j+E74kZfISg/4r8RbN4eci+LREWKnzJ
-         0rng==
-X-Gm-Message-State: APjAAAWuhnyqe+lXd5ob2EPQkLXzAxCP1odiqk1MO8BGJtj6bgM8uGqX
-        ehAGjCp59S1O7NajmtYRsajK6oQ2i5KE2w==
-X-Google-Smtp-Source: APXvYqxq6qSZYAHkEankD7V7UL9egkdl0Oea6c2nJJDJOwukO2i2o6GFmBN9hqeo+0sbedlmED3/AQ==
-X-Received: by 2002:adf:dece:: with SMTP id i14mr24028895wrn.138.1558521342247;
-        Wed, 22 May 2019 03:35:42 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q9sm5506577wmq.9.2019.05.22.03.35.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 May 2019 03:35:41 -0700 (PDT)
-Message-ID: <5ce525fd.1c69fb81.ac855.afdf@mx.google.com>
-Date:   Wed, 22 May 2019 03:35:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728690AbfEVKqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 06:46:36 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:34680 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727464AbfEVKqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 06:46:36 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 4A56722C538559483F1D;
+        Wed, 22 May 2019 18:46:34 +0800 (CST)
+Received: from localhost.localdomain (10.67.212.75) by
+ DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
+ 14.3.439.0; Wed, 22 May 2019 18:46:27 +0800
+From:   John Garry <john.garry@huawei.com>
+To:     <stable@vger.kernel.org>
+CC:     <chenxiang66@hisilicon.com>, <robin.murphy@arm.com>,
+        John Garry <john.garry@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH stable 4.12 - 4.19] driver core: Postpone DMA tear-down until after devres release for probe failure
+Date:   Wed, 22 May 2019 18:45:41 +0800
+Message-ID: <1558521941-55834-1-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Kernel: v5.1.4
-Subject: stable/linux-5.1.y boot: 54 boots: 1 failed,
- 52 passed with 1 untried/unknown (v5.1.4)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-Originating-IP: [10.67.212.75]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.1.y boot: 54 boots: 1 failed, 52 passed with 1 untried/unkno=
-wn (v5.1.4)
+commit 0b777eee88d712256ba8232a9429edb17c4f9ceb upstream
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-1.y/kernel/v5.1.4/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
-rnel/v5.1.4/
+In commit 376991db4b64 ("driver core: Postpone DMA tear-down until after
+devres release"), we changed the ordering of tearing down the device DMA
+ops and releasing all the device's resources; this was because the DMA ops
+should be maintained until we release the device's managed DMA memories.
 
-Tree: stable
-Branch: linux-5.1.y
-Git Describe: v5.1.4
-Git Commit: e0e8106a6cf13b6abfccf6dac15bac32c9513f3e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 30 unique boards, 16 SoC families, 11 builds out of 209
+However, we have seen another crash on an arm64 system when a
+device driver probe fails:
 
-Boot Failure Detected:
+  hisi_sas_v3_hw 0000:74:02.0: Adding to iommu group 2
+  scsi host1: hisi_sas_v3_hw
+  BUG: Bad page state in process swapper/0  pfn:313f5
+  page:ffff7e0000c4fd40 count:1 mapcount:0
+  mapping:0000000000000000 index:0x0
+  flags: 0xfffe00000001000(reserved)
+  raw: 0fffe00000001000 ffff7e0000c4fd48 ffff7e0000c4fd48
+0000000000000000
+  raw: 0000000000000000 0000000000000000 00000001ffffffff
+0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+  bad because of flags: 0x1000(reserved)
+  Modules linked in:
+  CPU: 49 PID: 1 Comm: swapper/0 Not tainted
+5.1.0-rc1-43081-g22d97fd-dirty #1433
+  Hardware name: Huawei D06/D06, BIOS Hisilicon D06 UEFI
+RC0 - V1.12.01 01/29/2019
+  Call trace:
+  dump_backtrace+0x0/0x118
+  show_stack+0x14/0x1c
+  dump_stack+0xa4/0xc8
+  bad_page+0xe4/0x13c
+  free_pages_check_bad+0x4c/0xc0
+  __free_pages_ok+0x30c/0x340
+  __free_pages+0x30/0x44
+  __dma_direct_free_pages+0x30/0x38
+  dma_direct_free+0x24/0x38
+  dma_free_attrs+0x9c/0xd8
+  dmam_release+0x20/0x28
+  release_nodes+0x17c/0x220
+  devres_release_all+0x34/0x54
+  really_probe+0xc4/0x2c8
+  driver_probe_device+0x58/0xfc
+  device_driver_attach+0x68/0x70
+  __driver_attach+0x94/0xdc
+  bus_for_each_dev+0x5c/0xb4
+  driver_attach+0x20/0x28
+  bus_add_driver+0x14c/0x200
+  driver_register+0x6c/0x124
+  __pci_register_driver+0x48/0x50
+  sas_v3_pci_driver_init+0x20/0x28
+  do_one_initcall+0x40/0x25c
+  kernel_init_freeable+0x2b8/0x3c0
+  kernel_init+0x10/0x100
+  ret_from_fork+0x10/0x18
+  Disabling lock debugging due to kernel taint
+  BUG: Bad page state in process swapper/0  pfn:313f6
+  page:ffff7e0000c4fd80 count:1 mapcount:0
+mapping:0000000000000000 index:0x0
+[   89.322983] flags: 0xfffe00000001000(reserved)
+  raw: 0fffe00000001000 ffff7e0000c4fd88 ffff7e0000c4fd88
+0000000000000000
+  raw: 0000000000000000 0000000000000000 00000001ffffffff
+0000000000000000
 
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap4-panda: 1 failed lab
+The crash occurs for the same reason.
 
----
-For more info write to <info@kernelci.org>
+In this case, on the really_probe() failure path, we are still clearing
+the DMA ops prior to releasing the device's managed memories.
+
+This patch fixes this issue by reordering the DMA ops teardown and the
+call to devres_release_all() on the failure path.
+
+Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
+Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Cc: stable <stable@vger.kernel.org> # 4.12.x - 4.19.x
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[jpg: backport to 4.19.x and earlier]
+Signed-off-by: John Garry <john.garry@huawei.com>
+
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index f5b74856784a..d48b310c4760 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -482,7 +482,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
+ 
+ 	ret = dma_configure(dev);
+ 	if (ret)
+-		goto dma_failed;
++		goto probe_failed;
+ 
+ 	if (driver_sysfs_add(dev)) {
+ 		printk(KERN_ERR "%s: driver_sysfs_add(%s) failed\n",
+@@ -537,14 +537,13 @@ static int really_probe(struct device *dev, struct device_driver *drv)
+ 	goto done;
+ 
+ probe_failed:
+-	dma_deconfigure(dev);
+-dma_failed:
+ 	if (dev->bus)
+ 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
+ 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
+ pinctrl_bind_failed:
+ 	device_links_no_driver(dev);
+ 	devres_release_all(dev);
++	dma_deconfigure(dev);
+ 	driver_sysfs_remove(dev);
+ 	dev->driver = NULL;
+ 	dev_set_drvdata(dev, NULL);
+-- 
+2.17.1
+
