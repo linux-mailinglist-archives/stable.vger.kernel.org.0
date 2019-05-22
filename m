@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE7726FE8
+	by mail.lfdr.de (Postfix) with ESMTP id 27C7B26FE7
 	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbfEVTXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730825AbfEVTXS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 May 2019 15:23:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44076 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730788AbfEVTXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:23:11 -0400
+        id S1729898AbfEVTXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:23:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BEE82177E;
-        Wed, 22 May 2019 19:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CFCC21473;
+        Wed, 22 May 2019 19:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552991;
-        bh=5R1qiA4ub11Ga1Rdx5yuNJd2np/tgjKoWBcsGGpXrX8=;
+        s=default; t=1558552997;
+        bh=Na5zua+BMhBNFZNBRjS6szXtRLjVmifaB5T4ebTYgO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVpXGpzq2AvpiJ4/Jtx5DglnJBH2Ym9FuVVqDHZMWqHNHG4xTtgpY2vZLOzdKQ+OA
-         dfNz382OQXG+iBXp/RVjwAlBQD+yQp346zu4MIubzG47kGvVkw9/hLRRjGNj0/3yoK
-         NasoMEYPD0dlPEmcGdhaHdXElNXyRmikWCG8apOI=
+        b=alVOEaX6foa6mn7l0lMrz1xYWC35/d/M1qFAMo7P0JG/lgl9LhZhXEMJey1ZH9o8P
+         v6ogVDJTmGU2+AK/kNj1RSVXCiYS4NRJFR7EV0NTL5oMvUVAG9LG7B/4qrizEtHC0+
+         Eg3IkPTOSFPSpGsRFDNklJw3kwUMVARn2LZcQRn8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 066/375] sched/nohz: Run NOHZ idle load balancer on HK_FLAG_MISC CPUs
-Date:   Wed, 22 May 2019 15:16:06 -0400
-Message-Id: <20190522192115.22666-66-sashal@kernel.org>
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 067/375] net: ethernet: ti: cpsw: fix allmulti cfg in dual_mac mode
+Date:   Wed, 22 May 2019 15:16:07 -0400
+Message-Id: <20190522192115.22666-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -46,72 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 9b019acb72e4b5741d88e8936d6f200ed44b66b2 ]
+[ Upstream commit 06095f34f8a0a2c4c83a19514c272699edd5f80b ]
 
-The NOHZ idle balancer runs on the lowest idle CPU. This can
-interfere with isolated CPUs, so confine it to HK_FLAG_MISC
-housekeeping CPUs.
+Now CPSW ALE will set/clean Host port bit in Unregistered Multicast Flood
+Mask (UNREG_MCAST_FLOOD_MASK) for every VLAN without checking if this port
+belongs to VLAN or not when ALLMULTI mode flag is set for nedev. This is
+working in non dual_mac mode, but in dual_mac - it causes
+enabling/disabling ALLMULTI flag for both ports.
 
-HK_FLAG_SCHED is not used for this because it is not set anywhere
-at the moment. This could be folded into HK_FLAG_SCHED once that
-option is fixed.
+Hence fix it by adding additional parameter to cpsw_ale_set_allmulti() to
+specify ALE port number for which ALLMULTI has to be enabled and check if
+port belongs to VLAN before modifying UNREG_MCAST_FLOOD_MASK.
 
-The problem was observed with increased jitter on an application
-running on CPU0, caused by NOHZ idle load balancing being run on
-CPU1 (an SMT sibling).
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190412042613.28930-1-npiggin@gmail.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/ti/cpsw.c     | 12 +++++++++---
+ drivers/net/ethernet/ti/cpsw_ale.c | 19 ++++++++++---------
+ drivers/net/ethernet/ti/cpsw_ale.h |  3 +--
+ 3 files changed, 20 insertions(+), 14 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 35f3ea3750844..232491e3ed0db 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9551,22 +9551,26 @@ static inline int on_null_domain(struct rq *rq)
-  * - When one of the busy CPUs notice that there may be an idle rebalancing
-  *   needed, they will kick the idle load balancer, which then does idle
-  *   load balancing for all the idle CPUs.
-+ * - HK_FLAG_MISC CPUs are used for this task, because HK_FLAG_SCHED not set
-+ *   anywhere yet.
-  */
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index a591583d120e1..dd12b73a88530 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -800,12 +800,17 @@ static int cpsw_purge_all_mc(struct net_device *ndev, const u8 *addr, int num)
  
- static inline int find_new_ilb(void)
+ static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
  {
--	int ilb = cpumask_first(nohz.idle_cpus_mask);
-+	int ilb;
+-	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
++	struct cpsw_priv *priv = netdev_priv(ndev);
++	struct cpsw_common *cpsw = priv->cpsw;
++	int slave_port = -1;
++
++	if (cpsw->data.dual_emac)
++		slave_port = priv->emac_port + 1;
  
--	if (ilb < nr_cpu_ids && idle_cpu(ilb))
--		return ilb;
-+	for_each_cpu_and(ilb, nohz.idle_cpus_mask,
-+			      housekeeping_cpumask(HK_FLAG_MISC)) {
-+		if (idle_cpu(ilb))
-+			return ilb;
-+	}
+ 	if (ndev->flags & IFF_PROMISC) {
+ 		/* Enable promiscuous mode */
+ 		cpsw_set_promiscious(ndev, true);
+-		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI);
++		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI, slave_port);
+ 		return;
+ 	} else {
+ 		/* Disable promiscuous mode */
+@@ -813,7 +818,8 @@ static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
+ 	}
  
- 	return nr_cpu_ids;
+ 	/* Restore allmulti on vlans if necessary */
+-	cpsw_ale_set_allmulti(cpsw->ale, ndev->flags & IFF_ALLMULTI);
++	cpsw_ale_set_allmulti(cpsw->ale,
++			      ndev->flags & IFF_ALLMULTI, slave_port);
+ 
+ 	/* add/remove mcast address either for real netdev or for vlan */
+ 	__hw_addr_ref_sync_dev(&ndev->mc, ndev, cpsw_add_mc_addr,
+diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
+index 798c989d5d934..b3d9591b4824a 100644
+--- a/drivers/net/ethernet/ti/cpsw_ale.c
++++ b/drivers/net/ethernet/ti/cpsw_ale.c
+@@ -482,24 +482,25 @@ int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port_mask)
  }
+ EXPORT_SYMBOL_GPL(cpsw_ale_del_vlan);
  
- /*
-- * Kick a CPU to do the nohz balancing, if it is time for it. We pick the
-- * nohz_load_balancer CPU (if there is one) otherwise fallback to any idle
-- * CPU (if there is one).
-+ * Kick a CPU to do the nohz balancing, if it is time for it. We pick any
-+ * idle CPU in the HK_FLAG_MISC housekeeping set (if there is one).
-  */
- static void kick_ilb(unsigned int flags)
+-void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti)
++void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port)
  {
+ 	u32 ale_entry[ALE_ENTRY_WORDS];
+-	int type, idx;
+ 	int unreg_mcast = 0;
+-
+-	/* Only bother doing the work if the setting is actually changing */
+-	if (ale->allmulti == allmulti)
+-		return;
+-
+-	/* Remember the new setting to check against next time */
+-	ale->allmulti = allmulti;
++	int type, idx;
+ 
+ 	for (idx = 0; idx < ale->params.ale_entries; idx++) {
++		int vlan_members;
++
+ 		cpsw_ale_read(ale, idx, ale_entry);
+ 		type = cpsw_ale_get_entry_type(ale_entry);
+ 		if (type != ALE_TYPE_VLAN)
+ 			continue;
++		vlan_members =
++			cpsw_ale_get_vlan_member_list(ale_entry,
++						      ale->vlan_field_bits);
++
++		if (port != -1 && !(vlan_members & BIT(port)))
++			continue;
+ 
+ 		unreg_mcast =
+ 			cpsw_ale_get_vlan_unreg_mcast(ale_entry,
+diff --git a/drivers/net/ethernet/ti/cpsw_ale.h b/drivers/net/ethernet/ti/cpsw_ale.h
+index cd07a3e96d576..1fe196d8a5e42 100644
+--- a/drivers/net/ethernet/ti/cpsw_ale.h
++++ b/drivers/net/ethernet/ti/cpsw_ale.h
+@@ -37,7 +37,6 @@ struct cpsw_ale {
+ 	struct cpsw_ale_params	params;
+ 	struct timer_list	timer;
+ 	unsigned long		ageout;
+-	int			allmulti;
+ 	u32			version;
+ 	/* These bits are different on NetCP NU Switch ALE */
+ 	u32			port_mask_bits;
+@@ -116,7 +115,7 @@ int cpsw_ale_del_mcast(struct cpsw_ale *ale, const u8 *addr, int port_mask,
+ int cpsw_ale_add_vlan(struct cpsw_ale *ale, u16 vid, int port, int untag,
+ 			int reg_mcast, int unreg_mcast);
+ int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port);
+-void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti);
++void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port);
+ 
+ int cpsw_ale_control_get(struct cpsw_ale *ale, int port, int control);
+ int cpsw_ale_control_set(struct cpsw_ale *ale, int port,
 -- 
 2.20.1
 
