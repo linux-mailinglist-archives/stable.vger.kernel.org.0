@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BB627088
-	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F25B27089
+	for <lists+stable@lfdr.de>; Wed, 22 May 2019 22:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729820AbfEVTVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 May 2019 15:21:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41708 "EHLO mail.kernel.org"
+        id S1729819AbfEVTVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 May 2019 15:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729790AbfEVTVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 May 2019 15:21:20 -0400
+        id S1729832AbfEVTVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 May 2019 15:21:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E990E2177E;
-        Wed, 22 May 2019 19:21:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA164217D4;
+        Wed, 22 May 2019 19:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552879;
-        bh=lOAMxzkToxe3qagEy8KPYQKMxFkKtyRzcd+10Z2xQgw=;
+        s=default; t=1558552880;
+        bh=0UCL52sMqSGxS7cfWNuiFXECeJ8AXVSDRIFJhr4+Kj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFiTou4wcoDQcW5rlRKSf8TWdm5cGvqGpCsAS1+LNvLYs4B9YoHL85q9iSgmtyzAc
-         z6DgDvOo4+ulAyKZ2zuSt00yoTpLhd5IQDCW6ztGBQ90Qx36elD7eM2w4tBtmNCDnY
-         NIhSyni9gJlH7hZFd9IooX9vpaNwHv91joUl1O80=
+        b=ab8scxmO8ryaZxhvUHdQfWJkBPO3uN8ayAHOIIVMp5ibg2cAJAgqIon3HgDCEa5UC
+         mMPwP8iUc83h4irvT1UYM7EV81F35sW02kJtZWvjgGhm2k+mYdvhintI/FOQpksqW1
+         UOyxzuIn1UUGCGRzE/voBOqj/ezb+v8+Bsa23U1M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.1 003/375] afs: Fix getting the afs.fid xattr
-Date:   Wed, 22 May 2019 15:15:03 -0400
-Message-Id: <20190522192115.22666-3-sashal@kernel.org>
+Cc:     Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 004/375] NFS: make nfs_match_client killable
+Date:   Wed, 22 May 2019 15:15:04 -0400
+Message-Id: <20190522192115.22666-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
 References: <20190522192115.22666-1-sashal@kernel.org>
@@ -42,58 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-[ Upstream commit a2f611a3dc317d8ea1c98ad6c54b911cf7f93193 ]
+[ Upstream commit 950a578c6128c2886e295b9c7ecb0b6b22fcc92b ]
 
-The AFS3 FID is three 32-bit unsigned numbers and is represented as three
-up-to-8-hex-digit numbers separated by colons to the afs.fid xattr.
-However, with the advent of support for YFS, the FID is now a 64-bit volume
-number, a 96-bit vnode/inode number and a 32-bit uniquifier (as before).
-Whilst the sprintf in afs_xattr_get_fid() has been partially updated (it
-currently ignores the upper 32 bits of the 96-bit vnode number), the size
-of the stack-based buffer has not been increased to match, thereby allowing
-stack corruption to occur.
+    Actually we don't do anything with return value from
+    nfs_wait_client_init_complete in nfs_match_client, as a
+    consequence if we get a fatal signal and client is not
+    fully initialised, we'll loop to "again" label
 
-Fix this by increasing the buffer size appropriately and conditionally
-including the upper part of the vnode number if it is non-zero.  The latter
-requires the lower part to be zero-padded if the upper part is non-zero.
+    This has been proven to cause soft lockups on some scenarios
+    (no-carrier but configured network interfaces)
 
-Fixes: 3b6492df4153 ("afs: Increase to 64-bit volume ID and 96-bit vnode ID for YFS")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/xattr.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/nfs/client.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/xattr.c b/fs/afs/xattr.c
-index a2cdf25573e24..706801c6c4c4c 100644
---- a/fs/afs/xattr.c
-+++ b/fs/afs/xattr.c
-@@ -69,11 +69,20 @@ static int afs_xattr_get_fid(const struct xattr_handler *handler,
- 			     void *buffer, size_t size)
- {
- 	struct afs_vnode *vnode = AFS_FS_I(inode);
--	char text[8 + 1 + 8 + 1 + 8 + 1];
-+	char text[16 + 1 + 24 + 1 + 8 + 1];
- 	size_t len;
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 90d71fda65cec..350cfa561e0e8 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -284,6 +284,7 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 	struct nfs_client *clp;
+ 	const struct sockaddr *sap = data->addr;
+ 	struct nfs_net *nn = net_generic(data->net, nfs_net_id);
++	int error;
  
--	len = sprintf(text, "%llx:%llx:%x",
--		      vnode->fid.vid, vnode->fid.vnode, vnode->fid.unique);
-+	/* The volume ID is 64-bit, the vnode ID is 96-bit and the
-+	 * uniquifier is 32-bit.
-+	 */
-+	len = sprintf(text, "%llx:", vnode->fid.vid);
-+	if (vnode->fid.vnode_hi)
-+		len += sprintf(text + len, "%x%016llx",
-+			       vnode->fid.vnode_hi, vnode->fid.vnode);
-+	else
-+		len += sprintf(text + len, "%llx", vnode->fid.vnode);
-+	len += sprintf(text + len, ":%x", vnode->fid.unique);
-+
- 	if (size == 0)
- 		return len;
- 	if (len > size)
+ again:
+ 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
+@@ -296,8 +297,10 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 		if (clp->cl_cons_state > NFS_CS_READY) {
+ 			refcount_inc(&clp->cl_count);
+ 			spin_unlock(&nn->nfs_client_lock);
+-			nfs_wait_client_init_complete(clp);
++			error = nfs_wait_client_init_complete(clp);
+ 			nfs_put_client(clp);
++			if (error < 0)
++				return ERR_PTR(error);
+ 			spin_lock(&nn->nfs_client_lock);
+ 			goto again;
+ 		}
+@@ -407,6 +410,8 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
+ 		clp = nfs_match_client(cl_init);
+ 		if (clp) {
+ 			spin_unlock(&nn->nfs_client_lock);
++			if (IS_ERR(clp))
++				return clp;
+ 			if (new)
+ 				new->rpc_ops->free_client(new);
+ 			return nfs_found_client(cl_init, clp);
 -- 
 2.20.1
 
