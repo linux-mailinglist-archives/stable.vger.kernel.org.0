@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA1B28990
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4472886F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390251AbfEWTV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58780 "EHLO mail.kernel.org"
+        id S2391278AbfEWT0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:26:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390262AbfEWTVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:21:25 -0400
+        id S2390600AbfEWT0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:26:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB6DD205ED;
-        Thu, 23 May 2019 19:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D546221841;
+        Thu, 23 May 2019 19:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639285;
-        bh=uu3IdUy+7dfGB7tzNOlP2lRoWgO/DVyjNyZ5vA0JBLo=;
+        s=default; t=1558639570;
+        bh=7HmkXOI4MwlMqzoTXHQ940g51qeofzyUIt+4PDo6JN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHR2U2ucf04Jh4Ltg9qX48MX6W1jTn5qjmsmn7rF25buweOidy5w7czBsXQHjJYJO
-         VPKWQ1fEdSLGmQpYCuwpxUDkv7phbwbTFC1uK9uRrDW6rHvKmsaq180PGx7rISXSX1
-         hLtd5EHiB5c5jYv97yhWNGBptc3oDmDhKBy4MV4I=
+        b=1fM3PZ5owub46W5F85k29tav7hZF+GHYuZ0S0HQhr532Mv3zQcQLd/ej59ebby2xB
+         cafy6jjdW5AiRz4XJuXHcELThFQLWeKBmYD4Anp6pSgHM1ypWe36mYO/Z9K7lY9Eem
+         wEb6/mzHzQyaI20oh/Ijel41ChrOeE8eaWJU/zjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.0 048/139] RDMA/ipoib: Allow user space differentiate between valid dev_port
+        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 014/122] mlxsw: core: Prevent QSFP module initialization for old hardware
 Date:   Thu, 23 May 2019 21:05:36 +0200
-Message-Id: <20190523181726.931270270@linuxfoundation.org>
+Message-Id: <20190523181706.827541346@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Vadim Pasternak <vadimp@mellanox.com>
 
-commit b79656ed44c6865e17bcd93472ec39488bcc4984 upstream.
+[ Upstream commit c52ecff7e6439ca8c9b03282e8869a005aa94831 ]
 
-Systemd triggers the following warning during IPoIB device load:
+Old Mellanox silicons, like switchx-2, switch-ib do not support reading
+QSFP modules temperature through MTMP register. Attempt to access this
+register on systems equipped with the this kind of silicon will cause
+initialization flow failure.
+Test for hardware resource capability is added in order to distinct
+between old and new silicon - old silicons do not have such capability.
 
- mlx5_core 0000:00:0c.0 ib0: "systemd-udevd" wants to know my dev_id.
-        Should it look at dev_port instead?
-        See Documentation/ABI/testing/sysfs-class-net for more info.
-
-This is caused due to user space attempt to differentiate old systems
-without dev_port and new systems with dev_port. In case dev_port will be
-zero, the systemd will try to read dev_id instead.
-
-There is no need to print a warning in such case, because it is valid
-situation and it is needed to ensure systemd compatibility with old
-kernels.
-
-Link: https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
-Cc: <stable@vger.kernel.org> # 4.19
-Fixes: f6350da41dc7 ("IB/ipoib: Log sysfs 'dev_id' accesses from userspace")
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 6a79507cfe94 ("mlxsw: core: Extend thermal module with per QSFP module thermal zones")
+Fixes: 5c42eaa07bd0 ("mlxsw: core: Extend hwmon interface with QSFP module temperature attributes")
+Reported-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/ulp/ipoib/ipoib_main.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/core.c         |    6 ++++++
+ drivers/net/ethernet/mellanox/mlxsw/core.h         |    2 ++
+ drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c   |    3 +++
+ drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |    6 ++++++
+ 4 files changed, 17 insertions(+)
 
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -2402,7 +2402,18 @@ static ssize_t dev_id_show(struct device
- {
- 	struct net_device *ndev = to_net_dev(dev);
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
+@@ -122,6 +122,12 @@ void *mlxsw_core_driver_priv(struct mlxs
+ }
+ EXPORT_SYMBOL(mlxsw_core_driver_priv);
  
--	if (ndev->dev_id == ndev->dev_port)
-+	/*
-+	 * ndev->dev_port will be equal to 0 in old kernel prior to commit
-+	 * 9b8b2a323008 ("IB/ipoib: Use dev_port to expose network interface
-+	 * port numbers") Zero was chosen as special case for user space
-+	 * applications to fallback and query dev_id to check if it has
-+	 * different value or not.
-+	 *
-+	 * Don't print warning in such scenario.
-+	 *
-+	 * https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
-+	 */
-+	if (ndev->dev_port && ndev->dev_id == ndev->dev_port)
- 		netdev_info_once(ndev,
- 			"\"%s\" wants to know my dev_id. Should it look at dev_port instead? See Documentation/ABI/testing/sysfs-class-net for more info.\n",
- 			current->comm);
++bool mlxsw_core_res_query_enabled(const struct mlxsw_core *mlxsw_core)
++{
++	return mlxsw_core->driver->res_query_enabled;
++}
++EXPORT_SYMBOL(mlxsw_core_res_query_enabled);
++
+ struct mlxsw_rx_listener_item {
+ 	struct list_head list;
+ 	struct mlxsw_rx_listener rxl;
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.h
+@@ -28,6 +28,8 @@ unsigned int mlxsw_core_max_ports(const
+ 
+ void *mlxsw_core_driver_priv(struct mlxsw_core *mlxsw_core);
+ 
++bool mlxsw_core_res_query_enabled(const struct mlxsw_core *mlxsw_core);
++
+ int mlxsw_core_driver_register(struct mlxsw_driver *mlxsw_driver);
+ void mlxsw_core_driver_unregister(struct mlxsw_driver *mlxsw_driver);
+ 
+--- a/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c
+@@ -518,6 +518,9 @@ static int mlxsw_hwmon_module_init(struc
+ 	u8 width;
+ 	int err;
+ 
++	if (!mlxsw_core_res_query_enabled(mlxsw_hwmon->core))
++		return 0;
++
+ 	/* Add extra attributes for module temperature. Sensor index is
+ 	 * assigned to sensor_count value, while all indexed before
+ 	 * sensor_count are already utilized by the sensors connected through
+--- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
+@@ -740,6 +740,9 @@ mlxsw_thermal_modules_init(struct device
+ 	struct mlxsw_thermal_module *module_tz;
+ 	int i, err;
+ 
++	if (!mlxsw_core_res_query_enabled(core))
++		return 0;
++
+ 	thermal->tz_module_arr = kcalloc(module_count,
+ 					 sizeof(*thermal->tz_module_arr),
+ 					 GFP_KERNEL);
+@@ -776,6 +779,9 @@ mlxsw_thermal_modules_fini(struct mlxsw_
+ 	unsigned int module_count = mlxsw_core_max_ports(thermal->core);
+ 	int i;
+ 
++	if (!mlxsw_core_res_query_enabled(thermal->core))
++		return;
++
+ 	for (i = module_count - 1; i >= 0; i--)
+ 		mlxsw_thermal_module_fini(&thermal->tz_module_arr[i]);
+ 	kfree(thermal->tz_module_arr);
 
 
