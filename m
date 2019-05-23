@@ -2,113 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2696227B8F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 13:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FCC927B9B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 13:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbfEWLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 07:20:22 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:34830 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730461AbfEWLUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 07:20:22 -0400
-Received: by mail-wm1-f68.google.com with SMTP id q15so5373057wmj.0
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 04:20:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=TSU8XlJEMK+KpQjqT+wKCWosXAXefjk73b4VzzoBmws=;
-        b=DOyuxxCqspOt3cSWF1wpAKD57vDkx064yFDRmD+HdF5x1UUC8AMynQLy3b8yeJzxTU
-         t3GKAaiBkG03shVf7En4dFXk2OJZN/jzJV/07Jm9mRiRqydU23p/IsIcNghogpPnWstI
-         tB9I9j8TUMhhRM2qaxs77EVMXjQ2dkDzDjET0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=TSU8XlJEMK+KpQjqT+wKCWosXAXefjk73b4VzzoBmws=;
-        b=UGR0HJWynCWjcmF/TvWhUQ60KZb9qUfe78aUN863wjRgxlvWd3eQkKaBW17O4k8IXX
-         7SgsYRdLzE0AUh/XxTQy+c0UbCTNSpICOELa//y5g5T8dh6C2GVEnyZ3Usj52OsGWwYI
-         u1FsR/q/w/zLVmA4Fr805Aj4XaJ19MmQmOgBdThkKXT9gZnU2Cu4H2saO8FPkKlhtyfP
-         BSjb6g1tPZLss/njDyIlkhLHwopjwHiEwhOCkUlVbUx5+0+5O1VZFIosKCEXMYkHiEGe
-         SfOVmACEOWJa94Z23OJhc1k5/2WYTaC7mVGLTp400JR+7djsNUq2bFP0aZNcKMp+8DfE
-         z1eQ==
-X-Gm-Message-State: APjAAAWomLWsRtx0pJ5p5Rr+7F2HxRK9qXvE7sA1833ySkRQ87eAU87T
-        7nqWoJmo87AofIeNamVywNtB3Q==
-X-Google-Smtp-Source: APXvYqxx/e7d1yyDuR1wKw7Y6+trebNMbp76KzUBRwegvbG3ftEtbeB1AhBBf7UCuxakMuTqVLWx7A==
-X-Received: by 2002:a1c:3cc2:: with SMTP id j185mr10979151wma.26.1558610420174;
-        Thu, 23 May 2019 04:20:20 -0700 (PDT)
-Received: from andrea (86.100.broadband17.iol.cz. [109.80.100.86])
-        by smtp.gmail.com with ESMTPSA id d20sm5195243wra.68.2019.05.23.04.20.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 May 2019 04:20:19 -0700 (PDT)
-Date:   Thu, 23 May 2019 13:20:13 +0200
-From:   Andrea Parri <andrea.parri@amarulasolutions.com>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     linux-kernel@vger.kernel.org, peterz@infradead.org,
-        will.deacon@arm.com, aou@eecs.berkeley.edu, arnd@arndb.de,
-        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
-        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
-        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
-        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
-        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
-        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
-        tony.luck@intel.com, vgupta@synopsys.com
-Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
-Message-ID: <20190523112013.GA14035@andrea>
-References: <20190522132250.26499-1-mark.rutland@arm.com>
- <20190523083013.GA4616@andrea>
- <20190523101926.GA3370@lakrids.cambridge.arm.com>
+        id S1729962AbfEWLVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 07:21:33 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:44282 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728309AbfEWLVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 07:21:32 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 44196A78;
+        Thu, 23 May 2019 04:21:32 -0700 (PDT)
+Received: from e119884-lin.cambridge.arm.com (e119884-lin.cambridge.arm.com [10.1.196.72])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B9AC93F718;
+        Thu, 23 May 2019 04:21:29 -0700 (PDT)
+From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
+To:     linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc:     vincenzo.frascino@arm.com,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+Subject: [PATCH v4 1/3] powerpc: Fix vDSO clock_getres()
+Date:   Thu, 23 May 2019 12:21:14 +0100
+Message-Id: <20190523112116.19233-2-vincenzo.frascino@arm.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190523101926.GA3370@lakrids.cambridge.arm.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> > While reading the series, I realized that the following expression:
-> > 
-> > 	atomic64_t v;
-> >         ...
-> > 	typeof(v.counter) my_val = atomic64_set(&v, VAL);
-> > 
-> > is a valid expression on some architectures (in part., on architectures
-> > which #define atomic64_set() to WRITE_ONCE()) but is invalid on others.
-> > (This is due to the fact that WRITE_ONCE() can be used as an rvalue in
-> > the above assignment; TBH, I ignore the reasons for having such rvalue?)
-> > 
-> > IIUC, similar considerations hold for atomic_set().
-> > 
-> > The question is whether this is a known/"expected" inconsistency in the
-> > implementation of atomic64_set() or if this would also need to be fixed
-> > /addressed (say in a different patchset)?
-> 
-> In either case, I don't think the intent is that they should be used that way,
-> and from a quick scan, I can only fine a single relevant instance today:
-> 
-> [mark@lakrids:~/src/linux]% git grep '\(return\|=\)\s\+atomic\(64\)\?_set'
-> include/linux/vmw_vmci_defs.h:  return atomic_set((atomic_t *)var, (u32)new_val);
-> include/linux/vmw_vmci_defs.h:  return atomic64_set(var, new_val);
-> 
-> 
-> [mark@lakrids:~/src/linux]% git grep '=\s+atomic_set' | wc -l
-> 0
-> [mark@lakrids:~/src/linux]% git grep '=\s+atomic64_set' | wc -l
-> 0
-> 
-> Any architectures implementing arch_atomic_* will have both of these functions
-> returning void. Currently that's x86 and arm64, but (time permitting) I intend
-> to migrate other architectures, so I guess we'll have to fix the above up as
-> required.
-> 
-> I think it's best to avoid the construct above.
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-Thank you for the clarification, Mark.  I agree with you that it'd be
-better to avoid such constructs.  (FWIW, it is not currently possible
-to use them in litmus tests for the LKMM...)
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
 
-Thanks,
-  Andrea
+Fix the powerpc vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
+
+Fixes: a7f290dad32e ("[PATCH] powerpc: Merge vdso's and add vdso support
+to 32 bits kernel")
+Cc: stable@vger.kernel.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+---
+
+Note: This patch is independent from the others in this series, hence it
+can be merged singularly by the powerpc maintainers.
+
+ arch/powerpc/include/asm/vdso_datapage.h  | 2 ++
+ arch/powerpc/kernel/asm-offsets.c         | 2 +-
+ arch/powerpc/kernel/time.c                | 1 +
+ arch/powerpc/kernel/vdso32/gettimeofday.S | 7 +++++--
+ arch/powerpc/kernel/vdso64/gettimeofday.S | 7 +++++--
+ 5 files changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
+index bbc06bd72b1f..4333b9a473dc 100644
+--- a/arch/powerpc/include/asm/vdso_datapage.h
++++ b/arch/powerpc/include/asm/vdso_datapage.h
+@@ -86,6 +86,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;			/* Wall to monotonic clock nsec */
+ 	__s64 wtom_clock_sec;			/* Wall to monotonic clock sec */
+ 	struct timespec stamp_xtime;		/* xtime as at tb_orig_stamp */
++	__u32 hrtimer_res;			/* hrtimer resolution */
+    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+ };
+@@ -107,6 +108,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;
+ 	struct timespec stamp_xtime;	/* xtime as at tb_orig_stamp */
+ 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
++	__u32 hrtimer_res;		/* hrtimer resolution */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+ 	__u32 dcache_block_size;	/* L1 d-cache block size     */
+ 	__u32 icache_block_size;	/* L1 i-cache block size     */
+diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
+index 8e02444e9d3d..dfc40f29f2b9 100644
+--- a/arch/powerpc/kernel/asm-offsets.c
++++ b/arch/powerpc/kernel/asm-offsets.c
+@@ -389,6 +389,7 @@ int main(void)
+ 	OFFSET(WTOM_CLOCK_NSEC, vdso_data, wtom_clock_nsec);
+ 	OFFSET(STAMP_XTIME, vdso_data, stamp_xtime);
+ 	OFFSET(STAMP_SEC_FRAC, vdso_data, stamp_sec_fraction);
++	OFFSET(CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(CFG_ICACHE_BLOCKSZ, vdso_data, icache_block_size);
+ 	OFFSET(CFG_DCACHE_BLOCKSZ, vdso_data, dcache_block_size);
+ 	OFFSET(CFG_ICACHE_LOGBLOCKSZ, vdso_data, icache_log_block_size);
+@@ -419,7 +420,6 @@ int main(void)
+ 	DEFINE(CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(NSEC_PER_SEC, NSEC_PER_SEC);
+-	DEFINE(CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 
+ #ifdef CONFIG_BUG
+ 	DEFINE(BUG_ENTRY_SIZE, sizeof(struct bug_entry));
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 325d60633dfa..4ea4e9d7a58e 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -963,6 +963,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	vdso_data->wtom_clock_nsec = tk->wall_to_monotonic.tv_nsec;
+ 	vdso_data->stamp_xtime = xt;
+ 	vdso_data->stamp_sec_fraction = frac_sec;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++(vdso_data->tb_update_count);
+ }
+diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
+index afd516b572f8..2b5f9e83c610 100644
+--- a/arch/powerpc/kernel/vdso32/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
+@@ -160,12 +160,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
+ 
++	mflr	r12
++  .cfi_register lr,r12
++	bl	__get_datapage@local
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpli	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	stw	r3,TSPC32_TV_SEC(r4)
+ 	stw	r5,TSPC32_TV_NSEC(r4)
+ 	blr
+diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
+index 1f324c28705b..f07730f73d5e 100644
+--- a/arch/powerpc/kernel/vdso64/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
+@@ -190,12 +190,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
+ 
++	mflr	r12
++  .cfi_register lr,r12
++	bl	V_LOCAL_FUNC(__get_datapage)
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpldi	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	std	r3,TSPC64_TV_SEC(r4)
+ 	std	r5,TSPC64_TV_NSEC(r4)
+ 	blr
+-- 
+2.21.0
+
