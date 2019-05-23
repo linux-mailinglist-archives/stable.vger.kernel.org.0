@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFF828975
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B957928747
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389800AbfEWTiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34246 "EHLO mail.kernel.org"
+        id S2388801AbfEWTRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390136AbfEWTXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:23:43 -0400
+        id S2389460AbfEWTRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5E1E2133D;
-        Thu, 23 May 2019 19:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306A02133D;
+        Thu, 23 May 2019 19:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639422;
-        bh=UzqSZtW2KajiKLccwmz24NY1Imd9fAY7yZ/3SJfDf2M=;
+        s=default; t=1558639056;
+        bh=EjlE2ovGcgePIpb0P9J+WLinGF9krRSoTGEpCVh9Smc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+WbKBg1xqIkDQZIh7kQ1u5wMRsdWBEsPzyIMx/kpMvnEjIoNQG/dyFTcbsdH7+bU
-         KDEq9OMIvKLYn3YxHeN70KuQT61dOpoV0/D/nVqORn6jj8zKL8FO/HAOArMfF1aRvv
-         KE8ilCqFbliAQfVZffvee1u2yvDrNFZEZujyOPbw=
+        b=Vzhu/n4wmViVeSKgzDVZG3lf/j/3AHvmWFX2jbhAlNlb9n/3NBo78DiRosAIGijja
+         nXJljYzTa6X+p46WZ7aNvj+tA3pUhZjobMxh3kUKKpUXBgkpREU+2oBV/DMREOaIsb
+         dSnVKI8WzkucWM9pqPyC6lpd5HfFivsxaNnleGbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.0 091/139] PCI: Factor out pcie_retrain_link() function
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 080/114] dm integrity: correctly calculate the size of metadata area
 Date:   Thu, 23 May 2019 21:06:19 +0200
-Message-Id: <20190523181732.449095988@linuxfoundation.org>
+Message-Id: <20190523181738.973182902@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Mätje <stefan.maetje@esd.eu>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 86fa6a344209d9414ea962b1f1ac6ade9dd7563a upstream.
+commit 30bba430ddf737978e40561198693ba91386dac1 upstream.
 
-Factor out pcie_retrain_link() to use for Pericom Retrain Link quirk.  No
-functional change intended.
+When we use separate devices for data and metadata, dm-integrity would
+incorrectly calculate the size of the metadata device as if it had
+512-byte block size - and it would refuse activation with larger block
+size and smaller metadata device.
 
-Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-CC: stable@vger.kernel.org
+Fix this so that it takes actual block size into account, which fixes
+the following reported issue:
+https://gitlab.com/cryptsetup/cryptsetup/issues/450
+
+Fixes: 356d9d52e122 ("dm integrity: allow separate metadata device")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pcie/aspm.c |   40 ++++++++++++++++++++++++----------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ drivers/md/dm-integrity.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -196,6 +196,29 @@ static void pcie_clkpm_cap_init(struct p
- 	link->clkpm_capable = (blacklist) ? 0 : capable;
- }
- 
-+static bool pcie_retrain_link(struct pcie_link_state *link)
-+{
-+	struct pci_dev *parent = link->pdev;
-+	unsigned long start_jiffies;
-+	u16 reg16;
-+
-+	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
-+	reg16 |= PCI_EXP_LNKCTL_RL;
-+	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
-+
-+	/* Wait for link training end. Break out after waiting for timeout */
-+	start_jiffies = jiffies;
-+	for (;;) {
-+		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
-+		if (!(reg16 & PCI_EXP_LNKSTA_LT))
-+			break;
-+		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
-+			break;
-+		msleep(1);
-+	}
-+	return !(reg16 & PCI_EXP_LNKSTA_LT);
-+}
-+
- /*
-  * pcie_aspm_configure_common_clock: check if the 2 ends of a link
-  *   could use common clock. If they are, configure them to use the
-@@ -205,7 +228,6 @@ static void pcie_aspm_configure_common_c
- {
- 	int same_clock = 1;
- 	u16 reg16, parent_reg, child_reg[8];
--	unsigned long start_jiffies;
- 	struct pci_dev *child, *parent = link->pdev;
- 	struct pci_bus *linkbus = parent->subordinate;
- 	/*
-@@ -263,21 +285,7 @@ static void pcie_aspm_configure_common_c
- 		reg16 &= ~PCI_EXP_LNKCTL_CCC;
- 	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
- 
--	/* Retrain link */
--	reg16 |= PCI_EXP_LNKCTL_RL;
--	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
--
--	/* Wait for link training end. Break out after waiting for timeout */
--	start_jiffies = jiffies;
--	for (;;) {
--		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
--		if (!(reg16 & PCI_EXP_LNKSTA_LT))
--			break;
--		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
--			break;
--		msleep(1);
--	}
--	if (!(reg16 & PCI_EXP_LNKSTA_LT))
-+	if (pcie_retrain_link(link))
- 		return;
- 
- 	/* Training failed. Restore common clock configurations */
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2557,7 +2557,7 @@ static int calculate_device_limits(struc
+ 		if (last_sector < ic->start || last_sector >= ic->meta_device_sectors)
+ 			return -EINVAL;
+ 	} else {
+-		__u64 meta_size = ic->provided_data_sectors * ic->tag_size;
++		__u64 meta_size = (ic->provided_data_sectors >> ic->sb->log2_sectors_per_block) * ic->tag_size;
+ 		meta_size = (meta_size + ((1U << (ic->log2_buffer_sectors + SECTOR_SHIFT)) - 1))
+ 				>> (ic->log2_buffer_sectors + SECTOR_SHIFT);
+ 		meta_size <<= ic->log2_buffer_sectors;
+@@ -3428,7 +3428,7 @@ try_smaller_buffer:
+ 	DEBUG_print("	journal_sections %u\n", (unsigned)le32_to_cpu(ic->sb->journal_sections));
+ 	DEBUG_print("	journal_entries %u\n", ic->journal_entries);
+ 	DEBUG_print("	log2_interleave_sectors %d\n", ic->sb->log2_interleave_sectors);
+-	DEBUG_print("	device_sectors 0x%llx\n", (unsigned long long)ic->device_sectors);
++	DEBUG_print("	data_device_sectors 0x%llx\n", (unsigned long long)ic->data_device_sectors);
+ 	DEBUG_print("	initial_sectors 0x%x\n", ic->initial_sectors);
+ 	DEBUG_print("	metadata_run 0x%x\n", ic->metadata_run);
+ 	DEBUG_print("	log2_metadata_run %d\n", ic->log2_metadata_run);
 
 
