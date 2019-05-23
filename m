@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F1B2893B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491EF28928
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390356AbfEWTb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44880 "EHLO mail.kernel.org"
+        id S2391788AbfEWTbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391242AbfEWTbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:31:09 -0400
+        id S2392233AbfEWTbM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:31:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A86802184E;
-        Thu, 23 May 2019 19:31:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57697206BA;
+        Thu, 23 May 2019 19:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639869;
-        bh=bieoZxUuM0eYUMgkc97RF8clTu3pxaHE+SnDROpgHX4=;
+        s=default; t=1558639871;
+        bh=Pycf4tZHJJVc1EdtrAOP6wlos8p2T3C9kGsXHQzPX0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAzSiODjBwELXeUVdWH14KY93rT+s3fbhNKB+CVW3javjVT2Xb4z2I8HmLzLyJ3F3
-         CQB3nZn4caRWqxEmR5yMApCsHN3Qb4DyX8jBhrA5jgy6UVlWDH+1dNS+7hfM4HRddx
-         qXe4+PWI85LZ3fb1xSID36ZZ1GcPDvnKl0ZGRVPI=
+        b=ls0VEv5e9zRc6dYSqwuBN1iKy88mXlN8MbuJtmP7XmsN59tBP0QeNVSFxEz3jB8UB
+         9dWwBtswGAJH5CnFoo6ZEx2HFdG5frwCM9jAZMjyfY0jgL+CZpyKYGt6vLXItu8VmW
+         suPP3txPFQuPd23pn/3u/KpKNK0/V5/TH9iLUN0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
-        Richard Leitner <richard.leitner@skidata.com>
-Subject: [PATCH 5.1 114/122] dmaengine: imx-sdma: Only check ratio on parts that support 1:1
-Date:   Thu, 23 May 2019 21:07:16 +0200
-Message-Id: <20190523181720.626436939@linuxfoundation.org>
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Subject: [PATCH 5.1 115/122] driver core: Postpone DMA tear-down until after devres release for probe failure
+Date:   Thu, 23 May 2019 21:07:17 +0200
+Message-Id: <20190523181720.748780763@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,78 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Ainslie (Purism) <angus@akkea.ca>
+From: John Garry <john.garry@huawei.com>
 
-commit 941acd566b1807b291bbdca31cc5158e26ffcf83 upstream.
+commit 0b777eee88d712256ba8232a9429edb17c4f9ceb upstream.
 
-On imx8mq B0 chip, AHB/SDMA clock ratio 2:1 can't be supported,
-since SDMA clock ratio has to be increased to 250Mhz, AHB can't reach
-to 500Mhz, so use 1:1 instead.
+In commit 376991db4b64 ("driver core: Postpone DMA tear-down until after
+devres release"), we changed the ordering of tearing down the device DMA
+ops and releasing all the device's resources; this was because the DMA ops
+should be maintained until we release the device's managed DMA memories.
 
-To limit this change to the imx8mq for now this patch also adds an
-im8mq-sdma compatible string.
+However, we have seen another crash on an arm64 system when a
+device driver probe fails:
 
-Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
-Acked-by: Robin Gong <yibin.gong@nxp.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Cc: Richard Leitner <richard.leitner@skidata.com>
+  hisi_sas_v3_hw 0000:74:02.0: Adding to iommu group 2
+  scsi host1: hisi_sas_v3_hw
+  BUG: Bad page state in process swapper/0  pfn:313f5
+  page:ffff7e0000c4fd40 count:1 mapcount:0
+  mapping:0000000000000000 index:0x0
+  flags: 0xfffe00000001000(reserved)
+  raw: 0fffe00000001000 ffff7e0000c4fd48 ffff7e0000c4fd48
+0000000000000000
+  raw: 0000000000000000 0000000000000000 00000001ffffffff
+0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+  bad because of flags: 0x1000(reserved)
+  Modules linked in:
+  CPU: 49 PID: 1 Comm: swapper/0 Not tainted
+5.1.0-rc1-43081-g22d97fd-dirty #1433
+  Hardware name: Huawei D06/D06, BIOS Hisilicon D06 UEFI
+RC0 - V1.12.01 01/29/2019
+  Call trace:
+  dump_backtrace+0x0/0x118
+  show_stack+0x14/0x1c
+  dump_stack+0xa4/0xc8
+  bad_page+0xe4/0x13c
+  free_pages_check_bad+0x4c/0xc0
+  __free_pages_ok+0x30c/0x340
+  __free_pages+0x30/0x44
+  __dma_direct_free_pages+0x30/0x38
+  dma_direct_free+0x24/0x38
+  dma_free_attrs+0x9c/0xd8
+  dmam_release+0x20/0x28
+  release_nodes+0x17c/0x220
+  devres_release_all+0x34/0x54
+  really_probe+0xc4/0x2c8
+  driver_probe_device+0x58/0xfc
+  device_driver_attach+0x68/0x70
+  __driver_attach+0x94/0xdc
+  bus_for_each_dev+0x5c/0xb4
+  driver_attach+0x20/0x28
+  bus_add_driver+0x14c/0x200
+  driver_register+0x6c/0x124
+  __pci_register_driver+0x48/0x50
+  sas_v3_pci_driver_init+0x20/0x28
+  do_one_initcall+0x40/0x25c
+  kernel_init_freeable+0x2b8/0x3c0
+  kernel_init+0x10/0x100
+  ret_from_fork+0x10/0x18
+  Disabling lock debugging due to kernel taint
+  BUG: Bad page state in process swapper/0  pfn:313f6
+  page:ffff7e0000c4fd80 count:1 mapcount:0
+mapping:0000000000000000 index:0x0
+[   89.322983] flags: 0xfffe00000001000(reserved)
+  raw: 0fffe00000001000 ffff7e0000c4fd88 ffff7e0000c4fd88
+0000000000000000
+  raw: 0000000000000000 0000000000000000 00000001ffffffff
+0000000000000000
+
+The crash occurs for the same reason.
+
+In this case, on the really_probe() failure path, we are still clearing
+the DMA ops prior to releasing the device's managed memories.
+
+This patch fixes this issue by reordering the DMA ops teardown and the
+call to devres_release_all() on the failure path.
+
+Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
+Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/imx-sdma.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/base/dd.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -419,6 +419,7 @@ struct sdma_driver_data {
- 	int chnenbl0;
- 	int num_events;
- 	struct sdma_script_start_addrs	*script_addrs;
-+	bool check_ratio;
- };
- 
- struct sdma_engine {
-@@ -557,6 +558,13 @@ static struct sdma_driver_data sdma_imx7
- 	.script_addrs = &sdma_script_imx7d,
- };
- 
-+static struct sdma_driver_data sdma_imx8mq = {
-+	.chnenbl0 = SDMA_CHNENBL0_IMX35,
-+	.num_events = 48,
-+	.script_addrs = &sdma_script_imx7d,
-+	.check_ratio = 1,
-+};
-+
- static const struct platform_device_id sdma_devtypes[] = {
- 	{
- 		.name = "imx25-sdma",
-@@ -580,6 +588,9 @@ static const struct platform_device_id s
- 		.name = "imx7d-sdma",
- 		.driver_data = (unsigned long)&sdma_imx7d,
- 	}, {
-+		.name = "imx8mq-sdma",
-+		.driver_data = (unsigned long)&sdma_imx8mq,
-+	}, {
- 		/* sentinel */
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -490,7 +490,7 @@ re_probe:
+ 	if (dev->bus->dma_configure) {
+ 		ret = dev->bus->dma_configure(dev);
+ 		if (ret)
+-			goto dma_failed;
++			goto probe_failed;
  	}
- };
-@@ -593,6 +604,7 @@ static const struct of_device_id sdma_dt
- 	{ .compatible = "fsl,imx31-sdma", .data = &sdma_imx31, },
- 	{ .compatible = "fsl,imx25-sdma", .data = &sdma_imx25, },
- 	{ .compatible = "fsl,imx7d-sdma", .data = &sdma_imx7d, },
-+	{ .compatible = "fsl,imx8mq-sdma", .data = &sdma_imx8mq, },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, sdma_dt_ids);
-@@ -1852,7 +1864,8 @@ static int sdma_init(struct sdma_engine
- 	if (ret)
- 		goto disable_clk_ipg;
  
--	if (clk_get_rate(sdma->clk_ahb) == clk_get_rate(sdma->clk_ipg))
-+	if (sdma->drvdata->check_ratio &&
-+	    (clk_get_rate(sdma->clk_ahb) == clk_get_rate(sdma->clk_ipg)))
- 		sdma->clk_ratio = 1;
+ 	if (driver_sysfs_add(dev)) {
+@@ -546,14 +546,13 @@ re_probe:
+ 	goto done;
  
- 	/* Be sure SDMA has not started yet */
+ probe_failed:
+-	arch_teardown_dma_ops(dev);
+-dma_failed:
+ 	if (dev->bus)
+ 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
+ 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
+ pinctrl_bind_failed:
+ 	device_links_no_driver(dev);
+ 	devres_release_all(dev);
++	arch_teardown_dma_ops(dev);
+ 	driver_sysfs_remove(dev);
+ 	dev->driver = NULL;
+ 	dev_set_drvdata(dev, NULL);
 
 
