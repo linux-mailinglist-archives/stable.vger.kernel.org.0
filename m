@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C342884A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA698288D9
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390912AbfEWTY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35474 "EHLO mail.kernel.org"
+        id S2391416AbfEWT3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:29:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390434AbfEWTY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:29 -0400
+        id S2391891AbfEWT3L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EBEF21872;
-        Thu, 23 May 2019 19:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38079217D9;
+        Thu, 23 May 2019 19:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639468;
-        bh=YzxVZagn4yBuXs8rIInrK+XHSs1m65ndjNkEB/hNnqw=;
+        s=default; t=1558639750;
+        bh=a9UcbVbIAa9yFWsS81lStfkrnBa1VMhlC8V7xi8PUFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/p6J1/R0CsJPKQ8b4b4DIuWJzFBacTvZ3ZYO83a835ifb9CbtgrLbUxxrKbefTgD
-         BDCtVBDpbVCMJRob10MpnJpIUaaM2RuvjJmRBB1FTmnJco+r8BtaxDlBx70nAVxWwK
-         C0tpESgxdgWPikxQY1kwzHBcW0yzCWAFASHSCeOE=
+        b=bShqE1UDZEsQnsUeaGDTzlwbZdarA44ejH2A5Ih9UDjukf7p9pR7n2SzcpEOXDkT/
+         6NZSTbdtvMD7aQWZr/6L3dSwGkogx4agmllANOPXarqyczi+bYUIaUzAAD7DYJy+ML
+         q9f/veXtf0BBxGMR+l3x8jhUOngBhAUSHpLRQQpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.0 099/139] fuse: Add FOPEN_STREAM to use stream_open()
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Bernie Thompson <bernie@plugable.com>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.1 065/122] udlfb: introduce a rendering mutex
 Date:   Thu, 23 May 2019 21:06:27 +0200
-Message-Id: <20190523181733.421233135@linuxfoundation.org>
+Message-Id: <20190523181713.287323463@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +45,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Smelkov <kirr@nexedi.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
+commit babc250e278eac7b0e671bdaedf833759b43bb78 upstream.
 
-Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
-POSIX") files opened even via nonseekable_open gate read and write via lock
-and do not allow them to be run simultaneously. This can create read vs
-write deadlock if a filesystem is trying to implement a socket-like file
-which is intended to be simultaneously used for both read and write from
-filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
-stream-like files so that read and write can run simultaneously without
-deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
-on writes to /proc/xen/xenbus") for a similar deadlock example on
-/proc/xen/xenbus.
+Rendering calls may be done simultaneously from the workqueue,
+dlfb_ops_write, dlfb_ops_ioctl, dlfb_ops_set_par and dlfb_dpy_deferred_io.
+The code is robust enough so that it won't crash on concurrent rendering.
 
-To avoid such deadlock it was tempting to adjust fuse_finish_open to use
-stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
-but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
-and in particular GVFS which actually uses offset in its read and write
-handlers
+However, concurrent rendering may cause display corruption if the same
+pixel is simultaneously being rendered. In order to avoid this corruption,
+this patch adds a mutex around the rendering calls.
 
-	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
-
-so if we would do such a change it will break a real user.
-
-Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
-opened handler is having stream-like semantics; does not use file position
-and thus the kernel is free to issue simultaneous read and write request on
-opened file handle.
-
-This patch together with stream_open() should be added to stable kernels
-starting from v3.14+. This will allow to patch OSSPD and other FUSE
-filesystems that provide stream-like files to return FOPEN_STREAM |
-FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
-kernel versions. This should work because fuse_finish_open ignores unknown
-open flags returned from a filesystem and so passing FOPEN_STREAM to a
-kernel that is not aware of this flag cannot hurt. In turn the kernel that
-is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
-is sufficient to implement streams without read vs write deadlock.
-
-Cc: stable@vger.kernel.org # v3.14+
-Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Bernie Thompson <bernie@plugable.com>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Cc: <stable@vger.kernel.org>
+[b.zolnierkie: replace "dlfb:" with "uldfb:" in the patch summary]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c            |    4 +++-
- include/uapi/linux/fuse.h |    2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/udlfb.c |   41 ++++++++++++++++++++++++++++++-----------
+ include/video/udlfb.h       |    1 +
+ 2 files changed, 31 insertions(+), 11 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -181,7 +181,9 @@ void fuse_finish_open(struct inode *inod
- 		file->f_op = &fuse_direct_io_file_operations;
- 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
- 		invalidate_inode_pages2(inode->i_mapping);
--	if (ff->open_flags & FOPEN_NONSEEKABLE)
-+	if (ff->open_flags & FOPEN_STREAM)
-+		stream_open(inode, file);
-+	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -226,11 +226,13 @@ struct fuse_file_lock {
-  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
-  * FOPEN_NONSEEKABLE: the file is not seekable
-  * FOPEN_CACHE_DIR: allow caching this directory
-+ * FOPEN_STREAM: the file is stream-like (no file position at all)
-  */
- #define FOPEN_DIRECT_IO		(1 << 0)
- #define FOPEN_KEEP_CACHE	(1 << 1)
- #define FOPEN_NONSEEKABLE	(1 << 2)
- #define FOPEN_CACHE_DIR		(1 << 3)
-+#define FOPEN_STREAM		(1 << 4)
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -596,7 +596,7 @@ static int dlfb_render_hline(struct dlfb
  
- /**
-  * INIT request/reply flags
+ static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y, int width, int height)
+ {
+-	int i;
++	int i, ret;
+ 	char *cmd;
+ 	cycles_t start_cycles, end_cycles;
+ 	int bytes_sent = 0;
+@@ -606,21 +606,29 @@ static int dlfb_handle_damage(struct dlf
+ 
+ 	start_cycles = get_cycles();
+ 
++	mutex_lock(&dlfb->render_mutex);
++
+ 	aligned_x = DL_ALIGN_DOWN(x, sizeof(unsigned long));
+ 	width = DL_ALIGN_UP(width + (x-aligned_x), sizeof(unsigned long));
+ 	x = aligned_x;
+ 
+ 	if ((width <= 0) ||
+ 	    (x + width > dlfb->info->var.xres) ||
+-	    (y + height > dlfb->info->var.yres))
+-		return -EINVAL;
++	    (y + height > dlfb->info->var.yres)) {
++		ret = -EINVAL;
++		goto unlock_ret;
++	}
+ 
+-	if (!atomic_read(&dlfb->usb_active))
+-		return 0;
++	if (!atomic_read(&dlfb->usb_active)) {
++		ret = 0;
++		goto unlock_ret;
++	}
+ 
+ 	urb = dlfb_get_urb(dlfb);
+-	if (!urb)
+-		return 0;
++	if (!urb) {
++		ret = 0;
++		goto unlock_ret;
++	}
+ 	cmd = urb->transfer_buffer;
+ 
+ 	for (i = y; i < y + height ; i++) {
+@@ -654,7 +662,11 @@ error:
+ 		    >> 10)), /* Kcycles */
+ 		   &dlfb->cpu_kcycles_used);
+ 
+-	return 0;
++	ret = 0;
++
++unlock_ret:
++	mutex_unlock(&dlfb->render_mutex);
++	return ret;
+ }
+ 
+ static void dlfb_init_damage(struct dlfb_data *dlfb)
+@@ -782,17 +794,19 @@ static void dlfb_dpy_deferred_io(struct
+ 	int bytes_identical = 0;
+ 	int bytes_rendered = 0;
+ 
++	mutex_lock(&dlfb->render_mutex);
++
+ 	if (!fb_defio)
+-		return;
++		goto unlock_ret;
+ 
+ 	if (!atomic_read(&dlfb->usb_active))
+-		return;
++		goto unlock_ret;
+ 
+ 	start_cycles = get_cycles();
+ 
+ 	urb = dlfb_get_urb(dlfb);
+ 	if (!urb)
+-		return;
++		goto unlock_ret;
+ 
+ 	cmd = urb->transfer_buffer;
+ 
+@@ -825,6 +839,8 @@ error:
+ 	atomic_add(((unsigned int) ((end_cycles - start_cycles)
+ 		    >> 10)), /* Kcycles */
+ 		   &dlfb->cpu_kcycles_used);
++unlock_ret:
++	mutex_unlock(&dlfb->render_mutex);
+ }
+ 
+ static int dlfb_get_edid(struct dlfb_data *dlfb, char *edid, int len)
+@@ -986,6 +1002,8 @@ static void dlfb_ops_destroy(struct fb_i
+ 
+ 	cancel_work_sync(&dlfb->damage_work);
+ 
++	mutex_destroy(&dlfb->render_mutex);
++
+ 	if (info->cmap.len != 0)
+ 		fb_dealloc_cmap(&info->cmap);
+ 	if (info->monspecs.modedb)
+@@ -1682,6 +1700,7 @@ static int dlfb_usb_probe(struct usb_int
+ 	dlfb->ops = dlfb_ops;
+ 	info->fbops = &dlfb->ops;
+ 
++	mutex_init(&dlfb->render_mutex);
+ 	dlfb_init_damage(dlfb);
+ 	spin_lock_init(&dlfb->damage_lock);
+ 	INIT_WORK(&dlfb->damage_work, dlfb_damage_work);
+--- a/include/video/udlfb.h
++++ b/include/video/udlfb.h
+@@ -48,6 +48,7 @@ struct dlfb_data {
+ 	int base8;
+ 	u32 pseudo_palette[256];
+ 	int blank_mode; /*one of FB_BLANK_ */
++	struct mutex render_mutex;
+ 	int damage_x;
+ 	int damage_y;
+ 	int damage_x2;
 
 
