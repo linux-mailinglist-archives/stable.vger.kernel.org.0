@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A1A28882
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD78028992
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389810AbfEWT0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38914 "EHLO mail.kernel.org"
+        id S2389644AbfEWTVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:21:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390226AbfEWT0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:54 -0400
+        id S2390251AbfEWTVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:21:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4427A2184E;
-        Thu, 23 May 2019 19:26:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E0AF21841;
+        Thu, 23 May 2019 19:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639613;
-        bh=7CsxQZnR9OEYV73h7mR3bBrUUkWb0cqJ/BNieI70RKk=;
+        s=default; t=1558639282;
+        bh=6N8fhzPrYRvSgTF2+kpthjURSoMeS6rdVqEgNaWNgpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QnaNYW7rZ5A+uuwI8zDO8GqCap5RjFYv/82AxtaMJGybxKptLC0oIxhqJnEaPlYSD
-         yfqktehxqwtRuS6xpET8ykcYL+dkhR8hIhZsIQSxJi7L3KwycP+42gsWIl9LV3lfDw
-         JgpH9m+TbgmfryByE4JL9SSD+2pnOh1I7F8hgqW0=
+        b=RRPJQb4y38+2WUuYuOjQfSOGZiCn36iQ9nMga8P47mStOuf4ZxhQfL490MzZyFJOt
+         I9oqn+sr8bJrsEHBT5eJIzGnIPGZNd3NwQpaeMW1ijlmvB+UlZ2InnSOenvvq095kE
+         +Vygw06J9edLt9LhIwcsTL6VzrdSdJW3bGAA8ngk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 013/122] tipc: fix modprobe tipc failed after switch order of device registration
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Haggai Eran <haggaie@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 5.0 047/139] RDMA/mlx5: Use get_zeroed_page() for clock_info
 Date:   Thu, 23 May 2019 21:05:35 +0200
-Message-Id: <20190523181706.694989620@linuxfoundation.org>
+Message-Id: <20190523181726.804257772@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,92 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 532b0f7ece4cb2ffd24dc723ddf55242d1188e5e ]
+commit ddcdc368b1033e19fd3a5f750752e10e28a87826 upstream.
 
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
+get_zeroed_page() returns a virtual address for the page which is better
+than allocating a struct page and doing a permanent kmap on it.
 
-Because sock_create_kern(net, AF_TIPC, ...) is called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_net_ops, tipc_socket_init() must be execute before that.
-
-I move tipc_socket_init() into function tipc_init_net().
-
-Fixes: 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Haggai Eran <haggaie@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tipc/core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -66,6 +66,10 @@ static int __net_init tipc_init_net(stru
- 	INIT_LIST_HEAD(&tn->node_list);
- 	spin_lock_init(&tn->node_list_lock);
+---
+ drivers/infiniband/hw/mlx5/main.c                   |    5 ++-
+ drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c |   30 +++++++-------------
+ include/linux/mlx5/driver.h                         |    1 
+ 3 files changed, 14 insertions(+), 22 deletions(-)
+
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1986,11 +1986,12 @@ static int mlx5_ib_mmap_clock_info_page(
+ 		return -EPERM;
+ 	vma->vm_flags &= ~VM_MAYWRITE;
  
-+	err = tipc_socket_init();
-+	if (err)
-+		goto out_socket;
-+
- 	err = tipc_sk_rht_init(net);
- 	if (err)
- 		goto out_sk_rht;
-@@ -92,6 +96,8 @@ out_subscr:
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
- out_sk_rht:
-+	tipc_socket_stop();
-+out_socket:
- 	return err;
+-	if (!dev->mdev->clock_info_page)
++	if (!dev->mdev->clock_info)
+ 		return -EOPNOTSUPP;
+ 
+ 	return rdma_user_mmap_page(&context->ibucontext, vma,
+-				   dev->mdev->clock_info_page, PAGE_SIZE);
++				   virt_to_page(dev->mdev->clock_info),
++				   PAGE_SIZE);
  }
  
-@@ -102,6 +108,7 @@ static void __net_exit tipc_exit_net(str
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
-+	tipc_socket_stop();
- }
+ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+@@ -535,23 +535,16 @@ void mlx5_init_clock(struct mlx5_core_de
+ 	do_div(ns, NSEC_PER_SEC / HZ);
+ 	clock->overflow_period = ns;
  
- static struct pernet_operations tipc_net_ops = {
-@@ -137,10 +144,6 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_pernet;
+-	mdev->clock_info_page = alloc_page(GFP_KERNEL);
+-	if (mdev->clock_info_page) {
+-		mdev->clock_info = kmap(mdev->clock_info_page);
+-		if (!mdev->clock_info) {
+-			__free_page(mdev->clock_info_page);
+-			mlx5_core_warn(mdev, "failed to map clock page\n");
+-		} else {
+-			mdev->clock_info->sign   = 0;
+-			mdev->clock_info->nsec   = clock->tc.nsec;
+-			mdev->clock_info->cycles = clock->tc.cycle_last;
+-			mdev->clock_info->mask   = clock->cycles.mask;
+-			mdev->clock_info->mult   = clock->nominal_c_mult;
+-			mdev->clock_info->shift  = clock->cycles.shift;
+-			mdev->clock_info->frac   = clock->tc.frac;
+-			mdev->clock_info->overflow_period =
+-						clock->overflow_period;
+-		}
++	mdev->clock_info =
++		(struct mlx5_ib_clock_info *)get_zeroed_page(GFP_KERNEL);
++	if (mdev->clock_info) {
++		mdev->clock_info->nsec = clock->tc.nsec;
++		mdev->clock_info->cycles = clock->tc.cycle_last;
++		mdev->clock_info->mask = clock->cycles.mask;
++		mdev->clock_info->mult = clock->nominal_c_mult;
++		mdev->clock_info->shift = clock->cycles.shift;
++		mdev->clock_info->frac = clock->tc.frac;
++		mdev->clock_info->overflow_period = clock->overflow_period;
+ 	}
  
--	err = tipc_socket_init();
--	if (err)
--		goto out_socket;
--
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -148,8 +151,6 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
--	tipc_socket_stop();
--out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
- out_pernet:
- 	tipc_unregister_sysctl();
-@@ -165,7 +166,6 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
--	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
- 	tipc_netlink_compat_stop();
+ 	INIT_WORK(&clock->pps_info.out_work, mlx5_pps_out);
+@@ -599,8 +592,7 @@ void mlx5_cleanup_clock(struct mlx5_core
+ 	cancel_delayed_work_sync(&clock->overflow_work);
+ 
+ 	if (mdev->clock_info) {
+-		kunmap(mdev->clock_info_page);
+-		__free_page(mdev->clock_info_page);
++		free_page((unsigned long)mdev->clock_info);
+ 		mdev->clock_info = NULL;
+ 	}
+ 
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -677,7 +677,6 @@ struct mlx5_core_dev {
+ #endif
+ 	struct mlx5_clock        clock;
+ 	struct mlx5_ib_clock_info  *clock_info;
+-	struct page             *clock_info_page;
+ 	struct mlx5_fw_tracer   *tracer;
+ };
+ 
 
 
