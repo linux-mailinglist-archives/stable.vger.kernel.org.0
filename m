@@ -2,56 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C372928836
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B5CC288C3
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389319AbfEWTXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33630 "EHLO mail.kernel.org"
+        id S2391796AbfEWT2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390674AbfEWTXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:23:21 -0400
+        id S2391787AbfEWT2e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E1E220868;
-        Thu, 23 May 2019 19:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82B47206BA;
+        Thu, 23 May 2019 19:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639400;
-        bh=2RbjxuETqCYHxBeM3B7PFPrflHs91gMsDYPlQQFhKMg=;
+        s=default; t=1558639713;
+        bh=HDV0V+3q18n4NciByt+kY8RlDLe68ZzcqfT7OotFAPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge58KPWrSV7wz9R7P10QsrfSe3YNnb7FpLhxrd1Swv1TGFKciuI98TEXWm0Q6rwxu
-         uqGxp0l30P5U+a9nNodBxNMjBF54FESz2ZUynQsQR7wZAulLB/COMMtCPm1QgPYbOu
-         ut+tG+iAZ4wpDslT0s6oXhU0rI0HR8HmA+TVqPvk=
+        b=c36DSOnfRQiUlNfQHxuxAmKDbc+TfTwSIBlY5UqvFoZAJtcAQ+0L8g+vvdrM/I200
+         F3hH7Wi7ONlMYSpPajzObd1Z0VWnWLCc6QVDYvjm5yKPNluipr2fvEzYD2YG/EUpUg
+         oPkWQAmDWKMcRRwmT3yvTGdzBMc1pu5NVNNcLUsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Biener <rguenther@suse.de>,
-        "H.J. Lu" <hjl.tools@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>, Guan Xuetao <gxt@pku.edu.cn>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jeff Dike <jdike@addtoit.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        Rik van Riel <riel@surriel.com>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-um@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.0 075/139] x86/mpx, mm/core: Fix recursive munmap() corruption
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.1 041/122] dcache: sort the freeing-without-RCU-delay mess for good.
 Date:   Thu, 23 May 2019 21:06:03 +0200
-Message-Id: <20190523181730.571246299@linuxfoundation.org>
+Message-Id: <20190523181710.170606860@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,355 +42,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 5a28fc94c9143db766d1ba5480cae82d856ad080 upstream.
+commit 5467a68cbf6884c9a9d91e2a89140afb1839c835 upstream.
 
-This is a bit of a mess, to put it mildly.  But, it's a bug
-that only seems to have showed up in 4.20 but wasn't noticed
-until now, because nobody uses MPX.
+For lockless accesses to dentries we don't have pinned we rely
+(among other things) upon having an RCU delay between dropping
+the last reference and actually freeing the memory.
 
-MPX has the arch_unmap() hook inside of munmap() because MPX
-uses bounds tables that protect other areas of memory.  When
-memory is unmapped, there is also a need to unmap the MPX
-bounds tables.  Barring this, unused bounds tables can eat 80%
-of the address space.
+On the other hand, for things like pipes and sockets we neither
+do that kind of lockless access, nor want to deal with the
+overhead of an RCU delay every time a socket gets closed.
 
-But, the recursive do_munmap() that gets called vi arch_unmap()
-wreaks havoc with __do_munmap()'s state.  It can result in
-freeing populated page tables, accessing bogus VMA state,
-double-freed VMAs and more.
+So delay was made optional - setting DCACHE_RCUACCESS in ->d_flags
+made sure it would happen.  We tried to avoid setting it unless
+we knew we need it.  Unfortunately, that had led to recurring
+class of bugs, in which we missed the need to set it.
 
-See the "long story" further below for the gory details.
+We only really need it for dentries that are created by
+d_alloc_pseudo(), so let's not bother with trying to be smart -
+just make having an RCU delay the default.  The ones that do
+*not* get it set the replacement flag (DCACHE_NORCU) and we'd
+better use that sparingly.  d_alloc_pseudo() is the only
+such user right now.
 
-To fix this, call arch_unmap() before __do_unmap() has a chance
-to do anything meaningful.  Also, remove the 'vma' argument
-and force the MPX code to do its own, independent VMA lookup.
+FWIW, the race that finally prompted that switch had been
+between __lock_parent() of immediate subdirectory of what's
+currently the root of a disconnected tree (e.g. from
+open-by-handle in progress) racing with d_splice_alias()
+elsewhere picking another alias for the same inode, either
+on outright corrupted fs image, or (in case of open-by-handle
+on NFS) that subdirectory having been just moved on server.
+It's not easy to hit, so the sky is not falling, but that's
+not the first race on similar missed cases and the logics
+for settinf DCACHE_RCUACCESS has gotten ridiculously
+convoluted.
 
-== UML / unicore32 impact ==
-
-Remove unused 'vma' argument to arch_unmap().  No functional
-change.
-
-I compile tested this on UML but not unicore32.
-
-== powerpc impact ==
-
-powerpc uses arch_unmap() well to watch for munmap() on the
-VDSO and zeroes out 'current->mm->context.vdso_base'.  Moving
-arch_unmap() makes this happen earlier in __do_munmap().  But,
-'vdso_base' seems to only be used in perf and in the signal
-delivery that happens near the return to userspace.  I can not
-find any likely impact to powerpc, other than the zeroing
-happening a little earlier.
-
-powerpc does not use the 'vma' argument and is unaffected by
-its removal.
-
-I compile-tested a 64-bit powerpc defconfig.
-
-== x86 impact ==
-
-For the common success case this is functionally identical to
-what was there before.  For the munmap() failure case, it's
-possible that some MPX tables will be zapped for memory that
-continues to be in use.  But, this is an extraordinarily
-unlikely scenario and the harm would be that MPX provides no
-protection since the bounds table got reset (zeroed).
-
-I can't imagine anyone doing this:
-
-	ptr = mmap();
-	// use ptr
-	ret = munmap(ptr);
-	if (ret)
-		// oh, there was an error, I'll
-		// keep using ptr.
-
-Because if you're doing munmap(), you are *done* with the
-memory.  There's probably no good data in there _anyway_.
-
-This passes the original reproducer from Richard Biener as
-well as the existing mpx selftests/.
-
-The long story:
-
-munmap() has a couple of pieces:
-
- 1. Find the affected VMA(s)
- 2. Split the start/end one(s) if neceesary
- 3. Pull the VMAs out of the rbtree
- 4. Actually zap the memory via unmap_region(), including
-    freeing page tables (or queueing them to be freed).
- 5. Fix up some of the accounting (like fput()) and actually
-    free the VMA itself.
-
-This specific ordering was actually introduced by:
-
-  dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-
-during the 4.20 merge window.  The previous __do_munmap() code
-was actually safe because the only thing after arch_unmap() was
-remove_vma_list().  arch_unmap() could not see 'vma' in the
-rbtree because it was detached, so it is not even capable of
-doing operations unsafe for remove_vma_list()'s use of 'vma'.
-
-Richard Biener reported a test that shows this in dmesg:
-
-  [1216548.787498] BUG: Bad rss-counter state mm:0000000017ce560b idx:1 val:551
-  [1216548.787500] BUG: non-zero pgtables_bytes on freeing mm: 24576
-
-What triggered this was the recursive do_munmap() called via
-arch_unmap().  It was freeing page tables that has not been
-properly zapped.
-
-But, the problem was bigger than this.  For one, arch_unmap()
-can free VMAs.  But, the calling __do_munmap() has variables
-that *point* to VMAs and obviously can't handle them just
-getting freed while the pointer is still in use.
-
-I tried a couple of things here.  First, I tried to fix the page
-table freeing problem in isolation, but I then found the VMA
-issue.  I also tried having the MPX code return a flag if it
-modified the rbtree which would force __do_munmap() to re-walk
-to restart.  That spiralled out of control in complexity pretty
-fast.
-
-Just moving arch_unmap() and accepting that the bonkers failure
-case might eat some bounds tables seems like the simplest viable
-fix.
-
-This was also reported in the following kernel bugzilla entry:
-
-  https://bugzilla.kernel.org/show_bug.cgi?id=203123
-
-There are some reports that this commit triggered this bug:
-
-  dd2283f2605 ("mm: mmap: zap pages with read mmap_sem in munmap")
-
-While that commit certainly made the issues easier to hit, I believe
-the fundamental issue has been with us as long as MPX itself, thus
-the Fixes: tag below is for one of the original MPX commits.
-
-[ mingo: Minor edits to the changelog and the patch. ]
-
-Reported-by: Richard Biener <rguenther@suse.de>
-Reported-by: H.J. Lu <hjl.tools@gmail.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Guan Xuetao <gxt@pku.edu.cn>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: linux-arch@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-um@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
 Cc: stable@vger.kernel.org
-Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-Link: http://lkml.kernel.org/r/20190419194747.5E1AD6DC@viggo.jf.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/mmu_context.h   |    1 -
- arch/um/include/asm/mmu_context.h        |    1 -
- arch/unicore32/include/asm/mmu_context.h |    1 -
- arch/x86/include/asm/mmu_context.h       |    6 +++---
- arch/x86/include/asm/mpx.h               |   15 ++++++++-------
- arch/x86/mm/mpx.c                        |   10 ++++++----
- include/asm-generic/mm_hooks.h           |    1 -
- mm/mmap.c                                |   15 ++++++++-------
- 8 files changed, 25 insertions(+), 25 deletions(-)
+ Documentation/filesystems/porting |    5 +++++
+ fs/dcache.c                       |   24 +++++++++++++-----------
+ fs/nsfs.c                         |    3 +--
+ include/linux/dcache.h            |    2 +-
+ 4 files changed, 20 insertions(+), 14 deletions(-)
 
---- a/arch/powerpc/include/asm/mmu_context.h
-+++ b/arch/powerpc/include/asm/mmu_context.h
-@@ -237,7 +237,6 @@ extern void arch_exit_mmap(struct mm_str
- #endif
- 
- static inline void arch_unmap(struct mm_struct *mm,
--			      struct vm_area_struct *vma,
- 			      unsigned long start, unsigned long end)
- {
- 	if (start <= mm->context.vdso_base && mm->context.vdso_base < end)
---- a/arch/um/include/asm/mmu_context.h
-+++ b/arch/um/include/asm/mmu_context.h
-@@ -22,7 +22,6 @@ static inline int arch_dup_mmap(struct m
- }
- extern void arch_exit_mmap(struct mm_struct *mm);
- static inline void arch_unmap(struct mm_struct *mm,
--			struct vm_area_struct *vma,
- 			unsigned long start, unsigned long end)
- {
- }
---- a/arch/unicore32/include/asm/mmu_context.h
-+++ b/arch/unicore32/include/asm/mmu_context.h
-@@ -88,7 +88,6 @@ static inline int arch_dup_mmap(struct m
- }
- 
- static inline void arch_unmap(struct mm_struct *mm,
--			struct vm_area_struct *vma,
- 			unsigned long start, unsigned long end)
- {
- }
---- a/arch/x86/include/asm/mmu_context.h
-+++ b/arch/x86/include/asm/mmu_context.h
-@@ -277,8 +277,8 @@ static inline void arch_bprm_mm_init(str
- 	mpx_mm_init(mm);
- }
- 
--static inline void arch_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
--			      unsigned long start, unsigned long end)
-+static inline void arch_unmap(struct mm_struct *mm, unsigned long start,
-+			      unsigned long end)
- {
+--- a/Documentation/filesystems/porting
++++ b/Documentation/filesystems/porting
+@@ -638,3 +638,8 @@ in your dentry operations instead.
+ 	inode to d_splice_alias() will also do the right thing (equivalent of
+ 	d_add(dentry, NULL); return NULL;), so that kind of special cases
+ 	also doesn't need a separate treatment.
++--
++[mandatory]
++	DCACHE_RCUACCESS is gone; having an RCU delay on dentry freeing is the
++	default.  DCACHE_NORCU opts out, and only d_alloc_pseudo() has any
++	business doing so.
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -344,7 +344,7 @@ static void dentry_free(struct dentry *d
+ 		}
+ 	}
+ 	/* if dentry was never visible to RCU, immediate free is OK */
+-	if (!(dentry->d_flags & DCACHE_RCUACCESS))
++	if (dentry->d_flags & DCACHE_NORCU)
+ 		__d_free(&dentry->d_u.d_rcu);
+ 	else
+ 		call_rcu(&dentry->d_u.d_rcu, __d_free);
+@@ -1701,7 +1701,6 @@ struct dentry *d_alloc(struct dentry * p
+ 	struct dentry *dentry = __d_alloc(parent->d_sb, name);
+ 	if (!dentry)
+ 		return NULL;
+-	dentry->d_flags |= DCACHE_RCUACCESS;
+ 	spin_lock(&parent->d_lock);
  	/*
- 	 * mpx_notify_unmap() goes and reads a rarely-hot
-@@ -298,7 +298,7 @@ static inline void arch_unmap(struct mm_
- 	 * consistently wrong.
- 	 */
- 	if (unlikely(cpu_feature_enabled(X86_FEATURE_MPX)))
--		mpx_notify_unmap(mm, vma, start, end);
-+		mpx_notify_unmap(mm, start, end);
- }
- 
- /*
---- a/arch/x86/include/asm/mpx.h
-+++ b/arch/x86/include/asm/mpx.h
-@@ -64,12 +64,15 @@ struct mpx_fault_info {
- };
- 
- #ifdef CONFIG_X86_INTEL_MPX
--int mpx_fault_info(struct mpx_fault_info *info, struct pt_regs *regs);
--int mpx_handle_bd_fault(void);
-+
-+extern int mpx_fault_info(struct mpx_fault_info *info, struct pt_regs *regs);
-+extern int mpx_handle_bd_fault(void);
-+
- static inline int kernel_managing_mpx_tables(struct mm_struct *mm)
+ 	 * don't need child lock because it is not subject
+@@ -1726,7 +1725,7 @@ struct dentry *d_alloc_cursor(struct den
  {
- 	return (mm->context.bd_addr != MPX_INVALID_BOUNDS_DIR);
- }
-+
- static inline void mpx_mm_init(struct mm_struct *mm)
- {
- 	/*
-@@ -78,11 +81,10 @@ static inline void mpx_mm_init(struct mm
- 	 */
- 	mm->context.bd_addr = MPX_INVALID_BOUNDS_DIR;
- }
--void mpx_notify_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
--		      unsigned long start, unsigned long end);
- 
--unsigned long mpx_unmapped_area_check(unsigned long addr, unsigned long len,
--		unsigned long flags);
-+extern void mpx_notify_unmap(struct mm_struct *mm, unsigned long start, unsigned long end);
-+extern unsigned long mpx_unmapped_area_check(unsigned long addr, unsigned long len, unsigned long flags);
-+
- #else
- static inline int mpx_fault_info(struct mpx_fault_info *info, struct pt_regs *regs)
- {
-@@ -100,7 +102,6 @@ static inline void mpx_mm_init(struct mm
- {
- }
- static inline void mpx_notify_unmap(struct mm_struct *mm,
--				    struct vm_area_struct *vma,
- 				    unsigned long start, unsigned long end)
- {
- }
---- a/arch/x86/mm/mpx.c
-+++ b/arch/x86/mm/mpx.c
-@@ -881,9 +881,10 @@ static int mpx_unmap_tables(struct mm_st
-  * the virtual address region start...end have already been split if
-  * necessary, and the 'vma' is the first vma in this range (start -> end).
+ 	struct dentry *dentry = d_alloc_anon(parent->d_sb);
+ 	if (dentry) {
+-		dentry->d_flags |= DCACHE_RCUACCESS | DCACHE_DENTRY_CURSOR;
++		dentry->d_flags |= DCACHE_DENTRY_CURSOR;
+ 		dentry->d_parent = dget(parent);
+ 	}
+ 	return dentry;
+@@ -1739,10 +1738,17 @@ struct dentry *d_alloc_cursor(struct den
+  *
+  * For a filesystem that just pins its dentries in memory and never
+  * performs lookups at all, return an unhashed IS_ROOT dentry.
++ * This is used for pipes, sockets et.al. - the stuff that should
++ * never be anyone's children or parents.  Unlike all other
++ * dentries, these will not have RCU delay between dropping the
++ * last reference and freeing them.
   */
--void mpx_notify_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
--		unsigned long start, unsigned long end)
-+void mpx_notify_unmap(struct mm_struct *mm, unsigned long start,
-+		      unsigned long end)
+ struct dentry *d_alloc_pseudo(struct super_block *sb, const struct qstr *name)
  {
-+	struct vm_area_struct *vma;
- 	int ret;
- 
- 	/*
-@@ -902,11 +903,12 @@ void mpx_notify_unmap(struct mm_struct *
- 	 * which should not occur normally. Being strict about it here
- 	 * helps ensure that we do not have an exploitable stack overflow.
- 	 */
--	do {
-+	vma = find_vma(mm, start);
-+	while (vma && vma->vm_start < end) {
- 		if (vma->vm_flags & VM_MPX)
- 			return;
- 		vma = vma->vm_next;
--	} while (vma && vma->vm_start < end);
-+	}
- 
- 	ret = mpx_unmap_tables(mm, start, end);
- 	if (ret)
---- a/include/asm-generic/mm_hooks.h
-+++ b/include/asm-generic/mm_hooks.h
-@@ -18,7 +18,6 @@ static inline void arch_exit_mmap(struct
+-	return __d_alloc(sb, name);
++	struct dentry *dentry = __d_alloc(sb, name);
++	if (likely(dentry))
++		dentry->d_flags |= DCACHE_NORCU;
++	return dentry;
  }
+ EXPORT_SYMBOL(d_alloc_pseudo);
  
- static inline void arch_unmap(struct mm_struct *mm,
--			struct vm_area_struct *vma,
- 			unsigned long start, unsigned long end)
- {
+@@ -1911,12 +1917,10 @@ struct dentry *d_make_root(struct inode
+ 
+ 	if (root_inode) {
+ 		res = d_alloc_anon(root_inode->i_sb);
+-		if (res) {
+-			res->d_flags |= DCACHE_RCUACCESS;
++		if (res)
+ 			d_instantiate(res, root_inode);
+-		} else {
++		else
+ 			iput(root_inode);
+-		}
+ 	}
+ 	return res;
  }
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2736,9 +2736,17 @@ int __do_munmap(struct mm_struct *mm, un
- 		return -EINVAL;
+@@ -2781,9 +2785,7 @@ static void __d_move(struct dentry *dent
+ 		copy_name(dentry, target);
+ 		target->d_hash.pprev = NULL;
+ 		dentry->d_parent->d_lockref.count++;
+-		if (dentry == old_parent)
+-			dentry->d_flags |= DCACHE_RCUACCESS;
+-		else
++		if (dentry != old_parent) /* wasn't IS_ROOT */
+ 			WARN_ON(!--old_parent->d_lockref.count);
+ 	} else {
+ 		target->d_parent = old_parent;
+--- a/fs/nsfs.c
++++ b/fs/nsfs.c
+@@ -85,13 +85,12 @@ slow:
+ 	inode->i_fop = &ns_file_operations;
+ 	inode->i_private = ns;
  
- 	len = PAGE_ALIGN(len);
-+	end = start + len;
- 	if (len == 0)
- 		return -EINVAL;
+-	dentry = d_alloc_pseudo(mnt->mnt_sb, &empty_name);
++	dentry = d_alloc_anon(mnt->mnt_sb);
+ 	if (!dentry) {
+ 		iput(inode);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	d_instantiate(dentry, inode);
+-	dentry->d_flags |= DCACHE_RCUACCESS;
+ 	dentry->d_fsdata = (void *)ns->ops;
+ 	d = atomic_long_cmpxchg(&ns->stashed, 0, (unsigned long)dentry);
+ 	if (d) {
+--- a/include/linux/dcache.h
++++ b/include/linux/dcache.h
+@@ -176,7 +176,6 @@ struct dentry_operations {
+       * typically using d_splice_alias. */
  
-+	/*
-+	 * arch_unmap() might do unmaps itself.  It must be called
-+	 * and finish any rbtree manipulation before this code
-+	 * runs and also starts to manipulate the rbtree.
-+	 */
-+	arch_unmap(mm, start, end);
-+
- 	/* Find the first overlapping VMA */
- 	vma = find_vma(mm, start);
- 	if (!vma)
-@@ -2747,7 +2755,6 @@ int __do_munmap(struct mm_struct *mm, un
- 	/* we have  start < vma->vm_end  */
+ #define DCACHE_REFERENCED		0x00000040 /* Recently used, don't discard. */
+-#define DCACHE_RCUACCESS		0x00000080 /* Entry has ever been RCU-visible */
  
- 	/* if it doesn't overlap, we have nothing.. */
--	end = start + len;
- 	if (vma->vm_start >= end)
- 		return 0;
+ #define DCACHE_CANT_MOUNT		0x00000100
+ #define DCACHE_GENOCIDE			0x00000200
+@@ -217,6 +216,7 @@ struct dentry_operations {
  
-@@ -2817,12 +2824,6 @@ int __do_munmap(struct mm_struct *mm, un
- 	/* Detach vmas from rbtree */
- 	detach_vmas_to_be_unmapped(mm, vma, prev, end);
+ #define DCACHE_PAR_LOOKUP		0x10000000 /* being looked up (with parent locked shared) */
+ #define DCACHE_DENTRY_CURSOR		0x20000000
++#define DCACHE_NORCU			0x40000000 /* No RCU delay for freeing */
  
--	/*
--	 * mpx unmap needs to be called with mmap_sem held for write.
--	 * It is safe to call it before unmap_region().
--	 */
--	arch_unmap(mm, vma, start, end);
--
- 	if (downgrade)
- 		downgrade_write(&mm->mmap_sem);
+ extern seqlock_t rename_lock;
  
 
 
