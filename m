@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 902322882D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3167A289ED
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389949AbfEWTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:23:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
+        id S2389453AbfEWTnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389839AbfEWTW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:22:59 -0400
+        id S2389104AbfEWTSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1E6D20868;
-        Thu, 23 May 2019 19:22:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4203205ED;
+        Thu, 23 May 2019 19:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639379;
-        bh=9tqMZWqEHULiuOWDI2seNvJ1xyybwcMj/Ewo4lbLsvc=;
+        s=default; t=1558639086;
+        bh=uoGfpUeuIvKrRjJ8W9UmvXGRoaQW3kSZZ1iO8OjKlIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbK+70YFQE70L4nrEyr8Mu2NVpwsbc0QjsovXbah7lNrNtm+vLBTobnmGiOVHC2d4
-         YzAx6jv4bH/5IId4CcmCTvCPPp+oHiKVc1ona4wuLXCaIt78lEzNqlLH49S+sA5+ls
-         /v4so7uEpHmrAEx1XOQAvX30BCGx/DV1DfplEwH0=
+        b=oGMfBR3UkQhlc1fyPCiawNBaGYxTb/9XrCgRbZbLfUKUn12ytGnVSE5UIJ/G/2BCV
+         NfTlwag4SPUp70Dtu8speJjcEKmcOdmUw8VjOXj+iLTmKXYSga2OuN9aQ045RfAGpA
+         nDHwp/q6FBzH3R2P0tYgs1YjGd8jR/ra4qZ9Hc3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.0 083/139] fbdev: sm712fb: use 1024x768 by default on non-MIPS, fix garbled display
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 072/114] PCI: Init PCIe feature bits for managed host bridge alloc
 Date:   Thu, 23 May 2019 21:06:11 +0200
-Message-Id: <20190523181731.621894743@linuxfoundation.org>
+Message-Id: <20190523181738.279463354@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,124 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-commit 4ed7d2ccb7684510ec5f7a8f7ef534bc6a3d55b2 upstream.
+commit 6302bf3ef78dd210b5ff4a922afcb7d8eff8a211 upstream.
 
-Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
-target platform of this driver, but nearly all old x86 laptops have
-1024x768. Lighting 768 panels using 600's timings would partially
-garble the display. Since it's not possible to distinguish them reliably,
-we change the default to 768, but keep 600 as-is on MIPS.
+Two functions allocate a host bridge: devm_pci_alloc_host_bridge() and
+pci_alloc_host_bridge().  At the moment, only the unmanaged one initializes
+the PCIe feature bits, which prevents from using features such as hotplug
+or AER on some systems, when booting with device tree.  Make the
+initialization code common.
 
-Further, earlier laptops, such as IBM Thinkpad 240X, has a 800x600 LCD
-panel, this driver would probably garbled those display. As we don't
-have one for testing, the original behavior of the driver is kept as-is,
-but the problem has been documented is the comments.
-
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Fixes: 02bfeb484230 ("PCI/portdrv: Simplify PCIe feature permission checking")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+CC: stable@vger.kernel.org	# v4.17+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712.h   |    7 +++--
- drivers/video/fbdev/sm712fb.c |   53 +++++++++++++++++++++++++++++++-----------
- 2 files changed, 44 insertions(+), 16 deletions(-)
+ drivers/pci/probe.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/drivers/video/fbdev/sm712.h
-+++ b/drivers/video/fbdev/sm712.h
-@@ -15,9 +15,10 @@
- 
- #define FB_ACCEL_SMI_LYNX 88
- 
--#define SCREEN_X_RES      1024
--#define SCREEN_Y_RES      600
--#define SCREEN_BPP        16
-+#define SCREEN_X_RES          1024
-+#define SCREEN_Y_RES_PC       768
-+#define SCREEN_Y_RES_NETBOOK  600
-+#define SCREEN_BPP            16
- 
- #define dac_reg	(0x3c8)
- #define dac_val	(0x3c9)
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1463,6 +1463,43 @@ static u_long sm7xx_vram_probe(struct sm
- 	return 0;  /* unknown hardware */
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -535,16 +535,9 @@ static void pci_release_host_bridge_dev(
+ 	kfree(to_pci_host_bridge(dev));
  }
  
-+static void sm7xx_resolution_probe(struct smtcfb_info *sfb)
-+{
-+	/* get mode parameter from smtc_scr_info */
-+	if (smtc_scr_info.lfb_width != 0) {
-+		sfb->fb->var.xres = smtc_scr_info.lfb_width;
-+		sfb->fb->var.yres = smtc_scr_info.lfb_height;
-+		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
-+		goto final;
-+	}
-+
-+	/*
-+	 * No parameter, default resolution is 1024x768-16.
-+	 *
-+	 * FIXME: earlier laptops, such as IBM Thinkpad 240X, has a 800x600
-+	 * panel, also see the comments about Thinkpad 240X above.
-+	 */
-+	sfb->fb->var.xres = SCREEN_X_RES;
-+	sfb->fb->var.yres = SCREEN_Y_RES_PC;
-+	sfb->fb->var.bits_per_pixel = SCREEN_BPP;
-+
-+#ifdef CONFIG_MIPS
-+	/*
-+	 * Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
-+	 * target platform of this driver, but nearly all old x86 laptops have
-+	 * 1024x768. Lighting 768 panels using 600's timings would partially
-+	 * garble the display, so we don't want that. But it's not possible to
-+	 * distinguish them reliably.
-+	 *
-+	 * So we change the default to 768, but keep 600 as-is on MIPS.
-+	 */
-+	sfb->fb->var.yres = SCREEN_Y_RES_NETBOOK;
-+#endif
-+
-+final:
-+	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
+-struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
++static void pci_init_host_bridge(struct pci_host_bridge *bridge)
+ {
+-	struct pci_host_bridge *bridge;
+-
+-	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
+-	if (!bridge)
+-		return NULL;
+-
+ 	INIT_LIST_HEAD(&bridge->windows);
+-	bridge->dev.release = pci_release_host_bridge_dev;
+ 
+ 	/*
+ 	 * We assume we can manage these PCIe features.  Some systems may
+@@ -557,6 +550,18 @@ struct pci_host_bridge *pci_alloc_host_b
+ 	bridge->native_shpc_hotplug = 1;
+ 	bridge->native_pme = 1;
+ 	bridge->native_ltr = 1;
 +}
 +
- static int smtcfb_pci_probe(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
-@@ -1508,19 +1545,6 @@ static int smtcfb_pci_probe(struct pci_d
- 
- 	sm7xx_init_hw();
- 
--	/* get mode parameter from smtc_scr_info */
--	if (smtc_scr_info.lfb_width != 0) {
--		sfb->fb->var.xres = smtc_scr_info.lfb_width;
--		sfb->fb->var.yres = smtc_scr_info.lfb_height;
--		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
--	} else {
--		/* default resolution 1024x600 16bit mode */
--		sfb->fb->var.xres = SCREEN_X_RES;
--		sfb->fb->var.yres = SCREEN_Y_RES;
--		sfb->fb->var.bits_per_pixel = SCREEN_BPP;
--	}
--
--	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
- 	/* Map address and memory detection */
- 	mmio_base = pci_resource_start(pdev, 0);
- 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
-@@ -1582,6 +1606,9 @@ static int smtcfb_pci_probe(struct pci_d
- 		goto failed_fb;
- 	}
- 
-+	/* probe and decide resolution */
-+	sm7xx_resolution_probe(sfb);
++struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
++{
++	struct pci_host_bridge *bridge;
 +
- 	/* can support 32 bpp */
- 	if (sfb->fb->var.bits_per_pixel == 15)
- 		sfb->fb->var.bits_per_pixel = 16;
++	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
++	if (!bridge)
++		return NULL;
++
++	pci_init_host_bridge(bridge);
++	bridge->dev.release = pci_release_host_bridge_dev;
+ 
+ 	return bridge;
+ }
+@@ -571,7 +576,7 @@ struct pci_host_bridge *devm_pci_alloc_h
+ 	if (!bridge)
+ 		return NULL;
+ 
+-	INIT_LIST_HEAD(&bridge->windows);
++	pci_init_host_bridge(bridge);
+ 	bridge->dev.release = devm_pci_release_host_bridge_dev;
+ 
+ 	return bridge;
 
 
