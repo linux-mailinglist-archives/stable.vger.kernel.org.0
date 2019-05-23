@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C85ED28849
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E723228A62
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390898AbfEWTY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35386 "EHLO mail.kernel.org"
+        id S2388016AbfEWTNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:13:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390892AbfEWTY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:26 -0400
+        id S2388550AbfEWTNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:13:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E30C720868;
-        Thu, 23 May 2019 19:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 974FA2133D;
+        Thu, 23 May 2019 19:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639465;
-        bh=r0zyQ/B7KH52Fb9qpYaua23yoj2J/TXEHxufZ/7v2fs=;
+        s=default; t=1558638796;
+        bh=5r+2OQke+4P0MesJF4b3pSpHduoWkmgMIG+FC4tijrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdCu2P45Eovj4pDJqSykwE/khzv7mGw+9cjMYN9VCF6rh+imGp0paG0i4pn+g9J3Z
-         j8urFBr1Pht5yBIw3PhyqTYUFFlv/GsfmI4Te7Qw5LzoitZl78gazH0WIL/owrj1OF
-         rBrjNDN7L6j8w1khwMHUNN3OEufgs3HJ2FztxLSs=
+        b=esWX0wV1/aNf1AqFzimiuM6IyA26gWVgmadnWKen9snt670CdVGo0blZ/Nu75BAP6
+         OUJJb6wZMkyfJwwrvxkMpw48pIFpfmyg2v9dG2ehEQJDgthA2+cpKx4xzwJXDi4mrC
+         y+zfe27lkIbT3IySIS5hWZzVIZ3O7ZV2k+gA41Oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.0 098/139] dm mpath: always free attached_handler_name in parse_path()
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 68/77] sched/cpufreq: Fix kobject memleak
 Date:   Thu, 23 May 2019 21:06:26 +0200
-Message-Id: <20190523181733.312916915@linuxfoundation.org>
+Message-Id: <20190523181729.373956486@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+[ Upstream commit 9a4f26cc98d81b67ecc23b890c28e2df324e29f3 ]
 
-commit 940bc471780b004a5277c1931f52af363c2fc9da upstream.
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-Commit b592211c33f7 ("dm mpath: fix attached_handler_name leak and
-dangling hw_handler_name pointer") fixed a memory leak for the case
-where setup_scsi_dh() returns failure. But setup_scsi_dh may return
-success and not "use" attached_handler_name if the
-retain_attached_hwhandler flag is not set on the map. As setup_scsi_sh
-properly "steals" the pointer by nullifying it, freeing it
-unconditionally in parse_path() is safe.
+Fix it by adding a call to kobject_put() in the error path of
+kobject_init_and_add().
 
-Fixes: b592211c33f7 ("dm mpath: fix attached_handler_name leak and dangling hw_handler_name pointer")
-Cc: stable@vger.kernel.org
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tobin C. Harding <tobin@kernel.org>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Link: http://lkml.kernel.org/r/20190430001144.24890-1-tobin@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/cpufreq_schedutil.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -882,6 +882,7 @@ static struct pgpath *parse_path(struct
- 	if (attached_handler_name || m->hw_handler_name) {
- 		INIT_DELAYED_WORK(&p->activate_path, activate_path_work);
- 		r = setup_scsi_dh(p->path.dev->bdev, m, &attached_handler_name, &ti->error);
-+		kfree(attached_handler_name);
- 		if (r) {
- 			dm_put_device(ti, p->path.dev);
- 			goto bad;
-@@ -896,7 +897,6 @@ static struct pgpath *parse_path(struct
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index b314c9eaa71d3..f8c45d30ec6d0 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -600,6 +600,7 @@ out:
+ 	return 0;
  
- 	return p;
-  bad:
--	kfree(attached_handler_name);
- 	free_pgpath(p);
- 	return ERR_PTR(r);
- }
+ fail:
++	kobject_put(&tunables->attr_set.kobj);
+ 	policy->governor_data = NULL;
+ 	sugov_tunables_free(tunables);
+ 
+-- 
+2.20.1
+
 
 
