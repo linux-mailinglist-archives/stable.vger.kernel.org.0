@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4282B286E0
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183E6288AF
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387828AbfEWTN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S2390704AbfEWT2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388614AbfEWTNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:38 -0400
+        id S2391002AbfEWT2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EE67217D9;
-        Thu, 23 May 2019 19:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ECB72054F;
+        Thu, 23 May 2019 19:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638817;
-        bh=vYDKPCRRhpmV+CiLuoHZgrEgCpLRZssg1PODElcZR8U=;
+        s=default; t=1558639680;
+        bh=LBVCXhgVU49YHaR9Ev/F2JhIioCYtg0jVSYC9JHnQbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6klldvaqiYzpu+0QkeO0J6weI0c7qG5WzIpvLGtj4vuG4IvUo/Bpebs09m6dU8Ln
-         nfdFnTUR4Nht2AUwUlXz1HVb6I0JC+dKy4sLVfcdiMbTP1X4kO+Ux23Ob5ARR2CuO+
-         P1jqo6J9tAuhtS9nRFBBDlQ2w1iaHd/po2KP9Ot8=
+        b=m3lRRI6RlHj60DY/8tMJ7r5MWVoMx8a0sVyCDgylv0o0zCe6KMk2WU6GQ0gxrYLkz
+         BbF3avJg7RYJPOdmleNdzTqqX1jIQuwasx1ic8nmKiiC9n9WvAuXUaOM2IOW0XbcXc
+         l18O8cQZN0OQXvlWELIwrOwtMeuO4LLf+pRgWH+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 59/77] esp4: add length check for UDP encapsulation
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Haggai Eran <haggaie@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 5.1 055/122] RDMA/mlx5: Use get_zeroed_page() for clock_info
 Date:   Thu, 23 May 2019 21:06:17 +0200
-Message-Id: <20190523181728.120817290@linuxfoundation.org>
+Message-Id: <20190523181712.012640350@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8dfb4eba4100e7cdd161a8baef2d8d61b7a7e62e ]
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-esp_output_udp_encap can produce a length that doesn't fit in the 16
-bits of a UDP header's length field. In that case, we'll send a
-fragmented packet whose length is larger than IP_MAX_MTU (resulting in
-"Oversized IP packet" warnings on receive) and with a bogus UDP
-length.
+commit ddcdc368b1033e19fd3a5f750752e10e28a87826 upstream.
 
-To prevent this, add a length check to esp_output_udp_encap and return
- -EMSGSIZE on failure.
+get_zeroed_page() returns a virtual address for the page which is better
+than allocating a struct page and doing a permanent kmap on it.
 
-This seems to be older than git history.
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Haggai Eran <haggaie@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/esp4.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c                   |    5 ++-
+ drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c |   30 +++++++-------------
+ include/linux/mlx5/driver.h                         |    1 
+ 3 files changed, 14 insertions(+), 22 deletions(-)
 
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
-index d30285c5d52dd..c8e32f167ebbf 100644
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -205,7 +205,7 @@ static void esp_output_fill_trailer(u8 *tail, int tfclen, int plen, __u8 proto)
- 	tail[plen - 1] = proto;
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -2070,11 +2070,12 @@ static int mlx5_ib_mmap_clock_info_page(
+ 		return -EPERM;
+ 	vma->vm_flags &= ~VM_MAYWRITE;
+ 
+-	if (!dev->mdev->clock_info_page)
++	if (!dev->mdev->clock_info)
+ 		return -EOPNOTSUPP;
+ 
+ 	return rdma_user_mmap_page(&context->ibucontext, vma,
+-				   dev->mdev->clock_info_page, PAGE_SIZE);
++				   virt_to_page(dev->mdev->clock_info),
++				   PAGE_SIZE);
  }
  
--static void esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
-+static int esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
- {
- 	int encap_type;
- 	struct udphdr *uh;
-@@ -213,6 +213,7 @@ static void esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, stru
- 	__be16 sport, dport;
- 	struct xfrm_encap_tmpl *encap = x->encap;
- 	struct ip_esp_hdr *esph = esp->esph;
-+	unsigned int len;
+ static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
+@@ -535,23 +535,16 @@ void mlx5_init_clock(struct mlx5_core_de
+ 	do_div(ns, NSEC_PER_SEC / HZ);
+ 	clock->overflow_period = ns;
  
- 	spin_lock_bh(&x->lock);
- 	sport = encap->encap_sport;
-@@ -220,11 +221,14 @@ static void esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, stru
- 	encap_type = encap->encap_type;
- 	spin_unlock_bh(&x->lock);
+-	mdev->clock_info_page = alloc_page(GFP_KERNEL);
+-	if (mdev->clock_info_page) {
+-		mdev->clock_info = kmap(mdev->clock_info_page);
+-		if (!mdev->clock_info) {
+-			__free_page(mdev->clock_info_page);
+-			mlx5_core_warn(mdev, "failed to map clock page\n");
+-		} else {
+-			mdev->clock_info->sign   = 0;
+-			mdev->clock_info->nsec   = clock->tc.nsec;
+-			mdev->clock_info->cycles = clock->tc.cycle_last;
+-			mdev->clock_info->mask   = clock->cycles.mask;
+-			mdev->clock_info->mult   = clock->nominal_c_mult;
+-			mdev->clock_info->shift  = clock->cycles.shift;
+-			mdev->clock_info->frac   = clock->tc.frac;
+-			mdev->clock_info->overflow_period =
+-						clock->overflow_period;
+-		}
++	mdev->clock_info =
++		(struct mlx5_ib_clock_info *)get_zeroed_page(GFP_KERNEL);
++	if (mdev->clock_info) {
++		mdev->clock_info->nsec = clock->tc.nsec;
++		mdev->clock_info->cycles = clock->tc.cycle_last;
++		mdev->clock_info->mask = clock->cycles.mask;
++		mdev->clock_info->mult = clock->nominal_c_mult;
++		mdev->clock_info->shift = clock->cycles.shift;
++		mdev->clock_info->frac = clock->tc.frac;
++		mdev->clock_info->overflow_period = clock->overflow_period;
+ 	}
  
-+	len = skb->len + esp->tailen - skb_transport_offset(skb);
-+	if (len + sizeof(struct iphdr) >= IP_MAX_MTU)
-+		return -EMSGSIZE;
-+
- 	uh = (struct udphdr *)esph;
- 	uh->source = sport;
- 	uh->dest = dport;
--	uh->len = htons(skb->len + esp->tailen
--		  - skb_transport_offset(skb));
-+	uh->len = htons(len);
- 	uh->check = 0;
+ 	INIT_WORK(&clock->pps_info.out_work, mlx5_pps_out);
+@@ -599,8 +592,7 @@ void mlx5_cleanup_clock(struct mlx5_core
+ 	cancel_delayed_work_sync(&clock->overflow_work);
  
- 	switch (encap_type) {
-@@ -241,6 +245,8 @@ static void esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, stru
+ 	if (mdev->clock_info) {
+-		kunmap(mdev->clock_info_page);
+-		__free_page(mdev->clock_info_page);
++		free_page((unsigned long)mdev->clock_info);
+ 		mdev->clock_info = NULL;
+ 	}
  
- 	*skb_mac_header(skb) = IPPROTO_UDP;
- 	esp->esph = esph;
-+
-+	return 0;
- }
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -681,7 +681,6 @@ struct mlx5_core_dev {
+ #endif
+ 	struct mlx5_clock        clock;
+ 	struct mlx5_ib_clock_info  *clock_info;
+-	struct page             *clock_info_page;
+ 	struct mlx5_fw_tracer   *tracer;
+ };
  
- int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
-@@ -254,8 +260,12 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
- 	int tailen = esp->tailen;
- 
- 	/* this is non-NULL only with UDP Encapsulation */
--	if (x->encap)
--		esp_output_udp_encap(x, skb, esp);
-+	if (x->encap) {
-+		int err = esp_output_udp_encap(x, skb, esp);
-+
-+		if (err < 0)
-+			return err;
-+	}
- 
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
--- 
-2.20.1
-
 
 
