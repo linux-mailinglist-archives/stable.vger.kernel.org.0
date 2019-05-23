@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A62F528AD4
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A5228A90
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388064AbfEWTru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46528 "EHLO mail.kernel.org"
+        id S2389223AbfEWTQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387829AbfEWTMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:45 -0400
+        id S2388748AbfEWTQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0AC420863;
-        Thu, 23 May 2019 19:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 105AF217D9;
+        Thu, 23 May 2019 19:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638764;
+        s=default; t=1558638997;
         bh=oe3Ks5A33FJZZy8e0C9HZahremKFJ9LlOQk49bdyEpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McRj1gHku0Um55+cVkUA/T3sMSHeQPogMXs0QPEKLfnNbE+AFj0I41vArDZw1ZFSl
-         0lAXBK9er29HeNpRs0yZC/ET2C8QuSfo+N/XtjX0WY3LTbBWOF/yAqqeRxFR7BxtuX
-         htixZkWHrhCn1XMZkOvqGe+d3q9W4MUkIkbJppR8=
+        b=QIOg1LOPaLYhDpYuXZmYkcYnW26ALIr/YUzfkeuOxCPHEq/4f2Dv/Z583kNoK+JDB
+         NDEHAiytKsrUZBgVJWuL8+mJj4znbGXY+DMM7u8WO6MjhnEIHuu9dO9oV/ZWZEH2Kg
+         5d9xP2Qux9BnSiooY0Hpv4cq7WpS9uPFwG58B99g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 39/77] perf intel-pt: Fix sample timestamp wrt non-taken branches
+Subject: [PATCH 4.19 058/114] perf intel-pt: Fix sample timestamp wrt non-taken branches
 Date:   Thu, 23 May 2019 21:05:57 +0200
-Message-Id: <20190523181725.594545999@linuxfoundation.org>
+Message-Id: <20190523181736.849861730@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
