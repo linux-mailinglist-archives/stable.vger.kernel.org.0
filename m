@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC1D28953
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A39C28A56
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391007AbfEWTeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40936 "EHLO mail.kernel.org"
+        id S2388479AbfEWTM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:12:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390480AbfEWT2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:20 -0400
+        id S2388474AbfEWTM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:12:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1265D2133D;
-        Thu, 23 May 2019 19:28:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3D0720863;
+        Thu, 23 May 2019 19:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639699;
-        bh=bN8c66YMo+ds7IH0flsHZO1my5TznSzb5kCnhbmqVKc=;
+        s=default; t=1558638748;
+        bh=GfdQrzFnILVL/cZ7o1nFes1sgizpbXYSspF2anDWiXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtGdZlygvqrSdX/0+m7ULYl+TZFGqOVe8VLEMP51JgIyhxjrpqVqrrLpW8dzPVWpL
-         nG/POav5421H6Hbu9aUexzHgsNJI7FHE1Icjg3+pMvb1JAm+wzIYDxVbbFsZOhSlRb
-         S5MgHRRnuKu0fG+lFFsUphlPyfILgn0EhQWtD4cI=
+        b=pNah54MoBLFcq+fF+XzGOmz6VbTKzz5f1mG4Q5cxzslvW2RacOijBAYDen/wxQu70
+         COmUqPa3/VEtOnM/5nJKMtblqBNjmaUM6Vg80j2oFvAho9kcM9GWxcbPXSWzi7NUgR
+         kYO4gcewqjYDWw6vFDP6s/w80vvFThP+T9oNqTC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.1 046/122] cifs: fix credits leak for SMB1 oplock breaks
+        stable@vger.kernel.org,
+        James Prestwood <james.prestwood@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 50/77] PCI: Mark Atheros AR9462 to avoid bus reset
 Date:   Thu, 23 May 2019 21:06:08 +0200
-Message-Id: <20190523181710.786134323@linuxfoundation.org>
+Message-Id: <20190523181726.950315112@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: James Prestwood <james.prestwood@linux.intel.com>
 
-commit d69cb728e70c40268762182a62f5d5d6fa51c5b2 upstream.
+commit 6afb7e26978da5e86e57e540fdce65c8b04f398a upstream.
 
-For SMB1 oplock breaks we would grab one credit while sending the PDU
-but we would never relese the credit back since we will never receive a
-response to this from the server. Eventuallt this would lead to a hang
-once all credits are leaked.
+When using PCI passthrough with this device, the host machine locks up
+completely when starting the VM, requiring a hard reboot.  Add a quirk to
+avoid bus resets on this device.
 
-Fix this by defining a new flag CIFS_NO_SRV_RSP which indicates that there
-is no server response to this command and thus we need to add any credits back
-immediately after sending the PDU.
-
-CC: Stable <stable@vger.kernel.org> #v5.0+
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: c3e59ee4e766 ("PCI: Mark Atheros AR93xx to avoid bus reset")
+Link: https://lore.kernel.org/linux-pci/20190107213248.3034-1-james.prestwood@linux.intel.com
+Signed-off-by: James Prestwood <james.prestwood@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+CC: stable@vger.kernel.org	# v3.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/cifsglob.h  |    1 +
- fs/cifs/cifssmb.c   |    2 +-
- fs/cifs/transport.c |   10 +++++-----
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/pci/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1687,6 +1687,7 @@ static inline bool is_retryable_error(in
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3369,6 +3369,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_A
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0032, quirk_no_bus_reset);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003c, quirk_no_bus_reset);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0033, quirk_no_bus_reset);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0034, quirk_no_bus_reset);
  
- #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
- #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
-+#define   CIFS_NO_SRV_RSP    0x1000    /* there is no server response */
- 
- /* Security Flags: indicate type of session setup needed */
- #define   CIFSSEC_MAY_SIGN	0x00001
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -2540,7 +2540,7 @@ CIFSSMBLock(const unsigned int xid, stru
- 
- 	if (lockType == LOCKING_ANDX_OPLOCK_RELEASE) {
- 		/* no response expected */
--		flags = CIFS_ASYNC_OP | CIFS_OBREAK_OP;
-+		flags = CIFS_NO_SRV_RSP | CIFS_ASYNC_OP | CIFS_OBREAK_OP;
- 		pSMB->Timeout = 0;
- 	} else if (waitFlag) {
- 		flags = CIFS_BLOCKING_OP; /* blocking operation, no timeout */
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -1054,8 +1054,11 @@ compound_send_recv(const unsigned int xi
- 
- 	mutex_unlock(&ses->server->srv_mutex);
- 
--	if (rc < 0) {
--		/* Sending failed for some reason - return credits back */
-+	/*
-+	 * If sending failed for some reason or it is an oplock break that we
-+	 * will not receive a response to - return credits back
-+	 */
-+	if (rc < 0 || (flags & CIFS_NO_SRV_RSP)) {
- 		for (i = 0; i < num_rqst; i++)
- 			add_credits(ses->server, &credits[i], optype);
- 		goto out;
-@@ -1076,9 +1079,6 @@ compound_send_recv(const unsigned int xi
- 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
- 					   rqst[0].rq_nvec);
- 
--	if ((flags & CIFS_TIMEOUT_MASK) == CIFS_ASYNC_OP)
--		goto out;
--
- 	for (i = 0; i < num_rqst; i++) {
- 		rc = wait_for_response(ses->server, midQ[i]);
- 		if (rc != 0)
+ static void quirk_no_pm_reset(struct pci_dev *dev)
+ {
 
 
