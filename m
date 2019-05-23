@@ -2,107 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DFD28C0D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 23:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C784C28C2C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 23:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbfEWVG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 17:06:58 -0400
-Received: from mail-it1-f193.google.com ([209.85.166.193]:52666 "EHLO
-        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731537AbfEWVG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 17:06:58 -0400
-Received: by mail-it1-f193.google.com with SMTP id t184so12283158itf.2;
-        Thu, 23 May 2019 14:06:57 -0700 (PDT)
+        id S1730544AbfEWVP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 17:15:29 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:45098 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726222AbfEWVP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 17:15:29 -0400
+Received: by mail-wr1-f45.google.com with SMTP id b18so7733868wrq.12
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 14:15:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qdKz+TOs1wCAyZUw0giltCYWrjHfuqYDcD0Y730vB18=;
-        b=X1/pu0J+wGbtPR2O2S+IZYCGPHacIpZIWlZOFWyrcdChosOCsJjjuHh8Pmjbpcd/iR
-         v93QHkkPBOa+2R+cA7xBGf3GJGK02mE+fvVDdEqB4GgsTipeTPJ6UQCrvJq1kJdFsskk
-         Hf68qhuoJF1y72HyQhy9UTR3pwbJ0O9GFSXpJUdO0NLDRyZ927qoRsk/ndLeG80c6yon
-         KvRUWEcuvxzy08YY3EsZPEefJ9KlXLSN7/HrXAx4ZcfMc7utGhKD2QaS4QFHFQqcxvSq
-         u6HahTlnlzCTKgxbW3PKFhDSjhK486kZuopYnyXvidTzXDyRLyYdnh+FR0DcMA72iFhD
-         4IYQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9L0Wpl84GG8xfE3p0sH8/hSrpm7Fw1aE4cVu9AIso0w=;
+        b=QFnu7YfEuArua1hz1QZfhlZ1e/EJ9s+JSiyWxfYoKNBHpsRINOrDxsGgHwENZzI5bk
+         nn7djnDECPXdCk4dc1+CHO5Re2HZTD+roZYH5tfLpo6vSl8HD95ryLGE8isH9MI7gRFP
+         zIkkl7nkzH1tlHdZ/0Hv3aVb9kC0RdqSAd0KLvdpkkBd9aogD/DrZXPUC+HLkRV5f+q0
+         u4wvMzdkpOmfFKPyn/ht8ViTU8lsxR1a7tZhJ9H8vsik3ljMVmyhnwtru8aim7vaSR/E
+         jSgsGLr8fgZO6SYzqrmZZxR0PcenIwUoAbJwzt29rl/bYtlm5pdyJPAXafussyf8TIQU
+         5y9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qdKz+TOs1wCAyZUw0giltCYWrjHfuqYDcD0Y730vB18=;
-        b=q2kjOeNLaruz5fmvyfCne3jSuaf8mYtxhxjfy9NBJ93DP26a1Vvo8X7opb6xajTwim
-         FCI62uCmeKsDyt2cZg8pfzRwLnnacCw+jPyu/IYG9U8wuJGTvPXItHAgkrybYyuyqUT4
-         vnTAjdiFhc6WaTYKpA3FaFmgJSuKfUjZAMhPxPaTEGgAFQ4orpiqMmoysuq6or1cBy7/
-         bsaLC4BIt6WGkrpLML+ZMm/9vEH2RGINbZE8+oY9mFSf5BHYc7u+/OZx9nS2647nyZst
-         Hn1iRkgaH5VqN9A+OgTWhjvDIkGvi2ZVVESXwdbckqefRbDZo0gGZgptXBDtNiCVh4bL
-         AWIw==
-X-Gm-Message-State: APjAAAXwSo24peNtu5zbjbvwO5v/O/2uhWZkuxb5OX1x8NvFDwHzS+Kr
-        Ux0X58s5HblrdCFv+f9JTDezwAjui48HM5sGZ1Y=
-X-Google-Smtp-Source: APXvYqw39Es/1/4zjenOfZ0CdT39/+9yH2SVWfYxIvNq4CN3m21LbaDD6pNQgMJJnPBaS4n8+lARacqZ1hZGTol3H8M=
-X-Received: by 2002:a24:e084:: with SMTP id c126mr14417307ith.124.1558645617016;
- Thu, 23 May 2019 14:06:57 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9L0Wpl84GG8xfE3p0sH8/hSrpm7Fw1aE4cVu9AIso0w=;
+        b=ScFpVytd7VveT0hJN8bgPx0fp0xQ46QQi8zsu6hQm2zNx71gZMNL4v4onsphQhF4zT
+         WYi2TdxEzs+HuZnAwm220M+7UcVIfR/X4gpB+eSWSDuF96ycugF/WZLRZHWf1FAy/GPF
+         N56Z/11yamwcP2KNGYwoaCMg7cKJf0qK5+CMqi+7aeuFKX+pAr+u6f2NpxKvOl6ySyLL
+         rgjnfXoLOKDHKzGatyTQAgJKunAHLkOEhJl9xh8lsOcmbpkUjyZuh1CMrGk5MDyIBM0I
+         4Ig2nXR/kdz0pNfFuBg88GdJS2umqYMudPbRwfVq2kuLtjcvxOFpVic4d+yf3Jt6tOh8
+         f4Ww==
+X-Gm-Message-State: APjAAAXhl3liHSHTQcV6eTnObIQm7obkuw+kj5n1KpznMszAKmpXNk7j
+        rfSnh3xWajL3CsGJ1y8kLKaiB+jnO7KD0A==
+X-Google-Smtp-Source: APXvYqxIE39zAlBtOLnwoQLvlFnDbL/8J/jVwyItl3tmpNLBZGHI2ELHNeRRj0/In1jSsHyHzu+hDw==
+X-Received: by 2002:adf:f250:: with SMTP id b16mr28991427wrp.24.1558646127084;
+        Thu, 23 May 2019 14:15:27 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x4sm307214wrn.41.2019.05.23.14.15.26
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 May 2019 14:15:26 -0700 (PDT)
+Message-ID: <5ce70d6e.1c69fb81.ab061.1cb5@mx.google.com>
+Date:   Thu, 23 May 2019 14:15:26 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190522150505.GA4915@redhat.com> <CABeXuvrPM5xvzqUydbREapvwgy6deYreHp0aaMoSHyLB6+HGRg@mail.gmail.com>
- <20190522161407.GB4915@redhat.com> <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
- <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com> <20190523145944.GB23070@redhat.com>
- <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com> <20190523163604.GE23070@redhat.com>
- <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com> <CABeXuvo-wey+NHWb4gi=FSRrjJOKkVcLPQ-J+dchJeHEbhGQ6g@mail.gmail.com>
- <CABeXuvo5Y0aHgo-xMzmW7V02g+ysGqAkdoCAkW7L6LkukdvAcg@mail.gmail.com>
-In-Reply-To: <CABeXuvo5Y0aHgo-xMzmW7V02g+ysGqAkdoCAkW7L6LkukdvAcg@mail.gmail.com>
-From:   Deepa Dinamani <deepa.kernel@gmail.com>
-Date:   Thu, 23 May 2019 14:06:45 -0700
-Message-ID: <CABeXuvrKAz3epJjc9J21K-dET1Om9C=3gaDOUiQ96C39x4MAVg@mail.gmail.com>
-Subject: Re: [PATCH v2] signal: Adjust error codes according to restore_user_sigmask()
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "dbueso@suse.de" <dbueso@suse.de>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Kernel: v5.0.18
+Subject: stable-rc/linux-5.0.y boot: 139 boots: 0 failed,
+ 124 passed with 14 offline, 1 untried/unknown (v5.0.18)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Just adding a little more clarification, there is an additional change
-> between [a] and [b].
-> As per [a] we would just restore the signal instead of changing the
-> saved_sigmask and the signal could get delivered right then. [b]
-> changes this to happen at syscall exit:
+stable-rc/linux-5.0.y boot: 139 boots: 0 failed, 124 passed with 14 offline=
+, 1 untried/unknown (v5.0.18)
 
-Rewording above, as there seems to be a few misrepresentations:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.0.y/kernel/v5.0.18/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
+/kernel/v5.0.18/
 
-Just adding a little more clarification, there is an additional change
-between [a] and [b].
-As per [a] we would just restore the signal mask instead of changing
-the saved_sigmask and the even the blocked signals could get delivered
-right then. [b] changes the restoration to happen at syscall exit:
+Tree: stable-rc
+Branch: linux-5.0.y
+Git Describe: v5.0.18
+Git Commit: 8614793dbb41ccf8699ac1aa328702b47efb3b8d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 24 SoC families, 14 builds out of 208
 
-> void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
-> {
->
->            <snip>
->
->           /*
->            * When signals are pending, do not restore them here.
->            * Restoring sigmask here can lead to delivering signals
-> that the above
->            * syscalls are intended to block because of the sigmask passed in.
->            */
->            if (signal_pending(current)) {
->            current->saved_sigmask = *sigsaved;
->            set_restore_sigmask();
->            return;
-> }
+Offline Platforms:
 
- -Deepa
+arm:
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+            at91-sama5d4ek: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            at91-sama5d4ek: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra124-jetson-tk1: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra124-jetson-tk1: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
