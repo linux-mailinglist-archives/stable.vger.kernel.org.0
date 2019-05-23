@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 806E228760
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C61288F4
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389201AbfEWTSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54290 "EHLO mail.kernel.org"
+        id S2391089AbfEWT36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389246AbfEWTSm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:18:42 -0400
+        id S2390192AbfEWT35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3B4A2184E;
-        Thu, 23 May 2019 19:18:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D1B02133D;
+        Thu, 23 May 2019 19:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639121;
-        bh=ngAzSQ1mjSQ3XtlVtbVkmedVkHtFxufKnncPJuOSsac=;
+        s=default; t=1558639796;
+        bh=+athbFoOd2Xxcsmu54xtO7qi37LKpNoQwFHL9MONUjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d04q+cw/aKVAUqzlEK0e6SrmfQmZ0FslvWp9pLifE8/XC/Bm1Igz3XOtNISDIKkfi
-         uadep7hm1JOLOJ7eXCOV3q7dSPfkvWhxuoDW7EEMKUnKsqdMjx0hNPuf18sMw7nyMM
-         KCVj5lYW62PnyAs4HRYbRFkJ5DWJtjqmLIk9R3v4=
+        b=nepY8IIaAKyYKJ+RtchDwIiyTuaoUTnmzQ1TJZCnBdZOd+U4VaWxnn9No3hEQ9izN
+         Z0VjntBIJi6yEa3dpWRcF7rbnSXBQzGkm3dipkzGjucNRtQ6pGilahmN9PDkjIrGYq
+         w2pLFmsr67g9s5arGXHaVG06VlRAEnsSWhoR5Jzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/114] iwlwifi: mvm: check for length correctness in iwl_mvm_create_skb()
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.1 079/122] perf intel-pt: Fix instructions sampling rate
 Date:   Thu, 23 May 2019 21:06:41 +0200
-Message-Id: <20190523181740.324576631@linuxfoundation.org>
+Message-Id: <20190523181715.203995084@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit de1887c064b9996ac03120d90d0a909a3f678f98 ]
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-We don't check for the validity of the lengths in the packet received
-from the firmware.  If the MPDU length received in the rx descriptor
-is too short to contain the header length and the crypt length
-together, we may end up trying to copy a negative number of bytes
-(headlen - hdrlen < 0) which will underflow and cause us to try to
-copy a huge amount of data.  This causes oopses such as this one:
+commit 7ba8fa20e26eb3c0c04d747f7fd2223694eac4d5 upstream.
 
-BUG: unable to handle kernel paging request at ffff896be2970000
-PGD 5e201067 P4D 5e201067 PUD 5e205067 PMD 16110d063 PTE 8000000162970161
-Oops: 0003 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 1824 Comm: irq/134-iwlwifi Not tainted 4.19.33-04308-geea41cf4930f #1
-Hardware name: [...]
-RIP: 0010:memcpy_erms+0x6/0x10
-Code: 90 90 90 90 eb 1e 0f 1f 00 48 89 f8 48 89 d1 48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3 66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4 c3
- 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20 72 7e 40 38 fe
-RSP: 0018:ffffa4630196fc60 EFLAGS: 00010287
-RAX: ffff896be2924618 RBX: ffff896bc8ecc600 RCX: 00000000fffb4610
-RDX: 00000000fffffff8 RSI: ffff896a835e2a38 RDI: ffff896be2970000
-RBP: ffffa4630196fd30 R08: ffff896bc8ecc600 R09: ffff896a83597000
-R10: ffff896bd6998400 R11: 000000000200407f R12: ffff896a83597050
-R13: 00000000fffffff8 R14: 0000000000000010 R15: ffff896a83597038
-FS:  0000000000000000(0000) GS:ffff896be8280000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff896be2970000 CR3: 000000005dc12002 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- iwl_mvm_rx_mpdu_mq+0xb51/0x121b [iwlmvm]
- iwl_pcie_rx_handle+0x58c/0xa89 [iwlwifi]
- iwl_pcie_irq_rx_msix_handler+0xd9/0x12a [iwlwifi]
- irq_thread_fn+0x24/0x49
- irq_thread+0xb0/0x122
- kthread+0x138/0x140
- ret_from_fork+0x1f/0x40
+The timestamp used to determine if an instruction sample is made, is an
+estimate based on the number of instructions since the last known
+timestamp. A consequence is that it might go backwards, which results in
+extra samples. Change it so that a sample is only made when the
+timestamp goes forwards.
 
-Fix that by checking the lengths for correctness and trigger a warning
-to show that we have received wrong data.
+Note this does not affect a sampling period of 0 or sampling periods
+specified as a count of instructions.
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Example:
+
+ Before:
+
+ $ perf script --itrace=i10us
+ ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:         10 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:          8 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:          6 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:          4 instructions:u:      7fac71e2dab2 _dl_cache_libcmp+0xd2 (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222728:      16423 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222734:      12731 instructions:u:      7fac71e27938 _dl_name_match_p+0x68 (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ...
+
+ After:
+ $ perf script --itrace=i10us
+ ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ls 13812 [003] 2167315.222728:      16479 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
+ ...
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: f4aa081949e7b ("perf tools: Add Intel PT decoder")
+Link: http://lkml.kernel.org/r/20190510124143.27054-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 28 ++++++++++++++++---
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index b53148f972a4a..036d1d82d93e7 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -143,9 +143,9 @@ static inline int iwl_mvm_check_pn(struct iwl_mvm *mvm, struct sk_buff *skb,
- }
- 
- /* iwl_mvm_create_skb Adds the rxb to a new skb */
--static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
--			       u16 len, u8 crypt_len,
--			       struct iwl_rx_cmd_buffer *rxb)
-+static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
-+			      struct ieee80211_hdr *hdr, u16 len, u8 crypt_len,
-+			      struct iwl_rx_cmd_buffer *rxb)
- {
- 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
- 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
-@@ -178,6 +178,20 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 	 * present before copying packet data.
- 	 */
- 	hdrlen += crypt_len;
-+
-+	if (WARN_ONCE(headlen < hdrlen,
-+		      "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+		      hdrlen, len, crypt_len)) {
-+		/*
-+		 * We warn and trace because we want to be able to see
-+		 * it in trace-cmd as well.
-+		 */
-+		IWL_DEBUG_RX(mvm,
-+			     "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+			     hdrlen, len, crypt_len);
-+		return -EINVAL;
-+	}
-+
- 	skb_put_data(skb, hdr, hdrlen);
- 	skb_put_data(skb, (u8 *)hdr + hdrlen + pad_len, headlen - hdrlen);
- 
-@@ -190,6 +204,8 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 		skb_add_rx_frag(skb, 0, rxb_steal_page(rxb), offset,
- 				fraglen, rxb->truesize);
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -888,16 +888,20 @@ static uint64_t intel_pt_next_period(str
+ 	timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
+ 	masked_timestamp = timestamp & decoder->period_mask;
+ 	if (decoder->continuous_period) {
+-		if (masked_timestamp != decoder->last_masked_timestamp)
++		if (masked_timestamp > decoder->last_masked_timestamp)
+ 			return 1;
+ 	} else {
+ 		timestamp += 1;
+ 		masked_timestamp = timestamp & decoder->period_mask;
+-		if (masked_timestamp != decoder->last_masked_timestamp) {
++		if (masked_timestamp > decoder->last_masked_timestamp) {
+ 			decoder->last_masked_timestamp = masked_timestamp;
+ 			decoder->continuous_period = true;
+ 		}
  	}
 +
-+	return 0;
++	if (masked_timestamp < decoder->last_masked_timestamp)
++		return decoder->period_ticks;
++
+ 	return decoder->period_ticks - (timestamp - masked_timestamp);
  }
  
- /* iwl_mvm_pass_packet_to_mac80211 - passes the packet for mac80211 */
-@@ -1425,7 +1441,11 @@ void iwl_mvm_rx_mpdu_mq(struct iwl_mvm *mvm, struct napi_struct *napi,
- 			rx_status->boottime_ns = ktime_get_boot_ns();
- 	}
- 
--	iwl_mvm_create_skb(skb, hdr, len, crypt_len, rxb);
-+	if (iwl_mvm_create_skb(mvm, skb, hdr, len, crypt_len, rxb)) {
-+		kfree_skb(skb);
-+		goto out;
-+	}
-+
- 	if (!iwl_mvm_reorder(mvm, napi, queue, sta, skb, desc))
- 		iwl_mvm_pass_packet_to_mac80211(mvm, napi, skb, queue, sta);
- out:
--- 
-2.20.1
-
+@@ -926,7 +930,10 @@ static void intel_pt_sample_insn(struct
+ 	case INTEL_PT_PERIOD_TICKS:
+ 		timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
+ 		masked_timestamp = timestamp & decoder->period_mask;
+-		decoder->last_masked_timestamp = masked_timestamp;
++		if (masked_timestamp > decoder->last_masked_timestamp)
++			decoder->last_masked_timestamp = masked_timestamp;
++		else
++			decoder->last_masked_timestamp += decoder->period_ticks;
+ 		break;
+ 	case INTEL_PT_PERIOD_NONE:
+ 	case INTEL_PT_PERIOD_MTC:
 
 
