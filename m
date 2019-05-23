@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DDA28A4E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069D128AA1
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387720AbfEWTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45932 "EHLO mail.kernel.org"
+        id S2388740AbfEWTRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387571AbfEWTMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:12 -0400
+        id S2389375AbfEWTRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E62217D7;
-        Thu, 23 May 2019 19:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EF7C21850;
+        Thu, 23 May 2019 19:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638732;
-        bh=Wpgw0TDUGZYsGHzCIymzJWbj9GHxVRPuswZba+0s04s=;
+        s=default; t=1558639035;
+        bh=/ooMEr3sMXswUrQXLTg5AgIOva1OMjNOZyVecNJhe0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZg4LqKic+UsNQOa83Cx/kDP79PN7UR+xj4ZaWEknjwAlsF3FsawVw5ZZTp8mx4Je
-         9+BZpQTsEdUgxChaX+ErQjFp+kKhA9SZbDEAlCMnP34yHPWTC7D8PlHHCnGvRypjDT
-         yS3TmWTBUAzEJEvaHe2M+ZLPrCQHoI9+l3fLO/FQ=
+        b=OVlkoLw9yZCdz9k8aIR493ujs+Hv9BMKp+voEcNxHwu+BWKy53maUugHLTuMeFQao
+         MFKYNKrEBCFHOIPF2OqKCl4m1B5/xTXwNQ+sktIPXpdNjZfSwGaJqzB4jj7xzcGMIG
+         42/esXhUUDmg+QN7Rs09/EHu9A/m5YHB1tbnMod4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 36/77] memory: tegra: Fix integer overflow on tick value calculation
+Subject: [PATCH 4.19 055/114] memory: tegra: Fix integer overflow on tick value calculation
 Date:   Thu, 23 May 2019 21:05:54 +0200
-Message-Id: <20190523181725.198933109@linuxfoundation.org>
+Message-Id: <20190523181736.617188244@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/memory/tegra/mc.c
 +++ b/drivers/memory/tegra/mc.c
-@@ -72,7 +72,7 @@ static int tegra_mc_setup_latency_allowa
+@@ -280,7 +280,7 @@ static int tegra_mc_setup_latency_allowa
  	u32 value;
  
  	/* compute the number of MC clock cycles per tick */
