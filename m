@@ -2,92 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D242847F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 19:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1822D284D8
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 19:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731156AbfEWRGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 13:06:40 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:34576 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730867AbfEWRGk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 13:06:40 -0400
-Received: by mail-qt1-f195.google.com with SMTP id h1so7629832qtp.1;
-        Thu, 23 May 2019 10:06:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tzAHR5rmfh/TFIXYIHzSw6buL7+70H5Ot5Wu7FBJYBo=;
-        b=jDsWohnysffIeI5APcrXrgR6fZ5MhkH09iEGmhgZ7kCViXYEOhyCd7y91chqUmipEt
-         2FrDCGIeKkQFN1tObQUQrbWMrtirnRaUkr3eft07i55kERGDhIXgXnq0/6wLFc/CGQ3/
-         AtEyxF4daRvXgqxCj1agF+7krmG7CUq9ytikxiGSnwjEdB5pT8o0YTyYjGUAga0mCfwF
-         zpfVTtCw46jMJpmznBtD3FNtoie2Jar4l4RqUs01Xgg+fD5e3Oi5nn6VHFgaclmYRENo
-         1OQ1EuP9DHtDkIqJpJfAQPZBoW08gQ3valir3Kb3v7KhHTcFpL/eVEFwSCfwZQ58zypp
-         vrvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tzAHR5rmfh/TFIXYIHzSw6buL7+70H5Ot5Wu7FBJYBo=;
-        b=EcAehFuc8COPYiTh2d4jWkJvUtFCsTC1S+mbkaCdHpt2MK6GdYxc2V302DsmDJKqjd
-         Q4B+XCsrbDgKVv+sxDAyXV5qRiOtX2SlFrei6rg2/BybCSywJWefFSONRVxieHL2ZBTD
-         5bTZxMkYbJu8bxHI8YHYoDqtY5+jmyDW4BgybbgXPM1SE8NI1g4REZP1m87+WCYS54Ia
-         P6loP8VbNSasdZhKh5JXU4kQfH/vOn7ra3+zJ+1wNawO9+/BhVvkJEfPAOieEA0n6wJ/
-         ycLWyrWCD9NRapD6cOuE6ixkrVDMEtSrHh7+y09l5T3adqCkQOjffjeX7vncpCUa3rov
-         AT/A==
-X-Gm-Message-State: APjAAAXuPFuxmRu2HoVn14RGrtKtVcidVVZk8xwsgEgvW3py6byE9jV+
-        hvONXEO9aB6lBZQSTcvGGpaLY3F4cOGnXjtSTXA=
-X-Google-Smtp-Source: APXvYqyoqxK6/SVoOZtsXHuNMWFHMGBI1KxeWNxGegcBVtTenide+MA2bCnqDhY+dBeXRgVq/5iUc/zWBy6uAqEpyTE=
-X-Received: by 2002:ac8:16a4:: with SMTP id r33mr54894808qtj.118.1558631199474;
- Thu, 23 May 2019 10:06:39 -0700 (PDT)
+        id S1730987AbfEWRXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 13:23:52 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:53026 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731038AbfEWRXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 13:23:52 -0400
+Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
+        by m0001303.ppops.net (8.16.0.27/8.16.0.27) with SMTP id x4NHMmGr030412
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 10:23:51 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=facebook;
+ bh=QBaoodoQuJB66Q7ySr6tAw7ffBG5t1gLjZA07cX8BxM=;
+ b=UmAeUaK0Wa6wfNKxgCpl7neEBHd8a433Mqj3r1VgRYVYUN2G3CAsorrG5upjfyGVORrf
+ 5Z1/KLvRl8qEzplab0fhOOym425gCdqs/QbzijxXo2WcXopzhgQ+VFcMJf01IGCyjOX2
+ 8j0ZPg+SDaubQ2Q+6FYuYnvO1LmE9omzELM= 
+Received: from mail.thefacebook.com (mailout.thefacebook.com [199.201.64.23])
+        by m0001303.ppops.net with ESMTP id 2snwyh8fgb-8
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 10:23:51 -0700
+Received: from mx-out.facebook.com (2620:10d:c081:10::13) by
+ mail.thefacebook.com (2620:10d:c081:35::126) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA) id 15.1.1713.5;
+ Thu, 23 May 2019 10:23:50 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id 0ADE562E1885; Thu, 23 May 2019 10:23:49 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-raid@vger.kernel.org>, <stable@vger.kernel.org>
+CC:     <axboe@kernel.dk>, "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
+        Song Liu <songliubraving@fb.com>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH 1/2] block: Fix a NULL pointer dereference in generic_make_request()
+Date:   Thu, 23 May 2019 10:23:44 -0700
+Message-ID: <20190523172345.1861077-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+X-FB-Internal: Safe
 MIME-Version: 1.0
-References: <20190520220911.25192-1-gpiccoli@canonical.com>
- <CAPhsuW6KayaNR-0eFHpvPG-LVuPFL_1OFjvZpOcnapVFe2vC9Q@mail.gmail.com> <3e583b2d-742a-3238-69ed-7a2e6cce417b@canonical.com>
-In-Reply-To: <3e583b2d-742a-3238-69ed-7a2e6cce417b@canonical.com>
-From:   Song Liu <liu.song.a23@gmail.com>
-Date:   Thu, 23 May 2019 10:06:28 -0700
-Message-ID: <CAPhsuW7o9bj5DYnUDkCqDeW7NnfNTSBBWJC5_ZVxhoomDEEJcg@mail.gmail.com>
-Subject: Re: [PATCH V2 1/2] block: Fix a NULL pointer dereference in generic_make_request()
-To:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-Cc:     linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, dm-devel@redhat.com,
-        Jens Axboe <axboe@kernel.dk>,
-        Gavin Guo <gavin.guo@canonical.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "Guilherme G. Piccoli" <kernel@gpiccoli.net>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Eric Ren <renzhengeek@gmail.com>, hch@infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-23_14:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1905230117
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 23, 2019 at 7:36 AM Guilherme G. Piccoli
-<gpiccoli@canonical.com> wrote:
->
-> On 21/05/2019 02:59, Song Liu wrote:
-> >
-> > Applied both patches! Thanks for the fix!
->
-> Hi Song, sorry for the annoyance, but the situation of both patches is a
-> bit confused for me heheh
->
-> You mention you've applied both patches - I couldn't find your tree.
-> Also, Christoph noticed Ming's series fixes both issues and suggested to
-> drop both my patches in favor of Ming's clean-up, or at least make them
-> -stable only.
->
-> So, what is the current status of the patches? Can we have them on
-> -stable trees at least? If so, how should I proceed?
->
-> Thanks in advance for the clarification!
-> Cheers,
->
->
-> Guilherme
+From: "Guilherme G. Piccoli" <gpiccoli@canonical.com>
 
-Sorry for the confusion and delay. I will send patches to stable@.
+Commit 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently
+with device removal triggers a crash") introduced a NULL pointer
+dereference in generic_make_request(). The patch sets q to NULL and
+enter_succeeded to false; right after, there's an 'if (enter_succeeded)'
+which is not taken, and then the 'else' will dereference q in
+blk_queue_dying(q).
 
-Song
+This patch just moves the 'q = NULL' to a point in which it won't trigger
+the oops, although the semantics of this NULLification remains untouched.
+
+A simple test case/reproducer is as follows:
+a) Build kernel v5.2-rc1 with CONFIG_BLK_CGROUP=n.
+
+b) Create a raid0 md array with 2 NVMe devices as members, and mount it
+with an ext4 filesystem.
+
+c) Run the following oneliner (supposing the raid0 is mounted in /mnt):
+(dd of=/mnt/tmp if=/dev/zero bs=1M count=999 &); sleep 0.3;
+echo 1 > /sys/block/nvme0n1/device/device/remove
+(whereas nvme0n1 is the 2nd array member)
+
+This will trigger the following oops:
+
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000078
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+RIP: 0010:generic_make_request+0x32b/0x400
+Call Trace:
+ submit_bio+0x73/0x140
+ ext4_io_submit+0x4d/0x60
+ ext4_writepages+0x626/0xe90
+ do_writepages+0x4b/0xe0
+[...]
+
+This patch has no functional changes and preserves the md/raid0 behavior
+when a member is removed before kernel v4.17.
+
+Cc: stable@vger.kernel.org # v4.17
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Eric Ren <renzhengeek@gmail.com>
+Fixes: 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently with device removal triggers a crash")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+---
+ block/blk-core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index a55389ba8779..d24a29244cb8 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1074,10 +1074,8 @@ blk_qc_t generic_make_request(struct bio *bio)
+ 			flags = 0;
+ 			if (bio->bi_opf & REQ_NOWAIT)
+ 				flags = BLK_MQ_REQ_NOWAIT;
+-			if (blk_queue_enter(q, flags) < 0) {
++			if (blk_queue_enter(q, flags) < 0)
+ 				enter_succeeded = false;
+-				q = NULL;
+-			}
+ 		}
+ 
+ 		if (enter_succeeded) {
+@@ -1108,6 +1106,7 @@ blk_qc_t generic_make_request(struct bio *bio)
+ 				bio_wouldblock_error(bio);
+ 			else
+ 				bio_io_error(bio);
++			q = NULL;
+ 		}
+ 		bio = bio_list_pop(&bio_list_on_stack[0]);
+ 	} while (bio);
+-- 
+2.17.1
+
