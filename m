@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9ECB28A13
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 319BB28986
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731921AbfEWTIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41844 "EHLO mail.kernel.org"
+        id S2390402AbfEWTjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:39:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731943AbfEWTIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:08:53 -0400
+        id S2387582AbfEWTV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:21:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0D5821873;
-        Thu, 23 May 2019 19:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DD792184E;
+        Thu, 23 May 2019 19:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638533;
-        bh=xdvvcA62MbAZMW3ffzFO2CIubH9bOSXjrHE8RuAPcdA=;
+        s=default; t=1558639317;
+        bh=5UCojV3+1l9pwyt7QHyOjN9adHUxg59F+wBeuWKbW/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyWN49ItFulXuYchPkR3ChLvsaZMIlntWnZvGYMiXQnj15dl9YZgz65F1jXCqLKIj
-         7chZgbY6Tta6a+SDQrdJIT3Va1pHCIIDZ5esJTD8yt6vMWscs1F1q+GG+b13yfzi4L
-         6kffotn9b8pQfi8wVLLljzMnd8IJNRD6zatbJBCU=
+        b=MzBxNCUhAbq80RvVBy23BEFwkOX1FqInnYCvhQWNRQPvC4qfA8oB+m81Z2UgFoJtv
+         IwxUgbpmpgXzo+JkZh2STawjm5dM40xq3VfnsBRC2vjJMDPj6SC2HI6+9ep5wd3qCS
+         vy7ys7qcnsEAT98FpHxDIHzO/X4T0xh7zca2q9TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 06/53] tipc: fix modprobe tipc failed after switch order of device registration
-Date:   Thu, 23 May 2019 21:05:30 +0200
-Message-Id: <20190523181711.874540085@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.0 043/139] phy: ti-pipe3: fix missing bit-wise or operator when assigning val
+Date:   Thu, 23 May 2019 21:05:31 +0200
+Message-Id: <20190523181726.314759313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,92 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 532b0f7ece4cb2ffd24dc723ddf55242d1188e5e ]
+commit e6577cb5103b7ca7c0204c0c86ef4af8aa6288f6 upstream.
 
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
+There seems to be a missing bit-wise or operator when setting val,
+fix this by adding it in.
 
-Because sock_create_kern(net, AF_TIPC, ...) is called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_net_ops, tipc_socket_init() must be execute before that.
-
-I move tipc_socket_init() into function tipc_init_net().
-
-Fixes: 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2796ceb0c18a ("phy: ti-pipe3: Update pcie phy settings")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tipc/core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -62,6 +62,10 @@ static int __net_init tipc_init_net(stru
- 	INIT_LIST_HEAD(&tn->node_list);
- 	spin_lock_init(&tn->node_list_lock);
+---
+ drivers/phy/ti/phy-ti-pipe3.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/phy/ti/phy-ti-pipe3.c
++++ b/drivers/phy/ti/phy-ti-pipe3.c
+@@ -303,7 +303,7 @@ static void ti_pipe3_calibrate(struct ti
  
-+	err = tipc_socket_init();
-+	if (err)
-+		goto out_socket;
-+
- 	err = tipc_sk_rht_init(net);
- 	if (err)
- 		goto out_sk_rht;
-@@ -88,6 +92,8 @@ out_subscr:
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
- out_sk_rht:
-+	tipc_socket_stop();
-+out_socket:
- 	return err;
- }
+ 	val = ti_pipe3_readl(phy->phy_rx, PCIEPHYRX_ANA_PROGRAMMABILITY);
+ 	val &= ~(INTERFACE_MASK | LOSD_MASK | MEM_PLLDIV);
+-	val = (0x1 << INTERFACE_SHIFT | 0xA << LOSD_SHIFT);
++	val |= (0x1 << INTERFACE_SHIFT | 0xA << LOSD_SHIFT);
+ 	ti_pipe3_writel(phy->phy_rx, PCIEPHYRX_ANA_PROGRAMMABILITY, val);
  
-@@ -98,6 +104,7 @@ static void __net_exit tipc_exit_net(str
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
-+	tipc_socket_stop();
- }
- 
- static struct pernet_operations tipc_net_ops = {
-@@ -133,10 +140,6 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_pernet;
- 
--	err = tipc_socket_init();
--	if (err)
--		goto out_socket;
--
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -144,8 +147,6 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
--	tipc_socket_stop();
--out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
- out_pernet:
- 	tipc_unregister_sysctl();
-@@ -161,7 +162,6 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
--	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
- 	tipc_netlink_compat_stop();
+ 	val = ti_pipe3_readl(phy->phy_rx, PCIEPHYRX_DIGITAL_MODES);
 
 
