@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAB6289DE
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DAC288F6
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389674AbfEWTSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:18:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54362 "EHLO mail.kernel.org"
+        id S2391800AbfEWTaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389660AbfEWTSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:18:44 -0400
+        id S2392018AbfEWTaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 206692184E;
-        Thu, 23 May 2019 19:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91539217D7;
+        Thu, 23 May 2019 19:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639123;
-        bh=pqomUC/mB5B0Tu67ZwAH0uPUO3ocK5ML1K59knVGFLc=;
+        s=default; t=1558639799;
+        bh=bKs5VgwY2UPSlE56fRRjQSE74HLtE6QYQqPNJaat+zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZKVKr63dIMIK16FCLtLIey8nr9K3cjNgXoBReaKfzwfFsusdZWKlIQsn4i6aWAb6
-         xxSEcglFMotYrKtyyHNqyZHm1VWW4S4o64z5v/9TK6/p6f/VvsB5MUV4ML0hVWbWHk
-         VdA7EGFgcNxXxng1u452QtABJGsK//4U/tEbcPxU=
+        b=gt5FhsLvCxtQByiFGyNSdf1ifmkJZqPqSaz0+/tZYlvLzxGUttJ9p4SkczVF6sujo
+         uVmC64+CPXMprHvFjKMPhZfla0dpzLQQ+eAbu5C/J2d0tLyuCmLLxYxbEZVdYUV/3U
+         kVs+ul5aiI66OanCca6rL0h0dw8NNoOLRL/k4iAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/114] sched/cpufreq: Fix kobject memleak
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.1 080/122] perf intel-pt: Fix improved sample timestamp
 Date:   Thu, 23 May 2019 21:06:42 +0200
-Message-Id: <20190523181740.376885118@linuxfoundation.org>
+Message-Id: <20190523181715.374011582@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,45 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a4f26cc98d81b67ecc23b890c28e2df324e29f3 ]
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-Currently the error return path from kobject_init_and_add() is not
-followed by a call to kobject_put() - which means we are leaking
-the kobject.
+commit 61b6e08dc8e3ea80b7485c9b3f875ddd45c8466b upstream.
 
-Fix it by adding a call to kobject_put() in the error path of
-kobject_init_and_add().
+The decoder uses its current timestamp in samples. Usually that is a
+timestamp that has already passed, but in some cases it is a timestamp
+for a branch that the decoder is walking towards, and consequently
+hasn't reached.
 
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tobin C. Harding <tobin@kernel.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Link: http://lkml.kernel.org/r/20190430001144.24890-1-tobin@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The intel_pt_sample_time() function decides which is which, but was not
+handling TNT packets exactly correctly.
+
+In the case of TNT, the timestamp applies to the first branch, so the
+decoder must first walk to that branch.
+
+That means intel_pt_sample_time() should return true for TNT, and this
+patch makes that change. However, if the first branch is a non-taken
+branch (i.e. a 'N'), then intel_pt_sample_time() needs to return false
+for subsequent taken branches in the same TNT packet.
+
+To handle that, introduce a new state INTEL_PT_STATE_TNT_CONT to
+distinguish the cases.
+
+Note that commit 3f04d98e972b5 ("perf intel-pt: Improve sample
+timestamp") was also a stable fix and appears, for example, in v4.4
+stable tree as commit a4ebb58fd124 ("perf intel-pt: Improve sample
+timestamp").
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v4.4+
+Fixes: 3f04d98e972b5 ("perf intel-pt: Improve sample timestamp")
+Link: http://lkml.kernel.org/r/20190510124143.27054-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/sched/cpufreq_schedutil.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 217f81ecae176..4e3625109b28d 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -751,6 +751,7 @@ out:
- 	return 0;
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -58,6 +58,7 @@ enum intel_pt_pkt_state {
+ 	INTEL_PT_STATE_NO_IP,
+ 	INTEL_PT_STATE_ERR_RESYNC,
+ 	INTEL_PT_STATE_IN_SYNC,
++	INTEL_PT_STATE_TNT_CONT,
+ 	INTEL_PT_STATE_TNT,
+ 	INTEL_PT_STATE_TIP,
+ 	INTEL_PT_STATE_TIP_PGD,
+@@ -72,8 +73,9 @@ static inline bool intel_pt_sample_time(
+ 	case INTEL_PT_STATE_NO_IP:
+ 	case INTEL_PT_STATE_ERR_RESYNC:
+ 	case INTEL_PT_STATE_IN_SYNC:
+-	case INTEL_PT_STATE_TNT:
++	case INTEL_PT_STATE_TNT_CONT:
+ 		return true;
++	case INTEL_PT_STATE_TNT:
+ 	case INTEL_PT_STATE_TIP:
+ 	case INTEL_PT_STATE_TIP_PGD:
+ 	case INTEL_PT_STATE_FUP:
+@@ -1261,7 +1263,9 @@ static int intel_pt_walk_tnt(struct inte
+ 				return -ENOENT;
+ 			}
+ 			decoder->tnt.count -= 1;
+-			if (!decoder->tnt.count)
++			if (decoder->tnt.count)
++				decoder->pkt_state = INTEL_PT_STATE_TNT_CONT;
++			else
+ 				decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+ 			decoder->tnt.payload <<= 1;
+ 			decoder->state.from_ip = decoder->ip;
+@@ -1292,7 +1296,9 @@ static int intel_pt_walk_tnt(struct inte
  
- fail:
-+	kobject_put(&tunables->attr_set.kobj);
- 	policy->governor_data = NULL;
- 	sugov_tunables_free(tunables);
- 
--- 
-2.20.1
-
+ 		if (intel_pt_insn.branch == INTEL_PT_BR_CONDITIONAL) {
+ 			decoder->tnt.count -= 1;
+-			if (!decoder->tnt.count)
++			if (decoder->tnt.count)
++				decoder->pkt_state = INTEL_PT_STATE_TNT_CONT;
++			else
+ 				decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+ 			if (decoder->tnt.payload & BIT63) {
+ 				decoder->tnt.payload <<= 1;
+@@ -2372,6 +2378,7 @@ const struct intel_pt_state *intel_pt_de
+ 			err = intel_pt_walk_trace(decoder);
+ 			break;
+ 		case INTEL_PT_STATE_TNT:
++		case INTEL_PT_STATE_TNT_CONT:
+ 			err = intel_pt_walk_tnt(decoder);
+ 			if (err == -EAGAIN)
+ 				err = intel_pt_walk_trace(decoder);
 
 
