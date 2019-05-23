@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E88C2289B1
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E065286EB
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389974AbfEWTUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
+        id S2388739AbfEWTO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390000AbfEWTUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:20:18 -0400
+        id S2387948AbfEWTO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D006721851;
-        Thu, 23 May 2019 19:20:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C70E20863;
+        Thu, 23 May 2019 19:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639218;
-        bh=7rPitIyyJ88Ajz/ZM+BgOKkmfkRETC+ZL64Szngkiwk=;
+        s=default; t=1558638865;
+        bh=+o030PVkMDEq80ncXbZbWqQNFOFZ0EE82fJqik5Q8/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1HFzZ7uZgmnF12NBrM4r0bwUW0lEIcGUTfhDdhrD+V2HaVp+QRtVrV6ioZQcEKtw
-         KtdNEC2+64tGBHnsgIZpPFi91RD6BiNLXJ/lx7OmfhjOcZlOJ6NLymeT2tmf3a+AAU
-         q2c7pOD0qymE/XVMf9pouRzG2J1NgLKycOHRAwtM=
+        b=JApW1tj4c1o06FYHMAG7DRpRSBMrqW0yWL2YTxSQjgsOmrbaLKgNUgTKzuQqd9oXU
+         H6YeKApQicBGgy0xbDJrJq49JqIKa4oTspM1t3Y5YvatW1t6wnUaRQHCwa744a7vjU
+         J5T+ECE/9B1lFOdGWFJbboQTIYDH96s1poMX0MoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
-        Gavi Teitz <gavi@mellanox.com>, Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.0 015/139] net/mlx5e: Add missing ethtool driver info for representors
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 004/114] net: avoid weird emergency message
 Date:   Thu, 23 May 2019 21:05:03 +0200
-Message-Id: <20190523181722.461799422@linuxfoundation.org>
+Message-Id: <20190523181731.877653557@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Linkin <dmitrolin@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit cf83c8fdcd4756644595521f48748ec22f7efede ]
+[ Upstream commit d7c04b05c9ca14c55309eb139430283a45c4c25f ]
 
-For all representors added firmware version info to show in
-ethtool driver info.
-For uplink representor, because only it is tied to the pci device
-sysfs, added pci bus info.
+When host is under high stress, it is very possible thread
+running netdev_wait_allrefs() returns from msleep(250)
+10 seconds late.
 
-Fixes: ff9b85de5d5d ("net/mlx5e: Add some ethtool port control entries to the uplink rep netdev")
-Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
-Reviewed-by: Gavi Teitz <gavi@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+This leads to these messages in the syslog :
+
+[...] unregister_netdevice: waiting for syz_tun to become free. Usage count = 0
+
+If the device refcount is zero, the wait is over.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ net/core/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -64,9 +64,26 @@ static void mlx5e_rep_indr_unregister_bl
- static void mlx5e_rep_get_drvinfo(struct net_device *dev,
- 				  struct ethtool_drvinfo *drvinfo)
- {
-+	struct mlx5e_priv *priv = netdev_priv(dev);
-+	struct mlx5_core_dev *mdev = priv->mdev;
-+
- 	strlcpy(drvinfo->driver, mlx5e_rep_driver_name,
- 		sizeof(drvinfo->driver));
- 	strlcpy(drvinfo->version, UTS_RELEASE, sizeof(drvinfo->version));
-+	snprintf(drvinfo->fw_version, sizeof(drvinfo->fw_version),
-+		 "%d.%d.%04d (%.16s)",
-+		 fw_rev_maj(mdev), fw_rev_min(mdev),
-+		 fw_rev_sub(mdev), mdev->board_id);
-+}
-+
-+static void mlx5e_uplink_rep_get_drvinfo(struct net_device *dev,
-+					 struct ethtool_drvinfo *drvinfo)
-+{
-+	struct mlx5e_priv *priv = netdev_priv(dev);
-+
-+	mlx5e_rep_get_drvinfo(dev, drvinfo);
-+	strlcpy(drvinfo->bus_info, pci_name(priv->mdev->pdev),
-+		sizeof(drvinfo->bus_info));
- }
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -8716,7 +8716,7 @@ static void netdev_wait_allrefs(struct n
  
- static const struct counter_desc sw_rep_stats_desc[] = {
-@@ -374,7 +391,7 @@ static const struct ethtool_ops mlx5e_vf
- };
+ 		refcnt = netdev_refcnt_read(dev);
  
- static const struct ethtool_ops mlx5e_uplink_rep_ethtool_ops = {
--	.get_drvinfo	   = mlx5e_rep_get_drvinfo,
-+	.get_drvinfo	   = mlx5e_uplink_rep_get_drvinfo,
- 	.get_link	   = ethtool_op_get_link,
- 	.get_strings       = mlx5e_rep_get_strings,
- 	.get_sset_count    = mlx5e_rep_get_sset_count,
+-		if (time_after(jiffies, warning_time + 10 * HZ)) {
++		if (refcnt && time_after(jiffies, warning_time + 10 * HZ)) {
+ 			pr_emerg("unregister_netdevice: waiting for %s to become free. Usage count = %d\n",
+ 				 dev->name, refcnt);
+ 			warning_time = jiffies;
 
 
