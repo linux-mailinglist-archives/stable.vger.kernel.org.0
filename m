@@ -2,137 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D40D28D64
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 00:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9A728D6E
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 00:52:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387688AbfEWWrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 18:47:53 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:38481 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387546AbfEWWrx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 18:47:53 -0400
-Received: by mail-pl1-f193.google.com with SMTP id f97so3324520plb.5
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 15:47:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=RkptR1FUH+sxG7wzcynSy1/Q9Fpv8dCEH+Bxdf3qSag=;
-        b=Soa7f3aKCbXnRmdn5YVnYy5xi3Tj8Let+H+/RsZh5BN52b2xz4M2Lk7ncFKQNrRLef
-         LlmSSMWk/N2+m8WQX00l6IqEzU40RGSd4h4xcpSRLuBU63wKa5vMEMfzGi59kTtLfebR
-         mPYOsljQyEoUEgXET4omWyr5FmE5kKgszmHeN5jWQjaM+J4jxOucszHu/TRbdKmNaAi8
-         /0BV4lkRJ52sFQ3G77f1eWGXsEKgmoeSK/ekGMHJuLmxRyqIvM6MQycB/kdmA/kQTmL7
-         6CSDLz0NSJepByKn+zLJ8qLE+HaZMAlSQ6y3SZF1tcfiKd2nwOchYkpTijgRv3LhqVMR
-         hPsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=RkptR1FUH+sxG7wzcynSy1/Q9Fpv8dCEH+Bxdf3qSag=;
-        b=eHef9TkJgFzg1g0nPW/nqWYxpM7q+Al2LvaC87hSGn242LSS4nnXkGUou0t+Q9cMAE
-         JOU9Q57GKOQe3/yGkNtDYsqlfhLC+tY6YalRWsV3dMWwqnxuFhxJIQgrX0CBNK8sFvpx
-         dGmfP55aS5+R9UigQh9EuS5G3xqByXliNTbE49wJnU4iSm5WJqT/ed2IVthKvDdXiD/1
-         WUm8wBXTnK53aKzpL/jbGGdIsbcDjocTCiEUdHeJ8w+LDcwM5842+Cg6cYItiGEzJWMO
-         FaS6GAFPZN6XluU4RB3QOR5w6LuDPZUHWVcos0mPpH4YYJ+qaro08c7MO9xWd55A7fqi
-         vkIA==
-X-Gm-Message-State: APjAAAVGrRHWYo3U8UY1pMhFUk7/jV2wYtlmcdCPKmi9AkGhouPuIT23
-        Ckr+f3SWOnW65hwM1rfuNd54JQU=
-X-Google-Smtp-Source: APXvYqynrqtkMCgMw59k38krnChCf5iJUDK/bKL1YI6Ea4KtTFAoLHS4lHW6VHDORif2E7Qki1sSfg==
-X-Received: by 2002:a17:902:9a07:: with SMTP id v7mr102715416plp.180.1558651671732;
-        Thu, 23 May 2019 15:47:51 -0700 (PDT)
-Received: from ubuntu-vm.mshome.net ([131.107.147.234])
-        by smtp.gmail.com with ESMTPSA id g8sm488914pfk.83.2019.05.23.15.47.50
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 23 May 2019 15:47:50 -0700 (PDT)
-From:   Pavel Shilovsky <piastryyy@gmail.com>
-X-Google-Original-From: Pavel Shilovsky <pshilov@microsoft.com>
-To:     stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH] cifs: fix credits leak for SMB1 oplock breaks
-Date:   Thu, 23 May 2019 15:47:44 -0700
-Message-Id: <1558651664-25756-1-git-send-email-pshilov@microsoft.com>
-X-Mailer: git-send-email 2.7.4
+        id S2387584AbfEWWwE convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 23 May 2019 18:52:04 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:42614 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387546AbfEWWwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 18:52:03 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 2B8A8C0528B3
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 22:52:03 +0000 (UTC)
+Received: from [172.54.114.147] (cpt-0011.paas.prod.upshift.rdu2.redhat.com [10.0.18.82])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A2BD4611D2;
+        Thu, 23 May 2019 22:52:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.46-rc1-ea74ab5.cki
+ (stable)
+Message-ID: <cki.B9DDB52406.68RIEFMT7M@redhat.com>
+X-Gitlab-Pipeline-ID: 10734
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10734?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Thu, 23 May 2019 22:52:03 +0000 (UTC)
+Date:   Thu, 23 May 2019 18:52:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+Hello,
 
-Commit d69cb728e70c ("cifs: fix credits leak for SMB1 oplock breaks").
+We ran automated tests on a recent commit from this kernel tree:
 
-For SMB1 oplock breaks we would grab one credit while sending the PDU
-but we would never relese the credit back since we will never receive a
-response to this from the server. Eventuallt this would lead to a hang
-once all credits are leaked.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: 071ff9cc9849 - Linux 4.19.46-rc1
 
-Fix this by defining a new flag CIFS_NO_SRV_RSP which indicates that there
-is no server response to this command and thus we need to add any credits
-back immediately after sending the PDU.
+The results of these automated tests are provided below.
 
-CC: Stable <stable@vger.kernel.org> #v5.0+
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
----
- fs/cifs/cifsglob.h  |  1 +
- fs/cifs/cifssmb.c   |  2 +-
- fs/cifs/transport.c | 10 +++++-----
- 3 files changed, 7 insertions(+), 6 deletions(-)
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 10ead04..8c295e3 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1657,6 +1657,7 @@ static inline bool is_retryable_error(int error)
- 
- #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
- #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
-+#define   CIFS_NO_SRV_RSP    0x1000    /* there is no server response */
- 
- /* Security Flags: indicate type of session setup needed */
- #define   CIFSSEC_MAY_SIGN	0x00001
-diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
-index 551924b..f91e714 100644
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -2533,7 +2533,7 @@ CIFSSMBLock(const unsigned int xid, struct cifs_tcon *tcon,
- 
- 	if (lockType == LOCKING_ANDX_OPLOCK_RELEASE) {
- 		/* no response expected */
--		flags = CIFS_ASYNC_OP | CIFS_OBREAK_OP;
-+		flags = CIFS_NO_SRV_RSP | CIFS_ASYNC_OP | CIFS_OBREAK_OP;
- 		pSMB->Timeout = 0;
- 	} else if (waitFlag) {
- 		flags = CIFS_BLOCKING_OP; /* blocking operation, no timeout */
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 9544eb9..95f3be9 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -906,8 +906,11 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 
- 	mutex_unlock(&ses->server->srv_mutex);
- 
--	if (rc < 0) {
--		/* Sending failed for some reason - return credits back */
-+	/*
-+	 * If sending failed for some reason or it is an oplock break that we
-+	 * will not receive a response to - return credits back
-+	 */
-+	if (rc < 0 || (flags & CIFS_NO_SRV_RSP)) {
- 		for (i = 0; i < num_rqst; i++)
- 			add_credits(ses->server, credits[i], optype);
- 		goto out;
-@@ -928,9 +931,6 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
- 					   rqst[0].rq_nvec);
- 
--	if (timeout == CIFS_ASYNC_OP)
--		goto out;
--
- 	for (i = 0; i < num_rqst; i++) {
- 		rc = wait_for_response(ses->server, midQ[i]);
- 		if (rc != 0)
--- 
-2.7.4
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-071ff9cc98498f489abc097471549b19933ba3e2.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-071ff9cc98498f489abc097471549b19933ba3e2.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-071ff9cc98498f489abc097471549b19933ba3e2.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-071ff9cc98498f489abc097471549b19933ba3e2.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-071ff9cc98498f489abc097471549b19933ba3e2.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-071ff9cc98498f489abc097471549b19933ba3e2.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-071ff9cc98498f489abc097471549b19933ba3e2.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-071ff9cc98498f489abc097471549b19933ba3e2.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [1]
+     ✅ xfstests: xfs [1]
+     ✅ selinux-policy: serge-testsuite [2]
+     ✅ Boot test [0]
+     ✅ LTP lite [3]
+     ✅ Loopdev Sanity [4]
+     ✅ Memory function: memfd_create [5]
+     ✅ AMTU (Abstract Machine Test Utility) [6]
+     ✅ Ethernet drivers sanity [7]
+     ✅ audit: audit testsuite test [8]
+     ✅ httpd: mod_ssl smoke sanity [9]
+     ✅ iotop: sanity [10]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
+     ✅ tuned: tune-processes-through-perf [13]
+     ✅ Usex - version 1.9-29 [14]
+     ✅ lvm thinp sanity [15]
+     ✅ stress: stress-ng [16]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking: igmp conformance test [19]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ networking tunnel: geneve basic test [24]
+     🚧 ✅ Networking ipsec: basic netns transport [25]
+     🚧 ✅ Networking ipsec: basic netns tunnel [25]
+     🚧 ✅ Storage blktests [26]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ LTP lite [3]
+     ✅ Loopdev Sanity [4]
+     ✅ Memory function: memfd_create [5]
+     ✅ AMTU (Abstract Machine Test Utility) [6]
+     ✅ Ethernet drivers sanity [7]
+     ✅ audit: audit testsuite test [8]
+     ✅ httpd: mod_ssl smoke sanity [9]
+     ✅ iotop: sanity [10]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
+     ✅ tuned: tune-processes-through-perf [13]
+     ✅ Usex - version 1.9-29 [14]
+     ✅ lvm thinp sanity [15]
+     ✅ stress: stress-ng [16]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [1]
+     ✅ xfstests: xfs [1]
+     ✅ selinux-policy: serge-testsuite [2]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ networking tunnel: geneve basic test [24]
+     🚧 ✅ Networking ipsec: basic netns tunnel [25]
+     🚧 ✅ Storage blktests [26]
+
+  s390x:
+
+  x86_64:
+
+    ⚡ Internal infrastructure issues prevented one or more tests from running
+    on this architecture. This is not the fault of the kernel that was tested.
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
+    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
