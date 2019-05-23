@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32AEB28A0A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65471286B4
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731738AbfEWTI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41188 "EHLO mail.kernel.org"
+        id S2387621AbfEWTL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731464AbfEWTI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:08:27 -0400
+        id S2388313AbfEWTL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:11:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E5492133D;
-        Thu, 23 May 2019 19:08:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B11E2133D;
+        Thu, 23 May 2019 19:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638506;
-        bh=FtYbvIv3gOl5LAcrN+tt1XTYQKijAsSZSVhpgmTQNSA=;
+        s=default; t=1558638715;
+        bh=fcau2Na3AHGRaU+BsHdcB5iV/QDvQxU4OX8p2siQh4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qClh0fTBWIJ+ZFpQxra0BRMB88UWQKmhi76H/gpEgRuzsFc8vAstK57NEKj8OXMn8
-         BZH34ElUP+wUasikPZ6NsGRlHszMI3AQGT2DTJBCgdvDMUusqnJ8RFIfQ4p/taWPlt
-         ERo5O4w35SAPIlfxr2Dc4kjF31EYEO3UxObttLS0=
+        b=u8XXd5MflP/e0E1gA1J9PjgnCLhcShoWFG0xcWlKCEY5CYdkvwsfHiY2ufaCbag45
+         bOHeCOfKBCLTZZEQv+ZZzIluP6szRVQaorowX/0BC20xFIMhGMoS72O/rHeW095CLE
+         jh1YTk4l9V13kvxnohj2TMKXL0Un7uQ+tbJjRnqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 14/53] p54: drop device reference count if fails to enable device
-Date:   Thu, 23 May 2019 21:05:38 +0200
-Message-Id: <20190523181713.118777884@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.14 21/77] media: ov6650: Fix sensor possibly not detected on probe
+Date:   Thu, 23 May 2019 21:05:39 +0200
+Message-Id: <20190523181723.252123464@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 8149069db81853570a665f5e5648c0e526dc0e43 upstream.
+commit 933c1320847f5ed6b61a7d10f0a948aa98ccd7b0 upstream.
 
-The function p54p_probe takes an extra reference count of the PCI
-device. However, the extra reference count is not dropped when it fails
-to enable the PCI device. This patch fixes the bug.
+After removal of clock_start() from before soc_camera_init_i2c() in
+soc_camera_probe() by commit 9aea470b399d ("[media] soc-camera: switch
+I2C subdevice drivers to use v4l2-clk") introduced in v3.11, the ov6650
+driver could no longer probe the sensor successfully because its clock
+was no longer turned on in advance.  The issue was initially worked
+around by adding that missing clock_start() equivalent to OMAP1 camera
+interface driver - the only user of this sensor - but a propoer fix
+should be rather implemented in the sensor driver code itself.
 
+Fix the issue by inserting a delay between the clock is turned on and
+the sensor I2C registers are read for the first time.
+
+Tested on Amstrad Delta with now out of tree but still locally
+maintained omap1_camera host driver.
+
+Fixes: 9aea470b399d ("[media] soc-camera: switch I2C subdevice drivers to use v4l2-clk")
+
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intersil/p54/p54pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/i2c/ov6650.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/wireless/intersil/p54/p54pci.c
-+++ b/drivers/net/wireless/intersil/p54/p54pci.c
-@@ -554,7 +554,7 @@ static int p54p_probe(struct pci_dev *pd
- 	err = pci_enable_device(pdev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Cannot enable new PCI device\n");
--		return err;
-+		goto err_put;
- 	}
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -826,6 +826,8 @@ static int ov6650_video_probe(struct i2c
+ 	if (ret < 0)
+ 		return ret;
  
- 	mem_addr = pci_resource_start(pdev, 0);
-@@ -639,6 +639,7 @@ static int p54p_probe(struct pci_dev *pd
- 	pci_release_regions(pdev);
-  err_disable_dev:
- 	pci_disable_device(pdev);
-+err_put:
- 	pci_dev_put(pdev);
- 	return err;
- }
++	msleep(20);
++
+ 	/*
+ 	 * check and show product ID and manufacturer ID
+ 	 */
 
 
