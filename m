@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF8D28710
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D5E2882A
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388134AbfEWTPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
+        id S2390148AbfEWTWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389066AbfEWTPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:15:52 -0400
+        id S2390563AbfEWTWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:22:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E0462133D;
-        Thu, 23 May 2019 19:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D697C2054F;
+        Thu, 23 May 2019 19:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638951;
+        s=default; t=1558639371;
         bh=sn+dZ/PchoWhDRxZdzF7nRF8NliCSnp7Ebv9+XJ/kfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0KThEuFVp/xYGWAWpF1MkN2JY6o3AWrEEg3L16vcXuPJQw49MChuKlYtAJZCAC4/
-         r8LnWwY5NrF1UrZWqiVTT60yYQemi2U8VGEuwNTF54WvFvAKWILr1BoxyPgbnVm1VW
-         mKUDaCv4lJ3Y9xaZ6zI+tzBWni6fDU4wEZSXJ/us=
+        b=jQoqxs2X+ZAanOV+TjxKpJbAf0jcr/fGCVRt8H5eoZk0zNLsMKZRuXeePIEto3qca
+         BQaI/IitSac3pOU3mdsl/XwUrLcYpoAI63XGtCB6mr1FVcObfxOOHmZKXm6d20T3oi
+         LXC95tK5DUDdlevtlmVE9qPvTckAR/ao/0tZmuPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Liao <jamesjj.liao@mediatek.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.19 041/114] clk: mediatek: Disable tuner_en before change PLL rate
-Date:   Thu, 23 May 2019 21:05:40 +0200
-Message-Id: <20190523181735.492586643@linuxfoundation.org>
+Subject: [PATCH 5.0 053/139] clk: mediatek: Disable tuner_en before change PLL rate
+Date:   Thu, 23 May 2019 21:05:41 +0200
+Message-Id: <20190523181727.557852703@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
