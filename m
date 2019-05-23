@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD5728955
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA062867F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391724AbfEWTeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:34:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40398 "EHLO mail.kernel.org"
+        id S2387697AbfEWTKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388778AbfEWT17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:59 -0400
+        id S2387650AbfEWTKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:10:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F28320879;
-        Thu, 23 May 2019 19:27:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E0F5217F9;
+        Thu, 23 May 2019 19:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639678;
-        bh=qNYODgqWKhdbPsHa9pHqWA8Zqitjdz0r1FPR3mUqAr0=;
+        s=default; t=1558638608;
+        bh=FZI5N1ooc/Jf6QBaLIZLSXt2/oMJG9xwKnO+Glubvng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zt1WeJxzN876MzXm8Yhoojx45A1p+mnifg85RqMkxXJHGKDS4oIpuUxy+cWn/UEMG
-         UGkQsx7IIs2wbfeFZ2zOqochNVBWoFDur0BihNeh2T8iJIrDX0rVRFteJ28ASfdpxY
-         dECfnim4rQUOblBJ/Yi1NPWKKcgOXOQQPusb6hsM=
+        b=QwhrRzsN6bkvLbUGIfM/wKPau60htNMJhAnKd/f0UEnF60c1piBhC4JGB3O9P1o/R
+         w5J2seONfEYLTCRrAIggd8uQzgD8Fd5hBNH0dbhzGouDIXFhrY4ewV3c/d5cEuGtmg
+         7KSdFxmaeFFcI/+FThv6NYU3b5iQDOjnhPH38nOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.1 054/122] media: imx: Dont register IPU subdevs/links if CSI port missing
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Nigel Croxon <ncroxon@redhat.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.9 52/53] md/raid: raid5 preserve the writeback action after the parity check
 Date:   Thu, 23 May 2019 21:06:16 +0200
-Message-Id: <20190523181711.867323134@linuxfoundation.org>
+Message-Id: <20190523181719.226466348@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,206 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Longerbeam <slongerbeam@gmail.com>
+From: Nigel Croxon <ncroxon@redhat.com>
 
-commit dee747f88167124884a918855c1f438e2f7f39e2 upstream.
+commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
 
-The second IPU internal sub-devices were being registered and links
-to them created even when the second IPU is not present. This is wrong
-for i.MX6 S/DL and i.MX53 which have only a single IPU.
+The problem is that any 'uptodate' vs 'disks' check is not precise
+in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
+device that might try to kick off writes and then skip the action.
+Better to prevent the raid driver from taking unexpected action *and* keep
+the system alive vs killing the machine with BUG_ON.
 
-Fixes: e130291212df5 ("[media] media: Add i.MX media core driver")
+Note: fixed warning reported by kbuild test robot <lkp@intel.com>
 
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/imx/imx-media-dev.c         |    7 --
- drivers/staging/media/imx/imx-media-internal-sd.c |   22 +-------
- drivers/staging/media/imx/imx-media-of.c          |   58 ++++++++++++++--------
- drivers/staging/media/imx/imx-media.h             |    3 -
- drivers/staging/media/imx/imx7-media-csi.c        |    2 
- 5 files changed, 46 insertions(+), 46 deletions(-)
+ drivers/md/raid5.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/media/imx/imx-media-dev.c
-+++ b/drivers/staging/media/imx/imx-media-dev.c
-@@ -477,13 +477,6 @@ static int imx_media_probe(struct platfo
- 		goto cleanup;
- 	}
- 
--	ret = imx_media_add_ipu_internal_subdevs(imxmd);
--	if (ret) {
--		v4l2_err(&imxmd->v4l2_dev,
--			 "add_ipu_internal_subdevs failed with %d\n", ret);
--		goto cleanup;
--	}
--
- 	ret = imx_media_dev_notifier_register(imxmd);
- 	if (ret)
- 		goto del_int;
---- a/drivers/staging/media/imx/imx-media-internal-sd.c
-+++ b/drivers/staging/media/imx/imx-media-internal-sd.c
-@@ -298,13 +298,14 @@ static int add_internal_subdev(struct im
- }
- 
- /* adds the internal subdevs in one ipu */
--static int add_ipu_internal_subdevs(struct imx_media_dev *imxmd, int ipu_id)
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd,
-+				       int ipu_id)
- {
- 	enum isd_enum i;
-+	int ret;
- 
- 	for (i = 0; i < num_isd; i++) {
- 		const struct internal_subdev *isd = &int_subdev[i];
--		int ret;
- 
- 		/*
- 		 * the CSIs are represented in the device-tree, so those
-@@ -322,25 +323,10 @@ static int add_ipu_internal_subdevs(stru
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3878,7 +3878,7 @@ static void handle_parity_checks6(struct
+ 		/* now write out any block on a failed drive,
+ 		 * or P or Q if they were recomputed
+ 		 */
+-		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
++		dev = NULL;
+ 		if (s->failed == 2) {
+ 			dev = &sh->dev[s->failed_num[1]];
+ 			s->locked++;
+@@ -3903,6 +3903,14 @@ static void handle_parity_checks6(struct
+ 			set_bit(R5_LOCKED, &dev->flags);
+ 			set_bit(R5_Wantwrite, &dev->flags);
  		}
- 
- 		if (ret)
--			return ret;
-+			goto remove;
- 	}
- 
- 	return 0;
--}
--
--int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd)
--{
--	int ret;
--
--	ret = add_ipu_internal_subdevs(imxmd, 0);
--	if (ret)
--		goto remove;
--
--	ret = add_ipu_internal_subdevs(imxmd, 1);
--	if (ret)
--		goto remove;
--
--	return 0;
- 
- remove:
- 	imx_media_remove_ipu_internal_subdevs(imxmd);
---- a/drivers/staging/media/imx/imx-media-of.c
-+++ b/drivers/staging/media/imx/imx-media-of.c
-@@ -23,36 +23,25 @@
- int imx_media_of_add_csi(struct imx_media_dev *imxmd,
- 			 struct device_node *csi_np)
- {
--	int ret;
--
- 	if (!of_device_is_available(csi_np)) {
- 		dev_dbg(imxmd->md.dev, "%s: %pOFn not enabled\n", __func__,
- 			csi_np);
--		/* unavailable is not an error */
--		return 0;
-+		return -ENODEV;
- 	}
- 
- 	/* add CSI fwnode to async notifier */
--	ret = imx_media_add_async_subdev(imxmd, of_fwnode_handle(csi_np), NULL);
--	if (ret) {
--		if (ret == -EEXIST) {
--			/* already added, everything is fine */
--			return 0;
--		}
--
--		/* other error, can't continue */
--		return ret;
--	}
--
--	return 0;
-+	return imx_media_add_async_subdev(imxmd, of_fwnode_handle(csi_np),
-+					  NULL);
- }
- EXPORT_SYMBOL_GPL(imx_media_of_add_csi);
- 
- int imx_media_add_of_subdevs(struct imx_media_dev *imxmd,
- 			     struct device_node *np)
- {
-+	bool ipu_found[2] = {false, false};
- 	struct device_node *csi_np;
- 	int i, ret;
-+	u32 ipu_id;
- 
- 	for (i = 0; ; i++) {
- 		csi_np = of_parse_phandle(np, "ports", i);
-@@ -60,12 +49,43 @@ int imx_media_add_of_subdevs(struct imx_
- 			break;
- 
- 		ret = imx_media_of_add_csi(imxmd, csi_np);
--		of_node_put(csi_np);
--		if (ret)
--			return ret;
-+		if (ret) {
-+			/* unavailable or already added is not an error */
-+			if (ret == -ENODEV || ret == -EEXIST) {
-+				of_node_put(csi_np);
-+				continue;
-+			}
-+
-+			/* other error, can't continue */
-+			goto err_out;
++		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
++			      "%s: disk%td not up to date\n",
++			      mdname(conf->mddev),
++			      dev - (struct r5dev *) &sh->dev)) {
++			clear_bit(R5_LOCKED, &dev->flags);
++			clear_bit(R5_Wantwrite, &dev->flags);
++			s->locked--;
 +		}
-+
-+		ret = of_alias_get_id(csi_np->parent, "ipu");
-+		if (ret < 0)
-+			goto err_out;
-+		if (ret > 1) {
-+			ret = -EINVAL;
-+			goto err_out;
-+		}
-+
-+		ipu_id = ret;
-+
-+		if (!ipu_found[ipu_id]) {
-+			ret = imx_media_add_ipu_internal_subdevs(imxmd,
-+								 ipu_id);
-+			if (ret)
-+				goto err_out;
-+		}
-+
-+		ipu_found[ipu_id] = true;
- 	}
+ 		clear_bit(STRIPE_DEGRADED, &sh->state);
  
- 	return 0;
-+
-+err_out:
-+	imx_media_remove_ipu_internal_subdevs(imxmd);
-+	of_node_put(csi_np);
-+	return ret;
- }
- 
- /*
---- a/drivers/staging/media/imx/imx-media.h
-+++ b/drivers/staging/media/imx/imx-media.h
-@@ -252,7 +252,8 @@ struct imx_media_fim *imx_media_fim_init
- void imx_media_fim_free(struct imx_media_fim *fim);
- 
- /* imx-media-internal-sd.c */
--int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd);
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd,
-+				       int ipu_id);
- int imx_media_create_ipu_internal_links(struct imx_media_dev *imxmd,
- 					struct v4l2_subdev *sd);
- void imx_media_remove_ipu_internal_subdevs(struct imx_media_dev *imxmd);
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -1271,7 +1271,7 @@ static int imx7_csi_probe(struct platfor
- 	platform_set_drvdata(pdev, &csi->sd);
- 
- 	ret = imx_media_of_add_csi(imxmd, node);
--	if (ret < 0)
-+	if (ret < 0 && ret != -ENODEV && ret != -EEXIST)
- 		goto cleanup;
- 
- 	ret = imx_media_dev_notifier_register(imxmd);
+ 		set_bit(STRIPE_INSYNC, &sh->state);
 
 
