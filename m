@@ -2,62 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6B82881C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A8F128678
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390419AbfEWTWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59968 "EHLO mail.kernel.org"
+        id S2387589AbfEWTJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390415AbfEWTWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:22:12 -0400
+        id S2387557AbfEWTJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 250352184E;
-        Thu, 23 May 2019 19:22:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA21E2184B;
+        Thu, 23 May 2019 19:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639330;
-        bh=plf5khnwnrG7TJd0YaGiq3aILycf1dI/vg/fJhtd+SY=;
+        s=default; t=1558638592;
+        bh=GoC1OIA003h0+CxziUkA4dOZlYYlol8sXKPimKJOX4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJKI+t2YYMNHHkvveqK5D9cUEAzfbz65VMrmJxu6S3uwSh+mU8qZpOJ89iaoj+xDZ
-         v3jhMUG7nsq51NSDiKZ+l8mhQpMUoOhTO4rQDyzzC3M32WM+db7jifm2PTGk1mSL5P
-         dfNfA9E76RNYCe/Y0f0rnN82QkmCobbNazeYq6ko=
+        b=ZV3K26vB22rWPJJhbRp9yY1Spqa2dn9RRECM/eLqKsI7BWJNIShSFVyzlLK5xJsUh
+         kfJyNmf5EIGZwOPOTGz8NNaH/BnATnrzOhN0mEM38NC9v3ge+Q+6NiGsSnO8dgflgo
+         hGstUC0MigGp54lQVPDxXCi/7srkQSh0gM6NyVWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Nicolai Stange <nstange@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Juergen Gross <jgross@suse.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.0 065/139] x86_64: Allow breakpoints to emulate call instructions
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 29/53] objtool: Allow AR to be overridden with HOSTAR
 Date:   Thu, 23 May 2019 21:05:53 +0200
-Message-Id: <20190523181729.225177033@linuxfoundation.org>
+Message-Id: <20190523181715.421061869@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,94 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 4b33dadf37666c0860b88f9e52a16d07bf6d0b03 upstream.
+commit 8ea58f1e8b11cca3087b294779bf5959bf89cc10 upstream.
 
-In order to allow breakpoints to emulate call instructions, they need to push
-the return address onto the stack. The x86_64 int3 handler adds a small gap
-to allow the stack to grow some. Use this gap to add the return address to
-be able to emulate a call instruction at the breakpoint location.
+Currently, this Makefile hardcodes GNU ar, meaning that if it is not
+available, there is no way to supply a different one and the build will
+fail.
 
-These helper functions are added:
+  $ make AR=llvm-ar CC=clang LD=ld.lld HOSTAR=llvm-ar HOSTCC=clang \
+         HOSTLD=ld.lld HOSTLDFLAGS=-fuse-ld=lld defconfig modules_prepare
+  ...
+    AR       /out/tools/objtool/libsubcmd.a
+  /bin/sh: 1: ar: not found
+  ...
 
-  int3_emulate_jmp(): changes the location of the regs->ip to return there.
+Follow the logic of HOST{CC,LD} and allow the user to specify a
+different ar tool via HOSTAR (which is used elsewhere in other
+tools/ Makefiles).
 
- (The next two are only for x86_64)
-  int3_emulate_push(): to push the address onto the gap in the stack
-  int3_emulate_call(): push the return address and change regs->ip
-
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nayna Jain <nayna@linux.ibm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
-Tested-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-[ Modified to only work for x86_64 and added comment to int3_emulate_push() ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: http://lkml.kernel.org/r/80822a9353926c38fd7a152991c6292491a9d0e8.1558028966.git.jpoimboe@redhat.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/481
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/text-patching.h |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ tools/objtool/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -39,4 +39,32 @@ extern int poke_int3_handler(struct pt_r
- extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
- extern int after_bootmem;
+--- a/tools/objtool/Makefile
++++ b/tools/objtool/Makefile
+@@ -7,11 +7,12 @@ ARCH := x86
+ endif
  
-+static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
-+{
-+	regs->ip = ip;
-+}
-+
-+#define INT3_INSN_SIZE 1
-+#define CALL_INSN_SIZE 5
-+
-+#ifdef CONFIG_X86_64
-+static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
-+{
-+	/*
-+	 * The int3 handler in entry_64.S adds a gap between the
-+	 * stack where the break point happened, and the saving of
-+	 * pt_regs. We can extend the original stack because of
-+	 * this gap. See the idtentry macro's create_gap option.
-+	 */
-+	regs->sp -= sizeof(unsigned long);
-+	*(unsigned long *)regs->sp = val;
-+}
-+
-+static inline void int3_emulate_call(struct pt_regs *regs, unsigned long func)
-+{
-+	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
-+	int3_emulate_jmp(regs, func);
-+}
-+#endif
-+
- #endif /* _ASM_X86_TEXT_PATCHING_H */
+ # always use the host compiler
++HOSTAR	?= ar
+ HOSTCC	?= gcc
+ HOSTLD	?= ld
++AR	 = $(HOSTAR)
+ CC	 = $(HOSTCC)
+ LD	 = $(HOSTLD)
+-AR	 = ar
+ 
+ ifeq ($(srctree),)
+ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
 
 
