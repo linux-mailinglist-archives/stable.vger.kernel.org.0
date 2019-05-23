@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB6128A4F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8333C28AF3
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388313AbfEWTMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
+        id S2387665AbfEWTvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388380AbfEWTMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:09 -0400
+        id S1732014AbfEWTJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B22FE2186A;
-        Thu, 23 May 2019 19:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AA8D217D7;
+        Thu, 23 May 2019 19:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638729;
-        bh=JtWd6O3/eRycUXinHH2loJFoCaEZwSr600RHCObQA7A=;
+        s=default; t=1558638544;
+        bh=X82DCfnwJygqNt/nKZWX1ft7kNfJxTjDL6mOycoRrSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FeJJqX87bPKp2DpOXadz4ATqQZay8JBHMYEV9JJ7YAbxXv+fEwZujI2/2mllwVst8
-         zAkvB35+C9H35PbNTSc8AL+L/w/UYxDTYx9BL9YGp5A1llazChhCwocLZvDNMatuTC
-         GWm7XAIngyqRSP15wB5GR7y9Ki2v06h42WPjVG2U=
+        b=C5mI2k+2cg4/AW2V+uOo0VLOKIXAkdFk5g5fMnVhaJi4dQ7rVKXzNgW3Moa2VgH5T
+         pHGsI0Z8RtHhQyXPSp1XxnwNbiy6xMWHnAw1kfTYibcluMBKvXF0Mcfbik39nsHslw
+         weFe7vdHREx6u/W3vZ2uzRrifNNnjI6wJc7AErls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
-        NeilBrown <neilb@suse.com>, Yufen Yu <yuyufen@huawei.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.14 16/77] md: add mddev->pers to avoid potential NULL pointer dereference
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.9 10/53] parisc: Rename LEVEL to PA_ASM_LEVEL to avoid name clash with DRBD code
 Date:   Thu, 23 May 2019 21:05:34 +0200
-Message-Id: <20190523181722.480834303@linuxfoundation.org>
+Message-Id: <20190523181712.553142093@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Helge Deller <deller@gmx.de>
 
-commit ee37e62191a59d253fc916b9fc763deb777211e2 upstream.
+commit 1829dda0e87f4462782ca81be474c7890efe31ce upstream.
 
-When doing re-add, we need to ensure rdev->mddev->pers is not NULL,
-which can avoid potential NULL pointer derefence in fallowing
-add_bound_rdev().
+LEVEL is a very common word, and now after many years it suddenly
+clashed with another LEVEL define in the DRBD code.
+Rename it to PA_ASM_LEVEL instead.
 
-Fixes: a6da4ef85cef ("md: re-add a failed disk")
-Cc: Xiao Ni <xni@redhat.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: <stable@vger.kernel.org> # 4.4+
-Reviewed-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/assembly.h |    6 +++---
+ arch/parisc/kernel/head.S          |    4 ++--
+ arch/parisc/kernel/syscall.S       |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -2845,8 +2845,10 @@ state_store(struct md_rdev *rdev, const
- 			err = 0;
- 		}
- 	} else if (cmd_match(buf, "re-add")) {
--		if (test_bit(Faulty, &rdev->flags) && (rdev->raid_disk == -1) &&
--			rdev->saved_raid_disk >= 0) {
-+		if (!rdev->mddev->pers)
-+			err = -EINVAL;
-+		else if (test_bit(Faulty, &rdev->flags) && (rdev->raid_disk == -1) &&
-+				rdev->saved_raid_disk >= 0) {
- 			/* clear_bit is performed _after_ all the devices
- 			 * have their local Faulty bit cleared. If any writes
- 			 * happen in the meantime in the local node, they
+--- a/arch/parisc/include/asm/assembly.h
++++ b/arch/parisc/include/asm/assembly.h
+@@ -59,14 +59,14 @@
+ #define LDCW		ldcw,co
+ #define BL		b,l
+ # ifdef CONFIG_64BIT
+-#  define LEVEL		2.0w
++#  define PA_ASM_LEVEL	2.0w
+ # else
+-#  define LEVEL		2.0
++#  define PA_ASM_LEVEL	2.0
+ # endif
+ #else
+ #define LDCW		ldcw
+ #define BL		bl
+-#define LEVEL		1.1
++#define PA_ASM_LEVEL	1.1
+ #endif
+ 
+ #ifdef __ASSEMBLY__
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ 
+-	.level	LEVEL
++	.level	PA_ASM_LEVEL
+ 
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -254,7 +254,7 @@ stext_pdc_ret:
+ 	ldo		R%PA(fault_vector_11)(%r10),%r10
+ 
+ $is_pa20:
+-	.level		LEVEL /* restore 1.1 || 2.0w */
++	.level		PA_ASM_LEVEL /* restore 1.1 || 2.0w */
+ #endif /*!CONFIG_64BIT*/
+ 	load32		PA(fault_vector_20),%r10
+ 
+--- a/arch/parisc/kernel/syscall.S
++++ b/arch/parisc/kernel/syscall.S
+@@ -48,7 +48,7 @@ registers).
+ 	 */
+ #define KILL_INSN	break	0,0
+ 
+-	.level          LEVEL
++	.level          PA_ASM_LEVEL
+ 
+ 	.text
+ 
 
 
