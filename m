@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7327928855
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D878A288EA
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389113AbfEWTYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35968 "EHLO mail.kernel.org"
+        id S2391706AbfEWT3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:29:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390995AbfEWTYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:50 -0400
+        id S2390954AbfEWT3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E67B217D9;
-        Thu, 23 May 2019 19:24:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65E53217D9;
+        Thu, 23 May 2019 19:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639489;
-        bh=xtA7q6c2/sfqevBED4EvpHYBLlPG8k0kYl30tMHaLVo=;
+        s=default; t=1558639774;
+        bh=AxJsAR8dpjeA9qCIvZZYVwgDd+oYyxFSMJaIX6clBMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twvD5beIqfQ7u41zH16SDW9HvCRSPbDL1gXyFF0bDG3SLrEt2tbHScwjnx/IaVajg
-         O5L9t5yd9rIkK32Le8jaNrgo4D6n483DY8qEceWlAQ2FwvpPaTQ4mxhPCEfPH+sXMq
-         umEBf+o+/w4hht9tXEzJ0ODAJCvAspaQP5T0QWiI=
+        b=GnrK1fBxpQG5LNN3vXZF7i/aFGv9pyjITMGjZGqNx9iX+w9coP19woVpyb8fzmSGr
+         GL6sTi1WBH7Gc6gxl51qhnwv2FVg/fB8v3k50/hw5vBLsjxR790DHYg+gry5E1HtBl
+         opxxeKDHRJBq13Ka/0A3LbAoO6+VqYp1x7NUEp44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 124/139] iwlwifi: mvm: check for length correctness in iwl_mvm_create_skb()
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.1 090/122] fbdev: sm712fb: fix crashes during framebuffer writes by correctly mapping VRAM
 Date:   Thu, 23 May 2019 21:06:52 +0200
-Message-Id: <20190523181735.567214622@linuxfoundation.org>
+Message-Id: <20190523181716.914344420@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit de1887c064b9996ac03120d90d0a909a3f678f98 ]
+From: Yifeng Li <tomli@tomli.me>
 
-We don't check for the validity of the lengths in the packet received
-from the firmware.  If the MPDU length received in the rx descriptor
-is too short to contain the header length and the crypt length
-together, we may end up trying to copy a negative number of bytes
-(headlen - hdrlen < 0) which will underflow and cause us to try to
-copy a huge amount of data.  This causes oopses such as this one:
+commit 9e0e59993df0601cddb95c4f6c61aa3d5e753c00 upstream.
 
-BUG: unable to handle kernel paging request at ffff896be2970000
-PGD 5e201067 P4D 5e201067 PUD 5e205067 PMD 16110d063 PTE 8000000162970161
-Oops: 0003 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 1824 Comm: irq/134-iwlwifi Not tainted 4.19.33-04308-geea41cf4930f #1
-Hardware name: [...]
-RIP: 0010:memcpy_erms+0x6/0x10
-Code: 90 90 90 90 eb 1e 0f 1f 00 48 89 f8 48 89 d1 48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3 66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4 c3
- 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20 72 7e 40 38 fe
-RSP: 0018:ffffa4630196fc60 EFLAGS: 00010287
-RAX: ffff896be2924618 RBX: ffff896bc8ecc600 RCX: 00000000fffb4610
-RDX: 00000000fffffff8 RSI: ffff896a835e2a38 RDI: ffff896be2970000
-RBP: ffffa4630196fd30 R08: ffff896bc8ecc600 R09: ffff896a83597000
-R10: ffff896bd6998400 R11: 000000000200407f R12: ffff896a83597050
-R13: 00000000fffffff8 R14: 0000000000000010 R15: ffff896a83597038
-FS:  0000000000000000(0000) GS:ffff896be8280000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff896be2970000 CR3: 000000005dc12002 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- iwl_mvm_rx_mpdu_mq+0xb51/0x121b [iwlmvm]
- iwl_pcie_rx_handle+0x58c/0xa89 [iwlwifi]
- iwl_pcie_irq_rx_msix_handler+0xd9/0x12a [iwlwifi]
- irq_thread_fn+0x24/0x49
- irq_thread+0xb0/0x122
- kthread+0x138/0x140
- ret_from_fork+0x1f/0x40
+On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), running fbtest or X
+will crash the machine instantly, because the VRAM/framebuffer is not
+mapped correctly.
 
-Fix that by checking the lengths for correctness and trigger a warning
-to show that we have received wrong data.
+On SM712, the framebuffer starts at the beginning of address space, but
+SM720's framebuffer starts at the 1 MiB offset from the beginning. However,
+sm712fb fails to take this into account, as a result, writing to the
+framebuffer will destroy all the registers and kill the system immediately.
+Another problem is the driver assumes 8 MiB of VRAM for SM720, but some
+SM720 system, such as this IBM Thinkpad, only has 4 MiB of VRAM.
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this problem by removing the hardcoded VRAM size, adding a function to
+query the amount of VRAM from register MCR76 on SM720, and adding proper
+framebuffer offset.
+
+Please note that the memory map may have additional problems on Big-Endian
+system, which is not available for testing by myself. But I highly suspect
+that the original code is also broken on Big-Endian machines for SM720, so
+at least we are not making the problem worse. More, the driver also assumed
+SM710/SM712 has 4 MiB of VRAM, but it has a 2 MiB version as well, and used
+in earlier laptops, such as IBM Thinkpad 240X, the driver would probably
+crash on them. I've never seen one of those machines and cannot fix it, but
+I have documented these problems in the comments.
+
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 28 ++++++++++++++++---
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/sm712.h   |    5 ----
+ drivers/video/fbdev/sm712fb.c |   48 ++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 44 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index 7bd8676508f54..519c7dd47f694 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -143,9 +143,9 @@ static inline int iwl_mvm_check_pn(struct iwl_mvm *mvm, struct sk_buff *skb,
- }
+--- a/drivers/video/fbdev/sm712.h
++++ b/drivers/video/fbdev/sm712.h
+@@ -19,11 +19,6 @@
+ #define SCREEN_Y_RES      600
+ #define SCREEN_BPP        16
  
- /* iwl_mvm_create_skb Adds the rxb to a new skb */
--static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
--			       u16 len, u8 crypt_len,
--			       struct iwl_rx_cmd_buffer *rxb)
-+static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
-+			      struct ieee80211_hdr *hdr, u16 len, u8 crypt_len,
-+			      struct iwl_rx_cmd_buffer *rxb)
+-/*Assume SM712 graphics chip has 4MB VRAM */
+-#define SM712_VIDEOMEMORYSIZE	  0x00400000
+-/*Assume SM722 graphics chip has 8MB VRAM */
+-#define SM722_VIDEOMEMORYSIZE	  0x00800000
+-
+ #define dac_reg	(0x3c8)
+ #define dac_val	(0x3c9)
+ 
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1329,6 +1329,11 @@ static int smtc_map_smem(struct smtcfb_i
  {
- 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
- 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
-@@ -178,6 +178,20 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 	 * present before copying packet data.
- 	 */
- 	hdrlen += crypt_len;
-+
-+	if (WARN_ONCE(headlen < hdrlen,
-+		      "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+		      hdrlen, len, crypt_len)) {
-+		/*
-+		 * We warn and trace because we want to be able to see
-+		 * it in trace-cmd as well.
-+		 */
-+		IWL_DEBUG_RX(mvm,
-+			     "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+			     hdrlen, len, crypt_len);
-+		return -EINVAL;
-+	}
-+
- 	skb_put_data(skb, hdr, hdrlen);
- 	skb_put_data(skb, (u8 *)hdr + hdrlen + pad_len, headlen - hdrlen);
+ 	sfb->fb->fix.smem_start = pci_resource_start(pdev, 0);
  
-@@ -190,6 +204,8 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 		skb_add_rx_frag(skb, 0, rxb_steal_page(rxb), offset,
- 				fraglen, rxb->truesize);
- 	}
++	if (sfb->chip_id == 0x720)
++		/* on SM720, the framebuffer starts at the 1 MB offset */
++		sfb->fb->fix.smem_start += 0x00200000;
 +
-+	return 0;
++	/* XXX: is it safe for SM720 on Big-Endian? */
+ 	if (sfb->fb->var.bits_per_pixel == 32)
+ 		sfb->fb->fix.smem_start += big_addr;
+ 
+@@ -1366,12 +1371,45 @@ static inline void sm7xx_init_hw(void)
+ 	outb_p(0x11, 0x3c5);
  }
  
- /* iwl_mvm_pass_packet_to_mac80211 - passes the packet for mac80211 */
-@@ -1600,7 +1616,11 @@ void iwl_mvm_rx_mpdu_mq(struct iwl_mvm *mvm, struct napi_struct *napi,
- 			rx_status->boottime_ns = ktime_get_boot_ns();
- 	}
- 
--	iwl_mvm_create_skb(skb, hdr, len, crypt_len, rxb);
-+	if (iwl_mvm_create_skb(mvm, skb, hdr, len, crypt_len, rxb)) {
-+		kfree_skb(skb);
-+		goto out;
-+	}
++static u_long sm7xx_vram_probe(struct smtcfb_info *sfb)
++{
++	u8 vram;
 +
- 	if (!iwl_mvm_reorder(mvm, napi, queue, sta, skb, desc))
- 		iwl_mvm_pass_packet_to_mac80211(mvm, napi, skb, queue, sta);
- out:
--- 
-2.20.1
-
++	switch (sfb->chip_id) {
++	case 0x710:
++	case 0x712:
++		/*
++		 * Assume SM712 graphics chip has 4MB VRAM.
++		 *
++		 * FIXME: SM712 can have 2MB VRAM, which is used on earlier
++		 * laptops, such as IBM Thinkpad 240X. This driver would
++		 * probably crash on those machines. If anyone gets one of
++		 * those and is willing to help, run "git blame" and send me
++		 * an E-mail.
++		 */
++		return 0x00400000;
++	case 0x720:
++		outb_p(0x76, 0x3c4);
++		vram = inb_p(0x3c5) >> 6;
++
++		if (vram == 0x00)
++			return 0x00800000;  /* 8 MB */
++		else if (vram == 0x01)
++			return 0x01000000;  /* 16 MB */
++		else if (vram == 0x02)
++			return 0x00400000;  /* illegal, fallback to 4 MB */
++		else if (vram == 0x03)
++			return 0x00400000;  /* 4 MB */
++	}
++	return 0;  /* unknown hardware */
++}
++
+ static int smtcfb_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
+ {
+ 	struct smtcfb_info *sfb;
+ 	struct fb_info *info;
+-	u_long smem_size = 0x00800000;	/* default 8MB */
++	u_long smem_size;
+ 	int err;
+ 	unsigned long mmio_base;
+ 
+@@ -1428,12 +1466,15 @@ static int smtcfb_pci_probe(struct pci_d
+ 	mmio_base = pci_resource_start(pdev, 0);
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
+ 
++	smem_size = sm7xx_vram_probe(sfb);
++	dev_info(&pdev->dev, "%lu MiB of VRAM detected.\n",
++					smem_size / 1048576);
++
+ 	switch (sfb->chip_id) {
+ 	case 0x710:
+ 	case 0x712:
+ 		sfb->fb->fix.mmio_start = mmio_base + 0x00400000;
+ 		sfb->fb->fix.mmio_len = 0x00400000;
+-		smem_size = SM712_VIDEOMEMORYSIZE;
+ 		sfb->lfb = ioremap(mmio_base, mmio_addr);
+ 		if (!sfb->lfb) {
+ 			dev_err(&pdev->dev,
+@@ -1465,8 +1506,7 @@ static int smtcfb_pci_probe(struct pci_d
+ 	case 0x720:
+ 		sfb->fb->fix.mmio_start = mmio_base;
+ 		sfb->fb->fix.mmio_len = 0x00200000;
+-		smem_size = SM722_VIDEOMEMORYSIZE;
+-		sfb->dp_regs = ioremap(mmio_base, 0x00a00000);
++		sfb->dp_regs = ioremap(mmio_base, 0x00200000 + smem_size);
+ 		sfb->lfb = sfb->dp_regs + 0x00200000;
+ 		sfb->mmio = (smtc_regbaseaddress =
+ 		    sfb->dp_regs + 0x000c0000);
 
 
