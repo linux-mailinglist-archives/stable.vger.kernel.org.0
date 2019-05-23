@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6D828872
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114A328711
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391337AbfEWT00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38260 "EHLO mail.kernel.org"
+        id S2388653AbfEWTP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391322AbfEWT0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:25 -0400
+        id S2388618AbfEWTPz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:15:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C88A21855;
-        Thu, 23 May 2019 19:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E83D4217D9;
+        Thu, 23 May 2019 19:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639583;
-        bh=k5a2uGeSV8BCZEQP5DMuv8ykv8Uyr3yo+lrxvYUCLfE=;
+        s=default; t=1558638954;
+        bh=gf+o3NeVqFACRQ7l+lxfdQbcSz6yhrDzSzQtgBf3Ekw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yrb4Fu0/fWK+K7SsmBIR39UL9yw7wEpfdQdXrjsu+QHqiktSbtFgn5qUaovgQXybB
-         4x5Jz2DoRasXjzhpYZKtTHEZQQO4ciJzgxZ4E6H5nQxWdXC2LMWDvD14koabjktmHu
-         DdL8J7zlzE1kcUJjqNh3JNjV8Zh0zD39TgwQRk8Y=
+        b=DbU5Tn1eEt6SpOJtlQKKyJfgmzLrGib7q1unb9nrFD3QT93rho6F9jZ7LMy+TY5zV
+         jAVi8BDoi0w9mlFUYATR001sMN0XzyIm/R/M5y2EtJKRPex0SHtieJoiXgd9qm8wfv
+         h3bmHAAnSH7mwxpMHc6RF0s+aa5YB783CfxVMP+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        kernel-team@android.com, "Jorge E. Moreira" <jemoreira@google.com>
-Subject: [PATCH 5.1 019/122] vsock/virtio: Initialize core virtio vsock before registering the driver
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.19 042/114] clk: rockchip: fix wrong clock definitions for rk3328
 Date:   Thu, 23 May 2019 21:05:41 +0200
-Message-Id: <20190523181707.367273069@linuxfoundation.org>
+Message-Id: <20190523181735.564877186@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,108 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jorge E. Moreira" <jemoreira@google.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit ba95e5dfd36647622d8897a2a0470dde60e59ffd ]
+commit fb903392131a324a243c7731389277db1cd9f8df upstream.
 
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
+This patch fixes definition of several clock gate and select register
+that is wrong for rk3328 referring to the TRM and vendor kernel.
+Also use correct number of softrst registers.
 
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
+Fix clock definition for:
+- clk_crypto
+- aclk_h265
+- pclk_h265
+- aclk_h264
+- hclk_h264
+- aclk_axisram
+- aclk_gmac
+- aclk_usb3otg
 
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fe3511ad8a1c ("clk: rockchip: add clock controller for rk3328")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
+---
+ drivers/clk/rockchip/clk-rk3328.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+--- a/drivers/clk/rockchip/clk-rk3328.c
++++ b/drivers/clk/rockchip/clk-rk3328.c
+@@ -458,7 +458,7 @@ static struct rockchip_clk_branch rk3328
+ 			RK3328_CLKSEL_CON(35), 15, 1, MFLAGS, 8, 7, DFLAGS,
+ 			RK3328_CLKGATE_CON(2), 12, GFLAGS),
+ 	COMPOSITE(SCLK_CRYPTO, "clk_crypto", mux_2plls_p, 0,
+-			RK3328_CLKSEL_CON(20), 7, 1, MFLAGS, 0, 7, DFLAGS,
++			RK3328_CLKSEL_CON(20), 7, 1, MFLAGS, 0, 5, DFLAGS,
+ 			RK3328_CLKGATE_CON(2), 4, GFLAGS),
+ 	COMPOSITE_NOMUX(SCLK_TSADC, "clk_tsadc", "clk_24m", 0,
+ 			RK3328_CLKSEL_CON(22), 0, 10, DFLAGS,
+@@ -550,15 +550,15 @@ static struct rockchip_clk_branch rk3328
+ 	GATE(0, "hclk_rkvenc_niu", "hclk_rkvenc", 0,
+ 			RK3328_CLKGATE_CON(25), 1, GFLAGS),
+ 	GATE(ACLK_H265, "aclk_h265", "aclk_rkvenc", 0,
+-			RK3328_CLKGATE_CON(25), 0, GFLAGS),
++			RK3328_CLKGATE_CON(25), 2, GFLAGS),
+ 	GATE(PCLK_H265, "pclk_h265", "hclk_rkvenc", 0,
+-			RK3328_CLKGATE_CON(25), 1, GFLAGS),
++			RK3328_CLKGATE_CON(25), 3, GFLAGS),
+ 	GATE(ACLK_H264, "aclk_h264", "aclk_rkvenc", 0,
+-			RK3328_CLKGATE_CON(25), 0, GFLAGS),
++			RK3328_CLKGATE_CON(25), 4, GFLAGS),
+ 	GATE(HCLK_H264, "hclk_h264", "hclk_rkvenc", 0,
+-			RK3328_CLKGATE_CON(25), 1, GFLAGS),
++			RK3328_CLKGATE_CON(25), 5, GFLAGS),
+ 	GATE(ACLK_AXISRAM, "aclk_axisram", "aclk_rkvenc", CLK_IGNORE_UNUSED,
+-			RK3328_CLKGATE_CON(25), 0, GFLAGS),
++			RK3328_CLKGATE_CON(25), 6, GFLAGS),
  
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
+ 	COMPOSITE(SCLK_VENC_CORE, "sclk_venc_core", mux_4plls_p, 0,
+ 			RK3328_CLKSEL_CON(51), 14, 2, MFLAGS, 8, 5, DFLAGS,
+@@ -663,7 +663,7 @@ static struct rockchip_clk_branch rk3328
  
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
+ 	/* PD_GMAC */
+ 	COMPOSITE(ACLK_GMAC, "aclk_gmac", mux_2plls_hdmiphy_p, 0,
+-			RK3328_CLKSEL_CON(35), 6, 2, MFLAGS, 0, 5, DFLAGS,
++			RK3328_CLKSEL_CON(25), 6, 2, MFLAGS, 0, 5, DFLAGS,
+ 			RK3328_CLKGATE_CON(3), 2, GFLAGS),
+ 	COMPOSITE_NOMUX(PCLK_GMAC, "pclk_gmac", "aclk_gmac", 0,
+ 			RK3328_CLKSEL_CON(25), 8, 3, DFLAGS,
+@@ -733,7 +733,7 @@ static struct rockchip_clk_branch rk3328
  
- 	return 0;
+ 	/* PD_PERI */
+ 	GATE(0, "aclk_peri_noc", "aclk_peri", CLK_IGNORE_UNUSED, RK3328_CLKGATE_CON(19), 11, GFLAGS),
+-	GATE(ACLK_USB3OTG, "aclk_usb3otg", "aclk_peri", 0, RK3328_CLKGATE_CON(19), 4, GFLAGS),
++	GATE(ACLK_USB3OTG, "aclk_usb3otg", "aclk_peri", 0, RK3328_CLKGATE_CON(19), 14, GFLAGS),
  
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
+ 	GATE(HCLK_SDMMC, "hclk_sdmmc", "hclk_peri", 0, RK3328_CLKGATE_CON(19), 0, GFLAGS),
+ 	GATE(HCLK_SDIO, "hclk_sdio", "hclk_peri", 0, RK3328_CLKGATE_CON(19), 1, GFLAGS),
+@@ -913,7 +913,7 @@ static void __init rk3328_clk_init(struc
+ 				     &rk3328_cpuclk_data, rk3328_cpuclk_rates,
+ 				     ARRAY_SIZE(rk3328_cpuclk_rates));
  
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
+-	rockchip_register_softrst(np, 11, reg_base + RK3328_SOFTRST_CON(0),
++	rockchip_register_softrst(np, 12, reg_base + RK3328_SOFTRST_CON(0),
+ 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
  
+ 	rockchip_register_restart_notifier(ctx, RK3328_GLB_SRST_FST, NULL);
 
 
