@@ -2,55 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D986027B09
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA3227B0A
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729361AbfEWKsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 06:48:33 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:33039 "EHLO
+        id S1726429AbfEWKs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 06:48:57 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:52597 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbfEWKsc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:48:32 -0400
+        by vger.kernel.org with ESMTP id S1726310AbfEWKs5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:48:57 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B735D373EB;
-        Thu, 23 May 2019 06:48:31 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 06:48:31 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id E4D8E37A20;
+        Thu, 23 May 2019 06:48:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 06:48:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=MrSeWr
-        Kp5zmemEeRakRMQCHHFN+3hjHn/foB4w6G0GM=; b=vu6qxNPpuZHb8sTvHoSY0j
-        y4Hl9mDCiBa8Bjg0n9Kdx/F6bidcGl0rVl3zFi/87Jl7EqwtxHWm9qSMYHKj4MN5
-        UHoYATjPRjl5hLmtLD/QjT/BxTRxOxb4i78/oYykRy87+jKB2W76Pt4AWfblvT5X
-        19mmVuRuRp165nO4/O0vaMl6BjsrIN9qDy5EAseia5lwV8wyX250bE0XokMuS4Z1
-        SEawHswBYz79OF+Cgva6jXqKK+cN8cAXq0ZZzQYZqrZ6NTYKQkbBwx91xGQ+XCLZ
-        XfbgWf4tXCuIAuxwWpbndIiCD5mntjmZ8aKXHAQeZbsOLwgbuv4DzVKqNDQXN6VA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Twp3FJ
+        n1nLanspFapQpPxmyBALK7pMwlB0t32eD5rDY=; b=rYH0VeFj+oFE3iTojThOdn
+        DQdILPvdQcIrkau/MU4ViwPhkew0VtWUZhV3x0kGG9qviunmwbeeqD7QjmDj8gF/
+        y+vbVYEEvaS5POWb6AcvJbhwvBY2Degzjbu6z9nEl1hwdPJol9ew2nJLsU8bZxei
+        uLbpZhKbcGvprP/JL2NB/7BKFqzqqsOi3vQdWlok535CSl07Plrf29E0ryryVkCJ
+        d9DMaau6FmuNpLs7eJ8C1pkWFp9jMIXwqC5wY/HYQ0BZrguoQCzNFFd19BQT9AoN
+        xD2+XVV+sL3G1QfsGrRUEASYrBIEIUMKG5rKPvnZ1F0NVEAocfJKSddJ0mvLMJ4A
         ==
-X-ME-Sender: <xms:f3rmXNzHO2XHANwyHNWyDniVo_1G8eJIntlEg0R7EvXqwkaarHEJdQ>
+X-ME-Sender: <xms:mHrmXH0MMOvFxtHV39erUZW0N0ZdMWUwwk-MMQsX1gtXFJbGBL2pOA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:f3rmXIVnyDwC5jR9QbUGQ9QzdoBxjdllX6RT73QF7vUt-GNkisYsFw>
-    <xmx:f3rmXPYgdowvWhhscRyMO_NhmHne1K1sm_BHqgt6S7H9dA29u5MNcA>
-    <xmx:f3rmXBxGGVNWxAW4d2Pvv9WA3Mgj557eM8h2tZVmzHjzhNZNA6skew>
-    <xmx:f3rmXBVyx-mvUZvT3vSHcjD_IfRQqsrMaJOooF7b_PL7D9L5vavujQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:mHrmXNiWu-mSZtYbzvyXMgaIopeBBsidF34wsOo-WWfBGOkoAHhJ3Q>
+    <xmx:mHrmXFRSA6Ikos6QpYeH8s-uNJGEpPtjVCts_nfxvcRZzZcySrhjhw>
+    <xmx:mHrmXGgJnJ14uAsV7m8TsA1Y6cNgjEy8bTOxtxyw40A18S-M6afXuQ>
+    <xmx:mHrmXEphNQdUV1euPF4x8aRw00sFM13a6uOeGOFda32H6-pd0GjZNQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1AD308005A;
-        Thu, 23 May 2019 06:48:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: rcar: Add the initialization of PCIe link in" failed to apply to 4.9-stable tree
-To:     kaz-ikeda@xc.jp.nec.com, gaku.inami.xw@bp.renesas.com,
-        geert+renesas@glider.be, horms+renesas@verge.net.au,
-        lorenzo.pieralisi@arm.com, marek.vasut+renesas@gmail.com,
-        phil.edworthy@renesas.com, wsa+renesas@sang-engineering.com,
-        wsa@the-dreams.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 236D1380073;
+        Thu, 23 May 2019 06:48:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code" failed to apply to 5.1-stable tree
+To:     Jisheng.Zhang@synaptics.com, bhelgaas@google.com,
+        gustavo.pimentel@synopsys.com, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 12:48:21 +0200
-Message-ID: <1558608501190210@kroah.com>
+Date:   Thu, 23 May 2019 12:48:54 +0200
+Message-ID: <155860853440181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,89 +68,105 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From be20bbcb0a8cb5597cc62b3e28d275919f3431df Mon Sep 17 00:00:00 2001
-From: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
-Date: Mon, 25 Mar 2019 20:43:19 +0100
-Subject: [PATCH] PCI: rcar: Add the initialization of PCIe link in
- resume_noirq()
+From e6fdd3bf5aecd8615f31a5128775b9abcf3e0d86 Mon Sep 17 00:00:00 2001
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Date: Fri, 29 Mar 2019 11:58:53 +0000
+Subject: [PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code
 
-Reestablish the PCIe link very early in the resume process in case it
-went down to prevent PCI accesses from hanging the bus. Such accesses
-can happen early in the PCI resume process, as early as the
-SUSPEND_RESUME_NOIRQ step, thus the link must be reestablished in the
-driver resume_noirq() callback.
+Use devm_pci_alloc_host_bridge() to simplify the error code path.  This
+also fixes a leak in the dw_pcie_host_init() error path.
 
-Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
-Signed-off-by: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
-Signed-off-by: Gaku Inami <gaku.inami.xw@bp.renesas.com>
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-[lorenzo.pieralisi@arm.com: reformatted commit log]
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: stable@vger.kernel.org
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-renesas-soc@vger.kernel.org
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
+CC: stable@vger.kernel.org	# v4.13+
 
-diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-index c8febb009454..6a4e435bd35f 100644
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -46,6 +46,7 @@
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index acc9be5cf34a..dcc7405aff9a 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -358,7 +358,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 		dev_err(dev, "Missing *config* reg space\n");
+ 	}
  
- /* Transfer control */
- #define PCIETCTLR		0x02000
-+#define  DL_DOWN		BIT(3)
- #define  CFINIT			1
- #define PCIETSTR		0x02004
- #define  DATA_LINK_ACTIVE	1
-@@ -94,6 +95,7 @@
- #define MACCTLR			0x011058
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
-+#define PMSR			0x01105c
- #define MACS2R			0x011078
- #define MACCGSPSETR		0x011084
- #define  SPCNGRSN		BIT(31)
-@@ -1130,6 +1132,7 @@ static int rcar_pcie_probe(struct platform_device *pdev)
- 	pcie = pci_host_bridge_priv(bridge);
+-	bridge = pci_alloc_host_bridge(0);
++	bridge = devm_pci_alloc_host_bridge(dev, 0);
+ 	if (!bridge)
+ 		return -ENOMEM;
  
- 	pcie->dev = dev;
-+	platform_set_drvdata(pdev, pcie);
+@@ -369,7 +369,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
  
- 	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
- 	if (err)
-@@ -1221,10 +1224,28 @@ static int rcar_pcie_probe(struct platform_device *pdev)
- 	return err;
+ 	ret = devm_request_pci_bus_resources(dev, &bridge->windows);
+ 	if (ret)
+-		goto error;
++		return ret;
+ 
+ 	/* Get the I/O and memory ranges from DT */
+ 	resource_list_for_each_entry_safe(win, tmp, &bridge->windows) {
+@@ -413,8 +413,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 						resource_size(pp->cfg));
+ 		if (!pci->dbi_base) {
+ 			dev_err(dev, "Error with ioremap\n");
+-			ret = -ENOMEM;
+-			goto error;
++			return -ENOMEM;
+ 		}
+ 	}
+ 
+@@ -425,8 +424,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 					pp->cfg0_base, pp->cfg0_size);
+ 		if (!pp->va_cfg0_base) {
+ 			dev_err(dev, "Error with ioremap in function\n");
+-			ret = -ENOMEM;
+-			goto error;
++			return -ENOMEM;
+ 		}
+ 	}
+ 
+@@ -436,8 +434,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 						pp->cfg1_size);
+ 		if (!pp->va_cfg1_base) {
+ 			dev_err(dev, "Error with ioremap\n");
+-			ret = -ENOMEM;
+-			goto error;
++			return -ENOMEM;
+ 		}
+ 	}
+ 
+@@ -460,14 +457,14 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 			    pp->num_vectors == 0) {
+ 				dev_err(dev,
+ 					"Invalid number of vectors\n");
+-				goto error;
++				return -EINVAL;
+ 			}
+ 		}
+ 
+ 		if (!pp->ops->msi_host_init) {
+ 			ret = dw_pcie_allocate_domains(pp);
+ 			if (ret)
+-				goto error;
++				return ret;
+ 
+ 			if (pp->msi_irq)
+ 				irq_set_chained_handler_and_data(pp->msi_irq,
+@@ -476,7 +473,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 		} else {
+ 			ret = pp->ops->msi_host_init(pp);
+ 			if (ret < 0)
+-				goto error;
++				return ret;
+ 		}
+ 	}
+ 
+@@ -516,8 +513,6 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ err_free_msi:
+ 	if (pci_msi_enabled() && !pp->ops->msi_host_init)
+ 		dw_pcie_free_msi(pp);
+-error:
+-	pci_free_host_bridge(bridge);
+ 	return ret;
  }
  
-+static int rcar_pcie_resume_noirq(struct device *dev)
-+{
-+	struct rcar_pcie *pcie = dev_get_drvdata(dev);
-+
-+	if (rcar_pci_read_reg(pcie, PMSR) &&
-+	    !(rcar_pci_read_reg(pcie, PCIETCTLR) & DL_DOWN))
-+		return 0;
-+
-+	/* Re-establish the PCIe link */
-+	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
-+	return rcar_pcie_wait_for_dl(pcie);
-+}
-+
-+static const struct dev_pm_ops rcar_pcie_pm_ops = {
-+	.resume_noirq = rcar_pcie_resume_noirq,
-+};
-+
- static struct platform_driver rcar_pcie_driver = {
- 	.driver = {
- 		.name = "rcar-pcie",
- 		.of_match_table = rcar_pcie_of_match,
-+		.pm = &rcar_pcie_pm_ops,
- 		.suppress_bind_attrs = true,
- 	},
- 	.probe = rcar_pcie_probe,
 
