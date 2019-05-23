@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6199D286A4
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5F928A19
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388098AbfEWTLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44672 "EHLO mail.kernel.org"
+        id S1732078AbfEWTJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388111AbfEWTLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:11:16 -0400
+        id S1732039AbfEWTJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97ABC217D7;
-        Thu, 23 May 2019 19:11:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74A3B2133D;
+        Thu, 23 May 2019 19:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638675;
-        bh=k5a2uGeSV8BCZEQP5DMuv8ykv8Uyr3yo+lrxvYUCLfE=;
+        s=default; t=1558638551;
+        bh=E8Fez+UjFAXlTw7Yz7IfL44Gcey0YmhWjuPBqO4+gB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgKZ94j5D82ld4JUVrKnrzBwpE+Mx8qReP91qcSVg38WgnA/GQDnKgfFu1/RymUrC
-         6NVpUmA2pnyeCPURqpPBl/SROAyBRT43t+5lPEp63v6YjiV+143cITJzT7qA2gs1AT
-         o4wGqnH8pACbAnRZUKRHn6Fuz4MJh9gmAzIQH4Ko=
+        b=T7klit5yz+4HamIOHzIQodOaAcTufl3P3d/VT2nhOSkEvsAss3MNDMt7pszngpRBN
+         VIyjQLGkeKxXQmrRlIRot67JfYJNAsl3Vndtx+YahMT543K6nBnsGnj2CSv/DjmMqe
+         iUKZp3K1XanPzdroVWPVZn5sM+oGyjTyOUKSRJGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        kernel-team@android.com, "Jorge E. Moreira" <jemoreira@google.com>
-Subject: [PATCH 4.14 09/77] vsock/virtio: Initialize core virtio vsock before registering the driver
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 03/53] ppp: deflate: Fix possible crash in deflate_init
 Date:   Thu, 23 May 2019 21:05:27 +0200
-Message-Id: <20190523181721.382827485@linuxfoundation.org>
+Message-Id: <20190523181711.447324319@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,108 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jorge E. Moreira" <jemoreira@google.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ba95e5dfd36647622d8897a2a0470dde60e59ffd ]
+[ Upstream commit 3ebe1bca58c85325c97a22d4fc3f5b5420752e6f ]
 
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
+BUG: unable to handle kernel paging request at ffffffffa018f000
+PGD 3270067 P4D 3270067 PUD 3271063 PMD 2307eb067 PTE 0
+Oops: 0000 [#1] PREEMPT SMP
+CPU: 0 PID: 4138 Comm: modprobe Not tainted 5.1.0-rc7+ #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:ppp_register_compressor+0x3e/0xd0 [ppp_generic]
+Code: 98 4a 3f e2 48 8b 15 c1 67 00 00 41 8b 0c 24 48 81 fa 40 f0 19 a0
+75 0e eb 35 48 8b 12 48 81 fa 40 f0 19 a0 74
+RSP: 0018:ffffc90000d93c68 EFLAGS: 00010287
+RAX: ffffffffa018f000 RBX: ffffffffa01a3000 RCX: 000000000000001a
+RDX: ffff888230c750a0 RSI: 0000000000000000 RDI: ffffffffa019f000
+RBP: ffffc90000d93c80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffa0194080
+R13: ffff88822ee1a700 R14: 0000000000000000 R15: ffffc90000d93e78
+FS:  00007f2339557540(0000) GS:ffff888237a00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa018f000 CR3: 000000022bde4000 CR4: 00000000000006f0
+Call Trace:
+ ? 0xffffffffa01a3000
+ deflate_init+0x11/0x1000 [ppp_deflate]
+ ? 0xffffffffa01a3000
+ do_one_initcall+0x6c/0x3cc
+ ? kmem_cache_alloc_trace+0x248/0x3b0
+ do_init_module+0x5b/0x1f1
+ load_module+0x1db1/0x2690
+ ? m_show+0x1d0/0x1d0
+ __do_sys_finit_module+0xc5/0xd0
+ __x64_sys_finit_module+0x15/0x20
+ do_syscall_64+0x6b/0x1d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
+If ppp_deflate fails to register in deflate_init,
+module initialization failed out, however
+ppp_deflate_draft may has been regiestred and not
+unregistered before return.
+Then the seconed modprobe will trigger crash like this.
 
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/virtio_transport.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/ppp/ppp_deflate.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
+--- a/drivers/net/ppp/ppp_deflate.c
++++ b/drivers/net/ppp/ppp_deflate.c
+@@ -610,12 +610,20 @@ static struct compressor ppp_deflate_dra
  
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
- 
- static void __exit virtio_vsock_exit(void)
+ static int __init deflate_init(void)
  {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
+-        int answer = ppp_register_compressor(&ppp_deflate);
+-        if (answer == 0)
+-                printk(KERN_INFO
+-		       "PPP Deflate Compression module registered\n");
+-	ppp_register_compressor(&ppp_deflate_draft);
+-        return answer;
++	int rc;
++
++	rc = ppp_register_compressor(&ppp_deflate);
++	if (rc)
++		return rc;
++
++	rc = ppp_register_compressor(&ppp_deflate_draft);
++	if (rc) {
++		ppp_unregister_compressor(&ppp_deflate);
++		return rc;
++	}
++
++	pr_info("PPP Deflate Compression module registered\n");
++	return 0;
  }
  
+ static void __exit deflate_cleanup(void)
 
 
