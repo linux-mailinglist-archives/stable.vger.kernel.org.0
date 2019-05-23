@@ -2,207 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8764227E1F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 15:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A87227E8F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 15:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730028AbfEWN2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 09:28:07 -0400
-Received: from ozlabs.org ([203.11.71.1]:49167 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729934AbfEWN2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 09:28:07 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 458r0W1tQ5z9s1c;
-        Thu, 23 May 2019 23:27:54 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org,
-        peterz@infradead.org, will.deacon@arm.com
-Cc:     aou@eecs.berkeley.edu, arnd@arndb.de, bp@alien8.de,
-        catalin.marinas@arm.com, davem@davemloft.net, fenghua.yu@intel.com,
-        heiko.carstens@de.ibm.com, herbert@gondor.apana.org.au,
-        ink@jurassic.park.msu.ru, jhogan@kernel.org, linux@armlinux.org.uk,
-        mark.rutland@arm.com, mattst88@gmail.com, mingo@kernel.org,
-        palmer@sifive.com, paul.burton@mips.com, paulus@samba.org,
-        ralf@linux-mips.org, rth@twiddle.net, stable@vger.kernel.org,
-        tglx@linutronix.de, tony.luck@intel.com, vgupta@synopsys.com
-Subject: Re: [PATCH 10/18] locking/atomic: powerpc: use s64 for atomic64
-In-Reply-To: <20190522132250.26499-11-mark.rutland@arm.com>
-References: <20190522132250.26499-1-mark.rutland@arm.com> <20190522132250.26499-11-mark.rutland@arm.com>
-Date:   Thu, 23 May 2019 23:27:54 +1000
-Message-ID: <87ef4pqp0l.fsf@concordia.ellerman.id.au>
+        id S1730668AbfEWNqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 09:46:30 -0400
+Received: from www62.your-server.de ([213.133.104.62]:51730 "EHLO
+        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729902AbfEWNqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 09:46:30 -0400
+Received: from [88.198.220.132] (helo=sslproxy03.your-server.de)
+        by www62.your-server.de with esmtpsa (TLSv1.2:DHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.89_1)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1hTo3A-0003BO-4A; Thu, 23 May 2019 15:46:28 +0200
+Received: from [178.197.249.12] (helo=linux.home)
+        by sslproxy03.your-server.de with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.89)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1hTo39-0008Tu-N1; Thu, 23 May 2019 15:46:27 +0200
+Subject: Re: [PATCH 4.19 144/187] selftests/bpf: skip verifier tests for
+ unsupported program types
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     "sashal@kernel.org" <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "sdf@google.com" <sdf@google.com>
+References: <20190404084603.119654039@linuxfoundation.org>
+ <20190404084609.946908305@linuxfoundation.org>
+ <16ec5436310b0df657a4898e3d15ccc3b9aab8e2.camel@nokia.com>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <47a9ede3-bef8-7ae1-6353-b954b6e7f7af@iogearbox.net>
+Date:   Thu, 23 May 2019 15:46:26 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.3.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <16ec5436310b0df657a4898e3d15ccc3b9aab8e2.camel@nokia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.100.3/25458/Thu May 23 09:58:32 2019)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mark Rutland <mark.rutland@arm.com> writes:
-> As a step towards making the atomic64 API use consistent types treewide,
-> let's have the powerpc atomic64 implementation use s64 as the underlying
-> type for atomic64_t, rather than long, matching the generated headers.
->
-> As atomic64_read() depends on the generic defintion of atomic64_t, this
-> still returns long on 64-bit. This will be converted in a subsequent
-> patch.
->
-> Otherwise, there should be no functional change as a result of this
-> patch.
->
-> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Will Deacon <will.deacon@arm.com>
-> ---
->  arch/powerpc/include/asm/atomic.h | 44 +++++++++++++++++++--------------------
->  1 file changed, 22 insertions(+), 22 deletions(-)
+On 05/23/2019 12:27 PM, Rantala, Tommi T. (Nokia - FI/Espoo) wrote:
+> On Thu, 2019-04-04 at 10:48 +0200, Greg Kroah-Hartman wrote:
+>> 4.19-stable review patch.  If anyone has any objections, please let
+>> me know.
+>>
+>> ------------------
+>>
+>> [ Upstream commit 8184d44c9a577a2f1842ed6cc844bfd4a9981d8e ]
+>>
+>> Use recently introduced bpf_probe_prog_type() to skip tests in the
+>> test_verifier() if bpf_verify_program() fails. The skipped test is
+>> indicated in the output.
+> 
+> Hi, this patch added in 4.19.34 causes test_verifier build failure, as
+> bpf_probe_prog_type() is not available:
+> 
+> gcc -Wall -O2 -I../../../include/uapi -I../../../lib -I../../../lib/bpf
+> -I../../../../include/generated -DHAVE_GENHDR
+> -I../../../include    test_verifier.c /root/linux-
+> 4.19.44/tools/testing/selftests/bpf/libbpf.a -lcap -lelf -lrt -lpthread
+> -o /root/linux-4.19.44/tools/testing/selftests/bpf/test_verifier
+> test_verifier.c: In function ‘do_test_single’:
+> test_verifier.c:12775:22: warning: implicit declaration of function
+> ‘bpf_probe_prog_type’; did you mean ‘bpf_program__set_type’? [-
+> Wimplicit-function-declaration]
+>   if (fd_prog < 0 && !bpf_probe_prog_type(prog_type, 0)) {
+>                       ^~~~~~~~~~~~~~~~~~~
+>                       bpf_program__set_type
+> /usr/bin/ld: /tmp/ccEtyLhk.o: in function `do_test_single':
+> test_verifier.c:(.text+0xa19): undefined reference to
+> `bpf_probe_prog_type'
+> collect2: error: ld returned 1 exit status
+> make[1]: *** [../lib.mk:152: /root/linux-
+> 4.19.44/tools/testing/selftests/bpf/test_verifier] Error 1
 
-Conversion looks good to me.
+Looks like this kselftest one got auto-selected for stable? It's not
+strictly needed, so totally fine to drop.
 
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-cheers
-
-> diff --git a/arch/powerpc/include/asm/atomic.h b/arch/powerpc/include/asm/atomic.h
-> index 52eafaf74054..31c231ea56b7 100644
-> --- a/arch/powerpc/include/asm/atomic.h
-> +++ b/arch/powerpc/include/asm/atomic.h
-> @@ -297,24 +297,24 @@ static __inline__ int atomic_dec_if_positive(atomic_t *v)
->  
->  #define ATOMIC64_INIT(i)	{ (i) }
->  
-> -static __inline__ long atomic64_read(const atomic64_t *v)
-> +static __inline__ s64 atomic64_read(const atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__("ld%U1%X1 %0,%1" : "=r"(t) : "m"(v->counter));
->  
->  	return t;
->  }
->  
-> -static __inline__ void atomic64_set(atomic64_t *v, long i)
-> +static __inline__ void atomic64_set(atomic64_t *v, s64 i)
->  {
->  	__asm__ __volatile__("std%U0%X0 %1,%0" : "=m"(v->counter) : "r"(i));
->  }
->  
->  #define ATOMIC64_OP(op, asm_op)						\
-> -static __inline__ void atomic64_##op(long a, atomic64_t *v)		\
-> +static __inline__ void atomic64_##op(s64 a, atomic64_t *v)		\
->  {									\
-> -	long t;								\
-> +	s64 t;								\
->  									\
->  	__asm__ __volatile__(						\
->  "1:	ldarx	%0,0,%3		# atomic64_" #op "\n"			\
-> @@ -327,10 +327,10 @@ static __inline__ void atomic64_##op(long a, atomic64_t *v)		\
->  }
->  
->  #define ATOMIC64_OP_RETURN_RELAXED(op, asm_op)				\
-> -static inline long							\
-> -atomic64_##op##_return_relaxed(long a, atomic64_t *v)			\
-> +static inline s64							\
-> +atomic64_##op##_return_relaxed(s64 a, atomic64_t *v)			\
->  {									\
-> -	long t;								\
-> +	s64 t;								\
->  									\
->  	__asm__ __volatile__(						\
->  "1:	ldarx	%0,0,%3		# atomic64_" #op "_return_relaxed\n"	\
-> @@ -345,10 +345,10 @@ atomic64_##op##_return_relaxed(long a, atomic64_t *v)			\
->  }
->  
->  #define ATOMIC64_FETCH_OP_RELAXED(op, asm_op)				\
-> -static inline long							\
-> -atomic64_fetch_##op##_relaxed(long a, atomic64_t *v)			\
-> +static inline s64							\
-> +atomic64_fetch_##op##_relaxed(s64 a, atomic64_t *v)			\
->  {									\
-> -	long res, t;							\
-> +	s64 res, t;							\
->  									\
->  	__asm__ __volatile__(						\
->  "1:	ldarx	%0,0,%4		# atomic64_fetch_" #op "_relaxed\n"	\
-> @@ -396,7 +396,7 @@ ATOMIC64_OPS(xor, xor)
->  
->  static __inline__ void atomic64_inc(atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__(
->  "1:	ldarx	%0,0,%2		# atomic64_inc\n\
-> @@ -409,9 +409,9 @@ static __inline__ void atomic64_inc(atomic64_t *v)
->  }
->  #define atomic64_inc atomic64_inc
->  
-> -static __inline__ long atomic64_inc_return_relaxed(atomic64_t *v)
-> +static __inline__ s64 atomic64_inc_return_relaxed(atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__(
->  "1:	ldarx	%0,0,%2		# atomic64_inc_return_relaxed\n"
-> @@ -427,7 +427,7 @@ static __inline__ long atomic64_inc_return_relaxed(atomic64_t *v)
->  
->  static __inline__ void atomic64_dec(atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__(
->  "1:	ldarx	%0,0,%2		# atomic64_dec\n\
-> @@ -440,9 +440,9 @@ static __inline__ void atomic64_dec(atomic64_t *v)
->  }
->  #define atomic64_dec atomic64_dec
->  
-> -static __inline__ long atomic64_dec_return_relaxed(atomic64_t *v)
-> +static __inline__ s64 atomic64_dec_return_relaxed(atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__(
->  "1:	ldarx	%0,0,%2		# atomic64_dec_return_relaxed\n"
-> @@ -463,9 +463,9 @@ static __inline__ long atomic64_dec_return_relaxed(atomic64_t *v)
->   * Atomically test *v and decrement if it is greater than 0.
->   * The function returns the old value of *v minus 1.
->   */
-> -static __inline__ long atomic64_dec_if_positive(atomic64_t *v)
-> +static __inline__ s64 atomic64_dec_if_positive(atomic64_t *v)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__(
->  	PPC_ATOMIC_ENTRY_BARRIER
-> @@ -502,9 +502,9 @@ static __inline__ long atomic64_dec_if_positive(atomic64_t *v)
->   * Atomically adds @a to @v, so long as it was not @u.
->   * Returns the old value of @v.
->   */
-> -static __inline__ long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
-> +static __inline__ s64 atomic64_fetch_add_unless(atomic64_t *v, s64 a, s64 u)
->  {
-> -	long t;
-> +	s64 t;
->  
->  	__asm__ __volatile__ (
->  	PPC_ATOMIC_ENTRY_BARRIER
-> @@ -534,7 +534,7 @@ static __inline__ long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
->   */
->  static __inline__ int atomic64_inc_not_zero(atomic64_t *v)
->  {
-> -	long t1, t2;
-> +	s64 t1, t2;
->  
->  	__asm__ __volatile__ (
->  	PPC_ATOMIC_ENTRY_BARRIER
-> -- 
-> 2.11.0
+Thanks,
+Daniel
