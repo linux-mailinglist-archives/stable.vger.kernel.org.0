@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAEC28AE7
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7EF9288A8
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387945AbfEWTt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43724 "EHLO mail.kernel.org"
+        id S2391668AbfEWT1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:27:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387796AbfEWTKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:24 -0400
+        id S2391660AbfEWT1u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:27:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D77502184B;
-        Thu, 23 May 2019 19:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D7272054F;
+        Thu, 23 May 2019 19:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638624;
-        bh=kBfZs7uPI92w1cYfqBIww9IeYka4HXTlPEwPA1TB7AQ=;
+        s=default; t=1558639670;
+        bh=jS/P740gJJTg5cpG7dqJ6n30Sc3YXWhZeWXnKtrOqsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVYf9ETj7UbFGxPVqK5efkKahQ64jZBswQ+RNf4DtnPgtONx/39/tfdgOE3NnmvT1
-         vmRM7OHVGcak1VXh7Vnz2EC0eKGhkdFYs879WTu97xPc1kvaoqHUOFQL/0jEelX8mQ
-         fdU8klZg62FRYc4prbVJkscPlzwmWTaU6AVdEKFc=
+        b=vKnFdmqiz5YQFtbHziK9CgRk6nVU6Y0B82m68wWH4DToJ0v7xIPUABq+4yDP7FVqE
+         m36nWDpWxykWZeIkZpbZkgaI04vnGU0UKqcZ/duWACFvg6emesrs9BVfTjnEUd5cc4
+         85mgMM9mO/GLdQOVx4eTos2n6PAL7QvVHJb0OiGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Chris Healy <cphealy@gmail.com>, linux-pm@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 48/53] power: supply: sysfs: prevent endless uevent loop with CONFIG_POWER_SUPPLY_DEBUG
-Date:   Thu, 23 May 2019 21:06:12 +0200
-Message-Id: <20190523181718.571354644@linuxfoundation.org>
+        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.1 051/122] media: imx: csi: Allow unknown nearest upstream entities
+Date:   Thu, 23 May 2019 21:06:13 +0200
+Message-Id: <20190523181711.473950999@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 349ced9984ff540ce74ca8a0b2e9b03dc434b9dd ]
+From: Steve Longerbeam <slongerbeam@gmail.com>
 
-Fix a similar endless event loop as was done in commit
-8dcf32175b4e ("i2c: prevent endless uevent loop with
-CONFIG_I2C_DEBUG_CORE"):
+commit 904371f90b2c0c749a5ab75478c129a4682ac3d8 upstream.
 
-  The culprit is the dev_dbg printk in the i2c uevent handler. If
-  this is activated (for instance by CONFIG_I2C_DEBUG_CORE) it results
-  in an endless loop with systemd-journald.
+On i.MX6, the nearest upstream entity to the CSI can only be the
+CSI video muxes or the Synopsys DW MIPI CSI-2 receiver.
 
-  This happens if user-space scans the system log and reads the uevent
-  file to get information about a newly created device, which seems
-  fair use to me. Unfortunately reading the "uevent" file uses the
-  same function that runs for creating the uevent for a new device,
-  generating the next syslog entry
+However the i.MX53 has no CSI video muxes or a MIPI CSI-2 receiver.
+So allow for the nearest upstream entity to the CSI to be something
+other than those.
 
-Both CONFIG_I2C_DEBUG_CORE and CONFIG_POWER_SUPPLY_DEBUG were reported
-in https://bugs.freedesktop.org/show_bug.cgi?id=76886 but only former
-seems to have been fixed. Drop debug prints as it was done in I2C
-subsystem to resolve the issue.
+Fixes: bf3cfaa712e5c ("media: staging/imx: get CSI bus type from nearest
+upstream entity")
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: linux-pm@vger.kernel.org
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/power/supply/power_supply_sysfs.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/media/imx/imx-media-csi.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
-index bcde8d13476af..c0fc98e03c912 100644
---- a/drivers/power/supply/power_supply_sysfs.c
-+++ b/drivers/power/supply/power_supply_sysfs.c
-@@ -278,15 +278,11 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
- 	char *prop_buf;
- 	char *attrname;
+--- a/drivers/staging/media/imx/imx-media-csi.c
++++ b/drivers/staging/media/imx/imx-media-csi.c
+@@ -154,9 +154,10 @@ static inline bool requires_passthrough(
+ /*
+  * Parses the fwnode endpoint from the source pad of the entity
+  * connected to this CSI. This will either be the entity directly
+- * upstream from the CSI-2 receiver, or directly upstream from the
+- * video mux. The endpoint is needed to determine the bus type and
+- * bus config coming into the CSI.
++ * upstream from the CSI-2 receiver, directly upstream from the
++ * video mux, or directly upstream from the CSI itself. The endpoint
++ * is needed to determine the bus type and bus config coming into
++ * the CSI.
+  */
+ static int csi_get_upstream_endpoint(struct csi_priv *priv,
+ 				     struct v4l2_fwnode_endpoint *ep)
+@@ -172,7 +173,8 @@ static int csi_get_upstream_endpoint(str
+ 	if (!priv->src_sd)
+ 		return -EPIPE;
  
--	dev_dbg(dev, "uevent\n");
--
- 	if (!psy || !psy->desc) {
- 		dev_dbg(dev, "No power supply yet\n");
- 		return ret;
+-	src = &priv->src_sd->entity;
++	sd = priv->src_sd;
++	src = &sd->entity;
+ 
+ 	if (src->function == MEDIA_ENT_F_VID_MUX) {
+ 		/*
+@@ -186,6 +188,14 @@ static int csi_get_upstream_endpoint(str
+ 			src = &sd->entity;
  	}
  
--	dev_dbg(dev, "POWER_SUPPLY_NAME=%s\n", psy->desc->name);
--
- 	ret = add_uevent_var(env, "POWER_SUPPLY_NAME=%s", psy->desc->name);
- 	if (ret)
- 		return ret;
-@@ -322,8 +318,6 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
- 			goto out;
- 		}
- 
--		dev_dbg(dev, "prop %s=%s\n", attrname, prop_buf);
--
- 		ret = add_uevent_var(env, "POWER_SUPPLY_%s=%s", attrname, prop_buf);
- 		kfree(attrname);
- 		if (ret)
--- 
-2.20.1
-
++	/*
++	 * If the source is neither the video mux nor the CSI-2 receiver,
++	 * get the source pad directly upstream from CSI itself.
++	 */
++	if (src->function != MEDIA_ENT_F_VID_MUX &&
++	    sd->grp_id != IMX_MEDIA_GRP_ID_CSI2)
++		src = &priv->sd.entity;
++
+ 	/* get source pad of entity directly upstream from src */
+ 	pad = imx_media_find_upstream_pad(priv->md, src, 0);
+ 	if (IS_ERR(pad))
 
 
