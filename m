@@ -2,99 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4E728DA9
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 01:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8559628DAC
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 01:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387997AbfEWXLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 19:11:21 -0400
-Received: from smtprelay-out1.synopsys.com ([198.182.61.142]:50932 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387693AbfEWXLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 19:11:21 -0400
-Received: from mailhost.synopsys.com (dc2-mailhost2.synopsys.com [10.12.135.162])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id EACE0C00C6;
-        Thu, 23 May 2019 23:11:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1558653066; bh=u9/BLbFMWX5K9TbPybc6ta2H5xZwxROFbq94KT4LOLc=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=BuIOmpZclptRaTY+qH3bTZGf+L2kUJpAqCRGawoN/NlPcdz3diGQt6/8V5gZPB5Ls
-         K7r/pEzNotmniOV1P0deQJekDtU8y0+RR9heI+1K3ws/VZH6fpSODBVxiPFR1r5jpe
-         2f3GhzlzJ3scHvNAYZu1vBrM+71DhNYLbaUYkIT+NrR/dqtiNB5CjyB2BY1IiQigMP
-         u/zbqf0QjLUxV0AX7L9aNEk371D2batmf7mayfODrRdEFX+Qd+659L+b8a3oA2zrKH
-         GiMo7x07wwEDkJ65XDd9Ay4Q+yxNIvbrqETp5cAsjdG/iEtFyrsHMJwKmjr0w1TbXJ
-         28l+KryqupmeQ==
-Received: from US01WXQAHTC1.internal.synopsys.com (us01wxqahtc1.internal.synopsys.com [10.12.238.230])
-        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 56B75A0097;
-        Thu, 23 May 2019 23:11:09 +0000 (UTC)
-Received: from us01wembx1.internal.synopsys.com ([169.254.1.22]) by
- US01WXQAHTC1.internal.synopsys.com ([::1]) with mapi id 14.03.0415.000; Thu,
- 23 May 2019 16:10:30 -0700
-From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
-To:     Mark Rutland <mark.rutland@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "will.deacon@arm.com" <will.deacon@arm.com>
-CC:     "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
-        "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>,
-        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
-        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
-        "jhogan@kernel.org" <jhogan@kernel.org>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "mattst88@gmail.com" <mattst88@gmail.com>,
-        "mingo@kernel.org" <mingo@kernel.org>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "palmer@sifive.com" <palmer@sifive.com>,
-        "paul.burton@mips.com" <paul.burton@mips.com>,
-        "paulus@samba.org" <paulus@samba.org>,
-        "ralf@linux-mips.org" <ralf@linux-mips.org>,
-        "rth@twiddle.net" <rth@twiddle.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "tony.luck@intel.com" <tony.luck@intel.com>
-Subject: Re: [PATCH 05/18] locking/atomic: arc: use s64 for atomic64
-Thread-Topic: [PATCH 05/18] locking/atomic: arc: use s64 for atomic64
-Thread-Index: AQHVEKGs9KZlALHlM0GHW5LrArar6w==
-Date:   Thu, 23 May 2019 23:10:30 +0000
-Message-ID: <C2D7FE5348E1B147BCA15975FBA2307501A251D626@us01wembx1.internal.synopsys.com>
-References: <20190522132250.26499-1-mark.rutland@arm.com>
- <20190522132250.26499-6-mark.rutland@arm.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.13.184.19]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S2387760AbfEWXQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 19:16:10 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:39133 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387693AbfEWXQK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 19:16:10 -0400
+Received: by mail-wr1-f45.google.com with SMTP id w8so7999399wrl.6
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 16:16:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uakjPDFebRs0u9tyFD9o4VuZZUThZRMY1cyeZyLtIZg=;
+        b=LCET5b4usLifAVfj53DIXjHQM+giBSEZ9+LrPtG5Tv2y6maWICpCN4XQX758M8CkRm
+         PSUe8qNwKCgWw3HPYRKb+Wq+AKYBDU/cTTKBogo6K/qk7vJ0HCKzwiQoGfgn9h/koAST
+         rfhasYk1T6wF+iiyjJhs+qX9dTh2+edj+g3I6fKfcjFWT0CdVVxh5cf2bwKWCqDFiNHp
+         O5llFqgSv3PzC8u2fMfjeR2ilei5xatqiOrEJszNuF/shXWaCWArtdSP3d/mAp+jb65l
+         SWdalpC4nOalFLOrdd8kF3HX+cHBeaDMmEomQ2DCWaO1MMBNOlREOMqkPDjGAIfA2zVB
+         5P2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uakjPDFebRs0u9tyFD9o4VuZZUThZRMY1cyeZyLtIZg=;
+        b=LtAKRyiWur/CnDGLJXzz24/8VH6Qm4kD31oWXO040EM7DmdN6MhIuapNTEugArIrGL
+         6Sn6xxxR6tYgdFvwMWIyt76fQqXOAGd7qGu5CRHXah5l4cFR3RXOE95S+6UUVUeHNojQ
+         lLjeQ7lFGrSpRQf+lggZ8J616mY4sR0CR8DpwnoLlLEi0C9mbl1O36UoIKxaDG+rbwtC
+         oTcD09jScSvCIq5RxfNmHzu+/bMFAju+xPSOnUH6KY5ImYr8+8I7yQKzoo+4lFH8frow
+         TvFLYEsMNss0i9AKD+iUaPVhADL2L+QsoRxer1CMRuHHtIcfg12ufROkmIiV75y65OZo
+         cpcA==
+X-Gm-Message-State: APjAAAV/Br1BIjZIIzyJ4y3YhxWzE2BJ+pLiaI0lrk0Jf04YoIchjnuy
+        ovJRVA+jgI0hxGM+V7KV2LKHOFwQvpDC/w==
+X-Google-Smtp-Source: APXvYqy61UJgViwnG2DX+aynXXB8Nav6PDdKid2zrcDde0XCIK2vRhwoNrNqgkyEJ0H8070D3+hXKw==
+X-Received: by 2002:adf:b611:: with SMTP id f17mr63302076wre.162.1558653368543;
+        Thu, 23 May 2019 16:16:08 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o11sm1170415wrp.23.2019.05.23.16.16.07
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 May 2019 16:16:07 -0700 (PDT)
+Message-ID: <5ce729b7.1c69fb81.8758a.6d1e@mx.google.com>
+Date:   Thu, 23 May 2019 16:16:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.180-76-gb17fdeda327c
+Subject: stable-rc/linux-4.4.y boot: 95 boots: 1 failed,
+ 80 passed with 13 offline, 1 conflict (v4.4.180-76-gb17fdeda327c)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/22/19 6:24 AM, Mark Rutland wrote:=0A=
-> As a step towards making the atomic64 API use consistent types treewide,=
-=0A=
-> let's have the arc atomic64 implementation use s64 as the underlying=0A=
-> type for atomic64_t, rather than u64, matching the generated headers.=0A=
->=0A=
-> Otherwise, there should be no functional change as a result of this=0A=
-> patch.=0A=
->=0A=
-> Signed-off-by: Mark Rutland <mark.rutland@arm.com>=0A=
-> Cc: Peter Zijlstra <peterz@infradead.org>=0A=
-> Cc: Vineet Gupta <vgupta@synopsys.com>=0A=
-> Cc: Will Deacon <will.deacon@arm.com>=0A=
-=0A=
-Thx for the cleanup Mark.=0A=
-=0A=
-Acked-By: Vineet Gupta <vgupta@synopsys.com>   # for ARC bits=0A=
-=0A=
--Vineet=0A=
+stable-rc/linux-4.4.y boot: 95 boots: 1 failed, 80 passed with 13 offline, =
+1 conflict (v4.4.180-76-gb17fdeda327c)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.180-76-gb17fdeda327c/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.180-76-gb17fdeda327c/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.180-76-gb17fdeda327c
+Git Commit: b17fdeda327c7698810cd9d96df9fe9f3641292e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 21 SoC families, 14 builds out of 190
+
+Boot Regressions Detected:
+
+x86_64:
+
+    x86_64_defconfig:
+        gcc-8:
+          qemu:
+              lab-baylibre: failing since 6 days (last pass: v4.4.179-267-g=
+be756dada5b7 - first fail: v4.4.180)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra124-jetson-tk1: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra124-jetson-tk1: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-baylibre: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
