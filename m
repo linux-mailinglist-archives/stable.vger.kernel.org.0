@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E34628A5C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DB6287C9
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387780AbfEWTNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46786 "EHLO mail.kernel.org"
+        id S2389931AbfEWTXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387591AbfEWTM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:58 -0400
+        id S2390689AbfEWTXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33A4F217D7;
-        Thu, 23 May 2019 19:12:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE8AC2054F;
+        Thu, 23 May 2019 19:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638777;
-        bh=wKOlZSx4CfiKezSLe4RjSocThAM1H9tuHQ8Ho95X1wE=;
+        s=default; t=1558639398;
+        bh=GoC1OIA003h0+CxziUkA4dOZlYYlol8sXKPimKJOX4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLv4lDmc4SVbyO8MiqYn8GUoo6/pHcWXrUNPddqCWzHrVjY8cdnLZzN8yF7cy7MgW
-         DxIvc4GUkDQ7kp5nnmnEo5fEJWFsjngKZsSkL1NXFO6lqpi3O1dB/IuzYlC/CQaPn3
-         gNTeyaeHZg+z7N+UuliNIwp79S/EZUrA10Xh8Ae0=
+        b=svs4YV56Wk44zl6BDKiyxNGJj861W4RremJ8uRoO5vfDfLvH20Vh06BDoQpiNM1EM
+         Rd34XLT7JqwXoszrJvp/2hifA2Tz/vs1SYYXPtUdqFsI4itI2hcAFEpZr+iGi0YRti
+         7/l9KVwS6DFW+dmkbWOpdVeerEcBwxoZA7gFXZGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.14 44/77] fbdev: sm712fb: fix boot screen glitch when sm712fb replaces VGA
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.0 074/139] objtool: Allow AR to be overridden with HOSTAR
 Date:   Thu, 23 May 2019 21:06:02 +0200
-Message-Id: <20190523181726.193702265@linuxfoundation.org>
+Message-Id: <20190523181730.450116913@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit ec1587d5073f29820e358f3a383850d61601d981 upstream.
+commit 8ea58f1e8b11cca3087b294779bf5959bf89cc10 upstream.
 
-When the machine is booted in VGA mode, loading sm712fb would cause
-a glitch of random pixels shown on the screen. To prevent it from
-happening, we first clear the entire framebuffer, and we also need
-to stop calling smtcfb_setmode() during initialization, the fbdev
-layer will call it for us later when it's ready.
+Currently, this Makefile hardcodes GNU ar, meaning that if it is not
+available, there is no way to supply a different one and the build will
+fail.
 
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+  $ make AR=llvm-ar CC=clang LD=ld.lld HOSTAR=llvm-ar HOSTCC=clang \
+         HOSTLD=ld.lld HOSTLDFLAGS=-fuse-ld=lld defconfig modules_prepare
+  ...
+    AR       /out/tools/objtool/libsubcmd.a
+  /bin/sh: 1: ar: not found
+  ...
+
+Follow the logic of HOST{CC,LD} and allow the user to specify a
+different ar tool via HOSTAR (which is used elsewhere in other
+tools/ Makefiles).
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/80822a9353926c38fd7a152991c6292491a9d0e8.1558028966.git.jpoimboe@redhat.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/481
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/objtool/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1493,7 +1493,11 @@ static int smtcfb_pci_probe(struct pci_d
- 	if (err)
- 		goto failed;
+--- a/tools/objtool/Makefile
++++ b/tools/objtool/Makefile
+@@ -7,11 +7,12 @@ ARCH := x86
+ endif
  
--	smtcfb_setmode(sfb);
-+	/*
-+	 * The screen would be temporarily garbled when sm712fb takes over
-+	 * vesafb or VGA text mode. Zero the framebuffer.
-+	 */
-+	memset_io(sfb->lfb, 0, sfb->fb->fix.smem_len);
+ # always use the host compiler
++HOSTAR	?= ar
+ HOSTCC	?= gcc
+ HOSTLD	?= ld
++AR	 = $(HOSTAR)
+ CC	 = $(HOSTCC)
+ LD	 = $(HOSTLD)
+-AR	 = ar
  
- 	err = register_framebuffer(info);
- 	if (err < 0)
+ ifeq ($(srctree),)
+ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
 
 
