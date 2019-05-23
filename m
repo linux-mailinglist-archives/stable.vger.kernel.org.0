@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4B3288B1
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377EF2884C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391708AbfEWT2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40520 "EHLO mail.kernel.org"
+        id S2390337AbfEWTYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:24:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391700AbfEWT2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:03 -0400
+        id S2390917AbfEWTYb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:24:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2C9E206BA;
-        Thu, 23 May 2019 19:28:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36BA32133D;
+        Thu, 23 May 2019 19:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639683;
-        bh=uu3IdUy+7dfGB7tzNOlP2lRoWgO/DVyjNyZ5vA0JBLo=;
+        s=default; t=1558639470;
+        bh=+t0u5GOucS63bRMTYhnfoDgwbCZ7hpJlC0pSSCGnqdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV05Vab54YEMUrkIwq5AHxtWj/dGWjMBCPowLRyyDtfUEhX4Nox5qCfDhZn7xwi1D
-         Nf9ksQXip+i/cGxbwFH1juv1UMiiXF07IAhMd6k7NRbnQ70cybo2bjqRSUjy9Khzry
-         HTnegCa2Cht9UqCNX+kITAJ5HUo96HuLmOWpd7VA=
+        b=iM/kQ491E0MIxQlxfwyS/9cVxz5SvE1om43J7iGsWW4Pnu2ccRpOMjfX5cpscY+/E
+         RVv05L+uHNbLonqYmL3Upd/W4uXwqc2ZyE/ySzmMFnYdNlyiNz+dpHQXfe7fytlvh1
+         UC4/K9whUEJNWdq8biJUHxA+kMIKfl7WUsWVrG0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.1 056/122] RDMA/ipoib: Allow user space differentiate between valid dev_port
+        stable@vger.kernel.org, Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>,
+        Gaku Inami <gaku.inami.xw@bp.renesas.com>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH 5.0 090/139] PCI: rcar: Add the initialization of PCIe link in resume_noirq()
 Date:   Thu, 23 May 2019 21:06:18 +0200
-Message-Id: <20190523181712.155165635@linuxfoundation.org>
+Message-Id: <20190523181732.338258401@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +51,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
 
-commit b79656ed44c6865e17bcd93472ec39488bcc4984 upstream.
+commit be20bbcb0a8cb5597cc62b3e28d275919f3431df upstream.
 
-Systemd triggers the following warning during IPoIB device load:
+Reestablish the PCIe link very early in the resume process in case it
+went down to prevent PCI accesses from hanging the bus. Such accesses
+can happen early in the PCI resume process, as early as the
+SUSPEND_RESUME_NOIRQ step, thus the link must be reestablished in the
+driver resume_noirq() callback.
 
- mlx5_core 0000:00:0c.0 ib0: "systemd-udevd" wants to know my dev_id.
-        Should it look at dev_port instead?
-        See Documentation/ABI/testing/sysfs-class-net for more info.
-
-This is caused due to user space attempt to differentiate old systems
-without dev_port and new systems with dev_port. In case dev_port will be
-zero, the systemd will try to read dev_id instead.
-
-There is no need to print a warning in such case, because it is valid
-situation and it is needed to ensure systemd compatibility with old
-kernels.
-
-Link: https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
-Cc: <stable@vger.kernel.org> # 4.19
-Fixes: f6350da41dc7 ("IB/ipoib: Log sysfs 'dev_id' accesses from userspace")
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
+Signed-off-by: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
+Signed-off-by: Gaku Inami <gaku.inami.xw@bp.renesas.com>
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+[lorenzo.pieralisi@arm.com: reformatted commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: stable@vger.kernel.org
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-renesas-soc@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/ipoib/ipoib_main.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pcie-rcar.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -2402,7 +2402,18 @@ static ssize_t dev_id_show(struct device
- {
- 	struct net_device *ndev = to_net_dev(dev);
+--- a/drivers/pci/controller/pcie-rcar.c
++++ b/drivers/pci/controller/pcie-rcar.c
+@@ -46,6 +46,7 @@
  
--	if (ndev->dev_id == ndev->dev_port)
-+	/*
-+	 * ndev->dev_port will be equal to 0 in old kernel prior to commit
-+	 * 9b8b2a323008 ("IB/ipoib: Use dev_port to expose network interface
-+	 * port numbers") Zero was chosen as special case for user space
-+	 * applications to fallback and query dev_id to check if it has
-+	 * different value or not.
-+	 *
-+	 * Don't print warning in such scenario.
-+	 *
-+	 * https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
-+	 */
-+	if (ndev->dev_port && ndev->dev_id == ndev->dev_port)
- 		netdev_info_once(ndev,
- 			"\"%s\" wants to know my dev_id. Should it look at dev_port instead? See Documentation/ABI/testing/sysfs-class-net for more info.\n",
- 			current->comm);
+ /* Transfer control */
+ #define PCIETCTLR		0x02000
++#define  DL_DOWN		BIT(3)
+ #define  CFINIT			1
+ #define PCIETSTR		0x02004
+ #define  DATA_LINK_ACTIVE	1
+@@ -94,6 +95,7 @@
+ #define MACCTLR			0x011058
+ #define  SPEED_CHANGE		BIT(24)
+ #define  SCRAMBLE_DISABLE	BIT(27)
++#define PMSR			0x01105c
+ #define MACS2R			0x011078
+ #define MACCGSPSETR		0x011084
+ #define  SPCNGRSN		BIT(31)
+@@ -1130,6 +1132,7 @@ static int rcar_pcie_probe(struct platfo
+ 	pcie = pci_host_bridge_priv(bridge);
+ 
+ 	pcie->dev = dev;
++	platform_set_drvdata(pdev, pcie);
+ 
+ 	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
+ 	if (err)
+@@ -1221,10 +1224,28 @@ err_free_bridge:
+ 	return err;
+ }
+ 
++static int rcar_pcie_resume_noirq(struct device *dev)
++{
++	struct rcar_pcie *pcie = dev_get_drvdata(dev);
++
++	if (rcar_pci_read_reg(pcie, PMSR) &&
++	    !(rcar_pci_read_reg(pcie, PCIETCTLR) & DL_DOWN))
++		return 0;
++
++	/* Re-establish the PCIe link */
++	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
++	return rcar_pcie_wait_for_dl(pcie);
++}
++
++static const struct dev_pm_ops rcar_pcie_pm_ops = {
++	.resume_noirq = rcar_pcie_resume_noirq,
++};
++
+ static struct platform_driver rcar_pcie_driver = {
+ 	.driver = {
+ 		.name = "rcar-pcie",
+ 		.of_match_table = rcar_pcie_of_match,
++		.pm = &rcar_pcie_pm_ops,
+ 		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = rcar_pcie_probe,
 
 
