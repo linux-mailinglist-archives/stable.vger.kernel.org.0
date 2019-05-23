@@ -2,109 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D632792C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8283327948
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729511AbfEWJ2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:28:08 -0400
-Received: from aws.guarana.org ([13.237.110.252]:46756 "EHLO aws.guarana.org"
+        id S1726429AbfEWJdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:33:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:43980 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726309AbfEWJ2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 05:28:08 -0400
-X-Greylist: delayed 580 seconds by postgrey-1.27 at vger.kernel.org; Thu, 23 May 2019 05:28:07 EDT
-Received: by aws.guarana.org (Postfix, from userid 1006)
-        id 08384A182E; Thu, 23 May 2019 09:18:23 +0000 (UTC)
-Date:   Thu, 23 May 2019 09:18:22 +0000
-From:   Kevin Easton <kevin@guarana.org>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jiri Kosina <jkosina@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Josh Snyder <joshs@netflix.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Dave Chinner <david@fromorbit.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Cyril Hrubis <chrubis@suse.cz>, Tejun Heo <tj@kernel.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Daniel Gruss <daniel@gruss.cc>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: Re: [PATCH 4.19 053/105] mm/mincore.c: make mincore() more
- conservative
-Message-ID: <20190523091822.GA18121@ip-172-31-14-16>
-References: <20190520115247.060821231@linuxfoundation.org>
- <20190520115250.721190520@linuxfoundation.org>
- <20190522085741.GB8174@amd>
- <20190522092111.GD32329@dhcp22.suse.cz>
+        id S1726913AbfEWJdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 05:33:03 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B63663003705
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 09:33:02 +0000 (UTC)
+Received: from [172.54.114.147] (cpt-0011.paas.prod.upshift.rdu2.redhat.com [10.0.18.82])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5713E65F46;
+        Thu, 23 May 2019 09:33:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190522092111.GD32329@dhcp22.suse.cz>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-4.19
+Message-ID: <cki.37177F7312.Q0D4LFFA7N@redhat.com>
+X-Gitlab-Pipeline-ID: 10679
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10679?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Thu, 23 May 2019 09:33:02 +0000 (UTC)
+Date:   Thu, 23 May 2019 05:33:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 11:21:11AM +0200, Michal Hocko wrote:
-> On Wed 22-05-19 10:57:41, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > commit 134fca9063ad4851de767d1768180e5dede9a881 upstream.
-> > > 
-> > > The semantics of what mincore() considers to be resident is not
-> > > completely clear, but Linux has always (since 2.3.52, which is when
-> > > mincore() was initially done) treated it as "page is available in page
-> > > cache".
-> > > 
-> > > That's potentially a problem, as that [in]directly exposes
-> > > meta-information about pagecache / memory mapping state even about
-> > > memory not strictly belonging to the process executing the syscall,
-> > > opening possibilities for sidechannel attacks.
-> > > 
-> > > Change the semantics of mincore() so that it only reveals pagecache
-> > > information for non-anonymous mappings that belog to files that the
-> > > calling process could (if it tried to) successfully open for writing;
-> > > otherwise we'd be including shared non-exclusive mappings, which
-> > > 
-> > >  - is the sidechannel
-> > > 
-> > >  - is not the usecase for mincore(), as that's primarily used for data,
-> > >    not (shared) text
-> > 
-> > ...
-> > 
-> > > @@ -189,8 +205,13 @@ static long do_mincore(unsigned long add
-> > >  	vma = find_vma(current->mm, addr);
-> > >  	if (!vma || addr < vma->vm_start)
-> > >  		return -ENOMEM;
-> > > -	mincore_walk.mm = vma->vm_mm;
-> > >  	end = min(vma->vm_end, addr + (pages << PAGE_SHIFT));
-> > > +	if (!can_do_mincore(vma)) {
-> > > +		unsigned long pages = DIV_ROUND_UP(end - addr, PAGE_SIZE);
-> > > +		memset(vec, 1, pages);
-> > > +		return pages;
-> > > +	}
-> > > +	mincore_walk.mm = vma->vm_mm;
-> > >  	err = walk_page_range(addr, end, &mincore_walk);
-> > 
-> > We normally return errors when we deny permissions; but this one just
-> > returns success and wrong data.
-> > 
-> > Could we return -EPERM there? If not, should it at least get a
-> > comment?
-> 
-> This was a deliberate decision AFAIR. We cannot return failure because
-> this could lead to an unexpected userspace failure. We are pretendeing
-> that those pages are present because that is the safest option -
-> e.g. consider an application which tries to refault until the page is
-> present...
+Hello,
 
-Yes, in particular several userspace applications I found used mincore()
-to find out whether a particular range is mapped at all or not, treating
-any error as "unmapped" and any non-error return as "mapped".
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-    - Kevin
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: c3a072597748 - Linux 4.19.45
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: FAILED
+
+
+When we attempted to merge the patchset, we received an error:
+
+  error: patch failed: drivers/md/md.c:9227
+  error: drivers/md/md.c: patch does not apply
+  hint: Use 'git am --show-current-patch' to see the failed patch
+  Applying: md: add a missing endianness conversion in check_sb_changes
+  Patch failed at 0001 md: add a missing endianness conversion in check_sb_changes
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: c3a072597748 - Linux 4.19.45
+
+We then merged the patchset with `git am`:
+
+  ipv6-fix-src-addr-routing-with-the-exception-table.patch
+  ipv6-prevent-possible-fib6-leaks.patch
+  net-always-descend-into-dsa.patch
+  net-avoid-weird-emergency-message.patch
+  net-mlx4_core-change-the-error-print-to-info-print.patch
+  net-test-nouarg-before-dereferencing-zerocopy-pointers.patch
+  net-usb-qmi_wwan-add-telit-0x1260-and-0x1261-compositions.patch
+  nfp-flower-add-rcu-locks-when-accessing-netdev-for-tunnels.patch
+  ppp-deflate-fix-possible-crash-in-deflate_init.patch
+  rtnetlink-always-put-ifla_link-for-links-with-a-link-netnsid.patch
+  tipc-switch-order-of-device-registration-to-fix-a-crash.patch
+  vsock-virtio-free-packets-during-the-socket-release.patch
+  tipc-fix-modprobe-tipc-failed-after-switch-order-of-device-registration.patch
+  vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+  net-mlx5-imply-mlxfw-in-mlx5_core.patch
+  net-mlx5e-fix-ethtool-rxfh-commands-when-config_mlx5_en_rxnfc-is-disabled.patch
+  parisc-export-running_on_qemu-symbol-for-modules.patch
+  parisc-skip-registering-led-when-running-in-qemu.patch
+  parisc-use-pa_asm_level-in-boot-code.patch
+  parisc-rename-level-to-pa_asm_level-to-avoid-name-clash-with-drbd-code.patch
+  stm-class-fix-channel-free-in-stm-output-free-path.patch
+  stm-class-fix-channel-bitmap-on-32-bit-systems.patch
+  brd-re-enable-__gfp_highmem-in-brd_insert_page.patch
+  proc-prevent-changes-to-overridden-credentials.patch
+  revert-md-fix-lock-contention-for-flush-bios.patch
+  md-batch-flush-requests.patch
+  md-add-mddev-pers-to-avoid-potential-null-pointer-dereference.patch
+  dcache-sort-the-freeing-without-rcu-delay-mess-for-good.patch
+  intel_th-msu-fix-single-mode-with-iommu.patch
+  p54-drop-device-reference-count-if-fails-to-enable-device.patch
+  of-fix-clang-wunsequenced-for-be32_to_cpu.patch
+  cifs-fix-strcat-buffer-overflow-and-reduce-raciness-in-smb21_set_oplock_level.patch
+  phy-ti-pipe3-fix-missing-bit-wise-or-operator-when-assigning-val.patch
+  media-ov6650-fix-sensor-possibly-not-detected-on-probe.patch
+  media-imx-csi-allow-unknown-nearest-upstream-entities.patch
+  media-imx-clear-fwnode-link-struct-for-each-endpoint-iteration.patch
+  nfs4-fix-v4.0-client-state-corruption-when-mount.patch
+  pnfs-fallback-to-mds-if-no-deviceid-found.patch
+  clk-hi3660-mark-clk_gate_ufs_subsys-as-critical.patch
+  clk-tegra-fix-pllm-programming-on-tegra124-when-pmc-overrides-divider.patch
+  clk-mediatek-disable-tuner_en-before-change-pll-rate.patch
+  clk-rockchip-fix-wrong-clock-definitions-for-rk3328.patch
+  udlfb-delete-the-unused-parameter-for-dlfb_handle_damage.patch
+  udlfb-fix-sleeping-inside-spinlock.patch
+  udlfb-introduce-a-rendering-mutex.patch
+  fuse-fix-writepages-on-32bit.patch
+  fuse-honor-rlimit_fsize-in-fuse_file_fallocate.patch
+  ovl-fix-missing-upper-fs-freeze-protection-on-copy-up-for-ioctl.patch
+  iommu-tegra-smmu-fix-invalid-asid-bits-on-tegra30-114.patch
+  ceph-flush-dirty-inodes-before-proceeding-with-remount.patch
