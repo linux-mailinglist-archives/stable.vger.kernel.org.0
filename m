@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E630328752
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B82286E2
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389514AbfEWTSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53520 "EHLO mail.kernel.org"
+        id S2388334AbfEWTOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389523AbfEWTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:18:09 -0400
+        id S2388393AbfEWTOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81C3B20863;
-        Thu, 23 May 2019 19:18:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8DF620863;
+        Thu, 23 May 2019 19:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639089;
-        bh=m00MS62AnepkM7lQYAoP56lp6ODo9R8Wy3Zth4c/3Zg=;
+        s=default; t=1558638841;
+        bh=2ptE7vIvQyhsyXR24RemViMRC03B+p8ztYdpEcbI6Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hc0OTAYTxE70FSNnNv2HAiEQTBQRTWgbMNyXyZCiDKDT0AFE8d62TSI0rl+0NKIJ7
-         iaSZMkAr/E2aIEW+/RckJYf2/z5o3mo4NEZ2w42y96g2inJ5XfRParjl8hoqRhq5PS
-         IViV12o7bbQAw6xYaIqcbhmWQYShttKVxFgcIXtQ=
+        b=xxbaxBP+RDej9ari1YbSODmxwpT/hYTrXHcmTIDqsImi2SlNVzGld8SdxbW8OAa3X
+         liVN7nGpCVgLf+/B1iJ6SK7pGDcAZplLJwdpSAO9u92hKT+sXX42Lx66g5TG7Ftxn+
+         x4+k1Q4/OVLExL3i8WDK84XHfYkZMIsKrMrI0AVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 073/114] PCI/AER: Change pci_aer_init() stub to return void
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Shaun Tancheff <shaun@tancheff.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 54/77] dm zoned: Fix zone report handling
 Date:   Thu, 23 May 2019 21:06:12 +0200
-Message-Id: <20190523181738.356645222@linuxfoundation.org>
+Message-Id: <20190523181727.481354761@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 31f996efbd5a7825f4d30150469e9d110aea00e8 upstream.
+commit 7aedf75ff740a98f3683439449cd91c8662d03b2 upstream.
 
-Commit 60ed982a4e78 ("PCI/AER: Move internal declarations to
-drivers/pci/pci.h") changed pci_aer_init() to return "void", but didn't
-change the stub for when CONFIG_PCIEAER isn't enabled.  Change the stub to
-match.
+The function blkdev_report_zones() returns success even if no zone
+information is reported (empty report). Empty zone reports can only
+happen if the report start sector passed exceeds the device capacity.
+The conditions for this to happen are either a bug in the caller code,
+or, a change in the device that forced the low level driver to change
+the device capacity to a value that is lower than the report start
+sector. This situation includes a failed disk revalidation resulting in
+the disk capacity being changed to 0.
 
-Fixes: 60ed982a4e78 ("PCI/AER: Move internal declarations to drivers/pci/pci.h")
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v4.19+
+If this change happens while dm-zoned is in its initialization phase
+executing dmz_init_zones(), this function may enter an infinite loop
+and hang the system. To avoid this, add a check to disallow empty zone
+reports and bail out early. Also fix the function dmz_update_zone() to
+make sure that the report for the requested zone was correctly obtained.
+
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Shaun Tancheff <shaun@tancheff.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-zoned-metadata.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -530,7 +530,7 @@ void pci_aer_clear_fatal_status(struct p
- void pci_aer_clear_device_status(struct pci_dev *dev);
- #else
- static inline void pci_no_aer(void) { }
--static inline int pci_aer_init(struct pci_dev *d) { return -ENODEV; }
-+static inline void pci_aer_init(struct pci_dev *d) { }
- static inline void pci_aer_exit(struct pci_dev *d) { }
- static inline void pci_aer_clear_fatal_status(struct pci_dev *dev) { }
- static inline void pci_aer_clear_device_status(struct pci_dev *dev) { }
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1169,6 +1169,9 @@ static int dmz_init_zones(struct dmz_met
+ 			goto out;
+ 		}
+ 
++		if (!nr_blkz)
++			break;
++
+ 		/* Process report */
+ 		for (i = 0; i < nr_blkz; i++) {
+ 			ret = dmz_init_zone(zmd, zone, &blkz[i]);
+@@ -1204,6 +1207,8 @@ static int dmz_update_zone(struct dmz_me
+ 	/* Get zone information from disk */
+ 	ret = blkdev_report_zones(zmd->dev->bdev, dmz_start_sect(zmd, zone),
+ 				  &blkz, &nr_blkz, GFP_NOIO);
++	if (!nr_blkz)
++		ret = -EIO;
+ 	if (ret) {
+ 		dmz_dev_err(zmd->dev, "Get zone %u report failed",
+ 			    dmz_id(zmd, zone));
 
 
