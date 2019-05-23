@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC5628A5B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CDE628AF0
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731879AbfEWTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46720 "EHLO mail.kernel.org"
+        id S2387574AbfEWTus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:50:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731947AbfEWTMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:55 -0400
+        id S1732155AbfEWTJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70B3E20863;
-        Thu, 23 May 2019 19:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD23E2133D;
+        Thu, 23 May 2019 19:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638774;
-        bh=oheSv95oFkn+VVV3lf9Ovz2363O9f+rCEsKN1nvHhuA=;
+        s=default; t=1558638568;
+        bh=9oY+pI8ykV1BKLM3bhcwgDCHMon/QrsSj3NZSK0i6N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfrVJo9BgDxCH/1+ByE0tt9MH17fIxjLLNwIFSN3gGNLRjsFd3VNauuy7Gx7y5lsE
-         SLhVOKJbtpifXvuqDkXEyEhGphFSb1KntSgD66XL5/t1RgCkW+FeEGa9vBcyRz1gg9
-         qOQM4ylR+ehQ0myQ/zUzOoUiMssG1Gd+UEqiXO5c=
+        b=O9mvZwaWsJ64Xsh9/+7pTq9l7goG1xHcQy+bzmOA261DOWPC0lhlhNaKATVv8/g5A
+         C2G1CP0U6Ot1zkN5Due/XFYjYAJqvwRYvy8G7HSM45R45KVkir5GaIAZ9Hjz2XhCzi
+         amvh6/fpSJbm+cFlNifGR+CWzF8PL5XafUIATbb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Teddy Wang <teddy.wang@siliconmotion.com>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.14 43/77] fbdev: sm712fb: fix white screen of death on reboot, dont set CR3B-CR3F
+Subject: [PATCH 4.9 37/53] fbdev: sm712fb: fix crashes and garbled display during DPMS modesetting
 Date:   Thu, 23 May 2019 21:06:01 +0200
-Message-Id: <20190523181726.086206319@linuxfoundation.org>
+Message-Id: <20190523181716.700690963@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,22 +47,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yifeng Li <tomli@tomli.me>
 
-commit 8069053880e0ee3a75fd6d7e0a30293265fe3de4 upstream.
+commit f627caf55b8e735dcec8fa6538e9668632b55276 upstream.
 
-On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), rebooting with
-sm712fb framebuffer driver would cause a white screen of death on
-the next POST, presumably the proper timings for the LCD panel was
-not reprogrammed properly by the BIOS.
+On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), blanking the display
+or starting the X server will crash and freeze the system, or garble the
+display.
 
-Experiments showed a few CRTC Scratch Registers, including CRT3D,
-CRT3E and CRT3F may be used internally by BIOS as some flags. CRT3B is
-a hardware testing register, we shouldn't mess with it. CRT3C has
-blanking signal and line compare control, which is not needed for this
-driver.
+Experiments showed this problem can mostly be solved by adjusting the
+order of register writes. Also, sm712fb failed to consider the difference
+of clock frequency when unblanking the display, and programs the clock for
+SM712 to SM720.
 
-Stop writing to CR3B-CR3F (a.k.a CRT3B-CRT3F) registers. Even if these
-registers don't have side-effect on other systems, writing to them is
-also highly questionable.
+Fix them by adjusting the order of register writes, and adding an
+additional check for SM720 for programming the clock frequency.
 
 Signed-off-by: Yifeng Li <tomli@tomli.me>
 Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
@@ -72,24 +69,116 @@ Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/sm712fb.c |   64 ++++++++++++++++++++++++------------------
+ 1 file changed, 38 insertions(+), 26 deletions(-)
 
 --- a/drivers/video/fbdev/sm712fb.c
 +++ b/drivers/video/fbdev/sm712fb.c
-@@ -1173,8 +1173,12 @@ static void sm7xx_set_timing(struct smtc
- 			smtc_crtcw(i, vgamode[j].init_cr00_cr18[i]);
+@@ -886,67 +886,79 @@ static inline unsigned int chan_to_field
  
- 		/* init CRTC register CR30 - CR4D */
--		for (i = 0; i < SIZE_CR30_CR4D; i++)
-+		for (i = 0; i < SIZE_CR30_CR4D; i++) {
-+			if ((i + 0x30) >= 0x3B && (i + 0x30) <= 0x3F)
-+				/* side-effect, don't write to CR3B-CR3F */
-+				continue;
- 			smtc_crtcw(i + 0x30, vgamode[j].init_cr30_cr4d[i]);
+ static int smtc_blank(int blank_mode, struct fb_info *info)
+ {
++	struct smtcfb_info *sfb = info->par;
++
+ 	/* clear DPMS setting */
+ 	switch (blank_mode) {
+ 	case FB_BLANK_UNBLANK:
+ 		/* Screen On: HSync: On, VSync : On */
++
++		switch (sfb->chip_id) {
++		case 0x710:
++		case 0x712:
++			smtc_seqw(0x6a, 0x16);
++			smtc_seqw(0x6b, 0x02);
++		case 0x720:
++			smtc_seqw(0x6a, 0x0d);
++			smtc_seqw(0x6b, 0x02);
++			break;
 +		}
- 
- 		/* init CRTC register CR90 - CRA7 */
- 		for (i = 0; i < SIZE_CR90_CRA7; i++)
++
++		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) & (~0x20)));
+-		smtc_seqw(0x6a, 0x16);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) & 0x77));
+ 		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+-		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+ 		smtc_seqw(0x31, (smtc_seqr(0x31) | 0x03));
++		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+ 		break;
+ 	case FB_BLANK_NORMAL:
+ 		/* Screen Off: HSync: On, VSync : On   Soft blank */
++		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) & (~0x20)));
++		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+ 		smtc_seqw(0x6a, 0x16);
+ 		smtc_seqw(0x6b, 0x02);
+-		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+-		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		break;
+ 	case FB_BLANK_VSYNC_SUSPEND:
+ 		/* Screen On: HSync: On, VSync : Off */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0x20));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x20));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0x20));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	case FB_BLANK_HSYNC_SUSPEND:
+ 		/* Screen On: HSync: Off, VSync : On */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x10));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	case FB_BLANK_POWERDOWN:
+ 		/* Screen On: HSync: Off, VSync : Off */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x30));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
