@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B16D2874C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2089E288E2
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388169AbfEWTRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:17:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
+        id S2391649AbfEWT3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388790AbfEWTRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:17:48 -0400
+        id S2391937AbfEWT3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E235420863;
-        Thu, 23 May 2019 19:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF5D52133D;
+        Thu, 23 May 2019 19:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639067;
-        bh=BLX5G35cxlrNnJA6vomteX9aMzUjS8JM9fQH8dsdSzs=;
+        s=default; t=1558639761;
+        bh=HiFtAIKrl+Yj/b7btEiQx9X+/cf8POcNBsL9C668gKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WcjJWZKTreiI2DPINFhFefBmZGAzUr9VTtgA47OXLwn1kF4BN1y3YCXpyL47gptVh
-         F4SUbZRRU1weNHArLhPa4ClJQAIRIfl6DYFvTu2x+AvN3U0ugdyhMXXcQdWW7lO902
-         16yJoPlpAw4hlpKg285yz3tD41uSS2lTM2GyZq/k=
+        b=ENXBowsK4E9PLX3ry0BGGWHuV853e9IaYzTXwQMGquvX+DEmmXbBUG7Cl4vuGPpJV
+         mf6n6YX0uoV8Hocw5tU5zihFzHSDZOw7LMMRFNoMekFnotCi/dsT8YkmUiV8SAol9L
+         WGUMCbXVlI4w49Mhzm6GtCeO36fj/7FLKA6J936g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 082/114] fuse: Add FOPEN_STREAM to use stream_open()
+        stable@vger.kernel.org, Zhong Kaihua <zhongkaihua@huawei.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Zhangfei Gao <zhangfei.gao@linaro.org>,
+        Dong Zhang <zhangdong46@hisilicon.com>,
+        Leo Yan <leo.yan@linaro.org>, Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.1 059/122] clk: hi3660: Mark clk_gate_ufs_subsys as critical
 Date:   Thu, 23 May 2019 21:06:21 +0200
-Message-Id: <20190523181739.135794147@linuxfoundation.org>
+Message-Id: <20190523181712.577353528@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Smelkov <kirr@nexedi.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
+commit 9f77a60669d13ed4ddfa6cd7374c9d88da378ffa upstream.
 
-Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
-POSIX") files opened even via nonseekable_open gate read and write via lock
-and do not allow them to be run simultaneously. This can create read vs
-write deadlock if a filesystem is trying to implement a socket-like file
-which is intended to be simultaneously used for both read and write from
-filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
-stream-like files so that read and write can run simultaneously without
-deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
-on writes to /proc/xen/xenbus") for a similar deadlock example on
-/proc/xen/xenbus.
+clk_gate_ufs_subsys is a system bus clock, turning off it will
+introduce lockup issue during system suspend flow.  Let's mark
+clk_gate_ufs_subsys as critical clock, thus keeps it on during
+system suspend and resume.
 
-To avoid such deadlock it was tempting to adjust fuse_finish_open to use
-stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
-but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
-and in particular GVFS which actually uses offset in its read and write
-handlers
-
-	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
-
-so if we would do such a change it will break a real user.
-
-Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
-opened handler is having stream-like semantics; does not use file position
-and thus the kernel is free to issue simultaneous read and write request on
-opened file handle.
-
-This patch together with stream_open() should be added to stable kernels
-starting from v3.14+. This will allow to patch OSSPD and other FUSE
-filesystems that provide stream-like files to return FOPEN_STREAM |
-FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
-kernel versions. This should work because fuse_finish_open ignores unknown
-open flags returned from a filesystem and so passing FOPEN_STREAM to a
-kernel that is not aware of this flag cannot hurt. In turn the kernel that
-is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
-is sufficient to implement streams without read vs write deadlock.
-
-Cc: stable@vger.kernel.org # v3.14+
-Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: d374e6fd5088 ("clk: hisilicon: Add clock driver for hi3660 SoC")
+Cc: stable@vger.kernel.org
+Cc: Zhong Kaihua <zhongkaihua@huawei.com>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Zhangfei Gao <zhangfei.gao@linaro.org>
+Suggested-by: Dong Zhang <zhangdong46@hisilicon.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c            |    4 +++-
- include/uapi/linux/fuse.h |    2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/clk/hisilicon/clk-hi3660.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -179,7 +179,9 @@ void fuse_finish_open(struct inode *inod
- 		file->f_op = &fuse_direct_io_file_operations;
- 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
- 		invalidate_inode_pages2(inode->i_mapping);
--	if (ff->open_flags & FOPEN_NONSEEKABLE)
-+	if (ff->open_flags & FOPEN_STREAM)
-+		stream_open(inode, file);
-+	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -219,10 +219,12 @@ struct fuse_file_lock {
-  * FOPEN_DIRECT_IO: bypass page cache for this open file
-  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
-  * FOPEN_NONSEEKABLE: the file is not seekable
-+ * FOPEN_STREAM: the file is stream-like (no file position at all)
-  */
- #define FOPEN_DIRECT_IO		(1 << 0)
- #define FOPEN_KEEP_CACHE	(1 << 1)
- #define FOPEN_NONSEEKABLE	(1 << 2)
-+#define FOPEN_STREAM		(1 << 4)
- 
- /**
-  * INIT request/reply flags
+--- a/drivers/clk/hisilicon/clk-hi3660.c
++++ b/drivers/clk/hisilicon/clk-hi3660.c
+@@ -163,8 +163,12 @@ static const struct hisi_gate_clock hi36
+ 	  "clk_isp_snclk_mux", CLK_SET_RATE_PARENT, 0x50, 17, 0, },
+ 	{ HI3660_CLK_GATE_ISP_SNCLK2, "clk_gate_isp_snclk2",
+ 	  "clk_isp_snclk_mux", CLK_SET_RATE_PARENT, 0x50, 18, 0, },
++	/*
++	 * clk_gate_ufs_subsys is a system bus clock, mark it as critical
++	 * clock and keep it on for system suspend and resume.
++	 */
+ 	{ HI3660_CLK_GATE_UFS_SUBSYS, "clk_gate_ufs_subsys", "clk_div_sysbus",
+-	  CLK_SET_RATE_PARENT, 0x50, 21, 0, },
++	  CLK_SET_RATE_PARENT | CLK_IS_CRITICAL, 0x50, 21, 0, },
+ 	{ HI3660_PCLK_GATE_DSI0, "pclk_gate_dsi0", "clk_div_cfgbus",
+ 	  CLK_SET_RATE_PARENT, 0x50, 28, 0, },
+ 	{ HI3660_PCLK_GATE_DSI1, "pclk_gate_dsi1", "clk_div_cfgbus",
 
 
