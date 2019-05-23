@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 070A9287A8
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE3828870
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390323AbfEWTVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
+        id S2390264AbfEWT0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:26:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390346AbfEWTVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:21:47 -0400
+        id S2390590AbfEWT0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:26:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D2EC2133D;
-        Thu, 23 May 2019 19:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D6A32133D;
+        Thu, 23 May 2019 19:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639307;
-        bh=FtYbvIv3gOl5LAcrN+tt1XTYQKijAsSZSVhpgmTQNSA=;
+        s=default; t=1558639567;
+        bh=MJDx3NVKSGNVeTKAQU5Is+w+VaFezvqUHSFZbahXyHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeFhPbJDI799yRPNXEdc52OjBdLtRPIASjpFTQyQtjpNfDFz7mZvK9mTNK2gu5Gd1
-         oVMmz9I9Af7EqW6M+/EdbwjFeKUkeph4+Evc5vGXpYMTnCpiRnE98NrJM+ADB6yzRw
-         yZGn56dHG5VI027ZrLX7p8BWfObFYVskGqItfgdE=
+        b=M/dMrAkrWRm3CHziYIritELuo7OcuX3afrri1fbLyog1YNUMxJ6xNRQAycc5kU3lj
+         pAbZKwx9ia847brvV/uFFOteXc13Ke58RCJuwb3SvqUpVY8QQpSq9br19gJqQmRhWj
+         y6ZiZRgm9CfVOFjSv+V3EegoN0mqU0EBC5ZXIJOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.0 039/139] p54: drop device reference count if fails to enable device
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 005/122] net/mlx4_core: Change the error print to info print
 Date:   Thu, 23 May 2019 21:05:27 +0200
-Message-Id: <20190523181725.842913849@linuxfoundation.org>
+Message-Id: <20190523181705.694384536@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-commit 8149069db81853570a665f5e5648c0e526dc0e43 upstream.
+[ Upstream commit 00f9fec48157f3734e52130a119846e67a12314b ]
 
-The function p54p_probe takes an extra reference count of the PCI
-device. However, the extra reference count is not dropped when it fails
-to enable the PCI device. This patch fixes the bug.
+The error print within mlx4_flow_steer_promisc_add() should
+be a info print.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 592e49dda812 ('net/mlx4: Implement promiscuous mode with device managed flow-steering')
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/intersil/p54/p54pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/mcg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intersil/p54/p54pci.c
-+++ b/drivers/net/wireless/intersil/p54/p54pci.c
-@@ -554,7 +554,7 @@ static int p54p_probe(struct pci_dev *pd
- 	err = pci_enable_device(pdev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Cannot enable new PCI device\n");
--		return err;
-+		goto err_put;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx4/mcg.c
++++ b/drivers/net/ethernet/mellanox/mlx4/mcg.c
+@@ -1492,7 +1492,7 @@ int mlx4_flow_steer_promisc_add(struct m
+ 	rule.port = port;
+ 	rule.qpn = qpn;
+ 	INIT_LIST_HEAD(&rule.list);
+-	mlx4_err(dev, "going promisc on %x\n", port);
++	mlx4_info(dev, "going promisc on %x\n", port);
  
- 	mem_addr = pci_resource_start(pdev, 0);
-@@ -639,6 +639,7 @@ static int p54p_probe(struct pci_dev *pd
- 	pci_release_regions(pdev);
-  err_disable_dev:
- 	pci_disable_device(pdev);
-+err_put:
- 	pci_dev_put(pdev);
- 	return err;
+ 	return  mlx4_flow_attach(dev, &rule, regid_p);
  }
 
 
