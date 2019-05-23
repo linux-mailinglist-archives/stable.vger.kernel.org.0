@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DBC28A34
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564CD289A6
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387908AbfEWTKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43986 "EHLO mail.kernel.org"
+        id S2390072AbfEWTUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387890AbfEWTKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:38 -0400
+        id S2390104AbfEWTUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:20:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25C5521871;
-        Thu, 23 May 2019 19:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6DE2205ED;
+        Thu, 23 May 2019 19:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638637;
-        bh=f1WChCHh2g9gQRPvWkwNKXNLAL9hPKJYXZ1abqo6dzI=;
+        s=default; t=1558639242;
+        bh=yYNf1zVuhoEeRuypyC/W2y1Bfdmnjxnu8XItGxfg3y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvMwpeoMdLiRQtBmGR0Blg0P/9NaG5yFkzW7plV1udMtJoFLTu3rgxm2kCn+EdLJB
-         74Xq2j05ft2O8mIKvNqfMaNIfB+eJVIRnIhOn4iwAq7yIaQg784K9/nQmFWqyHFgt+
-         dtK+LlNMOYD8rmSMkuuxfJ55eJxJWetkKxr7I9Ic=
+        b=i8dXcb5vHSLbvTC54SPNpSmx0wRSm3iyHppmH35c5vzOV5KKqGuoxSodJKbq8uANE
+         niCOpU/Am4E8oPXLA6evPWxCpVrLABFXsjeS8fkpJ3llVNw+rrKRIr6zK3QrZzWTLf
+         28avXNwynLcILkEwmFuecNmh6CQY4Ir9fsR6Z2pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 01/77] net: avoid weird emergency message
-Date:   Thu, 23 May 2019 21:05:19 +0200
-Message-Id: <20190523181720.184010954@linuxfoundation.org>
+        stable@vger.kernel.org, "chengjian (D)" <cj.chengjian@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <james.morris@microsoft.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 5.0 032/139] proc: prevent changes to overridden credentials
+Date:   Thu, 23 May 2019 21:05:20 +0200
+Message-Id: <20190523181724.900531524@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,38 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit d7c04b05c9ca14c55309eb139430283a45c4c25f ]
+commit 35a196bef449b5824033865b963ed9a43fb8c730 upstream.
 
-When host is under high stress, it is very possible thread
-running netdev_wait_allrefs() returns from msleep(250)
-10 seconds late.
+Prevent userspace from changing the the /proc/PID/attr values if the
+task's credentials are currently overriden.  This not only makes sense
+conceptually, it also prevents some really bizarre error cases caused
+when trying to commit credentials to a task with overridden
+credentials.
 
-This leads to these messages in the syslog :
-
-[...] unregister_netdevice: waiting for syz_tun to become free. Usage count = 0
-
-If the device refcount is zero, the wait is over.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Reported-by: "chengjian (D)" <cj.chengjian@huawei.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Acked-by: John Johansen <john.johansen@canonical.com>
+Acked-by: James Morris <james.morris@microsoft.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -7852,7 +7852,7 @@ static void netdev_wait_allrefs(struct n
+---
+ fs/proc/base.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2550,6 +2550,11 @@ static ssize_t proc_pid_attr_write(struc
+ 		rcu_read_unlock();
+ 		return -EACCES;
+ 	}
++	/* Prevent changes to overridden credentials. */
++	if (current_cred() != current_real_cred()) {
++		rcu_read_unlock();
++		return -EBUSY;
++	}
+ 	rcu_read_unlock();
  
- 		refcnt = netdev_refcnt_read(dev);
- 
--		if (time_after(jiffies, warning_time + 10 * HZ)) {
-+		if (refcnt && time_after(jiffies, warning_time + 10 * HZ)) {
- 			pr_emerg("unregister_netdevice: waiting for %s to become free. Usage count = %d\n",
- 				 dev->name, refcnt);
- 			warning_time = jiffies;
+ 	if (count > PAGE_SIZE)
 
 
