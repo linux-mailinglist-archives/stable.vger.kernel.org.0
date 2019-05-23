@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B90FD28918
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D802891A
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391852AbfEWTap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44334 "EHLO mail.kernel.org"
+        id S2392186AbfEWTas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391695AbfEWTap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:45 -0400
+        id S2392184AbfEWTas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A54020879;
-        Thu, 23 May 2019 19:30:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E462217D7;
+        Thu, 23 May 2019 19:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639844;
-        bh=ffYAePsAYSLY2PZJ5lNAa7ZiztMb4ESID2IlEHjN8yc=;
+        s=default; t=1558639847;
+        bh=ld43xxN+ALfqwSMcS5c7IYDBke35KTl7y2i8iFVunyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d8pL2XpUpwlgUGKurncKehxHjQYf22Rw/PvdZ9Zw17clB7KnPnCmNVpJg4Oodyj/t
-         vnbORAJupnygvuA7ku+T6WJFOABYiZ77Ti4QgIlD/7Ih4OTeA65ck8vFamoPYKCXX4
-         u0YIAlN3zRepASt/O8Abqd4xyn+iarWA4EXFpBKw=
+        b=ud5wjYWDihcYpOFlIB8lHrmVnKnslCa2qvbC/9FPY+pxuONox2AeCXKDA4Z/lpycZ
+         tDEsCfawcLt1CWcUPFDW4i4Dh+i47ldjq8iN8VBNLVTTj6sDV2bJdyhUBsncmFR/ad
+         zol1LbPhBntxrcesVo7G7VQU9xXzUK8ksowhGX2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.1 097/122] PCI: Init PCIe feature bits for managed host bridge alloc
-Date:   Thu, 23 May 2019 21:06:59 +0200
-Message-Id: <20190523181718.056998161@linuxfoundation.org>
+Subject: [PATCH 5.1 098/122] PCI/AER: Change pci_aer_init() stub to return void
+Date:   Thu, 23 May 2019 21:07:00 +0200
+Message-Id: <20190523181718.195270718@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,73 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-commit 6302bf3ef78dd210b5ff4a922afcb7d8eff8a211 upstream.
+commit 31f996efbd5a7825f4d30150469e9d110aea00e8 upstream.
 
-Two functions allocate a host bridge: devm_pci_alloc_host_bridge() and
-pci_alloc_host_bridge().  At the moment, only the unmanaged one initializes
-the PCIe feature bits, which prevents from using features such as hotplug
-or AER on some systems, when booting with device tree.  Make the
-initialization code common.
+Commit 60ed982a4e78 ("PCI/AER: Move internal declarations to
+drivers/pci/pci.h") changed pci_aer_init() to return "void", but didn't
+change the stub for when CONFIG_PCIEAER isn't enabled.  Change the stub to
+match.
 
-Fixes: 02bfeb484230 ("PCI/portdrv: Simplify PCIe feature permission checking")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Fixes: 60ed982a4e78 ("PCI/AER: Move internal declarations to drivers/pci/pci.h")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v4.17+
+CC: stable@vger.kernel.org	# v4.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/probe.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/pci/pci.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -586,16 +586,9 @@ static void pci_release_host_bridge_dev(
- 	kfree(to_pci_host_bridge(dev));
- }
- 
--struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
-+static void pci_init_host_bridge(struct pci_host_bridge *bridge)
- {
--	struct pci_host_bridge *bridge;
--
--	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
--	if (!bridge)
--		return NULL;
--
- 	INIT_LIST_HEAD(&bridge->windows);
--	bridge->dev.release = pci_release_host_bridge_dev;
- 
- 	/*
- 	 * We assume we can manage these PCIe features.  Some systems may
-@@ -608,6 +601,18 @@ struct pci_host_bridge *pci_alloc_host_b
- 	bridge->native_shpc_hotplug = 1;
- 	bridge->native_pme = 1;
- 	bridge->native_ltr = 1;
-+}
-+
-+struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
-+{
-+	struct pci_host_bridge *bridge;
-+
-+	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
-+	if (!bridge)
-+		return NULL;
-+
-+	pci_init_host_bridge(bridge);
-+	bridge->dev.release = pci_release_host_bridge_dev;
- 
- 	return bridge;
- }
-@@ -622,7 +627,7 @@ struct pci_host_bridge *devm_pci_alloc_h
- 	if (!bridge)
- 		return NULL;
- 
--	INIT_LIST_HEAD(&bridge->windows);
-+	pci_init_host_bridge(bridge);
- 	bridge->dev.release = devm_pci_release_host_bridge_dev;
- 
- 	return bridge;
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -597,7 +597,7 @@ void pci_aer_clear_fatal_status(struct p
+ void pci_aer_clear_device_status(struct pci_dev *dev);
+ #else
+ static inline void pci_no_aer(void) { }
+-static inline int pci_aer_init(struct pci_dev *d) { return -ENODEV; }
++static inline void pci_aer_init(struct pci_dev *d) { }
+ static inline void pci_aer_exit(struct pci_dev *d) { }
+ static inline void pci_aer_clear_fatal_status(struct pci_dev *dev) { }
+ static inline void pci_aer_clear_device_status(struct pci_dev *dev) { }
 
 
