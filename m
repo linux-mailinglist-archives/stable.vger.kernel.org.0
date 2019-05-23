@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F0C28911
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CF028913
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392158AbfEWTac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44114 "EHLO mail.kernel.org"
+        id S2403773AbfEWTah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392143AbfEWTac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:32 -0400
+        id S2403764AbfEWTae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05E8520879;
-        Thu, 23 May 2019 19:30:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7CDE2133D;
+        Thu, 23 May 2019 19:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639831;
-        bh=OXAKRAzjo2jHwrzZdwTydx34Rw0Yt7nFcc573flfAXg=;
+        s=default; t=1558639834;
+        bh=r0zyQ/B7KH52Fb9qpYaua23yoj2J/TXEHxufZ/7v2fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLFDIjIj9Ly86NwcuPcz5w4dMFAhWXGUdXKNVL2uh2jiwmOxF2LmXCLaOUXOZJ4Pn
-         pkXL8ihreI+/aRHVVYVn+j9lgTI7xGMv9mBpqpC+GYf4tw20jRxNkleqfObTAINDX2
-         v+bF2DqGvN5PEfdAAmuyvLi1QhhQIcFi9qsLWeNY=
+        b=XrpGWd0vzsnJwcNNJH+LVDx3FFMO05BvI3AVjkDcYXhl2v/93FDu6qq8beP8vSXjd
+         IBVW0g8q9nA4iLPWWbBM/dJBZENEHtT0sXDav+FCLCYxkqhcAsNOXq/rj5A2Y/CKOh
+         5AqWtx67zdsNfHsDcIrpKFSmT+SbJ3Jc8xFGMSY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
+        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        Martin Wilck <mwilck@suse.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.1 108/122] dm ioctl: fix hang in early create error condition
-Date:   Thu, 23 May 2019 21:07:10 +0200
-Message-Id: <20190523181719.695301559@linuxfoundation.org>
+Subject: [PATCH 5.1 109/122] dm mpath: always free attached_handler_name in parse_path()
+Date:   Thu, 23 May 2019 21:07:11 +0200
+Message-Id: <20190523181719.848604177@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -43,50 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Martin Wilck <mwilck@suse.com>
 
-commit 0f41fcf78849c902ddca564f99a8e23ccfc80333 upstream.
+commit 940bc471780b004a5277c1931f52af363c2fc9da upstream.
 
-The dm_early_create() function (which deals with "dm-mod.create=" kernel
-command line option) calls dm_hash_insert() who gets an extra reference
-to the md object.
+Commit b592211c33f7 ("dm mpath: fix attached_handler_name leak and
+dangling hw_handler_name pointer") fixed a memory leak for the case
+where setup_scsi_dh() returns failure. But setup_scsi_dh may return
+success and not "use" attached_handler_name if the
+retain_attached_hwhandler flag is not set on the map. As setup_scsi_sh
+properly "steals" the pointer by nullifying it, freeing it
+unconditionally in parse_path() is safe.
 
-In case of failure, this reference wasn't being released, causing
-dm_destroy() to hang, thus hanging the whole boot process.
-
-Fix this by calling __hash_remove() in the error path.
-
-Fixes: 6bbc923dfcf57d ("dm: add support to directly boot to a mapped device")
+Fixes: b592211c33f7 ("dm mpath: fix attached_handler_name leak and dangling hw_handler_name pointer")
 Cc: stable@vger.kernel.org
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-ioctl.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/md/dm-mpath.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -2069,7 +2069,7 @@ int __init dm_early_create(struct dm_ioc
- 	/* alloc table */
- 	r = dm_table_create(&t, get_mode(dmi), dmi->target_count, md);
- 	if (r)
--		goto err_destroy_dm;
-+		goto err_hash_remove;
+--- a/drivers/md/dm-mpath.c
++++ b/drivers/md/dm-mpath.c
+@@ -882,6 +882,7 @@ static struct pgpath *parse_path(struct
+ 	if (attached_handler_name || m->hw_handler_name) {
+ 		INIT_DELAYED_WORK(&p->activate_path, activate_path_work);
+ 		r = setup_scsi_dh(p->path.dev->bdev, m, &attached_handler_name, &ti->error);
++		kfree(attached_handler_name);
+ 		if (r) {
+ 			dm_put_device(ti, p->path.dev);
+ 			goto bad;
+@@ -896,7 +897,6 @@ static struct pgpath *parse_path(struct
  
- 	/* add targets */
- 	for (i = 0; i < dmi->target_count; i++) {
-@@ -2116,6 +2116,10 @@ int __init dm_early_create(struct dm_ioc
- 
- err_destroy_table:
- 	dm_table_destroy(t);
-+err_hash_remove:
-+	(void) __hash_remove(__get_name_cell(dmi->name));
-+	/* release reference from __get_name_cell */
-+	dm_put(md);
- err_destroy_dm:
- 	dm_put(md);
- 	dm_destroy(md);
+ 	return p;
+  bad:
+-	kfree(attached_handler_name);
+ 	free_pgpath(p);
+ 	return ERR_PTR(r);
+ }
 
 
