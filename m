@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8971A2899C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E64128A7A
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390184AbfEWTVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58256 "EHLO mail.kernel.org"
+        id S2388429AbfEWTPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389795AbfEWTVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:21:06 -0400
+        id S2388939AbfEWTPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:15:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE72D217D7;
-        Thu, 23 May 2019 19:21:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0964217D7;
+        Thu, 23 May 2019 19:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639266;
-        bh=Eck07YnScN80rAFi0HLkukX6wfzOilhLgDStDYeWIPY=;
+        s=default; t=1558638919;
+        bh=tQ4EPmHa88YeE+lsAVf8RF8bcxRpc2MVqWookuBRWD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVyHu65rf1bRsJt/Ca4CXtGUfgtIpNiV90VwO47bOiytmGdFWbNCNoAhCGr6cUBUi
-         w0RrMLA7RJAcJ7jG/4/saMzrcX4mwBPcQm9DB9EulIy80FfV3UXtyfQrY8D7aIv+9E
-         7pErYmM8gA/D3wToXyBX6zHOPjVaMLqVJPIEWXAE=
+        b=KpejofUAkIGC8wpr2Cc8Wvb5xABlKXzdSXxdg3InDlPVdtrmx5Xbbfvxth7yn57Jd
+         w27dGhA1M84BQeN4bC7CEa7bOtreLsbPgIXPTNxaWV4sd+jTSMUD5UWzlqZTHrlxYm
+         6Bu9hJpqdRSJ42qObaz1U34QfSvRAflU/EJsitKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.0 023/139] parisc: Add memory clobber to TLB purges
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 012/114] vsock/virtio: free packets during the socket release
 Date:   Thu, 23 May 2019 21:05:11 +0200
-Message-Id: <20190523181723.760609084@linuxfoundation.org>
+Message-Id: <20190523181732.808465017@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit 44224bdb99150ad17cf394973b25736cb92c246a upstream.
+[ Upstream commit ac03046ece2b158ebd204dfc4896fd9f39f0e6c8 ]
 
-The pdtlb and pitlb instructions are strongly ordered. The asms invoking
-these instructions should be compiler memory barriers to ensure the
-compiler doesn't reorder memory operations around these instructions.
+When the socket is released, we should free all packets
+queued in the per-socket list in order to avoid a memory
+leak.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-CC: stable@vger.kernel.org # v4.20+
-Fixes: 3847dab77421 ("parisc: Add alternative coding infrastructure")
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/parisc/include/asm/cache.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/parisc/include/asm/cache.h
-+++ b/arch/parisc/include/asm/cache.h
-@@ -44,14 +44,14 @@ void parisc_setup_cache_timing(void);
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -786,12 +786,19 @@ static bool virtio_transport_close(struc
  
- #define pdtlb(addr)	asm volatile("pdtlb 0(%%sr1,%0)" \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
- #define pitlb(addr)	asm volatile("pitlb 0(%%sr1,%0)" \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
- 			ALTERNATIVE(ALT_COND_NO_SPLIT_TLB, INSN_NOP) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
- #define pdtlb_kernel(addr)  asm volatile("pdtlb 0(%0)"   \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
+ void virtio_transport_release(struct vsock_sock *vsk)
+ {
++	struct virtio_vsock_sock *vvs = vsk->trans;
++	struct virtio_vsock_pkt *pkt, *tmp;
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
  
- #define asm_io_fdc(addr) asm volatile("fdc %%r0(%0)" \
- 			ALTERNATIVE(ALT_COND_NO_DCACHE, INSN_NOP) \
+ 	lock_sock(sk);
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
++
++	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
++		list_del(&pkt->list);
++		virtio_transport_free_pkt(pkt);
++	}
+ 	release_sock(sk);
+ 
+ 	if (remove_sock)
 
 
