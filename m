@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B2C287F0
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAB6289DE
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390362AbfEWTZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:25:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
+        id S2389674AbfEWTSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:18:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391054AbfEWTZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:25:09 -0400
+        id S2389660AbfEWTSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0015A2133D;
-        Thu, 23 May 2019 19:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 206692184E;
+        Thu, 23 May 2019 19:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639508;
-        bh=m5qC+82P5K9BXdU+ypEv7VBPEXPh/Ox/e4oI2RBIThA=;
+        s=default; t=1558639123;
+        bh=pqomUC/mB5B0Tu67ZwAH0uPUO3ocK5ML1K59knVGFLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQPdxyZTcah5iepMtWnaXgeG+xiLSSwq9sGcVrgID0p0Uub/RLTnmWOu11imPvqOF
-         mzJUy4u3Y5Dzx7oDsZBZbswlw+plkNlhXUMYXiMsZJubryATFWT7s5LI6GKU7qgvtS
-         tCmpyXuboH3UZaAqoyzI3R0Aql6IWTjGVmz7BkPs=
+        b=VZKVKr63dIMIK16FCLtLIey8nr9K3cjNgXoBReaKfzwfFsusdZWKlIQsn4i6aWAb6
+         xxSEcglFMotYrKtyyHNqyZHm1VWW4S4o64z5v/9TK6/p6f/VvsB5MUV4ML0hVWbWHk
+         VdA7EGFgcNxXxng1u452QtABJGsK//4U/tEbcPxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 114/139] apparmorfs: fix use-after-free on symlink traversal
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 103/114] sched/cpufreq: Fix kobject memleak
 Date:   Thu, 23 May 2019 21:06:42 +0200
-Message-Id: <20190523181734.727126644@linuxfoundation.org>
+Message-Id: <20190523181740.376885118@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f51dcd0f621caac5380ce90fbbeafc32ce4517ae ]
+[ Upstream commit 9a4f26cc98d81b67ecc23b890c28e2df324e29f3 ]
 
-symlink body shouldn't be freed without an RCU delay.  Switch apparmorfs
-to ->destroy_inode() and use of call_rcu(); free both the inode and symlink
-body in the callback.
+Currently the error return path from kobject_init_and_add() is not
+followed by a call to kobject_put() - which means we are leaking
+the kobject.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fix it by adding a call to kobject_put() in the error path of
+kobject_init_and_add().
+
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tobin C. Harding <tobin@kernel.org>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Link: http://lkml.kernel.org/r/20190430001144.24890-1-tobin@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/apparmorfs.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ kernel/sched/cpufreq_schedutil.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 3f80a684c232a..665853dd517ca 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -123,17 +123,22 @@ static int aafs_show_path(struct seq_file *seq, struct dentry *dentry)
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 217f81ecae176..4e3625109b28d 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -751,6 +751,7 @@ out:
  	return 0;
- }
  
--static void aafs_evict_inode(struct inode *inode)
-+static void aafs_i_callback(struct rcu_head *head)
- {
--	truncate_inode_pages_final(&inode->i_data);
--	clear_inode(inode);
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
- 	if (S_ISLNK(inode->i_mode))
- 		kfree(inode->i_link);
-+	free_inode_nonrcu(inode);
-+}
-+
-+static void aafs_destroy_inode(struct inode *inode)
-+{
-+	call_rcu(&inode->i_rcu, aafs_i_callback);
- }
- 
- static const struct super_operations aafs_super_ops = {
- 	.statfs = simple_statfs,
--	.evict_inode = aafs_evict_inode,
-+	.destroy_inode = aafs_destroy_inode,
- 	.show_path = aafs_show_path,
- };
+ fail:
++	kobject_put(&tunables->attr_set.kobj);
+ 	policy->governor_data = NULL;
+ 	sugov_tunables_free(tunables);
  
 -- 
 2.20.1
