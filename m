@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C32282886D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33C162864E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390915AbfEWT0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
+        id S1731621AbfEWTIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391251AbfEWT0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:02 -0400
+        id S1731464AbfEWTIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:08:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B69742133D;
-        Thu, 23 May 2019 19:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 020732133D;
+        Thu, 23 May 2019 19:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639562;
-        bh=erWqDX8SpUwJR1ygf9C0eCHvcngG2wRO1gFt5XSuHpg=;
+        s=default; t=1558638493;
+        bh=33G58YR+16EHvNo+jVGF2xS+GJFDlcqpbp4ZAZXzQYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sb/hsSJ+LEJfQvh05d8QhtZzB98VE5eHHViIGrIKDgVc7FM5FvmfhiLOF3HjLRfos
-         lD03zt1CI3KRxUkubfGwM3Cf6gqEHmemXmSoPrgn4GVz8wx8RQ0TH3DRo2XpVtBtIk
-         9XzgEbOcvPvSiPJOMP2AuUGvSkc2ZeUTmPE127jQ=
+        b=wcF4OdILkHkeANFSdoL3C9fhC+zTHAl/tLOFmK91R+AXzB4cJONafVsXPrycaFX0c
+         ymQ5PZaXRD3IxFBuH6JwZ9lLKoYDPj3CSkKSpgsSFsV0da92Gp2nxPRaDq8D+SyzdR
+         /JhZwyxv45Qr/bWUnKe25ThEEiSajeamtNCjIkxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@resnulli.us>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 003/122] net: Always descend into dsa/
+Subject: [PATCH 4.9 01/53] net: avoid weird emergency message
 Date:   Thu, 23 May 2019 21:05:25 +0200
-Message-Id: <20190523181705.491688046@linuxfoundation.org>
+Message-Id: <20190523181711.173625689@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,38 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 0fe9f173d6cda95874edeb413b1fa9907b5ae830 ]
+[ Upstream commit d7c04b05c9ca14c55309eb139430283a45c4c25f ]
 
-Jiri reported that with a kernel built with CONFIG_FIXED_PHY=y,
-CONFIG_NET_DSA=m and CONFIG_NET_DSA_LOOP=m, we would not get to a
-functional state where the mock-up driver is registered. Turns out that
-we are not descending into drivers/net/dsa/ unconditionally, and we
-won't be able to link-in dsa_loop_bdinfo.o which does the actual mock-up
-mdio device registration.
+When host is under high stress, it is very possible thread
+running netdev_wait_allrefs() returns from msleep(250)
+10 seconds late.
 
-Reported-by: Jiri Pirko <jiri@resnulli.us>
-Fixes: 40013ff20b1b ("net: dsa: Fix functional dsa-loop dependency on FIXED_PHY")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
-Tested-by: Jiri Pirko <jiri@resnulli.us>
+This leads to these messages in the syslog :
+
+[...] unregister_netdevice: waiting for syz_tun to become free. Usage count = 0
+
+If the device refcount is zero, the wait is over.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/Makefile |    2 +-
+ net/core/dev.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -40,7 +40,7 @@ obj-$(CONFIG_ARCNET) += arcnet/
- obj-$(CONFIG_DEV_APPLETALK) += appletalk/
- obj-$(CONFIG_CAIF) += caif/
- obj-$(CONFIG_CAN) += can/
--obj-$(CONFIG_NET_DSA) += dsa/
-+obj-y += dsa/
- obj-$(CONFIG_ETHERNET) += ethernet/
- obj-$(CONFIG_FDDI) += fddi/
- obj-$(CONFIG_HIPPI) += hippi/
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7499,7 +7499,7 @@ static void netdev_wait_allrefs(struct n
+ 
+ 		refcnt = netdev_refcnt_read(dev);
+ 
+-		if (time_after(jiffies, warning_time + 10 * HZ)) {
++		if (refcnt && time_after(jiffies, warning_time + 10 * HZ)) {
+ 			pr_emerg("unregister_netdevice: waiting for %s to become free. Usage count = %d\n",
+ 				 dev->name, refcnt);
+ 			warning_time = jiffies;
 
 
