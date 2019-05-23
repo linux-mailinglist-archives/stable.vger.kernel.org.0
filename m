@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9416728A4A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA1A28731
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388277AbfEWTLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
+        id S2388814AbfEWTQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388268AbfEWTLu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:11:50 -0400
+        id S2389191AbfEWTQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA4622133D;
-        Thu, 23 May 2019 19:11:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C54AC217D7;
+        Thu, 23 May 2019 19:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638710;
-        bh=msRxoN6CqdadNIZaUmmQ0x8HaJiap/CRJsG94dvaHKA=;
+        s=default; t=1558638989;
+        bh=ZKAWL+TfWyCxI4eR1wQK7z52Plma/GdthdPmEGtd6Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMsywfiPAcZOrBTsuIK06PvwCpqswhwHwEPyotU/LCrlJcSsIvm1HZ6yM6aKOHR7v
-         rNRb4AsKnU9M5QkDcHJ6y31f7dMsvjsxi2O5Uilx83z1Lv2nFlhU7BTTnPkz1ag5wc
-         FCBGPW3nmGj1qCh6zE1NCRGg/53YOPMJN4quQQq0=
+        b=Zgv4tDx7f6P9t+DI8B19NeyPZwdPVR3uEyN1kf+xhOpTKLRdJKyZjL7SzB52Qqqlx
+         i9+3GpHVvM4Htqk/qhJhNuk4ct1NeJoVogoMlIOFh5Jf2ZOGIRxC0f48YqzbI8ieTT
+         HoFt49woYxtqpTMNhJ5cl229cv2U/tCb5kqN1UlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Tran <tranmanphong@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.14 19/77] of: fix clang -Wunsequenced for be32_to_cpu()
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 038/114] PNFS fallback to MDS if no deviceid found
 Date:   Thu, 23 May 2019 21:05:37 +0200
-Message-Id: <20190523181722.930751648@linuxfoundation.org>
+Message-Id: <20190523181735.225066069@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 440868661f36071886ed360d91de83bd67c73b4f upstream.
+commit b1029c9bc078a6f1515f55dd993b507dcc7e3440 upstream.
 
-Now, make the loop explicit to avoid clang warning.
+If we fail to find a good deviceid while trying to pnfs instead of
+propogating an error back fallback to doing IO to the MDS. Currently,
+code with fals the IO with EINVAL.
 
-./include/linux/of.h:238:37: warning: multiple unsequenced modifications
-to 'cell' [-Wunsequenced]
-                r = (r << 32) | be32_to_cpu(*(cell++));
-                                                  ^~
-./include/linux/byteorder/generic.h:95:21: note: expanded from macro
-'be32_to_cpu'
-                    ^
-./include/uapi/linux/byteorder/little_endian.h:40:59: note: expanded
-from macro '__be32_to_cpu'
-                                                          ^
-./include/uapi/linux/swab.h:118:21: note: expanded from macro '__swab32'
-        ___constant_swab32(x) :                 \
-                           ^
-./include/uapi/linux/swab.h:18:12: note: expanded from macro
-'___constant_swab32'
-        (((__u32)(x) & (__u32)0x000000ffUL) << 24) |            \
-                  ^
-
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/460
-Suggested-by: David Laight <David.Laight@ACULAB.COM>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-[robh: fix up whitespace]
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 8d40b0f14846f ("NFS filelayout:call GETDEVICEINFO after pnfs_layout_process completes"
+Cc: stable@vger.kernel.org # v4.11+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/of.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/filelayout/filelayout.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -229,8 +229,8 @@ extern struct device_node *of_find_all_n
- static inline u64 of_read_number(const __be32 *cell, int size)
- {
- 	u64 r = 0;
--	while (size--)
--		r = (r << 32) | be32_to_cpu(*(cell++));
-+	for (; size--; cell++)
-+		r = (r << 32) | be32_to_cpu(*cell);
- 	return r;
- }
- 
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -904,7 +904,7 @@ fl_pnfs_update_layout(struct inode *ino,
+ 	status = filelayout_check_deviceid(lo, fl, gfp_flags);
+ 	if (status) {
+ 		pnfs_put_lseg(lseg);
+-		lseg = ERR_PTR(status);
++		lseg = NULL;
+ 	}
+ out:
+ 	return lseg;
 
 
