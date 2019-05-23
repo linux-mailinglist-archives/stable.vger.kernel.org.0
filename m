@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D932899F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE0D28A72
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387983AbfEWTU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
+        id S2388106AbfEWTOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388894AbfEWTU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:20:58 -0400
+        id S2388809AbfEWTOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A324F205ED;
-        Thu, 23 May 2019 19:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 951E520863;
+        Thu, 23 May 2019 19:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639258;
-        bh=q0qp2aKN8Z0wy7iKGAyn+I/WpUO1dMJ9tlUpP9MIXJY=;
+        s=default; t=1558638879;
+        bh=E8Fez+UjFAXlTw7Yz7IfL44Gcey0YmhWjuPBqO4+gB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZO435cv7ROUR13MKLrkkNaqnHRNm6v90Pp3zq8fA6MBWMWN16PEI0mc9rH+YxlqR
-         y7Wu6C7MmeksfxOUGDMgCTDHc2pAIFsr/l8MstSQxUzIHivj1p0U2srR2tp612kC3a
-         Ve56/zHNKGKZSPHtuhTGrA7I9mxPhRLesXbq4Q3I=
+        b=koCiUM31/jEiHwcDZCtEADee+iXo22IvPbiR+y/hoUTChkJ1y74D0LWowfyGR929Z
+         TloT4L5MOEN4OO7Ct5MJ/WlJr+ON4yh7C4pOVgVvfPUh4xAWksnB0NcdSGHT2ubZ+l
+         sLdRTuA+N/Omd12rToHgWakMZEGkEY5q9tSdn5qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        James Smart <james.smart@broadcom.com>,
-        Bart Van Assche <bart.vanassche@wdc.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, linux-scsi@vger.kernel.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>
-Subject: [PATCH 5.0 020/139] blk-mq: free hw queues resource in hctxs release handler
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 009/114] ppp: deflate: Fix possible crash in deflate_init
 Date:   Thu, 23 May 2019 21:05:08 +0200
-Message-Id: <20190523181723.307122649@linuxfoundation.org>
+Message-Id: <20190523181732.454108630@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,130 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit c7e2d94b3d1634988a95ac4d77a72dc7487ece06 upstream.
+[ Upstream commit 3ebe1bca58c85325c97a22d4fc3f5b5420752e6f ]
 
-Once blk_cleanup_queue() returns, tags shouldn't be used any more,
-because blk_mq_free_tag_set() may be called. Commit 45a9c9d909b2
-("blk-mq: Fix a use-after-free") fixes this issue exactly.
+BUG: unable to handle kernel paging request at ffffffffa018f000
+PGD 3270067 P4D 3270067 PUD 3271063 PMD 2307eb067 PTE 0
+Oops: 0000 [#1] PREEMPT SMP
+CPU: 0 PID: 4138 Comm: modprobe Not tainted 5.1.0-rc7+ #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:ppp_register_compressor+0x3e/0xd0 [ppp_generic]
+Code: 98 4a 3f e2 48 8b 15 c1 67 00 00 41 8b 0c 24 48 81 fa 40 f0 19 a0
+75 0e eb 35 48 8b 12 48 81 fa 40 f0 19 a0 74
+RSP: 0018:ffffc90000d93c68 EFLAGS: 00010287
+RAX: ffffffffa018f000 RBX: ffffffffa01a3000 RCX: 000000000000001a
+RDX: ffff888230c750a0 RSI: 0000000000000000 RDI: ffffffffa019f000
+RBP: ffffc90000d93c80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffa0194080
+R13: ffff88822ee1a700 R14: 0000000000000000 R15: ffffc90000d93e78
+FS:  00007f2339557540(0000) GS:ffff888237a00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa018f000 CR3: 000000022bde4000 CR4: 00000000000006f0
+Call Trace:
+ ? 0xffffffffa01a3000
+ deflate_init+0x11/0x1000 [ppp_deflate]
+ ? 0xffffffffa01a3000
+ do_one_initcall+0x6c/0x3cc
+ ? kmem_cache_alloc_trace+0x248/0x3b0
+ do_init_module+0x5b/0x1f1
+ load_module+0x1db1/0x2690
+ ? m_show+0x1d0/0x1d0
+ __do_sys_finit_module+0xc5/0xd0
+ __x64_sys_finit_module+0x15/0x20
+ do_syscall_64+0x6b/0x1d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-However, that commit introduces another issue. Before 45a9c9d909b2,
-we are allowed to run queue during cleaning up queue if the queue's
-kobj refcount is held. After that commit, queue can't be run during
-queue cleaning up, otherwise oops can be triggered easily because
-some fields of hctx are freed by blk_mq_free_queue() in blk_cleanup_queue().
+If ppp_deflate fails to register in deflate_init,
+module initialization failed out, however
+ppp_deflate_draft may has been regiestred and not
+unregistered before return.
+Then the seconed modprobe will trigger crash like this.
 
-We have invented ways for addressing this kind of issue before, such as:
-
-	8dc765d438f1 ("SCSI: fix queue cleanup race before queue initialization is done")
-	c2856ae2f315 ("blk-mq: quiesce queue before freeing queue")
-
-But still can't cover all cases, recently James reports another such
-kind of issue:
-
-	https://marc.info/?l=linux-scsi&m=155389088124782&w=2
-
-This issue can be quite hard to address by previous way, given
-scsi_run_queue() may run requeues for other LUNs.
-
-Fixes the above issue by freeing hctx's resources in its release handler, and this
-way is safe becasue tags isn't needed for freeing such hctx resource.
-
-This approach follows typical design pattern wrt. kobject's release handler.
-
-Cc: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: James Smart <james.smart@broadcom.com>
-Cc: Bart Van Assche <bart.vanassche@wdc.com>
-Cc: linux-scsi@vger.kernel.org,
-Cc: Martin K . Petersen <martin.petersen@oracle.com>,
-Cc: Christoph Hellwig <hch@lst.de>,
-Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
-Reported-by: James Smart <james.smart@broadcom.com>
-Fixes: 45a9c9d909b2 ("blk-mq: Fix a use-after-free")
-Cc: stable@vger.kernel.org
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Tested-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- block/blk-core.c     |    2 +-
- block/blk-mq-sysfs.c |    6 ++++++
- block/blk-mq.c       |    8 ++------
- block/blk-mq.h       |    2 +-
- 4 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/ppp/ppp_deflate.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -375,7 +375,7 @@ void blk_cleanup_queue(struct request_qu
- 	blk_exit_queue(q);
+--- a/drivers/net/ppp/ppp_deflate.c
++++ b/drivers/net/ppp/ppp_deflate.c
+@@ -610,12 +610,20 @@ static struct compressor ppp_deflate_dra
  
- 	if (queue_is_mq(q))
--		blk_mq_free_queue(q);
-+		blk_mq_exit_queue(q);
- 
- 	percpu_ref_exit(&q->q_usage_counter);
- 
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -10,6 +10,7 @@
- #include <linux/smp.h>
- 
- #include <linux/blk-mq.h>
-+#include "blk.h"
- #include "blk-mq.h"
- #include "blk-mq-tag.h"
- 
-@@ -33,6 +34,11 @@ static void blk_mq_hw_sysfs_release(stru
+ static int __init deflate_init(void)
  {
- 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
- 						  kobj);
+-        int answer = ppp_register_compressor(&ppp_deflate);
+-        if (answer == 0)
+-                printk(KERN_INFO
+-		       "PPP Deflate Compression module registered\n");
+-	ppp_register_compressor(&ppp_deflate_draft);
+-        return answer;
++	int rc;
 +
-+	if (hctx->flags & BLK_MQ_F_BLOCKING)
-+		cleanup_srcu_struct(hctx->srcu);
-+	blk_free_flush_queue(hctx->fq);
-+	sbitmap_free(&hctx->ctx_map);
- 	free_cpumask_var(hctx->cpumask);
- 	kfree(hctx->ctxs);
- 	kfree(hctx);
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2270,12 +2270,7 @@ static void blk_mq_exit_hctx(struct requ
- 	if (set->ops->exit_hctx)
- 		set->ops->exit_hctx(hctx, hctx_idx);
- 
--	if (hctx->flags & BLK_MQ_F_BLOCKING)
--		cleanup_srcu_struct(hctx->srcu);
--
- 	blk_mq_remove_cpuhp(hctx);
--	blk_free_flush_queue(hctx->fq);
--	sbitmap_free(&hctx->ctx_map);
++	rc = ppp_register_compressor(&ppp_deflate);
++	if (rc)
++		return rc;
++
++	rc = ppp_register_compressor(&ppp_deflate_draft);
++	if (rc) {
++		ppp_unregister_compressor(&ppp_deflate);
++		return rc;
++	}
++
++	pr_info("PPP Deflate Compression module registered\n");
++	return 0;
  }
  
- static void blk_mq_exit_hw_queues(struct request_queue *q,
-@@ -2904,7 +2899,8 @@ err_exit:
- }
- EXPORT_SYMBOL(blk_mq_init_allocated_queue);
- 
--void blk_mq_free_queue(struct request_queue *q)
-+/* tags can _not_ be used after returning from blk_mq_exit_queue */
-+void blk_mq_exit_queue(struct request_queue *q)
- {
- 	struct blk_mq_tag_set	*set = q->tag_set;
- 
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -36,7 +36,7 @@ struct blk_mq_ctx {
- 	struct kobject		kobj;
- } ____cacheline_aligned_in_smp;
- 
--void blk_mq_free_queue(struct request_queue *q);
-+void blk_mq_exit_queue(struct request_queue *q);
- int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr);
- void blk_mq_wake_waiters(struct request_queue *q);
- bool blk_mq_dispatch_rq_list(struct request_queue *, struct list_head *, bool);
+ static void __exit deflate_cleanup(void)
 
 
