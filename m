@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF9228DEF
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 01:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A8628DF0
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 01:42:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388281AbfEWXmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388180AbfEWXmm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 May 2019 19:42:42 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:41952 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388180AbfEWXml (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 19:42:41 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4NNYjOM081818;
-        Thu, 23 May 2019 23:41:29 GMT
+Received: from userp2130.oracle.com ([156.151.31.86]:51382 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388129AbfEWXmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 19:42:42 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4NNZ2ft069885;
+        Thu, 23 May 2019 23:42:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=corp-2018-07-02;
- bh=ZawahLfA7rNVIJ6ZfjAcLhFFrFeoD5xdB741EPsANE4=;
- b=3T9X6ztsFmwNj4ymdSmz98hKQ2LhXzZ9KXkLhS/jrDlf583tERIc/ar07e1x4N8ZTRP7
- NNbN63uLO6L/fe/lMNl6hDUK5hLAfV+f3aedyL60YqsM8cwwV0Zc8FcHu9Fi+8G7VBae
- t4pPVckNCbH1kkRJhdQipKV7I8YdrBavrfQV7C91quNAZAjJcVNIIoo8VUzgqGNlXQeo
- 1u5QLF64rr4Y3T0vAxYPCJedYqLm4v2+NoTAK4Jm1IFJweyPEwJH2qqvCbCU6O1WYeUh
- 4+1dhdsA3L6V2PfnZP3rj1wfojFpLTkQeuweQk3n/m3N8VK+D0QJ3TdGNaZjrTXhFhgO Yg== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 2smsk5dmu3-1
+ bh=1JgCZLzWfbnFfhqA0xcFotNG2JFUIrcN6ULOCR0spU4=;
+ b=RzEbk4y2wCftai4pgWkoIfZgeDxTNqbDnB8zPnEPw+8WhO9kRAuHZnEMoExtIJp5s3AW
+ yXnh4THZsPLkMRUuaNtCpqs2Z7Pz89GX6Fsh0XpiHyl1jwz5B5Z3StYzaxUohjONyUOF
+ /gXivDJlxj3C4pk6TdeX7oJXaMU8t8xEP8Grv8aV8sLyoigGqlsntc4CkvKIGV7zxesR
+ b2Ue062TOI1e73BtzXd/y15FId1XcAvcgZo5kc3wtNkwbKT/QodT9yehGGDOcSaKy90E
+ qdnRaFbwM8IjOSI49iR/z/9ZZ5obhCZFy1+zCny+TxZ2wbJAzX5YEbsbkaF1zI2E3+3o Bw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2130.oracle.com with ESMTP id 2smsk5nmjf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 May 2019 23:41:29 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4NNdk2t014807;
-        Thu, 23 May 2019 23:41:29 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 2smsgvsvnn-1
+        Thu, 23 May 2019 23:42:30 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4NNfb2a001327;
+        Thu, 23 May 2019 23:42:29 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 2smsgthywy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 May 2019 23:41:28 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x4NNfQYl022231;
-        Thu, 23 May 2019 23:41:26 GMT
+        Thu, 23 May 2019 23:42:29 +0000
+Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x4NNgS2O023570;
+        Thu, 23 May 2019 23:42:29 GMT
 Received: from [192.168.1.222] (/71.63.128.209)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 23 May 2019 23:41:26 +0000
+        with ESMTP ; Thu, 23 May 2019 23:42:28 +0000
 Subject: Re: FAILED: patch "[PATCH] hugetlb: use same fault hash key for
- shared and private" failed to apply to 4.4-stable tree
+ shared and private" failed to apply to 4.9-stable tree
 To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
         dbueso@suse.de, iamjoonsoo.kim@lge.com,
         kirill.shutemov@linux.intel.com, mhocko@kernel.org,
         n-horiguchi@ah.jp.nec.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
-References: <1558105205227215@kroah.com>
+References: <155810520474160@kroah.com>
 From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <d7d4ab79-bb4a-224f-9614-225070f3b78e@oracle.com>
-Date:   Thu, 23 May 2019 16:41:24 -0700
+Message-ID: <ba47662e-26be-5e28-e64e-59bc01603fa8@oracle.com>
+Date:   Thu, 23 May 2019 16:42:27 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1558105205227215@kroah.com>
+In-Reply-To: <155810520474160@kroah.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -65,7 +65,7 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 ma
  engine=8.0.1-1810050000 definitions=main-1905230152
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9266 signatures=668687
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
  lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
  definitions=main-1905230152
@@ -76,13 +76,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 On 5/17/19 8:00 AM, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.4-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
 From: Mike Kravetz <mike.kravetz@oracle.com>
-Date: Thu, 23 May 2019 13:52:15 -0700
+Date: Thu, 23 May 2019 14:19:09 -0700
 Subject: [PATCH] hugetlb: use same fault hash key for shared and private
  mappings
 
@@ -141,10 +141,10 @@ Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
  3 files changed, 8 insertions(+), 22 deletions(-)
 
 diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 27c4e2ac39a9..c9f288dbe734 100644
+index 4acc677ac8fb..a52b76117090 100644
 --- a/fs/hugetlbfs/inode.c
 +++ b/fs/hugetlbfs/inode.c
-@@ -414,9 +414,7 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
+@@ -451,9 +451,7 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
  			if (next >= end)
  				break;
  
@@ -154,8 +154,8 @@ index 27c4e2ac39a9..c9f288dbe734 100644
 +			hash = hugetlb_fault_mutex_hash(h, mapping, next, 0);
  			mutex_lock(&hugetlb_fault_mutex_table[hash]);
  
- 			lock_page(page);
-@@ -633,8 +631,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
+ 			/*
+@@ -637,8 +635,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
  		addr = index * hpage_size;
  
  		/* mutex taken here, fault path and hole punch */
@@ -166,12 +166,12 @@ index 27c4e2ac39a9..c9f288dbe734 100644
  
  		/* See if already present in mapping to avoid alloc/free */
 diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 3957d99e66ea..cc185525a94b 100644
+index b699d59d0f4f..6b8a7b654771 100644
 --- a/include/linux/hugetlb.h
 +++ b/include/linux/hugetlb.h
-@@ -91,9 +91,7 @@ void putback_active_hugepage(struct page *page);
+@@ -92,9 +92,7 @@ void putback_active_hugepage(struct page *page);
  void free_huge_page(struct page *page);
- void hugetlb_fix_reserve_counts(struct inode *inode, bool restore_reserve);
+ void hugetlb_fix_reserve_counts(struct inode *inode);
  extern struct mutex *hugetlb_fault_mutex_table;
 -u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
 -				struct vm_area_struct *vma,
@@ -179,12 +179,12 @@ index 3957d99e66ea..cc185525a94b 100644
 +u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
  				pgoff_t idx, unsigned long address);
  
- #ifdef CONFIG_ARCH_WANT_HUGE_PMD_SHARE
+ pte_t *huge_pmd_share(struct mm_struct *mm, unsigned long addr, pud_t *pud);
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 324b2953e57e..d7f65a8c629b 100644
+index 8b682da98d95..75d8bd7e8798 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -3703,21 +3703,14 @@ backout_unlocked:
+@@ -3812,21 +3812,14 @@ static int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
  }
  
  #ifdef CONFIG_SMP
@@ -209,7 +209,7 @@ index 324b2953e57e..d7f65a8c629b 100644
  
  	hash = jhash2((u32 *)&key, sizeof(key)/sizeof(u32), 0);
  
-@@ -3728,9 +3721,7 @@ u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
+@@ -3837,9 +3830,7 @@ u32 hugetlb_fault_mutex_hash(struct hstate *h, struct mm_struct *mm,
   * For uniprocesor systems we always use a single mutex, so just
   * return 0 and avoid the hashing overhead.
   */
@@ -220,7 +220,7 @@ index 324b2953e57e..d7f65a8c629b 100644
  			    pgoff_t idx, unsigned long address)
  {
  	return 0;
-@@ -3776,7 +3767,7 @@ int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+@@ -3885,7 +3876,7 @@ int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
  	 * get spurious allocation failures if two CPUs race to instantiate
  	 * the same page in the page cache.
  	 */
