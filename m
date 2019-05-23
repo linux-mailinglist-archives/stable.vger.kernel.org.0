@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 198FD28694
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF641287AC
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387955AbfEWTKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
+        id S2390344AbfEWTV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387947AbfEWTKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:46 -0400
+        id S2390361AbfEWTVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:21:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41638217D7;
-        Thu, 23 May 2019 19:10:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60398217D9;
+        Thu, 23 May 2019 19:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638645;
-        bh=DR2Hg/fRrmYxcQi0/v7BdYlawFDvUxGS549mG4XxQ/k=;
+        s=default; t=1558639314;
+        bh=Q0lGo3h/GiZTNUedHTI6vKMsm4zr8272mGtNb6WOu9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gjbw9n6Qmx0nRZkqk9MIur8IBmuLU/x0GJ7xcfmyVvilLt3af2LBVz8Q5P2YtPU4b
-         N/HLkgAYuCK9Ml3alEglc564ydjPOMnZewRfGi/m509cNUK0rlRvKw/aau+FCdaG+X
-         6n+VndYn8sfWoE4VdOpfDtzH5wNR/N+6Y1L6Ouxo=
+        b=K6+CAJbX7oeB7WksLOhcEqb26oBLztl2uJJtsvuIh2+Pfa9QD42EjFVkr2UW8It7h
+         tUeS/OMHIt3pxad/9vg3o0s3M2q7TQTAahAP7pSSEG9ScdqPCkUhM3z6P7fR7GOheR
+         IqT2fxFhHXhfmxsNsSEmjLQ8jGv/3BqPkP/LAE7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 12/77] parisc: Skip registering LED when running in QEMU
+        stable@vger.kernel.org, Christoph Probst <kernel@probst.it>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.0 042/139] cifs: fix strcat buffer overflow and reduce raciness in smb21_set_oplock_level()
 Date:   Thu, 23 May 2019 21:05:30 +0200
-Message-Id: <20190523181721.869837434@linuxfoundation.org>
+Message-Id: <20190523181726.206207031@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Christoph Probst <kernel@probst.it>
 
-commit b438749044356dd1329c45e9b5a9377b6ea13eb2 upstream.
+commit 6a54b2e002c9d00b398d35724c79f9fe0d9b38fb upstream.
 
-No need to spend CPU cycles when we run on QEMU.
+Change strcat to strncpy in the "None" case to fix a buffer overflow
+when cinode->oplock is reset to 0 by another thread accessing the same
+cinode. It is never valid to append "None" to any other message.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-CC: stable@vger.kernel.org # v4.9+
+Consolidate multiple writes to cinode->oplock to reduce raciness.
+
+Signed-off-by: Christoph Probst <kernel@probst.it>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/parisc/led.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/smb2ops.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/parisc/led.c
-+++ b/drivers/parisc/led.c
-@@ -568,6 +568,9 @@ int __init register_led_driver(int model
- 		break;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -2652,26 +2652,28 @@ smb21_set_oplock_level(struct cifsInodeI
+ 		       unsigned int epoch, bool *purge_cache)
+ {
+ 	char message[5] = {0};
++	unsigned int new_oplock = 0;
  
- 	case DISPLAY_MODEL_LASI:
-+		/* Skip to register LED in QEMU */
-+		if (running_on_qemu)
-+			return 1;
- 		LED_DATA_REG = data_reg;
- 		led_func_ptr = led_LASI_driver;
- 		printk(KERN_INFO "LED display at %lx registered\n", LED_DATA_REG);
+ 	oplock &= 0xFF;
+ 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
+ 		return;
+ 
+-	cinode->oplock = 0;
+ 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_READ_FLG;
++		new_oplock |= CIFS_CACHE_READ_FLG;
+ 		strcat(message, "R");
+ 	}
+ 	if (oplock & SMB2_LEASE_HANDLE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_HANDLE_FLG;
++		new_oplock |= CIFS_CACHE_HANDLE_FLG;
+ 		strcat(message, "H");
+ 	}
+ 	if (oplock & SMB2_LEASE_WRITE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_WRITE_FLG;
++		new_oplock |= CIFS_CACHE_WRITE_FLG;
+ 		strcat(message, "W");
+ 	}
+-	if (!cinode->oplock)
+-		strcat(message, "None");
++	if (!new_oplock)
++		strncpy(message, "None", sizeof(message));
++
++	cinode->oplock = new_oplock;
+ 	cifs_dbg(FYI, "%s Lease granted on inode %p\n", message,
+ 		 &cinode->vfs_inode);
+ }
 
 
