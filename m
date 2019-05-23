@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFD6287BD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C097A28A44
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389761AbfEWTWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
+        id S2388221AbfEWTLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:11:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389471AbfEWTWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:22:44 -0400
+        id S2388217AbfEWTLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:11:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8BEA20868;
-        Thu, 23 May 2019 19:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7151C2184B;
+        Thu, 23 May 2019 19:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639363;
-        bh=6w0XLcK3kA/Yt7EYerfmqZO1sv5gIWUrf5GK4rnJhIk=;
+        s=default; t=1558638694;
+        bh=WOEa1ws4HotOoIA7LVTMovEkyc6zTE+JoWJkweKPueU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXsZ78qZPgFF6CKvXReBFAfqk15LuG5P0Z99nMyksOeJkupVpXb7AVIEo0my9TVhA
-         GhEZezaVHP6fYguMaXmxBmbBqRsskXMY5byqT9e67uSvxBD+N7YZNIx71Ld2c7V0jl
-         jdNyQqwPL8sShZ5VaoIRvaFNI6B/IR+WKfoQLekk=
+        b=di2M9o8WkZsOJ5lautEsGesnH/VMsxKgreCaWlIH/B1IBTLhJfDku413q5P54SlIj
+         oN2E7DX6+q2z+YP9I/oQRcicKH4MoZdXD5fqX8noVT3RvpSPNZA5m5tuCrRV0TPoiv
+         uIfDBU4qsx2dUF0Pp+CQIB6bbD9RI2qdWpYDv7XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.0 060/139] ovl: fix missing upper fs freeze protection on copy up for ioctl
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.14 30/77] iommu/tegra-smmu: Fix invalid ASID bits on Tegra30/114
 Date:   Thu, 23 May 2019 21:05:48 +0200
-Message-Id: <20190523181728.514620443@linuxfoundation.org>
+Message-Id: <20190523181724.380491661@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 3428030da004a1128cbdcf93dc03e16f184d845b upstream.
+commit 43a0541e312f7136e081e6bf58f6c8a2e9672688 upstream.
 
-Generalize the helper ovl_open_maybe_copy_up() and use it to copy up file
-with data before FS_IOC_SETFLAGS ioctl.
+Both Tegra30 and Tegra114 have 4 ASID's and the corresponding bitfield of
+the TLB_FLUSH register differs from later Tegra generations that have 128
+ASID's.
 
-The FS_IOC_SETFLAGS ioctl is a bit of an odd ball in vfs, which probably
-caused the confusion.  File may be open O_RDONLY, but ioctl modifies the
-file.  VFS does not call mnt_want_write_file() nor lock inode mutex, but
-fs-specific code for FS_IOC_SETFLAGS does.  So ovl_ioctl() calls
-mnt_want_write_file() for the overlay file, and fs-specific code calls
-mnt_want_write_file() for upper fs file, but there was no call for
-ovl_want_write() for copy up duration which prevents overlayfs from copying
-up on a frozen upper fs.
+In a result the PTE's are now flushed correctly from TLB and this fixes
+problems with graphics (randomly failing tests) on Tegra30.
 
-Fixes: dab5ca8fd9dd ("ovl: add lsattr/chattr support")
-Cc: <stable@vger.kernel.org> # v4.19
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/copy_up.c   |    6 +++---
- fs/overlayfs/file.c      |    5 ++---
- fs/overlayfs/overlayfs.h |    2 +-
- 3 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/iommu/tegra-smmu.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -909,14 +909,14 @@ static bool ovl_open_need_copy_up(struct
- 	return true;
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -94,7 +94,6 @@ static inline u32 smmu_readl(struct tegr
+ #define  SMMU_TLB_FLUSH_VA_MATCH_ALL     (0 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_SECTION (2 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_GROUP   (3 << 0)
+-#define  SMMU_TLB_FLUSH_ASID(x)          (((x) & 0x7f) << 24)
+ #define  SMMU_TLB_FLUSH_VA_SECTION(addr) ((((addr) & 0xffc00000) >> 12) | \
+ 					  SMMU_TLB_FLUSH_VA_MATCH_SECTION)
+ #define  SMMU_TLB_FLUSH_VA_GROUP(addr)   ((((addr) & 0xffffc000) >> 12) | \
+@@ -197,8 +196,12 @@ static inline void smmu_flush_tlb_asid(s
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_MATCH_ALL;
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_MATCH_ALL;
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
  }
  
--int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags)
-+int ovl_maybe_copy_up(struct dentry *dentry, int flags)
+@@ -208,8 +211,12 @@ static inline void smmu_flush_tlb_sectio
  {
- 	int err = 0;
+ 	u32 value;
  
--	if (ovl_open_need_copy_up(dentry, file_flags)) {
-+	if (ovl_open_need_copy_up(dentry, flags)) {
- 		err = ovl_want_write(dentry);
- 		if (!err) {
--			err = ovl_copy_up_flags(dentry, file_flags);
-+			err = ovl_copy_up_flags(dentry, flags);
- 			ovl_drop_write(dentry);
- 		}
- 	}
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -116,11 +116,10 @@ static int ovl_real_fdget(const struct f
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_SECTION(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_SECTION(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
  
- static int ovl_open(struct inode *inode, struct file *file)
+@@ -219,8 +226,12 @@ static inline void smmu_flush_tlb_group(
  {
--	struct dentry *dentry = file_dentry(file);
- 	struct file *realfile;
- 	int err;
+ 	u32 value;
  
--	err = ovl_open_maybe_copy_up(dentry, file->f_flags);
-+	err = ovl_maybe_copy_up(file_dentry(file), file->f_flags);
- 	if (err)
- 		return err;
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_GROUP(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_GROUP(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
  
-@@ -390,7 +389,7 @@ static long ovl_ioctl(struct file *file,
- 		if (ret)
- 			return ret;
- 
--		ret = ovl_copy_up_with_data(file_dentry(file));
-+		ret = ovl_maybe_copy_up(file_dentry(file), O_WRONLY);
- 		if (!ret) {
- 			ret = ovl_real_ioctl(file, cmd, arg);
- 
---- a/fs/overlayfs/overlayfs.h
-+++ b/fs/overlayfs/overlayfs.h
-@@ -421,7 +421,7 @@ extern const struct file_operations ovl_
- int ovl_copy_up(struct dentry *dentry);
- int ovl_copy_up_with_data(struct dentry *dentry);
- int ovl_copy_up_flags(struct dentry *dentry, int flags);
--int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags);
-+int ovl_maybe_copy_up(struct dentry *dentry, int flags);
- int ovl_copy_xattr(struct dentry *old, struct dentry *new);
- int ovl_set_attr(struct dentry *upper, struct kstat *stat);
- struct ovl_fh *ovl_encode_real_fh(struct dentry *real, bool is_upper);
 
 
