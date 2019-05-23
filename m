@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 331C5286D9
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49A7289F9
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388609AbfEWTNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47584 "EHLO mail.kernel.org"
+        id S2389424AbfEWTR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388135AbfEWTNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:35 -0400
+        id S2389422AbfEWTR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 687C720863;
-        Thu, 23 May 2019 19:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1335621871;
+        Thu, 23 May 2019 19:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638814;
-        bh=lD4/6hQEBd8Jge6vEJoPNGZPleezE7ZlAsciEFCdsUE=;
+        s=default; t=1558639048;
+        bh=/lZTweBW81hb+YjBSmF1dONvupQjZjJDzP6SgXt1RdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIq1p1G8eRndRdkSJ3HXKQ8Di80PmWyPHL0XybY3ZM/JvnAd+yQ6f6iddGzyCc1YO
-         Q6yKDYNtVXgAA/Dab7BgMSjdz6gGFA2t9CUTaDt3PrMqyjOEO5pv5L3cT57aYXYbDV
-         8TB6L0GqFrXCWvWo2az+NJlOeQ82aIfBOOdtTk8s=
+        b=jqGD1K5+/vQmvBug2uc8UqgcT6pQkYAUXntvmY8D8ALGPo9P18LsdDXMueas1O8YO
+         p9CA56mEb/+zt3bPoRcGQZPsSn0ECYp1ClPstm/yZz5o8rlJbKjAYi5WbMxsTXBViL
+         LFOENFRgEh2zo6FA0bhN1+cON4lO5sPxMlT5Q6Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 58/77] vti4: ipip tunnel deregistration fixes.
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 077/114] dm cache metadata: Fix loading discard bitset
 Date:   Thu, 23 May 2019 21:06:16 +0200
-Message-Id: <20190523181727.976880575@linuxfoundation.org>
+Message-Id: <20190523181738.722126723@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5483844c3fc18474de29f5d6733003526e0a9f78 ]
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-If tunnel registration failed during module initialization, the module
-would fail to deregister the IPPROTO_COMP protocol and would attempt to
-deregister the tunnel.
+commit e28adc3bf34e434b30e8d063df4823ba0f3e0529 upstream.
 
-The tunnel was not deregistered during module-exit.
+Add missing dm_bitset_cursor_next() to properly advance the bitset
+cursor.
 
-Fixes: dd9ee3444014e ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Otherwise, the discarded state of all blocks is set according to the
+discarded state of the first block.
+
+Fixes: ae4a46a1f6 ("dm cache metadata: use bitset cursor api to load discard bitset")
+Cc: stable@vger.kernel.org
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv4/ip_vti.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/md/dm-cache-metadata.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_vti.c b/net/ipv4/ip_vti.c
-index 306603a7f3514..c07065b7e3b0e 100644
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -663,9 +663,9 @@ static int __init vti_init(void)
- 	return err;
+--- a/drivers/md/dm-cache-metadata.c
++++ b/drivers/md/dm-cache-metadata.c
+@@ -1167,11 +1167,18 @@ static int __load_discards(struct dm_cac
+ 		if (r)
+ 			return r;
  
- rtnl_link_failed:
--	xfrm4_protocol_deregister(&vti_ipcomp4_protocol, IPPROTO_COMP);
--xfrm_tunnel_failed:
- 	xfrm4_tunnel_deregister(&ipip_handler, AF_INET);
-+xfrm_tunnel_failed:
-+	xfrm4_protocol_deregister(&vti_ipcomp4_protocol, IPPROTO_COMP);
- xfrm_proto_comp_failed:
- 	xfrm4_protocol_deregister(&vti_ah4_protocol, IPPROTO_AH);
- xfrm_proto_ah_failed:
-@@ -680,6 +680,7 @@ pernet_dev_failed:
- static void __exit vti_fini(void)
- {
- 	rtnl_link_unregister(&vti_link_ops);
-+	xfrm4_tunnel_deregister(&ipip_handler, AF_INET);
- 	xfrm4_protocol_deregister(&vti_ipcomp4_protocol, IPPROTO_COMP);
- 	xfrm4_protocol_deregister(&vti_ah4_protocol, IPPROTO_AH);
- 	xfrm4_protocol_deregister(&vti_esp4_protocol, IPPROTO_ESP);
--- 
-2.20.1
-
+-		for (b = 0; b < from_dblock(cmd->discard_nr_blocks); b++) {
++		for (b = 0; ; b++) {
+ 			r = fn(context, cmd->discard_block_size, to_dblock(b),
+ 			       dm_bitset_cursor_get_value(&c));
+ 			if (r)
+ 				break;
++
++			if (b >= (from_dblock(cmd->discard_nr_blocks) - 1))
++				break;
++
++			r = dm_bitset_cursor_next(&c);
++			if (r)
++				break;
+ 		}
+ 
+ 		dm_bitset_cursor_end(&c);
 
 
