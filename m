@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 389E928A75
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15827286A1
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388384AbfEWTPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49342 "EHLO mail.kernel.org"
+        id S2388049AbfEWTLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388886AbfEWTPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:15:06 -0400
+        id S2388069AbfEWTLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:11:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D049A20863;
-        Thu, 23 May 2019 19:15:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19BA0217F9;
+        Thu, 23 May 2019 19:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638905;
-        bh=7nKQyDwytzw/xeDj6uK0lwRzC4i4TY4rO9siIcdbXiw=;
+        s=default; t=1558638664;
+        bh=E8Fez+UjFAXlTw7Yz7IfL44Gcey0YmhWjuPBqO4+gB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpdkiCNjZzUrusBVrbUXoZ1oD79bRYee15YgKy4x/vgRe2nDgdoenLOM23rQgnd5c
-         9P0vrYB14E/Y8SUV+xJHzi/rYxNmIS4iShp/1uN/Nh6EciFzSaEk9wipdkglfeeQbz
-         OkYxOhOBF+rdjVpZu87uhWOOG4TiIYnjj8s7Nm6k=
+        b=jfQkF8hSg7lL4k0VUE3TdylxD93+lPKRRMBuH497kmS2qaqy8LcHJp4b4ciu3uHfL
+         vjpXIzwYUf/1wfeCTcWx9HTgw/qk8gPK0gsVJYhn31v8AGCk03fV7QgGVz/kvvSoQn
+         zbespLKK5JWfZ7hKa21syCawuK/UToFYvwVKtjDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "chengjian (D)" <cj.chengjian@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <james.morris@microsoft.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.19 024/114] proc: prevent changes to overridden credentials
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 05/77] ppp: deflate: Fix possible crash in deflate_init
 Date:   Thu, 23 May 2019 21:05:23 +0200
-Message-Id: <20190523181734.071456391@linuxfoundation.org>
+Message-Id: <20190523181720.797965477@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 35a196bef449b5824033865b963ed9a43fb8c730 upstream.
+[ Upstream commit 3ebe1bca58c85325c97a22d4fc3f5b5420752e6f ]
 
-Prevent userspace from changing the the /proc/PID/attr values if the
-task's credentials are currently overriden.  This not only makes sense
-conceptually, it also prevents some really bizarre error cases caused
-when trying to commit credentials to a task with overridden
-credentials.
+BUG: unable to handle kernel paging request at ffffffffa018f000
+PGD 3270067 P4D 3270067 PUD 3271063 PMD 2307eb067 PTE 0
+Oops: 0000 [#1] PREEMPT SMP
+CPU: 0 PID: 4138 Comm: modprobe Not tainted 5.1.0-rc7+ #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:ppp_register_compressor+0x3e/0xd0 [ppp_generic]
+Code: 98 4a 3f e2 48 8b 15 c1 67 00 00 41 8b 0c 24 48 81 fa 40 f0 19 a0
+75 0e eb 35 48 8b 12 48 81 fa 40 f0 19 a0 74
+RSP: 0018:ffffc90000d93c68 EFLAGS: 00010287
+RAX: ffffffffa018f000 RBX: ffffffffa01a3000 RCX: 000000000000001a
+RDX: ffff888230c750a0 RSI: 0000000000000000 RDI: ffffffffa019f000
+RBP: ffffc90000d93c80 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffa0194080
+R13: ffff88822ee1a700 R14: 0000000000000000 R15: ffffc90000d93e78
+FS:  00007f2339557540(0000) GS:ffff888237a00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa018f000 CR3: 000000022bde4000 CR4: 00000000000006f0
+Call Trace:
+ ? 0xffffffffa01a3000
+ deflate_init+0x11/0x1000 [ppp_deflate]
+ ? 0xffffffffa01a3000
+ do_one_initcall+0x6c/0x3cc
+ ? kmem_cache_alloc_trace+0x248/0x3b0
+ do_init_module+0x5b/0x1f1
+ load_module+0x1db1/0x2690
+ ? m_show+0x1d0/0x1d0
+ __do_sys_finit_module+0xc5/0xd0
+ __x64_sys_finit_module+0x15/0x20
+ do_syscall_64+0x6b/0x1d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Cc: <stable@vger.kernel.org>
-Reported-by: "chengjian (D)" <cj.chengjian@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Acked-by: John Johansen <john.johansen@canonical.com>
-Acked-by: James Morris <james.morris@microsoft.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+If ppp_deflate fails to register in deflate_init,
+module initialization failed out, however
+ppp_deflate_draft may has been regiestred and not
+unregistered before return.
+Then the seconed modprobe will trigger crash like this.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/proc/base.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ppp/ppp_deflate.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2542,6 +2542,11 @@ static ssize_t proc_pid_attr_write(struc
- 		rcu_read_unlock();
- 		return -EACCES;
- 	}
-+	/* Prevent changes to overridden credentials. */
-+	if (current_cred() != current_real_cred()) {
-+		rcu_read_unlock();
-+		return -EBUSY;
-+	}
- 	rcu_read_unlock();
+--- a/drivers/net/ppp/ppp_deflate.c
++++ b/drivers/net/ppp/ppp_deflate.c
+@@ -610,12 +610,20 @@ static struct compressor ppp_deflate_dra
  
- 	if (count > PAGE_SIZE)
+ static int __init deflate_init(void)
+ {
+-        int answer = ppp_register_compressor(&ppp_deflate);
+-        if (answer == 0)
+-                printk(KERN_INFO
+-		       "PPP Deflate Compression module registered\n");
+-	ppp_register_compressor(&ppp_deflate_draft);
+-        return answer;
++	int rc;
++
++	rc = ppp_register_compressor(&ppp_deflate);
++	if (rc)
++		return rc;
++
++	rc = ppp_register_compressor(&ppp_deflate_draft);
++	if (rc) {
++		ppp_unregister_compressor(&ppp_deflate);
++		return rc;
++	}
++
++	pr_info("PPP Deflate Compression module registered\n");
++	return 0;
+ }
+ 
+ static void __exit deflate_cleanup(void)
 
 
