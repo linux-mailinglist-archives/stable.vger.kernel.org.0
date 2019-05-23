@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C61288F4
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67F1287ED
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391089AbfEWT36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
+        id S2390411AbfEWTZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390192AbfEWT35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:29:57 -0400
+        id S2391049AbfEWTZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:25:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D1B02133D;
-        Thu, 23 May 2019 19:29:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ABFF2054F;
+        Thu, 23 May 2019 19:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639796;
-        bh=+athbFoOd2Xxcsmu54xtO7qi37LKpNoQwFHL9MONUjo=;
+        s=default; t=1558639505;
+        bh=KvXjtvUyIqiq47OFUXTPY2eRziVggsyoJzbZ9WaMZj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nepY8IIaAKyYKJ+RtchDwIiyTuaoUTnmzQ1TJZCnBdZOd+U4VaWxnn9No3hEQ9izN
-         Z0VjntBIJi6yEa3dpWRcF7rbnSXBQzGkm3dipkzGjucNRtQ6pGilahmN9PDkjIrGYq
-         w2pLFmsr67g9s5arGXHaVG06VlRAEnsSWhoR5Jzc=
+        b=hwQhmTyrzuh5ssJW91+43k31vzup2FlVYID2AANxsWXFwX5J3mzd6DlemFKdURDUc
+         u93H3nf0vaOjQmwLnCfDltz6RwpvS7ijQ5p3RAHyBBxPRw5cF0SVVtfDgRV5N05Fri
+         MSukywUWjx7V94SCOBlivBIOSBRR2X/d6rktyHP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.1 079/122] perf intel-pt: Fix instructions sampling rate
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 113/139] securityfs: fix use-after-free on symlink traversal
 Date:   Thu, 23 May 2019 21:06:41 +0200
-Message-Id: <20190523181715.203995084@linuxfoundation.org>
+Message-Id: <20190523181734.655054133@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+[ Upstream commit 46c874419652bbefdfed17420fd6e88d8a31d9ec ]
 
-commit 7ba8fa20e26eb3c0c04d747f7fd2223694eac4d5 upstream.
+symlink body shouldn't be freed without an RCU delay.  Switch securityfs
+to ->destroy_inode() and use of call_rcu(); free both the inode and symlink
+body in the callback.
 
-The timestamp used to determine if an instruction sample is made, is an
-estimate based on the number of instructions since the last known
-timestamp. A consequence is that it might go backwards, which results in
-extra samples. Change it so that a sample is only made when the
-timestamp goes forwards.
-
-Note this does not affect a sampling period of 0 or sampling periods
-specified as a count of instructions.
-
-Example:
-
- Before:
-
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         10 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          8 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          6 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          4 instructions:u:      7fac71e2dab2 _dl_cache_libcmp+0xd2 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16423 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222734:      12731 instructions:u:      7fac71e27938 _dl_name_match_p+0x68 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
- After:
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16479 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: f4aa081949e7b ("perf tools: Add Intel PT decoder")
-Link: http://lkml.kernel.org/r/20190510124143.27054-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ security/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -888,16 +888,20 @@ static uint64_t intel_pt_next_period(str
- 	timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 	masked_timestamp = timestamp & decoder->period_mask;
- 	if (decoder->continuous_period) {
--		if (masked_timestamp != decoder->last_masked_timestamp)
-+		if (masked_timestamp > decoder->last_masked_timestamp)
- 			return 1;
- 	} else {
- 		timestamp += 1;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		if (masked_timestamp != decoder->last_masked_timestamp) {
-+		if (masked_timestamp > decoder->last_masked_timestamp) {
- 			decoder->last_masked_timestamp = masked_timestamp;
- 			decoder->continuous_period = true;
- 		}
- 	}
+diff --git a/security/inode.c b/security/inode.c
+index b7772a9b315ee..421dd72b58767 100644
+--- a/security/inode.c
++++ b/security/inode.c
+@@ -27,17 +27,22 @@
+ static struct vfsmount *mount;
+ static int mount_count;
+ 
+-static void securityfs_evict_inode(struct inode *inode)
++static void securityfs_i_callback(struct rcu_head *head)
+ {
+-	truncate_inode_pages_final(&inode->i_data);
+-	clear_inode(inode);
++	struct inode *inode = container_of(head, struct inode, i_rcu);
+ 	if (S_ISLNK(inode->i_mode))
+ 		kfree(inode->i_link);
++	free_inode_nonrcu(inode);
++}
 +
-+	if (masked_timestamp < decoder->last_masked_timestamp)
-+		return decoder->period_ticks;
-+
- 	return decoder->period_ticks - (timestamp - masked_timestamp);
++static void securityfs_destroy_inode(struct inode *inode)
++{
++	call_rcu(&inode->i_rcu, securityfs_i_callback);
  }
  
-@@ -926,7 +930,10 @@ static void intel_pt_sample_insn(struct
- 	case INTEL_PT_PERIOD_TICKS:
- 		timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		decoder->last_masked_timestamp = masked_timestamp;
-+		if (masked_timestamp > decoder->last_masked_timestamp)
-+			decoder->last_masked_timestamp = masked_timestamp;
-+		else
-+			decoder->last_masked_timestamp += decoder->period_ticks;
- 		break;
- 	case INTEL_PT_PERIOD_NONE:
- 	case INTEL_PT_PERIOD_MTC:
+ static const struct super_operations securityfs_super_operations = {
+ 	.statfs		= simple_statfs,
+-	.evict_inode	= securityfs_evict_inode,
++	.destroy_inode	= securityfs_destroy_inode,
+ };
+ 
+ static int fill_super(struct super_block *sb, void *data, int silent)
+-- 
+2.20.1
+
 
 
